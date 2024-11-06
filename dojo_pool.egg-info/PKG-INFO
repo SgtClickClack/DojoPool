@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: dojo_pool
+Version: 0.1
+Requires-Dist: pytest
+Requires-Dist: pytest-asyncio
+Requires-Dist: pytest-cov
+Requires-Dist: pytest-mock
+Requires-Dist: aiohttp
+Requires-Dist: motor
+Requires-Dist: pymongo
+Requires-Dist: python-dotenv
+Requires-Dist: PyJWT
