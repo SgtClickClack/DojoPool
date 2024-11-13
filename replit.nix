@@ -1,5 +1,6 @@
-{pkgs}: {
+{ pkgs }: {
   deps = [
+    pkgs.python38Full  # Ensure you have Python
     pkgs.ffmpeg
     pkgs.opencv
     pkgs.zlib

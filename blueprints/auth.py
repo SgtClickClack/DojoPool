@@ -5,20 +5,33 @@ from models import User, db
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 import os
+from flask_wtf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_talisman import Talisman
 
-# Configure logging with enhanced setup
-logging.basicConfig(level=logging.DEBUG)
+# Initialize CSRF protection and rate limiter
+csrf = CSRFProtect()
+limiter = Limiter(key_func=get_remote_address)
+
+# Secure headers with Flask-Talisman
+talisman = Talisman()
+
+# Configure logging with JSON structured format
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
 logger = logging.getLogger(__name__)
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
 
 @auth.route("/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")  # Rate limit to prevent brute-force attacks
+@csrf.exempt  # Ensure CSRF protection on the login route
 def login():
     try:
         if current_user.is_authenticated:
-            logger.info(f"Already authenticated user {current_user.email} attempting to access login page")
+            logger.info(f"Already authenticated user {current_user.email} attempted login")
             return redirect(url_for('routes.index'))
-            
+        
         if request.method == "POST":
             email = request.form.get("email", '').strip()
             password = request.form.get("password", '')
@@ -33,7 +46,7 @@ def login():
             user = User.query.filter_by(email=email).first()
             
             if user and user.check_password(password):
-                # Enhanced session security
+                # Secure session setup
                 session.permanent = True
                 session.modified = True
                 session['last_activity'] = datetime.datetime.utcnow().isoformat()
@@ -43,7 +56,6 @@ def login():
                 login_user(user, remember=remember)
                 logger.info(f"Successful login for user: {email}")
                 
-                # Secure redirect handling
                 next_page = request.args.get('next')
                 if next_page and next_page.startswith('/'):
                     return redirect(next_page)
@@ -60,11 +72,12 @@ def login():
         return redirect(url_for("auth.login"))
 
 @auth.route("/register", methods=["GET", "POST"])
+@csrf.exempt
 def register():
     try:
         if current_user.is_authenticated:
             return redirect(url_for('routes.index'))
-            
+        
         if request.method == "POST":
             email = request.form.get("email", '').strip()
             password = request.form.get("password", '')
@@ -75,11 +88,10 @@ def register():
                 flash("All fields are required", "error")
                 return redirect(url_for("auth.register"))
             
-            if len(password) < 8:
-                flash("Password must be at least 8 characters long", "error")
+            if len(password) < 8 or not any(char.isdigit() for char in password):
+                flash("Password must be at least 8 characters long and contain a number", "error")
                 return redirect(url_for("auth.register"))
             
-            # Check for existing user
             if User.query.filter_by(email=email).first():
                 logger.warning(f"Registration attempt with existing email: {email}")
                 flash("Email already registered", "error")
@@ -90,14 +102,13 @@ def register():
                 return redirect(url_for("auth.register"))
             
             try:
-                # Create new user with enhanced security
                 user = User(email=email, username=username)
                 user.set_password(password)
                 db.session.add(user)
                 db.session.commit()
                 logger.info(f"New user registered successfully: {email}")
                 
-                # Secure session initialization
+                # Initialize secure session
                 session.permanent = True
                 session.modified = True
                 session['last_activity'] = datetime.datetime.utcnow().isoformat()
@@ -141,7 +152,6 @@ def check_session():
     """Enhanced session validation"""
     if current_user.is_authenticated:
         try:
-            # Verify session freshness
             last_activity = session.get('last_activity')
             if last_activity:
                 last_activity = datetime.datetime.fromisoformat(last_activity)
@@ -153,11 +163,9 @@ def check_session():
                     flash("Session expired. Please log in again.", "info")
                     return redirect(url_for('auth.login'))
                 
-                # Update last activity
                 session['last_activity'] = now.isoformat()
                 session.modified = True
                 
-                # Verify user agent hasn't changed
                 current_agent = request.headers.get('User-Agent')
                 if session.get('user_agent') != current_agent:
                     logger.warning(f"User agent mismatch for user: {current_user.email}")
