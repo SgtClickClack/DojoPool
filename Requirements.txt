@@ -1,0 +1,11 @@
+
+   flask
+   flask-login
+   flask-sqlalchemy
+   psycopg2-binary
+   flask-socketio
+   eventlet
+   werkzeug
+   requests
+   oauthlib
+   python-dotenv
