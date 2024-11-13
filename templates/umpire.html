@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8">
+      <!-- Video feed container -->
+      <div class="video-container mb-4">
+        <video id="game-video" autoplay playsinline></video>
+        <div class="video-overlay d-flex align-items-center justify-content-center" style="display: none;">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <!-- Umpire controls -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">AI Umpire Controls</h5>
+          <div class="d-grid gap-2">
+            <button id="start-monitoring" class="btn btn-primary">
+              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+              Start Monitoring
+            </button>
+            <button id="stop-monitoring" class="btn btn-secondary">Stop Monitoring</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game statistics -->
+      <div class="card mt-3 game-stats">
+        <div class="card-body">
+          <h5 class="card-title">Game Statistics</h5>
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              Shots Detected
+              <span class="badge bg-primary rounded-pill shots-count">0</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              Fouls
+              <span class="badge bg-danger rounded-pill fouls-count">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status indicators -->
+<div class="umpire-status">
+  <div class="d-flex align-items-center mb-2">
+    <span class="status-indicator connection-indicator"></span>
+    <span class="ms-2">Connection Status</span>
+  </div>
+  <div class="d-flex align-items-center mb-2">
+    <span class="status-indicator monitoring-indicator"></span>
+    <span class="ms-2">Monitoring</span>
+  </div>
+  <div class="d-flex align-items-center mb-2">
+    <span class="status-indicator calibration-indicator"></span>
+    <span class="ms-2">Calibrated</span>
+  </div>
+  <div class="error-message text-danger" style="display: none;"></div>
+</div>
+
+<!-- Status animations and indicators -->
+<style>
+.video-container {
+  position: relative;
+  background: var(--bs-gray-900);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game-video {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  display: block;
+}
+
+.shot-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.2s ease-out;
+}
+
+.shot-indicator.valid {
+  background: rgba(40, 167, 69, 0.3);
+  border: 2px solid var(--bs-success);
+}
+
+.shot-indicator.invalid {
+  background: rgba(220, 53, 69, 0.3);
+  border: 2px solid var(--bs-danger);
+}
+
+.status-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  transition: transform 0.2s ease-out, background-color 0.2s ease-out;
+}
+
+.status-indicator.connected {
+  background-color: var(--bs-success);
+}
+
+.status-indicator.disconnected {
+  background-color: var(--bs-danger);
+}
+
+.status-indicator.reconnecting {
+  background-color: var(--bs-warning);
+  animation: pulse 1s infinite;
+}
+
+.status-indicator.error {
+  background-color: var(--bs-danger);
+}
+
+.status-indicator.active {
+  background-color: var(--bs-success);
+}
+
+.status-indicator.inactive {
+  background-color: var(--bs-secondary);
+}
+
+.error-message {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: rgba(var(--bs-danger-rgb), 0.1);
+  transition: opacity 0.2s ease-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="{{ url_for('static', filename='js/umpire.js') }}"></script>
+{% endblock %}

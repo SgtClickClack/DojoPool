@@ -1,0 +1,7 @@
+0a6e555b236cb38e6e7cf50a5404a192dbc202a7	refs/heads/main
+a113ac5d32f22fe21990dba85d95ff5cb5d6fa17	refs/heads/replit-agent
+38244b493199c7e3c9ca9c969d5373bb481e52bd	refs/remotes/origin/HEAD
+dcc6162e609fcf66ab8eb9f21aa00a23526b330d	refs/remotes/origin/feature/your-feature-name
+38244b493199c7e3c9ca9c969d5373bb481e52bd	refs/remotes/origin/main
+a113ac5d32f22fe21990dba85d95ff5cb5d6fa17	refs/replit/agent-ledger
+495e56ca691c54c4efabc53a53ac967367d81dea	refs/stash

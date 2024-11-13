@@ -1,0 +1,168 @@
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask Web Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Git Fixes"
+
+<<<<<<< Updated upstream
+=======
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Git Check"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Git Merge"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Final Git Check"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Final Cleanup"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Git Config"
+
+>>>>>>> Stashed changes
+[[workflows.workflow]]
+name = "Flask Web Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Flask Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 main.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Git Fixes"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python fix_git_issues.py"
+
+<<<<<<< Updated upstream
+=======
+[[workflows.workflow]]
+name = "Git Check"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python check_git_status.py"
+
+[[workflows.workflow]]
+name = "Git Merge"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python merge_branches.py"
+
+[[workflows.workflow]]
+name = "Final Git Check"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python check_git_status.py"
+
+[[workflows.workflow]]
+name = "Final Cleanup"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python cleanup_git.py"
+
+[[workflows.workflow]]
+name = "Git Config"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python git_config.py"
+
+>>>>>>> Stashed changes
+[deployment]
+run = ["sh", "-c", "python3 main.py"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
