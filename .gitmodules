@@ -1,0 +1,3 @@
+[submodule "DojoPoolEnhancer"]
+	path = DojoPoolEnhancer
+	url = https://github.com/SgtClickClack/DojoPoolEnhancer.git

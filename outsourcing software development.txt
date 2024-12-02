@@ -1,0 +1,213 @@
+I'll generate each document for you based on the information provided about Dojo Pool. Below are ready-to-use templates formatted specifically for your project. Each document is labeled and organized so you can easily save them into a folder for future use. 
+
+---
+
+### 1. **Project Requirements Document (PRD)**
+
+---
+
+**Project Requirements Document (PRD)**  
+**Project Name**: Dojo Pool  
+**Date**: [Insert Current Date]  
+**Prepared By**: Julian Gilbert-Roberts, Founder of Dojo Pool
+
+#### 1. Project Overview
+   - **Vision**: To create an interactive, gamified pool experience with personalized avatars, unique powers, and custom venues.
+   - **Goals**: Engage users through innovative gameplay, allowing them to earn Dojo Coins, leverage special powers, and explore customized Dojos via a unique map integration.
+
+#### 2. User Personas and User Stories
+   - **Primary User**: Casual and competitive pool players looking for an engaging and rewarding online experience.
+   - **User Story**: “As a player, I want to customize my avatar, earn coins, and gain special powers to enhance my gameplay.”
+
+#### 3. Features and Functionalities
+   - **Game Mechanics**: Turn-based gameplay, scoring system, avatar customization, and coin-earning through victories.
+   - **Special Powers**:
+     - Earn Extra Dojo Coins
+     - Vision Power (see opponent’s moves)
+     - Rule Shifter (modify game rules)
+     - Coin Stealer (steal coins after winning)
+     - Enhanced Strength (double power shots)
+   - **Map Integration**: Google Maps SDK with customized Dojo overlays, retaining full navigation and geolocation functionality.
+
+#### 4. Technical Requirements
+   - **Technologies**: React Native for cross-platform mobile compatibility, Node.js for backend support.
+   - **Performance Expectations**: App load times under 3 seconds, stable map navigation without lag.
+
+#### 5. Deliverables and Milestones
+   - **Milestone 1**: Requirements gathering and planning
+   - **Milestone 2**: Basic functionality and initial feature development
+   - **Milestone 3**: Integration testing, bug fixing, and final revisions
+
+---
+
+### 2. **Scope of Work (SoW)**
+
+---
+
+**Scope of Work (SoW)**  
+**Project Title**: Dojo Pool - Mobile Game Development  
+**Prepared By**: Julian Gilbert-Roberts, Dojo Pool Founder
+
+#### 1. Objective
+   - To develop a mobile app for the Dojo Pool game that includes engaging gameplay, customizable avatars, special powers, and a map integration.
+
+#### 2. Project Deliverables
+   - **Milestone 1**: Requirements documentation and user story finalization
+   - **Milestone 2**: Core gameplay mechanics, user account setup, and basic UI design
+   - **Milestone 3**: Avatar customization, power system, map integration with Google Maps SDK, and Dojo overlays
+   - **Milestone 4**: Testing, QA, and deployment
+
+#### 3. Payment Terms
+   - 20% upon Milestone 1 completion, 30% upon Milestone 2, 30% upon Milestone 3, and 20% upon final delivery.
+
+---
+
+### 3. **Non-Disclosure Agreement (NDA)**
+
+---
+
+**Non-Disclosure Agreement (NDA)**  
+**Parties**: Dojo Pool (Client) and [Outsourcing Partner]
+
+#### 1. Confidential Information
+   - Information including, but not limited to, the source code, project plans, user data, game strategies, and marketing plans related to Dojo Pool.
+
+#### 2. Obligations of Receiving Party
+   - No disclosure of confidential information without written consent.
+   - Secure data handling protocols.
+
+#### 3. Duration
+   - Confidentiality terms are effective for 5 years post-completion of the project.
+
+#### 4. Consequences of Breach
+   - Legal action and damages as permitted by law.
+
+---
+
+### 4. **Intellectual Property Agreement (IPA)**
+
+---
+
+**Intellectual Property Agreement (IPA)**  
+**Parties**: Dojo Pool (Client) and [Outsourcing Partner]
+
+#### 1. Ownership of Work Product
+   - Dojo Pool retains all rights to work created under this agreement, including source code, designs, and proprietary content.
+
+#### 2. Transfer of Rights
+   - Upon full payment, the outsourcing partner transfers all rights to Dojo Pool.
+
+#### 3. Waiver of Rights
+   - Developers waive any claim to ownership or future royalties from work created for Dojo Pool.
+
+---
+
+### 5. **Master Services Agreement (MSA)**
+
+---
+
+**Master Services Agreement (MSA)**  
+**Parties**: Dojo Pool and [Outsourcing Partner]
+
+#### 1. Scope of Engagement
+   - Development of the Dojo Pool mobile application according to provided requirements.
+
+#### 2. Payment Terms
+   - Defined in SoW, with final payment upon project completion and acceptance.
+
+#### 3. Termination
+   - Either party may terminate with 30 days' notice, or immediately for breach of terms.
+
+#### 4. Liability and Indemnification
+   - The outsourcing partner shall indemnify Dojo Pool for any claims or damages arising from their work.
+
+---
+
+### 6. **Data Protection and Security Agreement**
+
+---
+
+**Data Protection and Security Agreement**  
+**Parties**: Dojo Pool (Client) and [Outsourcing Partner]
+
+#### 1. Data Security Standards
+   - Data encryption, secure storage, and controlled access to sensitive information.
+
+#### 2. Compliance Requirements
+   - Compliance with GDPR, Australian Privacy Act, and industry standards for user data protection.
+
+#### 3. Data Breach Protocols
+   - Immediate notification and resolution protocols in the event of a data breach.
+
+---
+
+### 7. **Quality Assurance (QA) Plan**
+
+---
+
+**Quality Assurance (QA) Plan**  
+**Project Title**: Dojo Pool - Mobile Game Development
+
+#### 1. Testing Requirements
+   - Unit tests for individual components, integration testing for feature functionality, and end-user acceptance testing.
+
+#### 2. Performance Benchmarks
+   - Load time under 3 seconds, with a maximum error rate of 0.1%.
+
+#### 3. Acceptance Criteria
+   - Final testing and sign-off by Dojo Pool team upon satisfactory completion.
+
+---
+
+### 8. **Service Level Agreement (SLA)**
+
+---
+
+**Service Level Agreement (SLA)**  
+**Parties**: Dojo Pool (Client) and [Outsourcing Partner]
+
+#### 1. Service Standards
+   - Bug fixes within 48 hours of report submission, critical issues within 24 hours.
+
+#### 2. Support Hours
+   - Monday to Friday, 9:00 AM - 5:00 PM Philippine Standard Time.
+
+#### 3. Maintenance
+   - Post-launch support for 3 months, with an option for extension.
+
+---
+
+### 9. **Risk Management Plan**
+
+---
+
+**Risk Management Plan**  
+**Project Title**: Dojo Pool - Mobile Game Development
+
+#### 1. Risk Identification
+   - Delays in feature development, turnover of key developers, communication breakdowns.
+
+#### 2. Mitigation Plans
+   - Regular check-ins, backup developer resources, and a shared project management platform.
+
+---
+
+### 10. **Code Ownership and Transfer Agreement**
+
+---
+
+**Code Ownership and Transfer Agreement**  
+**Project Title**: Dojo Pool - Mobile Game Development
+
+#### 1. Code Ownership
+   - Dojo Pool has exclusive ownership rights to all code and assets upon project completion.
+
+#### 2. Handover Process
+   - Complete code and documentation to be transferred to Dojo Pool’s Git repository.
+
+#### 3. Verification
+   - Final review and verification by the Dojo Pool team prior to final payment release.
+
+---
+
+These documents cover all key aspects of outsourcing for Dojo Pool, tailored to ensure clear communication, secure IP rights, and data protection. Save each document in a separate file in your project folder, and review them with a legal advisor to ensure all clauses meet local laws and your specific needs.

@@ -1,0 +1,220 @@
+It looks like you're trying to run your Flask application using the following code:
+
+```python
+from app import app
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
+```
+
+Given the context of your project and previous code snippets, I have a few suggestions to help ensure your application runs correctly, especially considering the integration with Socket.IO and the OAuth issues you've been experiencing.
+
+---
+
+### **1. Running the Application with Socket.IO**
+
+Since your application uses **Flask-SocketIO** for real-time communication, you should run your application using `socketio.run(app)` instead of `app.run()`. This ensures that the Socket.IO server is properly initialized and can handle WebSocket connections.
+
+**Updated Code:**
+
+```python
+from app import app, socketio
+
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+```
+
+**Explanation:**
+
+- **Import `socketio`:** Ensure you're importing the `socketio` instance from your `app` module.
+- **Use `socketio.run()`:** This method replaces Flask's `app.run()` and properly handles Socket.IO events.
+
+---
+
+### **2. Ensuring the Application Factory Pattern is Used Correctly**
+
+In your earlier code, you defined a `create_app()` function to set up your Flask application. If you're using the **application factory pattern**, you should import and call this function to create your app instance.
+
+**Example:**
+
+```python
+from app import create_app, socketio
+
+app = create_app()
+
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+```
+
+**Note:**
+
+- **Initialize `socketio` After App Creation:** If `socketio` is initialized inside the `create_app()` function, you can import it alongside `app`.
+
+---
+
+### **3. Verifying the `app` Module Structure**
+
+Make sure that your `app` module (`app.py` or `app/__init__.py`) exports the necessary objects. For example:
+
+- **If `app` is a package with `__init__.py`:**
+
+  ```python
+  # app/__init__.py
+  from flask import Flask
+  from flask_socketio import SocketIO
+
+  socketio = SocketIO()
+
+  def create_app():
+      app = Flask(__name__)
+
+      # Configuration settings
+      app.config['SECRET_KEY'] = 'your-secret-key'
+      app.config['SQLALCHEMY_DATABASE_URI'] = 'your-database-uri'
+
+      # Initialize extensions
+      socketio.init_app(app)
+      # Initialize other extensions like db, login_manager, etc.
+
+      # Register blueprints
+      # app.register_blueprint(...)
+
+      return app
+  ```
+
+  Then, your `run.py` would be:
+
+  ```python
+  # run.py
+  from app import create_app, socketio
+
+  app = create_app()
+
+  if __name__ == "__main__":
+      socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+  ```
+
+- **Ensure `socketio` is accessible:** Confirm that the `socketio` instance is properly imported and initialized.
+
+---
+
+### **4. Addressing the OAuth `Error 401: invalid_client`**
+
+While the `run` code is important, the `Error 401: invalid_client` typically indicates an issue with your **OAuth configuration**. Here are steps to help resolve it:
+
+#### **a. Verify OAuth Client Credentials**
+
+- **Ensure Correctness:**
+  - Double-check that `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` are correctly set in your environment variables and match exactly what's provided in the **Google Cloud Console**.
+
+#### **b. Confirm Authorized Redirect URIs**
+
+- **Exact Match Required:**
+  - The redirect URI used in your application must exactly match one of the **Authorized Redirect URIs** in your Google Cloud Console OAuth 2.0 credentials, including the protocol (`https://`), domain, path, and any trailing slashes.
+
+- **Action:**
+  - In your Google Cloud Console, navigate to **APIs & Services > Credentials**.
+  - Select your OAuth 2.0 Client ID and verify the Authorized Redirect URIs.
+  - Ensure that the URI matches the one generated in your code, for example:
+
+    ```python
+    # In google_auth.py
+    callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
+    ```
+
+#### **c. Application Type**
+
+- **Web Application:**
+  - Ensure that your OAuth client in Google Cloud Console is of type **"Web application"**.
+
+#### **d. Testing Mode**
+
+- **Test Users:**
+  - If your application is in testing mode, make sure the Google account you're using is added as a **test user** in the OAuth consent screen settings.
+
+#### **e. Update OAuth Callback URL in Code**
+
+- **Consistent Callback URL:**
+
+  In your `google_auth.py` file, ensure that the callback URL is generated consistently and matches the Authorized Redirect URI.
+
+  ```python
+  # Generate callback URL
+  callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
+  ```
+
+---
+
+### **5. Use the Correct Run Method Based on Your Setup**
+
+Depending on how your application is structured, make sure you're using the appropriate method to run your app.
+
+- **Without Socket.IO:**
+
+  ```python
+  if __name__ == "__main__":
+      app.run(host="0.0.0.0", port=5000, debug=True)
+  ```
+
+- **With Socket.IO:**
+
+  ```python
+  if __name__ == "__main__":
+      socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+  ```
+
+---
+
+### **6. Additional Debugging Tips**
+
+- **Logging:**
+  - Increase the logging level to `DEBUG` to get more detailed output during development.
+
+    ```python
+    # At the top of your main module
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    ```
+
+- **Check Environment Variables:**
+  - Print out the first few characters of your `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` (without revealing the full values) to confirm they are loaded correctly.
+
+    ```python
+    logger.debug(f"GOOGLE_OAUTH_CLIENT_ID starts with: {GOOGLE_OAUTH_CLIENT_ID[:5]}")
+    ```
+
+- **Use Incognito Mode:**
+  - Test your OAuth flow in an incognito browser window to avoid issues with cached data.
+
+- **Verify SSL Certificates:**
+  - Ensure that your domain (e.g., `dojopool.com.au`) has a valid SSL certificate if you're using a custom domain.
+
+- **Review Application Logs:**
+  - Check your application logs for any error messages or stack traces that can provide more insight into the issue.
+
+---
+
+### **7. Sample `run.py` File**
+
+Here's how your `run.py` file might look after applying the suggestions:
+
+```python
+from app import create_app, socketio
+
+app = create_app()
+
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+```
+
+---
+
+### **8. Summary**
+
+- **Use `socketio.run()`** when using Flask-SocketIO to run your application.
+- **Ensure that the app instance is correctly created** using your `create_app()` function if you're using the application factory pattern.
+- **Double-check your OAuth configuration** in both your code and the Google Cloud Console to resolve the `Error 401: invalid_client`.
+
+---
+
+Please let me know if you have any questions or need further assistance with any specific part of your application. I'm here to help you get your Dojo Pool project up and running smoothly!
