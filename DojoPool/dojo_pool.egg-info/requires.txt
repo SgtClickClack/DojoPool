@@ -1,9 +1,0 @@
-pytest
-pytest-asyncio
-pytest-cov
-pytest-mock
-aiohttp
-motor
-pymongo
-python-dotenv
-PyJWT
