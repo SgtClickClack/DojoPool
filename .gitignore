@@ -135,3 +135,6 @@ src/config/tools/*
 *~
 *.swp
 *.swo
+
+# Project specific
+Dojo_Pool/ctags

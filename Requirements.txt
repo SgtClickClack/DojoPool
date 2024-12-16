@@ -7,6 +7,8 @@ Flask-RESTful==0.3.10
 Flask-SocketIO==5.3.6
 gunicorn==21.2.0
 python-dotenv==1.0.0
+eventlet==0.33.3
+Werkzeug==3.0.1
 
 # Database
 SQLAlchemy==2.0.23
@@ -77,6 +79,3 @@ rope==1.11.0
 # Profiling dependencies
 memory-profiler==0.61.0
 plotly==5.18.0
-pytest==7.4.3
-pytest-cov==4.1.0
-SQLAlchemy==2.0.23 

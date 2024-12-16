@@ -1,0 +1,232 @@
+/* Dojo Pool Application CSS */
+
+/* General Body Styling */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header Styling */
+header {
+  background: linear-gradient(45deg, #222, #444);
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+  font-size: 2.5em;
+  letter-spacing: 2px;
+}
+
+/* Story Events Section */
+#story-events {
+  margin-top: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#story-events h2 {
+  text-transform: uppercase;
+  font-size: 1.8em;
+  color: #007bff;
+}
+
+.list-group-item {
+  background: #f7f9fa;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  transition: transform 0.2s;
+}
+
+.list-group-item:hover {
+  transform: scale(1.03);
+  background-color: #e3e8ec;
+}
+
+/* Visuals Section */
+#visuals {
+  margin-top: 30px;
+}
+
+#visuals img {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 5px;
+}
+
+#visuals img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Button Styles */
+button {
+  padding: 10px 20px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+button:hover {
+  background: #0056b3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Navigation Bar */
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  background: #222;
+  padding: 10px 0;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.navbar a:hover {
+  color: #007bff;
+}
+
+/* Footer Styling */
+footer {
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Special Classes for Animated Elements */
+.bounce-effect {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-15px);
+  }
+  60% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Power Up Badges */
+.power-badge {
+  display: inline-block;
+  background: linear-gradient(45deg, #f39c12, #e74c3c);
+  padding: 10px;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 1.2em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Clan and Friend Elements */
+.friend-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.friend-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+  transition: all 0.3s;
+}
+
+/* Top Ten Players */
+.top-ten-badge {
+  background: linear-gradient(90deg, #d53369, #daae51);
+  color: #fff;
+  padding: 15px;
+  border-radius: 4px;
+  font-size: 1.5em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+} 
+
+/* Leaderboard Styling */
+.leaderboard {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  margin: 20px;
+}
+
+.leaderboard-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #e6e6e6;
+  transition: background 0.3s;
+}
+
+.leaderboard-item:hover {
+  background: #f9f9f9;
+}
+
+/* Avatar Styling */
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #007bff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Customized Tooltips for Interaction Feedback */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
