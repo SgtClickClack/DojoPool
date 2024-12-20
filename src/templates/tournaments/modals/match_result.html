@@ -1,0 +1,52 @@
+<div class="modal fade" id="matchResultModal" tabindex="-1" aria-labelledby="matchResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="matchResultForm" action="{{ url_for('tournaments.update_match_score', tournament_id=tournament.id, match_id='') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="matchResultModalLabel">Update Match Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="match-players mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="player1-info">
+                                <img src="" class="rounded-circle me-2" width="32" height="32" alt="">
+                                <span class="player1-name fw-bold"></span>
+                            </div>
+                            <div class="text-muted">vs</div>
+                            <div class="player2-info text-end">
+                                <span class="player2-name fw-bold"></span>
+                                <img src="" class="rounded-circle ms-2" width="32" height="32" alt="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="player1Score" class="form-label">Player 1 Score</label>
+                            <input type="number" class="form-control" id="player1Score" name="player1_score" min="0" required>
+                        </div>
+                        
+                        <div class="col-6">
+                            <label for="player2Score" class="form-label">Player 2 Score</label>
+                            <input type="number" class="form-control" id="player2Score" name="player2_score" min="0" required>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="finalResult" name="final">
+                                <label class="form-check-label" for="finalResult">
+                                    This is the final result
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Result</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

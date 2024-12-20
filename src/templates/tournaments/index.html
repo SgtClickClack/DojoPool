@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="neon-text mb-4">Tournaments</h2>
+            
+            <!-- Active Tournaments -->
+            <div class="cyber-card mb-4">
+                <h4 class="neon-text-subtle mb-3">Active Tournaments</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5 class="neon-text">Weekly Championship</h5>
+                            <p class="text-muted mb-2">32 Players • Prize Pool: $500</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success">Registering</span>
+                                <button class="btn btn-neon btn-sm">Join Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5 class="neon-text">Pro League Qualifier</h5>
+                            <p class="text-muted mb-2">64 Players • Prize Pool: $1,000</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-warning">Starting Soon</span>
+                                <button class="btn btn-neon btn-sm">Join Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Tournaments -->
+            <div class="cyber-card mb-4">
+                <h4 class="neon-text-subtle mb-3">Upcoming Tournaments</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card">
+                            <h5 class="neon-text">Monthly Masters</h5>
+                            <p class="text-muted mb-2">128 Players • Prize Pool: $2,500</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">Coming Soon</span>
+                                <button class="btn btn-outline-secondary btn-sm" disabled>Notify Me</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tournament History -->
+            <div class="cyber-card">
+                <h4 class="neon-text-subtle mb-3">Your Tournament History</h4>
+                <p class="text-muted">You haven't participated in any tournaments yet.</p>
+                <button class="btn btn-training">
+                    <i class="fas fa-dumbbell me-2"></i>Start Training
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

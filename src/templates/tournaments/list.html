@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Tournaments</h1>
+        {% if current_user.is_authenticated %}
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
+            <i class="bi bi-plus-circle me-2"></i>Create Tournament
+        </button>
+        {% endif %}
+    </div>
+
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if tab == 'active' %}active{% endif %}" href="{{ url_for('tournaments.list', tab='active') }}">Active Tournaments</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if tab == 'upcoming' %}active{% endif %}" href="{{ url_for('tournaments.list', tab='upcoming') }}">Upcoming</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if tab == 'past' %}active{% endif %}" href="{{ url_for('tournaments.list', tab='past') }}">Past Tournaments</a>
+        </li>
+    </ul>
+
+    <div class="row g-4">
+        {% for tournament in tournaments %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title">{{ tournament.name }}</h5>
+                            <p class="card-text text-muted">{{ tournament.description }}</p>
+                        </div>
+                        <span class="badge bg-{{ tournament.status_color }}">{{ tournament.status.value }}</span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Start Date</small>
+                                <span>{{ tournament.start_date.strftime('%B %d, %Y %I:%M %p') }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Registration Deadline</small>
+                                <span>{{ tournament.registration_deadline.strftime('%B %d, %Y %I:%M %p') }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted d-block">Participants</small>
+                                <span>{{ tournament.current_participants_count }} / {{ tournament.max_participants or 'Unlimited' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ url_for('tournaments.details', id=tournament.id) }}" class="btn btn-outline-primary me-2">View Details</a>
+                        {% if tournament.can_register and current_user.is_authenticated %}
+                        <form action="{{ url_for('tournaments.register', id=tournament.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-trophy display-1 text-muted"></i>
+            <p class="mt-3 text-muted">No tournaments found</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include "tournaments/modals/create_tournament.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tournaments.js') }}"></script>
+{% endblock %} 

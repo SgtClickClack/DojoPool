@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">Account Settings</h1>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('main.change_password') }}">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Notification Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('main.update_notifications') }}">
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="email_notifications" 
+                                   name="email_notifications" {{ 'checked' if current_user.email_notifications }}>
+                            <label class="form-check-label" for="email_notifications">
+                                Receive email notifications
+                            </label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="tournament_updates" 
+                                   name="tournament_updates" {{ 'checked' if current_user.tournament_updates }}>
+                            <label class="form-check-label" for="tournament_updates">
+                                Tournament updates and reminders
+                            </label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="achievement_notifications" 
+                                   name="achievement_notifications" {{ 'checked' if current_user.achievement_notifications }}>
+                            <label class="form-check-label" for="achievement_notifications">
+                                Achievement notifications
+                            </label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Update Notifications</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Privacy Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('main.update_privacy') }}">
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="profile_visible" 
+                                   name="profile_visible" {{ 'checked' if current_user.profile_visible }}>
+                            <label class="form-check-label" for="profile_visible">
+                                Make profile visible to other users
+                            </label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="show_activity" 
+                                   name="show_activity" {{ 'checked' if current_user.show_activity }}>
+                            <label class="form-check-label" for="show_activity">
+                                Show my activity in public feeds
+                            </label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Update Privacy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <form method="POST" action="{{ url_for('main.delete_account') }}">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Enter your password to confirm</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

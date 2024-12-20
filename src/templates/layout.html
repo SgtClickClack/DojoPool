@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DojoPool{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    
+    <!-- Page-specific styles -->
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="{{ url_for('main.index') }}" class="nav-logo">
+                    DojoPool
+                </a>
+                
+                <!-- Mobile Navigation Toggle -->
+                <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <div class="nav-links">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.dashboard') }}" class="nav-link">Dashboard</a>
+                        <a href="{{ url_for('main.games') }}" class="nav-link">Games</a>
+                        <a href="{{ url_for('main.matches') }}" class="nav-link">Matches</a>
+                        <div class="dropdown">
+                            <button class="btn" data-dropdown-toggle>
+                                {{ current_user.username }}
+                            </button>
+                            <div class="dropdown-menu" data-dropdown-menu>
+                                <a href="{{ url_for('main.profile') }}" class="dropdown-item">Profile</a>
+                                <a href="{{ url_for('main.settings') }}" class="dropdown-item">Settings</a>
+                                <div class="dropdown-divider"></div>
+                                <form action="{{ url_for('auth.logout') }}" method="post" class="dropdown-item">
+                                    <button type="submit" class="btn-link">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Register</a>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DojoPool</h3>
+                    <p>Connecting pool players and tracking their progress.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.about') }}">About</a></li>
+                        <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+                        <li><a href="{{ url_for('main.privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('main.terms') }}">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <div class="social-links">
+                        <a href="#" target="_blank" rel="noopener noreferrer">Twitter</a>
+                        <a href="#" target="_blank" rel="noopener noreferrer">Facebook</a>
+                        <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ now.year }} DojoPool. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loader -->
+    <div class="loader" id="loader"></div>
+
+    <!-- Base Scripts -->
+    <script type="module" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/components.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+    
+    <!-- Page-specific scripts -->
+    {% block scripts %}{% endblock %}
+
+    <!-- Initialize components -->
+    <script type="module">
+        import { Dropdown } from '{{ url_for("static", filename="js/components.js") }}';
+        
+        // Initialize dropdowns
+        document.querySelectorAll('.dropdown').forEach(container => {
+            new Dropdown(container);
+        });
+    </script>
+</body>
+</html> 

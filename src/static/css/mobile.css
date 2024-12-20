@@ -1,0 +1,254 @@
+/* Mobile-first styles for DojoPool */
+
+/* Breakpoint variables */
+:root {
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-xxl: 1400px;
+}
+
+/* Base mobile styles */
+html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    min-height: -webkit-fill-available; /* Fix for mobile viewport height */
+}
+
+/* Touch targets */
+button,
+.btn,
+.nav-link,
+.form-control,
+select,
+[role="button"] {
+    min-height: 44px; /* iOS minimum touch target size */
+    min-width: 44px;
+    padding: 12px;
+    touch-action: manipulation;
+}
+
+/* Form elements optimization */
+input,
+select,
+textarea {
+    font-size: 16px !important; /* Prevent iOS zoom on focus */
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+/* Mobile navigation */
+.mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--background-primary);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 8px 0;
+    display: none;
+}
+
+.mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.75rem;
+    padding: 8px;
+}
+
+.mobile-nav-item i {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.mobile-nav-item.active {
+    color: var(--primary-color);
+}
+
+/* Responsive tables */
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-responsive {
+    min-width: 100%;
+    margin-bottom: 0;
+}
+
+/* Card grid for mobile */
+.card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 576px) {
+    /* Container padding */
+    .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    /* Typography */
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.5rem; }
+    h4 { font-size: 1.25rem; }
+    h5 { font-size: 1.1rem; }
+    h6 { font-size: 1rem; }
+
+    /* Form groups */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    /* Buttons */
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-group .btn {
+        width: auto;
+        margin-bottom: 0;
+    }
+
+    /* Cards */
+    .card {
+        border-radius: 12px;
+        padding: 1rem;
+    }
+
+    /* Modal */
+    .modal-content {
+        margin: 0;
+        border-radius: 12px 12px 0 0;
+        height: auto;
+        max-height: 90vh;
+    }
+
+    /* Bottom sheet */
+    .bottom-sheet {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--background-primary);
+        border-radius: 16px 16px 0 0;
+        padding: 1rem;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-out;
+    }
+
+    .bottom-sheet.show {
+        transform: translateY(0);
+    }
+
+    /* Pull to refresh */
+    .pull-to-refresh {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pull-to-refresh::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: -20px;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--primary-color);
+        border-top-color: transparent;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .pull-to-refresh.pulling::before {
+        opacity: 1;
+        animation: spin 1s linear infinite;
+    }
+}
+
+/* Tablet styles */
+@media (min-width: 577px) and (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .btn {
+        width: auto;
+    }
+}
+
+/* Show mobile navigation on small screens */
+@media (max-width: 768px) {
+    .mobile-nav {
+        display: block;
+    }
+
+    /* Add padding to main content to account for mobile nav */
+    main {
+        padding-bottom: 70px;
+    }
+}
+
+/* Landscape orientation */
+@media (max-height: 576px) and (orientation: landscape) {
+    .modal-content {
+        height: 100vh;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    .bottom-sheet {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* High-DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Optimize border widths for retina displays */
+    .card,
+    .btn,
+    .form-control {
+        border-width: 0.5px;
+    }
+}
+
+/* Dark mode adjustments for OLED screens */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #000;
+    }
+
+    .mobile-nav,
+    .bottom-sheet,
+    .modal-content {
+        background-color: #1a1a1a;
+    }
+} 

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- User Achievements Section -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Your Achievements</h2>
+                    
+                    <!-- Achievement Stats -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="achievement-stat p-3 bg-light rounded">
+                                <h4 class="total-points mb-0">0</h4>
+                                <small class="text-muted">Total Points</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="achievement-stat p-3 bg-light rounded">
+                                <h4 class="completed-count mb-0">0</h4>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="achievement-stat p-3 bg-light rounded">
+                                <h4 class="in-progress-count mb-0">0</h4>
+                                <small class="text-muted">In Progress</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement Categories -->
+                    <ul class="nav nav-pills mb-4" id="achievementTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#allAchievements" type="button">
+                                All
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#inProgress" type="button">
+                                In Progress
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#completed" type="button">
+                                Completed
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Achievement List -->
+                    <div class="tab-content" id="achievementTabContent">
+                        <div class="tab-pane fade show active" id="allAchievements">
+                            <div class="achievement-list" data-filter="all">
+                                <!-- Achievements will be loaded here -->
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading achievements...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="inProgress">
+                            <div class="achievement-list" data-filter="in_progress">
+                                <!-- In Progress achievements will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="completed">
+                            <div class="achievement-list" data-filter="completed">
+                                <!-- Completed achievements will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Leaderboard Section -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Achievement Leaderboard</h3>
+                    <div class="leaderboard-list">
+                        <!-- Leaderboard will be loaded here -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading leaderboard...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Achievement Details Modal -->
+<div class="modal fade" id="achievementDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Achievement Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <img src="" alt="" class="achievement-icon mb-3" width="64" height="64">
+                    <h4 class="achievement-name mb-2"></h4>
+                    <p class="achievement-description text-muted"></p>
+                    <div class="share-container mt-3">
+                        <!-- Share button will be dynamically added here -->
+                    </div>
+                </div>
+                
+                <div class="achievement-progress">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="progress-text">Progress</span>
+                        <span class="progress-value"></span>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar"></div>
+                    </div>
+                </div>
+                
+                <div class="achievement-details">
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Points</small>
+                            <span class="achievement-points"></span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Completed</small>
+                            <span class="achievement-completed-date"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/components/share_button.js') }}"></script>
+<script src="{{ url_for('static', filename='js/achievements.js') }}"></script>
+{% endblock %} 

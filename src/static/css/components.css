@@ -1,0 +1,243 @@
+/* Modal Component */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--background-primary);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Tabs Component */
+.tabs {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.tab-panel {
+    display: none;
+    padding: 1rem 0;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Dropdown Component */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 160px;
+    background-color: var(--background-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: var(--background-secondary);
+}
+
+/* Toast Component */
+.toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    background-color: var(--background-primary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-info {
+    border-left: 4px solid var(--accent-color);
+}
+
+.toast-success {
+    border-left: 4px solid var(--success-color);
+}
+
+.toast-warning {
+    border-left: 4px solid var(--warning-color);
+}
+
+.toast-error {
+    border-left: 4px solid var(--error-color);
+}
+
+/* Form Validation */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control.error {
+    border-color: var(--error-color);
+}
+
+.error-message {
+    color: var(--error-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Data Table Component */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.data-table th {
+    background-color: var(--background-secondary);
+    font-weight: 600;
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--background-secondary);
+}
+
+.data-table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.data-table-search {
+    margin-bottom: 1rem;
+}
+
+/* Loader Component */
+.loader {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader.show {
+    display: flex;
+}
+
+.loader::after {
+    content: '';
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--background-secondary);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Card Component */
+.card {
+    background-color: var(--background-primary);
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-body {
+    margin-bottom: 1rem;
+}
+
+.card-footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+} 

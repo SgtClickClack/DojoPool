@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="cyber-card">
+                <h2 class="text-center mb-4 neon-text">Create Your Legend</h2>
+                <p class="text-center mb-5 neon-text-subtle">Transform your image into a unique anime-style avatar and begin your journey.</p>
+                
+                <form method="POST" enctype="multipart/form-data" id="avatarForm">
+                    <!-- Avatar Upload and Preview -->
+                    <div class="text-center mb-4">
+                        <div class="avatar-upload">
+                            <label for="avatar-input" class="avatar-preview">
+                                <div id="imagePreview" style="background-image: url('{{ url_for('static', filename='images/avatar-placeholder.jpg') }}');">
+                                </div>
+                            </label>
+                            <input id="avatar-input" type="file" name="avatar" accept="image/*" required>
+                        </div>
+                        <small class="text-muted d-block mt-2">Recommended: Square image, good lighting, clear face</small>
+                    </div>
+
+                    <!-- Style Selection -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="style-card" onclick="selectStyle('kung_fu_master')">
+                                <i class="fas fa-fist-raised neon-icon"></i>
+                                <h5 class="neon-text-subtle">Kung Fu Master</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="style-card" onclick="selectStyle('modern_warrior')">
+                                <i class="fas fa-fire neon-icon"></i>
+                                <h5 class="neon-text-subtle">Modern Warrior</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="style-card" onclick="selectStyle('mystic_player')">
+                                <i class="fas fa-magic neon-icon"></i>
+                                <h5 class="neon-text-subtle">Mystic Player</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="style" id="selectedStyle" required>
+
+                    <!-- Avatar Details -->
+                    <div class="mb-4">
+                        <input type="text" class="form-control cyber-input" name="nickname" placeholder="Nickname" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <select class="form-select cyber-input" name="playstyle" required>
+                            <option value="" disabled selected>Choose Your Play Style</option>
+                            <option value="aggressive">Aggressive</option>
+                            <option value="defensive">Defensive</option>
+                            <option value="tactical">Tactical</option>
+                            <option value="balanced">Balanced</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <textarea class="form-control cyber-input" name="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-neon" id="createButton">
+                            <span class="normal-text">Create Avatar</span>
+                            <span class="loading-text d-none">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Generating...
+                            </span>
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Style Selection Script -->
+<script>
+function selectStyle(style) {
+    document.querySelectorAll('.style-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+    document.getElementById('selectedStyle').value = style;
+}
+
+// Preview uploaded image
+document.getElementById('avatar-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').style.backgroundImage = `url(${e.target.result})`;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Form submission handling
+document.getElementById('avatarForm').addEventListener('submit', function(e) {
+    const button = document.getElementById('createButton');
+    button.querySelector('.normal-text').classList.add('d-none');
+    button.querySelector('.loading-text').classList.remove('d-none');
+    button.disabled = true;
+});
+</script>
+{% endblock %} 

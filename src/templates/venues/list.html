@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="venues-container">
+    <div class="venues-header">
+        <h1>Pool Venues</h1>
+        {% if current_user.is_authenticated %}
+        <button class="btn btn-primary" data-toggle="modal" data-target="#createVenueModal">
+            Add New Venue
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="venues-filters">
+        <div class="search-box">
+            <input type="text" id="venueSearch" placeholder="Search venues...">
+        </div>
+        <div class="filter-options">
+            <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="maintenance">Maintenance</option>
+            </select>
+            <select id="sortBy">
+                <option value="name">Sort by Name</option>
+                <option value="rating">Sort by Rating</option>
+                <option value="price">Sort by Price</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="venues-grid" id="venuesGrid">
+        <!-- Venues will be dynamically loaded here -->
+    </div>
+
+    <div class="pagination" id="venuesPagination">
+        <!-- Pagination will be dynamically loaded here -->
+    </div>
+</div>
+
+<!-- Create Venue Modal -->
+<div class="modal fade" id="createVenueModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Venue</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createVenueForm">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-control" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Info</label>
+                        <input type="text" class="form-control" name="contact_info">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Tables</label>
+                        <input type="number" class="form-control" name="tables_count" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hourly Rate</label>
+                        <input type="number" step="0.01" class="form-control" name="hourly_rate">
+                    </div>
+                    <div class="form-group">
+                        <label>Amenities</label>
+                        <div class="amenities-checkboxes">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="amenities" value="parking">
+                                <label class="form-check-label">Parking</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="amenities" value="food">
+                                <label class="form-check-label">Food & Beverages</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="amenities" value="equipment">
+                                <label class="form-check-label">Equipment Rental</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Images</label>
+                        <input type="file" class="form-control-file" name="images" multiple>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitVenue">Create Venue</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/venues.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/venues.js') }}"></script>
+{% endblock %} 

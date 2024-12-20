@@ -1,0 +1,9 @@
+{
+    "template": "Generate a preview for an upcoming pool match between $player1 ($rank1) and $player2 ($rank2).\nInclude their recent performance, head-to-head record, and what makes this match interesting.",
+    "required_vars": [
+        "player1",
+        "player2",
+        "rank1",
+        "rank2"
+    ]
+}

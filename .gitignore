@@ -1,0 +1,99 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Flask
+instance/
+.webassets-cache
+*.db
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+log/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Development
+*.sqlite
+*.sqlite3
+*.db
+*.pid
+*.sock
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Documentation
+docs/_build/
+docs/api/
+
+# Misc
+*.bak
+*.tmp
+*~
+.*.sw[po]
+
+# Environment variables
+.env
+.env.local
+.env.*.local

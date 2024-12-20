@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Offline - DojoPool{% endblock %}
+
+{% block content %}
+<div class="offline-container">
+    <div class="offline-content">
+        <img src="{{ url_for('static', filename='icons/offline.svg') }}" alt="Offline" class="offline-icon">
+        <h1>You're Offline</h1>
+        <p>Sorry, but you need an internet connection to use DojoPool.</p>
+        
+        <div class="offline-actions">
+            <button onclick="window.location.reload()" class="btn btn-primary">
+                Try Again
+            </button>
+            
+            <div class="offline-status">
+                <div id="connection-status"></div>
+                <small>We'll automatically reconnect when you're back online</small>
+            </div>
+        </div>
+        
+        <div class="offline-features">
+            <h2>While you're offline, you can still:</h2>
+            <ul>
+                <li>View your recent games</li>
+                <li>Check your statistics</li>
+                <li>Review tournament brackets</li>
+                <li>Access saved game rules</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .offline-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 60px);
+        padding: 2rem;
+        background-color: #f8f9fa;
+    }
+    
+    .offline-content {
+        max-width: 600px;
+        text-align: center;
+        background: white;
+        padding: 3rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .offline-icon {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 2rem;
+    }
+    
+    .offline-content h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+    
+    .offline-content p {
+        color: #666;
+        margin-bottom: 2rem;
+    }
+    
+    .offline-actions {
+        margin-bottom: 3rem;
+    }
+    
+    .offline-status {
+        margin-top: 1rem;
+    }
+    
+    #connection-status {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #dc3545;
+        margin-right: 0.5rem;
+    }
+    
+    .offline-status small {
+        color: #666;
+    }
+    
+    .offline-features {
+        text-align: left;
+        border-top: 1px solid #eee;
+        padding-top: 2rem;
+    }
+    
+    .offline-features h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+    
+    .offline-features ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .offline-features li {
+        padding: 0.5rem 0;
+        color: #666;
+    }
+    
+    .offline-features li:before {
+        content: "✓";
+        color: #28a745;
+        margin-right: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .offline-container {
+            padding: 1rem;
+        }
+        
+        .offline-content {
+            padding: 2rem;
+        }
+        
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Update connection status
+    function updateConnectionStatus() {
+        const status = document.getElementById('connection-status');
+        if (navigator.onLine) {
+            status.style.backgroundColor = '#28a745';
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            status.style.backgroundColor = '#dc3545';
+        }
+    }
+    
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    updateConnectionStatus();
+</script>
+{% endblock %} 

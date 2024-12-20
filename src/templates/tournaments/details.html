@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h1>{{ tournament.name }}</h1>
+                    <p class="text-muted">
+                        <i class="bi bi-calendar-event"></i> {{ tournament.start_date.strftime('%B %d, %Y') }}
+                        {% if tournament.end_date %}
+                        - {{ tournament.end_date.strftime('%B %d, %Y') }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="tournament-status">
+                    <span class="badge bg-{{ tournament.status_color }}">{{ tournament.status }}</span>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Tournament Details</h5>
+                    <p class="card-text">{{ tournament.description }}</p>
+                    
+                    <div class="tournament-info">
+                        <p><i class="bi bi-people"></i> Players: {{ tournament.player_count }}/{{ tournament.max_players }}</p>
+                        <p><i class="bi bi-trophy"></i> Format: {{ tournament.format }}</p>
+                        <p><i class="bi bi-cash"></i> Entry Fee: ${{ tournament.entry_fee }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Bracket</h5>
+                    <div id="tournament-bracket"></div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Ratings & Reviews</h5>
+                    <div id="tournament-rating"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Venue</h5>
+                    <div class="venue-info">
+                        <h6>{{ tournament.venue.name }}</h6>
+                        <p class="text-muted">{{ tournament.venue.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Participants</h5>
+                    <div id="tournament-participants"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize rating component
+    const ratingContainer = document.getElementById('tournament-rating');
+    new Rating(ratingContainer, {
+        targetType: 'tournament',
+        targetId: {{ tournament.id }},
+        readOnly: {% if not current_user.is_authenticated %}true{% else %}false{% endif %},
+        showAverage: true,
+        showReviews: true,
+        verifiedOnly: true,
+        onChange: () => {
+            // Refresh tournament details if needed
+        }
+    });
+    
+    // Initialize tournament bracket
+    initTournamentBracket({{ tournament.id }});
+    
+    // Load participants
+    loadTournamentParticipants({{ tournament.id }});
+});
+</script>
+{% endblock %}
+{% endblock %} 

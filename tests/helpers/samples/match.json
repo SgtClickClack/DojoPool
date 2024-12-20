@@ -1,0 +1,33 @@
+{
+    "game_id": null,
+    "location_id": null,
+    "status": "scheduled",
+    "scheduled_time": null,
+    "actual_start_time": null,
+    "actual_end_time": null,
+    "notes": "",
+    "spectators": [],
+    "result": {
+        "winner_id": null,
+        "score": {
+            "player1": 0,
+            "player2": 0
+        },
+        "stats": {
+            "duration": null,
+            "shots_taken": {
+                "player1": 0,
+                "player2": 0
+            },
+            "accuracy": {
+                "player1": 0,
+                "player2": 0
+            },
+            "fouls": {
+                "player1": 0,
+                "player2": 0
+            }
+        }
+    },
+    "events": []
+} 

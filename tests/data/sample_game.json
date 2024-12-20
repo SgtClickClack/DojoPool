@@ -1,0 +1,88 @@
+{
+    "game": {
+        "room_id": "sample_game",
+        "player_count": 2,
+        "status": "completed",
+        "created_at": "2023-12-16T12:00:00Z",
+        "current_player_id": null,
+        "winner_id": 1,
+        "final_score": {
+            "player1": 10,
+            "player2": 8
+        }
+    },
+    "players": [
+        {
+            "id": 1,
+            "username": "player1",
+            "email": "player1@example.com",
+            "created_at": "2023-12-16T11:55:00Z",
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "username": "player2",
+            "email": "player2@example.com",
+            "created_at": "2023-12-16T11:56:00Z",
+            "is_active": true
+        }
+    ],
+    "events": [
+        {
+            "id": 1,
+            "game_id": "sample_game",
+            "event_type": "shot",
+            "player_id": 1,
+            "created_at": "2023-12-16T12:01:00Z",
+            "data": {
+                "angle": 45.0,
+                "power": 0.8,
+                "spin": 0.1,
+                "x": 0,
+                "y": 0
+            }
+        },
+        {
+            "id": 2,
+            "game_id": "sample_game",
+            "event_type": "shot",
+            "player_id": 2,
+            "created_at": "2023-12-16T12:02:00Z",
+            "data": {
+                "angle": 30.0,
+                "power": 0.9,
+                "spin": -0.2,
+                "x": 10,
+                "y": 5
+            }
+        },
+        {
+            "id": 3,
+            "game_id": "sample_game",
+            "event_type": "shot",
+            "player_id": 1,
+            "created_at": "2023-12-16T12:03:00Z",
+            "data": {
+                "angle": 0.0,
+                "power": 1.0,
+                "spin": 0.0,
+                "x": -5,
+                "y": 15
+            }
+        },
+        {
+            "id": 4,
+            "game_id": "sample_game",
+            "event_type": "shot",
+            "player_id": 2,
+            "created_at": "2023-12-16T12:04:00Z",
+            "data": {
+                "angle": 180.0,
+                "power": 0.7,
+                "spin": 0.3,
+                "x": 20,
+                "y": -10
+            }
+        }
+    ]
+} 

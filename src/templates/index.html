@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to DojoPool - Your Ultimate Pool Gaming Experience{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="neon-grid-overlay"></div>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 neon-text">Welcome to DojoPool</h1>
+                <p class="lead neon-text-subtle">Enter the arena where pool meets martial arts spirit. Master your game, climb the ranks, and become a true Pool Master.</p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-neon btn-lg pulse-effect">Enter Your Dojo</a>
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-neon btn-lg me-3 pulse-effect">Begin Your Journey</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-neon-outline btn-lg glow-effect">Return to Dojo</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image-container">
+                    <img src="{{ url_for('static', filename='images/hero-vs.jpg') }}" alt="DojoPool Masters" class="img-fluid cyber-frame">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section cyber-bg">
+    <div class="container">
+        <h2 class="text-center mb-5 neon-text">Master Your Path</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="cyber-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-trophy neon-icon"></i>
+                        <h3 class="card-title neon-text-subtle">Track Your Progress</h3>
+                        <p class="card-text">Advanced AI-powered analytics to monitor your journey to mastery.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cyber-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people neon-icon"></i>
+                        <h3 class="card-title neon-text-subtle">Join Tournaments</h3>
+                        <p class="card-text">Compete in epic tournaments with unique narrative experiences.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cyber-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-map neon-icon"></i>
+                        <h3 class="card-title neon-text-subtle">Discover Dojos</h3>
+                        <p class="card-text">Find nearby venues and connect with other pool masters.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="avatar-section">
+    <div class="container text-center">
+        <h2 class="neon-text">Create Your Legend</h2>
+        <p class="lead neon-text-subtle mb-4">Transform your photo into a unique anime-style avatar and begin your pool master's journey.</p>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-neon btn-lg">Create Your Avatar</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+<style>
+.neon-grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 157, 0.02) 3px,
+            rgba(0, 255, 157, 0.02) 3px
+        );
+    pointer-events: none;
+    z-index: -1;
+}
+
+.cyber-frame {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-color);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.cyber-frame:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px var(--primary-color);
+}
+
+.neon-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+.cyber-card {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--secondary-color);
+    border-radius: 10px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 168, 255, 0.2);
+}
+
+.cyber-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(0, 168, 255, 0.4);
+}
+</style>
+{% endblock %}

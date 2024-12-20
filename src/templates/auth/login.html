@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark text-white">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Login</h2>
+                    
+                    <!-- Google Sign In -->
+                    <div class="text-center mb-4">
+                        <a href="{{ url_for('google_login') }}" class="btn btn-google w-100">
+                            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                            <span>Sign in with Google</span>
+                        </a>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <span class="text-muted">or</span>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <input type="email" class="form-control bg-dark text-white" name="email" placeholder="Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control bg-dark text-white" name="password" placeholder="Password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">Remember me</label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? <a href="{{ url_for('register') }}" class="text-primary">Register</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

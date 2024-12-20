@@ -1,0 +1,49 @@
+{
+  "name": "dojo-pool-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint .",
+    "pod-install": "cd ios && pod install"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.19.3",
+    "@react-native-community/netinfo": "^9.4.1",
+    "@react-navigation/bottom-tabs": "^6.5.8",
+    "@react-navigation/native": "^6.1.7",
+    "@react-navigation/stack": "^6.3.17",
+    "@rneui/base": "^4.0.0-rc.7",
+    "@rneui/themed": "^4.0.0-rc.7",
+    "axios": "^1.5.0",
+    "react": "18.2.0",
+    "react-native": "0.72.4",
+    "react-native-gesture-handler": "^2.12.1",
+    "react-native-reanimated": "^3.4.2",
+    "react-native-safe-area-context": "^4.7.2",
+    "react-native-screens": "^3.25.0",
+    "react-native-vector-icons": "^10.0.0",
+    "react-native-vision-camera": "^2.15.4",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-svg": "^13.9.0",
+    "react-native-share": "^8.2.2",
+    "react-native-permissions": "^3.8.4",
+    "react-native-offline-queue": "^1.1.0",
+    "react-native-background-fetch": "^4.1.10"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.11",
+    "@babel/runtime": "^7.22.11",
+    "@react-native-community/eslint-config": "^3.2.0",
+    "@types/react": "^18.2.21",
+    "@types/react-native": "^0.72.2",
+    "babel-jest": "^29.6.4",
+    "eslint": "^8.48.0",
+    "jest": "^29.6.4",
+    "metro-react-native-babel-preset": "^0.77.0",
+    "typescript": "^5.2.2"
+  }
+} 
