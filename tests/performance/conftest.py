@@ -5,17 +5,16 @@ import os
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.models import db, User, Game, Match, Location, Role
-from src.config import Config
-from src.app import create_app
-from src.models import db as _db
-from src.config.testing import TestingConfig
+from src.models import User, Game, Match, Location, Role
+from src.models.base import db
+from dojopool.core.extensions import db as app_db
+from dojopool.config import TestingConfig
 import tempfile
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask import current_app
 from werkzeug.local import LocalStack
-from src.core.database import _make_scoped_session
+from dojopool.core.extensions import _make_scoped_session
 from tests.conftest import (
     app, client, runner, _db, db_session, auth_headers,
     api_headers, test_user, test_session, test_location,
@@ -190,14 +189,41 @@ def rate_limiter(app):
     return limiter 
 
 @pytest.fixture(scope='function')
-def perf_session(db_session):
+def performance_session(db_session):
     """Create a new performance test session."""
     return db_session
 
 @pytest.fixture(scope='function')
-def perf_client(client):
+def performance_client(client):
     """Create a test client for performance tests."""
     return client
+
+@pytest.fixture(scope='function')
+def performance_user(db_session):
+    """Create a test performance user."""
+    try:
+        # Create user role if it doesn't exist
+        role = Role.query.filter_by(name='user').first()
+        if not role:
+            role = Role(name='user', description='Regular user role')
+            db_session.add(role)
+            db_session.commit()
+        
+        # Create test user
+        user = User(
+            username='performance_test_user',
+            email='performance_test@example.com',
+            password='password123',
+            is_active=True
+        )
+        user.roles.append(role)
+        db_session.add(user)
+        db_session.commit()
+        
+        return user
+    except SQLAlchemyError as e:
+        db_session.rollback()
+        raise
 
 @pytest.fixture(scope='function')
 def perf_data(db_session):
