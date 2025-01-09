@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
-from src.models.game import Game
-from src.models.user import User
+from dojopool.models.game import Game
+from dojopool.models.user import User
 
 def test_game_creation(db_session):
     """Test basic game creation."""

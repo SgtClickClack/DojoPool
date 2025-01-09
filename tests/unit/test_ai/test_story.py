@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime
-from src.ai.story import StoryGenerator
-from src.models import Game, Match, User
+from dojopool.ai.story import StoryGenerator
+from dojopool.models import Game, Match, User
 
 @pytest.fixture
 def story_generator():

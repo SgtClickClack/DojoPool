@@ -1,9 +1,10 @@
 """Base test class for all tests."""
+import unittest
 import pytest
 from flask import current_app
-from src.app import create_app
-from src.config.testing import TestingConfig
-from src.core.database import db, init_db, _make_scoped_session
+from dojopool import create_app
+from dojopool.config import TestingConfig
+from dojopool.core.extensions import db, init_db, _make_scoped_session
 from tests.factories import (
     UserFactory, GameFactory, TournamentFactory, VenueFactory,
     RoleFactory, LocationFactory, MatchFactory, SessionFactory,

@@ -2,8 +2,8 @@
 import pytest
 import time
 from datetime import datetime
-from src.models.leaderboard import Leaderboard
-from src.services.leaderboard_service import LeaderboardService
+from dojopool.models.leaderboard import Leaderboard
+from dojopool.services.leaderboard_service import LeaderboardService
 
 def test_leaderboard_query_performance(session, user):
     """Test performance of leaderboard queries."""

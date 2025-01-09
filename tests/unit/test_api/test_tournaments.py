@@ -2,7 +2,7 @@
 import pytest
 from datetime import datetime, timedelta
 from flask import url_for
-from src.models import Tournament, User, Venue
+from dojopool.models import Tournament, User, Venue
 
 @pytest.fixture
 def user(db_session):

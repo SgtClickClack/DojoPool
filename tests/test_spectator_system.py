@@ -1,54 +1,49 @@
+"""Tests for spectator system functionality."""
 import pytest
-import asyncio
-from datetime import datetime
-from src.spectator.spectator_system import SpectatorSystem
+from dojopool.spectator.spectator_system import SpectatorSystem
 
-@pytest.fixture
-async def spectator_system():
-    return SpectatorSystem()
-
-@pytest.mark.asyncio
-async def test_stream_management():
-    """Test stream creation and management."""
+def test_spectator_system():
+    """Test spectator system functionality."""
     system = SpectatorSystem()
     
-    # Test stream creation
-    match_data = {
-        'participants': ['Ninja123', 'Samurai456'],
-        'venue': 'Epic Arena'
-    }
-    stream_key = await system.start_stream("match_1", match_data)
-    assert stream_key in system.active_streams
+    # Test adding spectators
+    system.add_spectator(game_id=1, user_id=1)
+    system.add_spectator(game_id=1, user_id=2)
+    assert system.get_spectator_count(game_id=1) == 2
     
-    # Test joining stream
-    success = await system.join_stream(stream_key, "spectator_1")
-    assert success
-    assert "spectator_1" in system.active_streams[stream_key]['spectators']
+    # Test removing spectators
+    system.remove_spectator(game_id=1, user_id=1)
+    assert system.get_spectator_count(game_id=1) == 1
     
-    # Test metrics update
-    assert system.active_streams[stream_key]['metrics']['total_views'] == 1
-    assert system.active_streams[stream_key]['metrics']['peak_viewers'] == 1
+    # Test getting spectators
+    spectators = system.get_spectators(game_id=1)
+    assert len(spectators) == 1
+    assert spectators[0] == 2
 
-@pytest.mark.asyncio
-async def test_highlight_reel_generation():
-    """Test highlight reel generation."""
+def test_spectator_limits():
+    """Test spectator system limits."""
     system = SpectatorSystem()
     
-    # Add some highlights
-    system.highlight_reels["Ninja123"] = [
-        {
-            'timestamp': datetime.now(),
-            'description': "Amazing move!",
-            'excitement_score': 9
-        },
-        {
-            'timestamp': datetime.now(),
-            'description': "Epic combo!",
-            'excitement_score': 8
-        }
-    ]
+    # Test maximum spectators per game
+    for i in range(10):
+        system.add_spectator(game_id=1, user_id=i)
     
-    # Generate highlight reel
-    highlights = system.generate_highlight_reel("Ninja123", timedelta(days=1))
-    assert len(highlights) == 2
-    assert highlights[0]['excitement_score'] > highlights[1]['excitement_score']
+    with pytest.raises(ValueError):
+        system.add_spectator(game_id=1, user_id=10)  # Exceeds limit
+    
+    # Test removing non-existent spectator
+    with pytest.raises(ValueError):
+        system.remove_spectator(game_id=1, user_id=20)
+
+def test_spectator_notifications():
+    """Test spectator system notifications."""
+    system = SpectatorSystem()
+    
+    # Add spectators
+    system.add_spectator(game_id=1, user_id=1)
+    system.add_spectator(game_id=1, user_id=2)
+    
+    # Test sending notifications
+    notifications = system.notify_spectators(game_id=1, message="Game update")
+    assert len(notifications) == 2
+    assert all(n["message"] == "Game update" for n in notifications)

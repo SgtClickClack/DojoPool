@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 import pytest
-from src.models import Token
+from dojopool.models import Token
 
 def test_new_token():
     """Test creating a new token."""

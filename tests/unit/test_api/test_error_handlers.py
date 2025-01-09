@@ -7,7 +7,7 @@ from werkzeug.exceptions import (
     MethodNotAllowed,
     TooManyRequests
 )
-from src.api.errors import (
+from dojopool.api.errors import (
     ValidationError,
     ResourceNotFoundError,
     AuthenticationError,

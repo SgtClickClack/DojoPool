@@ -1,66 +1,87 @@
-"""Integration tests for SendGrid email functionality."""
+"""Tests for email integration functionality."""
 import pytest
-from src.email.service import EmailService, EmailError
-from src.models import User
-from unittest.mock import patch
+from dojopool.email.service import EmailService, EmailError
+from dojopool.models import User
+from dojopool.core.db import db
 
-def test_email_service_integration(app):
-    """Test the email service integration with SendGrid."""
-    with app.app_context():
-        email_service = EmailService()
-        email_service.init_app(app)
-        
-        # Create test user
-        user = User(
-            username="test_user",
-            email="test@example.com"
-        )
-        
-        # Test verification email
-        with patch('sendgrid.SendGridAPIClient.send') as mock_send:
-            mock_send.return_value.status_code = 202
-            assert email_service.send_verification_email(user)
-            
-        # Test password reset email
-        with patch('sendgrid.SendGridAPIClient.send') as mock_send:
-            mock_send.return_value.status_code = 202
-            assert email_service.send_password_reset_email(user, "test_token")
-            
-        # Test welcome email
-        with patch('sendgrid.SendGridAPIClient.send') as mock_send:
-            mock_send.return_value.status_code = 202
-            assert email_service.send_welcome_email(user)
+def test_email_sending():
+    """Test email sending functionality."""
+    # Create test user
+    user = User(
+        username="testuser",
+        email="test@example.com"
+    )
+    db.session.add(user)
+    db.session.commit()
+    
+    # Create email service
+    email_service = EmailService()
+    
+    # Send test email
+    result = email_service.send_email(
+        to_email=user.email,
+        subject="Test Email",
+        body="This is a test email."
+    )
+    assert result is None
+    
+    # Check email stats
+    stats = email_service.get_email_stats()
+    assert stats["total_emails"] == 1
+    assert stats["successful_emails"] == 1
 
-def test_email_service_error_handling(app):
-    """Test error handling in email service integration."""
-    with app.app_context():
-        email_service = EmailService()
-        email_service.init_app(app)
-        
-        user = User(
-            username="test_user",
-            email="test@example.com"
-        )
-        
-        # Test API error handling
-        with patch('sendgrid.SendGridAPIClient.send') as mock_send:
-            mock_send.side_effect = Exception("API Error")
-            with pytest.raises(EmailError):
-                email_service.send_verification_email(user)
+def test_email_template_rendering():
+    """Test email template rendering."""
+    # Create test user
+    user = User(
+        username="testuser",
+        email="test@example.com"
+    )
+    db.session.add(user)
+    db.session.commit()
+    
+    # Create email service
+    email_service = EmailService()
+    
+    # Send templated email
+    template_data = {
+        "username": user.username,
+        "action_url": "http://example.com/verify",
+        "action_text": "Verify Email"
+    }
+    result = email_service.send_template_email(
+        to_email=user.email,
+        template_name="verification",
+        template_data=template_data
+    )
+    assert result is None
+    
+    # Check email stats
+    stats = email_service.get_email_stats()
+    assert stats["total_emails"] == 1
+    assert stats["successful_emails"] == 1
 
-def test_email_service_retry_mechanism(app):
-    """Test the retry mechanism in email service."""
-    with app.app_context():
-        email_service = EmailService()
-        email_service.init_app(app)
-        
-        user = User(
-            username="test_user",
-            email="test@example.com"
+def test_email_error_handling():
+    """Test email error handling."""
+    # Create email service
+    email_service = EmailService()
+    
+    # Test invalid email address
+    with pytest.raises(EmailError):
+        email_service.send_email(
+            to_email="invalid-email",
+            subject="Test Email",
+            body="This is a test email."
         )
-        
-        # Test successful retry
-        with patch('sendgrid.SendGridAPIClient.send') as mock_send:
-            mock_send.side_effect = [Exception("Temporary error"), None]
-            assert email_service.send_verification_email(user)
-            assert mock_send.call_count == 2 
+    
+    # Test missing template
+    with pytest.raises(EmailError):
+        email_service.send_template_email(
+            to_email="test@example.com",
+            template_name="nonexistent",
+            template_data={}
+        )
+    
+    # Check email stats
+    stats = email_service.get_email_stats()
+    assert stats["failed_emails"] == 2 

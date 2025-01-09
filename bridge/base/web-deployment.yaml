@@ -1,0 +1,46 @@
+#! web-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: web
+    namespace: dojopoolcombined
+    labels:
+        com.docker.compose.project: dojopoolcombined
+        com.docker.compose.service: web
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: dojopoolcombined
+            com.docker.compose.service: web
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: dojopoolcombined
+                com.docker.compose.service: web
+                com.docker.compose.network.default: "true"
+        spec:
+            containers:
+                - name: web
+                  image: dojopoolcombined-web
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: FLASK_APP
+                      value: "src.app"
+                    - name: FLASK_ENV
+                      value: "development"
+                    - name: PYTHONPATH
+                      value: "/app"
+                  ports:
+                    - name: web-5000
+                      containerPort: 5000
+                  volumeMounts:
+                    - name: app
+                      mountPath: /app
+            volumes:
+                - name: app
+                  hostPath:
+                    path: C:\Users\JR\Documents\DojoPool\DojoPoolCombined

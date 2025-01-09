@@ -1,0 +1,41 @@
+# Production Environment Configuration
+
+# System Requirements
+system:
+  cpu:
+    min_cores: 4
+    recommended_cores: 8
+  memory:
+    min_ram: 16GB
+    recommended_ram: 32GB
+  storage:
+    min_space: 50GB
+    recommended_space: 100GB
+
+# Database Configuration
+database:
+  type: PostgreSQL
+  version: "14.x"
+  connection_pool: 20
+  max_connections: 100
+
+# Redis Configuration
+redis:
+  maxmemory: 2gb
+  maxmemory_policy: allkeys-lru
+  save_intervals:
+    - seconds: 900
+      changes: 1
+    - seconds: 300
+      changes: 10
+    - seconds: 60
+      changes: 10000
+
+# Nginx Configuration
+nginx:
+  worker_processes: auto
+  worker_connections: 1024
+  keepalive_timeout: 65
+  client_max_body_size: 10M
+  ssl_protocols: TLSv1.2 TLSv1.3
+  ssl_ciphers: HIGH:!aNULL:!MD5

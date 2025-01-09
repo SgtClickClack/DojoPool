@@ -1,0 +1,256 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base avatar styles
+.avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: spacing(10);
+    height: spacing(10);
+    @include rounded(full);
+    background-color: color(neutral, 100);
+    color: color(neutral, 600);
+    font-family: $font-family-base;
+    @include font-size(base);
+    @include font-weight(medium);
+    overflow: hidden;
+    user-select: none;
+    
+    // Avatar image
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    // Avatar icon
+    .icon {
+        width: 50%;
+        height: 50%;
+    }
+}
+
+// Avatar sizes
+.avatar-xs {
+    width: spacing(6);
+    height: spacing(6);
+    @include font-size(xs);
+}
+
+.avatar-sm {
+    width: spacing(8);
+    height: spacing(8);
+    @include font-size(sm);
+}
+
+.avatar-lg {
+    width: spacing(12);
+    height: spacing(12);
+    @include font-size(lg);
+}
+
+.avatar-xl {
+    width: spacing(16);
+    height: spacing(16);
+    @include font-size(xl);
+}
+
+// Avatar shapes
+.avatar-square {
+    @include rounded(lg);
+}
+
+// Avatar variants
+.avatar-primary {
+    background-color: color(primary, 100);
+    color: color(primary, 600);
+}
+
+.avatar-secondary {
+    background-color: color(secondary, 100);
+    color: color(secondary, 600);
+}
+
+.avatar-success {
+    background-color: color(success, 100);
+    color: color(success, 600);
+}
+
+.avatar-error {
+    background-color: color(error, 100);
+    color: color(error, 600);
+}
+
+.avatar-warning {
+    background-color: color(warning, 100);
+    color: color(warning, 600);
+}
+
+// Avatar with status
+.avatar-status {
+    position: relative;
+    
+    &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 25%;
+        height: 25%;
+        min-width: spacing(2);
+        min-height: spacing(2);
+        background-color: color(neutral, 400);
+        border: 2px solid white;
+        @include rounded(full);
+    }
+    
+    &.status-online::after {
+        background-color: color(success, 500);
+    }
+    
+    &.status-offline::after {
+        background-color: color(neutral, 400);
+    }
+    
+    &.status-busy::after {
+        background-color: color(error, 500);
+    }
+    
+    &.status-away::after {
+        background-color: color(warning, 500);
+    }
+}
+
+// Avatar with badge
+.avatar-badge {
+    position: relative;
+    
+    .badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(25%, -25%);
+    }
+}
+
+// Avatar group
+.avatar-group {
+    display: inline-flex;
+    align-items: center;
+    
+    .avatar {
+        &:not(:first-child) {
+            margin-left: -#{spacing(2)};
+        }
+        
+        border: 2px solid white;
+    }
+    
+    // Hover effect
+    &.avatar-group-hover {
+        .avatar {
+            @include transition(transform);
+            
+            &:hover {
+                transform: translateY(-#{spacing(1)});
+            }
+        }
+    }
+}
+
+// Interactive avatar
+.avatar-interactive {
+    cursor: pointer;
+    @include transition(transform, box-shadow);
+    
+    &:hover {
+        transform: scale(1.05);
+        @include shadow(md);
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+// Avatar with placeholder
+.avatar-placeholder {
+    background-color: color(neutral, 50);
+    border: 2px dashed color(neutral, 300);
+    @include transition(border-color, background-color);
+    
+    &:hover {
+        background-color: color(neutral, 100);
+        border-color: color(neutral, 400);
+    }
+}
+
+// Avatar with edit button
+.avatar-editable {
+    position: relative;
+    cursor: pointer;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(color(neutral, 900), 0.5);
+        opacity: 0;
+        @include transition(opacity);
+    }
+    
+    &::after {
+        content: 'Edit';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        @include font-size(sm);
+        @include font-weight(medium);
+        opacity: 0;
+        @include transition(opacity);
+    }
+    
+    &:hover {
+        &::before,
+        &::after {
+            opacity: 1;
+        }
+    }
+}
+
+// Avatar loading state
+.avatar-loading {
+    position: relative;
+    overflow: hidden;
+    
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+            90deg,
+            rgba(white, 0) 0,
+            rgba(white, 0.2) 20%,
+            rgba(white, 0.5) 60%,
+            rgba(white, 0)
+        );
+        animation: shimmer 2s infinite;
+    }
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+} 

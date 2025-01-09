@@ -2,8 +2,8 @@
 
 import pytest
 from flask import url_for
-from src.models.user import User
-from src.models.token import Token
+from dojopool.models.user import User
+from dojopool.models.token import Token
 from datetime import datetime, timedelta
 
 def test_register_get(client):

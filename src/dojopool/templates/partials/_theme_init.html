@@ -1,0 +1,23 @@
+<!-- Theme initialization script -->
+<script type="module">
+    import { initTheme, listenForThemeChanges } from '/static/js/theme.js';
+    
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        listenForThemeChanges();
+    });
+    
+    // Prevent flash of unstyled content (FOUC)
+    const storedTheme = localStorage.getItem('app-theme');
+    if (storedTheme) {
+        document.documentElement.classList.add(storedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('theme-dark');
+    } else {
+        document.documentElement.classList.add('theme-light');
+    }
+</script>
+
+<!-- Theme toggle component -->
+<script type="module" src="/static/js/components/ThemeToggle.js"></script> 

@@ -1,179 +1,86 @@
-"""Integration tests for complete game flow."""
-
+"""Tests for game flow integration functionality."""
 import pytest
-from src.core.auth.service import auth_service
-from src.core.game.state import GameState
-from src.core.game.events import GameEvent
-from src.core.game.shot import Shot
+from dojopool.core.auth.service import auth_service
+from dojopool.core.game.state import GameState, GameStatus
+from dojopool.core.game.events import GameEvent
+from dojopool.core.game.shot import Shot, ShotType, ShotResult
+from dojopool.models import User, Match
+from dojopool.core.db import db
 
-def test_complete_game_flow(session, client):
-    """Test a complete game flow from start to finish."""
-    # 1. Register two players
-    player1 = auth_service.register(
-        username='player1',
-        email='player1@example.com',
-        password='StrongPass123!'
-    )
+def test_game_flow():
+    """Test complete game flow."""
+    # Create test users
+    player1 = User(username="player1", email="player1@test.com")
+    player2 = User(username="player2", email="player2@test.com")
+    db.session.add_all([player1, player2])
+    db.session.commit()
     
-    player2 = auth_service.register(
-        username='player2',
-        email='player2@example.com',
-        password='StrongPass123!'
+    # Initialize game
+    game_state = GameState.create_new(
+        game_type="eight_ball",
+        player1_id=player1.id,
+        player2_id=player2.id
     )
+    assert game_state.status == GameStatus.INITIALIZED
     
-    # 2. Authenticate players
-    _, token1, _ = auth_service.authenticate(
-        email='player1@example.com',
-        password='StrongPass123!',
-        device_info={'device': 'test'},
-        ip_address='127.0.0.1'
-    )
+    # Start game
+    game_state.start()
+    assert game_state.status == GameStatus.IN_PROGRESS
     
-    _, token2, _ = auth_service.authenticate(
-        email='player2@example.com',
-        password='StrongPass123!',
-        device_info={'device': 'test'},
-        ip_address='127.0.0.1'
-    )
-    
-    # 3. Create game room
-    response = client.post(
-        '/api/games',
-        headers={'Authorization': f'Bearer {token1}'},
-        json={'player_count': 2}
-    )
-    assert response.status_code == 201
-    game_id = response.json['game_id']
-    
-    # 4. Second player joins
-    response = client.post(
-        f'/api/games/{game_id}/join',
-        headers={'Authorization': f'Bearer {token2}'}
-    )
-    assert response.status_code == 200
-    
-    # 5. Start game
-    response = client.post(
-        f'/api/games/{game_id}/start',
-        headers={'Authorization': f'Bearer {token1}'}
-    )
-    assert response.status_code == 200
-    
-    # 6. Play several turns
-    # Player 1's turn
-    shot1 = Shot(
-        angle=0,
-        power=1.0,
-        spin=0,
-        x=0,
-        y=0
-    )
-    
-    response = client.post(
-        f'/api/games/{game_id}/shot',
-        headers={'Authorization': f'Bearer {token1}'},
-        json=shot1.to_dict()
-    )
-    assert response.status_code == 200
-    
-    # Player 2's turn
-    shot2 = Shot(
-        angle=45,
+    # Take shots
+    shot = Shot(
+        type=ShotType.NORMAL,
         power=0.8,
-        spin=0.2,
-        x=0,
-        y=0
+        angle=45.0,
+        player_id=player1.id
     )
+    event = game_state.process_shot(shot)
+    assert isinstance(event, GameEvent)
+    assert event.player_id == player1.id
     
-    response = client.post(
-        f'/api/games/{game_id}/shot',
-        headers={'Authorization': f'Bearer {token2}'},
-        json=shot2.to_dict()
-    )
-    assert response.status_code == 200
+    # End game
+    game_state.end(winner_id=player1.id)
+    assert game_state.status == GameStatus.COMPLETED
+    assert game_state.winner_id == player1.id
     
-    # 7. Check game state
-    response = client.get(
-        f'/api/games/{game_id}',
-        headers={'Authorization': f'Bearer {token1}'}
-    )
-    assert response.status_code == 200
-    game_state = response.json
-    
-    assert game_state['status'] == 'active'
-    assert len(game_state['events']) == 2  # Two shots taken
-    
-    # 8. End game
-    response = client.post(
-        f'/api/games/{game_id}/end',
-        headers={'Authorization': f'Bearer {token1}'}
-    )
-    assert response.status_code == 200
-    
-    # 9. Verify final state
-    response = client.get(
-        f'/api/games/{game_id}',
-        headers={'Authorization': f'Bearer {token1}'}
-    )
-    assert response.status_code == 200
-    final_state = response.json
-    
-    assert final_state['status'] == 'completed'
-    assert 'winner_id' in final_state
-    assert 'final_score' in final_state
+    # Check match record
+    match = Match.query.filter_by(
+        player1_id=player1.id,
+        player2_id=player2.id
+    ).first()
+    assert match is not None
+    assert match.winner_id == player1.id
 
-def test_game_error_handling(session, client):
-    """Test error handling in game flow."""
-    # 1. Register player
-    player = auth_service.register(
-        username='player',
-        email='player@example.com',
-        password='StrongPass123!'
+def test_game_validation():
+    """Test game validation."""
+    # Create test user
+    player = User(username="player1", email="player1@test.com")
+    db.session.add(player)
+    db.session.commit()
+    
+    # Initialize game
+    game_state = GameState.create_new(
+        game_type="eight_ball",
+        player1_id=player.id
     )
     
-    # 2. Authenticate
-    _, token, _ = auth_service.authenticate(
-        email='player@example.com',
-        password='StrongPass123!',
-        device_info={'device': 'test'},
-        ip_address='127.0.0.1'
+    # Test invalid shot
+    invalid_shot = Shot(
+        type=ShotType.NORMAL,
+        power=2.0,  # Invalid power
+        angle=400.0,  # Invalid angle
+        player_id=player.id
     )
+    with pytest.raises(ValueError):
+        game_state.process_shot(invalid_shot)
     
-    # 3. Test invalid game creation
-    response = client.post(
-        '/api/games',
-        headers={'Authorization': f'Bearer {token}'},
-        json={'player_count': 0}  # Invalid player count
+    # Test valid shot
+    valid_shot = Shot(
+        type=ShotType.NORMAL,
+        power=0.5,
+        angle=30.0,
+        player_id=player.id
     )
-    assert response.status_code == 400
-    
-    # 4. Test joining non-existent game
-    response = client.post(
-        '/api/games/999/join',
-        headers={'Authorization': f'Bearer {token}'}
-    )
-    assert response.status_code == 404
-    
-    # 5. Create valid game
-    response = client.post(
-        '/api/games',
-        headers={'Authorization': f'Bearer {token}'},
-        json={'player_count': 2}
-    )
-    assert response.status_code == 201
-    game_id = response.json['game_id']
-    
-    # 6. Test starting game without enough players
-    response = client.post(
-        f'/api/games/{game_id}/start',
-        headers={'Authorization': f'Bearer {token}'}
-    )
-    assert response.status_code == 400
-    
-    # 7. Test invalid shot
-    response = client.post(
-        f'/api/games/{game_id}/shot',
-        headers={'Authorization': f'Bearer {token}'},
-        json={'angle': 1000}  # Invalid angle
-    )
-    assert response.status_code == 400 
+    event = game_state.process_shot(valid_shot)
+    assert isinstance(event, GameEvent)
+    assert event.player_id == player.id 

@@ -1,0 +1,208 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Error page layout
+.error-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: spacing(8);
+    text-align: center;
+    background-color: var(--color-background);
+    
+    @include media-breakpoint-down(md) {
+        padding: spacing(4);
+    }
+}
+
+// Error content
+.error-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+// Error illustration
+.error-illustration {
+    margin-bottom: spacing(8);
+    
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .error-code {
+        margin-bottom: spacing(4);
+        @include font-size(9xl);
+        @include font-weight(bold);
+        line-height: 1;
+        color: var(--color-primary-500);
+        text-shadow: 4px 4px var(--color-primary-200);
+        
+        @include media-breakpoint-down(md) {
+            @include font-size(7xl);
+        }
+    }
+}
+
+// Error message
+.error-message {
+    margin-bottom: spacing(8);
+    
+    .error-title {
+        margin-bottom: spacing(4);
+        @include font-size(4xl);
+        @include font-weight(bold);
+        color: var(--color-text-primary);
+        
+        @include media-breakpoint-down(md) {
+            @include font-size(3xl);
+        }
+    }
+    
+    .error-description {
+        margin-bottom: spacing(6);
+        color: var(--color-text-secondary);
+        
+        p {
+            margin-bottom: spacing(4);
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+// Error actions
+.error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: spacing(4);
+    
+    .action-button {
+        min-width: 200px;
+        
+        @include media-breakpoint-down(sm) {
+            width: 100%;
+        }
+    }
+}
+
+// 404 specific styles
+.error-404 {
+    .error-illustration {
+        animation: float 6s ease-in-out infinite;
+    }
+}
+
+// 500 specific styles
+.error-500 {
+    .error-illustration {
+        animation: shake 0.5s ease-in-out infinite;
+    }
+}
+
+// Animations
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+// Additional error states
+.error-maintenance {
+    .error-illustration {
+        animation: spin 10s linear infinite;
+    }
+}
+
+.error-offline {
+    .error-illustration {
+        opacity: 0.5;
+        filter: grayscale(100%);
+        transition: all 0.3s ease;
+        
+        &:hover {
+            opacity: 1;
+            filter: none;
+        }
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Error variants
+.error-warning {
+    .error-code {
+        color: var(--color-warning-500);
+        text-shadow: 4px 4px var(--color-warning-200);
+    }
+}
+
+.error-danger {
+    .error-code {
+        color: var(--color-error-500);
+        text-shadow: 4px 4px var(--color-error-200);
+    }
+}
+
+// Error feedback
+.error-feedback {
+    margin-top: spacing(8);
+    padding: spacing(6);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(xl);
+    
+    .feedback-title {
+        margin-bottom: spacing(4);
+        @include font-size(xl);
+        @include font-weight(bold);
+        color: var(--color-text-primary);
+    }
+    
+    .feedback-form {
+        max-width: 400px;
+        margin: 0 auto;
+        
+        .form-group {
+            margin-bottom: spacing(4);
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+        
+        textarea {
+            min-height: 100px;
+        }
+    }
+} 

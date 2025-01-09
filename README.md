@@ -61,3 +61,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 *For detailed project context and setup instructions, see [Project Overview](docs/PROJECT_OVERVIEW.md)*
+
+## Landing Page (⚠️ FINAL VERSION - DO NOT MODIFY ⚠️)
+The landing page has been finalized and approved. It represents the perfect balance of cyberpunk aesthetics, performance, and user experience. Any modifications require explicit approval.
+
+- **Location:** `src/static/index.html`
+- **Documentation:** `docs/LANDING_PAGE.md`
+- **Version:** 5.0 (Final)
+- **Status:** ✅ Production Ready
+
+For detailed information about the landing page, including design system, components, and maintenance guidelines, please refer to the [Landing Page Documentation](docs/LANDING_PAGE.md).

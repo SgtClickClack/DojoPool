@@ -1,0 +1,304 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base badge styles
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: spacing(1) spacing(2);
+    @include font-size(xs);
+    @include font-weight(medium);
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    @include rounded(full);
+    @include transition(background-color, color);
+    
+    // Badge with icon
+    .icon {
+        width: spacing(3);
+        height: spacing(3);
+        
+        &:first-child {
+            margin-right: spacing(1);
+        }
+        
+        &:last-child {
+            margin-left: spacing(1);
+        }
+    }
+}
+
+// Badge variants
+.badge-primary {
+    color: white;
+    background-color: color(primary, 500);
+    
+    &.badge-soft {
+        color: color(primary, 700);
+        background-color: color(primary, 50);
+    }
+    
+    &.badge-outline {
+        color: color(primary, 500);
+        background-color: transparent;
+        border: 1px solid color(primary, 500);
+        
+        &:hover {
+            color: white;
+            background-color: color(primary, 500);
+        }
+    }
+}
+
+.badge-secondary {
+    color: white;
+    background-color: color(secondary, 500);
+    
+    &.badge-soft {
+        color: color(secondary, 700);
+        background-color: color(secondary, 50);
+    }
+    
+    &.badge-outline {
+        color: color(secondary, 500);
+        background-color: transparent;
+        border: 1px solid color(secondary, 500);
+        
+        &:hover {
+            color: white;
+            background-color: color(secondary, 500);
+        }
+    }
+}
+
+.badge-success {
+    color: white;
+    background-color: color(success, 500);
+    
+    &.badge-soft {
+        color: color(success, 700);
+        background-color: color(success, 50);
+    }
+    
+    &.badge-outline {
+        color: color(success, 500);
+        background-color: transparent;
+        border: 1px solid color(success, 500);
+        
+        &:hover {
+            color: white;
+            background-color: color(success, 500);
+        }
+    }
+}
+
+.badge-error {
+    color: white;
+    background-color: color(error, 500);
+    
+    &.badge-soft {
+        color: color(error, 700);
+        background-color: color(error, 50);
+    }
+    
+    &.badge-outline {
+        color: color(error, 500);
+        background-color: transparent;
+        border: 1px solid color(error, 500);
+        
+        &:hover {
+            color: white;
+            background-color: color(error, 500);
+        }
+    }
+}
+
+.badge-warning {
+    color: white;
+    background-color: color(warning, 500);
+    
+    &.badge-soft {
+        color: color(warning, 700);
+        background-color: color(warning, 50);
+    }
+    
+    &.badge-outline {
+        color: color(warning, 500);
+        background-color: transparent;
+        border: 1px solid color(warning, 500);
+        
+        &:hover {
+            color: white;
+            background-color: color(warning, 500);
+        }
+    }
+}
+
+.badge-neutral {
+    color: color(neutral, 700);
+    background-color: color(neutral, 100);
+    
+    &.badge-soft {
+        color: color(neutral, 700);
+        background-color: color(neutral, 50);
+    }
+    
+    &.badge-outline {
+        color: color(neutral, 700);
+        background-color: transparent;
+        border: 1px solid color(neutral, 300);
+        
+        &:hover {
+            color: color(neutral, 900);
+            background-color: color(neutral, 100);
+        }
+    }
+}
+
+// Badge sizes
+.badge-sm {
+    padding: spacing(0.5) spacing(1.5);
+    @include font-size(xs);
+    
+    .icon {
+        width: spacing(2.5);
+        height: spacing(2.5);
+    }
+}
+
+.badge-lg {
+    padding: spacing(1.5) spacing(3);
+    @include font-size(sm);
+    
+    .icon {
+        width: spacing(4);
+        height: spacing(4);
+    }
+}
+
+// Badge shapes
+.badge-square {
+    @include rounded(base);
+}
+
+.badge-pill {
+    padding-right: spacing(3);
+    padding-left: spacing(3);
+}
+
+// Interactive badges
+.badge-interactive {
+    cursor: pointer;
+    
+    &:hover {
+        opacity: 0.8;
+    }
+    
+    &:active {
+        opacity: 0.6;
+    }
+}
+
+// Badge with dot
+.badge-dot {
+    position: relative;
+    padding-left: spacing(4);
+    
+    &::before {
+        content: '';
+        position: absolute;
+        left: spacing(2);
+        top: 50%;
+        transform: translateY(-50%);
+        width: spacing(1.5);
+        height: spacing(1.5);
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+}
+
+// Badge with counter
+.badge-counter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: spacing(5);
+    height: spacing(5);
+    padding: 0 spacing(1.5);
+    @include font-size(xs);
+    @include font-weight(semibold);
+    line-height: 1;
+    @include rounded(full);
+}
+
+// Badge groups
+.badge-group {
+    display: inline-flex;
+    align-items: center;
+    
+    .badge {
+        &:not(:first-child) {
+            margin-left: -#{spacing(1)};
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        &:not(:last-child) {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+}
+
+// Badge with close button
+.badge-dismissible {
+    padding-right: spacing(1);
+    
+    .badge-close {
+        margin-left: spacing(1);
+        padding: spacing(0.5);
+        color: inherit;
+        opacity: 0.5;
+        cursor: pointer;
+        @include transition(opacity);
+        
+        &:hover {
+            opacity: 0.75;
+        }
+        
+        .icon {
+            width: spacing(2.5);
+            height: spacing(2.5);
+        }
+    }
+}
+
+// Badge animations
+.badge-pulse {
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-radius: inherit;
+        animation: badge-pulse 2s ease-out infinite;
+        z-index: -1;
+    }
+}
+
+@keyframes badge-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+} 

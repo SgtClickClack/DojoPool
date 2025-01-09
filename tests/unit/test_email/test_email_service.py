@@ -1,8 +1,8 @@
 """Unit tests for email service functionality."""
 import pytest
 from unittest.mock import patch, MagicMock
-from src.email.service import EmailService, EmailTemplate, EmailError
-from src.models import User
+from dojopool.email.service import EmailService, EmailTemplate, EmailError
+from dojopool.models import User
 
 @pytest.fixture
 def email_service():

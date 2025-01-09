@@ -1,69 +1,45 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "repl-nix-dojopoolenhancer"
-version = "0.1.0"
-description = "Add your description here"
+name = "dojopool"
+description = "A modern pool management system"
+readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "email-validator>=2.2.0",
-    "flask>=3.0.3",
-    "flask-login>=0.6.3",
-    "flask-sqlalchemy>=3.1.1",
-    "oauthlib>=3.2.2",
-    "psycopg2-binary>=2.9.10",
-    "requests>=2.32.3",
-    "python-dotenv>=1.0.1",
-    "flask-socketio>=5.4.1",
-    "eventlet",
-    "selenium>=4.25.0",
-    "numpy>=1.22.0",
-    "opencv-python-headless>=4.7.0",
-    "opencv-python",
-    "scikit-learn",
-    "pillow>=11.0.0",
-    "python-socketio",
-    "pyopenssl",
-    "werkzeug>=3.0.6",
-]
+license = {file = "LICENSE"}
+dynamic = ["version"]
+dependencies = []  # Dependencies are managed in requirements.txt
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["dojopool"]
 
 [tool.black]
 line-length = 100
-target-version = ['py39']
+target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
-# A regex preceded with ^/ will apply only to files and directories
-# in the root of the project.
-^/venv/
-'''
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
 line_length = 100
-skip = ["venv", ".venv", "env"]
-skip_glob = ["**/migrations/*.py"]
-known_first_party = ["src"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-default_section = "THIRDPARTY"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --cov=src --cov-report=term-missing"
+minversion = "7.0"
+addopts = "-ra -q --cov=src/dojopool --cov-report=term-missing"
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 
 [tool.coverage.run]
-branch = true
-source = ["src"]
-omit = [
-    "tests/*",
-    "venv/*",
-    "**/__init__.py",
-]
+source = ["src/dojopool"]
+omit = ["tests/*", "**/__init__.py"]
 
 [tool.coverage.report]
 exclude_lines = [

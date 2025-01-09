@@ -1,7 +1,7 @@
 """Unit tests for Tournament model."""
 import pytest
 from datetime import datetime, timedelta
-from src.models import Tournament, User, Venue
+from dojopool.models import Tournament, User, Venue
 
 @pytest.fixture
 def user(db_session):

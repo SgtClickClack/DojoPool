@@ -1,106 +1,123 @@
 """Tests for narrative generator functionality."""
 import pytest
-from src.narrative.narrative_generator import NarrativeGenerator, EventType
-from datetime import datetime
+from dojopool.narrative.generator import NarrativeGenerator
+from dojopool.models import Match, User, Tournament
+from dojopool.core.db import db
 
-@pytest.fixture
-def generator():
-    """Create a narrative generator instance."""
-    return NarrativeGenerator()
-
-def test_record_event(generator):
-    """Test recording a game event."""
-    event = {
-        'type': EventType.SHOT.value,
-        'description': 'Player takes a shot',
-        'timestamp': datetime.now()
-    }
-    generator.record_event(event)
-    assert len(generator.events) == 1
-    assert generator.events[0] == event
-
-def test_episode_completion(generator):
-    """Test episode completion conditions."""
-    # Add events until episode completes
-    for _ in range(10):
-        event = {
-            'type': EventType.SHOT.value,
-            'description': 'Player takes a shot',
-            'timestamp': datetime.now()
-        }
-        generator.record_event(event)
+def test_match_narrative():
+    """Test match narrative generation."""
+    # Create users
+    player1 = User(username="player1", email="player1@test.com")
+    player2 = User(username="player2", email="player2@test.com")
+    db.session.add_all([player1, player2])
+    db.session.commit()
     
-    # Episode should complete after 10 events
-    assert generator.current_episode['completed']
-
-def test_victory_completes_episode(generator):
-    """Test that victory event completes episode."""
-    event = {
-        'type': EventType.VICTORY.value,
-        'description': 'Player wins the game',
-        'timestamp': datetime.now()
-    }
-    generator.record_event(event)
-    assert generator.current_episode['completed']
-
-def test_battle_completes_episode(generator):
-    """Test that battle event completes episode."""
-    event = {
-        'type': EventType.BATTLE.value,
-        'description': 'Epic battle ensues',
-        'timestamp': datetime.now()
-    }
-    generator.record_event(event)
-    assert generator.current_episode['completed']
-
-def test_episode_title_generation(generator):
-    """Test episode title generation."""
-    # Test empty episode
-    assert generator.generate_episode_title() == "A New Beginning"
+    # Create match
+    match = Match(
+        player1_id=player1.id,
+        player2_id=player2.id,
+        winner_id=player1.id,
+        score="8-5"
+    )
+    db.session.add(match)
+    db.session.commit()
     
-    # Test victory episode
-    event = {
-        'type': EventType.VICTORY.value,
-        'description': 'Player wins',
-        'timestamp': datetime.now()
-    }
-    generator.record_event(event)
-    assert generator.generate_episode_title() == "Victory at Last"
+    # Generate narrative
+    generator = NarrativeGenerator()
+    narrative = generator.generate_match_narrative(match)
+    
+    # Check narrative
+    assert narrative is not None
+    assert player1.username in narrative
+    assert player2.username in narrative
+    assert "8-5" in narrative
 
-def test_get_current_episode(generator):
-    """Test getting current episode data."""
-    event = {
-        'type': EventType.SHOT.value,
-        'description': 'Player takes a shot',
-        'timestamp': datetime.now()
-    }
-    generator.record_event(event)
+def test_tournament_narrative():
+    """Test tournament narrative generation."""
+    # Create users
+    player1 = User(username="player1", email="player1@test.com")
+    player2 = User(username="player2", email="player2@test.com")
+    player3 = User(username="player3", email="player3@test.com")
+    player4 = User(username="player4", email="player4@test.com")
+    db.session.add_all([player1, player2, player3, player4])
+    db.session.commit()
     
-    episode = generator.get_current_episode()
-    assert 'title' in episode
-    assert 'events' in episode
-    assert 'start_time' in episode
-    assert 'completed' in episode
-    assert len(episode['events']) == 1
+    # Create tournament
+    tournament = Tournament(name="Test Tournament")
+    db.session.add(tournament)
+    db.session.commit()
+    
+    # Create matches
+    match1 = Match(
+        player1_id=player1.id,
+        player2_id=player2.id,
+        winner_id=player1.id,
+        score="8-3",
+        tournament_id=tournament.id
+    )
+    match2 = Match(
+        player1_id=player3.id,
+        player2_id=player4.id,
+        winner_id=player3.id,
+        score="8-4",
+        tournament_id=tournament.id
+    )
+    match3 = Match(
+        player1_id=player1.id,
+        player2_id=player3.id,
+        winner_id=player1.id,
+        score="8-7",
+        tournament_id=tournament.id
+    )
+    db.session.add_all([match1, match2, match3])
+    db.session.commit()
+    
+    # Generate narrative
+    generator = NarrativeGenerator()
+    narrative = generator.generate_tournament_narrative(tournament)
+    
+    # Check narrative
+    assert narrative is not None
+    assert tournament.name in narrative
+    assert player1.username in narrative
+    assert player2.username in narrative
+    assert player3.username in narrative
+    assert player4.username in narrative
+    assert "8-7" in narrative
 
-def test_get_event_history(generator):
-    """Test getting complete event history."""
-    events = [
-        {
-            'type': EventType.SHOT.value,
-            'description': 'First shot',
-            'timestamp': datetime.now()
-        },
-        {
-            'type': EventType.FOUL.value,
-            'description': 'Foul committed',
-            'timestamp': datetime.now()
-        }
-    ]
+def test_player_narrative():
+    """Test player narrative generation."""
+    # Create users
+    player = User(username="player1", email="player1@test.com")
+    opponent1 = User(username="opponent1", email="opponent1@test.com")
+    opponent2 = User(username="opponent2", email="opponent2@test.com")
+    db.session.add_all([player, opponent1, opponent2])
+    db.session.commit()
     
-    for event in events:
-        generator.record_event(event)
+    # Create matches
+    match1 = Match(
+        player1_id=player.id,
+        player2_id=opponent1.id,
+        winner_id=player.id,
+        score="8-4"
+    )
+    match2 = Match(
+        player1_id=opponent2.id,
+        player2_id=player.id,
+        winner_id=opponent2.id,
+        score="8-6"
+    )
+    db.session.add_all([match1, match2])
+    db.session.commit()
     
-    history = generator.get_event_history()
-    assert len(history) == 2
-    assert history == events
+    # Generate narrative
+    generator = NarrativeGenerator()
+    narrative = generator.generate_player_narrative(player)
+    
+    # Check narrative
+    assert narrative is not None
+    assert player.username in narrative
+    assert opponent1.username in narrative
+    assert opponent2.username in narrative
+    assert "8-4" in narrative
+    assert "8-6" in narrative

@@ -1,7 +1,7 @@
 import pytest
 import json
 from datetime import datetime, timedelta
-from src.models import User, Game, Match, Location
+from dojopool.models import User, Game, Match, Location
 
 def test_user_registration(client):
     """Test user registration endpoint."""

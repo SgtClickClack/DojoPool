@@ -1,84 +1,122 @@
 """Tests for game API endpoints."""
 import pytest
-from flask import url_for
-from src.models import Game, User
-from .base import ApiTestBase
+from dojopool.models import Game, User
+from dojopool.core.db import db
+from dojopool.core.game.state import GameState, GameStatus
+from dojopool.core.game.shot import Shot, ShotType
 
-@pytest.mark.usefixtures('client')
-class TestGameApi(ApiTestBase):
-    """Test cases for game API endpoints."""
+def test_create_game(client, auth_headers):
+    """Test game creation."""
+    # Create test user
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
     
-    @pytest.fixture(autouse=True)
-    def setup_method(self, client, db_session):
-        """Set up test data."""
-        self.client = client
-        self.db_session = db_session
-        
-        # Create test user
-        self.user = User(
-            username='testuser',
-            email='test@example.com'
-        )
-        self.user.set_password('password')
-        self.user.is_verified = True
-        self.db_session.add(self.user)
-        
-        # Create test game
-        self.game = Game(
-            player_id=self.user.id,
-            status='active'
-        )
-        self.db_session.add(self.game)
-        self.db_session.commit()
+    game_data = {
+        "game_type": "eight_ball",
+        "creator_id": user.id
+    }
     
-    def test_list_games(self, auth_headers):
-        """Test listing games."""
-        response = self.client.get(
-            url_for('api.list_games'),
-            headers=auth_headers
-        )
-        assert response.status_code == 200
-        assert len(response.json) == 1
+    response = client.post(
+        "/api/games",
+        json=game_data,
+        headers=auth_headers
+    )
+    assert response.status_code == 201
+    assert response.json["game_type"] == game_data["game_type"]
+    assert response.json["creator_id"] == game_data["creator_id"]
     
-    def test_get_game(self, auth_headers):
-        """Test getting a specific game."""
-        response = self.client.get(
-            url_for('api.get_game', game_id=self.game.id),
-            headers=auth_headers
-        )
-        assert response.status_code == 200
-        assert response.json['id'] == self.game.id
+    # Verify game was created in database
+    game = Game.query.filter_by(creator_id=user.id).first()
+    assert game is not None
+    assert game.game_type == game_data["game_type"]
+
+def test_get_game(client):
+    """Test getting game details."""
+    # Create test user
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
     
-    def test_create_game(self, auth_headers):
-        """Test creating a new game."""
-        data = {
-            'player_id': self.user.id,
-            'status': 'active'
-        }
-        response = self.client.post(
-            url_for('api.create_game'),
-            json=data,
-            headers=auth_headers
-        )
-        assert response.status_code == 201
-        assert response.json['player_id'] == self.user.id
+    # Create game
+    game = Game(
+        game_type="eight_ball",
+        creator_id=user.id,
+        status=GameStatus.CREATED
+    )
+    db.session.add(game)
+    db.session.commit()
     
-    def test_update_game(self, auth_headers):
-        """Test updating a game."""
-        data = {'status': 'completed'}
-        response = self.client.put(
-            url_for('api.update_game', game_id=self.game.id),
-            json=data,
-            headers=auth_headers
-        )
-        assert response.status_code == 200
-        assert response.json['status'] == 'completed'
+    response = client.get(f"/api/games/{game.id}")
+    assert response.status_code == 200
+    assert response.json["game_type"] == game.game_type
+    assert response.json["creator_id"] == game.creator_id
+    assert response.json["status"] == GameStatus.CREATED
+
+def test_update_game(client, auth_headers):
+    """Test updating game details."""
+    # Create test user
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
     
-    def test_delete_game(self, auth_headers):
-        """Test deleting a game."""
-        response = self.client.delete(
-            url_for('api.delete_game', game_id=self.game.id),
-            headers=auth_headers
-        )
-        assert response.status_code == 204
-        assert Game.query.get(self.game.id) is None 
+    # Create game
+    game = Game(
+        game_type="eight_ball",
+        creator_id=user.id,
+        status=GameStatus.CREATED
+    )
+    db.session.add(game)
+    db.session.commit()
+    
+    update_data = {
+        "status": GameStatus.IN_PROGRESS
+    }
+    
+    response = client.put(
+        f"/api/games/{game.id}",
+        json=update_data,
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    assert response.json["status"] == GameStatus.IN_PROGRESS
+    
+    # Verify game was updated in database
+    game = Game.query.get(game.id)
+    assert game.status == GameStatus.IN_PROGRESS
+
+def test_take_shot(client, auth_headers):
+    """Test taking a shot."""
+    # Create test user
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
+    
+    # Create game
+    game = Game(
+        game_type="eight_ball",
+        creator_id=user.id,
+        status=GameStatus.IN_PROGRESS
+    )
+    db.session.add(game)
+    db.session.commit()
+    
+    shot_data = {
+        "type": ShotType.NORMAL,
+        "power": 0.8,
+        "angle": 45.0,
+        "player_id": user.id
+    }
+    
+    response = client.post(
+        f"/api/games/{game.id}/shots",
+        json=shot_data,
+        headers=auth_headers
+    )
+    assert response.status_code == 200
+    assert "result" in response.json
+    assert "game_state" in response.json 

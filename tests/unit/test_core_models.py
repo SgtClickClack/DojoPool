@@ -1,10 +1,10 @@
 import pytest
 from datetime import datetime, timedelta
-from src.core.models import User, Game, Venue, Tournament
-from src.core.game.state import GameState, GameType, GameStatus
-from src.core.game.shot import Shot, ShotType, ShotResult
-from src.core.game.events import GameEvent, EventType
-from src.core.extensions import db
+from dojopool.core.models import User, Game, Venue, Tournament
+from dojopool.core.game.state import GameState, GameType, GameStatus
+from dojopool.core.game.shot import Shot, ShotType, ShotResult
+from dojopool.core.game.events import GameEvent, EventType
+from dojopool.core.extensions import db
 
 def test_user_creation(session):
     """Test user model creation and validation."""

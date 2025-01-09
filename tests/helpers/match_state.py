@@ -1,153 +1,43 @@
-"""Match state helpers for tests."""
+"""Helper functions for match state testing."""
+from dojopool.core.game.state import GameState, GameStatus
+from dojopool.core.game.shot import Shot, ShotType
+from dojopool.models import Match, User
+from dojopool.core.db import db
 
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
-from src.models.match import Match
-from src.models.location import Location
-
-def create_test_match_state(
-    game_id: int,
-    location_id: int,
-    player1_id: int,
-    player2_id: int,
-    start_time: Optional[datetime] = None
-) -> Dict:
-    """Create a test match state.
-    
-    Args:
-        game_id: ID of the game
-        location_id: ID of the location
-        player1_id: ID of player 1
-        player2_id: ID of player 2
-        start_time: Match start time (defaults to now)
-    
-    Returns:
-        Dict: Match state dictionary
-    """
-    if start_time is None:
-        start_time = datetime.utcnow()
-    
-    return {
-        'game_id': game_id,
-        'location_id': location_id,
-        'status': 'in_progress',
-        'players': {
-            'player1': {
-                'id': player1_id,
-                'ready': True,
-                'connected': True
-            },
-            'player2': {
-                'id': player2_id,
-                'ready': True,
-                'connected': True
-            }
-        },
-        'schedule': {
-            'start_time': start_time.isoformat(),
-            'end_time': None,
-            'duration': None
-        },
-        'score': {
-            str(player1_id): 0,
-            str(player2_id): 0
-        },
-        'stats': {
-            'shots_taken': {
-                str(player1_id): 0,
-                str(player2_id): 0
-            },
-            'accuracy': {
-                str(player1_id): 0.0,
-                str(player2_id): 0.0
-            },
-            'avg_shot_time': {
-                str(player1_id): 0.0,
-                str(player2_id): 0.0
-            }
-        },
-        'spectators': [],
-        'chat_messages': [],
-        'events': []
-    }
-
-def create_scheduled_match(
-    game_id: int,
-    location_id: int,
-    player1_id: int,
-    player2_id: int,
-    scheduled_time: Optional[datetime] = None
-) -> Dict:
-    """Create a scheduled match state.
-    
-    Args:
-        game_id: ID of the game
-        location_id: ID of the location
-        player1_id: ID of player 1
-        player2_id: ID of player 2
-        scheduled_time: Scheduled match time (defaults to 1 hour from now)
-    
-    Returns:
-        Dict: Scheduled match state dictionary
-    """
-    if scheduled_time is None:
-        scheduled_time = datetime.utcnow() + timedelta(hours=1)
-    
-    match_state = create_test_match_state(
-        game_id,
-        location_id,
-        player1_id,
-        player2_id,
-        scheduled_time
+def create_test_match(player1_id, player2_id, winner_id=None, score="0-0"):
+    """Create a test match."""
+    match = Match(
+        player1_id=player1_id,
+        player2_id=player2_id,
+        winner_id=winner_id,
+        score=score
     )
-    match_state['status'] = 'scheduled'
-    match_state['players']['player1']['ready'] = False
-    match_state['players']['player2']['ready'] = False
-    
-    return match_state
+    db.session.add(match)
+    db.session.commit()
+    return match
 
-def create_completed_match(
-    game_id: int,
-    location_id: int,
-    player1_id: int,
-    player2_id: int,
-    winner_id: int,
-    start_time: Optional[datetime] = None,
-    duration_minutes: int = 30
-) -> Dict:
-    """Create a completed match state.
-    
-    Args:
-        game_id: ID of the game
-        location_id: ID of the location
-        player1_id: ID of player 1
-        player2_id: ID of player 2
-        winner_id: ID of the winner
-        start_time: Match start time (defaults to now - duration)
-        duration_minutes: Match duration in minutes
-    
-    Returns:
-        Dict: Completed match state dictionary
-    """
-    if start_time is None:
-        start_time = datetime.utcnow() - timedelta(minutes=duration_minutes)
-    
-    end_time = start_time + timedelta(minutes=duration_minutes)
-    
-    match_state = create_test_match_state(
-        game_id,
-        location_id,
-        player1_id,
-        player2_id,
-        start_time
+def create_test_game_state(player1_id, player2_id):
+    """Create a test game state."""
+    game_state = GameState.create_new(
+        game_type="eight_ball",
+        player1_id=player1_id,
+        player2_id=player2_id
     )
-    match_state['status'] = 'completed'
-    match_state['schedule']['end_time'] = end_time.isoformat()
-    match_state['schedule']['duration'] = duration_minutes * 60
-    
-    # Set winner's score
-    loser_id = player2_id if winner_id == player1_id else player1_id
-    match_state['score'][str(winner_id)] = 1
-    match_state['score'][str(loser_id)] = 0
-    
-    return match_state 
+    game_state.start()
+    return game_state
+
+def take_test_shot(game_state, player_id, power=0.8, angle=45.0):
+    """Take a test shot."""
+    shot = Shot(
+        type=ShotType.NORMAL,
+        power=power,
+        angle=angle,
+        player_id=player_id
+    )
+    return game_state.process_shot(shot)
+
+def complete_test_game(game_state, winner_id):
+    """Complete a test game."""
+    game_state.end(winner_id=winner_id)
+    assert game_state.status == GameStatus.COMPLETED
+    assert game_state.winner_id == winner_id 

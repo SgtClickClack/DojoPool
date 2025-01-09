@@ -2,7 +2,7 @@
 
 from datetime import datetime
 import pytest
-from src.models import User
+from dojopool.models import User
 
 def test_new_user():
     """Test creating a new user."""

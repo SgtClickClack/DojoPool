@@ -1,7 +1,7 @@
 """Unit tests for authentication utilities."""
 import pytest
 from flask import url_for
-from src.auth.utils import get_safe_redirect_url, verified_user_required
+from dojopool.auth.utils import get_safe_redirect_url, verified_user_required
 
 def test_get_safe_redirect_url_none(app, request_ctx):
     """Test safe redirect URL with None input."""

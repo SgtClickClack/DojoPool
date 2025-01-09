@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2024-12-21
+
+### Added
+- Advanced security monitoring system with ML-based anomaly detection
+- Risk scoring and automated response system
+- Real-time access pattern analysis
+- Location-based security features
+- Device trust management
+- Two-factor authentication (2FA) integration
+- Security analytics dashboard
+- Risk assessment API endpoints
+- Automated security notifications
+- IP-based access controls
+- Rate limiting and lockout mechanisms
+
+### Changed
+- Enhanced authentication system with risk-based controls
+- Improved session security with device fingerprinting
+- Updated monitoring system with real-time analytics
+- Optimized data collection for security metrics
+
+### Security
+- Added ML-based anomaly detection for access patterns
+- Implemented multi-factor risk assessment
+- Added automated responses to security threats
+- Enhanced logging for security events
+- Added IP and location-based restrictions
+
 ## [1.0.0] - 2024-12-20
 
 ### Added

@@ -1,34 +1,39 @@
-"""Authentication helpers for tests."""
+"""Helper functions for authentication testing."""
+from dojopool.core.auth.service import auth_service
+from dojopool.models import User, Role
+from dojopool.core.db import db
 
-from typing import Dict
-from src.core.models import User
+def create_test_user(username="testuser", email="test@example.com", password="password123"):
+    """Create a test user."""
+    user = User(
+        username=username,
+        email=email
+    )
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    return user
 
-def login_user_and_get_token(client, user: User) -> str:
-    """Log in a user and get their authentication token.
-    
-    Args:
-        client: Flask test client
-        user: User to log in
-    
-    Returns:
-        str: Authentication token
-    """
-    response = client.post('/api/v1/auth/login', json={
-        'email': user.email,
-        'password': 'password123'  # Default test password from UserFactory
-    })
-    return response.json['token']
+def create_test_role(name="test_role", description="Test role"):
+    """Create a test role."""
+    role = Role(
+        name=name,
+        description=description
+    )
+    db.session.add(role)
+    db.session.commit()
+    return role
 
-def get_auth_headers(token: str) -> Dict[str, str]:
-    """Get headers for authenticated requests.
-    
-    Args:
-        token: Authentication token
-    
-    Returns:
-        Dict[str, str]: Headers with authentication token
-    """
-    return {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    } 
+def assign_role_to_user(user, role):
+    """Assign a role to a user."""
+    user.roles.append(role)
+    db.session.commit()
+
+def create_auth_token(user):
+    """Create an authentication token for a user."""
+    return auth_service.create_token(user)
+
+def get_auth_headers(user):
+    """Get authentication headers for a user."""
+    token = create_auth_token(user)
+    return {"Authorization": f"Bearer {token}"} 

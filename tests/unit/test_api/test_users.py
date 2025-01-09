@@ -2,8 +2,8 @@
 
 import pytest
 from flask import url_for
-from src.core.database.models import User
-from src.core.auth.security import verify_password
+from dojopool.models.user import User
+from dojopool.core.auth.security import verify_password
 
 def test_register_success(client):
     """Test successful user registration."""

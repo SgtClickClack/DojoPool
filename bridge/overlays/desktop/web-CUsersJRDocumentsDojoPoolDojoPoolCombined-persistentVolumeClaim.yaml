@@ -1,0 +1,9 @@
+#! web-C:\Users\JR\Documents\DojoPool\DojoPoolCombined-persistentVolumeClaim.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: web-c--users-jr-documents-dojopool-dojopoolcombined
+    namespace: dojopoolcombined
+spec:
+    storageClassName: "hostpath" # see docker/desktop-storage-provisioner

@@ -1,6 +1,84 @@
 {
+  "name": "dojopool",
+  "version": "1.0.0",
+  "description": "DojoPool - Interactive Scavenger Hunt Platform",
+  "main": "src/frontend/index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --maxWorkers=2",
+    "test:smoke": "cypress run",
+    "eject": "react-scripts eject",
+    "lint": "eslint src/frontend/**/*.{js,jsx,ts,tsx}",
+    "lint:fix": "eslint src/frontend/**/*.{js,jsx,ts,tsx} --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write src/frontend/**/*.{js,jsx,ts,tsx,css,md,json}"
+  },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@googlemaps/js-api-loader": "^1.16.2",
+    "@mui/icons-material": "^5.14.9",
+    "@mui/material": "^5.14.9",
+    "@react-google-maps/api": "^2.19.2",
+    "axios": "^1.5.0",
+    "jest": "^27.5.1",
     "qr-scanner": "^1.4.2",
-    "@mui/icons-material": "^5.14.9"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.15.0",
+    "react-scripts": "^5.0.1",
+    "socket.io-client": "^4.7.2",
+    "use-places-autocomplete": "^4.0.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/file-saver": "^2.0.7",
+    "@types/google.maps": "^3.54.3",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.6.2",
+    "@types/pako": "^2.0.3",
+    "@types/react": "^18.2.21",
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "cypress": "^13.2.0",
+    "d3": "^7.9.0",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1",
+    "identity-obj-proxy": "^3.0.0",
+    "internmap": "^2.0.3",
+    "jest-canvas-mock": "^2.5.2",
+    "jest-environment-jsdom": "^29.7.0",
+    "jspdf": "^2.5.2",
+    "pako": "^2.1.0",
+    "prettier": "^3.0.3",
+    "react-beautiful-dnd": "^13.1.1",
+    "recharts": "^2.15.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^4.9.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
-} 
+}

@@ -1,0 +1,106 @@
+/* Base Variables */
+:root {
+    --primary-color: #00ff9d;
+    --secondary-color: #00a8ff;
+    --accent-color: #ff3860;
+    --text-light: #ffffff;
+    --background-dark: #0a0a0a;
+    --neon-glow: 0 0 10px rgba(0, 255, 157, 0.5);
+    --cyber-gradient: linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%);
+}
+
+/* Base Styles */
+body {
+    min-height: 100vh;
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    font-family: 'Roboto Mono', monospace;
+    overflow-x: hidden;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-light);
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    color: var(--secondary-color);
+    text-shadow: 0 0 10px var(--secondary-color);
+}
+
+/* Buttons */
+.btn-cyber {
+    background: var(--primary-color);
+    border: none;
+    color: var(--background-dark);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 800;
+    padding: 1rem 3rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    margin: 0;
+    box-shadow:
+        0 0 20px var(--primary-color),
+        0 0 40px var(--primary-color),
+        inset 0 0 15px rgba(0, 255, 157, 0.7);
+    text-shadow: none;
+    border-radius: 0;
+    font-size: 1.1rem;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+
+.btn-cyber:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow:
+        0 0 30px var(--primary-color),
+        0 0 60px var(--primary-color),
+        inset 0 0 20px rgba(0, 255, 157, 0.9);
+    color: var(--background-dark);
+}
+
+.btn-cyber-outline {
+    background: transparent;
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+    box-shadow:
+        0 0 20px var(--secondary-color),
+        inset 0 0 10px rgba(0, 168, 255, 0.5);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+}
+
+.btn-cyber-outline:hover {
+    background: var(--secondary-color);
+    color: var(--background-dark);
+    box-shadow:
+        0 0 30px var(--secondary-color),
+        0 0 60px var(--secondary-color),
+        inset 0 0 20px rgba(0, 168, 255, 0.9);
+    border-color: transparent;
+}
+
+/* Utilities */
+.text-neon {
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+.text-gradient {
+    background: var(--cyber-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bg-dark-transparent {
+    background: rgba(10, 10, 10, 0.9);
+} 

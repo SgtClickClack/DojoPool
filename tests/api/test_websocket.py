@@ -1,121 +1,88 @@
-"""Tests for WebSocket events."""
+"""Tests for WebSocket API functionality."""
 import pytest
-from flask import url_for
-from flask_socketio import SocketIO
-from src.models import Game, User
+from dojopool.core.websocket import WebSocketManager
+from dojopool.models import Game, User
+from dojopool.core.db import db
 
-@pytest.mark.usefixtures('client')
-class TestWebSocketEvents:
-    """Test cases for WebSocket events."""
+def test_websocket_connection(client, auth_headers):
+    """Test WebSocket connection."""
+    # Create test user
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
     
-    @pytest.fixture(autouse=True)
-    def setup_method(self, app, client, db_session):
-        """Set up test data."""
-        self.client = client
-        self.db_session = db_session
-        self.socketio = SocketIO(app)
-        
-        # Create test user
-        self.user = User(
-            username='testuser',
-            email='test@example.com'
-        )
-        self.user.set_password('password')
-        self.user.is_verified = True
-        self.db_session.add(self.user)
-        
-        # Create test game
-        self.game = Game(
-            player_id=self.user.id,
-            status='active'
-        )
-        self.db_session.add(self.game)
-        self.db_session.commit()
+    # Create game
+    game = Game(
+        game_type="eight_ball",
+        creator_id=user.id,
+        status="created"
+    )
+    db.session.add(game)
+    db.session.commit()
     
-    def test_connect(self):
-        """Test client connection."""
-        client = self.socketio.test_client(self.app)
-        assert client.is_connected()
+    # Connect to WebSocket
+    ws = client.websocket_connect(
+        f"/ws/games/{game.id}",
+        headers=auth_headers
+    )
+    assert ws.connected
     
-    def test_disconnect(self):
-        """Test client disconnection."""
-        client = self.socketio.test_client(self.app)
-        client.disconnect()
-        assert not client.is_connected()
+    # Send message
+    ws.send_json({
+        "type": "ready",
+        "data": {"player_id": user.id}
+    })
     
-    def test_join_game_room(self):
-        """Test joining a game room."""
-        client = self.socketio.test_client(self.app)
-        client.emit('join', {'game_id': self.game.id})
-        received = client.get_received()
-        assert len(received) == 1
-        assert received[0]['name'] == 'joined'
-        assert received[0]['args'][0]['game_id'] == self.game.id
+    # Receive response
+    response = ws.receive_json()
+    assert response["type"] == "player_ready"
+    assert response["data"]["player_id"] == user.id
     
-    def test_leave_game_room(self):
-        """Test leaving a game room."""
-        client = self.socketio.test_client(self.app)
-        client.emit('join', {'game_id': self.game.id})
-        client.emit('leave', {'game_id': self.game.id})
-        received = client.get_received()
-        assert len(received) == 2
-        assert received[1]['name'] == 'left'
-        assert received[1]['args'][0]['game_id'] == self.game.id
+    # Close connection
+    ws.close()
+    assert not ws.connected
+
+def test_game_state_updates(client, auth_headers):
+    """Test game state updates via WebSocket."""
+    # Create test user
+    user = User(username="testuser", email="test@example.com")
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
     
-    def test_game_update(self):
-        """Test game update event."""
-        client = self.socketio.test_client(self.app)
-        client.emit('join', {'game_id': self.game.id})
-        
-        # Update game
-        self.game.status = 'completed'
-        self.db_session.commit()
-        
-        # Emit update event
-        self.socketio.emit('game_update', {
-            'game_id': self.game.id,
-            'status': 'completed'
-        }, room=str(self.game.id))
-        
-        received = client.get_received()
-        assert len(received) >= 2
-        assert received[-1]['name'] == 'game_update'
-        assert received[-1]['args'][0]['status'] == 'completed'
+    # Create game
+    game = Game(
+        game_type="eight_ball",
+        creator_id=user.id,
+        status="in_progress"
+    )
+    db.session.add(game)
+    db.session.commit()
     
-    def test_chat_message(self):
-        """Test chat message event."""
-        client = self.socketio.test_client(self.app)
-        client.emit('join', {'game_id': self.game.id})
-        
-        message = {
-            'game_id': self.game.id,
-            'user_id': self.user.id,
-            'message': 'Hello, world!'
+    # Connect to WebSocket
+    ws = client.websocket_connect(
+        f"/ws/games/{game.id}",
+        headers=auth_headers
+    )
+    assert ws.connected
+    
+    # Take shot
+    ws.send_json({
+        "type": "shot",
+        "data": {
+            "power": 0.8,
+            "angle": 45.0,
+            "player_id": user.id
         }
-        client.emit('chat', message)
-        
-        received = client.get_received()
-        assert len(received) >= 2
-        assert received[-1]['name'] == 'chat'
-        assert received[-1]['args'][0]['message'] == 'Hello, world!'
+    })
     
-    def test_spectator_join(self):
-        """Test spectator joining event."""
-        client = self.socketio.test_client(self.app)
-        client.emit('spectate', {'game_id': self.game.id})
-        
-        received = client.get_received()
-        assert len(received) == 1
-        assert received[0]['name'] == 'spectator_joined'
-        assert received[0]['args'][0]['game_id'] == self.game.id
+    # Receive game state update
+    response = ws.receive_json()
+    assert response["type"] == "game_state"
+    assert "balls" in response["data"]
+    assert "score" in response["data"]
     
-    def test_spectator_leave(self):
-        """Test spectator leaving event."""
-        client = self.socketio.test_client(self.app)
-        client.emit('spectate', {'game_id': self.game.id})
-        client.emit('stop_spectating', {'game_id': self.game.id})
-        
-        received = client.get_received()
-        assert len(received) == 2
-        assert received[1]['name'] == 'spectator_left'
-        assert received[1]['args'][0]['game_id'] == self.game.id
+    # Close connection
+    ws.close()
+    assert not ws.connected

@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime, timedelta
-from src.models.match import Match
-from src.models.location import Location
+from dojopool.models.match import Match
+from dojopool.models.location import Location
 
 def test_match_creation(db_session, user_factory, location_factory):
     """Test basic match creation."""

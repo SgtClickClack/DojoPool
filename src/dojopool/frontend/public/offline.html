@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DojoPool - Offline</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --background-color: #1a1a1a;
+            --text-color: #ffffff;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--background-color), #2c3e50);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .container {
+            padding: 2rem;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .retry-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .retry-button:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/logo192.png" alt="DojoPool Logo" class="logo">
+        <h1>You're Offline</h1>
+        <p>
+            Looks like you've lost your internet connection. 
+            Don't worry - your game progress is saved and will sync when you're back online.
+        </p>
+        <a href="/" class="retry-button">Try Again</a>
+        <div class="status">
+            Last cached: <span id="last-cached">Checking...</span>
+        </div>
+    </div>
+    
+    <script>
+        // Update last cached time
+        document.addEventListener('DOMContentLoaded', () => {
+            const lastCached = localStorage.getItem('lastCached') || new Date().toISOString();
+            const timeElement = document.getElementById('last-cached');
+            const date = new Date(lastCached);
+            timeElement.textContent = date.toLocaleString();
+            
+            // Check connection status periodically
+            setInterval(() => {
+                if (navigator.onLine) {
+                    window.location.reload();
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html> 

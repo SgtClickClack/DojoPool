@@ -1,9 +1,9 @@
 """Tests for leaderboard functionality."""
 import pytest
 from datetime import datetime
-from src.models.leaderboard import Leaderboard
-from src.services.leaderboard_service import LeaderboardService
-from src.models.user import User
+from dojopool.models.leaderboard import Leaderboard
+from dojopool.services.leaderboard_service import LeaderboardService
+from dojopool.models.user import User
 from tests.utils import cleanup_after_test
 
 @pytest.fixture

@@ -1,12 +1,12 @@
 import pytest
 from marshmallow import ValidationError
 from flask import Flask
-from src.core.validation import (
+from dojopool.core.validation import (
     BaseValidator,
     ValidationResult,
     validate_with
 )
-from src.core.validation.schemas import (
+from dojopool.core.validation.schemas import (
     UserSchema,
     LoginSchema,
     GameSettingsSchema,
@@ -18,7 +18,7 @@ from src.core.validation.schemas import (
     TournamentSchema,
     MatchSchema
 )
-from src.core.validation.utils import (
+from dojopool.core.validation.utils import (
     validate_password_strength,
     validate_email_domain,
     validate_phone_number,

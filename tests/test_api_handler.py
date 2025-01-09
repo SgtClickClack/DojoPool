@@ -1,57 +1,87 @@
+"""Tests for API handler functionality."""
 import pytest
-import asyncio
-from unittest.mock import Mock, patch
-from datetime import datetime, timedelta
-from src.api.api_handler import APIHandler
+from dojopool.api.handler import APIHandler
+from dojopool.models import User, Match, Tournament
+from dojopool.core.db import db
 
-# Fixture for API Handler
-@pytest.fixture
-async def api_handler():
+def test_api_request_handling():
+    """Test API request handling."""
+    # Create handler
     handler = APIHandler()
-    # Setup test database connection
-    handler.db_client = Mock()
-    handler.db = Mock()
-    return handler
-
-# Test API Rate Limiting
-@pytest.mark.asyncio
-async def test_rate_limiting(api_handler):
-    """Test API rate limiting functionality."""
-    # Mock rate limit data
-    api_handler.rate_limits['places'] = {
-        'calls': 0,
-        'reset_time': datetime.now() - timedelta(hours=2),
-        'limit': 2
+    
+    # Test GET request
+    response = handler.handle_request("GET", "/api/users")
+    assert response.status_code == 200
+    assert "users" in response.json
+    
+    # Test POST request
+    data = {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "password123"
     }
+    response = handler.handle_request("POST", "/api/users", data)
+    assert response.status_code == 201
+    assert "user" in response.json
     
-    # Test successful calls within limit
-    for _ in range(2):
-        result = await api_handler.fetch_places("test", {"lat": 0, "lng": 0})
-        assert result is not None
-    
-    # Test rate limit exceeded
-    with pytest.raises(Exception) as exc_info:
-        await api_handler.fetch_places("test", {"lat": 0, "lng": 0})
-    assert "Rate limit exceeded" in str(exc_info.value)
+    # Test invalid request
+    response = handler.handle_request("PUT", "/api/invalid")
+    assert response.status_code == 404
 
-# Test Caching
-@pytest.mark.asyncio
-async def test_caching(api_handler):
-    """Test API response caching."""
-    test_location = {"lat": 35.6762, "lng": 139.6503}
-    cache_key = f"weather_{test_location['lat']}_{test_location['lng']}"
+def test_api_authentication():
+    """Test API authentication."""
+    # Create handler
+    handler = APIHandler()
     
-    # First call should cache the result
-    with patch('aiohttp.ClientSession.get') as mock_get:
-        mock_get.return_value.__aenter__.return_value.status = 200
-        mock_get.return_value.__aenter__.return_value.json = \
-            asyncio.coroutine(lambda: {"temp": 20})
-        
-        result1 = await api_handler.fetch_weather(test_location)
-        assert result1 is not None
-        assert cache_key in api_handler.cache
-        
-        # Second call should use cached result
-        result2 = await api_handler.fetch_weather(test_location)
-        assert result2 is not None
-        mock_get.assert_called_once()  # Verify API was only called once 
+    # Create test user
+    user = User(
+        username="testuser",
+        email="test@example.com"
+    )
+    user.set_password("password123")
+    db.session.add(user)
+    db.session.commit()
+    
+    # Test login
+    data = {
+        "username": "testuser",
+        "password": "password123"
+    }
+    response = handler.handle_request("POST", "/api/auth/login", data)
+    assert response.status_code == 200
+    assert "token" in response.json
+    
+    # Test protected endpoint without token
+    response = handler.handle_request("GET", "/api/protected")
+    assert response.status_code == 401
+    
+    # Test protected endpoint with token
+    token = response.json["token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = handler.handle_request("GET", "/api/protected", headers=headers)
+    assert response.status_code == 200
+
+def test_api_error_handling():
+    """Test API error handling."""
+    # Create handler
+    handler = APIHandler()
+    
+    # Test invalid JSON
+    response = handler.handle_request("POST", "/api/users", data="invalid json")
+    assert response.status_code == 400
+    assert "error" in response.json
+    
+    # Test validation error
+    data = {
+        "username": "",  # Empty username
+        "email": "invalid email",
+        "password": "short"
+    }
+    response = handler.handle_request("POST", "/api/users", data)
+    assert response.status_code == 422
+    assert "errors" in response.json
+    
+    # Test not found error
+    response = handler.handle_request("GET", "/api/users/999999")
+    assert response.status_code == 404
+    assert "error" in response.json 

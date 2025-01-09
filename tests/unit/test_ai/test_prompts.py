@@ -1,7 +1,7 @@
 """Test prompts module."""
 
 import pytest
-from src.ai.prompts import STORY_PROMPTS
+from dojopool.ai.prompts import STORY_PROMPTS
 
 def test_story_prompts_exist():
     """Test that story prompts exist."""

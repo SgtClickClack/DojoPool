@@ -1,5 +1,5 @@
 import pytest
-from src.models.location import Location
+from dojopool.models.location import Location
 
 def test_location_creation(db_session):
     """Test basic location creation."""

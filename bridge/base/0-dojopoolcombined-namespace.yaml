@@ -1,0 +1,8 @@
+#! 0-dojopoolcombined-namespace.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: dojopoolcombined
+    labels:
+        com.docker.compose.project: dojopoolcombined

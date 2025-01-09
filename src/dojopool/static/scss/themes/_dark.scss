@@ -1,0 +1,88 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.theme-dark {
+    // Base colors remain the same as light theme
+    // We only override the semantic colors for dark mode
+    
+    // Semantic colors
+    --color-background: var(--color-neutral-900);
+    --color-surface: var(--color-neutral-800);
+    --color-overlay: rgba(black, 0.75);
+    
+    --color-text-primary: var(--color-neutral-50);
+    --color-text-secondary: var(--color-neutral-300);
+    --color-text-tertiary: var(--color-neutral-500);
+    --color-text-disabled: var(--color-neutral-600);
+    
+    --color-border-primary: var(--color-neutral-700);
+    --color-border-secondary: var(--color-neutral-800);
+    
+    // Component colors
+    --color-button-primary: var(--color-primary-600);
+    --color-button-primary-hover: var(--color-primary-500);
+    --color-button-primary-active: var(--color-primary-400);
+    
+    --color-input-background: var(--color-neutral-800);
+    --color-input-border: var(--color-neutral-600);
+    --color-input-focus: var(--color-primary-400);
+    
+    --color-card-background: var(--color-neutral-800);
+    --color-card-border: var(--color-neutral-700);
+    
+    --color-modal-background: var(--color-neutral-800);
+    --color-modal-overlay: rgba(black, 0.75);
+    
+    // Shadows (darker for better visibility)
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-base: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.4);
+    
+    // Success states
+    --color-success-background: rgba(var(--color-success-500), 0.2);
+    --color-success-border: var(--color-success-500);
+    --color-success-text: var(--color-success-50);
+    
+    // Warning states
+    --color-warning-background: rgba(var(--color-warning-500), 0.2);
+    --color-warning-border: var(--color-warning-500);
+    --color-warning-text: var(--color-warning-50);
+    
+    // Error states
+    --color-error-background: rgba(var(--color-error-500), 0.2);
+    --color-error-border: var(--color-error-500);
+    --color-error-text: var(--color-error-50);
+    
+    // Selection
+    ::selection {
+        background-color: var(--color-primary-500);
+        color: white;
+    }
+    
+    // Scrollbar
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--color-neutral-800);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-neutral-600);
+        border-radius: var(--radius-full);
+        
+        &:hover {
+            background: var(--color-neutral-500);
+        }
+    }
+    
+    // Code blocks
+    pre, code {
+        background-color: var(--color-neutral-800);
+        border-color: var(--color-neutral-700);
+    }
+} 

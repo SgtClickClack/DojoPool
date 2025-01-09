@@ -1,145 +1,121 @@
-"""Test fixtures for model tests."""
+"""Models test configuration file."""
 import pytest
 from datetime import datetime, timedelta
-from src.models import User, Token, Location, Game, Match
-from tests.conftest import (
-    app, client, runner, _db, db_session, auth_headers,
-    api_headers, test_user, test_session, test_location,
-    test_venue, test_match, test_game, test_tournament
-)
+from flask import Flask
 
-@pytest.fixture(scope='function')
-def model_session(db_session):
-    """Create a new session for model tests."""
-    return db_session
+from dojopool.models import User, Game, Role, Token
+from dojopool.core.extensions import db
 
-@pytest.fixture(scope='function')
-def user_factory(model_session):
-    """Factory for creating test users."""
-    def create_user(**kwargs):
-        defaults = {
-            'username': 'testuser',
-            'email': 'test@example.com',
-            'is_verified': True
-        }
-        defaults.update(kwargs)
-        user = User(**defaults)
-        user.set_password('password123')
-        model_session.add(user)
-        model_session.commit()
-        return user
-    return create_user
+@pytest.fixture
+def app():
+    """Create and configure a new app instance for each test."""
+    app = Flask(__name__)
+    app.config.update({
+        'TESTING': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+        'SECRET_KEY': 'test-secret-key',
+    })
 
-@pytest.fixture(scope='function')
-def location_factory(model_session):
-    """Factory for creating test locations."""
-    def create_location(**kwargs):
-        defaults = {
-            'name': 'Test Location',
-            'address': '123 Test St',
-            'city': 'Test City',
-            'state': 'TS',
-            'country': 'Test Country'
-        }
-        defaults.update(kwargs)
-        location = Location(**defaults)
-        model_session.add(location)
-        model_session.commit()
-        return location
-    return create_location
+    # Initialize Flask extensions
+    db.init_app(app)
 
-@pytest.fixture(scope='function')
-def game_factory(model_session, user_factory):
-    """Factory for creating test games."""
-    def create_game(**kwargs):
-        if 'player1' not in kwargs:
-            kwargs['player1'] = user_factory()
-        if 'player2' not in kwargs:
-            kwargs['player2'] = user_factory()
-            
-        defaults = {
-            'game_type': 'eight_ball',
-            'status': 'pending',
-            'is_ranked': True
-        }
-        defaults.update(kwargs)
-        game = Game(**defaults)
-        model_session.add(game)
-        model_session.commit()
-        return game
-    return create_game
+    # Create the database and load test data
+    with app.app_context():
+        db.create_all()
 
-@pytest.fixture(scope='function')
-def match_factory(model_session, user_factory, location_factory):
-    """Factory for creating test matches."""
-    def create_match(**kwargs):
-        if 'player1' not in kwargs:
-            kwargs['player1'] = user_factory()
-        if 'player2' not in kwargs:
-            kwargs['player2'] = user_factory()
-        if 'location' not in kwargs:
-            kwargs['location'] = location_factory()
-        if 'scheduled_time' not in kwargs:
-            kwargs['scheduled_time'] = datetime.now() + timedelta(days=1)
-            
-        defaults = {
-            'game_type': 'eight_ball',
-            'status': 'scheduled'
-        }
-        defaults.update(kwargs)
-        match = Match(**defaults)
-        model_session.add(match)
-        model_session.commit()
-        return match
-    return create_match
+    yield app
 
-@pytest.fixture(scope='function')
-def sample_user(user_factory):
-    """Create a sample user for testing."""
-    return user_factory(
-        username='sampleuser',
-        email='sample@example.com',
-        password='samplepass123'
+    # Clean up
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
+
+@pytest.fixture
+def client(app):
+    """A test client for the app."""
+    return app.test_client()
+
+@pytest.fixture
+def runner(app):
+    """A test runner for the app's Click commands."""
+    return app.test_cli_runner()
+
+@pytest.fixture
+def _db(app):
+    """Create and configure a new database for each test."""
+    with app.app_context():
+        db.create_all()
+
+    yield db
+
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
+
+@pytest.fixture
+def user(_db):
+    """Create a user for testing."""
+    user = User(
+        username='test_user',
+        email='test@example.com',
+        password='test_password'
     )
+    _db.session.add(user)
+    _db.session.commit()
+    return user
 
-@pytest.fixture(scope='function')
-def sample_location(location_factory):
-    """Create a sample location for testing."""
-    return location_factory(
-        name='Sample Pool Hall',
-        address='123 Sample St',
-        city='Sample City'
+@pytest.fixture
+def admin(_db):
+    """Create an admin user for testing."""
+    admin = User(
+        username='admin_user',
+        email='admin@example.com',
+        password='admin_password',
+        is_admin=True
     )
+    _db.session.add(admin)
+    _db.session.commit()
+    return admin
 
-@pytest.fixture(scope='function')
-def sample_game(game_factory, sample_user):
-    """Create a sample game for testing."""
-    return game_factory(
-        player1=sample_user,
-        game_type='eight_ball',
-        status='in_progress'
+@pytest.fixture
+def token(user):
+    """Create a token for testing."""
+    token = Token(
+        user_id=user.id,
+        token_type='access',
+        token='test-token',
+        expires_at=datetime.utcnow() + timedelta(hours=1)
     )
+    db.session.add(token)
+    db.session.commit()
+    return token
 
-@pytest.fixture(scope='function')
-def sample_match(match_factory, sample_user, sample_location):
-    """Create a sample match for testing."""
-    return match_factory(
-        player1=sample_user,
-        location=sample_location,
-        game_type='eight_ball',
-        status='scheduled'
-    )
+@pytest.fixture
+def auth_headers(token):
+    """Authentication headers for testing."""
+    return {
+        'Authorization': f'Bearer {token.token}',
+        'Content-Type': 'application/json'
+    }
 
-@pytest.fixture(scope='function')
-def completed_game(game_factory, sample_user):
-    """Create a completed game for testing."""
-    player2 = user_factory()(username='opponent')
-    game = game_factory(
-        player1=sample_user,
-        player2=player2,
-        status='completed',
-        player1_score=7,
-        player2_score=5,
-        winner_id=sample_user.id
+@pytest.fixture
+def admin_token(admin):
+    """Create a token for admin testing."""
+    token = Token(
+        user_id=admin.id,
+        token_type='access',
+        token='admin-token',
+        expires_at=datetime.utcnow() + timedelta(hours=1)
     )
-    return game 
+    db.session.add(token)
+    db.session.commit()
+    return token
+
+@pytest.fixture
+def admin_headers(admin_token):
+    """Authentication headers for admin testing."""
+    return {
+        'Authorization': f'Bearer {admin_token.token}',
+        'Content-Type': 'application/json'
+    } 

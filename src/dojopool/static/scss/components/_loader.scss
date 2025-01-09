@@ -1,0 +1,297 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Spinner loader
+.spinner {
+    display: inline-block;
+    width: spacing(8);
+    height: spacing(8);
+    border: 2px solid color(primary, 200);
+    border-top-color: color(primary, 500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    
+    // Sizes
+    &.spinner-sm {
+        width: spacing(4);
+        height: spacing(4);
+        border-width: 1px;
+    }
+    
+    &.spinner-lg {
+        width: spacing(12);
+        height: spacing(12);
+        border-width: 3px;
+    }
+    
+    // Colors
+    &.spinner-primary {
+        border-color: color(primary, 200);
+        border-top-color: color(primary, 500);
+    }
+    
+    &.spinner-secondary {
+        border-color: color(secondary, 200);
+        border-top-color: color(secondary, 500);
+    }
+    
+    &.spinner-white {
+        border-color: rgba(white, 0.2);
+        border-top-color: white;
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+// Pulse loader
+.pulse {
+    display: inline-block;
+    width: spacing(4);
+    height: spacing(4);
+    background-color: color(primary, 500);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+    
+    // Sizes
+    &.pulse-sm {
+        width: spacing(2);
+        height: spacing(2);
+    }
+    
+    &.pulse-lg {
+        width: spacing(6);
+        height: spacing(6);
+    }
+    
+    // Colors
+    &.pulse-primary {
+        background-color: color(primary, 500);
+    }
+    
+    &.pulse-secondary {
+        background-color: color(secondary, 500);
+    }
+    
+    &.pulse-white {
+        background-color: white;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+}
+
+// Dots loader
+.dots {
+    display: inline-flex;
+    align-items: center;
+    
+    span {
+        width: spacing(2);
+        height: spacing(2);
+        margin: 0 spacing(1);
+        background-color: color(primary, 500);
+        border-radius: 50%;
+        animation: dots 1.4s ease-in-out infinite;
+        
+        &:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        
+        &:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+    }
+    
+    // Sizes
+    &.dots-sm span {
+        width: spacing(1);
+        height: spacing(1);
+    }
+    
+    &.dots-lg span {
+        width: spacing(3);
+        height: spacing(3);
+    }
+    
+    // Colors
+    &.dots-primary span {
+        background-color: color(primary, 500);
+    }
+    
+    &.dots-secondary span {
+        background-color: color(secondary, 500);
+    }
+    
+    &.dots-white span {
+        background-color: white;
+    }
+}
+
+@keyframes dots {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+// Progress bar
+.progress {
+    height: spacing(2);
+    background-color: color(neutral, 100);
+    border-radius: spacing(1);
+    overflow: hidden;
+    
+    .progress-bar {
+        height: 100%;
+        background-color: color(primary, 500);
+        transition: width 0.6s ease;
+    }
+    
+    // Sizes
+    &.progress-sm {
+        height: spacing(1);
+    }
+    
+    &.progress-lg {
+        height: spacing(3);
+    }
+    
+    // Colors
+    &.progress-primary .progress-bar {
+        background-color: color(primary, 500);
+    }
+    
+    &.progress-secondary .progress-bar {
+        background-color: color(secondary, 500);
+    }
+    
+    // Striped
+    &.progress-striped .progress-bar {
+        background-image: linear-gradient(
+            45deg,
+            rgba(white, 0.15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(white, 0.15) 50%,
+            rgba(white, 0.15) 75%,
+            transparent 75%,
+            transparent
+        );
+        background-size: spacing(8) spacing(8);
+    }
+    
+    // Animated
+    &.progress-animated .progress-bar {
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+}
+
+@keyframes progress-bar-stripes {
+    from {
+        background-position: spacing(8) 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+// Skeleton loader
+.skeleton {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    background-color: color(neutral, 100);
+    border-radius: spacing(1);
+    
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+            90deg,
+            rgba(white, 0) 0,
+            rgba(white, 0.2) 20%,
+            rgba(white, 0.5) 60%,
+            rgba(white, 0)
+        );
+        animation: shimmer 2s infinite;
+    }
+    
+    // Text skeleton
+    &.skeleton-text {
+        height: spacing(4);
+        width: 100%;
+        margin-bottom: spacing(2);
+        
+        &:last-child {
+            width: 80%;
+            margin-bottom: 0;
+        }
+    }
+    
+    // Circle skeleton
+    &.skeleton-circle {
+        width: spacing(12);
+        height: spacing(12);
+        border-radius: 50%;
+    }
+    
+    // Rectangle skeleton
+    &.skeleton-rect {
+        width: 100%;
+        height: spacing(40);
+        @include rounded(lg);
+    }
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+// Loading overlay
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(white, 0.8);
+    z-index: map-get($z-index, modal);
+    
+    .loading-content {
+        text-align: center;
+        
+        .loading-text {
+            margin-top: spacing(4);
+            color: color(neutral, 700);
+            @include font-weight(medium);
+        }
+    }
+} 

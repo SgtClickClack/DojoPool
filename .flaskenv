@@ -1,5 +1,4 @@
-FLASK_APP=app.py
+FLASK_APP=src.app:create_app
 FLASK_ENV=development
 FLASK_DEBUG=1
-PYTHONPATH=.
-FLASK_CONFIG=development 
+PYTHONPATH=. 

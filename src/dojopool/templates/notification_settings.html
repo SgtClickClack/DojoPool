@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Notification Settings{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Notification Settings</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form id="notification-settings-form">
+                        <!-- Email Notifications -->
+                        <div class="mb-4">
+                            <h4>Email Notifications</h4>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="email_notifications">
+                                <label class="form-check-label" for="email_notifications">
+                                    Receive email notifications
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Push Notifications -->
+                        <div class="mb-4">
+                            <h4>Push Notifications</h4>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="push_notifications">
+                                <label class="form-check-label" for="push_notifications">
+                                    Receive push notifications
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Types -->
+                        <div class="mb-4">
+                            <h4>Notification Types</h4>
+                            
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="tournament_notifications">
+                                <label class="form-check-label" for="tournament_notifications">
+                                    Tournament notifications
+                                </label>
+                                <small class="form-text text-muted d-block">
+                                    Updates about tournament registrations, matches, and results
+                                </small>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="game_notifications">
+                                <label class="form-check-label" for="game_notifications">
+                                    Game notifications
+                                </label>
+                                <small class="form-text text-muted d-block">
+                                    Updates about game challenges, turns, and results
+                                </small>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="friend_notifications">
+                                <label class="form-check-label" for="friend_notifications">
+                                    Friend notifications
+                                </label>
+                                <small class="form-text text-muted d-block">
+                                    Updates about friend requests and social interactions
+                                </small>
+                            </div>
+                            
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="system_notifications">
+                                <label class="form-check-label" for="system_notifications">
+                                    System notifications
+                                </label>
+                                <small class="form-text text-muted d-block">
+                                    Important system updates and announcements
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load current settings
+    fetch('/api/notification-settings')
+        .then(response => response.json())
+        .then(settings => {
+            Object.keys(settings).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.checked = settings[key];
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading settings:', error);
+            showErrorToast('Failed to load notification settings');
+        });
+    
+    // Handle form submission
+    document.getElementById('notification-settings-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const settings = {
+            email_notifications: document.getElementById('email_notifications').checked,
+            push_notifications: document.getElementById('push_notifications').checked,
+            tournament_notifications: document.getElementById('tournament_notifications').checked,
+            game_notifications: document.getElementById('game_notifications').checked,
+            friend_notifications: document.getElementById('friend_notifications').checked,
+            system_notifications: document.getElementById('system_notifications').checked
+        };
+        
+        fetch('/api/notification-settings', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            showSuccessToast('Settings saved successfully');
+        })
+        .catch(error => {
+            console.error('Error saving settings:', error);
+            showErrorToast('Failed to save notification settings');
+        });
+    });
+});
+
+function showSuccessToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast align-items-center text-white bg-success border-0';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    const container = document.getElementById('toast-container');
+    container.appendChild(toast);
+    
+    const bsToast = new bootstrap.Toast(toast, {
+        autohide: true,
+        delay: 3000
+    });
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+</script>
+{% endblock %}

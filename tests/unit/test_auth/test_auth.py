@@ -2,8 +2,8 @@ import pytest
 from datetime import datetime, timedelta
 from flask_login import current_user
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import User, Token, Role
-from src.auth.utils import (
+from dojopool.models import User, Token, Role
+from dojopool.auth.utils import (
     hash_password,
     verify_password,
     generate_token,

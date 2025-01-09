@@ -1,57 +1,118 @@
+"""Tests for ranking system functionality."""
 import pytest
-from src.ranking.ranking_system import RankingSystem, RankTier
+from dojopool.ranking.ranking_system import RankingSystem
+from dojopool.models import User, Match, Tournament
+from dojopool.core.db import db
 
-@pytest.fixture
-def ranking_system():
-    return RankingSystem()
+def test_ranking_calculation():
+    """Test ranking calculation."""
+    # Create users
+    user1 = User(username="player1", email="player1@test.com")
+    user2 = User(username="player2", email="player2@test.com")
+    db.session.add_all([user1, user2])
+    db.session.commit()
+    
+    # Create match
+    match = Match(
+        player1_id=user1.id,
+        player2_id=user2.id,
+        winner_id=user1.id,
+        score="8-5"
+    )
+    db.session.add(match)
+    db.session.commit()
+    
+    # Calculate rankings
+    ranking_system = RankingSystem()
+    rankings = ranking_system.calculate_rankings([match])
+    
+    # Check rankings
+    assert rankings[user1.id] > rankings[user2.id]
 
-def test_calculate_rank():
-    """Test rank calculation."""
-    system = RankingSystem()
+def test_tournament_ranking():
+    """Test tournament ranking calculation."""
+    # Create users
+    user1 = User(username="player1", email="player1@test.com")
+    user2 = User(username="player2", email="player2@test.com")
+    user3 = User(username="player3", email="player3@test.com")
+    user4 = User(username="player4", email="player4@test.com")
+    db.session.add_all([user1, user2, user3, user4])
+    db.session.commit()
     
-    # Test novice rank
-    novice_stats = {
-        'followers': 10,
-        'wins': 5,
-        'total_matches': 10,
-        'active_spectators': set(['fan1']),
-        'highlight_reels': []
-    }
-    novice_rank = system.calculate_rank("Novice1", novice_stats)
-    assert novice_rank['tier'] == RankTier.NOVICE
+    # Create tournament
+    tournament = Tournament(name="Test Tournament")
+    db.session.add(tournament)
+    db.session.commit()
     
-    # Test legend rank
-    legend_stats = {
-        'followers': 1000,
-        'wins': 95,
-        'total_matches': 100,
-        'active_spectators': set(['fan1', 'fan2', 'fan3']),
-        'highlight_reels': ['reel1', 'reel2', 'reel3']
-    }
-    legend_rank = system.calculate_rank("Legend1", legend_stats)
-    assert legend_rank['tier'] == RankTier.LEGEND
+    # Create matches
+    match1 = Match(
+        player1_id=user1.id,
+        player2_id=user2.id,
+        winner_id=user1.id,
+        score="8-3",
+        tournament_id=tournament.id
+    )
+    match2 = Match(
+        player1_id=user3.id,
+        player2_id=user4.id,
+        winner_id=user3.id,
+        score="8-4",
+        tournament_id=tournament.id
+    )
+    match3 = Match(
+        player1_id=user1.id,
+        player2_id=user3.id,
+        winner_id=user1.id,
+        score="8-7",
+        tournament_id=tournament.id
+    )
+    db.session.add_all([match1, match2, match3])
+    db.session.commit()
+    
+    # Calculate tournament rankings
+    ranking_system = RankingSystem()
+    rankings = ranking_system.calculate_tournament_rankings(tournament)
+    
+    # Check rankings
+    assert rankings[user1.id] > rankings[user2.id]
+    assert rankings[user1.id] > rankings[user3.id]
+    assert rankings[user3.id] > rankings[user4.id]
 
-def test_sponsorship_eligibility():
-    """Test sponsorship eligibility."""
-    system = RankingSystem()
+def test_ranking_history():
+    """Test ranking history tracking."""
+    # Create users
+    user1 = User(username="player1", email="player1@test.com")
+    user2 = User(username="player2", email="player2@test.com")
+    db.session.add_all([user1, user2])
+    db.session.commit()
     
-    # Test ineligible avatar
-    ineligible_stats = {
-        'followers': 10,
-        'wins': 5,
-        'total_matches': 10
-    }
-    system.calculate_rank("Ineligible1", ineligible_stats)
-    sponsorship = system.process_sponsorship("Ineligible1")
-    assert sponsorship is None
+    # Create matches over time
+    match1 = Match(
+        player1_id=user1.id,
+        player2_id=user2.id,
+        winner_id=user1.id,
+        score="8-5"
+    )
+    db.session.add(match1)
+    db.session.commit()
     
-    # Test eligible avatar
-    eligible_stats = {
-        'followers': 1000,
-        'wins': 95,
-        'total_matches': 100
-    }
-    system.calculate_rank("Eligible1", eligible_stats)
-    sponsorship = system.process_sponsorship("Eligible1")
-    assert sponsorship is not None
-    assert sponsorship.tier == RankTier.LEGEND.name
+    # Calculate initial rankings
+    ranking_system = RankingSystem()
+    initial_rankings = ranking_system.calculate_rankings([match1])
+    
+    # Create another match
+    match2 = Match(
+        player1_id=user2.id,
+        player2_id=user1.id,
+        winner_id=user2.id,
+        score="8-6"
+    )
+    db.session.add(match2)
+    db.session.commit()
+    
+    # Calculate updated rankings
+    updated_rankings = ranking_system.calculate_rankings([match1, match2])
+    
+    # Check ranking changes
+    assert initial_rankings[user1.id] > initial_rankings[user2.id]
+    assert abs(updated_rankings[user1.id] - updated_rankings[user2.id]) < abs(initial_rankings[user1.id] - initial_rankings[user2.id])

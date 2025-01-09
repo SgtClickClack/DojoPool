@@ -1,53 +1,56 @@
 # DojoPool Documentation
 
-## Overview
+## Documentation Structure
 
-DojoPool is a web application for managing pool games, tournaments, and player rankings. This documentation provides comprehensive information about the application's architecture, setup, and usage.
+### Core Documentation
+- `PROJECT_OVERVIEW.md` - High-level overview of the project
+- `PROJECT_STRUCTURE.md` - Detailed codebase structure
+- `ROADMAP.md` - Development roadmap and milestones
+- `DEVELOPMENT_TRACKING.md` - Sprint tracking and progress
+- `CHANGELOG.md` - Version history and changes
 
-## Table of Contents
+### Technical Documentation
+- `/technical/` - Technical specifications and architecture
+- `/api/` - API documentation and endpoints
+- `/components/` - Component documentation
+- `/guide/` - Developer guides and tutorials
 
-1. [Getting Started](./getting_started/README.md)
-   - [Installation](./getting_started/installation.md)
-   - [Configuration](./getting_started/configuration.md)
-   - [Development Setup](./getting_started/development.md)
+### Business Documentation
+- `/business/` - Business plans and strategies
+- `/business/partnerships/` - Partnership programs
+- `/business/whitepapers/` - Technical whitepapers
 
-2. [Architecture](./architecture/README.md)
-   - [Project Structure](./architecture/project_structure.md)
-   - [Database Schema](./architecture/database_schema.md)
-   - [API Design](./architecture/api_design.md)
+### Getting Started
+- `/getting_started/` - Setup and installation guides
+- `style-guide.md` - Code style guidelines
+- `testing.md` - Testing procedures and guidelines
+- `performance.md` - Performance optimization guides
 
-3. [Features](./features/README.md)
-   - [Authentication](./features/authentication.md)
-   - [Game Management](./features/game_management.md)
-   - [Tournament System](./features/tournament_system.md)
-   - [Ranking System](./features/ranking_system.md)
-   - [AI Features](./features/ai_features.md)
+### Operations
+- `DEPLOYMENT.md` - Deployment procedures
+- `MONITORING.md` - System monitoring guidelines
+- `RATE_LIMITING.md` - Rate limiting policies
 
-4. [Development](./development/README.md)
-   - [Code Style Guide](./development/code_style.md)
-   - [Testing Guide](./development/testing.md)
-   - [Git Workflow](./development/git_workflow.md)
-   - [CI/CD](./development/cicd.md)
+## Documentation Standards
 
-5. [API Reference](./api/README.md)
-   - [Authentication API](./api/auth.md)
-   - [Game API](./api/game.md)
-   - [Tournament API](./api/tournament.md)
-   - [User API](./api/user.md)
+1. All documentation should be in Markdown format
+2. Use relative links when referencing other documents
+3. Keep documentation up to date with code changes
+4. Include examples where applicable
+5. Follow the style guide for consistent formatting
 
-6. [Deployment](./deployment/README.md)
-   - [Production Setup](./deployment/production.md)
-   - [Monitoring](./deployment/monitoring.md)
-   - [Backup & Recovery](./deployment/backup_recovery.md)
+## Contributing
 
-7. [Contributing](./contributing/README.md)
-   - [How to Contribute](./contributing/how_to_contribute.md)
-   - [Code Review Process](./contributing/code_review.md)
-   - [Issue Guidelines](./contributing/issue_guidelines.md)
+1. Update relevant documentation when making code changes
+2. Follow the documentation structure
+3. Use clear and concise language
+4. Include necessary diagrams or visuals
+5. Test all documentation links before committing
 
-## Quick Links
+## Building Documentation
 
-- [Project Repository](https://github.com/yourusername/dojopool)
-- [Issue Tracker](https://github.com/yourusername/dojopool/issues)
-- [Changelog](../CHANGELOG.md)
-- [License](../LICENSE)
+Our documentation uses VitePress. To build:
+
+1. Install dependencies: `npm install`
+2. Run development server: `npm run docs:dev`
+3. Build for production: `npm run docs:build`
