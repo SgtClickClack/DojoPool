@@ -24,30 +24,32 @@ Authorization: Bearer <your_jwt_token>
 - [GET /api/v1/users/{id}/stats](../../../src/dojopool/routes/users/stats.md)
 
 ### Games
-- [POST /api/v1/games](./games/create.md)
-- [GET /api/v1/games/{id}](./games/get.md)
-- [PUT /api/v1/games/{id}](./games/update.md)
-- [GET /api/v1/games/active](./games/active.md)
+- [POST /api/v1/games](./endpoints/games/create.md)
+- [GET /api/v1/games/{id}](./endpoints/games/get.md)
+- [PUT /api/v1/games/{id}](./endpoints/games/update.md)
+- [GET /api/v1/games/active](./endpoints/games/active.md)
 
 ### Matches
-- [POST /api/v1/matches](./matches/create.md)
-- [GET /api/v1/matches/{id}](./matches/get.md)
-- [PUT /api/v1/matches/{id}](./matches/update.md)
-- [GET /api/v1/matches/upcoming](./matches/upcoming.md)
+- [POST /api/v1/matches](./endpoints/matches/create.md)
+- [GET /api/v1/matches/{id}](./endpoints/matches/get.md)
+- [PUT /api/v1/matches/{id}](./endpoints/matches/update.md)
+- [GET /api/v1/matches/upcoming](./endpoints/matches/upcoming.md)
 
 ### Locations
-- [GET /api/v1/locations](./locations/list.md)
-- [POST /api/v1/locations](./locations/create.md)
-- [GET /api/v1/locations/{id}](./locations/get.md)
-- [PUT /api/v1/locations/{id}](./locations/update.md)
+- [GET /api/v1/locations](./endpoints/locations/list.md)
+- [POST /api/v1/locations](./endpoints/locations/create.md)
+- [GET /api/v1/locations/{id}](./endpoints/locations/get.md)
+- [PUT /api/v1/locations/{id}](./endpoints/locations/update.md)
 
 ### AI Features
-- [POST /api/v1/ai/analyze-style](./ai/analyze-style.md)
-- [POST /api/v1/ai/generate-story](./ai/generate-story.md)
-- [POST /api/v1/ai/get-commentary](./ai/get-commentary.md)
+- [POST /api/v1/ai/analyze-style](./endpoints/ai/analyze-style.md)
+- [POST /api/v1/ai/generate-story](./endpoints/ai/generate-story.md)
+- [POST /api/v1/ai/get-commentary](./endpoints/ai/get-commentary.md)
 
-## Error Handling
+## Error Response Format
+
 All endpoints follow a consistent error response format:
+
 ```json
 {
     "error": {

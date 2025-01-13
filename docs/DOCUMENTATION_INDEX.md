@@ -1,12 +1,18 @@
 # Documentation Index
 
-## Overview
-This document serves as the central index for all documentation in the DojoPool project.
+## Documentation
 
-## Core Documentation
+### Planning
+- [Project Roadmap](./planning/main-roadmap.md)
+- [Image System Roadmap](./planning/image-system-roadmap.md)
+- [Development Tracking](./planning/development-tracking.md)
+
+### Overview
 - [Project Overview](./PROJECT_OVERVIEW.md)
 - [Project Structure](./PROJECT_STRUCTURE.md)
 - [Architecture](./ARCHITECTURE.md)
+
+### Development
 - [API Reference](./API_REFERENCE.md)
 - [Security](./SECURITY.md)
 - [Deployment](./DEPLOYMENT.md)
@@ -15,25 +21,25 @@ This document serves as the central index for all documentation in the DojoPool 
 - [Landing Page](./LANDING_PAGE.md)
 - [Background Images](./BACKGROUND_IMAGES.md)
 
-## Configuration
+### Configuration
 - [Monitoring](./MONITORING.md)
 - [Rate Limiting](./RATE_LIMITING.md)
 - [NGINX Configuration](./NGINX_CONFIGURATION.md)
 
-## User Documentation
+### User Documentation
 - [User Guide](./USER_GUIDE.md)
 - [Accessibility](./accessibility/README.md)
 - [Style Guide](./style/README.md)
 
-## Version Control
-- [Project Roadmap](./ROADMAP.md)
+### Version Control
+- [Roadmap](./ROADMAP.md)
 - [Changelog](./CHANGELOG.md)
 
-## Scripts
+### Scripts
 - [Image Organization](../src/dojopool/scripts/organize_images.py)
 - [Core Image Setup](../src/dojopool/scripts/setup_core_images.py)
-- [Image Optimization](../src/dojopool/scripts/optimize_images.py)
 - [Image Enhancement](../src/dojopool/scripts/enhance_images.py)
+- [Image Optimization](../src/dojopool/scripts/optimize_images.py)
 - [Test Assets](../tests/test_image_assets.py)
 
 ## Core Dependencies

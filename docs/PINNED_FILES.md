@@ -26,12 +26,12 @@
 ## Scripts
 | File Path | Purpose | Update Frequency | Priority |
 |-----------|---------|-----------------|-----------|
-| src/dojopool/scripts/organize_images.py | Image organization | When image system changes | High |
-| src/dojopool/scripts/setup_core_images.py | Core image setup | When core images change | High |
-| src/dojopool/scripts/enhance_images.py | Image enhancement | When enhancement logic changes | High |
-| src/dojopool/scripts/optimize_images.py | Image optimization | When optimization logic changes | High |
+| src/dojopool/scripts/organize_images.py | Image organization automation | When image system changes | High |
+| src/dojopool/scripts/setup_core_images.py | Core image setup automation | When core images change | High |
+| src/dojopool/scripts/enhance_images.py | Image enhancement pipeline | When enhancement logic changes | High |
+| src/dojopool/scripts/optimize_images.py | Image optimization pipeline | When optimization logic changes | High |
 | src/dojopool/scripts/monitor_performance.py | Performance tracking | When metrics change | High |
-| src/dojopool/scripts/monitor_pinned_files.py | Documentation tracking | When tracking changes | High |
+| src/dojopool/scripts/monitor_pinned_files.py | Documentation tracking | When tracking rules change | High |
 
 ## Templates
 | File Path | Purpose | Update Frequency | Priority |
@@ -43,4 +43,9 @@
 | File Path | Purpose | Update Frequency | Priority |
 |-----------|---------|-----------------|-----------|
 | src/dojopool/static/images/README.md | Image asset documentation | When image system changes | Medium |
-| src/dojopool/static/css/README.md | CSS organization documentation | When styles change | Medium | 
+| src/dojopool/static/css/README.md | CSS organization documentation | When styles change | Medium |
+
+## Configuration
+| File Path | Purpose | Update Frequency | Priority |
+|-----------|---------|-----------------|-----------|
+| docs/NGINX_CONFIGURATION.md | NGINX server configuration | When server config changes | High | 
