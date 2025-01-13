@@ -43,9 +43,26 @@ Security Features:
 - TLS 1.2/1.3 only
 - Strong cipher suite configuration
 - HTTP/2 support
-- Strict security headers
-- Content Security Policy (CSP)
+- Strict security headers:
+  - Content Security Policy (CSP)
+    - frame-ancestors 'none'
+    - base-uri 'self'
+    - form-action 'self'
+    - worker-src with blob support
+  - Permissions Policy
+    - Restricted device features
+    - Controlled API access
+  - X-XSS-Protection
+  - X-Content-Type-Options
+  - Strict Transport Security (HSTS)
+  - Expect-CT
 - Cross-Origin Resource Sharing (CORS) controls
+- Rate limiting:
+  - Login attempts: 5/minute
+  - Registration: 3/hour
+  - API endpoints: 100/minute (authenticated)
+  - WebSocket: 50/minute
+  - Static assets: 200/minute
 
 ### Production NGINX Configuration (`nginx/production/nginx.conf`)
 

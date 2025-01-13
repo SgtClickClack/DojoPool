@@ -137,6 +137,26 @@ This document outlines the security measures, best practices, and compliance req
    - Database subnet
    - Management subnet
 
+3. **Web Security Headers**
+   - Strict Content Security Policy (CSP)
+     - frame-ancestors 'none'
+     - base-uri 'self'
+     - form-action 'self'
+     - worker-src with blob support
+   - Comprehensive Permissions Policy
+     - Restricted access to device features
+     - Controlled API permissions
+   - X-XSS-Protection
+   - X-Content-Type-Options
+   - Strict Transport Security (HSTS)
+
+4. **SSL/TLS Configuration**
+   - TLS 1.2 and 1.3 only
+   - Strong cipher suites
+   - OCSP stapling
+   - Session caching
+   - Perfect forward secrecy
+
 ### API Security
 1. **Rate Limiting**
    ```
@@ -144,6 +164,8 @@ This document outlines the security measures, best practices, and compliance req
    - 100 requests/minute (authenticated)
    - 20 requests/minute (unauthenticated)
    - 1000 requests/day (per API key)
+   - 5 login attempts per minute
+   - 3 registration attempts per hour
    ```
 
 2. **Input Validation**
@@ -151,6 +173,19 @@ This document outlines the security measures, best practices, and compliance req
    - Schema validation
    - Content validation
    - File upload restrictions
+     - Virus scanning (ClamAV + YARA)
+     - Filename sanitization
+     - MIME type validation
+     - Size limits
+     - Extension whitelist
+
+### Authentication Security
+1. **Firebase Authentication**
+   - Enforced app verification
+   - Mandatory account selection for Google sign-in
+   - Production-only session persistence
+   - Enhanced OAuth 2.0 scope control
+   - Secure token management
 
 ## Monitoring & Detection
 

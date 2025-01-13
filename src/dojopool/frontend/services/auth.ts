@@ -1,110 +1,107 @@
-import api from './api';
+import { GoogleAuthProvider, browserLocalPersistence, browserPopupRedirectResolver, getAuth, getRedirectResult, inMemoryPersistence, signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { analyticsService } from './analytics';
 
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
+class AuthService {
+  private auth = getAuth();
+  private googleProvider = new GoogleAuthProvider();
 
-interface RegisterData extends LoginCredentials {
-  username: string;
-  preferredStyle?: string;
-}
+  constructor() {
+    // Configure auth persistence based on environment
+    this.auth.setPersistence(process.env.NODE_ENV === 'production' ? browserLocalPersistence : inMemoryPersistence);
 
-interface AuthResponse {
-  token: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    username: string;
-  };
-}
+    // Configure Google provider
+    this.googleProvider.setCustomParameters({
+      prompt: 'select_account',
+      // Ensure redirect happens to same origin
+      redirect_uri: window.location.origin + '/auth/callback'
+    });
 
-interface PasswordResetRequest {
-  email: string;
-}
+    // Handle redirect results on page load
+    this.handleRedirectResult();
+  }
 
-interface PasswordResetConfirm {
-  token: string;
-  newPassword: string;
-}
+  private async handleRedirectResult() {
+    try {
+      const result = await getRedirectResult(this.auth, browserPopupRedirectResolver);
+      if (result) {
+        await this.handleAuthSuccess(result);
+      }
+    } catch (error) {
+      console.error('Auth redirect error:', error);
+      analyticsService.trackUserEvent({
+        type: 'auth_redirect_error',
+        userId: 'anonymous',
+        details: { error: error.message }
+      });
+    }
+  }
 
-export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
-  const response = await api.post('/auth/login', credentials);
-  const { token, refreshToken } = response.data;
+  private async handleAuthSuccess(result: any) {
+    const user = result.user;
+    analyticsService.trackUserEvent({
+      type: 'auth_success',
+      userId: user.uid,
+      details: {
+        provider: result.providerId,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
 
-  localStorage.setItem('auth_token', token);
-  localStorage.setItem('refresh_token', refreshToken);
+  async signInWithGoogle() {
+    try {
+      // Try popup first as it's more reliable
+      const result = await signInWithPopup(this.auth, this.googleProvider);
+      await this.handleAuthSuccess(result);
+    } catch (popupError) {
+      console.warn('Popup blocked, falling back to redirect:', popupError);
 
-  return response.data;
-}
+      // If popup blocked, fall back to redirect
+      try {
+        await signInWithRedirect(this.auth, this.googleProvider);
+      } catch (redirectError) {
+        console.error('Sign in error:', redirectError);
+        analyticsService.trackUserEvent({
+          type: 'auth_error',
+          userId: 'anonymous',
+          details: { error: redirectError.message }
+        });
+        throw redirectError;
+      }
+    }
+  }
 
-export async function register(data: RegisterData): Promise<AuthResponse> {
-  const response = await api.post('/auth/register', data);
-  const { token, refreshToken } = response.data;
+  async signOut() {
+    try {
+      const user = this.auth.currentUser;
+      await this.auth.signOut();
+      analyticsService.trackUserEvent({
+        type: 'sign_out',
+        userId: user?.uid || 'anonymous',
+        details: { timestamp: new Date().toISOString() }
+      });
+    } catch (error) {
+      console.error('Sign out error:', error);
+      analyticsService.trackUserEvent({
+        type: 'sign_out_error',
+        userId: this.auth.currentUser?.uid || 'anonymous',
+        details: { error: error.message }
+      });
+      throw error;
+    }
+  }
 
-  localStorage.setItem('auth_token', token);
-  localStorage.setItem('refresh_token', refreshToken);
+  onAuthStateChanged(callback: (user: any) => void) {
+    return this.auth.onAuthStateChanged(callback);
+  }
 
-  return response.data;
-}
+  getCurrentUser() {
+    return this.auth.currentUser;
+  }
 
-export async function logout(): Promise<void> {
-  try {
-    await api.post('/auth/logout');
-  } finally {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
+  isAuthenticated() {
+    return !!this.auth.currentUser;
   }
 }
 
-export async function refreshToken(): Promise<string> {
-  const refreshToken = localStorage.getItem('refresh_token');
-  if (!refreshToken) {
-    throw new Error('No refresh token available');
-  }
-
-  const response = await api.post('/auth/refresh', {
-    refresh_token: refreshToken,
-  });
-  const { token } = response.data;
-
-  localStorage.setItem('auth_token', token);
-
-  return token;
-}
-
-export async function requestPasswordReset(data: PasswordResetRequest): Promise<void> {
-  await api.post('/auth/password-reset-request', data);
-}
-
-export async function confirmPasswordReset(data: PasswordResetConfirm): Promise<void> {
-  await api.post('/auth/password-reset-confirm', data);
-}
-
-export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
-  await api.post('/auth/change-password', {
-    current_password: currentPassword,
-    new_password: newPassword,
-  });
-}
-
-export async function verifyEmail(token: string): Promise<void> {
-  await api.post('/auth/verify-email', { token });
-}
-
-export async function resendVerificationEmail(): Promise<void> {
-  await api.post('/auth/resend-verification');
-}
-
-export function isAuthenticated(): boolean {
-  return !!localStorage.getItem('auth_token');
-}
-
-export function getAuthToken(): string | null {
-  return localStorage.getItem('auth_token');
-}
-
-export function getRefreshToken(): string | null {
-  return localStorage.getItem('refresh_token');
-}
+export const authService = new AuthService();
