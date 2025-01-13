@@ -21,7 +21,7 @@
 | `docs/NGINX_CONFIGURATION.md` | NGINX server configuration | When server config changes | High |
 | `docs/USER_GUIDE.md` | User documentation | When features change | High |
 | `docs/accessibility/README.md` | Accessibility guidelines | When a11y changes | High |
-| `docs/style/README.md` | Style guidelines | When styles change | High |
+| `docs/style/README.md` | Style guidelines | When styles change | Medium |
 | `docs/CHANGELOG.md` | Version history | When versions change | High |
 
 ## Planning
@@ -29,15 +29,15 @@
 |-----------|---------|-----------------|-----------|
 | `docs/planning/main-roadmap.md` | Main project roadmap | Monthly | High |
 | `docs/planning/image-system-roadmap.md` | Image system roadmap | Monthly | High |
-| `docs/planning/development-tracking.md` | Development tracking | Daily | High |
+| `docs/planning/development-tracking.md` | Development progress | Daily | High |
 
 ## Scripts
 | File Path | Purpose | Update Frequency | Priority |
 |-----------|---------|-----------------|-----------|
 | `src/dojopool/scripts/organize_images.py` | Image organization automation | When logic changes | High |
 | `src/dojopool/scripts/setup_core_images.py` | Core image setup automation | When core images change | High |
-| `src/dojopool/scripts/enhance_images.py` | Image enhancement pipeline | When enhancement logic changes | High |
-| `src/dojopool/scripts/optimize_images.py` | Image optimization pipeline | When optimization logic changes | High |
+| `src/dojopool/scripts/enhance_images.py` | Image enhancement pipeline | When logic changes | High |
+| `src/dojopool/scripts/optimize_images.py` | Image optimization pipeline | When logic changes | High |
 | `src/dojopool/scripts/monitor_performance.py` | Performance tracking | When metrics change | High |
 | `src/dojopool/scripts/monitor_pinned_files.py` | Documentation tracking | When tracking rules change | High |
 
