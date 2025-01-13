@@ -4,6 +4,8 @@ from datetime import datetime
 import logging
 from typing import List, Dict, Optional
 import yaml
+import subprocess
+from dataclasses import dataclass
 
 # Configure logging
 logging.basicConfig(
@@ -14,6 +16,19 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+
+# This is the core context update system that automatically tracks and documents
+# changes across the codebase. It monitors file modifications, analyzes their
+# impact, and updates documentation accordingly. The system supports multiple
+# file types and integrates with Git hooks for automated validation.
+
+@dataclass
+class CodeChange:
+    """Represents a code change detected in the repository."""
+    file_path: str
+    change_type: str  # 'added', 'modified', 'deleted'
+    lines_added: int
+    lines_removed: int
 
 class ContextUpdate:
     """Represents a context update that needs to be made."""
@@ -62,6 +77,82 @@ class ContextManager:
         with open(self.updates_file, 'w') as f:
             yaml.dump(data, f, default_flow_style=False)
 
+    def get_code_changes(self) -> List[CodeChange]:
+        """Get list of code changes since last commit."""
+        changes = []
+        try:
+            # Get staged files
+            staged = subprocess.check_output(['git', 'diff', '--cached', '--numstat']).decode()
+            for line in staged.splitlines():
+                if line.strip():
+                    added, removed, file_path = line.split('\t')
+                    changes.append(CodeChange(
+                        file_path=file_path,
+                        change_type='modified',
+                        lines_added=int(added) if added != '-' else 0,
+                        lines_removed=int(removed) if removed != '-' else 0
+                    ))
+            
+            # Get unstaged changes
+            unstaged = subprocess.check_output(['git', 'diff', '--numstat']).decode()
+            for line in unstaged.splitlines():
+                if line.strip():
+                    added, removed, file_path = line.split('\t')
+                    changes.append(CodeChange(
+                        file_path=file_path,
+                        change_type='modified',
+                        lines_added=int(added) if added != '-' else 0,
+                        lines_removed=int(removed) if removed != '-' else 0
+                    ))
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Error getting code changes: {e}")
+        
+        return changes
+
+    def analyze_changes(self, changes: List[CodeChange]):
+        """Analyze code changes and create appropriate context updates."""
+        for change in changes:
+            # Skip certain files
+            if any(skip in change.file_path for skip in ['.git', '__pycache__', '.pyc']):
+                continue
+
+            # Determine the type of update needed
+            if change.file_path.endswith('.py'):
+                self._handle_python_change(change)
+            elif change.file_path.endswith(('.js', '.ts')):
+                self._handle_javascript_change(change)
+            elif change.file_path.endswith('.md'):
+                self._handle_documentation_change(change)
+
+    def _handle_python_change(self, change: CodeChange):
+        """Handle changes to Python files."""
+        if change.lines_added + change.lines_removed > 10:
+            self.add_update(
+                'docs/DEVELOPMENT_TRACKING.md',
+                'Daily Updates',
+                f"- Modified `{change.file_path}`: {change.lines_added} lines added, {change.lines_removed} removed",
+                f"Significant changes to Python file"
+            )
+
+    def _handle_javascript_change(self, change: CodeChange):
+        """Handle changes to JavaScript/TypeScript files."""
+        if change.lines_added + change.lines_removed > 10:
+            self.add_update(
+                'docs/DEVELOPMENT_TRACKING.md',
+                'Daily Updates',
+                f"- Modified `{change.file_path}`: {change.lines_added} lines added, {change.lines_removed} removed",
+                f"Significant changes to JavaScript/TypeScript file"
+            )
+
+    def _handle_documentation_change(self, change: CodeChange):
+        """Handle changes to documentation files."""
+        self.add_update(
+            'docs/DOCUMENTATION_INDEX.md',
+            'Recent Updates',
+            f"- Updated `{change.file_path}`",
+            f"Documentation changes"
+        )
+
     def add_update(self, file_path: str, section: str, content: str, reason: str):
         """Add a new context update."""
         update = ContextUpdate(file_path, section, content, reason)
@@ -83,74 +174,31 @@ class ContextManager:
             return
 
         content = tracking_file.read_text()
-        new_entry = f"\n### Context Updates\n- Updated `{update.file_path}` - {update.section}\n  - Reason: {update.reason}\n"
-
-        # Add the update under today's date or create a new entry
-        if "# Development Tracking" in content:
-            # Find today's date section or create it
-            today = datetime.now().strftime("%Y-%m-%d")
-            if f"## {today}" in content:
-                # Add under existing date
-                parts = content.split(f"## {today}")
-                content = f"{parts[0]}## {today}\n{new_entry}{parts[1]}"
-            else:
-                # Create new date section
-                content = f"{content}\n\n## {today}\n{new_entry}"
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        # Create the new entry
+        new_entry = f"- {update.content}\n  - {update.reason}"
+        
+        # Try to add to today's section if it exists
+        if f"### {today}" in content:
+            # Add under today's section
+            parts = content.split(f"### {today}")
+            content = f"{parts[0]}### {today}\n{new_entry}\n{parts[1]}"
         else:
-            content = f"# Development Tracking\n\n## {datetime.now().strftime('%Y-%m-%d')}\n{new_entry}"
+            # Create new section for today
+            if "### Daily Updates" in content:
+                parts = content.split("### Daily Updates")
+                content = f"{parts[0]}### Daily Updates\n\n### {today}\n{new_entry}\n{parts[1]}"
+            else:
+                content += f"\n### Daily Updates\n\n### {today}\n{new_entry}\n"
 
         tracking_file.write_text(content)
 
-    def check_required_updates(self) -> List[str]:
-        """Check for files that likely need updates based on recent changes."""
-        required_updates = []
-        
-        # Check development tracking
-        tracking_file = Path('docs/DEVELOPMENT_TRACKING.md')
-        if tracking_file.exists():
-            last_modified = datetime.fromtimestamp(tracking_file.stat().st_mtime)
-            if (datetime.now() - last_modified).days > 1:
-                required_updates.append("Development tracking needs to be updated")
-
-        # Check documentation index
-        index_file = Path('docs/DOCUMENTATION_INDEX.md')
-        if index_file.exists() and self.pending_updates:
-            required_updates.append("Documentation index may need updates due to pending changes")
-
-        return required_updates
-
-    def generate_update_reminders(self):
-        """Generate reminders for context updates."""
-        logging.info("\nContext Update Reminders")
-        logging.info("=======================")
-
-        if self.pending_updates:
-            logging.info("\nPending Updates:")
-            for update in self.pending_updates:
-                logging.info(f"\nFile: {update.file_path}")
-                logging.info(f"Section: {update.section}")
-                logging.info(f"Reason: {update.reason}")
-                logging.info(f"Added: {update.timestamp}")
-
-        required = self.check_required_updates()
-        if required:
-            logging.info("\nRequired Updates:")
-            for update in required:
-                logging.info(f"- {update}")
-
 def main():
-    """Main function to manage context updates."""
     manager = ContextManager()
-    
-    # Example usage:
-    # manager.add_update(
-    #     "docs/DEVELOPMENT_TRACKING.md",
-    #     "Current Sprint",
-    #     "Added new feature X",
-    #     "Implementation of feature X completed"
-    # )
-    
-    manager.generate_update_reminders()
+    changes = manager.get_code_changes()
+    manager.analyze_changes(changes)
+    return 0
 
 if __name__ == '__main__':
     main() 
