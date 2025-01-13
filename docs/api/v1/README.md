@@ -12,16 +12,16 @@ Authorization: Bearer <your_jwt_token>
 ## Endpoints
 
 ### Authentication
-- [POST /api/v1/auth/register](../../../src/dojopool/routes/auth/register.md)
-- [POST /api/v1/auth/login](../../../src/dojopool/routes/auth/login.md)
-- [POST /api/v1/auth/verify-email](../../../src/dojopool/routes/auth/verify-email.md)
-- [POST /api/v1/auth/reset-password](../../../src/dojopool/routes/auth/reset-password.md)
+- [POST /api/v1/auth/register](./endpoints/auth/register.md)
+- [POST /api/v1/auth/login](./endpoints/auth/login.md)
+- [POST /api/v1/auth/refresh](./endpoints/auth/refresh.md)
+- [POST /api/v1/auth/logout](./endpoints/auth/logout.md)
 
 ### Users
-- [GET /api/v1/users/me](../../../src/dojopool/routes/users/me.md)
-- [PUT /api/v1/users/me](../../../src/dojopool/routes/users/update.md)
-- [GET /api/v1/users/{id}](../../../src/dojopool/routes/users/get.md)
-- [GET /api/v1/users/{id}/stats](../../../src/dojopool/routes/users/stats.md)
+- [GET /api/v1/users/me](./endpoints/users/me.md)
+- [GET /api/v1/users/{id}](./endpoints/users/get.md)
+- [PUT /api/v1/users/{id}](./endpoints/users/update.md)
+- [DELETE /api/v1/users/{id}](./endpoints/users/delete.md)
 
 ### Games
 - [POST /api/v1/games](./endpoints/games/create.md)
@@ -44,21 +44,18 @@ Authorization: Bearer <your_jwt_token>
 ### AI Features
 - [POST /api/v1/ai/analyze-style](./endpoints/ai/analyze-style.md)
 - [POST /api/v1/ai/generate-story](./endpoints/ai/generate-story.md)
-- [POST /api/v1/ai/get-commentary](./endpoints/ai/get-commentary.md)
+- [GET /api/v1/ai/get-commentary](./endpoints/ai/get-commentary.md)
 
-## Error Response Format
-
-All endpoints follow a consistent error response format:
-
+### Error Response Format
 ```json
 {
-    "error": {
-        "code": "ERROR_CODE",
-        "message": "Human readable error message",
-        "details": {
-            "field": "Additional error details"
-        }
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable error message",
+    "details": {
+      "field": "Additional error details"
     }
+  }
 }
 ```
 

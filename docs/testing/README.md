@@ -1,37 +1,31 @@
-## Key Files
+## Testing Documentation
 
-- `../../tests/conftest.py` - Test fixtures and configuration
-- `../../tests/factories.py` - Test data factories
-- `../../tests/scripts/runTests.js` - Test runner script
+This project uses pytest for testing. For detailed information about pytest, visit the [pytest documentation](https://docs.pytest.org/en/stable/).
 
-## Example Test
+### Key Files
 
-```python
-def test_user_creation(client, db):
-    """Test user creation endpoint."""
-    response = client.post('/api/users', json={
-        'username': 'testuser',
-        'email': 'test@example.com',
-        'password': 'password123'
-    })
-    assert response.status_code == 201
-    assert 'id' in response.json
+- `tests/conftest.py` - Test fixtures and configuration
+- `tests/factories.py` - Test data factories
+- `tests/scripts/runTests.js` - Test runner script
+
+### Running Tests
+
+Run all tests:
+```bash
+pytest
 ```
 
-## Running Tests
-
-For detailed information about pytest, visit the [pytest documentation](https://docs.pytest.org/en/stable/).
-
+Run specific test file:
 ```bash
-# Run all tests
-pytest
+pytest tests/test_file.py
+```
 
-# Run specific test file
-pytest tests/test_auth.py
+Run with coverage:
+```bash
+pytest --cov=src/dojopool
+```
 
-# Run with coverage
-pytest --cov=src tests/
-
-# Run with verbose output
+Run with verbose output:
+```bash
 pytest -v
 ``` 

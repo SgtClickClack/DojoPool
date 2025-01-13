@@ -8,65 +8,70 @@
 
 ### Steps
 
-1. Build Docker image:
-```bash
-docker build -t dojopool:latest .
-```
+1. Configure NGINX
+   - Copy the NGINX configuration:
+     ```bash
+     sudo cp nginx/production/nginx.conf /etc/nginx/conf.d/
+     ```
+   - For detailed NGINX setup, see [NGINX Configuration](./NGINX_CONFIGURATION.md)
 
-2. Configure environment:
-```bash
-cp .env.example .env
-# Edit .env with production values
-```
+2. Test and reload NGINX
+   ```bash
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
 
-3. Configure Nginx:
-For detailed NGINX configuration instructions, see [NGINX Configuration Guide](../docs/NGINX_CONFIGURATION.md)
+3. Build containers
+   ```bash
+   docker-compose build
+   ```
 
-Quick setup:
-```bash
-# Copy configuration
-cp nginx/production/nginx.conf /etc/nginx/conf.d/
+4. Start services
+   ```bash
+   docker-compose up -d
+   ```
 
-# Test configuration
-nginx -t
+5. Monitor logs
+   ```bash
+   docker-compose logs -f
+   ```
 
-# Reload Nginx
-systemctl reload nginx
-```
+6. Deploy with production config
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
 
-4. Deploy containers:
-```bash
-# Build containers
-docker-compose build
+7. Run migrations
+   ```bash
+   docker-compose exec web flask db upgrade
+   ```
 
-# Start services
-docker-compose up -d
-
-# Monitor logs
-docker-compose logs -f
-
-# Deploy with production config
-docker-compose -f docker-compose.prod.yml up -d
-
-# Run migrations
-docker-compose exec web flask db upgrade
-
-# Health check
-curl https://your-domain.com/health
-```
+8. Health check
+   ```bash
+   curl https://your-domain.com/health
+   ```
 
 ### Rollback Procedures
-- Database: Use alembic downgrade
-- Application: Switch to previous image tag
+1. Database rollback
+   ```bash
+   docker-compose exec web flask db downgrade
+   ```
+2. Application rollback
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d --force-recreate web
+   ```
 
-### Security
-- Enable application security measures
-- Configure infrastructure security
+### Security Considerations
+- Review [Security Documentation](./SECURITY.md)
+- Ensure all secrets are properly configured
+- Follow security best practices
 
-### Performance
-- Enable caching
-- Optimize database queries
+### Performance Optimization
+- Enable caching as configured
+- Monitor database performance
+- Review [Performance Recommendations](./performance_recommendations.md)
 
 ### Maintenance
 - Regular updates
-- Log rotation 
+- Log rotation
+- Backup verification 
