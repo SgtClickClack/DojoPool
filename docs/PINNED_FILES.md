@@ -12,10 +12,10 @@
 ## Scripts
 | File Path | Purpose | Update Frequency | Priority |
 |-----------|---------|-----------------|-----------|
-| src/dojopool/scripts/organize_images.py | Image organization automation | When image handling changes | Medium |
-| src/dojopool/scripts/setup_core_images.py | Core image setup automation | When image system changes | Medium |
-| src/dojopool/scripts/optimize_images.py | Image optimization automation | When optimization changes | Medium |
-| src/dojopool/scripts/enhance_images.py | Image enhancement automation | When enhancement changes | Medium |
+| src/dojopool/scripts/organize_images.py | Image organization automation | When image handling changes | High |
+| src/dojopool/scripts/setup_core_images.py | Core image setup automation | When core images change | High |
+| src/dojopool/scripts/enhance_images.py | Image enhancement pipeline | When enhancement logic changes | High |
+| src/dojopool/scripts/optimize_images.py | Image optimization pipeline | When optimization logic changes | High |
 | src/dojopool/scripts/monitor_performance.py | Performance monitoring | When metrics change | High |
 | src/dojopool/scripts/monitor_pinned_files.py | Track pinned file changes | Daily | High |
 | src/dojopool/scripts/update_context.py | Update documentation context | When context changes | High |
