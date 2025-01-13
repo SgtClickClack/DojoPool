@@ -11,93 +11,150 @@ broken_links:
   line_number: 263
   source: docs\CONTRIBUTING.md
 - broken_ref: "\n\n3. Configure Nginx:\n   For detailed NGINX configuration instructions,\
-    \ see [NGINX Configuration Guide](./NGINX_CONFIGURATION.md)\n\n   Quick setup:\n\
-    \   "
+    \ see [NGINX Configuration Guide](../docs/NGINX_CONFIGURATION.md)\n\n   Quick\
+    \ setup:\n   "
   line_number: 0
   source: docs\DEPLOYMENT.md
-- broken_ref: ./NGINX_CONFIGURATION.md
+- broken_ref: docs/NGINX_CONFIGURATION.md)
   line_number: 23
   source: docs\DEPLOYMENT.md
-- broken_ref: ./DEPLOYMENT.md
-  line_number: 19
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./PROJECT_STRUCTURE.md
-  line_number: 15
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./AI_SERVICES.md
-  line_number: 21
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./LANDING_PAGE.md
-  line_number: 22
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./NGINX_CONFIGURATION.md
-  line_number: 28
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ../src/dojopool/scripts/enhance_images.py
-  line_number: 44
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./CHANGELOG.md
-  line_number: 38
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./SECURITY.md
-  line_number: 18
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: src/dojopool/scripts/organize_images.py)
-  line_number: 41
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./PROJECT_OVERVIEW.md
-  line_number: 14
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./BACKGROUND_IMAGES.md
+- broken_ref: ../docs/NGINX_CONFIGURATION.md
   line_number: 23
+  source: docs\DEPLOYMENT.md
+- broken_ref: ../src/dojopool/scripts/enhance_images.py
+  line_number: 43
   source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./accessibility/README.md
-  line_number: 32
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ../src/dojopool/scripts/organize_images.py
-  line_number: 41
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./ARCHITECTURE.md
+- broken_ref: docs/ARCHITECTURE.md)
   line_number: 16
   source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./API_REFERENCE.md
+- broken_ref: ../docs/PROJECT_OVERVIEW.md
+  line_number: 14
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/DEPLOYMENT.md)
+  line_number: 19
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/API_REFERENCE.md)
   line_number: 17
   source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ../tests/test_image_assets.py
-  line_number: 45
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./ROADMAP.md
-  line_number: 36
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: src/dojopool/scripts/optimize_images.py)
-  line_number: 43
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ../src/dojopool/scripts/optimize_images.py
-  line_number: 43
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./style/README.md
-  line_number: 33
+- broken_ref: docs/LANDING_PAGE.md)
+  line_number: 22
   source: docs\DOCUMENTATION_INDEX.md
 - broken_ref: ../src/dojopool/scripts/setup_core_images.py
+  line_number: 41
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../src/dojopool/scripts/optimize_images.py
   line_number: 42
   source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: src/dojopool/scripts/setup_core_images.py)
-  line_number: 42
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./USER_GUIDE.md
-  line_number: 31
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./testing/README.md
-  line_number: 20
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./RATE_LIMITING.md
-  line_number: 27
-  source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: ./MONITORING.md
+- broken_ref: docs/MONITORING.md)
   line_number: 26
   source: docs\DOCUMENTATION_INDEX.md
-- broken_ref: src/dojopool/scripts/enhance_images.py)
+- broken_ref: ../docs/RATE_LIMITING.md
+  line_number: 27
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/BACKGROUND_IMAGES.md)
+  line_number: 23
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/ROADMAP.md)
+  line_number: 36
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/API_REFERENCE.md
+  line_number: 17
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: src/dojopool/scripts/optimize_images.py)
+  line_number: 42
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/PROJECT_STRUCTURE.md
+  line_number: 15
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/accessibility/README.md
+  line_number: 32
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/NGINX_CONFIGURATION.md)
+  line_number: 28
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/NGINX_CONFIGURATION.md
+  line_number: 28
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: src/dojopool/scripts/setup_core_images.py)
+  line_number: 41
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/DEPLOYMENT.md
+  line_number: 19
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/CHANGELOG.md)
+  line_number: 37
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/ROADMAP.md
+  line_number: 36
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/PROJECT_STRUCTURE.md)
+  line_number: 15
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/LANDING_PAGE.md
+  line_number: 22
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/style/README.md)
+  line_number: 33
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/USER_GUIDE.md
+  line_number: 31
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: src/dojopool/scripts/organize_images.py)
+  line_number: 40
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../src/dojopool/scripts/organize_images.py
+  line_number: 40
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/AI_SERVICES.md)
+  line_number: 21
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/CHANGELOG.md
+  line_number: 37
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/ARCHITECTURE.md
+  line_number: 16
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/RATE_LIMITING.md)
+  line_number: 27
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../tests/test_image_assets.py
   line_number: 44
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/testing/README.md)
+  line_number: 20
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/AI_SERVICES.md
+  line_number: 21
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/SECURITY.md
+  line_number: 18
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/PROJECT_OVERVIEW.md)
+  line_number: 14
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: src/dojopool/scripts/enhance_images.py)
+  line_number: 43
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/testing/README.md
+  line_number: 20
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/BACKGROUND_IMAGES.md
+  line_number: 23
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/accessibility/README.md)
+  line_number: 32
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/SECURITY.md)
+  line_number: 18
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: docs/USER_GUIDE.md)
+  line_number: 31
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/style/README.md
+  line_number: 33
+  source: docs\DOCUMENTATION_INDEX.md
+- broken_ref: ../docs/MONITORING.md
+  line_number: 26
   source: docs\DOCUMENTATION_INDEX.md
 - broken_ref: "javascript\nconst http = {\n    // Fetch wrapper with defaults\n  \
     \  async request(url, options = {}) {\n        const defaults = {\n          \
@@ -129,6 +186,15 @@ broken_links:
     \   \u2514\u2500\u2500 logo.jpg        # Logo image\n"
   line_number: 0
   source: docs\LANDING_PAGE.md
+- broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    module: {\n\
+    \        rules: [\n            {\n                test: /\\.scss$/,\n        \
+    \        use: [\n                    'style-loader',\n                    'css-loader',\n\
+    \                    'postcss-loader',\n                    'sass-loader'\n  \
+    \              ]\n            }\n        ]\n    }\n};\n\n// postcss.config.js\n\
+    module.exports = {\n    plugins: [\n        require('cssnano')({\n           \
+    \ preset: 'default'\n        })\n    ]\n};\n"
+  line_number: 0
+  source: docs\performance.md
 - broken_ref: "html\n<head>\n    <!-- Preconnect to required origins -->\n    <link\
     \ \n        rel=\"preconnect\" \n        href=\"https://api.example.com\"\n  \
     \  >\n    \n    <!-- Prefetch for future navigation -->\n    <link \n        rel=\"\
@@ -136,6 +202,31 @@ broken_links:
     \ resources -->\n    <link \n        rel=\"preload\" \n        href=\"/fonts/font.woff2\"\
     \ \n        as=\"font\" \n        type=\"font/woff2\" \n        crossorigin\n\
     \    >\n</head>\n"
+  line_number: 0
+  source: docs\performance.md
+- broken_ref: src/**/*.js
+  line_number: 84
+  source: docs\performance.md
+- broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    mode: 'production',\n\
+    \    optimization: {\n        usedExports: true,\n        minimize: true\n   \
+    \ }\n};\n"
+  line_number: 0
+  source: docs\performance.md
+- broken_ref: "javascript\n// postcss.config.js\nmodule.exports = {\n    plugins:\
+    \ [\n        require('@fullhuman/postcss-purgecss')({\n            content: [\n\
+    \                './src/**/*.html',\n                './src/**/*.js'\n       \
+    \     ]\n        })\n    ]\n};\n"
+  line_number: 0
+  source: docs\performance.md
+- broken_ref: src/**/*.html
+  line_number: 83
+  source: docs\performance.md
+- broken_ref: "html\n<head>\n    <style>\n        /* Critical CSS */\n        .header,\n\
+    \        .hero,\n        .main-nav {\n            /* Styles for above-the-fold\
+    \ content */\n        }\n    </style>\n    \n    <link \n        rel=\"preload\"\
+    \ \n        href=\"/css/main.css\" \n        as=\"style\" \n        onload=\"\
+    this.onload=null;this.rel='stylesheet'\"\n    >\n    <noscript>\n        <link\
+    \ rel=\"stylesheet\" href=\"/css/main.css\">\n    </noscript>\n</head>\n"
   line_number: 0
   source: docs\performance.md
 - broken_ref: "javascript\n// service-worker.js\nconst CACHE_NAME = 'v1';\nconst URLS_TO_CACHE\
@@ -146,24 +237,12 @@ broken_links:
     \          .then(response => response || fetch(event.request))\n    );\n});\n"
   line_number: 0
   source: docs\performance.md
-- broken_ref: src/**/*.js
-  line_number: 84
-  source: docs\performance.md
 - broken_ref: "javascript\n// React example\nconst LazyComponent = React.lazy(() =>\
     \ \n    import('./components/LazyComponent')\n);\n\nfunction App() {\n    return\
     \ (\n        <Suspense fallback={<Loading />}>\n            <LazyComponent />\n\
     \        </Suspense>\n    );\n}\n\n// Vanilla JS example\nasync function loadModule()\
     \ {\n    const module = await import('./module.js');\n    module.init();\n}\n\n\
     button.addEventListener('click', loadModule);\n"
-  line_number: 0
-  source: docs\performance.md
-- broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    module: {\n\
-    \        rules: [\n            {\n                test: /\\.scss$/,\n        \
-    \        use: [\n                    'style-loader',\n                    'css-loader',\n\
-    \                    'postcss-loader',\n                    'sass-loader'\n  \
-    \              ]\n            }\n        ]\n    }\n};\n\n// postcss.config.js\n\
-    module.exports = {\n    plugins: [\n        require('cssnano')({\n           \
-    \ preset: 'default'\n        })\n    ]\n};\n"
   line_number: 0
   source: docs\performance.md
 - broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    optimization:\
@@ -176,43 +255,12 @@ broken_links:
     \        }\n    }\n};\n"
   line_number: 0
   source: docs\performance.md
-- broken_ref: "html\n<head>\n    <style>\n        /* Critical CSS */\n        .header,\n\
-    \        .hero,\n        .main-nav {\n            /* Styles for above-the-fold\
-    \ content */\n        }\n    </style>\n    \n    <link \n        rel=\"preload\"\
-    \ \n        href=\"/css/main.css\" \n        as=\"style\" \n        onload=\"\
-    this.onload=null;this.rel='stylesheet'\"\n    >\n    <noscript>\n        <link\
-    \ rel=\"stylesheet\" href=\"/css/main.css\">\n    </noscript>\n</head>\n"
-  line_number: 0
-  source: docs\performance.md
-- broken_ref: "javascript\n// postcss.config.js\nmodule.exports = {\n    plugins:\
-    \ [\n        require('@fullhuman/postcss-purgecss')({\n            content: [\n\
-    \                './src/**/*.html',\n                './src/**/*.js'\n       \
-    \     ]\n        })\n    ]\n};\n"
-  line_number: 0
-  source: docs\performance.md
-- broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    mode: 'production',\n\
-    \    optimization: {\n        usedExports: true,\n        minimize: true\n   \
-    \ }\n};\n"
-  line_number: 0
-  source: docs\performance.md
-- broken_ref: src/**/*.html
-  line_number: 83
-  source: docs\performance.md
-- broken_ref: docs/DEVELOPMENT_TRACKING.md
-  line_number: 7
-  source: docs\PINNED_FILES.md
 - broken_ref: docs/ROADMAP.md
   line_number: 6
   source: docs\PINNED_FILES.md
-- broken_ref: 'bash
-
-    cd src
-
-    python app.py
-
-    '
-  line_number: 0
-  source: docs\PROJECT_OVERVIEW.md
+- broken_ref: docs/DEVELOPMENT_TRACKING.md
+  line_number: 7
+  source: docs\PINNED_FILES.md
 - broken_ref: 'bash
 
     python 3.8+
@@ -220,6 +268,15 @@ broken_links:
     postgresql
 
     node.js 14+
+
+    '
+  line_number: 0
+  source: docs\PROJECT_OVERVIEW.md
+- broken_ref: 'bash
+
+    cd src
+
+    python app.py
 
     '
   line_number: 0
@@ -271,20 +328,38 @@ broken_links:
 - broken_ref: src/app.py`
   line_number: 97
   source: docs\RATE_LIMITING.md
-- broken_ref: ./DEPLOYMENT.md
-  line_number: 18
-  source: docs\README.md
-- broken_ref: ./PROJECT_STRUCTURE.md
-  line_number: 12
-  source: docs\README.md
-- broken_ref: ./AI_SERVICES.md
-  line_number: 20
-  source: docs\README.md
 - broken_ref: ./LANDING_PAGE.md
   line_number: 21
   source: docs\README.md
-- broken_ref: ./NGINX_CONFIGURATION.md
-  line_number: 27
+- broken_ref: ./DEPLOYMENT.md
+  line_number: 18
+  source: docs\README.md
+- broken_ref: ./planning/main-roadmap.md
+  line_number: 6
+  source: docs\README.md
+- broken_ref: ./accessibility/README.md
+  line_number: 31
+  source: docs\README.md
+- broken_ref: ./BACKGROUND_IMAGES.md
+  line_number: 22
+  source: docs\README.md
+- broken_ref: ./RATE_LIMITING.md
+  line_number: 26
+  source: docs\README.md
+- broken_ref: ./ARCHITECTURE.md
+  line_number: 13
+  source: docs\README.md
+- broken_ref: ./USER_GUIDE.md
+  line_number: 30
+  source: docs\README.md
+- broken_ref: ./style/README.md
+  line_number: 32
+  source: docs\README.md
+- broken_ref: ./PROJECT_OVERVIEW.md
+  line_number: 11
+  source: docs\README.md
+- broken_ref: ./API_REFERENCE.md
+  line_number: 16
   source: docs\README.md
 - broken_ref: ./CHANGELOG.md
   line_number: 35
@@ -292,53 +367,29 @@ broken_links:
 - broken_ref: ./SECURITY.md
   line_number: 17
   source: docs\README.md
-- broken_ref: ./PROJECT_OVERVIEW.md
-  line_number: 11
-  source: docs\README.md
-- broken_ref: ./BACKGROUND_IMAGES.md
-  line_number: 22
-  source: docs\README.md
-- broken_ref: ./accessibility/README.md
-  line_number: 31
-  source: docs\README.md
-- broken_ref: ./ARCHITECTURE.md
-  line_number: 13
-  source: docs\README.md
-- broken_ref: ./API_REFERENCE.md
-  line_number: 16
-  source: docs\README.md
 - broken_ref: ./planning/development-tracking.md
   line_number: 8
-  source: docs\README.md
-- broken_ref: ./style/README.md
-  line_number: 32
-  source: docs\README.md
-- broken_ref: ./USER_GUIDE.md
-  line_number: 30
-  source: docs\README.md
-- broken_ref: ./testing/README.md
-  line_number: 19
   source: docs\README.md
 - broken_ref: ./planning/image-system-roadmap.md
   line_number: 7
   source: docs\README.md
-- broken_ref: ./planning/main-roadmap.md
-  line_number: 6
+- broken_ref: ./PROJECT_STRUCTURE.md
+  line_number: 12
   source: docs\README.md
-- broken_ref: ./RATE_LIMITING.md
-  line_number: 26
+- broken_ref: ./NGINX_CONFIGURATION.md
+  line_number: 27
   source: docs\README.md
 - broken_ref: ./MONITORING.md
   line_number: 25
   source: docs\README.md
-- broken_ref: runTests.js
-  line_number: 23
-  source: docs\testing.md
+- broken_ref: ./AI_SERVICES.md
+  line_number: 20
+  source: docs\README.md
+- broken_ref: ./testing/README.md
+  line_number: 19
+  source: docs\README.md
 - broken_ref: conftest.py
   line_number: 13
-  source: docs\testing.md
-- broken_ref: factories.py
-  line_number: 14
   source: docs\testing.md
 - broken_ref: "python\ndef test_user_creation(client, db):\n    \"\"\"Test user creation\
     \ endpoint.\"\"\"\n    response = client.post('/api/users', json={\n        'username':\
@@ -346,17 +397,23 @@ broken_links:
     \    })\n    assert response.status_code == 201\n    assert 'id' in response.json\n"
   line_number: 0
   source: docs\testing.md
+- broken_ref: runTests.js
+  line_number: 23
+  source: docs\testing.md
+- broken_ref: factories.py
+  line_number: 14
+  source: docs\testing.md
 - broken_ref: "html\n<figure>\n    <audio controls>\n        <source src=\"../../static/media/audio/podcast.mp3\"\
     \ type=\"audio/mpeg\">\n        Your browser does not support the audio element.\n\
     \    </audio>\n    <figcaption>\n        <a href=\"../../static/media/audio/transcript.html\"\
     >View transcript</a>\n    </figcaption>\n</figure>\n"
   line_number: 0
   source: docs\accessibility\README.md
-- broken_ref: ./cards.md
-  line_number: 289
-  source: docs\components\buttons.md
 - broken_ref: ./forms.md
   line_number: 287
+  source: docs\components\buttons.md
+- broken_ref: ./cards.md
+  line_number: 289
   source: docs\components\buttons.md
 - broken_ref: ./modals.md
   line_number: 288
@@ -370,74 +427,6 @@ broken_links:
 - broken_ref: ./tooltips.md
   line_number: 407
   source: docs\components\forms.md
-- broken_ref: ./development.md
-  line_number: 177
-  source: docs\getting_started\configuration.md
-- broken_ref: ../architecture/README.md
-  line_number: 178
-  source: docs\getting_started\configuration.md
-- broken_ref: '
-
-
-    ## Configuration Classes
-
-
-    The application uses different configuration classes for different environments:
-
-
-    ### Base Configuration (config/base.py)
-
-    - Common settings for all environments
-
-    - Default values for required configurations
-
-    - Security settings
-
-
-    ### Development Configuration (config/development.py)
-
-    - Debug mode enabled
-
-    - Simplified cache configuration
-
-    - Relaxed security settings for local development
-
-
-    ### Production Configuration (config/production.py)
-
-    - Debug mode disabled
-
-    - Full security measures enabled
-
-    - Production-ready cache and database settings
-
-
-    ### Testing Configuration (config/testing.py)
-
-    - SQLite database for testing
-
-    - Disabled CSRF for testing
-
-    - In-memory cache
-
-
-    ## Custom Configuration
-
-
-    To add custom configuration:
-
-
-    1. Create a new configuration class:
-
-    '
-  line_number: 0
-  source: docs\getting_started\configuration.md
-- broken_ref: ../deployment/README.md
-  line_number: 179
-  source: docs\getting_started\configuration.md
-- broken_ref: src/app.py
-  line_number: 11
-  source: docs\getting_started\configuration.md
 - broken_ref: 'bash
 
     # Application
@@ -515,9 +504,74 @@ broken_links:
     '
   line_number: 0
   source: docs\getting_started\configuration.md
-- broken_ref: ../api/README.md
-  line_number: 269
-  source: docs\getting_started\development.md
+- broken_ref: src/app.py
+  line_number: 11
+  source: docs\getting_started\configuration.md
+- broken_ref: ../deployment/README.md
+  line_number: 179
+  source: docs\getting_started\configuration.md
+- broken_ref: ./development.md
+  line_number: 177
+  source: docs\getting_started\configuration.md
+- broken_ref: '
+
+
+    ## Configuration Classes
+
+
+    The application uses different configuration classes for different environments:
+
+
+    ### Base Configuration (config/base.py)
+
+    - Common settings for all environments
+
+    - Default values for required configurations
+
+    - Security settings
+
+
+    ### Development Configuration (config/development.py)
+
+    - Debug mode enabled
+
+    - Simplified cache configuration
+
+    - Relaxed security settings for local development
+
+
+    ### Production Configuration (config/production.py)
+
+    - Debug mode disabled
+
+    - Full security measures enabled
+
+    - Production-ready cache and database settings
+
+
+    ### Testing Configuration (config/testing.py)
+
+    - SQLite database for testing
+
+    - Disabled CSRF for testing
+
+    - In-memory cache
+
+
+    ## Custom Configuration
+
+
+    To add custom configuration:
+
+
+    1. Create a new configuration class:
+
+    '
+  line_number: 0
+  source: docs\getting_started\configuration.md
+- broken_ref: ../architecture/README.md
+  line_number: 178
+  source: docs\getting_started\configuration.md
 - broken_ref: 'bash
 
     # Run all tests
@@ -545,8 +599,8 @@ broken_links:
 - broken_ref: ../development/testing.md
   line_number: 270
   source: docs\getting_started\development.md
-- broken_ref: ../development/git_workflow.md
-  line_number: 271
+- broken_ref: ../api/README.md
+  line_number: 269
   source: docs\getting_started\development.md
 - broken_ref: "python\ndef test_game_workflow(client, auth):\n    \"\"\"Test complete\
     \ game workflow.\"\"\"\n    # Login\n    auth.login()\n    \n    # Create game\n\
@@ -557,6 +611,32 @@ broken_links:
     \ response.status_code == 200\n"
   line_number: 0
   source: docs\getting_started\development.md
+- broken_ref: ../development/git_workflow.md
+  line_number: 271
+  source: docs\getting_started\development.md
+- broken_ref: src/app.py
+  line_number: 89
+  source: docs\getting_started\installation.md
+- broken_ref: 'bash
+
+    SECRET_KEY=your_generated_key
+
+    FLASK_ENV=development
+
+    FLASK_APP=src/app.py
+
+    '
+  line_number: 0
+  source: docs\getting_started\installation.md
+- broken_ref: ./configuration.md
+  line_number: 125
+  source: docs\getting_started\installation.md
+- broken_ref: ./development.md
+  line_number: 126
+  source: docs\getting_started\installation.md
+- broken_ref: ../architecture/README.md
+  line_number: 127
+  source: docs\getting_started\installation.md
 - broken_ref: 'bash
 
     # Install Node.js dependencies
@@ -571,29 +651,22 @@ broken_links:
     '
   line_number: 0
   source: docs\getting_started\installation.md
-- broken_ref: ./development.md
-  line_number: 126
-  source: docs\getting_started\installation.md
-- broken_ref: ./configuration.md
-  line_number: 125
-  source: docs\getting_started\installation.md
-- broken_ref: ../architecture/README.md
-  line_number: 127
-  source: docs\getting_started\installation.md
-- broken_ref: 'bash
-
-    SECRET_KEY=your_generated_key
-
-    FLASK_ENV=development
-
-    FLASK_APP=src/app.py
-
-    '
+- broken_ref: "html\n<script src=\"node_modules/dojo-pool/dist/js/main.js\"></script>\n\
+    <script>\n    DojoPool.initComponents();\n    DojoPool.initTheme();\n</script>\n"
   line_number: 0
-  source: docs\getting_started\installation.md
-- broken_ref: src/app.py
-  line_number: 89
-  source: docs\getting_started\installation.md
+  source: docs\guide\installation.md
+- broken_ref: "javascript\n// theme-config.js\nexport const themeConfig = {\n    themes:\
+    \ {\n        light: {\n            primary: '#0066cc',\n            background:\
+    \ '#ffffff',\n            text: '#000000'\n        },\n        dark: {\n     \
+    \       primary: '#66b3ff',\n            background: '#1a1a1a',\n            text:\
+    \ '#ffffff'\n        }\n    },\n    defaultTheme: 'light'\n};\n"
+  line_number: 0
+  source: docs\guide\installation.md
+- broken_ref: "javascript\n// vite.config.js\nimport { defineConfig } from 'vite';\n\
+    \nexport default defineConfig({\n    css: {\n        preprocessorOptions: {\n\
+    \            scss: {\n                additionalData: "
+  line_number: 0
+  source: docs\guide\installation.md
 - broken_ref: "html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"\
     UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\
     >\n    <title>DojoPool Test</title>\n    <link rel=\"stylesheet\" href=\"/dist/css/main.css\"\
@@ -607,6 +680,28 @@ broken_links:
     \        </form>\n    </div>\n    \n    <script src=\"/dist/js/main.js\"></script>\n\
     \    <script>\n        // Verify initialization\n        console.log('DojoPool\
     \ initialized:', !!window.DojoPool);\n    </script>\n</body>\n</html>\n"
+  line_number: 0
+  source: docs\guide\installation.md
+- broken_ref: "javascript\n// component-config.js\nexport const componentConfig =\
+    \ {\n    buttons: {\n        defaultVariant: 'primary',\n        roundedCorners:\
+    \ true\n    },\n    forms: {\n        validationMode: 'live',\n        showIcons:\
+    \ true\n    }\n};\n"
+  line_number: 0
+  source: docs\guide\installation.md
+- broken_ref: 'html
+
+    <link rel="stylesheet" href="path/to/dojo-pool/dist/css/main.css">
+
+    <script src="path/to/dojo-pool/dist/js/main.js"></script>
+
+    '
+  line_number: 0
+  source: docs\guide\installation.md
+- broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    module: {\n\
+    \        rules: [\n            {\n                test: /\\.scss$/,\n        \
+    \        use: [\n                    'style-loader',\n                    'css-loader',\n\
+    \                    'sass-loader'\n                ]\n            }\n       \
+    \ ]\n    }\n};\n"
   line_number: 0
   source: docs\guide\installation.md
 - broken_ref: 'javascript
@@ -630,13 +725,6 @@ broken_links:
     '
   line_number: 0
   source: docs\guide\installation.md
-- broken_ref: "javascript\n// theme-config.js\nexport const themeConfig = {\n    themes:\
-    \ {\n        light: {\n            primary: '#0066cc',\n            background:\
-    \ '#ffffff',\n            text: '#000000'\n        },\n        dark: {\n     \
-    \       primary: '#66b3ff',\n            background: '#1a1a1a',\n            text:\
-    \ '#ffffff'\n        }\n    },\n    defaultTheme: 'light'\n};\n"
-  line_number: 0
-  source: docs\guide\installation.md
 - broken_ref: 'html
 
     <!-- In your HTML head -->
@@ -644,37 +732,6 @@ broken_links:
     <link rel="stylesheet" href="node_modules/dojo-pool/dist/css/main.css">
 
     '
-  line_number: 0
-  source: docs\guide\installation.md
-- broken_ref: "javascript\n// vite.config.js\nimport { defineConfig } from 'vite';\n\
-    \nexport default defineConfig({\n    css: {\n        preprocessorOptions: {\n\
-    \            scss: {\n                additionalData: "
-  line_number: 0
-  source: docs\guide\installation.md
-- broken_ref: 'html
-
-    <link rel="stylesheet" href="path/to/dojo-pool/dist/css/main.css">
-
-    <script src="path/to/dojo-pool/dist/js/main.js"></script>
-
-    '
-  line_number: 0
-  source: docs\guide\installation.md
-- broken_ref: "javascript\n// component-config.js\nexport const componentConfig =\
-    \ {\n    buttons: {\n        defaultVariant: 'primary',\n        roundedCorners:\
-    \ true\n    },\n    forms: {\n        validationMode: 'live',\n        showIcons:\
-    \ true\n    }\n};\n"
-  line_number: 0
-  source: docs\guide\installation.md
-- broken_ref: "html\n<script src=\"node_modules/dojo-pool/dist/js/main.js\"></script>\n\
-    <script>\n    DojoPool.initComponents();\n    DojoPool.initTheme();\n</script>\n"
-  line_number: 0
-  source: docs\guide\installation.md
-- broken_ref: "javascript\n// webpack.config.js\nmodule.exports = {\n    module: {\n\
-    \        rules: [\n            {\n                test: /\\.scss$/,\n        \
-    \        use: [\n                    'style-loader',\n                    'css-loader',\n\
-    \                    'sass-loader'\n                ]\n            }\n       \
-    \ ]\n    }\n};\n"
   line_number: 0
   source: docs\guide\installation.md
 - broken_ref: 'javascript
@@ -689,14 +746,14 @@ broken_links:
     '
   line_number: 0
   source: docs\guide\introduction.md
-- broken_ref: "\ncore/\n\u251C\u2500\u2500 config.py        # Configuration\n\u251C\
-    \u2500\u2500 extensions.py    # Flask extensions\n\u251C\u2500\u2500 logging.py\
-    \       # Logging setup\n\u2514\u2500\u2500 errors.py       # Error handling\n"
-  line_number: 0
-  source: docs\guide\structure.md
 - broken_ref: "\nmodels/\n\u251C\u2500\u2500 base.py          # Base model class\n\
     \u251C\u2500\u2500 user.py          # User model\n\u251C\u2500\u2500 role.py \
     \        # Role model\n\u2514\u2500\u2500 associations.py # Model relationships\n"
+  line_number: 0
+  source: docs\guide\structure.md
+- broken_ref: "\ncore/\n\u251C\u2500\u2500 config.py        # Configuration\n\u251C\
+    \u2500\u2500 extensions.py    # Flask extensions\n\u251C\u2500\u2500 logging.py\
+    \       # Logging setup\n\u2514\u2500\u2500 errors.py       # Error handling\n"
   line_number: 0
   source: docs\guide\structure.md
 - broken_ref: "\ndojo-pool/\n\u251C\u2500\u2500 tsconfig.json           # TypeScript\
@@ -725,9 +782,6 @@ broken_links:
     '
   line_number: 0
   source: docs\guide\workflow.md
-- broken_ref: setup_core_images.py
-  line_number: 67
-  source: docs\planning\development-tracking.md
 - broken_ref: enhance_images.py
   line_number: 85
   source: docs\planning\development-tracking.md
@@ -743,17 +797,20 @@ broken_links:
 - broken_ref: add_lazy_loading.py
   line_number: 80
   source: docs\planning\development-tracking.md
+- broken_ref: setup_core_images.py
+  line_number: 67
+  source: docs\planning\development-tracking.md
+- broken_ref: src/ai/service.py`)
+  line_number: 45
+  source: docs\technical\ai_system.md
+- broken_ref: src/ai/story.py`)
+  line_number: 29
+  source: docs\technical\ai_system.md
 - broken_ref: src/ai/prompts.py`)
   line_number: 8
   source: docs\technical\ai_system.md
 - broken_ref: src/ai/prompts.py
   line_number: 8
-  source: docs\technical\ai_system.md
-- broken_ref: src/ai/story.py`)
-  line_number: 29
-  source: docs\technical\ai_system.md
-- broken_ref: src/ai/service.py`)
-  line_number: 45
   source: docs\technical\ai_system.md
 - broken_ref: ' branch
 
@@ -774,6 +831,21 @@ broken_links:
   source: docs\technical\testing_debugging.md
 - broken_ref: ../../tests/factories.py
   line_number: 5
+  source: docs\testing\README.md
+- broken_ref: ../../tests/scripts/runTests.js
+  line_number: 6
+  source: docs\testing\README.md
+- broken_ref: "python\ndef test_user_creation(client, db):\n    \"\"\"Test user creation\
+    \ endpoint.\"\"\"\n    response = client.post('/api/users', json={\n        'username':\
+    \ 'testuser',\n        'email': 'test@example.com',\n        'password': 'password123'\n\
+    \    })\n    assert response.status_code == 201\n    assert 'id' in response.json\n"
+  line_number: 0
+  source: docs\testing\README.md
+- broken_ref: ../../tests/conftest.py
+  line_number: 4
+  source: docs\testing\README.md
+- broken_ref: tests/scripts/runTests.js
+  line_number: 6
   source: docs\testing\README.md
 - broken_ref: 'bash
 
@@ -799,47 +871,20 @@ broken_links:
     '
   line_number: 0
   source: docs\testing\README.md
-- broken_ref: ../../tests/conftest.py
-  line_number: 4
-  source: docs\testing\README.md
-- broken_ref: ../../tests/scripts/runTests.js
-  line_number: 6
-  source: docs\testing\README.md
-- broken_ref: "python\ndef test_user_creation(client, db):\n    \"\"\"Test user creation\
-    \ endpoint.\"\"\"\n    response = client.post('/api/users', json={\n        'username':\
-    \ 'testuser',\n        'email': 'test@example.com',\n        'password': 'password123'\n\
-    \    })\n    assert response.status_code == 201\n    assert 'id' in response.json\n"
-  line_number: 0
-  source: docs\testing\README.md
-- broken_ref: tests/scripts/runTests.js
-  line_number: 6
-  source: docs\testing\README.md
-- broken_ref: ./users/stats.md
-  line_number: 24
-  source: docs\api\v1\README.md
-- broken_ref: ./ai/generate-story.md
-  line_number: 46
-  source: docs\api\v1\README.md
-- broken_ref: ./users/update.md
-  line_number: 22
-  source: docs\api\v1\README.md
 - broken_ref: ./matches/get.md
   line_number: 34
   source: docs\api\v1\README.md
-- broken_ref: ./games/active.md
-  line_number: 30
+- broken_ref: ./games/get.md
+  line_number: 28
   source: docs\api\v1\README.md
-- broken_ref: ./users/me.md
-  line_number: 21
+- broken_ref: ./auth/reset-password.md
+  line_number: 18
   source: docs\api\v1\README.md
-- broken_ref: ./locations/list.md
-  line_number: 39
+- broken_ref: ./ai/get-commentary.md
+  line_number: 47
   source: docs\api\v1\README.md
-- broken_ref: ./users/get.md
-  line_number: 23
-  source: docs\api\v1\README.md
-- broken_ref: ./auth/register.md
-  line_number: 15
+- broken_ref: ./auth/verify-email.md
+  line_number: 17
   source: docs\api\v1\README.md
 - broken_ref: ./matches/create.md
   line_number: 33
@@ -847,11 +892,26 @@ broken_links:
 - broken_ref: ./auth/login.md
   line_number: 16
   source: docs\api\v1\README.md
+- broken_ref: ./locations/list.md
+  line_number: 39
+  source: docs\api\v1\README.md
+- broken_ref: ./locations/get.md
+  line_number: 41
+  source: docs\api\v1\README.md
+- broken_ref: ./games/create.md
+  line_number: 27
+  source: docs\api\v1\README.md
 - broken_ref: ./ai/analyze-style.md
   line_number: 45
   source: docs\api\v1\README.md
-- broken_ref: ./auth/verify-email.md
-  line_number: 17
+- broken_ref: ./games/update.md
+  line_number: 29
+  source: docs\api\v1\README.md
+- broken_ref: ./users/stats.md
+  line_number: 24
+  source: docs\api\v1\README.md
+- broken_ref: ./auth/register.md
+  line_number: 15
   source: docs\api\v1\README.md
 - broken_ref: '
 
@@ -930,48 +990,99 @@ broken_links:
     '
   line_number: 0
   source: docs\api\v1\README.md
-- broken_ref: ./ai/get-commentary.md
-  line_number: 47
+- broken_ref: ./locations/update.md
+  line_number: 42
   source: docs\api\v1\README.md
 - broken_ref: ./locations/create.md
   line_number: 40
   source: docs\api\v1\README.md
-- broken_ref: ./locations/get.md
-  line_number: 41
+- broken_ref: ./ai/generate-story.md
+  line_number: 46
   source: docs\api\v1\README.md
-- broken_ref: ./matches/update.md
-  line_number: 35
+- broken_ref: ./users/update.md
+  line_number: 22
+  source: docs\api\v1\README.md
+- broken_ref: ./users/me.md
+  line_number: 21
   source: docs\api\v1\README.md
 - broken_ref: ./matches/upcoming.md
   line_number: 36
   source: docs\api\v1\README.md
-- broken_ref: ./games/create.md
-  line_number: 27
+- broken_ref: ./users/get.md
+  line_number: 23
   source: docs\api\v1\README.md
-- broken_ref: ./locations/update.md
-  line_number: 42
+- broken_ref: ./matches/update.md
+  line_number: 35
   source: docs\api\v1\README.md
-- broken_ref: ./auth/reset-password.md
-  line_number: 18
-  source: docs\api\v1\README.md
-- broken_ref: ./games/get.md
-  line_number: 28
-  source: docs\api\v1\README.md
-- broken_ref: ./games/update.md
-  line_number: 29
+- broken_ref: ./games/active.md
+  line_number: 30
   source: docs\api\v1\README.md
 inconsistencies:
+- file: ../src/dojopool/scripts/setup_core_images.py
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/PROJECT_STRUCTURE.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/LANDING_PAGE.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/ARCHITECTURE.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/BACKGROUND_IMAGES.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
 - file: ../src/dojopool/scripts/enhance_images.py
   message: Referenced file not in PINNED_FILES.md
   type: unpinned_file
-- file: ../src/dojopool/scripts/organize_images.py
+- file: ../docs/PROJECT_OVERVIEW.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/accessibility/README.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/ROADMAP.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/CHANGELOG.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/SECURITY.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/style/README.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/MONITORING.md
   message: Referenced file not in PINNED_FILES.md
   type: unpinned_file
 - file: ../src/dojopool/scripts/optimize_images.py
   message: Referenced file not in PINNED_FILES.md
   type: unpinned_file
-- file: ../src/dojopool/scripts/setup_core_images.py
+- file: ../docs/DEPLOYMENT.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../src/dojopool/scripts/organize_images.py
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/testing/README.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/RATE_LIMITING.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/API_REFERENCE.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/NGINX_CONFIGURATION.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/USER_GUIDE.md
+  message: Referenced file not in PINNED_FILES.md
+  type: unpinned_file
+- file: ../docs/AI_SERVICES.md
   message: Referenced file not in PINNED_FILES.md
   type: unpinned_file
 is_valid: false
-timestamp: '2025-01-14T04:28:41.019571'
+timestamp: '2025-01-14T04:29:40.923124'

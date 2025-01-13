@@ -12,16 +12,16 @@ Authorization: Bearer <your_jwt_token>
 ## Endpoints
 
 ### Authentication
-- [POST /api/v1/auth/register](./auth/register.md)
-- [POST /api/v1/auth/login](./auth/login.md)
-- [POST /api/v1/auth/verify-email](./auth/verify-email.md)
-- [POST /api/v1/auth/reset-password](./auth/reset-password.md)
+- [POST /api/v1/auth/register](../../../src/dojopool/routes/auth/register.md)
+- [POST /api/v1/auth/login](../../../src/dojopool/routes/auth/login.md)
+- [POST /api/v1/auth/verify-email](../../../src/dojopool/routes/auth/verify-email.md)
+- [POST /api/v1/auth/reset-password](../../../src/dojopool/routes/auth/reset-password.md)
 
 ### Users
-- [GET /api/v1/users/me](./users/me.md)
-- [PUT /api/v1/users/me](./users/update.md)
-- [GET /api/v1/users/{id}](./users/get.md)
-- [GET /api/v1/users/{id}/stats](./users/stats.md)
+- [GET /api/v1/users/me](../../../src/dojopool/routes/users/me.md)
+- [PUT /api/v1/users/me](../../../src/dojopool/routes/users/update.md)
+- [GET /api/v1/users/{id}](../../../src/dojopool/routes/users/get.md)
+- [GET /api/v1/users/{id}/stats](../../../src/dojopool/routes/users/stats.md)
 
 ### Games
 - [POST /api/v1/games](./games/create.md)

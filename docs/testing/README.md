@@ -21,6 +21,8 @@ def test_user_creation(client, db):
 
 ### Running Tests
 
+For detailed information about pytest, see the [pytest documentation](https://docs.pytest.org/en/stable/).
+
 ```bash
 # Run all tests
 pytest
