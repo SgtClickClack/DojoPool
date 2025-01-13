@@ -20,13 +20,15 @@
    ```
 
 3. Configure Nginx:
-   For detailed NGINX configuration instructions, see [NGINX Configuration Guide](../docs/NGINX_CONFIGURATION.md)
+   For detailed NGINX configuration instructions, see [NGINX Configuration Guide](./NGINX_CONFIGURATION.md)
 
    Quick setup:
    ```bash
-   cp nginx/production.conf /etc/nginx/sites-available/dojopool
+   cp nginx/production/nginx.conf /etc/nginx/sites-available/dojopool
    ln -s /etc/nginx/sites-available/dojopool /etc/nginx/sites-enabled/
-   nginx -t && systemctl restart nginx
+   
+   nginx -t
+   systemctl reload nginx
    ```
 
 4. Deploy containers:

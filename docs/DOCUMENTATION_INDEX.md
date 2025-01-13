@@ -1,37 +1,5 @@
 # Documentation Index
 
-## Core Documentation
-These documents should be referenced and followed for all development work.
-
-### Project Management
-- [Development Tracking](./DEVELOPMENT_TRACKING.md) - Sprint progress and task tracking
-  - **DO NOT EDIT** - Historical record of development progress
-  - New entries should be added as new files: `DEVELOPMENT_TRACKING_YYYY_MM_DD.md`
-- [Roadmap](./ROADMAP.md) - Long-term project vision and milestones
-
-### Development Guidelines
-- [Contributing Guide](./CONTRIBUTING.md) - Development workflow and standards
-- [Image Assets Guide](./BACKGROUND_IMAGES.md) - Image usage and implementation guidelines
-  - Core brand images maintain original case
-  - All other images must use lowercase naming
-  - Directory structure and naming conventions
-  - Performance optimization guidelines
-
-### Testing
-- [Test Templates](./tests/) - Standard test templates and examples
-  - Image asset tests: `test_image_assets.py`
-  - Core functionality tests
-  - Frontend component tests
-
-### Asset Organization
-```
-src/dojopool/static/images/
-├── core/           # Core brand assets (LogoDojoPool.jpg, PosterDojoPool.jpg)
-├── backgrounds/    # Background images and textures
-├── features/       # Feature-specific illustrations
-└── icons/         # UI icons and small graphics
-```
-
 ## Development History
 Links to historical development tracking files:
 
@@ -42,10 +10,32 @@ Links to historical development tracking files:
   - Created automated tests
   - Set up documentation
 
+## Core Documentation
+- [Project Overview](./PROJECT_OVERVIEW.md)
+- [Project Structure](./PROJECT_STRUCTURE.md)
+- [Architecture](./ARCHITECTURE.md)
+- [API Reference](./API_REFERENCE.md)
+- [Security](./SECURITY.md)
+- [Deployment](./DEPLOYMENT.md)
+- [Testing](./testing/README.md)
+- [AI Services](./AI_SERVICES.md)
+- [Landing Page](./LANDING_PAGE.md)
+- [Background Images](./BACKGROUND_IMAGES.md)
+
+## Configuration
+- [Monitoring](./MONITORING.md)
+- [Rate Limiting](./RATE_LIMITING.md)
+- [NGINX Configuration](./NGINX_CONFIGURATION.md)
+
+## User Documentation
+- [User Guide](./USER_GUIDE.md)
+- [Accessibility](./accessibility/README.md)
+- [Style Guide](./style/README.md)
+
 ## Version Control
 - [Project Roadmap](./ROADMAP.md)
 - [Development Tracking](./DEVELOPMENT_TRACKING.md)
-- [Background Images](./BACKGROUND_IMAGES.md)
+- [Changelog](./CHANGELOG.md)
 
 ## Scripts
 - [Image Organization](../src/dojopool/scripts/organize_images.py)
@@ -56,4 +46,7 @@ Links to historical development tracking files:
 
 ## Dependencies
 Core dependencies that must be maintained:
-```
+- Python 3.8+
+- PostgreSQL 12+
+- Redis 6+
+- Node.js 14+
