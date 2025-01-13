@@ -107,7 +107,7 @@ This guide covers the deployment process for DojoPool, including both developmen
    ```
 
 3. Configure Nginx:
-   For detailed NGINX configuration instructions, see [NGINX Configuration Guide](NGINX_CONFIGURATION.md)
+   For detailed NGINX configuration instructions, see [NGINX Configuration Guide](./NGINX_CONFIGURATION.md)
    
    Quick setup:
    ```bash

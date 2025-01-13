@@ -466,74 +466,12 @@ Provide transcripts for audio content:
 ```html
 <figure>
     <audio controls>
-        <source src="podcast.mp3" type="audio/mpeg">
+        <source src="../src/dojopool/static/media/podcast.mp3" type="audio/mpeg">
     </audio>
     <figcaption>
-        <a href="transcript.html">
+        <a href="../src/dojopool/static/media/transcript.html">
             View transcript
         </a>
     </figcaption>
 </figure>
 ```
-
-## Best Practices
-
-1. **Semantic HTML**
-   - Use proper HTML elements
-   - Maintain heading hierarchy
-   - Use landmarks appropriately
-   - Structure content logically
-
-2. **Keyboard Access**
-   - Ensure focusability
-   - Maintain focus order
-   - Provide skip links
-   - Support keyboard shortcuts
-
-3. **ARIA Usage**
-   - Use ARIA roles correctly
-   - Maintain ARIA states
-   - Test with screen readers
-   - Follow ARIA authoring practices
-
-4. **Visual Design**
-   - Ensure sufficient contrast
-   - Don't rely solely on color
-   - Make text resizable
-   - Support high contrast modes
-
-5. **Forms**
-   - Label all controls
-   - Provide clear instructions
-   - Show clear error messages
-   - Group related controls
-
-6. **Media**
-   - Provide text alternatives
-   - Include captions
-   - Offer transcripts
-   - Allow media control
-
-7. **Dynamic Content**
-   - Announce updates
-   - Manage focus
-   - Provide loading states
-   - Handle errors gracefully
-
-8. **Testing**
-   - Test with screen readers
-   - Validate keyboard access
-   - Check color contrast
-   - Use accessibility tools
-
-9. **Documentation**
-   - Document accessibility features
-   - Provide usage guidelines
-   - Include ARIA examples
-   - Share best practices
-
-10. **Maintenance**
-    - Regular audits
-    - Update documentation
-    - Fix reported issues
-    - Stay current with standards 
