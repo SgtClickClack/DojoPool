@@ -1,14 +1,10 @@
 ## Key Files
 
-The testing setup includes the following key files:
-
-- [Test Configuration](../../tests/conftest.py) - Test fixtures and configuration
-- [Test Factories](../../tests/factories.py) - Test data factories
-- [Test Runner](../../tests/scripts/runTests.js) - Test runner script
+- `../../tests/conftest.py` - Test fixtures and configuration
+- `../../tests/factories.py` - Test data factories
+- `../../tests/scripts/runTests.js` - Test runner script
 
 ## Example Test
-
-Here's a sample test function that demonstrates how to test an API endpoint:
 
 ```python
 def test_user_creation(client, db):

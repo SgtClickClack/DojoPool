@@ -1,4 +1,4 @@
-# Deployment Guide
+## Deployment Guide
 
 ### Prerequisites
 - Docker installed
@@ -9,39 +9,64 @@
 ### Steps
 
 1. Build Docker image:
-   ```bash
-   docker build -t dojopool:latest .
-   ```
+```bash
+docker build -t dojopool:latest .
+```
 
 2. Configure environment:
-   ```bash
-   cp .env.example .env
-   # Edit .env with production values
-   ```
+```bash
+cp .env.example .env
+# Edit .env with production values
+```
 
 3. Configure Nginx:
-   For detailed NGINX configuration instructions, see [NGINX Configuration Guide](../docs/NGINX_CONFIGURATION.md)
+For detailed NGINX configuration instructions, see [NGINX Configuration Guide](../docs/NGINX_CONFIGURATION.md)
 
-   Quick setup:
-   ```bash
-   cp nginx/production/nginx.conf /etc/nginx/sites-available/dojopool
-   ln -s /etc/nginx/sites-available/dojopool /etc/nginx/sites-enabled/
-   
-   nginx -t
-   systemctl reload nginx
-   ```
+Quick setup:
+```bash
+# Copy configuration
+cp nginx/production/nginx.conf /etc/nginx/conf.d/
+
+# Test configuration
+nginx -t
+
+# Reload Nginx
+systemctl reload nginx
+```
 
 4. Deploy containers:
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
+```bash
+# Build containers
+docker-compose build
 
-5. Run database migrations:
-   ```bash
-   docker-compose exec web flask db upgrade
-   ```
+# Start services
+docker-compose up -d
 
-6. Verify deployment:
-   ```bash
-   curl https://your-domain.com/health
-   ``` 
+# Monitor logs
+docker-compose logs -f
+
+# Deploy with production config
+docker-compose -f docker-compose.prod.yml up -d
+
+# Run migrations
+docker-compose exec web flask db upgrade
+
+# Health check
+curl https://your-domain.com/health
+```
+
+### Rollback Procedures
+- Database: Use alembic downgrade
+- Application: Switch to previous image tag
+
+### Security
+- Enable application security measures
+- Configure infrastructure security
+
+### Performance
+- Enable caching
+- Optimize database queries
+
+### Maintenance
+- Regular updates
+- Log rotation 
