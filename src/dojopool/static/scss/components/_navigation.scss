@@ -3,351 +3,141 @@
 
 // Navbar
 .navbar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: map-get($z-index, fixed);
-    display: flex;
-    align-items: center;
-    padding: spacing(4) spacing(6);
-    background-color: white;
-    border-bottom: 1px solid color(neutral, 200);
-    @include shadow(sm);
-    height: $header-height;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: map-get($z-index, fixed);
+  display: flex;
+  align-items: center;
+  padding: spacing(4) spacing(6);
+  background-color: white;
+  border-bottom: 1px solid color(neutral, 200);
+  @include shadow(sm);
+  height: $header-height;
 }
 
 .navbar-brand {
-    display: flex;
-    align-items: center;
-    margin-right: spacing(8);
-    @include font-size(xl);
-    @include font-weight(semibold);
-    color: color(neutral, 900);
-    text-decoration: none;
-    
-    img {
-        height: spacing(8);
-        width: auto;
-        margin-right: spacing(3);
-    }
+  display: flex;
+  align-items: center;
+  margin-right: spacing(8);
+  @include font-size(xl);
+  @include font-weight(semibold);
+  color: color(neutral, 900);
+  text-decoration: none;
+
+  img {
+    height: spacing(8);
+    width: auto;
+    margin-right: spacing(3);
+  }
 }
 
 .navbar-nav {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  .nav-item {
+    margin-right: spacing(4);
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .nav-link {
     display: flex;
     align-items: center;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    
-    .nav-item {
-        margin-right: spacing(4);
-        
-        &:last-child {
-            margin-right: 0;
-        }
+    padding: spacing(2) spacing(3);
+    color: color(neutral, 700);
+    text-decoration: none;
+    @include rounded;
+    @include transition(color, background-color);
+
+    &:hover {
+      color: color(neutral, 900);
+      background-color: color(neutral, 50);
     }
-    
-    .nav-link {
-        display: flex;
-        align-items: center;
-        padding: spacing(2) spacing(3);
-        color: color(neutral, 700);
-        text-decoration: none;
-        @include rounded;
-        @include transition(color, background-color);
-        
-        &:hover {
-            color: color(neutral, 900);
-            background-color: color(neutral, 50);
-        }
-        
-        &.active {
-            color: color(primary, 500);
-            background-color: color(primary, 50);
-            
-            &:hover {
-                color: color(primary, 700);
-                background-color: color(primary, 100);
-            }
-        }
-        
-        .icon {
-            width: spacing(5);
-            height: spacing(5);
-            margin-right: spacing(2);
-        }
+
+    &.active {
+      color: color(primary, 500);
+      background-color: color(primary, 50);
+
+      &:hover {
+        color: color(primary, 700);
+        background-color: color(primary, 100);
+      }
     }
+
+    .icon {
+      width: spacing(5);
+      height: spacing(5);
+      margin-right: spacing(2);
+    }
+  }
 }
 
 .navbar-right {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 // Sidebar
 .sidebar {
-    position: fixed;
-    top: $header-height;
-    left: 0;
-    bottom: 0;
-    z-index: map-get($z-index, fixed);
-    width: $sidebar-width;
-    background-color: white;
-    border-right: 1px solid color(neutral, 200);
-    overflow-y: auto;
-    @include custom-scrollbar;
-    @include transition(transform);
-    
-    @include breakpoint-down(lg) {
-        transform: translateX(-100%);
-        
-        &.is-open {
-            transform: translateX(0);
-        }
+  position: fixed;
+  top: $header-height;
+  left: 0;
+  bottom: 0;
+  z-index: map-get($z-index, fixed);
+  width: $sidebar-width;
+  background-color: white;
+  border-right: 1px solid color(neutral, 200);
+  overflow-y: auto;
+  @include custom-scrollbar;
+  @include transition(transform);
+
+  @include breakpoint-down(lg) {
+    transform: translateX(-100%);
+
+    &.is-open {
+      transform: translateX(0);
     }
+  }
 }
 
 .sidebar-nav {
-    padding: spacing(4);
-    
-    .nav-group {
-        margin-bottom: spacing(4);
-        
-        &:last-child {
-            margin-bottom: 0;
-        }
-    }
-    
-    .nav-group-title {
-        padding: spacing(2) spacing(4);
-        @include font-size(sm);
-        @include font-weight(semibold);
-        color: color(neutral, 500);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    
-    .nav-item {
-        margin-bottom: spacing(1);
-        
-        &:last-child {
-            margin-bottom: 0;
-        }
-    }
-    
-    .nav-link {
-        display: flex;
-        align-items: center;
-        padding: spacing(2) spacing(4);
-        color: color(neutral, 700);
-        text-decoration: none;
-        @include rounded;
-        @include transition(color, background-color);
-        
-        &:hover {
-            color: color(neutral, 900);
-            background-color: color(neutral, 50);
-        }
-        
-        &.active {
-            color: color(primary, 500);
-            background-color: color(primary, 50);
-            
-            &:hover {
-                color: color(primary, 700);
-                background-color: color(primary, 100);
-            }
-        }
-        
-        .icon {
-            width: spacing(5);
-            height: spacing(5);
-            margin-right: spacing(3);
-        }
-        
-        .badge {
-            margin-left: auto;
-        }
-    }
-}
+  padding: spacing(4);
 
-// Tabs
-.tabs {
-    display: flex;
-    border-bottom: 1px solid color(neutral, 200);
-    margin-bottom: spacing(6);
-}
+  .nav-group {
+    margin-bottom: spacing(4);
 
-.tab-item {
-    position: relative;
-    padding: spacing(3) spacing(6);
-    color: color(neutral, 700);
-    text-decoration: none;
-    @include font-weight(medium);
-    @include transition(color);
-    
-    &::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: -1px;
-        height: 2px;
-        background-color: transparent;
-        @include transition(background-color);
+    &:last-child {
+      margin-bottom: 0;
     }
-    
-    &:hover {
-        color: color(neutral, 900);
-    }
-    
-    &.active {
-        color: color(primary, 500);
-        
-        &::after {
-            background-color: color(primary, 500);
-        }
-        
-        &:hover {
-            color: color(primary, 700);
-            
-            &::after {
-                background-color: color(primary, 700);
-            }
-        }
-    }
-}
+  }
 
-// Pills
-.pills {
-    display: flex;
-    margin-bottom: spacing(6);
-}
-
-.pill-item {
+  .nav-group-title {
     padding: spacing(2) spacing(4);
-    color: color(neutral, 700);
-    text-decoration: none;
-    @include font-weight(medium);
-    @include rounded(full);
-    @include transition(color, background-color);
-    
-    &:hover {
-        color: color(neutral, 900);
-        background-color: color(neutral, 50);
-    }
-    
-    &.active {
-        color: white;
-        background-color: color(primary, 500);
-        
-        &:hover {
-            background-color: color(primary, 600);
-        }
-    }
-    
-    & + & {
-        margin-left: spacing(2);
-    }
-}
-
-// Breadcrumbs
-.breadcrumbs {
-    display: flex;
-    align-items: center;
-    margin-bottom: spacing(6);
     @include font-size(sm);
-}
+    @include font-weight(semibold);
+    color: color(neutral, 500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-.breadcrumb-item {
-    display: flex;
-    align-items: center;
-    color: color(neutral, 600);
-    
-    a {
-        color: color(neutral, 700);
-        text-decoration: none;
-        @include transition(color);
-        
-        &:hover {
-            color: color(primary, 500);
-        }
-    }
-    
-    & + & {
-        margin-left: spacing(2);
-        
-        &::before {
-            content: '/';
-            margin-right: spacing(2);
-            color: color(neutral, 400);
-        }
-    }
-    
-    &.active {
-        color: color(neutral, 900);
-        @include font-weight(medium);
-    }
-}
+  .nav-item {
+    margin-bottom: spacing(1);
 
-// Dropdown
-.dropdown {
-    position: relative;
-}
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 
-.dropdown-toggle {
-    display: flex;
-    align-items: center;
-    
-    &::after {
-        content: '';
-        width: spacing(4);
-        height: spacing(4);
-        margin-left: spacing(2);
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        @include transition(transform);
-    }
-    
-    &.show::after {
-        transform: rotate(180deg);
-    }
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: map-get($z-index, dropdown);
-    min-width: spacing(40);
-    padding: spacing(2);
-    margin-top: spacing(1);
-    background-color: white;
-    border: 1px solid color(neutral, 200);
-    @include rounded(lg);
-    @include shadow(lg);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-#{spacing(2)});
-    @include transition(opacity, visibility, transform);
-    
-    &.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    
-    &.dropdown-menu-right {
-        left: auto;
-        right: 0;
-    }
-}
-
-.dropdown-item {
+  .nav-link {
     display: flex;
     align-items: center;
     padding: spacing(2) spacing(4);
@@ -355,31 +145,241 @@
     text-decoration: none;
     @include rounded;
     @include transition(color, background-color);
-    
+
     &:hover {
-        color: color(neutral, 900);
-        background-color: color(neutral, 50);
+      color: color(neutral, 900);
+      background-color: color(neutral, 50);
     }
-    
+
     &.active {
-        color: color(primary, 500);
-        background-color: color(primary, 50);
-        
-        &:hover {
-            color: color(primary, 700);
-            background-color: color(primary, 100);
-        }
+      color: color(primary, 500);
+      background-color: color(primary, 50);
+
+      &:hover {
+        color: color(primary, 700);
+        background-color: color(primary, 100);
+      }
     }
-    
+
     .icon {
-        width: spacing(4);
-        height: spacing(4);
-        margin-right: spacing(3);
+      width: spacing(5);
+      height: spacing(5);
+      margin-right: spacing(3);
     }
+
+    .badge {
+      margin-left: auto;
+    }
+  }
+}
+
+// Tabs
+.tabs {
+  display: flex;
+  border-bottom: 1px solid color(neutral, 200);
+  margin-bottom: spacing(6);
+}
+
+.tab-item {
+  position: relative;
+  padding: spacing(3) spacing(6);
+  color: color(neutral, 700);
+  text-decoration: none;
+  @include font-weight(medium);
+  @include transition(color);
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background-color: transparent;
+    @include transition(background-color);
+  }
+
+  &:hover {
+    color: color(neutral, 900);
+  }
+
+  &.active {
+    color: color(primary, 500);
+
+    &::after {
+      background-color: color(primary, 500);
+    }
+
+    &:hover {
+      color: color(primary, 700);
+
+      &::after {
+        background-color: color(primary, 700);
+      }
+    }
+  }
+}
+
+// Pills
+.pills {
+  display: flex;
+  margin-bottom: spacing(6);
+}
+
+.pill-item {
+  padding: spacing(2) spacing(4);
+  color: color(neutral, 700);
+  text-decoration: none;
+  @include font-weight(medium);
+  @include rounded(full);
+  @include transition(color, background-color);
+
+  &:hover {
+    color: color(neutral, 900);
+    background-color: color(neutral, 50);
+  }
+
+  &.active {
+    color: white;
+    background-color: color(primary, 500);
+
+    &:hover {
+      background-color: color(primary, 600);
+    }
+  }
+
+  & + & {
+    margin-left: spacing(2);
+  }
+}
+
+// Breadcrumbs
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  margin-bottom: spacing(6);
+  @include font-size(sm);
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  color: color(neutral, 600);
+
+  a {
+    color: color(neutral, 700);
+    text-decoration: none;
+    @include transition(color);
+
+    &:hover {
+      color: color(primary, 500);
+    }
+  }
+
+  & + & {
+    margin-left: spacing(2);
+
+    &::before {
+      content: '/';
+      margin-right: spacing(2);
+      color: color(neutral, 400);
+    }
+  }
+
+  &.active {
+    color: color(neutral, 900);
+    @include font-weight(medium);
+  }
+}
+
+// Dropdown
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+
+  &::after {
+    content: '';
+    width: spacing(4);
+    height: spacing(4);
+    margin-left: spacing(2);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    @include transition(transform);
+  }
+
+  &.show::after {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: map-get($z-index, dropdown);
+  min-width: spacing(40);
+  padding: spacing(2);
+  margin-top: spacing(1);
+  background-color: white;
+  border: 1px solid color(neutral, 200);
+  @include rounded(lg);
+  @include shadow(lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-#{spacing(2)});
+  @include transition(opacity, visibility, transform);
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &.dropdown-menu-right {
+    left: auto;
+    right: 0;
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: spacing(2) spacing(4);
+  color: color(neutral, 700);
+  text-decoration: none;
+  @include rounded;
+  @include transition(color, background-color);
+
+  &:hover {
+    color: color(neutral, 900);
+    background-color: color(neutral, 50);
+  }
+
+  &.active {
+    color: color(primary, 500);
+    background-color: color(primary, 50);
+
+    &:hover {
+      color: color(primary, 700);
+      background-color: color(primary, 100);
+    }
+  }
+
+  .icon {
+    width: spacing(4);
+    height: spacing(4);
+    margin-right: spacing(3);
+  }
 }
 
 .dropdown-divider {
-    height: 0;
-    margin: spacing(2) -#{spacing(2)};
-    border-top: 1px solid color(neutral, 200);
-} 
+  height: 0;
+  margin: spacing(2) -#{spacing(2)};
+  border-top: 1px solid color(neutral, 200);
+}

@@ -11,12 +11,7 @@ import {
   Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import {
-  FitnessCenter,
-  Speed,
-  Gavel,
-  Timeline,
-} from '@mui/icons-material';
+import { FitnessCenter, Speed, Gavel, Timeline } from '@mui/icons-material';
 
 const MetricsContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -68,21 +63,12 @@ export const ExerciseList: React.FC<Props> = ({ progress }) => {
       {progress.map((entry, index) => (
         <React.Fragment key={index}>
           <ListItem>
-            <ListItemIcon>
-              {getExerciseIcon(entry.exercise)}
-            </ListItemIcon>
+            <ListItemIcon>{getExerciseIcon(entry.exercise)}</ListItemIcon>
             <ListItemText
               primary={
                 <Box display="flex" alignItems="center" gap={1}>
-                  <Typography variant="subtitle1">
-                    {entry.exercise}
-                  </Typography>
-                  <Chip
-                    label={entry.program}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                  />
+                  <Typography variant="subtitle1">{entry.exercise}</Typography>
+                  <Chip label={entry.program} size="small" color="primary" variant="outlined" />
                 </Box>
               }
               secondary={
@@ -106,18 +92,12 @@ export const ExerciseList: React.FC<Props> = ({ progress }) => {
                           color={getMetricColor(value)}
                           sx={{ mb: 0.5 }}
                         />
-                        <Typography variant="body2">
-                          {(value * 100).toFixed(1)}%
-                        </Typography>
+                        <Typography variant="body2">{(value * 100).toFixed(1)}%</Typography>
                       </MetricBox>
                     ))}
                   </MetricsContainer>
                   {entry.notes && (
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      sx={{ mt: 1 }}
-                    >
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
                       {entry.notes}
                     </Typography>
                   )}
@@ -140,4 +120,4 @@ export const ExerciseList: React.FC<Props> = ({ progress }) => {
   );
 };
 
-export default ExerciseList; 
+export default ExerciseList;

@@ -254,4 +254,4 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
   );
 };
 
-export default AvatarGenerator; 
+export default AvatarGenerator;

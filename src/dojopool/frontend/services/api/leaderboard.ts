@@ -41,16 +41,10 @@ export const leaderboardApi = {
     return response.data;
   },
 
-  getGameLeaderboard: async (
-    gameId: string,
-    limit: number = 10
-  ): Promise<LeaderboardEntry[]> => {
-    const response = await apiClient.get<LeaderboardEntry[]>(
-      `/leaderboard/games/${gameId}`,
-      {
-        params: { limit },
-      }
-    );
+  getGameLeaderboard: async (gameId: string, limit: number = 10): Promise<LeaderboardEntry[]> => {
+    const response = await apiClient.get<LeaderboardEntry[]>(`/leaderboard/games/${gameId}`, {
+      params: { limit },
+    });
     return response.data;
   },
-}; 
+};

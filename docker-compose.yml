@@ -5,109 +5,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: dojopool_web
-    expose:
-      - "5000"
-    volumes:
-      - type: bind
-        source: .
-        target: /app
-      - type: bind
-        source: ./logs
-        target: /app/logs
     environment:
-      - FLASK_APP=dojopool/__init__.py
-      - FLASK_ENV=development
-      - FLASK_DEBUG=1
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/dojopool
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - dojopool-network
-    restart: unless-stopped
-    command: [ "gunicorn", "--worker-class", "eventlet", "--workers", "4", "--bind", "0.0.0.0:5000", "wsgi:app" ]
-
-  db:
-    image: postgres:15-alpine
-    container_name: dojopool_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=dojopool
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    expose:
-      - "5432"
+      - FLASK_APP=src.dojopool.app
+      - FLASK_ENV=production
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - GUNICORN_CMD_ARGS=--bind=0.0.0.0:5000 --workers=4 --timeout=120 --log-level=debug --error-logfile=- --access-logfile=-
+      # Google OAuth settings
+      - GOOGLE_CLIENT_ID=1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=GOCSPX-abcdefghijklmnopqrstuvwxyz
+      - GOOGLE_MAPS_API_KEY=AIzaSyABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
+      # Session settings
+      - SECRET_KEY=your-super-secret-key-change-this-in-production
     ports:
-      - "5433:5432"
-    networks:
-      - dojopool-network
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: dojopool_redis
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    expose:
-      - "6379"
-    ports:
-      - "6380:6379"
+      - "8080:5000"
     volumes:
-      - redis_data:/data
-    networks:
-      - dojopool-network
+      - .:/app
     restart: unless-stopped
-
-  nginx:
-    image: nginx:stable-alpine
-    container_name: dojopool_nginx
-    ports:
-      - "8080:80"
-    volumes:
-      - type: bind
-        source: ./nginx/default.conf
-        target: /etc/nginx/conf.d/default.conf
-        read_only: true
-      - type: bind
-        source: ./static
-        target: /usr/share/nginx/html/static
-        read_only: true
-      - type: bind
-        source: ./static/index.html
-        target: /usr/share/nginx/html/index.html
-        read_only: true
-      - type: bind
-        source: ./logs/nginx
-        target: /var/log/nginx
-    environment:
-      - NGINX_HOST=localhost
-      - NGINX_PORT=80
-    depends_on:
-      web:
-        condition: service_started
-    networks:
-      - dojopool-network
-    restart: unless-stopped
-    command: >
-      /bin/sh -c "mkdir -p /var/log/nginx && nginx -t && nginx-debug -g 'daemon off;'"
-
-networks:
-  dojopool-network:
-    driver: bridge
-
-volumes:
-  postgres_data:
-  redis_data:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

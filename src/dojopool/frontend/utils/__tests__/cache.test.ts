@@ -42,11 +42,11 @@ describe('Cache', () => {
     it('expires entries after maxAge', () => {
       const cache = new Cache<string>({ maxAge: 1000 }); // 1 second
       cache.set('key1', 'value1');
-      
+
       expect(cache.get('key1')).toBe('value1');
-      
+
       jest.advanceTimersByTime(1500); // Advance past maxAge
-      
+
       expect(cache.get('key1')).toBeUndefined();
     });
 
@@ -54,9 +54,9 @@ describe('Cache', () => {
       const cache = new Cache<string>({ maxAge: 1000 });
       cache.set('key1', 'value1');
       cache.set('key2', 'value2');
-      
+
       jest.advanceTimersByTime(1500);
-      
+
       cache.set('key3', 'value3'); // Should trigger cleanup
       expect(cache.size()).toBe(1);
       expect(cache.get('key1')).toBeUndefined();
@@ -80,15 +80,15 @@ describe('Cache', () => {
 
     it('removes oldest entries when full', () => {
       const cache = new Cache<string>({ maxSize: 3 });
-      
+
       // Fill cache
       cache.set('key1', 'value1');
       cache.set('key2', 'value2');
       cache.set('key3', 'value3');
-      
+
       // Add new entry
       cache.set('key4', 'value4');
-      
+
       expect(cache.size()).toBe(3);
       expect(cache.get('key1')).toBeUndefined();
       expect(cache.get('key4')).toBe('value4');
@@ -99,20 +99,20 @@ describe('Cache', () => {
     it('handles objects correctly', () => {
       const cache = new Cache<{ x: number; y: number }>();
       const point = { x: 1, y: 2 };
-      
+
       cache.set('point', point);
       const retrieved = cache.get('point');
-      
+
       expect(retrieved).toEqual(point);
     });
 
     it('handles arrays correctly', () => {
       const cache = new Cache<number[]>();
       const numbers = [1, 2, 3];
-      
+
       cache.set('numbers', numbers);
       const retrieved = cache.get('numbers');
-      
+
       expect(retrieved).toEqual(numbers);
     });
   });
@@ -136,4 +136,4 @@ describe('Cache', () => {
       expect(cache.get('key1')).toBeUndefined();
     });
   });
-}); 
+});

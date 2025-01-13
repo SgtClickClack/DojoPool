@@ -97,7 +97,7 @@ export const useAI = () => {
       setError(null);
 
       const response = await axios.get('/api/ai/recommendations', {
-        params: { type }
+        params: { type },
       });
       setRecommendations(response.data.recommendations);
     } catch (err) {
@@ -113,7 +113,7 @@ export const useAI = () => {
       setError(null);
 
       const response = await axios.get(`/api/ai/match/${matchId}/analysis`, {
-        params: { type }
+        params: { type },
       });
       setAnalysis(response.data);
     } catch (err) {
@@ -158,7 +158,7 @@ export const useAI = () => {
 
       const response = await axios.post('/api/ai/batch/analysis', {
         match_ids: matchIds,
-        type: 'full'
+        type: 'full',
       });
       return response.data.results;
     } catch (err) {
@@ -176,7 +176,7 @@ export const useAI = () => {
 
       const response = await axios.post('/api/ai/batch/recommendations', {
         user_ids: userIds,
-        type: 'training'
+        type: 'training',
       });
       return response.data.results;
     } catch (err) {
@@ -201,6 +201,6 @@ export const useAI = () => {
     fetchDifficultySettings,
     fetchMetrics,
     batchAnalyzeMatches,
-    batchGenerateRecommendations
+    batchGenerateRecommendations,
   };
-}; 
+};

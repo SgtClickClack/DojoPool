@@ -1,43 +1,43 @@
 //
-Theme
-configuration
+Theme;
+configuration;
 
 export const colors = {
   primary: {
     main: '#1976d2',
     light: '#42a5f5',
     dark: '#1565c0',
-    contrastText: '#ffffff'
+    contrastText: '#ffffff',
   },
   secondary: {
     main: '#9c27b0',
     light: '#ba68c8',
     dark: '#7b1fa2',
-    contrastText: '#ffffff'
+    contrastText: '#ffffff',
   },
   error: {
     main: '#d32f2f',
     light: '#ef5350',
     dark: '#c62828',
-    contrastText: '#ffffff'
+    contrastText: '#ffffff',
   },
   warning: {
     main: '#ed6c02',
     light: '#ff9800',
     dark: '#e65100',
-    contrastText: '#ffffff'
+    contrastText: '#ffffff',
   },
   info: {
     main: '#0288d1',
     light: '#03a9f4',
     dark: '#01579b',
-    contrastText: '#ffffff'
+    contrastText: '#ffffff',
   },
   success: {
     main: '#2e7d32',
     light: '#4caf50',
     dark: '#1b5e20',
-    contrastText: '#ffffff'
+    contrastText: '#ffffff',
   },
   grey: {
     50: '#fafafa',
@@ -49,18 +49,18 @@ export const colors = {
     600: '#757575',
     700: '#616161',
     800: '#424242',
-    900: '#212121'
+    900: '#212121',
   },
   background: {
     default: '#ffffff',
     paper: '#ffffff',
-    dark: '#121212'
+    dark: '#121212',
   },
   text: {
     primary: 'rgba(0, 0, 0, 0.87)',
     secondary: 'rgba(0, 0, 0, 0.6)',
-    disabled: 'rgba(0, 0, 0, 0.38)'
-  }
+    disabled: 'rgba(0, 0, 0, 0.38)',
+  },
 };
 
 export const spacing = {
@@ -69,7 +69,7 @@ export const spacing = {
   sm: 8,
   md: 16,
   lg: 24,
-  xl: 32
+  xl: 32,
 };
 
 export const typography = {
@@ -82,43 +82,43 @@ export const typography = {
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,
-    lineHeight: 1.2
+    lineHeight: 1.2,
   },
   h2: {
     fontSize: '2rem',
     fontWeight: 300,
-    lineHeight: 1.2
+    lineHeight: 1.2,
   },
   h3: {
     fontSize: '1.75rem',
     fontWeight: 400,
-    lineHeight: 1.2
+    lineHeight: 1.2,
   },
   h4: {
     fontSize: '1.5rem',
     fontWeight: 400,
-    lineHeight: 1.2
+    lineHeight: 1.2,
   },
   h5: {
     fontSize: '1.25rem',
     fontWeight: 400,
-    lineHeight: 1.2
+    lineHeight: 1.2,
   },
   h6: {
     fontSize: '1rem',
     fontWeight: 500,
-    lineHeight: 1.2
+    lineHeight: 1.2,
   },
   body1: {
     fontSize: '1rem',
     fontWeight: 400,
-    lineHeight: 1.5
+    lineHeight: 1.5,
   },
   body2: {
     fontSize: '0.875rem',
     fontWeight: 400,
-    lineHeight: 1.43
-  }
+    lineHeight: 1.43,
+  },
 };
 
 export const shadows = {
@@ -126,7 +126,7 @@ export const shadows = {
   sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
   md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
   lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 };
 
 export const transitions = {
@@ -134,7 +134,7 @@ export const transitions = {
     easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
     easeOut: 'cubic-bezier(0.0, 0, 0.2, 1)',
     easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-    sharp: 'cubic-bezier(0.4, 0, 0.6, 1)'
+    sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
   },
   duration: {
     shortest: 150,
@@ -143,8 +143,8 @@ export const transitions = {
     standard: 300,
     complex: 375,
     enteringScreen: 225,
-    leavingScreen: 195
-  }
+    leavingScreen: 195,
+  },
 };
 
 export const zIndex = {
@@ -155,5 +155,5 @@ export const zIndex = {
   drawer: 1200,
   modal: 1300,
   snackbar: 1400,
-  tooltip: 1500
+  tooltip: 1500,
 };

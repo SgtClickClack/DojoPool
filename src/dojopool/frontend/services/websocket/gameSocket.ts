@@ -70,7 +70,7 @@ class GameSocketService {
       if (this.socket.auth?.token) {
         locationValidator.clearPlayerHistory(this.socket.auth.token as string);
       }
-      
+
       this.socket.disconnect();
       this.socket = null;
       this.gameId = null;
@@ -142,7 +142,6 @@ class GameSocketService {
           performanceMonitor.recordUpdateTime(duration);
           performanceMonitor.recordSuccess(true);
           locationMonitor.recordLocation('self', location);
-
         } catch (error) {
           performanceMonitor.recordSuccess(false);
           this.pendingUpdates.push(location);
@@ -253,4 +252,4 @@ class GameSocketService {
   }
 }
 
-export const gameSocket = new GameSocketService(); 
+export const gameSocket = new GameSocketService();

@@ -185,19 +185,19 @@ const Profile = () => {
   }
 
   return (
-    <Container 
-      maxWidth="lg" 
-      sx={{ 
-        mt: { xs: 2, sm: 4 }, 
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: { xs: 2, sm: 4 },
         mb: { xs: 2, sm: 4 },
-        px: { xs: 1, sm: 2, md: 3 }
+        px: { xs: 1, sm: 2, md: 3 },
       }}
     >
       <Grid container spacing={{ xs: 2, sm: 3 }}>
         {/* Profile Header */}
         <Grid item xs={12}>
-          <Paper 
-            sx={{ 
+          <Paper
+            sx={{
               p: { xs: 2, sm: 3 },
               display: 'flex',
               flexDirection: isMobile ? 'column' : 'row',
@@ -209,36 +209,24 @@ const Profile = () => {
             <Avatar
               src={profile.avatarUrl}
               alt={profile.username}
-              sx={{ 
-                width: { xs: 80, sm: 100 }, 
-                height: { xs: 80, sm: 100 }
+              sx={{
+                width: { xs: 80, sm: 100 },
+                height: { xs: 80, sm: 100 },
               }}
             />
             <Box sx={{ flexGrow: 1 }}>
-              <Typography 
-                variant={isMobile ? "h5" : "h4"} 
-                gutterBottom
-              >
+              <Typography variant={isMobile ? 'h5' : 'h4'} gutterBottom>
                 {profile.username}
               </Typography>
-              <Typography color="text.secondary" variant={isMobile ? "body2" : "body1"}>
+              <Typography color="text.secondary" variant={isMobile ? 'body2' : 'body1'}>
                 Member since {profile.joinDate}
               </Typography>
               {isMobile ? (
-                <IconButton 
-                  color="primary" 
-                  sx={{ mt: 1 }}
-                  aria-label="edit profile"
-                >
+                <IconButton color="primary" sx={{ mt: 1 }} aria-label="edit profile">
                   <EditIcon />
                 </IconButton>
               ) : (
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  startIcon={<EditIcon />}
-                  sx={{ mt: 2 }}
-                >
+                <Button variant="contained" color="primary" startIcon={<EditIcon />} sx={{ mt: 2 }}>
                   Edit Profile
                 </Button>
               )}
@@ -250,11 +238,7 @@ const Profile = () => {
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <Typography 
-                variant={isMobile ? "h6" : "h5"} 
-                gutterBottom
-                sx={{ mb: 2 }}
-              >
+              <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom sx={{ mb: 2 }}>
                 Statistics
               </Typography>
               <List disablePadding>
@@ -263,7 +247,9 @@ const Profile = () => {
                     <GamesIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography variant={isMobile ? "body2" : "body1"}>Total Games</Typography>}
+                    primary={
+                      <Typography variant={isMobile ? 'body2' : 'body1'}>Total Games</Typography>
+                    }
                     secondary={profile.stats.totalGames}
                   />
                 </ListItem>
@@ -272,7 +258,9 @@ const Profile = () => {
                     <TrophyIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography variant={isMobile ? "body2" : "body1"}>Games Won</Typography>}
+                    primary={
+                      <Typography variant={isMobile ? 'body2' : 'body1'}>Games Won</Typography>
+                    }
                     secondary={`${profile.stats.gamesWon} (${Math.round(
                       (profile.stats.gamesWon / profile.stats.totalGames) * 100
                     )}%)`}
@@ -283,7 +271,9 @@ const Profile = () => {
                     <StarIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography variant={isMobile ? "body2" : "body1"}>Total Score</Typography>}
+                    primary={
+                      <Typography variant={isMobile ? 'body2' : 'body1'}>Total Score</Typography>
+                    }
                     secondary={profile.stats.totalScore}
                   />
                 </ListItem>
@@ -292,7 +282,9 @@ const Profile = () => {
                     <TimerIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography variant={isMobile ? "body2" : "body1"}>Average Time</Typography>}
+                    primary={
+                      <Typography variant={isMobile ? 'body2' : 'body1'}>Average Time</Typography>
+                    }
                     secondary={profile.stats.averageTime}
                   />
                 </ListItem>
@@ -305,19 +297,17 @@ const Profile = () => {
         <Grid item xs={12} md={8}>
           <Card>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <Box 
-                sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'space-between',
                   mb: 2,
                   cursor: isMobile ? 'pointer' : 'default',
                 }}
                 onClick={() => isMobile && setExpandedAchievements(!expandedAchievements)}
               >
-                <Typography variant={isMobile ? "h6" : "h5"}>
-                  Achievements
-                </Typography>
+                <Typography variant={isMobile ? 'h6' : 'h5'}>Achievements</Typography>
                 {isMobile && (
                   <IconButton size="small">
                     {expandedAchievements ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -330,24 +320,26 @@ const Profile = () => {
                     <Grid item xs={12} sm={6} key={achievement.id}>
                       <Card variant="outlined">
                         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <Typography 
-                              variant={isMobile ? "subtitle2" : "subtitle1"}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              mb: 1,
+                            }}
+                          >
+                            <Typography
+                              variant={isMobile ? 'subtitle2' : 'subtitle1'}
                               sx={{ flexGrow: 1 }}
                             >
                               {achievement.title}
                             </Typography>
                             <Chip
                               label={achievement.rarity}
-                              size={isMobile ? "small" : "medium"}
+                              size={isMobile ? 'small' : 'medium'}
                               color={getRarityColor(achievement.rarity)}
                             />
                           </Box>
-                          <Typography 
-                            variant="body2" 
-                            color="text.secondary"
-                            sx={{ mb: 1 }}
-                          >
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                             {achievement.description}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
@@ -367,19 +359,17 @@ const Profile = () => {
         <Grid item xs={12}>
           <Card>
             <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-              <Box 
-                sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'space-between',
                   mb: 2,
                   cursor: isMobile ? 'pointer' : 'default',
                 }}
                 onClick={() => isMobile && setExpandedGames(!expandedGames)}
               >
-                <Typography variant={isMobile ? "h6" : "h5"}>
-                  Recent Games
-                </Typography>
+                <Typography variant={isMobile ? 'h6' : 'h5'}>Recent Games</Typography>
                 {isMobile && (
                   <IconButton size="small">
                     {expandedGames ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -392,20 +382,32 @@ const Profile = () => {
                     <Grid item xs={12} sm={6} md={4} key={game.id}>
                       <Card variant="outlined">
                         <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <Typography 
-                              variant={isMobile ? "subtitle2" : "subtitle1"}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              mb: 1,
+                            }}
+                          >
+                            <Typography
+                              variant={isMobile ? 'subtitle2' : 'subtitle1'}
                               sx={{ flexGrow: 1 }}
                             >
                               {game.title}
                             </Typography>
                             <Chip
                               label={game.result}
-                              size={isMobile ? "small" : "medium"}
+                              size={isMobile ? 'small' : 'medium'}
                               color={getResultColor(game.result)}
                             />
                           </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
                             <Typography variant="body2" color="text.secondary">
                               Score: {game.score}
                             </Typography>
@@ -427,4 +429,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

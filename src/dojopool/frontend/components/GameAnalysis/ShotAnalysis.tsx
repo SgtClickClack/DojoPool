@@ -9,12 +9,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import {
-  Speed,
-  GpsFixed,
-  RotateRight,
-  Timeline,
-} from '@mui/icons-material';
+import { Speed, GpsFixed, RotateRight, Timeline } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
 const MetricCard = styled(Card)(({ theme }) => ({
@@ -36,7 +31,12 @@ interface ShotAnalysisProps {
 export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
   const [selectedShot, setSelectedShot] = useState(null);
 
-  const renderMetricCard = (title: string, value: number, icon: React.ReactNode, description: string) => (
+  const renderMetricCard = (
+    title: string,
+    value: number,
+    icon: React.ReactNode,
+    description: string
+  ) => (
     <MetricCard>
       <CardContent>
         <MetricIcon>
@@ -45,11 +45,7 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
             {title}
           </Typography>
         </MetricIcon>
-        <LinearProgress
-          variant="determinate"
-          value={value * 100}
-          sx={{ mb: 1 }}
-        />
+        <LinearProgress variant="determinate" value={value * 100} sx={{ mb: 1 }} />
         <Typography variant="h4" gutterBottom>
           {(value * 100).toFixed(1)}%
         </Typography>
@@ -134,8 +130,8 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
                     Shot Type
                   </Typography>
                   <Typography variant="body1" paragraph>
-                    Break shot with medium-high power and excellent accuracy.
-                    The ball trajectory shows optimal path with minimal deviation.
+                    Break shot with medium-high power and excellent accuracy. The ball trajectory
+                    shows optimal path with minimal deviation.
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -143,9 +139,9 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
                     Recommendations
                   </Typography>
                   <Typography variant="body1">
-                    - Maintain current power level for consistent results
-                    - Consider slight adjustment in spin for better control
-                    - Practice similar shots from different angles
+                    - Maintain current power level for consistent results - Consider slight
+                    adjustment in spin for better control - Practice similar shots from different
+                    angles
                   </Typography>
                 </Grid>
               </Grid>
@@ -157,4 +153,4 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
   );
 };
 
-export default ShotAnalysis; 
+export default ShotAnalysis;

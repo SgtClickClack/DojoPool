@@ -74,32 +74,11 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   const getMatchStatus = (match: TournamentMatch) => {
     switch (match.status) {
       case 'completed':
-        return (
-          <Chip
-            label="Completed"
-            color="success"
-            size="small"
-            sx={{ ml: 1 }}
-          />
-        );
+        return <Chip label="Completed" color="success" size="small" sx={{ ml: 1 }} />;
       case 'in_progress':
-        return (
-          <Chip
-            label="In Progress"
-            color="primary"
-            size="small"
-            sx={{ ml: 1 }}
-          />
-        );
+        return <Chip label="In Progress" color="primary" size="small" sx={{ ml: 1 }} />;
       case 'scheduled':
-        return (
-          <Chip
-            label="Scheduled"
-            color="default"
-            size="small"
-            sx={{ ml: 1 }}
-          />
-        );
+        return <Chip label="Scheduled" color="default" size="small" sx={{ ml: 1 }} />;
       default:
         return null;
     }
@@ -117,7 +96,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           {getMatchStatus(match)}
         </Typography>
       </Box>
-      
+
       <Box>
         {match.players.map((player) => (
           <PlayerChip
@@ -127,13 +106,13 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           />
         ))}
       </Box>
-      
+
       {match.score && (
         <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
           Score: {match.score}
         </Typography>
       )}
-      
+
       {match.scheduled_time && (
         <Typography variant="caption" color="textSecondary" display="block">
           {new Date(match.scheduled_time).toLocaleString()}
@@ -147,7 +126,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
       <Typography variant="h6" gutterBottom>
         Tournament Bracket
       </Typography>
-      
+
       <BracketContainer>
         {rounds.map((roundMatches, index) => (
           <div key={index} className="round">
@@ -162,4 +141,4 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   );
 };
 
-export default TournamentBracket; 
+export default TournamentBracket;

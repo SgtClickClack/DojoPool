@@ -38,9 +38,7 @@ describe('gameSocket', () => {
       gameSocket.connect('123');
 
       // Get connect handler
-      const connectHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'connect'
-      )[1];
+      const connectHandler = mockSocket.on.mock.calls.find((call) => call[0] === 'connect')[1];
 
       // Simulate disconnect and reconnect
       act(() => {
@@ -86,19 +84,17 @@ describe('gameSocket', () => {
 
       // Send updates while disconnected
       gameSocket.updateLocation(mockLocation);
-      gameSocket.updateLocation({ ...mockLocation, latitude: 51.5080 });
+      gameSocket.updateLocation({ ...mockLocation, latitude: 51.508 });
 
       // Simulate reconnect
       mockSocket.connected = true;
-      const connectHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'connect'
-      )[1];
+      const connectHandler = mockSocket.on.mock.calls.find((call) => call[0] === 'connect')[1];
       connectHandler();
 
       // Should send buffered updates
       expect(mockSocket.emit).toHaveBeenCalledWith('update_location', {
         gameId: '123',
-        location: { ...mockLocation, latitude: 51.5080 },
+        location: { ...mockLocation, latitude: 51.508 },
       });
     });
 
@@ -118,9 +114,7 @@ describe('gameSocket', () => {
       gameSocket.connect('123');
 
       // Get error handler
-      const errorHandler = mockSocket.on.mock.calls.find(
-        call => call[0] === 'error'
-      )[1];
+      const errorHandler = mockSocket.on.mock.calls.find((call) => call[0] === 'error')[1];
 
       // Simulate error
       const error = new Error('Connection failed');
@@ -137,4 +131,4 @@ describe('gameSocket', () => {
       expect(io).not.toHaveBeenCalled();
     });
   });
-}); 
+});

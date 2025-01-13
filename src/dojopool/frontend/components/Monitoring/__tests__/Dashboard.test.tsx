@@ -118,7 +118,7 @@ describe('MonitoringDashboard', () => {
     render(<MonitoringDashboard />);
 
     const componentAButton = screen.getByText('ComponentA');
-    
+
     // Select ComponentA
     fireEvent.click(componentAButton);
     expect(componentAButton).toHaveClass('selected');
@@ -138,12 +138,10 @@ describe('MonitoringDashboard', () => {
     const timestamps = screen.getAllByText(
       (content, element) => element?.className === 'error-timestamp'
     );
-    
+
     expect(timestamps.length).toBeGreaterThan(0);
-    timestamps.forEach(timestamp => {
-      expect(timestamp.textContent).toMatch(
-        /\d{1,2}\/\d{1,2}\/\d{4},?\s\d{1,2}:\d{2}:\d{2}/
-      );
+    timestamps.forEach((timestamp) => {
+      expect(timestamp.textContent).toMatch(/\d{1,2}\/\d{1,2}\/\d{4},?\s\d{1,2}:\d{2}:\d{2}/);
     });
   });
 

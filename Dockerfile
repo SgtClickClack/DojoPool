@@ -1,64 +1,35 @@
-# Build stage
-FROM python:3.11-slim as builder
+# syntax=docker/dockerfile:1.4
+
+FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 
-# Install build dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    curl \
+    gcc \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir eventlet==0.33.3
-
-# Copy source code for package installation
-COPY . .
-RUN pip install --no-cache-dir .
-
-# Development stage
-FROM python:3.11-slim
-
-WORKDIR /app
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
-COPY --from=builder /usr/local/bin/ /usr/local/bin/
-
-# Create non-root user and required directories
-RUN useradd -m -r -s /bin/bash appuser && \
-    mkdir -p /app/logs /app/static && \
-    chown -R appuser:appuser /app && \
-    chmod -R 755 /app
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir PyJWT==2.8.0
 
 # Copy application code
-COPY --chown=appuser:appuser . .
+COPY . .
 
-# Switch to non-root user
-USER appuser
+# Install the package in development mode
+RUN pip install -e .
 
 # Set environment variables
-ENV PYTHONPATH=/app:/app/src
-ENV FLASK_APP=dojopool/__init__.py
-ENV FLASK_ENV=development
-ENV PYTHONUNBUFFERED=1
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
+ENV PYTHONPATH=/app:/app/src \
+    FLASK_APP=src.dojopool.app \
+    FLASK_ENV=production \
+    PYTHONUNBUFFERED=1 \
+    GUNICORN_CMD_ARGS="--bind=0.0.0.0:5000 --workers=4 --timeout=120 --log-level=debug --error-logfile=- --access-logfile=-"
 
 # Expose port
 EXPOSE 5000
 
 # Run the application with gunicorn
-CMD ["gunicorn", "--worker-class", "eventlet", "--workers", "4", "--bind", "0.0.0.0:5000", "wsgi:app"] 
+CMD ["gunicorn", "wsgi:app"] 

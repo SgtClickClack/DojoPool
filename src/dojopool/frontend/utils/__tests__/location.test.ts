@@ -43,4 +43,4 @@ describe('location utilities', () => {
       expect(formatTime(359999)).toBe('99h 59m');
     });
   });
-}); 
+});

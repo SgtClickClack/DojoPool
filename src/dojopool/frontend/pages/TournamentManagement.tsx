@@ -113,9 +113,9 @@ export const TournamentManagement: React.FC = () => {
       // Refresh tournament data
       const response = await api.get(`/tournaments/${tournamentId}`);
       const updatedTournament = response.data;
-      setTournaments(tournaments.map(t => 
-        t.id === updatedTournament.id ? updatedTournament : t
-      ));
+      setTournaments(
+        tournaments.map((t) => (t.id === updatedTournament.id ? updatedTournament : t))
+      );
       setSelectedTournament(updatedTournament);
     } catch (err) {
       setError('Failed to register for tournament');
@@ -195,7 +195,8 @@ export const TournamentManagement: React.FC = () => {
                         Start: {new Date(tournament.start_date).toLocaleString()}
                       </Typography>
                       <Typography variant="body2" color="textSecondary">
-                        Registration Deadline: {new Date(tournament.registration_deadline).toLocaleString()}
+                        Registration Deadline:{' '}
+                        {new Date(tournament.registration_deadline).toLocaleString()}
                       </Typography>
                     </Grid>
                     <Grid item>
@@ -216,10 +217,7 @@ export const TournamentManagement: React.FC = () => {
 
         <TabPanel value={tabValue} index={1}>
           {selectedTournament && (
-            <TournamentBracket
-              tournament={selectedTournament}
-              onMatchClick={handleMatchClick}
-            />
+            <TournamentBracket tournament={selectedTournament} onMatchClick={handleMatchClick} />
           )}
         </TabPanel>
       </Paper>
@@ -249,7 +247,12 @@ export const TournamentManagement: React.FC = () => {
                 rows={3}
                 label="Description"
                 value={newTournament.description}
-                onChange={(e) => setNewTournament({ ...newTournament, description: e.target.value })}
+                onChange={(e) =>
+                  setNewTournament({
+                    ...newTournament,
+                    description: e.target.value,
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -257,7 +260,12 @@ export const TournamentManagement: React.FC = () => {
                 fullWidth
                 label="Venue ID"
                 value={newTournament.venue_id}
-                onChange={(e) => setNewTournament({ ...newTournament, venue_id: e.target.value })}
+                onChange={(e) =>
+                  setNewTournament({
+                    ...newTournament,
+                    venue_id: e.target.value,
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -266,7 +274,12 @@ export const TournamentManagement: React.FC = () => {
                 type="number"
                 label="Max Participants"
                 value={newTournament.max_participants}
-                onChange={(e) => setNewTournament({ ...newTournament, max_participants: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setNewTournament({
+                    ...newTournament,
+                    max_participants: parseInt(e.target.value),
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -275,7 +288,12 @@ export const TournamentManagement: React.FC = () => {
                 type="number"
                 label="Entry Fee"
                 value={newTournament.entry_fee}
-                onChange={(e) => setNewTournament({ ...newTournament, entry_fee: parseFloat(e.target.value) })}
+                onChange={(e) =>
+                  setNewTournament({
+                    ...newTournament,
+                    entry_fee: parseFloat(e.target.value),
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -284,28 +302,48 @@ export const TournamentManagement: React.FC = () => {
                 type="number"
                 label="Prize Pool"
                 value={newTournament.total_prize_pool}
-                onChange={(e) => setNewTournament({ ...newTournament, total_prize_pool: parseFloat(e.target.value) })}
+                onChange={(e) =>
+                  setNewTournament({
+                    ...newTournament,
+                    total_prize_pool: parseFloat(e.target.value),
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12}>
               <DateTimePicker
                 label="Start Date"
                 value={newTournament.start_date}
-                onChange={(date) => setNewTournament({ ...newTournament, start_date: date || new Date() })}
+                onChange={(date) =>
+                  setNewTournament({
+                    ...newTournament,
+                    start_date: date || new Date(),
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12}>
               <DateTimePicker
                 label="End Date"
                 value={newTournament.end_date}
-                onChange={(date) => setNewTournament({ ...newTournament, end_date: date || new Date() })}
+                onChange={(date) =>
+                  setNewTournament({
+                    ...newTournament,
+                    end_date: date || new Date(),
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12}>
               <DateTimePicker
                 label="Registration Deadline"
                 value={newTournament.registration_deadline}
-                onChange={(date) => setNewTournament({ ...newTournament, registration_deadline: date || new Date() })}
+                onChange={(date) =>
+                  setNewTournament({
+                    ...newTournament,
+                    registration_deadline: date || new Date(),
+                  })
+                }
               />
             </Grid>
             <Grid item xs={12}>
@@ -331,4 +369,4 @@ export const TournamentManagement: React.FC = () => {
   );
 };
 
-export default TournamentManagement; 
+export default TournamentManagement;

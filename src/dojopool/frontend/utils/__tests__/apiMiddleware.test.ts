@@ -1,6 +1,5 @@
 import { ApiMiddleware } from '../apiMiddleware';
-import { ErrorTracker } from '../monitoring';
-import { AuditLogger } from '../monitoring';
+import { AuditLogger, ErrorTracker } from '../monitoring';
 
 // Mock monitoring utilities
 jest.mock('../monitoring');
@@ -19,7 +18,9 @@ describe('ApiMiddleware', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ErrorTracker as jest.Mocked<typeof ErrorTracker>).getInstance.mockReturnValue(mockErrorTracker);
+    (ErrorTracker as jest.Mocked<typeof ErrorTracker>).getInstance.mockReturnValue(
+      mockErrorTracker
+    );
     (AuditLogger as jest.Mocked<typeof AuditLogger>).getInstance.mockReturnValue(mockAuditLogger);
     middleware = new ApiMiddleware();
   });
@@ -214,7 +215,7 @@ describe('ApiMiddleware', () => {
         headers: {
           'content-type': 'text/plain',
         },
-      });
+      };
 
       await expect(customMiddleware.processRequest(request)).resolves.not.toThrow();
     });

@@ -11,18 +11,18 @@ describe('AuthManager', () => {
     mockSessionStorage = {};
     Object.defineProperty(window, 'sessionStorage', {
       value: {
-        getItem: jest.fn(key => mockSessionStorage[key] || null),
+        getItem: jest.fn((key) => mockSessionStorage[key] || null),
         setItem: jest.fn((key, value) => {
           mockSessionStorage[key] = value;
         }),
-        removeItem: jest.fn(key => {
+        removeItem: jest.fn((key) => {
           delete mockSessionStorage[key];
         }),
         clear: jest.fn(() => {
           mockSessionStorage = {};
-        })
+        }),
       },
-      writable: true
+      writable: true,
     });
 
     // Mock fetch
@@ -34,7 +34,7 @@ describe('AuthManager', () => {
     (AuthManager as any).instance = null;
     authManager = AuthManager.getInstance({
       apiUrl: '/test/auth',
-      tokenRefreshThreshold: 300000
+      tokenRefreshThreshold: 300000,
     });
   });
 
@@ -54,13 +54,13 @@ describe('AuthManager', () => {
           username: 'testuser',
           email: 'test@example.com',
           roles: [UserRole.ADMIN],
-          permissions: ['read', 'write']
-        }
+          permissions: ['read', 'write'],
+        },
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockSession)
+        json: () => Promise.resolve(mockSession),
       });
 
       await authManager.login('testuser', 'password');
@@ -68,12 +68,12 @@ describe('AuthManager', () => {
       expect(mockFetch).toHaveBeenCalledWith('/test/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username: 'testuser',
-          password: 'password'
-        })
+          password: 'password',
+        }),
       });
 
       expect(sessionStorage.setItem).toHaveBeenCalledWith(
@@ -84,11 +84,10 @@ describe('AuthManager', () => {
 
     it('should throw error on failed login', async () => {
       mockFetch.mockResolvedValueOnce({
-        ok: false
+        ok: false,
       });
 
-      await expect(authManager.login('testuser', 'wrong-password'))
-        .rejects.toThrow('Login failed');
+      await expect(authManager.login('testuser', 'wrong-password')).rejects.toThrow('Login failed');
     });
   });
 
@@ -101,14 +100,14 @@ describe('AuthManager', () => {
         user: {
           id: '123',
           username: 'testuser',
-          roles: [UserRole.ADMIN]
-        }
+          roles: [UserRole.ADMIN],
+        },
       };
 
       mockSessionStorage['auth_session'] = JSON.stringify(mockSession);
 
       mockFetch.mockResolvedValueOnce({
-        ok: true
+        ok: true,
       });
 
       await authManager.logout();
@@ -116,8 +115,8 @@ describe('AuthManager', () => {
       expect(mockFetch).toHaveBeenCalledWith('/test/auth/logout', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer test-token'
-        }
+          Authorization: 'Bearer test-token',
+        },
       });
 
       expect(sessionStorage.removeItem).toHaveBeenCalledWith('auth_session');
@@ -133,21 +132,21 @@ describe('AuthManager', () => {
         user: {
           id: '123',
           username: 'testuser',
-          roles: [UserRole.ADMIN]
-        }
+          roles: [UserRole.ADMIN],
+        },
       };
 
       const mockNewSession = {
         ...mockSession,
         token: 'new-token',
-        expiresAt: Date.now() + 3600000
+        expiresAt: Date.now() + 3600000,
       };
 
       mockSessionStorage['auth_session'] = JSON.stringify(mockSession);
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockNewSession)
+        json: () => Promise.resolve(mockNewSession),
       });
 
       await authManager.getAuthenticatedUser();
@@ -155,11 +154,11 @@ describe('AuthManager', () => {
       expect(mockFetch).toHaveBeenCalledWith('/test/auth/refresh', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          refreshToken: 'test-refresh-token'
-        })
+          refreshToken: 'test-refresh-token',
+        }),
       });
 
       expect(sessionStorage.setItem).toHaveBeenCalledWith(
@@ -176,8 +175,8 @@ describe('AuthManager', () => {
         user: {
           id: '123',
           username: 'testuser',
-          roles: [UserRole.ADMIN]
-        }
+          roles: [UserRole.ADMIN],
+        },
       };
 
       mockSessionStorage['auth_session'] = JSON.stringify(mockSession);
@@ -198,8 +197,8 @@ describe('AuthManager', () => {
           id: '123',
           username: 'testuser',
           roles: [UserRole.ADMIN],
-          permissions: ['read', 'write']
-        }
+          permissions: ['read', 'write'],
+        },
       };
 
       mockSessionStorage['auth_session'] = JSON.stringify(mockSession);
@@ -216,13 +215,15 @@ describe('AuthManager', () => {
     });
 
     it('should throw error when requiring missing role', async () => {
-      await expect(authManager.requireRole(UserRole.OPERATOR))
-        .rejects.toThrow('Required role OPERATOR not found');
+      await expect(authManager.requireRole(UserRole.OPERATOR)).rejects.toThrow(
+        'Required role OPERATOR not found'
+      );
     });
 
     it('should throw error when requiring missing permission', async () => {
-      await expect(authManager.requirePermission('delete'))
-        .rejects.toThrow('Required permission delete not found');
+      await expect(authManager.requirePermission('delete')).rejects.toThrow(
+        'Required permission delete not found'
+      );
     });
   });
 });

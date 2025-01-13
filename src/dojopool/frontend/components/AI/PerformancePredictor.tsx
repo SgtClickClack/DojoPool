@@ -194,4 +194,4 @@ export const PerformancePredictor: React.FC = () => {
   );
 };
 
-export default PerformancePredictor; 
+export default PerformancePredictor;

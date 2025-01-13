@@ -1,134 +1,173 @@
-"""Application factory module."""
+"""Main application module."""
+from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask_login import LoginManager
 import os
-from flask import Flask, jsonify, send_from_directory, current_app
-from flask_wtf.csrf import CSRFProtect
-from flask_socketio import SocketIO
-import eventlet
+from dotenv import load_dotenv
+import logging
+from typing import Any, cast
 
-from dojopool.extensions import db, migrate, mail
-from dojopool.config import config
+from .auth.routes import auth_bp
+from .core.auth.models import db, User
 
-# Patch eventlet for better performance
-eventlet.monkey_patch()
-
-csrf = CSRFProtect()
-socketio = SocketIO()
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def create_app(config_name=None):
-    """Create and configure the Flask application."""
-    if not config_name:
-        config_name = os.environ.get('FLASK_ENV', 'development')
-    
-    # Create Flask app
     app = Flask(__name__)
+
+    # Configure static and template folders explicitly
+    static_folder = os.path.join(os.path.dirname(__file__), 'static')
+    template_folder = os.path.join(os.path.dirname(__file__), 'templates')
     
-    # Configure static files
-    app.static_folder = os.path.abspath('static')
-    app.static_url_path = '/static'
+    app.static_folder = static_folder
+    app.template_folder = template_folder
     
-    # Load configuration
-    app.config.from_object(config[config_name])
-    
+    logger.debug(f"Static folder: {static_folder}")
+    logger.debug(f"Template folder: {template_folder}")
+
+    # Basic configuration
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable cache during development
+    app.config['GOOGLE_MAPS_API_KEY'] = os.getenv('GOOGLE_MAPS_API_KEY', 'AIzaSyC4UK9iLpZg8J7KbHfUHF0o5vaEyr5nrWw')
+    app.config['GOOGLE_CLIENT_ID'] = os.getenv('GOOGLE_CLIENT_ID', '')
+    app.config['GOOGLE_CLIENT_SECRET'] = os.getenv('GOOGLE_CLIENT_SECRET', '')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dojopool.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
-    mail.init_app(app)
-    csrf.init_app(app)
-    
-    # Initialize SocketIO
-    socketio.init_app(app, 
-                     message_queue=os.environ.get('REDIS_URL'),
-                     cors_allowed_origins="*",
-                     async_mode='eventlet',
-                     logger=True,
-                     engineio_logger=True)
-    
-    # Debug route to check static file configuration
-    @app.route('/debug/static-config')
-    def debug_static_config():
-        return jsonify({
-            'static_folder': app.static_folder,
-            'static_url_path': app.static_url_path,
-            'static_folder_exists': os.path.exists(app.static_folder),
-            'index_exists': os.path.exists(os.path.join(app.static_folder, 'index.html')),
-            'static_files': os.listdir(app.static_folder) if os.path.exists(app.static_folder) else []
-        })
-    
-    # Serve index.html
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    # Cast to Any to avoid type error with login_view
+    login_manager = cast(Any, login_manager)
+    login_manager.login_view = 'auth.login'
+
+    # Create database tables if they don't exist
+    with app.app_context():
+        db.create_all()
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # Register blueprints
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    # Custom static data
+    @app.route('/static/<path:filename>')
+    def custom_static(filename):
+        logger.debug(f"Serving static file: {filename}")
+        return send_from_directory(static_folder, filename)
+
     @app.route('/')
     def index():
-        app.logger.info(f"Serving index.html from {app.static_folder}")
-        try:
-            return send_from_directory(app.static_folder, 'index.html')
-        except Exception as e:
-            app.logger.error(f"Error serving index.html: {e}")
-            return jsonify({"error": "Failed to serve index.html"}), 500
-    
-    # Health check endpoints
+        logger.debug("Rendering landing page")
+        api_key = app.config['GOOGLE_MAPS_API_KEY']
+        logger.debug(f"Using Google Maps API key: {api_key}")
+        return render_template('landing.html', api_key=api_key)
+
+    @app.route('/map')
+    def map_page():
+        logger.debug("Rendering map page")
+        api_key = app.config['GOOGLE_MAPS_API_KEY']
+        return render_template('map.html', api_key=api_key)
+
+    @app.route('/dashboard')
+    def dashboard():
+        logger.debug("Rendering dashboard page")
+        return render_template('dashboard.html')
+
+    @app.route('/marketplace')
+    def marketplace():
+        logger.debug("Rendering marketplace page")
+        return render_template('marketplace.html')
+
+    @app.route('/venues')
+    def venues():
+        logger.debug("Rendering venue list page")
+        return render_template('venues.html')
+
+    @app.route('/profile')
+    def profile():
+        logger.debug("Rendering profile page")
+        return render_template('profile.html')
+
+    @app.route('/settings')
+    def settings():
+        logger.debug("Rendering settings page")
+        return render_template('settings.html')
+
+    @app.route('/notifications')
+    def notifications():
+        logger.debug("Rendering notifications page")
+        return render_template('notifications.html')
+
+    @app.route('/game')
+    def game():
+        logger.debug("Rendering game page")
+        return render_template('game.html')
+
+    @app.route('/analytics')
+    def analytics():
+        logger.debug("Rendering analytics dashboard")
+        return render_template('analytics.html')
+
+    @app.route('/api/venues')
+    def get_venues():
+        """Return a list of sample venues."""
+        logger.debug("Getting venues")
+        # Sample venue data
+        venues = [
+            {
+                'name': 'DojoPool London',
+                'latitude': 51.5074,
+                'longitude': -0.1278,
+                'rating': 4.8,
+                'current_players': 12,
+                'tables_count': 8,
+                'address': '123 Pool Street, London'
+            },
+            {
+                'name': 'Cyber Cue Club',
+                'latitude': 51.5225,
+                'longitude': -0.1584,
+                'rating': 4.5,
+                'current_players': 8,
+                'tables_count': 6,
+                'address': '456 Game Road, London'
+            },
+            {
+                'name': 'Digital 8-Ball',
+                'latitude': 51.4975,
+                'longitude': -0.1357,
+                'rating': 4.7,
+                'current_players': 15,
+                'tables_count': 10,
+                'address': '789 Virtual Lane, London'
+            }
+        ]
+        return venues
+
+    @app.route('/api/v1/maps/verify-key')
+    def verify_maps_key():
+        """Verify the Google Maps API key."""
+        logger.debug("Verifying Google Maps API key")
+        api_key = app.config['GOOGLE_MAPS_API_KEY']
+        if not api_key:
+            return {'valid': False, 'error': 'API key not configured'}, 400
+        return {'valid': True, 'key': api_key}
+
     @app.route('/api/health')
     def health_check():
-        return jsonify({
-            "status": "healthy",
-            "services": {
-                "web": "up",
-                "websocket": "up",
-                "redis": check_redis_connection(),
-                "database": check_db_connection()
-            }
-        })
-    
-    @app.route('/api/health/db')
-    def db_health_check():
-        status = check_db_connection()
-        return jsonify({"status": status})
-    
-    # WebSocket events
-    @socketio.on('connect')
-    def handle_connect():
-        socketio.emit('status', {'data': 'Connected'})
-        current_app.logger.info('Client connected')
-    
-    @socketio.on('disconnect')
-    def handle_disconnect():
-        current_app.logger.info('Client disconnected')
-    
-    # Register routes
-    from dojopool.routes import register_routes
-    register_routes(app)
-    
-    # Log application startup
-    app.logger.info(f"Application started in {config_name} mode")
-    app.logger.info(f"Static folder: {app.static_folder}")
-    app.logger.info(f"Static URL path: {app.static_url_path}")
-    
+        logger.debug("Health check endpoint called")
+        return {'status': 'healthy'}, 200
+
     return app
 
-def check_db_connection():
-    """Check database connection."""
-    try:
-        db.session.execute('SELECT 1')
-        return "connected"
-    except Exception:
-        return "disconnected"
-
-def check_redis_connection():
-    """Check Redis connection."""
-    try:
-        from redis import Redis
-        redis = Redis.from_url(os.environ.get('REDIS_URL'))
-        redis.ping()
-        return "connected"
-    except Exception:
-        return "disconnected"
-
-def run_app(app):
-    """Run the application with WebSocket support."""
-    socketio.run(app, 
-                host='0.0.0.0', 
-                port=5000,
-                use_reloader=True,
-                log_output=True)
-
 if __name__ == '__main__':
-    app = create_app()
-    run_app(app)
+    app = create_app('development')
+    app.run(debug=True, host='0.0.0.0', port=5000) 

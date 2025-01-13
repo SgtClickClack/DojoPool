@@ -1,102 +1,102 @@
 {
-    "v": "1.0",
-    "fr": 30,
-    "ip": 0,
-    "op": 120,
-    "layers": [
+  "v": "1.0",
+  "fr": 30,
+  "ip": 0,
+  "op": 120,
+  "layers": [
+    {
+      "name": "Wave Effect",
+      "frames": [
         {
-            "name": "Wave Effect",
-            "frames": [
-                {
-                    "frame": 0,
-                    "effects": [
-                        {
-                            "type": "wave",
-                            "params": {
-                                "amplitude": 5,
-                                "frequency": 0.05,
-                                "phase": 0,
-                                "direction": "horizontal"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "frame": 60,
-                    "effects": [
-                        {
-                            "type": "wave",
-                            "params": {
-                                "amplitude": 10,
-                                "frequency": 0.05,
-                                "phase": 3.14159,
-                                "direction": "horizontal"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "frame": 120,
-                    "effects": [
-                        {
-                            "type": "wave",
-                            "params": {
-                                "amplitude": 5,
-                                "frequency": 0.05,
-                                "phase": 6.28318,
-                                "direction": "horizontal"
-                            }
-                        }
-                    ]
-                }
-            ]
+          "frame": 0,
+          "effects": [
+            {
+              "type": "wave",
+              "params": {
+                "amplitude": 5,
+                "frequency": 0.05,
+                "phase": 0,
+                "direction": "horizontal"
+              }
+            }
+          ]
         },
         {
-            "name": "Color Shift",
-            "frames": [
-                {
-                    "frame": 0,
-                    "effects": [
-                        {
-                            "type": "color",
-                            "params": {
-                                "hue_shift": 0,
-                                "saturation": 1.1,
-                                "value": 1.0
-                            }
-                        }
-                    ]
-                },
-                {
-                    "frame": 60,
-                    "effects": [
-                        {
-                            "type": "color",
-                            "params": {
-                                "hue_shift": 30,
-                                "saturation": 1.2,
-                                "value": 1.1
-                            }
-                        }
-                    ]
-                },
-                {
-                    "frame": 120,
-                    "effects": [
-                        {
-                            "type": "color",
-                            "params": {
-                                "hue_shift": 0,
-                                "saturation": 1.1,
-                                "value": 1.0
-                            }
-                        }
-                    ]
-                }
-            ]
+          "frame": 60,
+          "effects": [
+            {
+              "type": "wave",
+              "params": {
+                "amplitude": 10,
+                "frequency": 0.05,
+                "phase": 3.14159,
+                "direction": "horizontal"
+              }
+            }
+          ]
+        },
+        {
+          "frame": 120,
+          "effects": [
+            {
+              "type": "wave",
+              "params": {
+                "amplitude": 5,
+                "frequency": 0.05,
+                "phase": 6.28318,
+                "direction": "horizontal"
+              }
+            }
+          ]
         }
-    ],
-    "duration": 4.0,
-    "loop": true,
-    "trigger": "auto"
-} 
+      ]
+    },
+    {
+      "name": "Color Shift",
+      "frames": [
+        {
+          "frame": 0,
+          "effects": [
+            {
+              "type": "color",
+              "params": {
+                "hue_shift": 0,
+                "saturation": 1.1,
+                "value": 1.0
+              }
+            }
+          ]
+        },
+        {
+          "frame": 60,
+          "effects": [
+            {
+              "type": "color",
+              "params": {
+                "hue_shift": 30,
+                "saturation": 1.2,
+                "value": 1.1
+              }
+            }
+          ]
+        },
+        {
+          "frame": 120,
+          "effects": [
+            {
+              "type": "color",
+              "params": {
+                "hue_shift": 0,
+                "saturation": 1.1,
+                "value": 1.0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "duration": 4.0,
+  "loop": true,
+  "trigger": "auto"
+}

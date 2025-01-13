@@ -1,33 +1,14 @@
-"""Flask extensions for the application.
+"""Flask extensions for the application."""
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_mail import Mail
 
-This module re-exports extensions from core.extensions for backward compatibility.
-"""
-from dojopool.core.extensions import (
-    db,
-    migrate,
-    mail,
-    redis_client,
-    cache,
-    limiter,
-    login_manager,
-    oauth,
-    cors,
-    csrf,
-    init_db,
-    _make_scoped_session
-)
+db = SQLAlchemy()
+migrate = Migrate()
+mail = Mail()
 
 __all__ = [
     'db',
     'migrate',
-    'mail',
-    'redis_client',
-    'cache',
-    'limiter',
-    'login_manager',
-    'oauth',
-    'cors',
-    'csrf',
-    'init_db',
-    '_make_scoped_session'
+    'mail'
 ]

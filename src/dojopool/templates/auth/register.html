@@ -10,7 +10,7 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-        url("{{ url_for('static', filename='images/cyber-bg.jpg') }}") center/cover;
+        url("{{ url_for('static', filename='images/backgrounds/cyber-bg.jpg') }}") center/cover;
         position: relative;
         overflow: hidden;
     }
@@ -179,24 +179,6 @@
             box-shadow: 0 0 0 0 rgba(255, 56, 96, 0);
         }
     }
-
-    .terms-text {
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin-top: 1rem;
-        text-align: center;
-    }
-
-    .terms-text a {
-        color: var(--secondary-color);
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .terms-text a:hover {
-        color: var(--primary-color);
-        text-shadow: 0 0 10px var(--primary-color);
-    }
 </style>
 {% endblock %}
 
@@ -213,7 +195,7 @@
         {% endif %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('auth.register') }}">
+        <form action="{{ url_for('auth.register') }}" method="POST">
             {{ form.hidden_tag() }}
 
             <div class="mb-3">
@@ -231,31 +213,20 @@
                 {{ form.password(class="form-control", placeholder="Choose a password") }}
             </div>
 
-            <div class="mb-3">
-                {{ form.confirm_password.label(class="form-label") }}
-                {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
-            </div>
-
-            <button type="submit" class="btn btn-cyber w-100">Create Account</button>
+            <button class="btn btn-cyber w-100" type="submit">Create Account</button>
         </form>
 
         <div class="divider">
             <span>or</span>
         </div>
 
-        <a href="{{ url_for('auth.google_login') }}" class="btn btn-google">
+        <a class="btn btn-google" href="{{ url_for('auth.google_login') }}">
             <i class="bi bi-google me-2"></i> Continue with Google
         </a>
 
         <div class="auth-links">
-            <a href="{{ url_for('auth.login') }}">Already have an account? Login</a>
+            <a href="{{ url_for('auth.login') }}">Already have an account? Log in</a>
         </div>
-
-        <p class="terms-text">
-            By registering, you agree to our
-            <a href="{{ url_for('main.terms') }}">Terms of Service</a> and
-            <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
-        </p>
     </div>
 </div>
 {% endblock %}

@@ -49,7 +49,7 @@ describe('Safety System Scenarios', () => {
         { latitude: 45.02, longitude: -75.02 },
       ];
 
-      normalLocations.forEach(location => {
+      normalLocations.forEach((location) => {
         const validation = locationValidator.validateLocation(location, playerId);
         expect(validation.isValid).toBe(true);
         locationMonitor.recordLocation(playerId, location);
@@ -184,7 +184,7 @@ describe('Safety System Scenarios', () => {
           locationMonitor.recordLocation(playerId, baseLocation);
 
           // Small random delay
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 100));
 
           // Violate boundary
           const validation = locationValidator.validateLocation(unsafeLocation, playerId);
@@ -264,12 +264,12 @@ describe('Safety System Scenarios', () => {
       // Verify system state
       const metrics = gameMetricsMonitor.getMetrics();
       expect(metrics.safetyIncidents.total).toBeLessThanOrEqual(maxViolations);
-      
+
       const playerPath = locationMonitor.getPlayerPath(playerId);
       expect(playerPath.length).toBeGreaterThan(0);
-      
+
       const summary = locationValidator.getViolationSummary(playerId);
       expect(summary.recentViolations).toBeLessThanOrEqual(maxViolations);
     });
   });
-}); 
+});

@@ -60,14 +60,8 @@ export const gameApi = {
     return response.data;
   },
 
-  updateProgress: async (
-    gameId: string,
-    progress: GameProgress
-  ): Promise<GameState> => {
-    const response = await apiClient.post<GameState>(
-      `/games/${gameId}/progress`,
-      progress
-    );
+  updateProgress: async (gameId: string, progress: GameProgress): Promise<GameState> => {
+    const response = await apiClient.post<GameState>(`/games/${gameId}/progress`, progress);
     return response.data;
   },
 
@@ -75,10 +69,10 @@ export const gameApi = {
     gameId: string,
     data: { clueId: string; qrCode: string }
   ): Promise<{ isValid: boolean; message?: string }> => {
-    const response = await apiClient.post<{ isValid: boolean; message?: string }>(
-      `/games/${gameId}/verify-qr`,
-      data
-    );
+    const response = await apiClient.post<{
+      isValid: boolean;
+      message?: string;
+    }>(`/games/${gameId}/verify-qr`, data);
     return response.data;
   },
 
@@ -86,7 +80,9 @@ export const gameApi = {
     await apiClient.post(`/games/${gameId}/leave`);
   },
 
-  endGame: async (gameId: string): Promise<{
+  endGame: async (
+    gameId: string
+  ): Promise<{
     finalScore: number;
     completedClues: number;
     timeTaken: string;
@@ -98,4 +94,4 @@ export const gameApi = {
     }>(`/games/${gameId}/end`);
     return response.data;
   },
-}; 
+};

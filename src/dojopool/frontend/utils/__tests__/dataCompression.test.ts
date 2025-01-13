@@ -9,20 +9,20 @@ describe('DataCompressor', () => {
     mockLocalStorage = {};
     Object.defineProperty(window, 'localStorage', {
       value: {
-        getItem: jest.fn(key => mockLocalStorage[key] || null),
+        getItem: jest.fn((key) => mockLocalStorage[key] || null),
         setItem: jest.fn((key, value) => {
           mockLocalStorage[key] = value;
         }),
-        removeItem: jest.fn(key => {
+        removeItem: jest.fn((key) => {
           delete mockLocalStorage[key];
         }),
         clear: jest.fn(() => {
           mockLocalStorage = {};
         }),
         length: 0,
-        key: jest.fn(index => Object.keys(mockLocalStorage)[index])
+        key: jest.fn((index) => Object.keys(mockLocalStorage)[index]),
       },
-      writable: true
+      writable: true,
     });
 
     // Reset singleton instance
@@ -30,7 +30,7 @@ describe('DataCompressor', () => {
     dataCompressor = DataCompressor.getInstance({
       compressionLevel: 6,
       chunkSize: 100,
-      archiveThreshold: 30
+      archiveThreshold: 30,
     });
   });
 
@@ -39,24 +39,18 @@ describe('DataCompressor', () => {
       const testData = {
         id: 1,
         name: 'Test',
-        description: 'A long description that should be compressed'
+        description: 'A long description that should be compressed',
       };
 
-      const { compressed, metadata } = await dataCompressor.compressData(
-        testData,
-        'test'
-      );
+      const { compressed, metadata } = await dataCompressor.compressData(testData, 'test');
 
       expect(compressed).toBeInstanceOf(Array);
       expect(metadata).toMatchObject({
         dataType: 'test',
-        recordCount: 1
+        recordCount: 1,
       });
 
-      const decompressed = await dataCompressor.decompressData(
-        compressed,
-        metadata
-      );
+      const decompressed = await dataCompressor.decompressData(compressed, metadata);
 
       expect(decompressed).toEqual(testData);
     });
@@ -64,48 +58,36 @@ describe('DataCompressor', () => {
     it('should handle large datasets with chunking', async () => {
       const largeData = Array.from({ length: 1000 }, (_, i) => ({
         id: i,
-        data: 'Some repeated content to make the dataset larger'
+        data: 'Some repeated content to make the dataset larger',
       }));
 
-      const { compressed, metadata } = await dataCompressor.compressData(
-        largeData,
-        'large_test'
-      );
+      const { compressed, metadata } = await dataCompressor.compressData(largeData, 'large_test');
 
       expect(compressed.length).toBeGreaterThan(1);
       expect(metadata.recordCount).toBe(1000);
 
-      const decompressed = await dataCompressor.decompressData(
-        compressed,
-        metadata
-      );
+      const decompressed = await dataCompressor.decompressData(compressed, metadata);
 
       expect(decompressed).toEqual(largeData);
     });
 
     it('should detect data corruption', async () => {
       const testData = { id: 1, name: 'Test' };
-      const { compressed, metadata } = await dataCompressor.compressData(
-        testData,
-        'test'
-      );
+      const { compressed, metadata } = await dataCompressor.compressData(testData, 'test');
 
       // Corrupt the data
       compressed[0].data[0] = 255 - compressed[0].data[0];
 
-      await expect(
-        dataCompressor.decompressData(compressed, metadata)
-      ).rejects.toThrow('Checksum mismatch');
+      await expect(dataCompressor.decompressData(compressed, metadata)).rejects.toThrow(
+        'Checksum mismatch'
+      );
     });
   });
 
   describe('archiving', () => {
     it('should archive and retrieve data', async () => {
       const testData = { id: 1, name: 'Test' };
-      const { archiveKey } = await dataCompressor.archiveData(
-        testData,
-        'test'
-      );
+      const { archiveKey } = await dataCompressor.archiveData(testData, 'test');
 
       const retrieved = await dataCompressor.retrieveArchive(archiveKey);
       expect(retrieved).toEqual(testData);
@@ -121,9 +103,9 @@ describe('DataCompressor', () => {
       });
 
       const testData = { id: 1, name: 'Test' };
-      await expect(
-        dataCompressor.archiveData(testData, 'test')
-      ).rejects.toThrow('Storage quota exceeded');
+      await expect(dataCompressor.archiveData(testData, 'test')).rejects.toThrow(
+        'Storage quota exceeded'
+      );
 
       expect(localStorage.removeItem).toHaveBeenCalled();
     });
@@ -142,7 +124,7 @@ describe('DataCompressor', () => {
     beforeEach(() => {
       // Add some test archives
       mockLocalStorage = {
-        'test_1': JSON.stringify({
+        test_1: JSON.stringify({
           chunks: [],
           metadata: {
             timestamp: Date.now() - 1000,
@@ -150,10 +132,10 @@ describe('DataCompressor', () => {
             compressedSize: 50,
             recordCount: 1,
             dataType: 'test',
-            checksum: '123'
-          }
+            checksum: '123',
+          },
         }),
-        'test_2': JSON.stringify({
+        test_2: JSON.stringify({
           chunks: [],
           metadata: {
             timestamp: Date.now() - 2000,
@@ -161,12 +143,12 @@ describe('DataCompressor', () => {
             compressedSize: 100,
             recordCount: 2,
             dataType: 'test',
-            checksum: '456'
-          }
-        })
+            checksum: '456',
+          },
+        }),
       };
       Object.defineProperty(localStorage, 'length', {
-        value: Object.keys(mockLocalStorage).length
+        value: Object.keys(mockLocalStorage).length,
       });
     });
 
@@ -191,9 +173,9 @@ describe('DataCompressor', () => {
     });
 
     it('should throw error when retrieving non-existent archive', async () => {
-      await expect(
-        dataCompressor.retrieveArchive('non_existent')
-      ).rejects.toThrow('Archive not found');
+      await expect(dataCompressor.retrieveArchive('non_existent')).rejects.toThrow(
+        'Archive not found'
+      );
     });
   });
 });

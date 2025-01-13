@@ -99,4 +99,4 @@ class StorageManager {
   }
 }
 
-export default StorageManager; 
+export default StorageManager;

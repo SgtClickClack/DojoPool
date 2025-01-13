@@ -32,24 +32,24 @@ describe('Safety System Stress Tests', () => {
         points: Array.from({ length: 4 }, (_, j) => generateRandomLocation(baseLocation, 0.1)),
       }));
 
-      boundaries.forEach(boundary => locationValidator.addBoundary(boundary));
+      boundaries.forEach((boundary) => locationValidator.addBoundary(boundary));
 
       // Simulate concurrent player updates
       const start = performance.now();
-      
+
       await Promise.all(
         Array.from({ length: numPlayers }, (_, playerIndex) => {
           const playerId = `player_${playerIndex}`;
           return Promise.all(
             Array.from({ length: updatesPerPlayer }, async (_, updateIndex) => {
               const location = generateRandomLocation(baseLocation, 0.2);
-              
+
               // Validate and record location
               const validation = locationValidator.validateLocation(location, playerId);
               locationMonitor.recordLocation(playerId, location);
 
               // Small delay to simulate real-world conditions
-              await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
+              await new Promise((resolve) => setTimeout(resolve, Math.random() * 10));
 
               if (!validation.isValid && validation.automatedResponse) {
                 gameMetricsMonitor.recordSafetyIncident(
@@ -69,7 +69,7 @@ describe('Safety System Stress Tests', () => {
 
       // Verify system performance
       expect(timePerOperation).toBeLessThan(1); // Less than 1ms per operation
-      
+
       // Verify monitoring system handled the load
       const metrics = gameMetricsMonitor.getMetrics();
       expect(metrics.safetyIncidents.total).toBeGreaterThan(0);
@@ -150,27 +150,29 @@ describe('Safety System Stress Tests', () => {
 
       const start = performance.now();
 
-      await Promise.all(operations.map(async (op, index) => {
-        if (op.type === 'boundary') {
-          // Add or remove boundary
-          if (Math.random() < 0.5) {
-            locationValidator.addBoundary({
-              id: `boundary_${index}`,
-              type: 'unsafe',
-              points: Array.from({ length: 4 }, () => generateRandomLocation(baseLocation, 0.1)),
-            });
+      await Promise.all(
+        operations.map(async (op, index) => {
+          if (op.type === 'boundary') {
+            // Add or remove boundary
+            if (Math.random() < 0.5) {
+              locationValidator.addBoundary({
+                id: `boundary_${index}`,
+                type: 'unsafe',
+                points: Array.from({ length: 4 }, () => generateRandomLocation(baseLocation, 0.1)),
+              });
+            } else {
+              locationValidator.removeBoundary(`boundary_${index - 1}`);
+            }
           } else {
-            locationValidator.removeBoundary(`boundary_${index - 1}`);
+            // Validate location
+            const location = generateRandomLocation(baseLocation, 0.2);
+            locationValidator.validateLocation(location, op.player);
           }
-        } else {
-          // Validate location
-          const location = generateRandomLocation(baseLocation, 0.2);
-          locationValidator.validateLocation(location, op.player);
-        }
 
-        // Small random delay
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 5));
-      }));
+          // Small random delay
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 5));
+        })
+      );
 
       const end = performance.now();
       const timePerOperation = (end - start) / numOperations;
@@ -220,12 +222,15 @@ describe('Safety System Stress Tests', () => {
 
       // Calculate memory stability metrics
       const memoryVariation = Math.max(...memoryMeasurements) - Math.min(...memoryMeasurements);
-      const averageMemory = memoryMeasurements.reduce((a, b) => a + b, 0) / memoryMeasurements.length;
-      const memoryGrowthRate = (memoryMeasurements[memoryMeasurements.length - 1] - initialMemory) / (hoursSimulated * 3600000);
+      const averageMemory =
+        memoryMeasurements.reduce((a, b) => a + b, 0) / memoryMeasurements.length;
+      const memoryGrowthRate =
+        (memoryMeasurements[memoryMeasurements.length - 1] - initialMemory) /
+        (hoursSimulated * 3600000);
 
       // Verify memory stability
       expect(memoryVariation / averageMemory).toBeLessThan(0.2); // Less than 20% variation
       expect(memoryGrowthRate).toBeLessThan(1000); // Less than 1KB/s growth
     });
   });
-}); 
+});

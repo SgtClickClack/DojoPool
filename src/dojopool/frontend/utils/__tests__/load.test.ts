@@ -17,13 +17,19 @@ describe('Load Testing', () => {
       const PLAYERS_PER_GAME = 5;
       const UPDATE_DURATION = 5000; // 5 seconds
 
-      const gameStates = new Map<string, {
-        cache: Cache<Record<string, Location>>;
-        players: Map<string, {
-          throttled: (location: Location) => void;
-          updates: number;
-        }>;
-      }>();
+      const gameStates = new Map<
+        string,
+        {
+          cache: Cache<Record<string, Location>>;
+          players: Map<
+            string,
+            {
+              throttled: (location: Location) => void;
+              updates: number;
+            }
+          >;
+        }
+      >();
 
       // Initialize games
       for (let i = 0; i < NUM_GAMES; i++) {
@@ -67,7 +73,7 @@ describe('Load Testing', () => {
             }
           }
           jest.advanceTimersByTime(50); // 50ms between updates
-          await new Promise(resolve => setImmediate(resolve));
+          await new Promise((resolve) => setImmediate(resolve));
         }
       };
 
@@ -132,19 +138,19 @@ describe('Load Testing', () => {
         }
 
         // Record memory usage
-        performanceMetrics.memoryUsage.push(
-          process.memoryUsage().heapUsed / 1024 / 1024
-        );
+        performanceMetrics.memoryUsage.push(process.memoryUsage().heapUsed / 1024 / 1024);
 
         jest.advanceTimersByTime(50);
-        await new Promise(resolve => setImmediate(resolve));
+        await new Promise((resolve) => setImmediate(resolve));
       }
 
       // Analyze metrics
-      const avgUpdateTime = performanceMetrics.updateTimes.reduce((a, b) => a + b, 0) / 
+      const avgUpdateTime =
+        performanceMetrics.updateTimes.reduce((a, b) => a + b, 0) /
         performanceMetrics.updateTimes.length;
       const maxMemoryUsage = Math.max(...performanceMetrics.memoryUsage);
-      const memoryGrowth = performanceMetrics.memoryUsage[performanceMetrics.memoryUsage.length - 1] -
+      const memoryGrowth =
+        performanceMetrics.memoryUsage[performanceMetrics.memoryUsage.length - 1] -
         performanceMetrics.memoryUsage[0];
 
       // Performance assertions
@@ -153,4 +159,4 @@ describe('Load Testing', () => {
       expect(maxMemoryUsage).toBeLessThan(200); // Less than 200MB total
     });
   });
-}); 
+});

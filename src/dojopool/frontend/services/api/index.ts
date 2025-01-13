@@ -5,10 +5,6 @@ export { leaderboardApi } from './leaderboard';
 export { profileApi } from './profile';
 
 export type { AuthResponse } from './auth';
-export type {
-  CreateGameResponse,
-  JoinGameResponse,
-  GameProgress,
-} from './game';
+export type { CreateGameResponse, JoinGameResponse, GameProgress } from './game';
 export type { LeaderboardEntry, LeaderboardPeriod } from './leaderboard';
-export type { UserProfile, UpdateProfileData } from './profile'; 
+export type { UserProfile, UpdateProfileData } from './profile';

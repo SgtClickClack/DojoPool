@@ -14,7 +14,7 @@ describe('AuditLogger', () => {
     username: 'testuser',
     email: 'test@example.com',
     roles: [UserRole.ADMIN],
-    permissions: ['read', 'write']
+    permissions: ['read', 'write'],
   };
 
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('AuditLogger', () => {
     mockAuthManager = {
       getInstance: jest.fn().mockReturnThis(),
       getAuthenticatedUser: jest.fn().mockResolvedValue(mockUser),
-      getAuthorizationHeader: jest.fn().mockReturnValue('Bearer test-token')
+      getAuthorizationHeader: jest.fn().mockReturnValue('Bearer test-token'),
     } as unknown as jest.Mocked<AuthManager>;
 
     (AuthManager.getInstance as jest.Mock).mockReturnValue(mockAuthManager);
@@ -37,7 +37,7 @@ describe('AuditLogger', () => {
     auditLogger = AuditLogger.getInstance({
       apiUrl: '/test/audit',
       batchSize: 2,
-      flushInterval: 1000
+      flushInterval: 1000,
     });
 
     // Mock timers
@@ -61,9 +61,9 @@ describe('AuditLogger', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token'
+          Authorization: 'Bearer test-token',
         },
-        body: expect.stringContaining('"type":"TEST"')
+        body: expect.stringContaining('"type":"TEST"'),
       });
     });
 
@@ -105,7 +105,7 @@ describe('AuditLogger', () => {
       await auditLogger.log('TEST', 'action2', 'resource');
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      
+
       jest.advanceTimersByTime(1000);
       await Promise.resolve();
 
@@ -125,7 +125,7 @@ describe('AuditLogger', () => {
         type: 'SECURITY',
         action: 'login',
         resource: 'auth',
-        details: { ip: '127.0.0.1' }
+        details: { ip: '127.0.0.1' },
       });
     });
 
@@ -140,7 +140,7 @@ describe('AuditLogger', () => {
       expect(requestBody.events[0]).toMatchObject({
         type: 'TEST',
         status: 'failure',
-        errorDetails: 'Test error'
+        errorDetails: 'Test error',
       });
     });
 
@@ -153,22 +153,22 @@ describe('AuditLogger', () => {
       expect(requestBody.events[0]).toMatchObject({
         type: 'DATA_ACCESS',
         action: 'read',
-        resource: 'users'
+        resource: 'users',
       });
     });
 
     it('should log system changes', async () => {
       mockFetch.mockResolvedValueOnce({ ok: true });
 
-      await auditLogger.logSystemChange('update', 'config', { 
-        changes: { setting: 'value' } 
+      await auditLogger.logSystemChange('update', 'config', {
+        changes: { setting: 'value' },
       });
 
       const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body);
       expect(requestBody.events[0]).toMatchObject({
         type: 'SYSTEM_CHANGE',
         action: 'update',
-        resource: 'config'
+        resource: 'config',
       });
     });
   });
@@ -177,12 +177,12 @@ describe('AuditLogger', () => {
     it('should fetch audit logs with filters', async () => {
       const mockLogs = [
         { id: '1', type: 'TEST', action: 'action1' },
-        { id: '2', type: 'TEST', action: 'action2' }
+        { id: '2', type: 'TEST', action: 'action2' },
       ];
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockLogs)
+        json: () => Promise.resolve(mockLogs),
       });
 
       const logs = await auditLogger.getAuditLogs({
@@ -191,7 +191,7 @@ describe('AuditLogger', () => {
         type: 'TEST',
         userId: '123',
         limit: 10,
-        offset: 0
+        offset: 0,
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -211,11 +211,10 @@ describe('AuditLogger', () => {
     it('should handle audit log fetch errors', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
-        status: 500
+        status: 500,
       });
 
-      await expect(auditLogger.getAuditLogs())
-        .rejects.toThrow('Failed to fetch audit logs');
+      await expect(auditLogger.getAuditLogs()).rejects.toThrow('Failed to fetch audit logs');
     });
   });
 });

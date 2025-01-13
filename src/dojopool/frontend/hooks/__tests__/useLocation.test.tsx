@@ -17,7 +17,7 @@ describe('useLocation hook', () => {
 
   it('should initialize with null location and no error', () => {
     const { result } = renderHook(() => useLocation());
-    
+
     expect(result.current.location).toBeNull();
     expect(result.current.error).toBeNull();
     expect(result.current.isLoading).toBe(true);
@@ -68,9 +68,9 @@ describe('useLocation hook', () => {
     mockGeolocation.watchPosition.mockReturnValue(watchId);
 
     const { unmount } = renderHook(() => useLocation());
-    
+
     unmount();
-    
+
     expect(mockGeolocation.clearWatch).toHaveBeenCalledWith(watchId);
   });
 
@@ -89,4 +89,4 @@ describe('useLocation hook', () => {
     // Restore geolocation API
     global.navigator.geolocation = originalGeolocation;
   });
-}); 
+});

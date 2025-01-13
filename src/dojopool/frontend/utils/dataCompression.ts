@@ -1,8 +1,8 @@
 import { deflate, inflate } from 'pako';
 
 interface CompressionConfig {
-  compressionLevel: number;  // 1-9, where 9 is max compression
-  chunkSize: number;        // Size in bytes for chunking large datasets
+  compressionLevel: number; // 1-9, where 9 is max compression
+  chunkSize: number; // Size in bytes for chunking large datasets
   archiveThreshold: number; // Age in days for archiving
 }
 
@@ -24,7 +24,7 @@ interface CompressedChunk {
 const DEFAULT_COMPRESSION_CONFIG: CompressionConfig = {
   compressionLevel: 6,
   chunkSize: 1024 * 1024, // 1MB
-  archiveThreshold: 30    // 30 days
+  archiveThreshold: 30, // 30 days
 };
 
 export class DataCompressor {
@@ -48,18 +48,15 @@ export class DataCompressor {
       .toString(16);
   }
 
-  private async compressChunk(
-    data: string,
-    index: number
-  ): Promise<CompressedChunk> {
+  private async compressChunk(data: string, index: number): Promise<CompressedChunk> {
     const compressedData = deflate(data, {
-      level: this.config.compressionLevel
+      level: this.config.compressionLevel,
     });
 
     return {
       data: compressedData,
       checksum: this.calculateChecksum(compressedData),
-      index
+      index,
     };
   }
 
@@ -91,10 +88,7 @@ export class DataCompressor {
       chunks.map((chunk, index) => this.compressChunk(chunk, index))
     );
 
-    const compressedSize = compressedChunks.reduce(
-      (size, chunk) => size + chunk.data.length,
-      0
-    );
+    const compressedSize = compressedChunks.reduce((size, chunk) => size + chunk.data.length, 0);
 
     const metadata: ArchiveMetadata = {
       timestamp: Date.now(),
@@ -102,36 +96,29 @@ export class DataCompressor {
       compressedSize,
       recordCount: Array.isArray(data) ? data.length : 1,
       dataType,
-      checksum: this.calculateChecksum(
-        new TextEncoder().encode(jsonString)
-      )
+      checksum: this.calculateChecksum(new TextEncoder().encode(jsonString)),
     };
 
     return {
       compressed: compressedChunks,
-      metadata
+      metadata,
     };
   }
 
-  async decompressData<T>(
-    chunks: CompressedChunk[],
-    metadata: ArchiveMetadata
-  ): Promise<T> {
+  async decompressData<T>(chunks: CompressedChunk[], metadata: ArchiveMetadata): Promise<T> {
     // Sort chunks by index
     const sortedChunks = [...chunks].sort((a, b) => a.index - b.index);
 
     // Decompress all chunks
     const decompressedChunks = await Promise.all(
-      sortedChunks.map(chunk => this.decompressChunk(chunk))
+      sortedChunks.map((chunk) => this.decompressChunk(chunk))
     );
 
     // Combine chunks
     const jsonString = decompressedChunks.join('');
 
     // Verify checksum
-    const verifyChecksum = this.calculateChecksum(
-      new TextEncoder().encode(jsonString)
-    );
+    const verifyChecksum = this.calculateChecksum(new TextEncoder().encode(jsonString));
     if (verifyChecksum !== metadata.checksum) {
       throw new Error('Data integrity check failed');
     }
@@ -155,13 +142,10 @@ export class DataCompressor {
     try {
       const archiveData = {
         chunks: compressed,
-        metadata
+        metadata,
       };
 
-      localStorage.setItem(
-        archiveKey,
-        JSON.stringify(archiveData)
-      );
+      localStorage.setItem(archiveKey, JSON.stringify(archiveData));
 
       return { archiveKey, metadata };
     } catch (error) {
@@ -215,7 +199,7 @@ export class DataCompressor {
         if (archiveData.metadata) {
           archives.push({
             key,
-            metadata: archiveData.metadata
+            metadata: archiveData.metadata,
           });
         }
       } catch {
@@ -245,7 +229,7 @@ export class DataCompressor {
     return {
       totalSize: totalCompressedSize,
       compressionRatio: totalOriginalSize / totalCompressedSize,
-      archiveCount: archives.length
+      archiveCount: archives.length,
     };
   }
 }

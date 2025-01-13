@@ -16,7 +16,7 @@ const umpireState = {
   lastError: null,
   shotCount: 0,
   foulCount: 0,
-  connectionStatus: 'disconnected'
+  connectionStatus: 'disconnected',
 };
 
 // Initialize WebSocket connection for real-time updates
@@ -25,10 +25,14 @@ let socket;
 // Initialize the umpire system
 function initUmpireSystem() {
   initializeSocket();
-  
+
   // Set up UI event listeners
-  document.getElementById('start-monitoring')?.addEventListener('click', startMonitoring);
-  document.getElementById('stop-monitoring')?.addEventListener('click', stopMonitoring);
+  document
+    .getElementById('start-monitoring')
+    ?.addEventListener('click', startMonitoring);
+  document
+    .getElementById('stop-monitoring')
+    ?.addEventListener('click', stopMonitoring);
 
   // Initialize status indicators
   updateStatusIndicators();
@@ -40,8 +44,8 @@ function initializeSocket() {
     reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
     timeout: 10000,
     auth: {
-      token: document.querySelector('meta[name="csrf-token"]')?.content
-    }
+      token: document.querySelector('meta[name="csrf-token"]')?.content,
+    },
   });
 
   // Connection event handlers
@@ -104,11 +108,12 @@ function handleReconnectFailed() {
 
 // Start frame processing and monitoring
 function startMonitoring() {
-  if (umpireState.isMonitoring || umpireState.connectionStatus !== 'connected') return;
-  
+  if (umpireState.isMonitoring || umpireState.connectionStatus !== 'connected')
+    return;
+
   umpireState.isMonitoring = true;
   updateStatusIndicators();
-  
+
   // Emit start monitoring event to server
   socket.emit('start_monitoring', null, (response) => {
     if (!response.success) {
@@ -124,11 +129,11 @@ function startMonitoring() {
 // Stop monitoring and cleanup
 function stopMonitoring() {
   if (!umpireState.isMonitoring) return;
-  
+
   umpireState.isMonitoring = false;
   updateStatusIndicators();
   cleanup();
-  
+
   // Emit stop monitoring event to server
   socket.emit('stop_monitoring');
 }
@@ -176,11 +181,13 @@ async function processFrames() {
       }
 
       // Convert canvas to blob with compression
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+      const blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg', 0.8)
+      );
       if (!blob || blob.size === 0) {
         throw new Error('Failed to create frame blob');
       }
-      
+
       // Create FormData and append the frame
       const formData = new FormData();
       formData.append('frame', blob);
@@ -188,24 +195,29 @@ async function processFrames() {
       // Send frame to server
       const response = await fetch('/umpire/api/process-frame', {
         method: 'POST',
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Server error: ${response.status}`);
+        throw new Error(
+          errorData.message || `Server error: ${response.status}`
+        );
       }
-      
+
       const data = await response.json();
       handleFrameProcessingResult(data);
-      
+
       lastFrameTime = currentTime;
     } catch (error) {
       console.error('Frame processing error:', error);
       umpireState.lastError = error.message;
       updateStatusIndicators();
-      
-      if (error.message.includes('authentication') || error.message.includes('unauthorized')) {
+
+      if (
+        error.message.includes('authentication') ||
+        error.message.includes('unauthorized')
+      ) {
         stopMonitoring();
         showError('Authentication expired. Please refresh the page.');
         return;
@@ -230,7 +242,7 @@ function validateFrame(imageData) {
     const r = imageData.data[i];
     const g = imageData.data[i + 1];
     const b = imageData.data[i + 2];
-    
+
     if (r === 0 && g === 0 && b === 0) blackPixels++;
     if (r === 255 && g === 255 && b === 255) whitePixels++;
   }
@@ -261,21 +273,27 @@ function updateStatusIndicators() {
   if (!statusContainer) return;
 
   // Update connection status
-  const connectionIndicator = statusContainer.querySelector('.connection-indicator');
+  const connectionIndicator = statusContainer.querySelector(
+    '.connection-indicator'
+  );
   if (connectionIndicator) {
     connectionIndicator.className = `status-indicator ${umpireState.connectionStatus}`;
     animateStatusChange(connectionIndicator);
   }
 
   // Update monitoring status
-  const monitoringIndicator = statusContainer.querySelector('.monitoring-indicator');
+  const monitoringIndicator = statusContainer.querySelector(
+    '.monitoring-indicator'
+  );
   if (monitoringIndicator) {
     monitoringIndicator.className = `status-indicator ${umpireState.isMonitoring ? 'active' : 'inactive'}`;
     animateStatusChange(monitoringIndicator);
   }
 
   // Update calibration status
-  const calibrationIndicator = statusContainer.querySelector('.calibration-indicator');
+  const calibrationIndicator = statusContainer.querySelector(
+    '.calibration-indicator'
+  );
   if (calibrationIndicator) {
     calibrationIndicator.className = `status-indicator ${umpireState.isCalibrated ? 'active' : 'inactive'}`;
     animateStatusChange(calibrationIndicator);
@@ -312,14 +330,15 @@ function animateStatusChange(element) {
 // Show user-friendly error messages
 function showError(message) {
   const errorDiv = document.createElement('div');
-  errorDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3';
+  errorDiv.className =
+    'alert alert-danger alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3';
   errorDiv.setAttribute('role', 'alert');
   errorDiv.innerHTML = `
     ${message}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   `;
   document.body.appendChild(errorDiv);
-  
+
   errorDiv.addEventListener('closed.bs.alert', () => {
     errorDiv.remove();
   });
@@ -333,14 +352,15 @@ function showError(message) {
 // Show success messages
 function showSuccess(message) {
   const successDiv = document.createElement('div');
-  successDiv.className = 'alert alert-success alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3';
+  successDiv.className =
+    'alert alert-success alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3';
   successDiv.setAttribute('role', 'alert');
   successDiv.innerHTML = `
     ${message}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   `;
   document.body.appendChild(successDiv);
-  
+
   successDiv.addEventListener('closed.bs.alert', () => {
     successDiv.remove();
   });
@@ -358,14 +378,14 @@ function updateGameStats(stats) {
 
   const elements = {
     shots: statsContainer.querySelector('.shots-count'),
-    fouls: statsContainer.querySelector('.fouls-count')
+    fouls: statsContainer.querySelector('.fouls-count'),
   };
 
   Object.entries(elements).forEach(([key, element]) => {
     if (element) {
       const currentValue = parseInt(element.textContent) || 0;
       const newValue = stats[key === 'shots' ? 'total_shots' : 'fouls'];
-      
+
       if (currentValue !== newValue) {
         animateNumber(element, currentValue, newValue);
       }
@@ -377,19 +397,19 @@ function updateGameStats(stats) {
 function animateNumber(element, start, end) {
   const duration = 500;
   const startTime = performance.now();
-  
+
   const animate = (currentTime) => {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    
+
     const current = Math.round(start + (end - start) * progress);
     element.textContent = current;
-    
+
     if (progress < 1) {
       requestAnimationFrame(animate);
     }
   };
-  
+
   requestAnimationFrame(animate);
 }
 
@@ -402,7 +422,7 @@ function handleShotDetection(data) {
   }
   updateGameStats({
     total_shots: umpireState.shotCount,
-    fouls: umpireState.foulCount
+    fouls: umpireState.foulCount,
   });
 }
 

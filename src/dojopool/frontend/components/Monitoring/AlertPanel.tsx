@@ -35,10 +35,7 @@ interface AlertPanelProps {
   onAlertAcknowledge?: (alert: AlertType) => void;
 }
 
-export const AlertPanel: React.FC<AlertPanelProps> = ({
-  gameId,
-  onAlertAcknowledge,
-}) => {
+export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowledge }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [expandedAlert, setExpandedAlert] = useState<string | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<AlertType | null>(null);
@@ -48,7 +45,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
   useEffect(() => {
     // Subscribe to alerts
     const unsubscribe = gameMetricsMonitor.subscribeToAlerts((alert: AlertType) => {
-      setAlerts(prev => [alert, ...prev].slice(0, 100)); // Keep last 100 alerts
+      setAlerts((prev) => [alert, ...prev].slice(0, 100)); // Keep last 100 alerts
     });
 
     return () => unsubscribe();
@@ -76,9 +73,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
       };
 
       onAlertAcknowledge?.(acknowledgedAlert);
-      setAlerts(prev =>
-        prev.map(a => (a.id === selectedAlert.id ? acknowledgedAlert : a))
-      );
+      setAlerts((prev) => prev.map((a) => (a.id === selectedAlert.id ? acknowledgedAlert : a)));
 
       setAcknowledgeDialogOpen(false);
       setAcknowledgeNote('');
@@ -132,13 +127,11 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
 
         {/* Alert List */}
         <List>
-          {alerts.map(alert => (
+          {alerts.map((alert) => (
             <React.Fragment key={alert.id}>
               <ListItem
                 sx={{
-                  bgcolor: alert.acknowledged
-                    ? 'action.selected'
-                    : 'background.paper',
+                  bgcolor: alert.acknowledged ? 'action.selected' : 'background.paper',
                 }}
               >
                 <ListItemIcon>{getSeverityIcon(alert.severity)}</ListItemIcon>
@@ -156,15 +149,8 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
                       <AcknowledgeIcon />
                     </IconButton>
                   )}
-                  <IconButton
-                    size="small"
-                    onClick={() => handleExpandClick(alert.id)}
-                  >
-                    {expandedAlert === alert.id ? (
-                      <ExpandLessIcon />
-                    ) : (
-                      <ExpandMoreIcon />
-                    )}
+                  <IconButton size="small" onClick={() => handleExpandClick(alert.id)}>
+                    {expandedAlert === alert.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                   </IconButton>
                 </Box>
               </ListItem>
@@ -182,9 +168,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
                         <Typography variant="subtitle2" gutterBottom>
                           Acknowledgment Note
                         </Typography>
-                        <Typography variant="body2">
-                          {alert.details.acknowledgeNote}
-                        </Typography>
+                        <Typography variant="body2">{alert.details.acknowledgeNote}</Typography>
                         <Typography variant="caption" display="block" mt={1}>
                           Acknowledged at: {formatTimestamp(alert.details.acknowledgeTime)}
                         </Typography>
@@ -198,10 +182,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
         </List>
 
         {/* Acknowledge Dialog */}
-        <Dialog
-          open={acknowledgeDialogOpen}
-          onClose={() => setAcknowledgeDialogOpen(false)}
-        >
+        <Dialog open={acknowledgeDialogOpen} onClose={() => setAcknowledgeDialogOpen(false)}>
           <DialogTitle>Acknowledge Alert</DialogTitle>
           <DialogContent>
             <TextField
@@ -212,7 +193,7 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
               multiline
               rows={4}
               value={acknowledgeNote}
-              onChange={e => setAcknowledgeNote(e.target.value)}
+              onChange={(e) => setAcknowledgeNote(e.target.value)}
             />
           </DialogContent>
           <DialogActions>
@@ -225,4 +206,4 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({
       </CardContent>
     </Card>
   );
-}; 
+};

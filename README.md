@@ -1,73 +1,99 @@
-# 🎱 Dojo Pool
+# DojoPool
 
-Next-generation pool gaming ecosystem combining real-world cue sports with AI-driven gameplay enhancement.
+DojoPool is an innovative platform that combines AI-powered training, analytics, and community features to help pool players improve their game. The platform offers personalized training recommendations, real-time shot analysis, and a marketplace for pool equipment.
 
-## 🚀 Quick Start
+## Features
+
+- 🎯 **AI-Powered Training**: Advanced shot analysis and personalized training recommendations
+- 📊 **Analytics Dashboard**: Track your progress with detailed performance metrics
+- 🛍️ **Marketplace**: Buy, sell, and trade pool equipment
+- 👥 **Community**: Connect with other players and participate in events
+
+## Tech Stack
+
+- **Frontend**: React, Material-UI, React Router
+- **Backend**: Python, FastAPI, SQLAlchemy
+- **AI/ML**: TensorFlow, OpenCV, MediaPipe
+- **Database**: PostgreSQL, Redis
+- **Infrastructure**: Docker, Kubernetes, AWS
+
+## Getting Started
 
 ### Prerequisites
-```bash
-python 3.8+
-postgresql
-node.js 14+
-```
+
+- Node.js (v16 or higher)
+- npm (v8 or higher)
+- Python 3.9+
+- Docker (optional)
 
 ### Installation
-```bash
-git clone https://github.com/yourusername/dojo-pool.git
-cd dojo-pool
-pip install -r requirements.txt
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/dojopool.git
+   cd dojopool
+   ```
+
+2. Install frontend dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) to view the app in your browser.
+
+### Development
+
+- Run tests:
+  ```bash
+  npm test
+  ```
+
+- Run linting:
+  ```bash
+  npm run lint
+  ```
+
+- Format code:
+  ```bash
+  npm run format
+  ```
+
+## Project Structure
+
+```
+dojopool/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Page components
+│   ├── services/      # API and service integrations
+│   ├── utils/         # Helper functions and utilities
+│   ├── App.js         # Main application component
+│   └── index.js       # Application entry point
+├── public/            # Static assets
+├── docs/             # Documentation
+└── package.json      # Project dependencies and scripts
 ```
 
-### Run
-```bash
-cd src
-python app.py
-```
+## Contributing
 
-## 📚 Documentation
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- [Project Overview](docs/PROJECT_OVERVIEW.md) - Core concepts and architecture
-- [Development Status](DEVELOPMENT_TRACKING.md) - Current progress and known issues
-- [Roadmap](docs/ROADMAP.md) - Future plans and milestones
-- [API Documentation](docs/api.md) - API endpoints and usage
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
-- [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) - Detailed project organization
-
-## 🎯 Current Features
-
-### Implemented ✅
-1. Google OAuth authentication
-2. Basic user dashboard
-3. Map integration for venues
-4. Avatar upload system
-5. Tournament structure
-6. Responsive UI with Bootstrap 5
-
-### In Progress 🚧
-1. AI transformation for avatars
-2. Venue management system
-3. Real-time features
-4. Tournament functionality
-5. Marketplace implementation
-
-## 🤝 Contributing
-
-Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and development process.
-
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Acknowledgments
 
-*For detailed project context and setup instructions, see [Project Overview](docs/PROJECT_OVERVIEW.md)*
-
-## Landing Page (⚠️ FINAL VERSION - DO NOT MODIFY ⚠️)
-The landing page has been finalized and approved. It represents the perfect balance of cyberpunk aesthetics, performance, and user experience. Any modifications require explicit approval.
-
-- **Location:** `src/static/index.html`
-- **Documentation:** `docs/LANDING_PAGE.md`
-- **Version:** 5.0 (Final)
-- **Status:** ✅ Production Ready
-
-For detailed information about the landing page, including design system, components, and maintenance guidelines, please refer to the [Landing Page Documentation](docs/LANDING_PAGE.md).
+- [Material-UI](https://mui.com/) for the beautiful UI components
+- [React](https://reactjs.org/) for the frontend framework
+- [FastAPI](https://fastapi.tiangolo.com/) for the backend framework
+- [TensorFlow](https://www.tensorflow.org/) for AI/ML capabilities

@@ -21,22 +21,23 @@ const GameSummaryScreen = () => {
 
   const checkSyncStatus = async () => {
     const pendingItems = syncManager.getPendingItems();
-    const hasPendingSync = pendingItems.some(
-      item => item.data.startTime === gameData.startTime
-    );
+    const hasPendingSync = pendingItems.some((item) => item.data.startTime === gameData.startTime);
     setSyncStatus(hasPendingSync ? 'pending' : 'synced');
   };
 
   const chartData = {
     labels: gameData.shots.map((_, index) => `Shot ${index + 1}`),
-    datasets: [{
-      data: gameData.shots.map(shot => shot.accuracy || 0)
-    }]
+    datasets: [
+      {
+        data: gameData.shots.map((shot) => shot.accuracy || 0),
+      },
+    ],
   };
 
   const calculateStats = () => {
     const totalShots = gameData.shots.length;
-    const accuracy = gameData.shots.reduce((acc, shot) => acc + (shot.accuracy || 0), 0) / totalShots;
+    const accuracy =
+      gameData.shots.reduce((acc, shot) => acc + (shot.accuracy || 0), 0) / totalShots;
     const duration = Math.floor((gameData.endTime - gameData.startTime) / 1000);
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
@@ -44,7 +45,7 @@ const GameSummaryScreen = () => {
     return {
       totalShots,
       accuracy: `${(accuracy * 100).toFixed(1)}%`,
-      duration: `${minutes}:${seconds.toString().padStart(2, '0')}`
+      duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
     };
   };
 
@@ -55,7 +56,7 @@ const GameSummaryScreen = () => {
       const message = `Just finished a pool game!\nStats:\nTotal Shots: ${stats.totalShots}\nAccuracy: ${stats.accuracy}\nDuration: ${stats.duration}`;
       await Share.open({
         message,
-        title: 'Game Summary'
+        title: 'Game Summary',
       });
     } catch (error) {
       console.error('Error sharing results:', error);
@@ -106,8 +107,8 @@ const GameSummaryScreen = () => {
             decimalPlaces: 2,
             color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
             style: {
-              borderRadius: 16
-            }
+              borderRadius: 16,
+            },
           }}
           style={styles.chart}
         />
@@ -128,7 +129,7 @@ const GameSummaryScreen = () => {
           icon={{
             name: 'share',
             type: 'material',
-            color: 'white'
+            color: 'white',
           }}
         />
         <Button
@@ -138,7 +139,7 @@ const GameSummaryScreen = () => {
           icon={{
             name: 'play-circle',
             type: 'material',
-            color: 'white'
+            color: 'white',
           }}
         />
       </View>
@@ -148,15 +149,15 @@ const GameSummaryScreen = () => {
 
 const generateRecommendations = (stats) => {
   const recommendations = [];
-  
+
   if (stats.totalShots < 10) {
     recommendations.push('Try to play more shots to get better insights.');
   }
-  
+
   if (parseFloat(stats.accuracy) < 70) {
     recommendations.push('Focus on improving shot accuracy through practice drills.');
   }
-  
+
   return recommendations.join(' ');
 };
 
@@ -216,4 +217,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GameSummaryScreen; 
+export default GameSummaryScreen;

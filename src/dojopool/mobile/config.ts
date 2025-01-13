@@ -1,5 +1,5 @@
-export const API_URL = __DEV__ 
-  ? 'http://localhost:5000'  // Development
+export const API_URL = __DEV__
+  ? 'http://localhost:5000' // Development
   : 'https://api.dojopool.com'; // Production
 
 export const CONFIG = {
@@ -50,4 +50,4 @@ export const CONFIG = {
     enableAchievements: true,
     enableInGameTips: true,
   },
-}; 
+};

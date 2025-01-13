@@ -1,209 +1,209 @@
 /* Dashboard Styles */
 
 .dashboard-container {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 /* Stat Cards */
 .stat-card {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--primary-color);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
 }
 
 .stat-value {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
-    margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+  margin-bottom: 0.5rem;
 }
 
 .stat-label {
-    color: var(--text-color);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Rating Display */
 .rating-display {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1.5rem;
 }
 
 .current-rating,
 .peak-rating {
-    text-align: center;
+  text-align: center;
 }
 
 .rating-value {
-    display: block;
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+  display: block;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
 }
 
 .rating-label {
-    display: block;
-    color: var(--text-color);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  display: block;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .rating-chart {
-    height: 200px;
-    margin-top: 1.5rem;
+  height: 200px;
+  margin-top: 1.5rem;
 }
 
 /* Achievement Cards */
 .achievement-stats {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1.5rem;
 }
 
 .achievement-count {
-    display: block;
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
 }
 
 .achievement-label {
-    display: block;
-    color: var(--text-color);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  display: block;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .achievement-list {
-    max-height: 300px;
-    overflow-y: auto;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .achievement-item {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(0, 255, 157, 0.2);
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 157, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .achievement-name {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
 }
 
 .progress {
-    height: 6px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-    overflow: hidden;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .progress-bar {
-    background: var(--primary-color);
-    box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+  background: var(--primary-color);
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
 }
 
 /* Tournament Section */
 .tournament-stats {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Power-up Cards */
 .power-up-card {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--primary-color);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
 }
 
 .power-up-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
 }
 
 .power-up-icon {
-    font-size: 2rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-    text-align: center;
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .power-up-info h5 {
-    color: var(--text-color);
-    margin-bottom: 0.5rem;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
 }
 
 .power-up-info p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 /* Tables */
 .table {
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .table th {
-    background: rgba(0, 0, 0, 0.6);
-    color: var(--primary-color);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid var(--primary-color);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--primary-color);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--primary-color);
 }
 
 .table td {
-    color: var(--text-color);
-    border-color: rgba(0, 255, 157, 0.1);
+  color: var(--text-color);
+  border-color: rgba(0, 255, 157, 0.1);
 }
 
 /* Badges */
 .badge {
-    padding: 0.5em 1em;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  padding: 0.5em 1em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 4px;
+  background: var(--primary-color);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color-dark);
-} 
+  background: var(--primary-color-dark);
+}

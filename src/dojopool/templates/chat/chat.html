@@ -4,78 +4,71 @@
 
 {% block content %}
 <div class="chat-container">
-    <!-- Chat rooms list -->
-    <div class="chat-rooms">
-        <div class="chat-rooms-header">
-            <h2>Chats</h2>
-            <button class="btn btn-primary btn-sm" onclick="showNewChatModal()">
-                <i class="fas fa-plus"></i> New Chat
+<!-- Chat rooms list -->
+<div class="chat-rooms">
+<div class="chat-rooms-header">
+<h2>Chats</h2>
+<button class="btn btn-primary btn-sm" onclick="showNewChatModal()">
+<i class="fas fa-plus"></i> New Chat
             </button>
-        </div>
-        <div class="chat-rooms-list" id="chat-rooms-list">
-            <!-- Chat rooms will be loaded here dynamically -->
-        </div>
-    </div>
-
-    <!-- Active chat -->
-    <div class="chat-messages" id="chat-messages-container">
-        <div class="chat-messages-header" id="chat-messages-header">
-            <!-- Active chat header will be loaded here -->
-        </div>
-        <div class="chat-messages-list" id="chat-messages-list">
-            <!-- Messages will be loaded here dynamically -->
-        </div>
-        <div class="typing-indicator" id="typing-indicator" style="display: none;">
-            <!-- Typing indicator will be shown here -->
-        </div>
-        <div class="chat-messages-input">
-            <form id="message-form" onsubmit="sendMessage(event)">
-                <div class="input-group">
-                    <input type="text" 
-                           class="form-control" 
-                           id="message-input" 
-                           placeholder="Type a message..." 
-                           required
-                           oninput="handleTyping()">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
-
+<div class="chat-rooms-list" id="chat-rooms-list">
+<!-- Chat rooms will be loaded here dynamically -->
+</div>
+</div>
+<!-- Active chat -->
+<div class="chat-messages" id="chat-messages-container">
+<div class="chat-messages-header" id="chat-messages-header">
+<!-- Active chat header will be loaded here -->
+</div>
+<div class="chat-messages-list" id="chat-messages-list">
+<!-- Messages will be loaded here dynamically -->
+</div>
+<div class="typing-indicator" id="typing-indicator" style="display: none;">
+<!-- Typing indicator will be shown here -->
+</div>
+<div class="chat-messages-input">
+<form id="message-form" onsubmit="sendMessage(event)">
+<div class="input-group">
+<input class="form-control" id="message-input" oninput="handleTyping()" placeholder="Type a message..." required="" type="text"/>
+<button class="btn btn-primary" type="submit">
+<i class="fas fa-paper-plane"></i>
+</button>
+</div>
+</form>
+</div>
+</div>
+</div>
 <!-- New Chat Modal -->
 <div class="modal fade" id="newChatModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">New Chat</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="new-chat-form" onsubmit="createChat(event)">
-                    <div class="mb-3">
-                        <label class="form-label">Select Friends</label>
-                        <div class="friend-list" id="friend-select-list">
-                            <!-- Friends will be loaded here dynamically -->
-                        </div>
-                    </div>
-                    <div class="mb-3 group-chat-name" style="display: none;">
-                        <label class="form-label">Group Name</label>
-                        <input type="text" class="form-control" id="group-name">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Create Chat</button>
-                </form>
-            </div>
-        </div>
-    </div>
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">New Chat</h5>
+<button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+</div>
+<div class="modal-body">
+<form id="new-chat-form" onsubmit="createChat(event)">
+<div class="mb-3">
+<label class="form-label">Select Friends</label>
+<div class="friend-list" id="friend-select-list">
+<!-- Friends will be loaded here dynamically -->
+</div>
+</div>
+<div class="mb-3 group-chat-name" style="display: none;">
+<label class="form-label">Group Name</label>
+<input class="form-control" id="group-name" type="text"/>
+</div>
+<button class="btn btn-primary" type="submit">Create Chat</button>
+</form>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+<link href="{{ url_for('static', filename='css/chat.css') }}" rel="stylesheet"/>
 {% endblock %}
 
 {% block scripts %}

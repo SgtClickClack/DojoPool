@@ -9,7 +9,7 @@ import {
   Stack,
   Chip,
   Divider,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
@@ -18,7 +18,7 @@ import {
   Speed as SpeedIcon,
   Gavel as AccuracyIcon,
   Timer as TimeIcon,
-  Psychology as StrategyIcon
+  Psychology as StrategyIcon,
 } from '@mui/icons-material';
 
 interface Metric {
@@ -53,7 +53,7 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
   metrics,
   keyMoments,
   patterns,
-  summary
+  summary,
 }) => {
   const theme = useTheme();
 
@@ -112,24 +112,28 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
           <Grid container spacing={2}>
             {metrics.map((metric, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
-                <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                <Box
+                  sx={{
+                    p: 2,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                  }}
+                >
                   <Stack spacing={1}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {getMetricIcon(metric.name)}
-                      <Typography variant="subtitle1">
-                        {metric.name}
-                      </Typography>
+                      <Typography variant="subtitle1">{metric.name}</Typography>
                     </Box>
-                    <Typography variant="h4">
-                      {metric.value}%
-                    </Typography>
+                    <Typography variant="h4">{metric.value}%</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {getTrendIcon(metric.trend)}
                       <Typography
                         variant="body2"
                         color={metric.trend === 'up' ? 'success.main' : 'error.main'}
                       >
-                        {metric.change > 0 ? '+' : ''}{metric.change}%
+                        {metric.change > 0 ? '+' : ''}
+                        {metric.change}%
                       </Typography>
                     </Box>
                   </Stack>
@@ -150,18 +154,23 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
             {keyMoments.map((moment, index) => (
               <Box key={index}>
                 {index > 0 && <Divider sx={{ my: 2 }} />}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'start',
+                  }}
+                >
                   <Stack spacing={1}>
-                    <Typography variant="subtitle1">
-                      {moment.timestamp}
-                    </Typography>
-                    <Typography variant="body1">
-                      {moment.description}
-                    </Typography>
+                    <Typography variant="subtitle1">{moment.timestamp}</Typography>
+                    <Typography variant="body1">{moment.description}</Typography>
                   </Stack>
                   <Chip
                     label={`Impact: ${Math.round(moment.impact * 100)}%`}
-                    sx={{ backgroundColor: getImpactColor(moment.impact), color: 'white' }}
+                    sx={{
+                      backgroundColor: getImpactColor(moment.impact),
+                      color: 'white',
+                    }}
                   />
                 </Box>
               </Box>
@@ -179,18 +188,21 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
           <Grid container spacing={2}>
             {patterns.map((pattern, index) => (
               <Grid item xs={12} md={6} key={index}>
-                <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                <Box
+                  sx={{
+                    p: 2,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                  }}
+                >
                   <Stack spacing={2}>
-                    <Typography variant="subtitle1">
-                      {pattern.name}
-                    </Typography>
+                    <Typography variant="subtitle1">{pattern.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
                       {pattern.description}
                     </Typography>
                     <Stack spacing={1}>
-                      <Typography variant="body2">
-                        Frequency: {pattern.frequency}%
-                      </Typography>
+                      <Typography variant="body2">Frequency: {pattern.frequency}%</Typography>
                       <LinearProgress
                         variant="determinate"
                         value={pattern.frequency}
@@ -206,8 +218,8 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
                           height: 6,
                           borderRadius: 3,
                           '& .MuiLinearProgress-bar': {
-                            backgroundColor: getImpactColor(pattern.effectiveness / 100)
-                          }
+                            backgroundColor: getImpactColor(pattern.effectiveness / 100),
+                          },
                         }}
                       />
                     </Stack>
@@ -220,4 +232,4 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
       </Card>
     </Stack>
   );
-}; 
+};

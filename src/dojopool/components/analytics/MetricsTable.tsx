@@ -11,7 +11,7 @@ import {
   Paper,
   Box,
   Typography,
-  Skeleton
+  Skeleton,
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 
@@ -29,7 +29,7 @@ const METRIC_LABELS: { [key: string]: string } = {
   revenue: 'Revenue',
   response_time: 'Response Time',
   error_rate: 'Error Rate',
-  cpu_usage: 'CPU Usage'
+  cpu_usage: 'CPU Usage',
 };
 
 const METRIC_FORMATS: { [key: string]: (value: number) => string } = {
@@ -40,16 +40,12 @@ const METRIC_FORMATS: { [key: string]: (value: number) => string } = {
   revenue: (value) => `$${value.toFixed(2)}`,
   response_time: (value) => `${value.toFixed(0)}ms`,
   error_rate: (value) => `${(value * 100).toFixed(2)}%`,
-  cpu_usage: (value) => `${(value * 100).toFixed(1)}%`
+  cpu_usage: (value) => `${(value * 100).toFixed(1)}%`,
 };
 
 type Order = 'asc' | 'desc';
 
-export const MetricsTable: React.FC<MetricsTableProps> = ({
-  data,
-  metrics,
-  loading
-}) => {
+export const MetricsTable: React.FC<MetricsTableProps> = ({ data, metrics, loading }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [orderBy, setOrderBy] = useState<string>('date');
@@ -78,7 +74,7 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({
         acc[date] = {
           date,
           dimension_id: item.dimension_id,
-          dimension: item.dimension
+          dimension: item.dimension,
         };
       }
       acc[date][item.metric_type] = item.value;
@@ -96,7 +92,7 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({
         const dateB = new Date(b.date).getTime();
         return order === 'asc' ? dateA - dateB : dateB - dateA;
       }
-      
+
       const valueA = a[orderBy] || 0;
       const valueB = b[orderBy] || 0;
       return order === 'asc' ? valueA - valueB : valueB - valueA;
@@ -105,10 +101,7 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({
     return [...tableData].sort(comparator);
   }, [tableData, order, orderBy]);
 
-  const paginatedData = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginatedData = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   if (loading) {
     return (
@@ -174,8 +167,7 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({
                 </TableCell>
                 {metrics.map((metric) => (
                   <TableCell key={metric} align="right">
-                    {METRIC_FORMATS[metric]?.(row[metric]) || 
-                      (row[metric]?.toFixed(2) || '-')}
+                    {METRIC_FORMATS[metric]?.(row[metric]) || row[metric]?.toFixed(2) || '-'}
                   </TableCell>
                 ))}
               </TableRow>
@@ -194,4 +186,4 @@ export const MetricsTable: React.FC<MetricsTableProps> = ({
       />
     </Paper>
   );
-}; 
+};

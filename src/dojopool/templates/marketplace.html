@@ -1,517 +1,331 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DojoPool Marketplace</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
-    <style>
-        .item-card {
-            @apply bg-gray-800 rounded-lg p-4 shadow-lg transition-transform duration-200;
-        }
+{% block title %}Marketplace - DojoPool{% endblock %}
 
-        .item-card:hover {
-            @apply transform -translate-y-1;
-        }
+{% block styles %}
+<style>
+    .marketplace-container {
+        min-height: 100vh;
+        background: var(--background-dark);
+        padding: 2rem 0;
+    }
 
-        .auction-card {
-            @apply bg-gray-800 rounded-lg p-4 shadow-lg border-2 border-blue-500;
-        }
+    .marketplace-header {
+        margin-bottom: 2rem;
+    }
 
-        .countdown {
-            @apply text-sm font-mono;
-        }
+    .marketplace-title {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        text-shadow: 0 0 10px var(--primary-color);
+    }
 
-        .bid-history {
-            @apply bg-gray-900 rounded p-2 mt-2 max-h-32 overflow-y-auto;
-        }
+    .marketplace-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
 
-        .featured {
-            @apply border-2 border-yellow-500;
-        }
+    .filters {
+        margin-bottom: 2rem;
+    }
 
-        .rarity-common {
-            @apply text-gray-400;
-        }
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
 
-        .rarity-uncommon {
-            @apply text-green-400;
-        }
+    .filter-label {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-right: 0.5rem;
+    }
 
-        .rarity-rare {
-            @apply text-blue-400;
-        }
+    .filter-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--secondary-color);
+        color: var(--text-light);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+    }
 
-        .rarity-epic {
-            @apply text-purple-400;
-        }
+    .filter-select option {
+        background: var(--background-dark);
+    }
 
-        .rarity-legendary {
-            @apply text-yellow-400;
-        }
-    </style>
-</head>
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
 
-<body class="bg-gray-900 text-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="mb-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-4xl font-bold">Marketplace</h1>
-                <div class="flex space-x-4">
-                    <button id="createListingBtn" class="bg-blue-600 rounded px-4 py-2">
-                        Create Listing
-                    </button>
-                    <button id="createAuctionBtn" class="bg-purple-600 rounded px-4 py-2">
-                        Create Auction
-                    </button>
-                </div>
-            </div>
+    .item-card {
+        background: rgba(10, 10, 10, 0.9);
+        border: 2px solid var(--primary-color);
+        position: relative;
+        box-shadow: 0 0 30px rgba(0, 255, 157, 0.1);
+        clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
 
-            <!-- Filters -->
-            <div class="mt-4 flex flex-wrap gap-4">
-                <select id="itemType" class="bg-gray-700 rounded px-3 py-2">
-                    <option value="">All Types</option>
-                    <option value="avatar">Avatars</option>
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 30px rgba(0, 255, 157, 0.3);
+    }
+
+    .item-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: var(--cyber-gradient);
+        z-index: -1;
+        clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+    }
+
+    .item-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+    }
+
+    .item-content {
+        padding: 1.5rem;
+    }
+
+    .item-name {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .item-type {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .item-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .item-stat {
+        text-align: center;
+    }
+
+    .stat-label {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        color: var(--text-light);
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .item-rarity {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+    }
+
+    .rarity-common {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-light);
+    }
+
+    .rarity-rare {
+        background: rgba(0, 184, 255, 0.2);
+        color: var(--secondary-color);
+    }
+
+    .rarity-epic {
+        background: rgba(163, 53, 238, 0.2);
+        color: #a335ee;
+    }
+
+    .rarity-legendary {
+        background: rgba(255, 128, 0, 0.2);
+        color: #ff8000;
+    }
+
+    .item-price {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .item-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-item {
+        flex: 1;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'includes/navigation.html' %}
+
+<div class="marketplace-container">
+    <div class="container">
+        <div class="marketplace-header">
+            <h1 class="marketplace-title">Marketplace</h1>
+        </div>
+
+        <div class="marketplace-actions">
+            <button class="btn btn-cyber">Create Listing</button>
+            <button class="btn btn-cyber">Start Auction</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Item Type:</span>
+                <select class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="weapon">Weapons</option>
+                    <option value="armor">Armor</option>
                     <option value="accessory">Accessories</option>
-                    <option value="emote">Emotes</option>
-                    <option value="background">Backgrounds</option>
-                    <option value="effect">Effects</option>
-                    <option value="badge">Badges</option>
                 </select>
 
-                <select id="rarity" class="bg-gray-700 rounded px-3 py-2">
-                    <option value="">All Rarities</option>
+                <span class="filter-label">Rarity:</span>
+                <select class="filter-select">
+                    <option value="all">All Rarities</option>
                     <option value="common">Common</option>
-                    <option value="uncommon">Uncommon</option>
                     <option value="rare">Rare</option>
                     <option value="epic">Epic</option>
                     <option value="legendary">Legendary</option>
                 </select>
 
-                <div class="flex items-center space-x-2">
-                    <input type="number" id="minPrice" placeholder="Min Price"
-                        class="bg-gray-700 rounded px-3 py-2 w-24">
-                    <span>-</span>
-                    <input type="number" id="maxPrice" placeholder="Max Price"
-                        class="bg-gray-700 rounded px-3 py-2 w-24">
-                </div>
-
-                <input type="text" id="search" placeholder="Search items..."
-                    class="bg-gray-700 rounded px-3 py-2 flex-grow">
+                <span class="filter-label">Price Range:</span>
+                <select class="filter-select">
+                    <option value="all">All Prices</option>
+                    <option value="0-100">$0 - $100</option>
+                    <option value="100-500">$100 - $500</option>
+                    <option value="500+">$500+</option>
+                </select>
             </div>
-
-            <!-- View Toggle -->
-            <div class="mt-4 flex space-x-4">
-                <button id="viewAll" class="bg-gray-700 rounded px-4 py-2 active">All Items</button>
-                <button id="viewAuctions" class="bg-gray-700 rounded px-4 py-2">Auctions</button>
-                <button id="viewListings" class="bg-gray-700 rounded px-4 py-2">Buy Now</button>
-            </div>
-        </header>
-
-        <!-- Featured Items -->
-        <section class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Featured Items</h2>
-            <div id="featuredItems" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Featured items will be inserted here -->
-            </div>
-        </section>
-
-        <!-- Main Grid -->
-        <div id="itemGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <!-- Items will be inserted here -->
         </div>
-    </div>
 
-    <!-- Create Listing Modal -->
-    <div id="createListingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
-        <div class="bg-gray-800 rounded-lg p-6 max-w-lg mx-auto mt-20">
-            <h2 class="text-2xl font-bold mb-4">Create Listing</h2>
-            <form id="listingForm" class="space-y-4">
-                <div>
-                    <label class="block mb-1">Name</label>
-                    <input type="text" name="name" required class="w-full bg-gray-700 rounded px-3 py-2">
-                </div>
-                <div>
-                    <label class="block mb-1">Description</label>
-                    <textarea name="description" required class="w-full bg-gray-700 rounded px-3 py-2"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block mb-1">Type</label>
-                        <select name="type" required class="w-full bg-gray-700 rounded px-3 py-2">
-                            <option value="avatar">Avatar</option>
-                            <option value="accessory">Accessory</option>
-                            <option value="emote">Emote</option>
-                            <option value="background">Background</option>
-                            <option value="effect">Effect</option>
-                            <option value="badge">Badge</option>
-                        </select>
+        <div class="items-grid">
+            <!-- Example Item Card -->
+            <div class="item-card">
+                <img src="{{ url_for('static', filename='images/items/cyber-sword.jpg') }}" alt="Cyber Sword"
+                    class="item-image">
+                <div class="item-content">
+                    <h3 class="item-name">Cyber Sword</h3>
+                    <div class="item-type">
+                        <i class="bi bi-shield-shaded"></i> Weapon
                     </div>
-                    <div>
-                        <label class="block mb-1">Rarity</label>
-                        <select name="rarity" required class="w-full bg-gray-700 rounded px-3 py-2">
-                            <option value="common">Common</option>
-                            <option value="uncommon">Uncommon</option>
-                            <option value="rare">Rare</option>
-                            <option value="epic">Epic</option>
-                            <option value="legendary">Legendary</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block mb-1">Price</label>
-                        <input type="number" name="price" required class="w-full bg-gray-700 rounded px-3 py-2">
-                    </div>
-                    <div>
-                        <label class="block mb-1">Quantity</label>
-                        <input type="number" name="quantity" required class="w-full bg-gray-700 rounded px-3 py-2">
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" class="bg-gray-600 rounded px-4 py-2"
-                        onclick="closeModal('createListingModal')">Cancel</button>
-                    <button type="submit" class="bg-blue-600 rounded px-4 py-2">Create</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Create Auction Modal -->
-    <div id="createAuctionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
-        <div class="bg-gray-800 rounded-lg p-6 max-w-lg mx-auto mt-20">
-            <h2 class="text-2xl font-bold mb-4">Create Auction</h2>
-            <form id="auctionForm" class="space-y-4">
-                <div>
-                    <label class="block mb-1">Select Item</label>
-                    <select name="itemId" required class="w-full bg-gray-700 rounded px-3 py-2">
-                        <!-- Available items will be inserted here -->
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block mb-1">Starting Price</label>
-                        <input type="number" name="startPrice" required class="w-full bg-gray-700 rounded px-3 py-2">
-                    </div>
-                    <div>
-                        <label class="block mb-1">Minimum Increment</label>
-                        <input type="number" name="minIncrement" required class="w-full bg-gray-700 rounded px-3 py-2">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block mb-1">Duration (hours)</label>
-                        <input type="number" name="duration" required class="w-full bg-gray-700 rounded px-3 py-2">
-                    </div>
-                    <div>
-                        <label class="block mb-1">Start Delay (hours)</label>
-                        <input type="number" name="startDelay" class="w-full bg-gray-700 rounded px-3 py-2" value="0">
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" class="bg-gray-600 rounded px-4 py-2"
-                        onclick="closeModal('createAuctionModal')">Cancel</button>
-                    <button type="submit" class="bg-purple-600 rounded px-4 py-2">Create</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Utility functions
-        function formatPrice(price) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(price);
-        }
-
-        function formatTimeLeft(endTime) {
-            const end = moment(endTime);
-            const now = moment();
-            const duration = moment.duration(end.diff(now));
-
-            if (duration.asSeconds() <= 0) {
-                return 'Ended';
-            }
-
-            const hours = Math.floor(duration.asHours());
-            const minutes = duration.minutes();
-            const seconds = duration.seconds();
-
-            return `${hours}h ${minutes}m ${seconds}s`;
-        }
-
-        function getRarityClass(rarity) {
-            return `rarity-${rarity.toLowerCase()}`;
-        }
-
-        // Modal functions
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        // Item rendering functions
-        function renderItem(item) {
-            return `
-                <div class="item-card">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-bold ${getRarityClass(item.rarity)}">${item.name}</h3>
-                            <p class="text-sm text-gray-400">${item.type}</p>
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="stat-label">Attack</div>
+                            <div class="stat-value">85</div>
                         </div>
-                        <span class="text-lg font-bold">${formatPrice(item.price)}</span>
-                    </div>
-                    <p class="mt-2">${item.description}</p>
-                    <div class="mt-4 flex justify-between items-center">
-                        <span class="text-sm">${item.available_quantity} available</span>
-                        <button class="bg-blue-600 rounded px-4 py-2" onclick="buyItem('${item.id}')">
-                            Buy Now
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderAuction(auction) {
-            const timeLeft = formatTimeLeft(auction.end_time);
-            const currentPrice = auction.current_bid || auction.start_price;
-
-            return `
-                <div class="auction-card">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-bold ${getRarityClass(auction.item.rarity)}">${auction.item.name}</h3>
-                            <p class="text-sm text-gray-400">${auction.item.type}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-lg font-bold">${formatPrice(currentPrice)}</span>
-                            <div class="countdown">${timeLeft}</div>
+                        <div class="item-stat">
+                            <div class="stat-label">Speed</div>
+                            <div class="stat-value">65</div>
                         </div>
                     </div>
-                    <p class="mt-2">${auction.item.description}</p>
-                    <div class="bid-history">
-                        ${renderBidHistory(auction.bids)}
-                    </div>
-                    <div class="mt-4 flex justify-between items-center">
-                        <input type="number" 
-                               class="bg-gray-700 rounded px-3 py-2 w-32"
-                               placeholder="Bid amount"
-                               min="${currentPrice + auction.min_increment}"
-                               step="${auction.min_increment}">
-                        <button class="bg-purple-600 rounded px-4 py-2" onclick="placeBid('${auction.id}')">
-                            Place Bid
-                        </button>
+                    <div class="item-rarity rarity-epic">Epic</div>
+                    <div class="item-price">$299</div>
+                    <div class="item-actions">
+                        <button class="btn btn-cyber btn-item">View Details</button>
+                        <button class="btn btn-cyber btn-item">Buy Now</button>
                     </div>
                 </div>
-            `;
-        }
+            </div>
 
-        function renderBidHistory(bids) {
-            if (!bids || bids.length === 0) {
-                return '<p class="text-sm text-gray-400">No bids yet</p>';
-            }
-
-            return bids.map(bid => `
-                <div class="flex justify-between text-sm">
-                    <span>${bid.bidder_id}</span>
-                    <span>${formatPrice(bid.amount)}</span>
+            <!-- Example Item Card -->
+            <div class="item-card">
+                <img src="{{ url_for('static', filename='images/items/neon-shield.jpg') }}" alt="Neon Shield"
+                    class="item-image">
+                <div class="item-content">
+                    <h3 class="item-name">Neon Shield</h3>
+                    <div class="item-type">
+                        <i class="bi bi-shield-fill"></i> Armor
+                    </div>
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="stat-label">Defense</div>
+                            <div class="stat-value">95</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="stat-label">Weight</div>
+                            <div class="stat-value">45</div>
+                        </div>
+                    </div>
+                    <div class="item-rarity rarity-legendary">Legendary</div>
+                    <div class="item-price">$599</div>
+                    <div class="item-actions">
+                        <button class="btn btn-cyber btn-item">View Details</button>
+                        <button class="btn btn-cyber btn-item">Buy Now</button>
+                    </div>
                 </div>
-            `).join('');
-        }
+            </div>
 
-        // API functions
-        async function fetchItems() {
-            const response = await fetch('/api/marketplace/items');
-            return await response.json();
-        }
+            <!-- Example Item Card -->
+            <div class="item-card">
+                <img src="{{ url_for('static', filename='images/items/data-ring.jpg') }}" alt="Data Ring"
+                    class="item-image">
+                <div class="item-content">
+                    <h3 class="item-name">Data Ring</h3>
+                    <div class="item-type">
+                        <i class="bi bi-gem"></i> Accessory
+                    </div>
+                    <div class="item-stats">
+                        <div class="item-stat">
+                            <div class="stat-label">Magic</div>
+                            <div class="stat-value">75</div>
+                        </div>
+                        <div class="item-stat">
+                            <div class="stat-label">Luck</div>
+                            <div class="stat-value">55</div>
+                        </div>
+                    </div>
+                    <div class="item-rarity rarity-rare">Rare</div>
+                    <div class="item-price">$149</div>
+                    <div class="item-actions">
+                        <button class="btn btn-cyber btn-item">View Details</button>
+                        <button class="btn btn-cyber btn-item">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-        async function fetchAuctions() {
-            const response = await fetch('/api/marketplace/auctions');
-            return await response.json();
-        }
-
-        async function fetchFeaturedItems() {
-            const response = await fetch('/api/marketplace/featured');
-            return await response.json();
-        }
-
-        async function buyItem(itemId) {
-            try {
-                const response = await fetch('/api/marketplace/buy', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ item_id: itemId })
-                });
-
-                if (response.ok) {
-                    alert('Purchase successful!');
-                    refreshItems();
-                } else {
-                    alert('Failed to purchase item');
-                }
-            } catch (error) {
-                console.error('Error buying item:', error);
-                alert('Error buying item');
-            }
-        }
-
-        async function placeBid(auctionId) {
-            const input = document.querySelector(`[data-auction-id="${auctionId}"] input`);
-            const amount = parseFloat(input.value);
-
-            if (!amount || isNaN(amount)) {
-                alert('Please enter a valid bid amount');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/marketplace/bid', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        auction_id: auctionId,
-                        amount: amount
-                    })
-                });
-
-                if (response.ok) {
-                    alert('Bid placed successfully!');
-                    refreshAuctions();
-                } else {
-                    alert('Failed to place bid');
-                }
-            } catch (error) {
-                console.error('Error placing bid:', error);
-                alert('Error placing bid');
-            }
-        }
-
-        // Form submission handlers
-        document.getElementById('listingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-
-            try {
-                const response = await fetch('/api/marketplace/create_item', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(Object.fromEntries(formData))
-                });
-
-                if (response.ok) {
-                    alert('Listing created successfully!');
-                    closeModal('createListingModal');
-                    refreshItems();
-                } else {
-                    alert('Failed to create listing');
-                }
-            } catch (error) {
-                console.error('Error creating listing:', error);
-                alert('Error creating listing');
-            }
-        });
-
-        document.getElementById('auctionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-
-            try {
-                const response = await fetch('/api/marketplace/create_auction', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(Object.fromEntries(formData))
-                });
-
-                if (response.ok) {
-                    alert('Auction created successfully!');
-                    closeModal('createAuctionModal');
-                    refreshAuctions();
-                } else {
-                    alert('Failed to create auction');
-                }
-            } catch (error) {
-                console.error('Error creating auction:', error);
-                alert('Error creating auction');
-            }
-        });
-
-        // Initialize
-        async function initialize() {
-            await Promise.all([
-                refreshItems(),
-                refreshFeaturedItems()
-            ]);
-
-            // Update countdowns every second
-            setInterval(updateCountdowns, 1000);
-        }
-
-        async function refreshItems() {
-            const items = await fetchItems();
-            const auctions = await fetchAuctions();
-
-            const itemGrid = document.getElementById('itemGrid');
-            itemGrid.innerHTML = '';
-
-            items.forEach(item => {
-                itemGrid.insertAdjacentHTML('beforeend', renderItem(item));
-            });
-
-            auctions.forEach(auction => {
-                itemGrid.insertAdjacentHTML('beforeend', renderAuction(auction));
-            });
-        }
-
-        async function refreshFeaturedItems() {
-            const items = await fetchFeaturedItems();
-            const featuredGrid = document.getElementById('featuredItems');
-            featuredGrid.innerHTML = '';
-
-            items.forEach(item => {
-                const itemHtml = item.auction_id
-                    ? renderAuction({ ...item, featured: true })
-                    : renderItem({ ...item, featured: true });
-                featuredGrid.insertAdjacentHTML('beforeend', itemHtml);
-            });
-        }
-
-        function updateCountdowns() {
-            document.querySelectorAll('.countdown').forEach(el => {
-                const endTime = el.dataset.endTime;
-                if (endTime) {
-                    el.textContent = formatTimeLeft(endTime);
-                }
-            });
-        }
-
-        // Event listeners
-        document.getElementById('createListingBtn').addEventListener('click', () => {
-            openModal('createListingModal');
-        });
-
-        document.getElementById('createAuctionBtn').addEventListener('click', () => {
-            openModal('createAuctionModal');
-        });
-
-        // Initialize the page
-        initialize();
-    </script>
-</body>
-
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/marketplace.js') }}" defer></script>
+{% endblock %}

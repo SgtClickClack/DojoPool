@@ -9,11 +9,14 @@ interface ApiMiddlewareConfig {
       interval: number;
       burstLimit: number;
     };
-    endpoints?: Record<string, {
-      tokensPerInterval: number;
-      interval: number;
-      burstLimit: number;
-    }>;
+    endpoints?: Record<
+      string,
+      {
+        tokensPerInterval: number;
+        interval: number;
+        burstLimit: number;
+      }
+    >;
   };
   security: {
     requireAuth: boolean;
@@ -35,19 +38,19 @@ const DEFAULT_CONFIG: ApiMiddlewareConfig = {
     default: {
       tokensPerInterval: 100,
       interval: 60000, // 1 minute
-      burstLimit: 200
-    }
+      burstLimit: 200,
+    },
   },
   security: {
     requireAuth: true,
     validateContentType: true,
     validateOrigin: true,
-    allowedOrigins: ['http://localhost:3000']
+    allowedOrigins: ['http://localhost:3000'],
   },
   audit: {
     enabled: true,
-    logBody: false
-  }
+    logBody: false,
+  },
 };
 
 export class ApiMiddleware {
@@ -86,25 +89,22 @@ export class ApiMiddleware {
         ...override.rateLimits,
         endpoints: {
           ...base.rateLimits.endpoints,
-          ...override.rateLimits?.endpoints
-        }
+          ...override.rateLimits?.endpoints,
+        },
       },
       security: {
         ...base.security,
         ...override.security,
         allowedOrigins: [
           ...(base.security.allowedOrigins || []),
-          ...(override.security?.allowedOrigins || [])
-        ]
+          ...(override.security?.allowedOrigins || []),
+        ],
       },
       audit: {
         ...base.audit,
         ...override.audit,
-        excludePaths: [
-          ...(base.audit.excludePaths || []),
-          ...(override.audit?.excludePaths || [])
-        ]
-      }
+        excludePaths: [...(base.audit.excludePaths || []), ...(override.audit?.excludePaths || [])],
+      },
     };
   }
 
@@ -114,11 +114,9 @@ export class ApiMiddleware {
 
     // Set endpoint-specific rate limits
     if (this.config.rateLimits.endpoints) {
-      Object.entries(this.config.rateLimits.endpoints).forEach(
-        ([endpoint, config]) => {
-          this.rateLimiter.setConfig(endpoint, config);
-        }
-      );
+      Object.entries(this.config.rateLimits.endpoints).forEach(([endpoint, config]) => {
+        this.rateLimiter.setConfig(endpoint, config);
+      });
     }
   }
 
@@ -130,11 +128,9 @@ export class ApiMiddleware {
     if (!this.config.security.validateOrigin) return true;
     if (!this.config.security.allowedOrigins?.length) return true;
 
-    return this.config.security.allowedOrigins.some(allowed => {
+    return this.config.security.allowedOrigins.some((allowed) => {
       if (allowed.includes('*')) {
-        const pattern = new RegExp(
-          '^' + allowed.replace(/\*/g, '.*') + '$'
-        );
+        const pattern = new RegExp('^' + allowed.replace(/\*/g, '.*') + '$');
         return pattern.test(origin);
       }
       return allowed === origin;
@@ -148,19 +144,17 @@ export class ApiMiddleware {
     const validTypes = [
       'application/json',
       'application/x-www-form-urlencoded',
-      'multipart/form-data'
+      'multipart/form-data',
     ];
 
-    return validTypes.some(type => contentType.includes(type));
+    return validTypes.some((type) => contentType.includes(type));
   }
 
   private shouldAudit(path: string): boolean {
     if (!this.config.audit.enabled) return false;
     if (!this.config.audit.excludePaths?.length) return true;
 
-    return !this.config.audit.excludePaths.some(
-      excluded => path.startsWith(excluded)
-    );
+    return !this.config.audit.excludePaths.some((excluded) => path.startsWith(excluded));
   }
 
   async processRequest(request: {
@@ -178,18 +172,12 @@ export class ApiMiddleware {
   }> {
     try {
       // 1. Origin validation
-      if (
-        request.origin &&
-        !this.validateOrigin(request.origin)
-      ) {
+      if (request.origin && !this.validateOrigin(request.origin)) {
         throw new Error('Invalid origin');
       }
 
       // 2. Content-Type validation
-      if (
-        request.contentType &&
-        !this.validateContentType(request.contentType)
-      ) {
+      if (request.contentType && !this.validateContentType(request.contentType)) {
         throw new Error('Invalid content type');
       }
 
@@ -204,8 +192,8 @@ export class ApiMiddleware {
 
         // Role/permission check
         if (this.config.security.requiredRoles?.length) {
-          const hasRole = this.config.security.requiredRoles.some(
-            role => this.authManager.hasRole(role as any)
+          const hasRole = this.config.security.requiredRoles.some((role) =>
+            this.authManager.hasRole(role as any)
           );
           if (!hasRole) {
             throw new Error('Insufficient roles');
@@ -213,8 +201,8 @@ export class ApiMiddleware {
         }
 
         if (this.config.security.requiredPermissions?.length) {
-          const hasPermission = this.config.security.requiredPermissions.every(
-            permission => this.authManager.hasPermission(permission)
+          const hasPermission = this.config.security.requiredPermissions.every((permission) =>
+            this.authManager.hasPermission(permission)
           );
           if (!hasPermission) {
             throw new Error('Insufficient permissions');
@@ -230,7 +218,7 @@ export class ApiMiddleware {
         return {
           allowed: false,
           error: 'Rate limit exceeded',
-          retryAfter: rateLimitResult.retryAfter
+          retryAfter: rateLimitResult.retryAfter,
         };
       }
 
@@ -241,72 +229,67 @@ export class ApiMiddleware {
           path: request.path,
           origin: request.origin,
           headers: request.headers,
-          body: this.config.audit.logBody ? request.body : undefined
+          body: this.config.audit.logBody ? request.body : undefined,
         };
 
-        await this.auditLogger.logDataAccess(
-          request.method,
-          request.path,
-          auditDetails
-        );
+        await this.auditLogger.logDataAccess(request.method, request.path, auditDetails);
       }
 
       return { allowed: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       // Log security-related errors
       if (
         errorMessage.includes('Invalid') ||
         errorMessage.includes('Authentication') ||
         errorMessage.includes('Insufficient')
       ) {
-        await this.auditLogger.logSecurity(
-          'access_denied',
-          request.path,
-          {
-            reason: errorMessage,
-            method: request.method,
-            origin: request.origin
-          }
-        );
+        await this.auditLogger.logSecurity('access_denied', request.path, {
+          reason: errorMessage,
+          method: request.method,
+          origin: request.origin,
+        });
       }
 
       return {
         allowed: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   }
 
   getMiddlewareStats(): {
-    rateLimits: Record<string, {
-      remaining: number;
-      timeToNextRefill: number;
-    }>;
+    rateLimits: Record<
+      string,
+      {
+        remaining: number;
+        timeToNextRefill: number;
+      }
+    >;
     activeUsers: number;
     securityViolations: number;
   } {
     const stats = {
-      rateLimits: {} as Record<string, {
-        remaining: number;
-        timeToNextRefill: number;
-      }>,
+      rateLimits: {} as Record<
+        string,
+        {
+          remaining: number;
+          timeToNextRefill: number;
+        }
+      >,
       activeUsers: 0,
-      securityViolations: 0
+      securityViolations: 0,
     };
 
     // Get rate limit stats
-    const endpoints = [
-      'default',
-      ...(Object.keys(this.config.rateLimits.endpoints || {}))
-    ];
+    const endpoints = ['default', ...Object.keys(this.config.rateLimits.endpoints || {})];
 
-    endpoints.forEach(endpoint => {
+    endpoints.forEach((endpoint) => {
       const limitStats = this.rateLimiter.getStats(endpoint);
       stats.rateLimits[endpoint] = {
         remaining: limitStats.remaining,
-        timeToNextRefill: limitStats.timeToNextRefill
+        timeToNextRefill: limitStats.timeToNextRefill,
       };
     });
 

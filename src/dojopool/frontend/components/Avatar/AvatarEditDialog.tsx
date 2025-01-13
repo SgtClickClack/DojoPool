@@ -33,13 +33,7 @@ const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullScreen={fullScreen}
-      maxWidth="md"
-      fullWidth
-    >
+    <Dialog open={open} onClose={onClose} fullScreen={fullScreen} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{
           m: 0,
@@ -80,4 +74,4 @@ const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
   );
 };
 
-export default AvatarEditDialog; 
+export default AvatarEditDialog;

@@ -1,11 +1,11 @@
 {
-    "template": "Create an engaging story about a pool game between $player1 and $player2.\nConsider their skill levels ($skill1 and $skill2) and play styles ($style1 and $style2).\nFocus on key moments and dramatic shots that defined the game.",
-    "required_vars": [
-        "player1",
-        "player2",
-        "skill1",
-        "skill2",
-        "style1",
-        "style2"
-    ]
+  "template": "Create an engaging story about a pool game between $player1 and $player2.\nConsider their skill levels ($skill1 and $skill2) and play styles ($style1 and $style2).\nFocus on key moments and dramatic shots that defined the game.",
+  "required_vars": [
+    "player1",
+    "player2",
+    "skill1",
+    "skill2",
+    "style1",
+    "style2"
+  ]
 }

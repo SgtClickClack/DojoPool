@@ -90,9 +90,7 @@ export const ShotAnalyzer: React.FC = () => {
         <Typography variant="h6" color="primary">
           Velocity
         </Typography>
-        <Typography variant="h4">
-          {metrics.velocity.toFixed(1)}
-        </Typography>
+        <Typography variant="h4">{metrics.velocity.toFixed(1)}</Typography>
         <Typography variant="body2" color="textSecondary">
           m/s
         </Typography>
@@ -102,9 +100,7 @@ export const ShotAnalyzer: React.FC = () => {
         <Typography variant="h6" color="primary">
           Spin
         </Typography>
-        <Typography variant="h4">
-          {(metrics.spin * 100).toFixed(1)}
-        </Typography>
+        <Typography variant="h4">{(metrics.spin * 100).toFixed(1)}</Typography>
         <Typography variant="body2" color="textSecondary">
           %
         </Typography>
@@ -114,9 +110,7 @@ export const ShotAnalyzer: React.FC = () => {
         <Typography variant="h6" color="primary">
           Accuracy
         </Typography>
-        <Typography variant="h4">
-          {(metrics.accuracy * 100).toFixed(1)}
-        </Typography>
+        <Typography variant="h4">{(metrics.accuracy * 100).toFixed(1)}</Typography>
         <Typography variant="body2" color="textSecondary">
           %
         </Typography>
@@ -186,4 +180,4 @@ export const ShotAnalyzer: React.FC = () => {
   );
 };
 
-export default ShotAnalyzer; 
+export default ShotAnalyzer;

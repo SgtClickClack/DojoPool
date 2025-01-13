@@ -25,8 +25,9 @@ export class Cache<T> {
     if (this.cache.size >= this.maxSize) {
       this.cleanup();
       if (this.cache.size >= this.maxSize) {
-        const oldestKey = Array.from(this.cache.entries())
-          .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0][0];
+        const oldestKey = Array.from(this.cache.entries()).sort(
+          ([, a], [, b]) => a.timestamp - b.timestamp
+        )[0][0];
         this.cache.delete(oldestKey);
       }
     }
@@ -70,4 +71,4 @@ export class Cache<T> {
     clearInterval(this.cleanupInterval);
     this.cache.clear();
   }
-} 
+}

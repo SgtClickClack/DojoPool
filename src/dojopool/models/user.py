@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from dojopool.core.extensions import db
+from .user_roles import user_roles
 
 class User(db.Model):
     """User model."""
@@ -22,6 +23,8 @@ class User(db.Model):
 
     # Relationships
     tournament_players = relationship("TournamentPlayer", back_populates="user")
+    roles = relationship('Role', secondary=user_roles, lazy='subquery',
+                        backref=db.backref('users', lazy=True))
 
     def __repr__(self):
         """String representation of the user."""
@@ -29,12 +32,16 @@ class User(db.Model):
 
     def to_dict(self):
         """Convert user to dictionary."""
+        created_at_str = self.created_at.isoformat() if hasattr(self.created_at, 'isoformat') else None
+        last_login_str = self.last_login.isoformat() if hasattr(self.last_login, 'isoformat') else None
+        
         return {
             'id': self.id,
             'username': self.username,
             'email': self.email,
             'profile_picture': self.profile_picture,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'last_login': self.last_login.isoformat() if self.last_login else None,
-            'is_verified': self.is_verified
+            'created_at': created_at_str,
+            'last_login': last_login_str,
+            'is_verified': self.is_verified,
+            'roles': [role.name for role in self.roles]
         }

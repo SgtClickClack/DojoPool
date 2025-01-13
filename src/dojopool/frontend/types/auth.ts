@@ -21,4 +21,4 @@ export interface LoginCredentials {
 export interface RegisterData extends LoginCredentials {
   username: string;
   confirmPassword: string;
-} 
+}

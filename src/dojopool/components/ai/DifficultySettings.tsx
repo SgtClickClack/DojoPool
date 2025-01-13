@@ -10,14 +10,14 @@ import {
   IconButton,
   Tooltip,
   LinearProgress,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   Speed as SpeedIcon,
   Timer as TimeIcon,
   Psychology as ComplexityIcon,
   Refresh as ResetIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
 } from '@mui/icons-material';
 
 interface DifficultyParameter {
@@ -41,7 +41,7 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
   parameters,
   onParameterChange,
   onReset,
-  adaptiveScore
+  adaptiveScore,
 }) => {
   const theme = useTheme();
 
@@ -73,10 +73,15 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
       {/* Adaptive Score Card */}
       <Card variant="outlined">
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">
-              Adaptive Difficulty Score
-            </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6">Adaptive Difficulty Score</Typography>
             <Tooltip title="Reset all parameters to recommended values">
               <IconButton onClick={onReset} size="small">
                 <ResetIcon />
@@ -92,8 +97,8 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                 borderRadius: 5,
                 backgroundColor: theme.palette.grey[200],
                 '& .MuiLinearProgress-bar': {
-                  backgroundColor: getAdaptiveScoreColor(adaptiveScore)
-                }
+                  backgroundColor: getAdaptiveScoreColor(adaptiveScore),
+                },
               }}
             />
             <Typography
@@ -103,7 +108,7 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, 50%)',
-                color: getAdaptiveScoreColor(adaptiveScore)
+                color: getAdaptiveScoreColor(adaptiveScore),
               }}
             >
               {adaptiveScore}%
@@ -121,15 +126,26 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
           <Grid container spacing={3}>
             {parameters.map((param, index) => (
               <Grid item xs={12} key={index}>
-                <Box sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                <Box
+                  sx={{
+                    p: 2,
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                  }}
+                >
                   <Stack spacing={2}>
                     {/* Parameter Header */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {getParameterIcon(param.name)}
-                        <Typography variant="subtitle1">
-                          {param.name}
-                        </Typography>
+                        <Typography variant="subtitle1">{param.name}</Typography>
                       </Box>
                       <Tooltip title={param.description}>
                         <IconButton size="small">
@@ -140,15 +156,17 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
 
                     {/* Slider and Values */}
                     <Box sx={{ px: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          mb: 1,
+                        }}
+                      >
                         <Typography variant="body2" color="text.secondary">
                           Current: {formatValue(param.value)}
                         </Typography>
-                        <Typography
-                          variant="body2"
-                          color="primary"
-                          sx={{ fontWeight: 'medium' }}
-                        >
+                        <Typography variant="body2" color="primary" sx={{ fontWeight: 'medium' }}>
                           Recommended: {formatValue(param.recommendation)}
                         </Typography>
                       </Box>
@@ -163,7 +181,7 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                         marks={[
                           { value: param.min, label: formatValue(param.min) },
                           { value: param.recommendation, label: '↓' },
-                          { value: param.max, label: formatValue(param.max) }
+                          { value: param.max, label: formatValue(param.max) },
                         ]}
                       />
                     </Box>
@@ -174,9 +192,8 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                         {Math.abs(param.value - param.recommendation) <= 0.1
                           ? 'Optimal setting'
                           : param.value > param.recommendation
-                          ? 'Consider decreasing for better learning'
-                          : 'Consider increasing for better challenge'
-                        }
+                            ? 'Consider decreasing for better learning'
+                            : 'Consider increasing for better challenge'}
                       </Typography>
                     </Box>
                   </Stack>
@@ -188,4 +205,4 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
       </Card>
     </Stack>
   );
-}; 
+};

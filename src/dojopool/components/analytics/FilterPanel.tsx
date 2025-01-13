@@ -8,7 +8,7 @@ import {
   Chip,
   OutlinedInput,
   SelectChangeEvent,
-  useTheme
+  useTheme,
 } from '@mui/material';
 
 interface FilterPanelProps {
@@ -29,20 +29,20 @@ const METRICS = [
   { value: 'revenue', label: 'Revenue' },
   { value: 'response_time', label: 'Response Time' },
   { value: 'error_rate', label: 'Error Rate' },
-  { value: 'cpu_usage', label: 'CPU Usage' }
+  { value: 'cpu_usage', label: 'CPU Usage' },
 ];
 
 const DIMENSIONS = [
   { value: 'user', label: 'User' },
   { value: 'venue', label: 'Venue' },
-  { value: 'game', label: 'Game' }
+  { value: 'game', label: 'Game' },
 ];
 
 const PERIODS = [
   { value: 'hourly', label: 'Hourly' },
   { value: 'daily', label: 'Daily' },
   { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' }
+  { value: 'monthly', label: 'Monthly' },
 ];
 
 const ITEM_HEIGHT = 48;
@@ -51,9 +51,9 @@ const MenuProps = {
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250
-    }
-  }
+      width: 250,
+    },
+  },
 };
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -63,7 +63,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onMetricsChange,
   onDimensionChange,
   onPeriodChange,
-  isAdmin
+  isAdmin,
 }) => {
   const theme = useTheme();
 
@@ -96,7 +96,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               {selected.map((value) => (
                 <Chip
                   key={value}
-                  label={METRICS.find(m => m.value === value)?.label || value}
+                  label={METRICS.find((m) => m.value === value)?.label || value}
                   size="small"
                 />
               ))}
@@ -111,7 +111,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               sx={{
                 fontWeight: selectedMetrics.includes(metric.value)
                   ? theme.typography.fontWeightMedium
-                  : theme.typography.fontWeightRegular
+                  : theme.typography.fontWeightRegular,
               }}
             >
               {metric.label}
@@ -157,4 +157,4 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       </FormControl>
     </Box>
   );
-}; 
+};

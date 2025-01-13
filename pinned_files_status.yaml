@@ -1,0 +1,107 @@
+files:
+  .gitignore:
+    exists: true
+    last_modified: '2025-01-10T14:55:40.416797'
+    priority: Medium
+    purpose: Version control exclusions
+    status: Current
+    update_frequency: When patterns change
+  docs/DEVELOPMENT_TRACKING.md:
+    exists: true
+    last_modified: '2025-01-10T15:02:50.799638'
+    priority: High
+    purpose: Current sprint progress
+    status: Current
+    update_frequency: Daily
+  docs/DOCUMENTATION_INDEX.md:
+    exists: true
+    last_modified: '2025-01-10T15:08:51.503093'
+    priority: High
+    purpose: Central documentation reference
+    status: Current
+    update_frequency: As needed
+  docs/ROADMAP.md:
+    exists: true
+    last_modified: '2025-01-10T04:58:29.803216'
+    priority: High
+    purpose: Project vision and milestones
+    status: Current
+    update_frequency: Monthly
+  image_performance.log:
+    exists: true
+    last_modified: '2025-01-10T17:00:21.000465'
+    priority: Low
+    purpose: Performance monitoring logs
+    status: Current
+    update_frequency: Automated updates
+  performance_metrics.json:
+    exists: true
+    last_modified: '2025-01-10T17:00:20.997464'
+    priority: Medium
+    purpose: Historical performance data
+    status: Current
+    update_frequency: Automated updates
+  requirements.txt:
+    exists: true
+    last_modified: '2025-01-10T17:00:17.377445'
+    priority: High
+    purpose: Project dependencies
+    status: Current
+    update_frequency: When dependencies change
+  src/dojopool/config.py:
+    exists: true
+    last_modified: '2025-01-10T13:05:44.811090'
+    priority: High
+    purpose: Application configuration
+    status: Current
+    update_frequency: When settings change
+  src/dojopool/scripts/enhance_images.py:
+    exists: true
+    last_modified: '2025-01-10T16:13:42.909949'
+    priority: Medium
+    purpose: Image enhancement
+    status: Current
+    update_frequency: When enhancement logic changes
+  src/dojopool/scripts/monitor_performance.py:
+    exists: true
+    last_modified: '2025-01-10T16:18:53.735542'
+    priority: High
+    purpose: Performance tracking
+    status: Current
+    update_frequency: When metrics change
+  src/dojopool/scripts/optimize_images.py:
+    exists: true
+    last_modified: '2025-01-10T16:10:54.571471'
+    priority: Medium
+    purpose: Image optimization
+    status: Current
+    update_frequency: When optimization logic changes
+  src/dojopool/static/css/README.md:
+    exists: true
+    last_modified: '2025-01-10T17:00:17.377445'
+    priority: Medium
+    purpose: CSS organization guidelines
+    status: Current
+    update_frequency: When guidelines change
+  src/dojopool/static/images/README.md:
+    exists: true
+    last_modified: '2025-01-10T14:45:03.370994'
+    priority: Medium
+    purpose: Image asset guidelines
+    status: Current
+    update_frequency: When guidelines change
+  src/dojopool/templates/base.html:
+    exists: true
+    last_modified: '2025-01-10T16:11:05.657023'
+    priority: High
+    purpose: Base template
+    status: Current
+    update_frequency: When structure changes
+  src/dojopool/templates/landing.html:
+    exists: true
+    last_modified: '2025-01-10T16:13:42.986961'
+    priority: High
+    purpose: Main landing page
+    status: Current
+    update_frequency: When UI changes
+timestamp: '2025-01-10T17:00:25.679730'

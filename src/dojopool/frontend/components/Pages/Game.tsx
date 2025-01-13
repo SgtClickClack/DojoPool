@@ -11,11 +11,7 @@ import {
   IconButton,
   Drawer,
 } from '@mui/material';
-import {
-  LocationOn as LocationIcon,
-  Timer as TimerIcon,
-  MonitorChart,
-} from '@mui/icons-material';
+import { LocationOn as LocationIcon, Timer as TimerIcon, MonitorChart } from '@mui/icons-material';
 import { GameState } from '@/types/game';
 import { gameApi } from '@/services/api';
 import { gameSocket } from '@/services/websocket/gameSocket';
@@ -43,10 +39,10 @@ const Game = () => {
   const [gameStartTime] = useState<number>(Date.now());
 
   // Use location hook for player position
-  const { 
+  const {
     location: currentLocation,
     error: locationError,
-    isLoading: locationLoading
+    isLoading: locationLoading,
   } = useLocation({
     onError: (err) => {
       console.error('Location error:', err);
@@ -59,18 +55,15 @@ const Game = () => {
       timestamp: Date.now(),
       location,
     };
-    
-    setCompletedClues(prev => [...prev, completion]);
-    
+
+    setCompletedClues((prev) => [...prev, completion]);
+
     if (gameState) {
       // Record clue completion with metrics
-      gameMetricsMonitor.recordClueCompletion(
-        gameState.playerId,
-        gameState.totalClues
-      );
+      gameMetricsMonitor.recordClueCompletion(gameState.playerId, gameState.totalClues);
 
       // Update game state
-      setGameState(prev => {
+      setGameState((prev) => {
         if (!prev) return null;
         return {
           ...prev,
@@ -90,17 +83,14 @@ const Game = () => {
         const state = await gameApi.getGameState(gameId);
         setGameState(state);
         setLoading(false);
-        
+
         // Record player join with initial state
         gameMetricsMonitor.recordPlayerJoin(state.playerId, gameId);
-        
+
         // Initialize completed clues from saved state
         if (state.completedClues.length > 0) {
-          state.completedClues.forEach(clueId => {
-            gameMetricsMonitor.recordClueCompletion(
-              state.playerId,
-              state.totalClues
-            );
+          state.completedClues.forEach((clueId) => {
+            gameMetricsMonitor.recordClueCompletion(state.playerId, state.totalClues);
           });
         }
       } catch (err) {
@@ -119,12 +109,16 @@ const Game = () => {
       const gameUpdateCleanup = gameSocket.onGameUpdate((update) => {
         if (update.type === 'game_over') {
           const sessionDuration = Date.now() - gameStartTime;
-          setGameState(prev => prev ? { 
-            ...prev, 
-            isComplete: true,
-            sessionDuration,
-          } : null);
-          
+          setGameState((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  isComplete: true,
+                  sessionDuration,
+                }
+              : null
+          );
+
           // Record final metrics
           if (gameState) {
             const finalProgress = (completedClues.length / gameState.totalClues) * 100;
@@ -148,7 +142,7 @@ const Game = () => {
         gameUpdateCleanup?.();
         locationUpdateCleanup?.();
         gameSocket.disconnect();
-        
+
         // Record player leave with final state
         if (gameState) {
           const sessionDuration = Date.now() - gameStartTime;
@@ -208,7 +202,7 @@ const Game = () => {
     if (!locationValidation.isValid) {
       // Show warning to player
       setError(`Warning: ${locationValidation.reason}`);
-      
+
       // Record safety incident
       if (gameState) {
         gameMetricsMonitor.recordSafetyIncident(
@@ -246,7 +240,14 @@ const Game = () => {
       <Grid container spacing={3}>
         {/* Game Status */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Paper
+            sx={{
+              p: 2,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <Box display="flex" alignItems="center" gap={3}>
               <Box display="flex" alignItems="center">
                 <TimerIcon sx={{ mr: 1 }} />
@@ -313,4 +314,4 @@ const Game = () => {
   );
 };
 
-export default Game; 
+export default Game;

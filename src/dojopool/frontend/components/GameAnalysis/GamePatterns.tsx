@@ -11,12 +11,7 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
-import {
-  TrendingUp,
-  LocationOn,
-  Repeat,
-  EmojiEvents,
-} from '@mui/icons-material';
+import { TrendingUp, LocationOn, Repeat, EmojiEvents } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
 const PatternCard = styled(Card)(({ theme }) => ({
@@ -36,11 +31,7 @@ interface GamePatternsProps {
 
 export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
   if (!patterns) {
-    return (
-      <Typography color="textSecondary">
-        No pattern data available
-      </Typography>
-    );
+    return <Typography color="textSecondary">No pattern data available</Typography>;
   }
 
   return (
@@ -52,9 +43,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <TrendingUp color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6">
-                  Shot Distribution
-                </Typography>
+                <Typography variant="h6">Shot Distribution</Typography>
               </Box>
               <Box
                 sx={{
@@ -69,9 +58,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
                 }}
               >
                 {/* Placeholder for shot distribution heatmap */}
-                <Typography color="textSecondary">
-                  Shot distribution heatmap
-                </Typography>
+                <Typography color="textSecondary">Shot distribution heatmap</Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
                 Analysis of shot type frequencies and spatial distribution
@@ -86,9 +73,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <LocationOn color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6">
-                  Player Positioning
-                </Typography>
+                <Typography variant="h6">Player Positioning</Typography>
               </Box>
               <Box
                 sx={{
@@ -103,9 +88,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
                 }}
               >
                 {/* Placeholder for positioning visualization */}
-                <Typography color="textSecondary">
-                  Player positioning patterns
-                </Typography>
+                <Typography color="textSecondary">Player positioning patterns</Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
                 Analysis of player movement and positioning strategies
@@ -120,9 +103,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <Repeat color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6">
-                  Common Sequences
-                </Typography>
+                <Typography variant="h6">Common Sequences</Typography>
               </Box>
               <List>
                 {patterns.common_sequences.map((sequence, index) => (
@@ -147,9 +128,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <EmojiEvents color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6">
-                  Success Patterns
-                </Typography>
+                <Typography variant="h6">Success Patterns</Typography>
               </Box>
               <List>
                 {Object.entries(patterns.success_patterns).map(([key, value], index) => (
@@ -172,4 +151,4 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
   );
 };
 
-export default GamePatterns; 
+export default GamePatterns;

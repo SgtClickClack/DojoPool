@@ -6,12 +6,12 @@ import VenueDetail from '../components/venues/VenueDetail';
 import PrivateRoute from './PrivateRoute';
 
 const VenueRoutes: React.FC = () => {
-    return (
-        <Routes>
-            <Route path="/" element={<VenueList />} />
-            <Route path="/:id" element={<VenueDetail />} />
-        </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<VenueList />} />
+      <Route path="/:id" element={<VenueDetail />} />
+    </Routes>
+  );
 };
 
-export default VenueRoutes; 
+export default VenueRoutes;

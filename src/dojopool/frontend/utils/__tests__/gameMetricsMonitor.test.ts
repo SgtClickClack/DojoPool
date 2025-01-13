@@ -19,11 +19,10 @@ describe('GameMetricsMonitor', () => {
       retrieveArchive: jest.fn(),
       listArchives: jest.fn().mockReturnValue([]),
       getArchiveStats: jest.fn(),
-      shouldArchive: jest.fn()
+      shouldArchive: jest.fn(),
     } as unknown as jest.Mocked<DataCompressor>;
 
-    jest.spyOn(DataCompressor, 'getInstance')
-      .mockReturnValue(mockDataCompressor);
+    jest.spyOn(DataCompressor, 'getInstance').mockReturnValue(mockDataCompressor);
   });
 
   afterEach(() => {
@@ -62,28 +61,28 @@ describe('GameMetricsMonitor', () => {
   describe('game metrics', () => {
     it('should track clue completion rate', () => {
       metricsMonitor.recordPlayerJoin('player1', 'game1');
-      
+
       // Complete clues at different times
       jest.useFakeTimers();
       const startTime = Date.now();
-      
+
       jest.setSystemTime(startTime);
       metricsMonitor.recordClueCompletion('player1', 10);
-      
+
       jest.setSystemTime(startTime + 30000); // 30 seconds later
       metricsMonitor.recordClueCompletion('player1', 10);
 
       const metrics = metricsMonitor.getMetrics();
       expect(metrics.completedClues).toBe(2);
       expect(metrics.clueDiscoveryRate).toBeGreaterThan(0);
-      
+
       jest.useRealTimers();
     });
 
     it('should calculate completion rate', () => {
       metricsMonitor.recordPlayerJoin('player1', 'game1');
       metricsMonitor.recordPlayerJoin('player2', 'game2');
-      
+
       metricsMonitor.recordGameCompletion('player1', 100, 600000); // 10 minutes
 
       const metrics = metricsMonitor.getMetrics();
@@ -93,19 +92,19 @@ describe('GameMetricsMonitor', () => {
 
     it('should track average completion time', () => {
       metricsMonitor.recordPlayerJoin('player1', 'game1');
-      
+
       jest.useFakeTimers();
       const startTime = Date.now();
-      
+
       jest.setSystemTime(startTime);
       metricsMonitor.recordClueCompletion('player1', 10);
-      
+
       jest.setSystemTime(startTime + 60000); // 1 minute later
       metricsMonitor.recordClueCompletion('player1', 10);
 
       const metrics = metricsMonitor.getMetrics();
       expect(metrics.averageCompletionTime).toBe(60000);
-      
+
       jest.useRealTimers();
     });
 
@@ -128,17 +127,13 @@ describe('GameMetricsMonitor', () => {
       expect(metrics.safetyIncidents.total).toBe(2);
       expect(metrics.safetyIncidents.byType).toEqual({
         collision: 1,
-        boundary: 1
+        boundary: 1,
       });
     });
 
     it('should maintain recent incidents list', () => {
       for (let i = 0; i < 60; i++) {
-        metricsMonitor.recordSafetyIncident(
-          `player${i}`,
-          'test',
-          `incident ${i}`
-        );
+        metricsMonitor.recordSafetyIncident(`player${i}`, 'test', `incident ${i}`);
       }
 
       const metrics = metricsMonitor.getMetrics();
@@ -156,7 +151,7 @@ describe('GameMetricsMonitor', () => {
       expect(callback).toHaveBeenCalledWith(
         expect.objectContaining({
           severity: 'warning',
-          message: 'Test alert'
+          message: 'Test alert',
         })
       );
 
@@ -198,7 +193,7 @@ describe('GameMetricsMonitor', () => {
       expect(callback).toHaveBeenCalledWith(
         expect.objectContaining({
           severity: 'warning',
-          message: expect.stringContaining('Performance threshold exceeded')
+          message: expect.stringContaining('Performance threshold exceeded'),
         })
       );
     });
@@ -211,14 +206,14 @@ describe('GameMetricsMonitor', () => {
         online: true,
         services: {
           database: false,
-          cache: true
-        }
+          cache: true,
+        },
       });
 
       expect(callback).toHaveBeenCalledWith(
         expect.objectContaining({
           severity: 'error',
-          message: 'System health check failed'
+          message: 'System health check failed',
         })
       );
     });
@@ -236,7 +231,7 @@ describe('GameMetricsMonitor', () => {
       for (let i = 0; i < 49; i++) {
         metricsMonitor.addMetricData('test', {
           timestamp: Date.now() + i * 1000,
-          value: 100 + i
+          value: 100 + i,
         });
       }
 
@@ -270,19 +265,19 @@ describe('GameMetricsMonitor', () => {
           compressedSize: 500,
           recordCount: 1,
           dataType: 'game_metrics',
-          checksum: '123'
-        }
+          checksum: '123',
+        },
       });
 
       metricsMonitor.recordGameCompletion('player1', 100, 600000);
-      
+
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockDataCompressor.archiveData).toHaveBeenCalledWith(
         expect.objectContaining({
           metrics: expect.any(Object),
-          alerts: expect.any(Array)
+          alerts: expect.any(Array),
         }),
         'game_metrics'
       );
@@ -296,7 +291,7 @@ describe('GameMetricsMonitor', () => {
       }
 
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockDataCompressor.archiveData).toHaveBeenCalled();
     });
@@ -310,16 +305,16 @@ describe('GameMetricsMonitor', () => {
           key: 'archive_1',
           metadata: {
             timestamp: now - 3 * 24 * 60 * 60 * 1000,
-            dataType: 'game_metrics'
-          }
+            dataType: 'game_metrics',
+          },
         },
         {
           key: 'archive_2',
           metadata: {
             timestamp: now - 5 * 24 * 60 * 60 * 1000,
-            dataType: 'game_metrics'
-          }
-        }
+            dataType: 'game_metrics',
+          },
+        },
       ];
 
       const mockArchiveData = {
@@ -327,9 +322,9 @@ describe('GameMetricsMonitor', () => {
         metrics: {
           activePlayers: 10,
           completionRate: 75,
-          averageScore: 100
+          averageScore: 100,
         },
-        alerts: []
+        alerts: [],
       };
 
       mockDataCompressor.listArchives.mockReturnValue(mockArchives);
@@ -354,9 +349,9 @@ describe('GameMetricsMonitor', () => {
             completionRate: 75,
             clueDiscoveryRate: 5,
             playerRetention: 80,
-            averageScore: 100
+            averageScore: 100,
           },
-          alerts: []
+          alerts: [],
         },
         {
           timestamp: now - 2 * 24 * 60 * 60 * 1000,
@@ -365,10 +360,10 @@ describe('GameMetricsMonitor', () => {
             completionRate: 80,
             clueDiscoveryRate: 6,
             playerRetention: 85,
-            averageScore: 110
+            averageScore: 110,
           },
-          alerts: []
-        }
+          alerts: [],
+        },
       ];
 
       mockDataCompressor.listArchives.mockReturnValue(
@@ -376,16 +371,15 @@ describe('GameMetricsMonitor', () => {
           key: `archive_${index}`,
           metadata: {
             timestamp: data.timestamp,
-            dataType: 'game_metrics'
-          }
+            dataType: 'game_metrics',
+          },
         }))
       );
 
-      mockDataCompressor.retrieveArchive
-        .mockImplementation(async (key) => {
-          const index = parseInt(key.split('_')[1]);
-          return mockHistoricalData[index];
-        });
+      mockDataCompressor.retrieveArchive.mockImplementation(async (key) => {
+        const index = parseInt(key.split('_')[1]);
+        return mockHistoricalData[index];
+      });
 
       const snapshot = await metricsMonitor.getMetricsSnapshot();
 
@@ -398,11 +392,11 @@ describe('GameMetricsMonitor', () => {
               timestamp: expect.any(Number),
               metrics: expect.objectContaining({
                 activePlayers: expect.any(Number),
-                completionRate: expect.any(Number)
-              })
-            })
-          ])
-        }
+                completionRate: expect.any(Number),
+              }),
+            }),
+          ]),
+        },
       });
 
       expect(snapshot.historical.weeklyTrend).toHaveLength(2);
@@ -412,7 +406,7 @@ describe('GameMetricsMonitor', () => {
       mockDataCompressor.getArchiveStats.mockReturnValue({
         totalSize: 1000,
         compressionRatio: 2,
-        archiveCount: 5
+        archiveCount: 5,
       });
 
       mockDataCompressor.listArchives.mockReturnValue([
@@ -420,16 +414,16 @@ describe('GameMetricsMonitor', () => {
           key: 'archive_1',
           metadata: {
             timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000,
-            dataType: 'game_metrics'
-          }
+            dataType: 'game_metrics',
+          },
         },
         {
           key: 'archive_2',
           metadata: {
             timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000,
-            dataType: 'game_metrics'
-          }
-        }
+            dataType: 'game_metrics',
+          },
+        },
       ]);
 
       const stats = await metricsMonitor.getArchiveStats();
@@ -438,19 +432,17 @@ describe('GameMetricsMonitor', () => {
         totalArchives: 2,
         oldestArchive: expect.any(Number),
         totalStorageUsed: 1000,
-        compressionRatio: 2
+        compressionRatio: 2,
       });
     });
 
     it('should handle archiving errors', async () => {
-      mockDataCompressor.archiveData.mockRejectedValue(
-        new Error('Storage error')
-      );
+      mockDataCompressor.archiveData.mockRejectedValue(new Error('Storage error'));
 
       metricsMonitor.recordGameCompletion('player1', 100, 600000);
-      
+
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       const alerts = metricsMonitor.getAlerts({ severity: 'error' });
       expect(alerts).toHaveLength(1);

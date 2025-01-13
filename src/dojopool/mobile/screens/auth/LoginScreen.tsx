@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Button, Input, Text, useTheme } from '@rneui/themed';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -28,15 +22,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
       // TODO: Implement actual login logic
       // const response = await authService.login(email, password);
-      
+
       // For now, just simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // TODO: Handle successful login
       // - Store auth token
       // - Update auth context
       // - Navigate to main app
-      
     } catch (err) {
       setError('Invalid email or password');
     } finally {
@@ -65,9 +58,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
-              leftIcon={
-                <Icon name="email" size={24} color={theme.colors.secondary} />
-              }
+              leftIcon={<Icon name="email" size={24} color={theme.colors.secondary} />}
             />
 
             <Input
@@ -75,15 +66,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              leftIcon={
-                <Icon name="lock" size={24} color={theme.colors.secondary} />
-              }
+              leftIcon={<Icon name="lock" size={24} color={theme.colors.secondary} />}
             />
 
             {error ? (
-              <Text style={[styles.error, { color: theme.colors.error }]}>
-                {error}
-              </Text>
+              <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
             ) : null}
 
             <Button
@@ -137,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen; 
+export default LoginScreen;

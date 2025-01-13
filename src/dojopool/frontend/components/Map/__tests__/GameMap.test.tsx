@@ -6,7 +6,9 @@ import GameMap from '../GameMap';
 // Mock the Google Maps JavaScript API
 jest.mock('@react-google-maps/api', () => ({
   LoadScript: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  GoogleMap: ({ children }: { children: React.ReactNode }) => <div data-testid="google-map">{children}</div>,
+  GoogleMap: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="google-map">{children}</div>
+  ),
   Circle: () => <div data-testid="player-range-circle" />,
 }));
 
@@ -56,8 +58,8 @@ describe('GameMap', () => {
 
   it('creates markers for other players', () => {
     const otherPlayerLocations = {
-      player1: { latitude: 51.5080, longitude: -0.1280 },
-      player2: { latitude: 51.5090, longitude: -0.1290 },
+      player1: { latitude: 51.508, longitude: -0.128 },
+      player2: { latitude: 51.509, longitude: -0.129 },
     };
 
     render(
@@ -78,8 +80,8 @@ describe('GameMap', () => {
     );
 
     const newLocation = {
-      latitude: 51.5080,
-      longitude: -0.1280,
+      latitude: 51.508,
+      longitude: -0.128,
     };
 
     rerender(
@@ -109,4 +111,4 @@ describe('GameMap', () => {
     // Should remove marker from map
     expect(mockSetMap).toHaveBeenCalledWith(null);
   });
-}); 
+});

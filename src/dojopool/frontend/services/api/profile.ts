@@ -45,15 +45,11 @@ export const profileApi = {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    const response = await apiClient.post<{ avatarUrl: string }>(
-      '/profiles/avatar',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+    const response = await apiClient.post<{ avatarUrl: string }>('/profiles/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 
@@ -84,9 +80,7 @@ export const profileApi = {
   },
 
   getStats: async (userId: string): Promise<UserProfile['stats']> => {
-    const response = await apiClient.get<UserProfile['stats']>(
-      `/profiles/${userId}/stats`
-    );
+    const response = await apiClient.get<UserProfile['stats']>(`/profiles/${userId}/stats`);
     return response.data;
   },
-}; 
+};

@@ -3,7 +3,7 @@ import { RetryMechanism } from './retryMechanism';
 export enum UserRole {
   ADMIN = 'ADMIN',
   OPERATOR = 'OPERATOR',
-  VIEWER = 'VIEWER'
+  VIEWER = 'VIEWER',
 }
 
 interface User {
@@ -23,14 +23,14 @@ interface Session {
 
 interface AuthConfig {
   apiUrl: string;
-  tokenRefreshThreshold: number;  // Time in ms before expiry to refresh
+  tokenRefreshThreshold: number; // Time in ms before expiry to refresh
   sessionStorageKey: string;
 }
 
 const DEFAULT_AUTH_CONFIG: AuthConfig = {
   apiUrl: '/api/auth',
-  tokenRefreshThreshold: 300000,  // 5 minutes
-  sessionStorageKey: 'auth_session'
+  tokenRefreshThreshold: 300000, // 5 minutes
+  sessionStorageKey: 'auth_session',
 };
 
 export class AuthManager {
@@ -44,7 +44,7 @@ export class AuthManager {
     this.config = { ...DEFAULT_AUTH_CONFIG, ...config };
     this.retryMechanism = new RetryMechanism({
       maxAttempts: 3,
-      retryableErrors: ['NETWORK_ERROR', 'TIMEOUT']
+      retryableErrors: ['NETWORK_ERROR', 'TIMEOUT'],
     });
     this.loadSession();
   }
@@ -73,10 +73,7 @@ export class AuthManager {
 
   private saveSession(session: Session): void {
     this.currentSession = session;
-    sessionStorage.setItem(
-      this.config.sessionStorageKey,
-      JSON.stringify(session)
-    );
+    sessionStorage.setItem(this.config.sessionStorageKey, JSON.stringify(session));
   }
 
   private clearSession(): void {
@@ -103,11 +100,11 @@ export class AuthManager {
       const response = await fetch(`${this.config.apiUrl}/refresh`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          refreshToken: this.currentSession?.refreshToken
-        })
+          refreshToken: this.currentSession?.refreshToken,
+        }),
       });
 
       if (!response.ok) {
@@ -130,9 +127,9 @@ export class AuthManager {
       return fetch(`${this.config.apiUrl}/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
     });
 
@@ -152,8 +149,8 @@ export class AuthManager {
         await fetch(`${this.config.apiUrl}/logout`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.currentSession?.token}`
-          }
+            Authorization: `Bearer ${this.currentSession?.token}`,
+          },
         });
       });
     } finally {
@@ -194,8 +191,6 @@ export class AuthManager {
   }
 
   getAuthorizationHeader(): string | null {
-    return this.currentSession
-      ? `Bearer ${this.currentSession.token}`
-      : null;
+    return this.currentSession ? `Bearer ${this.currentSession.token}` : null;
   }
 }

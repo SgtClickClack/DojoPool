@@ -1,76 +1,81 @@
-"""Authentication models."""
+"""User model module."""
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, check_password_hash
+db = SQLAlchemy()
 
-from ..database import db, reference_col
+class User(UserMixin, db.Model):
+    """User model for authentication."""
+    
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128))
+    is_active = db.Column(db.Boolean, default=True)
+
+    def __init__(self, username, email, password_hash, is_active=True):
+        """Initialize user."""
+        self.username = username
+        self.email = email
+        self.password_hash = password_hash
+        self.is_active = is_active
+
+    def save(self):
+        """Save the user to the database."""
+        db.session.add(self)
+        db.session.commit()
+
+    def to_dict(self):
+        """Convert user to dictionary."""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'is_active': self.is_active
+        }
 
 class Role(db.Model):
-    """User role model."""
-
+    """Role model for user permissions."""
+    
     __tablename__ = 'roles'
-    __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(80), unique=True, nullable=False)
-    description = Column(String(255))
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(255))
 
-    users = relationship('User', secondary='user_roles', back_populates='roles')
+    def __init__(self, name, description=None):
+        """Initialize role."""
+        self.name = name
+        self.description = description
 
-    def __repr__(self):
-        """String representation."""
-        return f'<Role {self.name}>'
-
-class User(db.Model):
-    """User model."""
-
-    __tablename__ = 'users'
-    __table_args__ = {'extend_existing': True}
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String(80), unique=True, nullable=False)
-    email = Column(String(120), unique=True, nullable=False)
-    password_hash = Column(String(255))
-    active = Column(Boolean(), default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    roles = relationship('Role', secondary='user_roles', back_populates='users')
-
-    def __init__(self, username, email, password=None, **kwargs):
-        """Create instance."""
-        super(User, self).__init__(username=username, email=email, **kwargs)
-        if password:
-            self.set_password(password)
-
-    def set_password(self, password):
-        """Set password."""
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        """Check password."""
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        """String representation."""
-        return f'<User {self.username}>'
+    def to_dict(self):
+        """Convert role to dictionary."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
 
 class UserRole(db.Model):
-    """User-Role association model."""
-
+    """Association model between users and roles."""
+    
     __tablename__ = 'user_roles'
-    __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True)
-    user_id = reference_col('users', nullable=False)
-    role_id = reference_col('roles', nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
 
-    def __repr__(self):
-        """String representation."""
-        return f'<UserRole {self.user_id}:{self.role_id}>' 
+    def __init__(self, user_id, role_id):
+        """Initialize user role."""
+        self.user_id = user_id
+        self.role_id = role_id
+
+    def to_dict(self):
+        """Convert user role to dictionary."""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'role_id': self.role_id
+        } 

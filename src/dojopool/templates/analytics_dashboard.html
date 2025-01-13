@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DojoPool Analytics Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DojoPool Analytics Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment"></script>
+<style>
         .metric-card {
             @apply bg-gray-800 rounded-lg p-4 shadow-lg;
         }
@@ -23,77 +23,72 @@
         }
     </style>
 </head>
-
 <body class="bg-gray-900 text-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <header class="mb-8">
-            <h1 class="text-4xl font-bold mb-2">Real-Time Analytics Dashboard</h1>
-            <div class="flex space-x-4">
-                <select id="metricType" class="bg-gray-700 rounded px-3 py-2">
-                    <option value="latency">Latency</option>
-                    <option value="message_rate">Message Rate</option>
-                    <option value="error_rate">Error Rate</option>
-                </select>
-                <select id="timeRange" class="bg-gray-700 rounded px-3 py-2">
-                    <option value="MINUTE">Last Hour</option>
-                    <option value="HOUR">Last Day</option>
-                    <option value="DAY">Last Week</option>
-                    <option value="WEEK">Last Month</option>
-                </select>
-                <button id="refreshBtn" class="bg-blue-600 rounded px-4 py-2">
+<div class="container mx-auto px-4 py-8">
+<header class="mb-8">
+<h1 class="text-4xl font-bold mb-2">Real-Time Analytics Dashboard</h1>
+<div class="flex space-x-4">
+<select class="bg-gray-700 rounded px-3 py-2" id="metricType">
+<option value="latency">Latency</option>
+<option value="message_rate">Message Rate</option>
+<option value="error_rate">Error Rate</option>
+</select>
+<select class="bg-gray-700 rounded px-3 py-2" id="timeRange">
+<option value="MINUTE">Last Hour</option>
+<option value="HOUR">Last Day</option>
+<option value="DAY">Last Week</option>
+<option value="WEEK">Last Month</option>
+</select>
+<button class="bg-blue-600 rounded px-4 py-2" id="refreshBtn">
                     Refresh
                 </button>
-            </div>
-        </header>
-
-        <!-- Key Metrics -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="metric-card">
-                <h3 class="text-lg font-semibold mb-2">Current Value</h3>
-                <p id="currentValue" class="text-3xl font-bold">-</p>
-            </div>
-            <div class="metric-card">
-                <h3 class="text-lg font-semibold mb-2">Average</h3>
-                <p id="averageValue" class="text-3xl font-bold">-</p>
-            </div>
-            <div class="metric-card">
-                <h3 class="text-lg font-semibold mb-2">Trend</h3>
-                <p id="trendValue" class="text-3xl font-bold">-</p>
-            </div>
-            <div class="metric-card">
-                <h3 class="text-lg font-semibold mb-2">Anomalies</h3>
-                <p id="anomalyCount" class="text-3xl font-bold">-</p>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div class="chart-container">
-                <canvas id="timeSeriesChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="distributionChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Anomalies and Insights -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
-                <h2 class="text-xl font-bold mb-4">Recent Anomalies</h2>
-                <div id="anomaliesList" class="space-y-4">
-                    <!-- Anomalies will be inserted here -->
-                </div>
-            </div>
-            <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
-                <h2 class="text-xl font-bold mb-4">Insights</h2>
-                <div id="insightsList" class="space-y-4">
-                    <!-- Insights will be inserted here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+</header>
+<!-- Key Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="metric-card">
+<h3 class="text-lg font-semibold mb-2">Current Value</h3>
+<p class="text-3xl font-bold" id="currentValue">-</p>
+</div>
+<div class="metric-card">
+<h3 class="text-lg font-semibold mb-2">Average</h3>
+<p class="text-3xl font-bold" id="averageValue">-</p>
+</div>
+<div class="metric-card">
+<h3 class="text-lg font-semibold mb-2">Trend</h3>
+<p class="text-3xl font-bold" id="trendValue">-</p>
+</div>
+<div class="metric-card">
+<h3 class="text-lg font-semibold mb-2">Anomalies</h3>
+<p class="text-3xl font-bold" id="anomalyCount">-</p>
+</div>
+</div>
+<!-- Charts -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+<div class="chart-container">
+<canvas id="timeSeriesChart"></canvas>
+</div>
+<div class="chart-container">
+<canvas id="distributionChart"></canvas>
+</div>
+</div>
+<!-- Anomalies and Insights -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+<h2 class="text-xl font-bold mb-4">Recent Anomalies</h2>
+<div class="space-y-4" id="anomaliesList">
+<!-- Anomalies will be inserted here -->
+</div>
+</div>
+<div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+<h2 class="text-xl font-bold mb-4">Insights</h2>
+<div class="space-y-4" id="insightsList">
+<!-- Insights will be inserted here -->
+</div>
+</div>
+</div>
+</div>
+<script>
         let timeSeriesChart = null;
         let distributionChart = null;
 
@@ -301,5 +296,4 @@
         setInterval(fetchAnalytics, 30000);
     </script>
 </body>
-
 </html>

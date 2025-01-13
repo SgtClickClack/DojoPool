@@ -16,13 +16,10 @@ export const useLocation = ({ onError }: UseLocationOptions = {}) => {
       onError?.(err);
     };
 
-    const id = watchLocation(
-      (newLocation) => {
-        setLocation(newLocation);
-        setError(null);
-      },
-      handleError
-    );
+    const id = watchLocation((newLocation) => {
+      setLocation(newLocation);
+      setError(null);
+    }, handleError);
 
     if (id) {
       setWatchId(id);
@@ -40,4 +37,4 @@ export const useLocation = ({ onError }: UseLocationOptions = {}) => {
     error,
     isLoading: !location && !error,
   };
-}; 
+};

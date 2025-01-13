@@ -25,4 +25,4 @@ export interface GameState {
   score: number;
   timeRemaining: number;
   isActive: boolean;
-} 
+}

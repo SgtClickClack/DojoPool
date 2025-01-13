@@ -129,7 +129,13 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
     >
       <Box sx={{ width: '100%' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-          <Typography variant="subtitle2" sx={{ flexGrow: 1, fontWeight: notification.read ? 'normal' : 'bold' }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              flexGrow: 1,
+              fontWeight: notification.read ? 'normal' : 'bold',
+            }}
+          >
             {notification.title}
           </Typography>
           <Chip
@@ -144,7 +150,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography variant="caption" color="text.secondary">
-            {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
+            {formatDistanceToNow(new Date(notification.timestamp), {
+              addSuffix: true,
+            })}
           </Typography>
           {notification.priority && (
             <Box
@@ -239,7 +247,7 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
         color="inherit"
         onClick={handleClick}
         className={className}
-        size={isMobile ? "small" : "medium"}
+        size={isMobile ? 'small' : 'medium'}
       >
         <Badge badgeContent={unreadCount} color="error">
           <NotificationsIcon />
@@ -286,11 +294,14 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
               <MenuItem onClick={handleClearAll}>Clear All</MenuItem>
             </Menu>
           </Box>
-          <Collapse in={showSettings}>
-            {renderSettings()}
-          </Collapse>
+          <Collapse in={showSettings}>{renderSettings()}</Collapse>
           {notifications.length > 0 ? (
-            <List sx={{ maxHeight: showSettings ? '30vh' : '60vh', overflow: 'auto' }}>
+            <List
+              sx={{
+                maxHeight: showSettings ? '30vh' : '60vh',
+                overflow: 'auto',
+              }}
+            >
               {notifications.map(renderNotification)}
             </List>
           ) : (
@@ -304,4 +315,4 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
   );
 };
 
-export default NotificationCenter; 
+export default NotificationCenter;

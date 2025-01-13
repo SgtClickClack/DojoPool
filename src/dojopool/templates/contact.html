@@ -4,61 +4,60 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="text-center mb-4">Contact Us</h1>
-            <div class="card">
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('main.contact') }}">
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject" class="form-label">Subject</label>
-                            <input type="text" class="form-control" id="subject" name="subject" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="message" class="form-label">Message</label>
-                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Send Message</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="card mt-4">
-                <div class="card-body">
-                    <h5 class="card-title">Other Ways to Reach Us</h5>
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <h6><i class="bi bi-envelope me-2"></i>Email</h6>
-                            <p>support@dojopool.com</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="bi bi-telephone me-2"></i>Phone</h6>
-                            <p>+1 (555) 123-4567</p>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <h6><i class="bi bi-geo-alt me-2"></i>Address</h6>
-                            <p>123 Pool Street<br>San Francisco, CA 94105</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="bi bi-clock me-2"></i>Business Hours</h6>
-                            <p>Monday - Friday: 9:00 AM - 6:00 PM<br>Saturday - Sunday: Closed</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="row justify-content-center">
+<div class="col-lg-8">
+<h1 class="text-center mb-4">Contact Us</h1>
+<div class="card">
+<div class="card-body">
+<form action="{{ url_for('main.contact') }}" method="POST">
+<div class="mb-3">
+<label class="form-label" for="name">Name</label>
+<input class="form-control" id="name" name="name" required="" type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="email">Email</label>
+<input class="form-control" id="email" name="email" required="" type="email"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="subject">Subject</label>
+<input class="form-control" id="subject" name="subject" required="" type="text"/>
+</div>
+<div class="mb-3">
+<label class="form-label" for="message">Message</label>
+<textarea class="form-control" id="message" name="message" required="" rows="5"></textarea>
+</div>
+<div class="d-grid">
+<button class="btn btn-primary" type="submit">Send Message</button>
+</div>
+</form>
+</div>
+</div>
+<div class="card mt-4">
+<div class="card-body">
+<h5 class="card-title">Other Ways to Reach Us</h5>
+<div class="row mt-4">
+<div class="col-md-6">
+<h6><i class="bi bi-envelope me-2"></i>Email</h6>
+<p>support@dojopool.com</p>
+</div>
+<div class="col-md-6">
+<h6><i class="bi bi-telephone me-2"></i>Phone</h6>
+<p>+1 (555) 123-4567</p>
+</div>
+</div>
+<div class="row mt-3">
+<div class="col-md-6">
+<h6><i class="bi bi-geo-alt me-2"></i>Address</h6>
+<p>123 Pool Street<br/>San Francisco, CA 94105</p>
+</div>
+<div class="col-md-6">
+<h6><i class="bi bi-clock me-2"></i>Business Hours</h6>
+<p>Monday - Friday: 9:00 AM - 6:00 PM<br/>Saturday - Sunday: Closed</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %} 

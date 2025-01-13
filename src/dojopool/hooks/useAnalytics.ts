@@ -46,7 +46,7 @@ export const useAnalytics = () => {
 
       const { userId, ...queryParams } = params;
       const response = await axios.get(`/api/analytics/user/${userId}/metrics`, {
-        params: queryParams
+        params: queryParams,
       });
 
       setMetrics(response.data.metrics);
@@ -64,7 +64,7 @@ export const useAnalytics = () => {
       setError(null);
 
       const response = await axios.get('/api/analytics/aggregated', {
-        params
+        params,
       });
 
       setMetrics(response.data.metrics);
@@ -82,7 +82,7 @@ export const useAnalytics = () => {
       setError(null);
 
       const response = await axios.get('/api/analytics/feature-usage', {
-        params
+        params,
       });
 
       setMetrics(response.data.stats);
@@ -94,60 +94,68 @@ export const useAnalytics = () => {
     }
   }, []);
 
-  const fetchPerformanceMetrics = useCallback(async (params: MetricsParams & {
-    endpoint?: string;
-    component?: string;
-  }) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchPerformanceMetrics = useCallback(
+    async (
+      params: MetricsParams & {
+        endpoint?: string;
+        component?: string;
+      }
+    ) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const response = await axios.get('/api/analytics/performance', {
-        params
-      });
+        const response = await axios.get('/api/analytics/performance', {
+          params,
+        });
 
-      setMetrics(response.data.metrics);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch performance metrics');
-      setMetrics([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        setMetrics(response.data.metrics);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Failed to fetch performance metrics');
+        setMetrics([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
-  const trackMetric = useCallback(async (
-    type: 'user' | 'game' | 'venue' | 'feature' | 'performance',
-    data: any
-  ) => {
-    try {
-      setError(null);
+  const trackMetric = useCallback(
+    async (type: 'user' | 'game' | 'venue' | 'feature' | 'performance', data: any) => {
+      try {
+        setError(null);
 
-      const response = await axios.post(`/api/analytics/track/${type}-metric`, data);
-      return response.data;
-    } catch (err) {
-      setError(err.response?.data?.error || `Failed to track ${type} metric`);
-      throw err;
-    }
-  }, []);
+        const response = await axios.post(`/api/analytics/track/${type}-metric`, data);
+        return response.data;
+      } catch (err) {
+        setError(err.response?.data?.error || `Failed to track ${type} metric`);
+        throw err;
+      }
+    },
+    []
+  );
 
-  const aggregateMetrics = useCallback(async (data: {
-    metricType: string;
-    dimension: string;
-    period?: string;
-    startDate?: string;
-    endDate?: string;
-    dimensionId?: number;
-  }) => {
-    try {
-      setError(null);
+  const aggregateMetrics = useCallback(
+    async (data: {
+      metricType: string;
+      dimension: string;
+      period?: string;
+      startDate?: string;
+      endDate?: string;
+      dimensionId?: number;
+    }) => {
+      try {
+        setError(null);
 
-      const response = await axios.post('/api/analytics/aggregate', data);
-      return response.data;
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to aggregate metrics');
-      throw err;
-    }
-  }, []);
+        const response = await axios.post('/api/analytics/aggregate', data);
+        return response.data;
+      } catch (err) {
+        setError(err.response?.data?.error || 'Failed to aggregate metrics');
+        throw err;
+      }
+    },
+    []
+  );
 
   return {
     metrics,
@@ -158,6 +166,6 @@ export const useAnalytics = () => {
     fetchFeatureUsage,
     fetchPerformanceMetrics,
     trackMetric,
-    aggregateMetrics
+    aggregateMetrics,
   };
-}; 
+};

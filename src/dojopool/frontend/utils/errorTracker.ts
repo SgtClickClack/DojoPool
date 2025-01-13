@@ -41,13 +41,13 @@ const DEFAULT_CONFIG: ErrorTrackerConfig = {
     maxAttempts: 3,
     initialDelay: 1000,
     maxDelay: 10000,
-    backoffFactor: 2
+    backoffFactor: 2,
   },
   groupingSimilarErrors: true,
   errorThresholds: {
     warning: 10,
-    critical: 50
-  }
+    critical: 50,
+  },
 };
 
 export class ErrorTracker {
@@ -57,12 +57,15 @@ export class ErrorTracker {
   private auditLogger: AuditLogger;
   private retryMechanism: RetryMechanism;
   private errorHandlers: Set<(error: Error, context: ErrorContext) => void>;
-  private errorGroups: Map<string, {
-    count: number;
-    firstSeen: number;
-    lastSeen: number;
-    examples: Array<{ error: Error; context: ErrorContext }>;
-  }>;
+  private errorGroups: Map<
+    string,
+    {
+      count: number;
+      firstSeen: number;
+      lastSeen: number;
+      examples: Array<{ error: Error; context: ErrorContext }>;
+    }
+  >;
 
   private constructor(config: Partial<ErrorTrackerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -70,7 +73,7 @@ export class ErrorTracker {
       total: 0,
       byType: {},
       byComponent: {},
-      recentErrors: []
+      recentErrors: [],
     };
     this.auditLogger = AuditLogger.getInstance();
     this.retryMechanism = RetryMechanism.getInstance();
@@ -92,16 +95,16 @@ export class ErrorTracker {
   private updateErrorStats(error: Error, context: ErrorContext): void {
     this.stats.total++;
     this.stats.byType[error.name] = (this.stats.byType[error.name] || 0) + 1;
-    
+
     if (context.component) {
-      this.stats.byComponent[context.component] = 
+      this.stats.byComponent[context.component] =
         (this.stats.byComponent[context.component] || 0) + 1;
     }
 
     this.stats.recentErrors.unshift({
       error,
       context,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     if (this.stats.recentErrors.length > this.config.maxRecentErrors) {
@@ -114,7 +117,7 @@ export class ErrorTracker {
         count: 0,
         firstSeen: Date.now(),
         lastSeen: Date.now(),
-        examples: []
+        examples: [],
       };
 
       group.count++;
@@ -127,8 +130,7 @@ export class ErrorTracker {
     }
 
     // Check error thresholds
-    const componentErrors = context.component ? 
-      this.stats.byComponent[context.component] : 0;
+    const componentErrors = context.component ? this.stats.byComponent[context.component] : 0;
 
     if (componentErrors >= this.config.errorThresholds.critical) {
       this.auditLogger.logError(
@@ -147,19 +149,16 @@ export class ErrorTracker {
     }
   }
 
-  async trackError(
-    error: Error,
-    context: Partial<ErrorContext> = {}
-  ): Promise<void> {
+  async trackError(error: Error, context: Partial<ErrorContext> = {}): Promise<void> {
     const fullContext: ErrorContext = {
       timestamp: Date.now(),
-      ...context
+      ...context,
     };
 
     this.updateErrorStats(error, fullContext);
 
     // Notify error handlers
-    this.errorHandlers.forEach(handler => {
+    this.errorHandlers.forEach((handler) => {
       try {
         handler(error, fullContext);
       } catch (handlerError) {
@@ -175,7 +174,7 @@ export class ErrorTracker {
       error,
       {
         userId: context.userId,
-        metadata: context.metadata
+        metadata: context.metadata,
       }
     );
   }
@@ -185,15 +184,9 @@ export class ErrorTracker {
     context: Partial<ErrorContext> = {}
   ): Promise<T> {
     try {
-      return await this.retryMechanism.executeWithRetry(
-        operation,
-        this.config.retryOptions
-      );
+      return await this.retryMechanism.executeWithRetry(operation, this.config.retryOptions);
     } catch (error) {
-      await this.trackError(
-        error instanceof Error ? error : new Error(String(error)),
-        context
-      );
+      await this.trackError(error instanceof Error ? error : new Error(String(error)), context);
       throw error;
     }
   }
@@ -216,7 +209,7 @@ export class ErrorTracker {
   }> {
     return Array.from(this.errorGroups.entries()).map(([fingerprint, group]) => ({
       fingerprint,
-      ...group
+      ...group,
     }));
   }
 
@@ -225,7 +218,7 @@ export class ErrorTracker {
       total: 0,
       byType: {},
       byComponent: {},
-      recentErrors: []
+      recentErrors: [],
     };
     this.errorGroups.clear();
   }
@@ -233,9 +226,8 @@ export class ErrorTracker {
   getErrorRate(component?: string, timeWindow: number = 3600000): number {
     const now = Date.now();
     const recentErrors = this.stats.recentErrors.filter(
-      error => 
-        now - error.timestamp <= timeWindow &&
-        (!component || error.context.component === component)
+      (error) =>
+        now - error.timestamp <= timeWindow && (!component || error.context.component === component)
     );
 
     return (recentErrors.length / timeWindow) * 3600000; // Errors per hour
@@ -260,9 +252,9 @@ export class ErrorTracker {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    const errorRates = Object.keys(this.stats.byComponent).map(component => ({
+    const errorRates = Object.keys(this.stats.byComponent).map((component) => ({
       component,
-      rate: this.getErrorRate(component)
+      rate: this.getErrorRate(component),
     }));
 
     // Calculate error trends in 1-hour intervals
@@ -272,10 +264,7 @@ export class ErrorTracker {
 
     this.stats.recentErrors.forEach(({ timestamp }) => {
       const hourBucket = Math.floor(timestamp / hourInMs) * hourInMs;
-      hourlyTrends.set(
-        hourBucket,
-        (hourlyTrends.get(hourBucket) || 0) + 1
-      );
+      hourlyTrends.set(hourBucket, (hourlyTrends.get(hourBucket) || 0) + 1);
     });
 
     const recentTrends = Array.from(hourlyTrends.entries())
@@ -286,7 +275,7 @@ export class ErrorTracker {
       topErrorTypes,
       topComponents,
       errorRates,
-      recentTrends
+      recentTrends,
     };
   }
 }

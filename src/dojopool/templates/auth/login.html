@@ -10,7 +10,7 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-        url("{{ url_for('static', filename='images/cyber-bg.jpg') }}") center/cover;
+        url("{{ url_for('static', filename='images/backgrounds/cyber-bg.jpg') }}") center/cover;
         position: relative;
         overflow: hidden;
     }
@@ -195,7 +195,7 @@
         {% endif %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('auth.login') }}">
+        <form action="{{ url_for('auth.login') }}" method="POST">
             {{ form.hidden_tag() }}
 
             <div class="mb-3">
@@ -213,19 +213,19 @@
                 {{ form.remember_me.label(class="form-check-label") }}
             </div>
 
-            <button type="submit" class="btn btn-cyber w-100">Login</button>
+            <button class="btn btn-cyber w-100" type="submit">Login</button>
         </form>
 
         <div class="divider">
             <span>or</span>
         </div>
 
-        <a href="{{ url_for('auth.google_login') }}" class="btn btn-google">
+        <a class="btn btn-google" href="{{ url_for('auth.google_login') }}">
             <i class="bi bi-google me-2"></i> Continue with Google
         </a>
 
         <div class="auth-links">
-            <a href="{{ url_for('auth.forgot_password') }}" class="me-3">Forgot Password?</a>
+            <a class="me-3" href="{{ url_for('auth.forgot_password') }}">Forgot Password?</a>
             <a href="{{ url_for('auth.register') }}">Create Account</a>
         </div>
     </div>

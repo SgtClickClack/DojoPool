@@ -2,136 +2,316 @@
 @use '../abstracts/mixins' as *;
 
 // Display
-.d-none { display: none !important; }
-.d-inline { display: inline !important; }
-.d-inline-block { display: inline-block !important; }
-.d-block { display: block !important; }
-.d-table { display: table !important; }
-.d-table-row { display: table-row !important; }
-.d-table-cell { display: table-cell !important; }
-.d-flex { display: flex !important; }
-.d-inline-flex { display: inline-flex !important; }
-.d-grid { display: grid !important; }
-.d-inline-grid { display: inline-grid !important; }
+.d-none {
+  display: none !important;
+}
+.d-inline {
+  display: inline !important;
+}
+.d-inline-block {
+  display: inline-block !important;
+}
+.d-block {
+  display: block !important;
+}
+.d-table {
+  display: table !important;
+}
+.d-table-row {
+  display: table-row !important;
+}
+.d-table-cell {
+  display: table-cell !important;
+}
+.d-flex {
+  display: flex !important;
+}
+.d-inline-flex {
+  display: inline-flex !important;
+}
+.d-grid {
+  display: grid !important;
+}
+.d-inline-grid {
+  display: inline-grid !important;
+}
 
 // Responsive display
 @each $breakpoint, $width in $breakpoints {
-    @include breakpoint($breakpoint) {
-        .d-#{$breakpoint}-none { display: none !important; }
-        .d-#{$breakpoint}-inline { display: inline !important; }
-        .d-#{$breakpoint}-inline-block { display: inline-block !important; }
-        .d-#{$breakpoint}-block { display: block !important; }
-        .d-#{$breakpoint}-table { display: table !important; }
-        .d-#{$breakpoint}-table-row { display: table-row !important; }
-        .d-#{$breakpoint}-table-cell { display: table-cell !important; }
-        .d-#{$breakpoint}-flex { display: flex !important; }
-        .d-#{$breakpoint}-inline-flex { display: inline-flex !important; }
-        .d-#{$breakpoint}-grid { display: grid !important; }
-        .d-#{$breakpoint}-inline-grid { display: inline-grid !important; }
+  @include breakpoint($breakpoint) {
+    .d-#{$breakpoint}-none {
+      display: none !important;
     }
+    .d-#{$breakpoint}-inline {
+      display: inline !important;
+    }
+    .d-#{$breakpoint}-inline-block {
+      display: inline-block !important;
+    }
+    .d-#{$breakpoint}-block {
+      display: block !important;
+    }
+    .d-#{$breakpoint}-table {
+      display: table !important;
+    }
+    .d-#{$breakpoint}-table-row {
+      display: table-row !important;
+    }
+    .d-#{$breakpoint}-table-cell {
+      display: table-cell !important;
+    }
+    .d-#{$breakpoint}-flex {
+      display: flex !important;
+    }
+    .d-#{$breakpoint}-inline-flex {
+      display: inline-flex !important;
+    }
+    .d-#{$breakpoint}-grid {
+      display: grid !important;
+    }
+    .d-#{$breakpoint}-inline-grid {
+      display: inline-grid !important;
+    }
+  }
 }
 
 // Visibility
-.visible { visibility: visible !important; }
-.invisible { visibility: hidden !important; }
-.collapse { visibility: collapse !important; }
+.visible {
+  visibility: visible !important;
+}
+.invisible {
+  visibility: hidden !important;
+}
+.collapse {
+  visibility: collapse !important;
+}
 
 // Opacity
-.opacity-0 { opacity: 0 !important; }
-.opacity-5 { opacity: 0.05 !important; }
-.opacity-10 { opacity: 0.1 !important; }
-.opacity-20 { opacity: 0.2 !important; }
-.opacity-25 { opacity: 0.25 !important; }
-.opacity-30 { opacity: 0.3 !important; }
-.opacity-40 { opacity: 0.4 !important; }
-.opacity-50 { opacity: 0.5 !important; }
-.opacity-60 { opacity: 0.6 !important; }
-.opacity-70 { opacity: 0.7 !important; }
-.opacity-75 { opacity: 0.75 !important; }
-.opacity-80 { opacity: 0.8 !important; }
-.opacity-90 { opacity: 0.9 !important; }
-.opacity-95 { opacity: 0.95 !important; }
-.opacity-100 { opacity: 1 !important; }
+.opacity-0 {
+  opacity: 0 !important;
+}
+.opacity-5 {
+  opacity: 0.05 !important;
+}
+.opacity-10 {
+  opacity: 0.1 !important;
+}
+.opacity-20 {
+  opacity: 0.2 !important;
+}
+.opacity-25 {
+  opacity: 0.25 !important;
+}
+.opacity-30 {
+  opacity: 0.3 !important;
+}
+.opacity-40 {
+  opacity: 0.4 !important;
+}
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+.opacity-60 {
+  opacity: 0.6 !important;
+}
+.opacity-70 {
+  opacity: 0.7 !important;
+}
+.opacity-75 {
+  opacity: 0.75 !important;
+}
+.opacity-80 {
+  opacity: 0.8 !important;
+}
+.opacity-90 {
+  opacity: 0.9 !important;
+}
+.opacity-95 {
+  opacity: 0.95 !important;
+}
+.opacity-100 {
+  opacity: 1 !important;
+}
 
 // Z-index
 @each $key, $value in $z-index {
-    .z-#{$key} { z-index: $value !important; }
+  .z-#{$key} {
+    z-index: $value !important;
+  }
 }
 
 // Overflow
-.overflow-auto { overflow: auto !important; }
-.overflow-hidden { overflow: hidden !important; }
-.overflow-visible { overflow: visible !important; }
-.overflow-scroll { overflow: scroll !important; }
-.overflow-x-auto { overflow-x: auto !important; }
-.overflow-y-auto { overflow-y: auto !important; }
-.overflow-x-hidden { overflow-x: hidden !important; }
-.overflow-y-hidden { overflow-y: hidden !important; }
-.overflow-x-visible { overflow-x: visible !important; }
-.overflow-y-visible { overflow-y: visible !important; }
-.overflow-x-scroll { overflow-x: scroll !important; }
-.overflow-y-scroll { overflow-y: scroll !important; }
+.overflow-auto {
+  overflow: auto !important;
+}
+.overflow-hidden {
+  overflow: hidden !important;
+}
+.overflow-visible {
+  overflow: visible !important;
+}
+.overflow-scroll {
+  overflow: scroll !important;
+}
+.overflow-x-auto {
+  overflow-x: auto !important;
+}
+.overflow-y-auto {
+  overflow-y: auto !important;
+}
+.overflow-x-hidden {
+  overflow-x: hidden !important;
+}
+.overflow-y-hidden {
+  overflow-y: hidden !important;
+}
+.overflow-x-visible {
+  overflow-x: visible !important;
+}
+.overflow-y-visible {
+  overflow-y: visible !important;
+}
+.overflow-x-scroll {
+  overflow-x: scroll !important;
+}
+.overflow-y-scroll {
+  overflow-y: scroll !important;
+}
 
 // Scrollbar
-.scrollbar { @include custom-scrollbar; }
+.scrollbar {
+  @include custom-scrollbar;
+}
 .scrollbar-none {
-    &::-webkit-scrollbar {
-        display: none;
-    }
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 // Pointer events
-.pointer-events-none { pointer-events: none !important; }
-.pointer-events-auto { pointer-events: auto !important; }
+.pointer-events-none {
+  pointer-events: none !important;
+}
+.pointer-events-auto {
+  pointer-events: auto !important;
+}
 
 // Resize
-.resize-none { resize: none !important; }
-.resize-y { resize: vertical !important; }
-.resize-x { resize: horizontal !important; }
-.resize { resize: both !important; }
+.resize-none {
+  resize: none !important;
+}
+.resize-y {
+  resize: vertical !important;
+}
+.resize-x {
+  resize: horizontal !important;
+}
+.resize {
+  resize: both !important;
+}
 
 // Object fit
-.object-contain { object-fit: contain !important; }
-.object-cover { object-fit: cover !important; }
-.object-fill { object-fit: fill !important; }
-.object-none { object-fit: none !important; }
-.object-scale-down { object-fit: scale-down !important; }
+.object-contain {
+  object-fit: contain !important;
+}
+.object-cover {
+  object-fit: cover !important;
+}
+.object-fill {
+  object-fit: fill !important;
+}
+.object-none {
+  object-fit: none !important;
+}
+.object-scale-down {
+  object-fit: scale-down !important;
+}
 
 // Object position
-.object-bottom { object-position: bottom !important; }
-.object-center { object-position: center !important; }
-.object-left { object-position: left !important; }
-.object-left-bottom { object-position: left bottom !important; }
-.object-left-top { object-position: left top !important; }
-.object-right { object-position: right !important; }
-.object-right-bottom { object-position: right bottom !important; }
-.object-right-top { object-position: right top !important; }
-.object-top { object-position: top !important; }
+.object-bottom {
+  object-position: bottom !important;
+}
+.object-center {
+  object-position: center !important;
+}
+.object-left {
+  object-position: left !important;
+}
+.object-left-bottom {
+  object-position: left bottom !important;
+}
+.object-left-top {
+  object-position: left top !important;
+}
+.object-right {
+  object-position: right !important;
+}
+.object-right-bottom {
+  object-position: right bottom !important;
+}
+.object-right-top {
+  object-position: right top !important;
+}
+.object-top {
+  object-position: top !important;
+}
 
 // Float
-.float-left { float: left !important; }
-.float-right { float: right !important; }
-.float-none { float: none !important; }
+.float-left {
+  float: left !important;
+}
+.float-right {
+  float: right !important;
+}
+.float-none {
+  float: none !important;
+}
 
 // Clear
-.clear-left { clear: left !important; }
-.clear-right { clear: right !important; }
-.clear-both { clear: both !important; }
-.clear-none { clear: none !important; }
+.clear-left {
+  clear: left !important;
+}
+.clear-right {
+  clear: right !important;
+}
+.clear-both {
+  clear: both !important;
+}
+.clear-none {
+  clear: none !important;
+}
 
 // Isolation
-.isolate { isolation: isolate !important; }
-.isolation-auto { isolation: auto !important; }
+.isolate {
+  isolation: isolate !important;
+}
+.isolation-auto {
+  isolation: auto !important;
+}
 
 // Backface visibility
-.backface-visible { backface-visibility: visible !important; }
-.backface-hidden { backface-visibility: hidden !important; }
+.backface-visible {
+  backface-visibility: visible !important;
+}
+.backface-hidden {
+  backface-visibility: hidden !important;
+}
 
 // Will change
-.will-change-auto { will-change: auto !important; }
-.will-change-scroll { will-change: scroll-position !important; }
-.will-change-contents { will-change: contents !important; }
-.will-change-transform { will-change: transform !important; }
-.will-change-opacity { will-change: opacity !important; } 
+.will-change-auto {
+  will-change: auto !important;
+}
+.will-change-scroll {
+  will-change: scroll-position !important;
+}
+.will-change-contents {
+  will-change: contents !important;
+}
+.will-change-transform {
+  will-change: transform !important;
+}
+.will-change-opacity {
+  will-change: opacity !important;
+}

@@ -1,0 +1,21 @@
+{
+  "projects": {
+    "default": "dojo-pool"
+  },
+  "targets": {
+    "dojo-pool": {
+      "hosting": {
+        "dojo-pool": [
+          "dojo-pool"
+        ],
+        "dojopool-com": [
+          "dojopool-com"
+        ],
+        "dojopool-com-au": [
+          "dojopool-com-au"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

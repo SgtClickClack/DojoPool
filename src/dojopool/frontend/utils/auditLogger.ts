@@ -25,7 +25,7 @@ const DEFAULT_AUDIT_CONFIG: AuditLogConfig = {
   apiUrl: '/api/audit',
   batchSize: 50,
   flushInterval: 5000, // 5 seconds
-  retentionDays: 90
+  retentionDays: 90,
 };
 
 export class AuditLogger {
@@ -56,11 +56,13 @@ export class AuditLogger {
 
   private async getCurrentUser() {
     const user = await this.authManager.getAuthenticatedUser();
-    return user ? {
-      userId: user.id,
-      username: user.username,
-      roles: user.roles
-    } : undefined;
+    return user
+      ? {
+          userId: user.id,
+          username: user.username,
+          roles: user.roles,
+        }
+      : undefined;
   }
 
   private generateEventId(): string {
@@ -76,7 +78,7 @@ export class AuditLogger {
     errorDetails?: string
   ): Promise<AuditEvent> {
     const user = await this.getCurrentUser();
-    
+
     return {
       id: this.generateEventId(),
       timestamp: Date.now(),
@@ -86,7 +88,7 @@ export class AuditLogger {
       resource,
       details,
       status,
-      errorDetails
+      errorDetails,
     };
   }
 
@@ -101,9 +103,9 @@ export class AuditLogger {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this.authManager.getAuthorizationHeader() || ''
+          Authorization: this.authManager.getAuthorizationHeader() || '',
         },
-        body: JSON.stringify({ events })
+        body: JSON.stringify({ events }),
       });
 
       if (!response.ok) {
@@ -124,13 +126,7 @@ export class AuditLogger {
     resource: string,
     details: Record<string, any> = {}
   ): Promise<void> {
-    const event = await this.createAuditEvent(
-      type,
-      action,
-      resource,
-      details,
-      'success'
-    );
+    const event = await this.createAuditEvent(type, action, resource, details, 'success');
 
     this.eventQueue.push(event);
 
@@ -183,18 +179,20 @@ export class AuditLogger {
     return this.log('SYSTEM_CHANGE', action, resource, details);
   }
 
-  async getAuditLogs(options: {
-    startDate?: Date;
-    endDate?: Date;
-    type?: string;
-    userId?: string;
-    resource?: string;
-    status?: 'success' | 'failure';
-    limit?: number;
-    offset?: number;
-  } = {}): Promise<AuditEvent[]> {
+  async getAuditLogs(
+    options: {
+      startDate?: Date;
+      endDate?: Date;
+      type?: string;
+      userId?: string;
+      resource?: string;
+      status?: 'success' | 'failure';
+      limit?: number;
+      offset?: number;
+    } = {}
+  ): Promise<AuditEvent[]> {
     const queryParams = new URLSearchParams();
-    
+
     if (options.startDate) {
       queryParams.set('startDate', options.startDate.toISOString());
     }
@@ -220,14 +218,11 @@ export class AuditLogger {
       queryParams.set('offset', options.offset.toString());
     }
 
-    const response = await fetch(
-      `${this.config.apiUrl}/search?${queryParams.toString()}`,
-      {
-        headers: {
-          'Authorization': this.authManager.getAuthorizationHeader() || ''
-        }
-      }
-    );
+    const response = await fetch(`${this.config.apiUrl}/search?${queryParams.toString()}`, {
+      headers: {
+        Authorization: this.authManager.getAuthorizationHeader() || '',
+      },
+    });
 
     if (!response.ok) {
       throw new Error('Failed to fetch audit logs');

@@ -4,192 +4,174 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ 'Edit' if venue else 'Add New' }} Venue</h1>
-
-        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+<div class="max-w-3xl mx-auto">
+<h1 class="text-3xl font-bold text-gray-900 mb-8">{{ 'Edit' if venue else 'Add New' }} Venue</h1>
+<form class="space-y-8" enctype="multipart/form-data" method="POST">
             {{ form.csrf_token }}
 
             <!-- Basic Information -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Basic Information</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label for="name" class="block text-sm font-medium text-gray-700">Venue Name</label>
+<div class="bg-white rounded-lg shadow-md p-6">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Basic Information</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="name">Venue Name</label>
                         {{ form.name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.name.errors %}
                         <p class="text-red-600 text-sm">{{ form.name.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="description">Description</label>
                         {{ form.description(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.description.errors %}
                         <p class="text-red-600 text-sm">{{ form.description.errors[0] }}</p>
                         {% endif %}
                     </div>
-                </div>
-            </div>
-
-            <!-- Location -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Location</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label for="address" class="block text-sm font-medium text-gray-700">Street Address</label>
+</div>
+</div>
+<!-- Location -->
+<div class="bg-white rounded-lg shadow-md p-6">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Location</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="address">Street Address</label>
                         {{ form.address(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.address.errors %}
                         <p class="text-red-600 text-sm">{{ form.address.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="city">City</label>
                         {{ form.city(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.city.errors %}
                         <p class="text-red-600 text-sm">{{ form.city.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="state">State</label>
                         {{ form.state(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.state.errors %}
                         <p class="text-red-600 text-sm">{{ form.state.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="postal_code" class="block text-sm font-medium text-gray-700">Postal Code</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="postal_code">Postal Code</label>
                         {{ form.postal_code(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.postal_code.errors %}
                         <p class="text-red-600 text-sm">{{ form.postal_code.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="country">Country</label>
                         {{ form.country(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.country.errors %}
                         <p class="text-red-600 text-sm">{{ form.country.errors[0] }}</p>
                         {% endif %}
                     </div>
-                </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Contact Information</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+</div>
+</div>
+<!-- Contact Information -->
+<div class="bg-white rounded-lg shadow-md p-6">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Contact Information</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="phone">Phone Number</label>
                         {{ form.phone(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.phone.errors %}
                         <p class="text-red-600 text-sm">{{ form.phone.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="email">Email</label>
                         {{ form.email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.email.errors %}
                         <p class="text-red-600 text-sm">{{ form.email.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="website">Website</label>
                         {{ form.website(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.website.errors %}
                         <p class="text-red-600 text-sm">{{ form.website.errors[0] }}</p>
                         {% endif %}
                     </div>
-                </div>
-            </div>
-
-            <!-- Features and Amenities -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Features & Amenities</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+</div>
+</div>
+<!-- Features and Amenities -->
+<div class="bg-white rounded-lg shadow-md p-6">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Features &amp; Amenities</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {% for feature in form.features %}
                     <div class="flex items-center space-x-2">
                         {{ feature(class="rounded border-gray-300 text-blue-600 focus:ring-blue-500") }}
-                        <label for="{{ feature.id }}" class="text-sm text-gray-700">{{ feature.label.text }}</label>
-                    </div>
+                        <label class="text-sm text-gray-700" for="{{ feature.id }}">{{ feature.label.text }}</label>
+</div>
                     {% endfor %}
                 </div>
                 {% if form.features.errors %}
                 <p class="text-red-600 text-sm mt-2">{{ form.features.errors[0] }}</p>
                 {% endif %}
             </div>
-
-            <!-- Tables and Pricing -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Tables & Pricing</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label for="tables" class="block text-sm font-medium text-gray-700">Number of Tables</label>
+<!-- Tables and Pricing -->
+<div class="bg-white rounded-lg shadow-md p-6">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Tables &amp; Pricing</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="tables">Number of Tables</label>
                         {{ form.tables(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.tables.errors %}
                         <p class="text-red-600 text-sm">{{ form.tables.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="per_hour" class="block text-sm font-medium text-gray-700">Price per Hour ($)</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="per_hour">Price per Hour ($)</label>
                         {{ form.per_hour(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.per_hour.errors %}
                         <p class="text-red-600 text-sm">{{ form.per_hour.errors[0] }}</p>
                         {% endif %}
                     </div>
-
-                    <div class="space-y-2">
-                        <label for="per_game" class="block text-sm font-medium text-gray-700">Price per Game ($)</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="per_game">Price per Game ($)</label>
                         {{ form.per_game(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form.per_game.errors %}
                         <p class="text-red-600 text-sm">{{ form.per_game.errors[0] }}</p>
                         {% endif %}
                     </div>
-                </div>
-            </div>
-
-            <!-- Operating Hours -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Operating Hours</h2>
+</div>
+</div>
+<!-- Operating Hours -->
+<div class="bg-white rounded-lg shadow-md p-6">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Operating Hours</h2>
                 {% for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
                 <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="space-y-2">
-                        <label for="{{ day }}_open" class="block text-sm font-medium text-gray-700">{{ day|title }} Open</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="{{ day }}_open">{{ day|title }} Open</label>
                         {{ form[day + '_open'](class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form[day + '_open'].errors %}
                         <p class="text-red-600 text-sm">{{ form[day + '_open'].errors[0] }}</p>
                         {% endif %}
                     </div>
-                    <div class="space-y-2">
-                        <label for="{{ day }}_close" class="block text-sm font-medium text-gray-700">{{ day|title }} Close</label>
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700" for="{{ day }}_close">{{ day|title }} Close</label>
                         {{ form[day + '_close'](class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
                         {% if form[day + '_close'].errors %}
                         <p class="text-red-600 text-sm">{{ form[day + '_close'].errors[0] }}</p>
                         {% endif %}
                     </div>
-                </div>
+</div>
                 {% endfor %}
             </div>
-
-            <!-- Submit Button -->
-            <div class="flex justify-end space-x-4">
-                <a href="{{ url_for('venue.list_venues') }}"
-                    class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md">
+<!-- Submit Button -->
+<div class="flex justify-end space-x-4">
+<a class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md" href="{{ url_for('venue.list_venues') }}">
                     Cancel
                 </a>
-                <button type="submit"
-                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+<button class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md" type="submit">
                     {{ 'Save Changes' if venue else 'Create Venue' }}
                 </button>
-            </div>
-        </form>
-    </div>
+</div>
+</form>
+</div>
 </div>
 {% endblock %}
 

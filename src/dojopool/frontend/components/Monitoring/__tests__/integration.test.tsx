@@ -34,9 +34,13 @@ describe('Monitoring System Integration', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ErrorTracker as jest.Mocked<typeof ErrorTracker>).getInstance.mockReturnValue(mockErrorTracker);
+    (ErrorTracker as jest.Mocked<typeof ErrorTracker>).getInstance.mockReturnValue(
+      mockErrorTracker
+    );
     (AuditLogger as jest.Mocked<typeof AuditLogger>).getInstance.mockReturnValue(mockAuditLogger);
-    (RetryMechanism as jest.Mocked<typeof RetryMechanism>).getInstance.mockReturnValue(mockRetryMechanism);
+    (RetryMechanism as jest.Mocked<typeof RetryMechanism>).getInstance.mockReturnValue(
+      mockRetryMechanism
+    );
   });
 
   test('error tracking flow', async () => {
@@ -73,7 +77,8 @@ describe('Monitoring System Integration', () => {
   });
 
   test('error recovery and retry mechanism', async () => {
-    const mockOperation = jest.fn()
+    const mockOperation = jest
+      .fn()
       .mockRejectedValueOnce(new Error('First attempt failed'))
       .mockResolvedValueOnce('success');
 

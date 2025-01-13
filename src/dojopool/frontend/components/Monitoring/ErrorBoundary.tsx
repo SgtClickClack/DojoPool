@@ -69,13 +69,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="error-content">
             <h2>Something went wrong</h2>
             <div className="error-details">
-              <div className="error-message">
-                {this.state.error && this.state.error.toString()}
-              </div>
+              <div className="error-message">{this.state.error && this.state.error.toString()}</div>
               {this.state.errorInfo && (
-                <pre className="error-stack">
-                  {this.state.errorInfo.componentStack}
-                </pre>
+                <pre className="error-stack">{this.state.errorInfo.componentStack}</pre>
               )}
             </div>
             <button className="retry-button" onClick={this.handleReset}>

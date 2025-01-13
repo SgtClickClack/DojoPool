@@ -20,7 +20,7 @@ const GameTrackingScreen = () => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermission();
       setHasPermission(cameraPermission === 'authorized');
-      
+
       // Load any cached game data
       const cachedGame = await storageManager.getItem('currentGame');
       if (cachedGame) {
@@ -36,12 +36,12 @@ const GameTrackingScreen = () => {
       const newGameData = {
         startTime: Date.now(),
         shots: [],
-        status: 'in_progress'
+        status: 'in_progress',
       };
-      
+
       setGameData(newGameData);
       await storageManager.setItem('currentGame', newGameData);
-      
+
       // Try to start game tracking on server, queue if offline
       try {
         await axios.post(`${API_URL}/api/v1/games/track/start`);
@@ -49,7 +49,7 @@ const GameTrackingScreen = () => {
         await syncManager.addToQueue({
           endpoint: '/api/v1/games/track/start',
           method: 'POST',
-          data: newGameData
+          data: newGameData,
         });
       }
     } catch (error) {
@@ -61,18 +61,18 @@ const GameTrackingScreen = () => {
   const stopTracking = async () => {
     try {
       setIsRecording(false);
-      
+
       if (gameData) {
         const finalGameData = {
           ...gameData,
           endTime: Date.now(),
-          status: 'completed'
+          status: 'completed',
         };
-        
+
         // Save final game data locally
         await storageManager.setItem(`game_${Date.now()}`, finalGameData);
         await storageManager.removeItem('currentGame');
-        
+
         // Try to sync with server
         try {
           const result = await axios.post(`${API_URL}/api/v1/games/track/stop`, finalGameData);
@@ -82,9 +82,9 @@ const GameTrackingScreen = () => {
           await syncManager.addToQueue({
             endpoint: '/api/v1/games/track/stop',
             method: 'POST',
-            data: finalGameData
+            data: finalGameData,
           });
-          
+
           // Navigate with local data
           navigation.navigate('GameSummary', { gameData: finalGameData });
         }
@@ -98,19 +98,21 @@ const GameTrackingScreen = () => {
     if (gameData) {
       const updatedGameData = {
         ...gameData,
-        shots: [...gameData.shots, newShot]
+        shots: [...gameData.shots, newShot],
       };
       setGameData(updatedGameData);
       await storageManager.setItem('currentGame', updatedGameData);
-      
+
       // Try to sync shot data
       try {
-        await axios.post(`${API_URL}/api/v1/games/track/update`, { shot: newShot });
+        await axios.post(`${API_URL}/api/v1/games/track/update`, {
+          shot: newShot,
+        });
       } catch (error) {
         await syncManager.addToQueue({
           endpoint: '/api/v1/games/track/update',
           method: 'POST',
-          data: { shot: newShot }
+          data: { shot: newShot },
         });
       }
     }
@@ -126,18 +128,10 @@ const GameTrackingScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={styles.camera}
-        device="back"
-        isActive={true}
-      />
+      <Camera style={styles.camera} device="back" isActive={true} />
       <View style={styles.controls}>
         {!isRecording ? (
-          <Button
-            title="Start Tracking"
-            onPress={startTracking}
-            buttonStyle={styles.button}
-          />
+          <Button title="Start Tracking" onPress={startTracking} buttonStyle={styles.button} />
         ) : (
           <Button
             title="Stop Tracking"
@@ -173,4 +167,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GameTrackingScreen; 
+export default GameTrackingScreen;

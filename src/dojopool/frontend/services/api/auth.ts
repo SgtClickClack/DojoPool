@@ -44,10 +44,7 @@ export const authApi = {
     return response.data;
   },
 
-  changePassword: async (data: {
-    currentPassword: string;
-    newPassword: string;
-  }): Promise<void> => {
+  changePassword: async (data: { currentPassword: string; newPassword: string }): Promise<void> => {
     await apiClient.put('/auth/password', data);
   },
-}; 
+};

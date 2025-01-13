@@ -8,13 +8,13 @@ import {
   Tabs,
   CircularProgress,
   Alert,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   Analytics as AnalyticsIcon,
   Psychology as AIIcon,
   Speed as PerformanceIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { MatchStory } from './MatchStory';
 import { Recommendations } from './Recommendations';
@@ -99,7 +99,14 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 400,
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -185,9 +192,7 @@ export const Dashboard: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={activeTab} index={1}>
-        <Recommendations
-          recommendations={data?.recommendations || []}
-        />
+        <Recommendations recommendations={data?.recommendations || []} />
       </TabPanel>
 
       <TabPanel value={activeTab} index={2}>
@@ -209,4 +214,4 @@ export const Dashboard: React.FC = () => {
       </TabPanel>
     </Container>
   );
-}; 
+};

@@ -12,14 +12,14 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   FitnessCenter as ExerciseIcon,
   Timer as DurationIcon,
   Speed as DifficultyIcon,
   Target as TargetIcon,
-  CheckCircleOutline as CompletedIcon
+  CheckCircleOutline as CompletedIcon,
 } from '@mui/icons-material';
 
 interface Exercise {
@@ -47,17 +47,16 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ recommendation
   if (!recommendations.length) {
     return (
       <Box sx={{ p: 2, textAlign: 'center' }}>
-        <Typography color="text.secondary">
-          No recommendations available
-        </Typography>
+        <Typography color="text.secondary">No recommendations available</Typography>
       </Box>
     );
   }
 
   const formatExerciseType = (type: string) => {
-    return type.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    return type
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   const getDifficultyColor = (difficulty: number) => {
@@ -74,7 +73,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ recommendation
           <CardContent>
             <Stack spacing={2}>
               {/* Header */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Typography variant="h6" component="div">
                   {formatExerciseType(recommendation.focus_area)}
                 </Typography>
@@ -95,8 +100,8 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ recommendation
                     borderRadius: 4,
                     backgroundColor: theme.palette.grey[200],
                     '& .MuiLinearProgress-bar': {
-                      backgroundColor: getDifficultyColor(recommendation.difficulty)
-                    }
+                      backgroundColor: getDifficultyColor(recommendation.difficulty),
+                    },
                   }}
                 />
               </Box>
@@ -141,7 +146,13 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ recommendation
               </List>
 
               {/* Footer */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Typography variant="body2" color="text.secondary">
                   Total Duration: {recommendation.duration} minutes
                 </Typography>
@@ -159,4 +170,4 @@ export const Recommendations: React.FC<RecommendationsProps> = ({ recommendation
       ))}
     </Stack>
   );
-}; 
+};

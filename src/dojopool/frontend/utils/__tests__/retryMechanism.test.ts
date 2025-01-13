@@ -8,7 +8,7 @@ describe('RetryMechanism', () => {
       maxAttempts: 3,
       initialDelay: 100,
       maxDelay: 1000,
-      backoffFactor: 2
+      backoffFactor: 2,
     });
     jest.useFakeTimers();
   });
@@ -27,7 +27,8 @@ describe('RetryMechanism', () => {
 
   it('should retry failed operation up to maxAttempts', async () => {
     const error = new Error('NETWORK_ERROR');
-    const operation = jest.fn()
+    const operation = jest
+      .fn()
       .mockRejectedValueOnce(error)
       .mockRejectedValueOnce(error)
       .mockResolvedValueOnce('success');
@@ -41,7 +42,7 @@ describe('RetryMechanism', () => {
     expect(onRetry).toHaveBeenCalledWith(
       expect.objectContaining({
         attempt: 1,
-        error: error
+        error: error,
       })
     );
   });
@@ -51,8 +52,7 @@ describe('RetryMechanism', () => {
     const operation = jest.fn().mockRejectedValue(error);
     const onRetry = jest.fn();
 
-    await expect(retryMechanism.execute(operation, onRetry))
-      .rejects.toThrow('NETWORK_ERROR');
+    await expect(retryMechanism.execute(operation, onRetry)).rejects.toThrow('NETWORK_ERROR');
 
     expect(operation).toHaveBeenCalledTimes(3);
     expect(onRetry).toHaveBeenCalledTimes(2);
@@ -65,11 +65,10 @@ describe('RetryMechanism', () => {
 
     const customRetry = new RetryMechanism({
       maxAttempts: 3,
-      retryableErrors: ['NETWORK_ERROR']
+      retryableErrors: ['NETWORK_ERROR'],
     });
 
-    await expect(customRetry.execute(operation, onRetry))
-      .rejects.toThrow('NON_RETRYABLE_ERROR');
+    await expect(customRetry.execute(operation, onRetry)).rejects.toThrow('NON_RETRYABLE_ERROR');
 
     expect(operation).toHaveBeenCalledTimes(1);
     expect(onRetry).not.toHaveBeenCalled();
@@ -77,17 +76,18 @@ describe('RetryMechanism', () => {
 
   it('should respect exponential backoff delays', async () => {
     const error = new Error('NETWORK_ERROR');
-    const operation = jest.fn()
+    const operation = jest
+      .fn()
       .mockRejectedValueOnce(error)
       .mockRejectedValueOnce(error)
       .mockResolvedValueOnce('success');
 
     const promise = retryMechanism.execute(operation);
-    
+
     // First retry should be after 100ms
     jest.advanceTimersByTime(99);
     expect(operation).toHaveBeenCalledTimes(1);
-    
+
     jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(operation).toHaveBeenCalledTimes(2);
@@ -95,7 +95,7 @@ describe('RetryMechanism', () => {
     // Second retry should be after 200ms
     jest.advanceTimersByTime(199);
     expect(operation).toHaveBeenCalledTimes(2);
-    
+
     jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(operation).toHaveBeenCalledTimes(3);
@@ -106,9 +106,7 @@ describe('RetryMechanism', () => {
 
   it('should wrap function with retry logic', async () => {
     const error = new Error('NETWORK_ERROR');
-    const fn = jest.fn()
-      .mockRejectedValueOnce(error)
-      .mockResolvedValueOnce('success');
+    const fn = jest.fn().mockRejectedValueOnce(error).mockResolvedValueOnce('success');
 
     const wrappedFn = retryMechanism.wrap(fn);
     const result = await wrappedFn('arg1', 'arg2');
@@ -132,12 +130,10 @@ describe('RetryMechanism', () => {
 
     it('should retry failed fetch requests', async () => {
       const mockFetch = global.fetch as jest.Mock;
-      mockFetch
-        .mockRejectedValueOnce(new Error('NETWORK_ERROR'))
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve({ data: 'success' })
-        });
+      mockFetch.mockRejectedValueOnce(new Error('NETWORK_ERROR')).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data: 'success' }),
+      });
 
       const response = await RetryMechanism.fetch('https://api.example.com/data');
       expect(response.ok).toBe(true);
@@ -148,11 +144,12 @@ describe('RetryMechanism', () => {
       const mockFetch = global.fetch as jest.Mock;
       mockFetch.mockResolvedValue({
         ok: false,
-        status: 500
+        status: 500,
       });
 
-      await expect(RetryMechanism.fetch('https://api.example.com/data'))
-        .rejects.toThrow('HTTP error! status: 500');
+      await expect(RetryMechanism.fetch('https://api.example.com/data')).rejects.toThrow(
+        'HTTP error! status: 500'
+      );
     });
   });
 });

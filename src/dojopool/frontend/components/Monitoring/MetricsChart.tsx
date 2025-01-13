@@ -25,14 +25,9 @@ interface MetricsChartProps {
   refreshInterval?: number;
 }
 
-export const MetricsChart: React.FC<MetricsChartProps> = ({
-  gameId,
-  refreshInterval = 1000,
-}) => {
+export const MetricsChart: React.FC<MetricsChartProps> = ({ gameId, refreshInterval = 1000 }) => {
   const theme = useTheme();
-  const [metrics, setMetrics] = useState<MetricsSnapshot>(
-    gameMetricsMonitor.getMetrics()
-  );
+  const [metrics, setMetrics] = useState<MetricsSnapshot>(gameMetricsMonitor.getMetrics());
 
   useEffect(() => {
     const updateMetrics = () => {
@@ -46,7 +41,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
   }, [refreshInterval]);
 
   const formatMetricData = (data: MetricData[]) => {
-    return data.map(point => ({
+    return data.map((point) => ({
       time: new Date(point.timestamp).toLocaleTimeString(),
       value: point.value,
       label: point.label,
@@ -230,9 +225,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
                   <Typography color="textSecondary" gutterBottom>
                     Average Score
                   </Typography>
-                  <Typography variant="h4">
-                    {metrics.averageScore.toFixed(0)}
-                  </Typography>
+                  <Typography variant="h4">{metrics.averageScore.toFixed(0)}</Typography>
                 </Box>
               </Grid>
             </Grid>
@@ -241,4 +234,4 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
       </Grid>
     </Grid>
   );
-}; 
+};

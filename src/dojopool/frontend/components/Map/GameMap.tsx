@@ -61,7 +61,7 @@ const GameMap: React.FC<GameMapProps> = ({
       needsAnimation = true;
       const lat = current.lat() + (target.lat() - current.lat()) * progress;
       const lng = current.lng() + (target.lng() - current.lng()) * progress;
-      
+
       marker.setPosition({ lat, lng });
 
       if (progress >= 1) {
@@ -142,25 +142,23 @@ const GameMap: React.FC<GameMapProps> = ({
   }, [center, otherPlayerLocations, theme.palette, animateMarkers]);
 
   // Handle map load
-  const onLoad = useCallback((map: google.maps.Map) => {
-    const bounds = new window.google.maps.LatLngBounds();
-    
-    // Add player location to bounds
-    bounds.extend(new window.google.maps.LatLng(center.lat, center.lng));
+  const onLoad = useCallback(
+    (map: google.maps.Map) => {
+      const bounds = new window.google.maps.LatLngBounds();
 
-    // Add other players to bounds
-    Object.values(otherPlayerLocations).forEach((location) => {
-      bounds.extend(
-        new window.google.maps.LatLng(
-          location.latitude,
-          location.longitude
-        )
-      );
-    });
+      // Add player location to bounds
+      bounds.extend(new window.google.maps.LatLng(center.lat, center.lng));
 
-    map.fitBounds(bounds, 50); // 50 pixels padding
-    mapRef.current = map;
-  }, [center, otherPlayerLocations]);
+      // Add other players to bounds
+      Object.values(otherPlayerLocations).forEach((location) => {
+        bounds.extend(new window.google.maps.LatLng(location.latitude, location.longitude));
+      });
+
+      map.fitBounds(bounds, 50); // 50 pixels padding
+      mapRef.current = map;
+    },
+    [center, otherPlayerLocations]
+  );
 
   const onUnmount = useCallback(() => {
     mapRef.current = null;
@@ -196,4 +194,4 @@ const GameMap: React.FC<GameMapProps> = ({
   );
 };
 
-export default GameMap; 
+export default GameMap;

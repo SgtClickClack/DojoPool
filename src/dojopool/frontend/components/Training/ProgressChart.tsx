@@ -90,4 +90,4 @@ export const ProgressChart: React.FC<Props> = ({ progress }) => {
   );
 };
 
-export default ProgressChart; 
+export default ProgressChart;

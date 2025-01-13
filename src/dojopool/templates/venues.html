@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Venues - DojoPool{% endblock %}
+
+{% block styles %}
+<style>
+    .venues-container {
+        min-height: 100vh;
+        background: var(--background-dark);
+        padding: 2rem 0;
+    }
+
+    .venues-header {
+        margin-bottom: 2rem;
+    }
+
+    .venues-title {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        text-shadow: 0 0 10px var(--primary-color);
+    }
+
+    .venues-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .venue-card {
+        background: rgba(10, 10, 10, 0.9);
+        border: 2px solid var(--primary-color);
+        position: relative;
+        box-shadow: 0 0 30px rgba(0, 255, 157, 0.1);
+        clip-path: polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .venue-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 30px rgba(0, 255, 157, 0.3);
+    }
+
+    .venue-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: var(--cyber-gradient);
+        z-index: -1;
+        clip-path: polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+    }
+
+    .venue-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        clip-path: polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+    }
+
+    .venue-content {
+        padding: 1.5rem;
+    }
+
+    .venue-name {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .venue-location {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .venue-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .venue-stat {
+        text-align: center;
+    }
+
+    .stat-label {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        color: var(--text-light);
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .venue-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .status-open {
+        background: rgba(0, 255, 157, 0.2);
+        color: var(--primary-color);
+    }
+
+    .status-closed {
+        background: rgba(255, 56, 96, 0.2);
+        color: var(--accent-color);
+    }
+
+    .venue-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-venue {
+        flex: 1;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .filters {
+        margin-bottom: 2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .filter-label {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-right: 0.5rem;
+    }
+
+    .filter-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--secondary-color);
+        color: var(--text-light);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+    }
+
+    .filter-select option {
+        background: var(--background-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'includes/navigation.html' %}
+
+<div class="venues-container">
+    <div class="container">
+        <div class="venues-header">
+            <h1 class="venues-title">Venues</h1>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Sort by:</span>
+                <select class="filter-select">
+                    <option value="rating">Rating</option>
+                    <option value="distance">Distance</option>
+                    <option value="popularity">Popularity</option>
+                </select>
+
+                <span class="filter-label">Status:</span>
+                <select class="filter-select">
+                    <option value="all">All</option>
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="venues-grid">
+            <!-- Example Venue Card -->
+            <div class="venue-card">
+                <img src="{{ url_for('static', filename='images/venues/cyber-arena.jpg') }}" alt="Cyber Arena"
+                    class="venue-image">
+                <div class="venue-content">
+                    <h3 class="venue-name">Cyber Arena</h3>
+                    <div class="venue-location">
+                        <i class="bi bi-geo-alt"></i> Downtown, Cyber City
+                    </div>
+                    <div class="venue-stats">
+                        <div class="venue-stat">
+                            <div class="stat-label">Rating</div>
+                            <div class="stat-value">4.8</div>
+                        </div>
+                        <div class="venue-stat">
+                            <div class="stat-label">Players</div>
+                            <div class="stat-value">42</div>
+                        </div>
+                    </div>
+                    <div class="venue-status status-open">Open</div>
+                    <div class="venue-actions">
+                        <button class="btn btn-cyber btn-venue">View Details</button>
+                        <button class="btn btn-cyber btn-venue">Join Game</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example Venue Card -->
+            <div class="venue-card">
+                <img src="{{ url_for('static', filename='images/venues/neon-lounge.jpg') }}" alt="Neon Lounge"
+                    class="venue-image">
+                <div class="venue-content">
+                    <h3 class="venue-name">Neon Lounge</h3>
+                    <div class="venue-location">
+                        <i class="bi bi-geo-alt"></i> Eastside, Cyber City
+                    </div>
+                    <div class="venue-stats">
+                        <div class="venue-stat">
+                            <div class="stat-label">Rating</div>
+                            <div class="stat-value">4.5</div>
+                        </div>
+                        <div class="venue-stat">
+                            <div class="stat-label">Players</div>
+                            <div class="stat-value">28</div>
+                        </div>
+                    </div>
+                    <div class="venue-status status-closed">Closed</div>
+                    <div class="venue-actions">
+                        <button class="btn btn-cyber btn-venue">View Details</button>
+                        <button class="btn btn-cyber btn-venue" disabled>Join Game</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example Venue Card -->
+            <div class="venue-card">
+                <img src="{{ url_for('static', filename='images/venues/matrix-hub.jpg') }}" alt="Matrix Hub"
+                    class="venue-image">
+                <div class="venue-content">
+                    <h3 class="venue-name">Matrix Hub</h3>
+                    <div class="venue-location">
+                        <i class="bi bi-geo-alt"></i> Westside, Cyber City
+                    </div>
+                    <div class="venue-stats">
+                        <div class="venue-stat">
+                            <div class="stat-label">Rating</div>
+                            <div class="stat-value">4.9</div>
+                        </div>
+                        <div class="venue-stat">
+                            <div class="stat-label">Players</div>
+                            <div class="stat-value">56</div>
+                        </div>
+                    </div>
+                    <div class="venue-status status-open">Open</div>
+                    <div class="venue-actions">
+                        <button class="btn btn-cyber btn-venue">View Details</button>
+                        <button class="btn btn-cyber btn-venue">Join Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

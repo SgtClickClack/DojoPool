@@ -2,21 +2,18 @@
 Run the Flask application.
 """
 
-from gevent import monkey
-monkey.patch_all()
+from src.dojopool.app import create_app
+import logging
 
-from src.app import create_app
-from src.core.config.websocket import WEBSOCKET_CONFIG
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Create Flask application
-app, socketio = create_app()
+app = create_app('development')
 
 if __name__ == '__main__':
-    # Run the application with SocketIO
-    socketio.run(app, 
-                host=WEBSOCKET_CONFIG['host'],
-                port=WEBSOCKET_CONFIG['port'],
-                debug=True,
-                use_reloader=True,
-                log_output=True,
-                allow_unsafe_werkzeug=True)
+    logger.info("Starting Flask application...")
+    app.run(host='0.0.0.0', port=8080, debug=True)

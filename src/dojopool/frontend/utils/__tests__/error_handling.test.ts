@@ -36,10 +36,10 @@ describe('Safety System Error Handling', () => {
       locationMonitor.recordLocation(playerId, validLocation);
 
       // Process invalid locations
-      invalidLocations.forEach(location => {
+      invalidLocations.forEach((location) => {
         const validation = locationValidator.validateLocation(location, playerId);
         expect(validation.isValid).toBe(false);
-        
+
         // System should not record invalid locations
         const path = locationMonitor.getPlayerPath(playerId);
         expect(path[path.length - 1]).toEqual(validLocation);
@@ -74,7 +74,7 @@ describe('Safety System Error Handling', () => {
       ];
 
       // System should still function with invalid boundary
-      testLocations.forEach(location => {
+      testLocations.forEach((location) => {
         const validation = locationValidator.validateLocation(location, playerId);
         // Should default to safe when boundary validation fails
         if (validation.isValid) {
@@ -107,7 +107,7 @@ describe('Safety System Error Handling', () => {
             const validation = locationValidator.validateLocation(location, playerId);
             if (validation.isValid) {
               locationMonitor.recordLocation(playerId, location);
-              
+
               // Update cache
               const currentLocations = cache.get('game123') || {};
               cache.set('game123', {
@@ -133,7 +133,8 @@ describe('Safety System Error Handling', () => {
 
       // Set up monitoring with throttling
       const callback = jest.fn((location: Location) => {
-        if (Math.random() < 0.3) { // 30% chance of error
+        if (Math.random() < 0.3) {
+          // 30% chance of error
           throw new Error('Simulated processing error');
         }
         locationMonitor.recordLocation(playerId, location);
@@ -143,12 +144,12 @@ describe('Safety System Error Handling', () => {
 
       // Generate test locations
       const locations = Array.from({ length: 20 }, (_, i) => ({
-        latitude: baseLocation.latitude + (i * 0.001),
-        longitude: baseLocation.longitude + (i * 0.001),
+        latitude: baseLocation.latitude + i * 0.001,
+        longitude: baseLocation.longitude + i * 0.001,
       }));
 
       // Process locations with potential errors
-      locations.forEach(location => {
+      locations.forEach((location) => {
         try {
           throttled(location);
           jest.advanceTimersByTime(50);
@@ -186,7 +187,7 @@ describe('Safety System Error Handling', () => {
         const validation = locationValidator.validateLocation(location, playerId);
         if (validation.isValid) {
           locationMonitor.recordLocation(playerId, location);
-          
+
           const currentLocations = cache.get('game123') || {};
           cache.set('game123', {
             ...currentLocations,
@@ -217,7 +218,7 @@ describe('Safety System Error Handling', () => {
       // Verify system recovery
       const path = locationMonitor.getPlayerPath(playerId);
       expect(path.length).toBe(3); // Should have recorded non-failed updates
-      
+
       const cachedLocation = cache.get('game123')?.[playerId];
       expect(cachedLocation).toBeDefined();
       expect(cachedLocation).toEqual(updates[4].location); // Should have latest successful update
@@ -240,11 +241,11 @@ describe('Safety System Error Handling', () => {
 
       // Test reconnection with location updates
       const locations = Array.from({ length: 5 }, (_, i) => ({
-        latitude: baseLocation.latitude + (i * 0.01),
-        longitude: baseLocation.longitude + (i * 0.01),
+        latitude: baseLocation.latitude + i * 0.01,
+        longitude: baseLocation.longitude + i * 0.01,
       }));
 
-      locations.forEach(location => {
+      locations.forEach((location) => {
         try {
           if (processReconnection()) {
             const validation = locationValidator.validateLocation(location, playerId);
@@ -265,4 +266,4 @@ describe('Safety System Error Handling', () => {
       expect(connectionAttempts).toBeGreaterThan(3);
     });
   });
-}); 
+});

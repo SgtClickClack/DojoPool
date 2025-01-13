@@ -2,267 +2,177 @@
 
 {% block title %}Dashboard - DojoPool{% endblock %}
 
+{% block styles %}
+<style>
+    .dashboard-container {
+        min-height: 100vh;
+        background: var(--background-dark);
+        padding: 2rem 0;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-title {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        text-shadow: 0 0 10px var(--primary-color);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(10, 10, 10, 0.9);
+        border: 2px solid var(--primary-color);
+        padding: 1.5rem;
+        position: relative;
+        box-shadow: 0 0 30px rgba(0, 255, 157, 0.1);
+        clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: var(--cyber-gradient);
+        z-index: -1;
+        clip-path: polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+    }
+
+    .stat-title {
+        color: var(--secondary-color);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--primary-color);
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .stat-change.positive {
+        color: var(--primary-color);
+    }
+
+    .stat-change.negative {
+        color: var(--accent-color);
+    }
+
+    .recent-activity {
+        margin-top: 2rem;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-item {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .activity-time {
+        font-size: 0.8rem;
+        color: var(--secondary-color);
+    }
+
+    .activity-description {
+        margin: 0.5rem 0;
+        color: var(--text-light);
+    }
+
+    .activity-meta {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+{% include 'includes/navigation.html' %}
+
 <div class="dashboard-container">
-    <div class="row">
-        <!-- Game Statistics -->
-        <div class="col-lg-8">
-            <div class="cyber-card">
-                <h3 class="neon-text mb-4">Game Statistics</h3>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-value">{{ stats.games.total_games }}</div>
-                            <div class="stat-label">Total Games</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-value">{{ "%.1f"|format(stats.games.win_rate) }}%</div>
-                            <div class="stat-label">Win Rate</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-value">{{ "%.0f"|format(stats.games.average_score) }}</div>
-                            <div class="stat-label">Avg Score</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="stat-value">{{ stats.games.highest_score }}</div>
-                            <div class="stat-label">Best Score</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Recent Games -->
-                <div class="mt-4">
-                    <h4 class="neon-text-sm mb-3">Recent Games</h4>
-                    <div class="table-responsive">
-                        <table class="table table-dark">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Score</th>
-                                    <th>Result</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for game in stats.games.recent_games %}
-                                <tr>
-                                    <td>{{ game.created_at|datetime }}</td>
-                                    <td>{{ game.score }}</td>
-                                    <td>
-                                        <span class="badge {% if game.is_winner %}bg-success{% else %}bg-danger{% endif %}">
-                                            {{ "Won" if game.is_winner else "Lost" }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Dashboard</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total Games</div>
+                <div class="stat-value">128</div>
+                <div class="stat-change positive">+12% this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Active Players</div>
+                <div class="stat-value">1,245</div>
+                <div class="stat-change positive">+8% this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Win Rate</div>
+                <div class="stat-value">64%</div>
+                <div class="stat-change negative">-2% this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Earnings</div>
+                <div class="stat-value">$2,450</div>
+                <div class="stat-change positive">+15% this week</div>
             </div>
         </div>
-        
-        <!-- Rating & Achievements -->
-        <div class="col-lg-4">
-            <div class="cyber-card mb-4">
-                <h3 class="neon-text mb-4">Rating</h3>
-                <div class="rating-display">
-                    <div class="current-rating">
-                        <span class="rating-value">{{ stats.ratings.current_rating }}</span>
-                        <span class="rating-label">Current Rating</span>
-                    </div>
-                    <div class="peak-rating">
-                        <span class="rating-value">{{ stats.ratings.peak_rating }}</span>
-                        <span class="rating-label">Peak Rating</span>
-                    </div>
-                </div>
-                <div class="rating-chart mt-4" id="ratingChart"></div>
-            </div>
-            
-            <div class="cyber-card">
-                <h3 class="neon-text mb-4">Achievements</h3>
-                <div class="achievement-stats">
-                    <div class="total-achievements">
-                        <span class="achievement-count">{{ stats.achievements.total_achievements }}</span>
-                        <span class="achievement-label">Total</span>
-                    </div>
-                    <div class="completed-achievements">
-                        <span class="achievement-count">{{ stats.achievements.completed }}</span>
-                        <span class="achievement-label">Completed</span>
-                    </div>
-                </div>
-                
-                <!-- In Progress Achievements -->
-                <div class="mt-4">
-                    <h4 class="neon-text-sm mb-3">In Progress</h4>
-                    <div class="achievement-list">
-                        {% for achievement in stats.achievements.in_progress %}
-                        <div class="achievement-item">
-                            <div class="achievement-info">
-                                <span class="achievement-name">{{ achievement.name }}</span>
-                                <div class="progress">
-                                    <div class="progress-bar" role="progressbar" 
-                                         style="width: {{ achievement.progress }}%"
-                                         aria-valuenow="{{ achievement.progress }}" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100">
-                                        {{ achievement.progress }}%
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tournaments -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="cyber-card">
-                <h3 class="neon-text mb-4">Tournaments</h3>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="tournament-stats">
-                            <div class="stat-card">
-                                <div class="stat-value">{{ stats.tournaments.total_tournaments }}</div>
-                                <div class="stat-label">Total Tournaments</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="tournament-stats">
-                            <div class="stat-card">
-                                <div class="stat-value">{{ stats.tournaments.wins }}</div>
-                                <div class="stat-label">Tournament Wins</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="tournament-stats">
-                            <div class="stat-card">
-                                <div class="stat-value">{{ "%.1f"|format(stats.tournaments.win_rate) }}%</div>
-                                <div class="stat-label">Tournament Win Rate</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Upcoming Tournaments -->
-                <div class="mt-4">
-                    <h4 class="neon-text-sm mb-3">Upcoming Tournaments</h4>
-                    <div class="table-responsive">
-                        <table class="table table-dark">
-                            <thead>
-                                <tr>
-                                    <th>Tournament</th>
-                                    <th>Date</th>
-                                    <th>Players</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for tournament in stats.tournaments.upcoming_tournaments %}
-                                <tr>
-                                    <td>{{ tournament.name }}</td>
-                                    <td>{{ tournament.start_time|datetime }}</td>
-                                    <td>{{ tournament.player_count }}/{{ tournament.max_players }}</td>
-                                    <td>
-                                        <span class="badge bg-primary">Upcoming</span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Power-ups -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="cyber-card">
-                <h3 class="neon-text mb-4">Power-ups</h3>
-                <div class="row">
-                    {% for power_up in stats.power_ups.available_power_ups %}
-                    <div class="col-md-3">
-                        <div class="power-up-card">
-                            <div class="power-up-icon">
-                                <i class="{{ power_up.icon }}"></i>
-                            </div>
-                            <div class="power-up-info">
-                                <h5>{{ power_up.name }}</h5>
-                                <p>{{ power_up.description }}</p>
-                            </div>
-                            <button class="btn btn-neon" onclick="activatePowerUp('{{ power_up.id }}')">
-                                Activate
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+
+        <div class="recent-activity">
+            <h2 class="dashboard-title">Recent Activity</h2>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <div class="activity-time">2 hours ago</div>
+                    <div class="activity-description">Won a match against Player123 in Venue XYZ</div>
+                    <div class="activity-meta">Earned: 50 points</div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-time">5 hours ago</div>
+                    <div class="activity-description">Purchased new equipment from the marketplace</div>
+                    <div class="activity-meta">Spent: $120</div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-time">Yesterday</div>
+                    <div class="activity-description">Joined a new tournament in Elite League</div>
+                    <div class="activity-meta">Entry fee: $25</div>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 {% endblock %}
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// Initialize rating chart
-const ratingData = {{ stats.ratings.rating_history|tojson }};
-const ctx = document.getElementById('ratingChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ratingData.map(d => new Date(d.date).toLocaleDateString()),
-        datasets: [{
-            label: 'Rating',
-            data: ratingData.map(d => d.rating),
-            borderColor: '#00ff00',
-            tension: 0.1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: false
-            }
-        },
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
-    }
-});
-
-// Power-up activation function
-function activatePowerUp(powerUpId) {
-    fetch(`/api/power-ups/${powerUpId}/activate`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        }
-    });
-}
-</script>
-{% endblock %} 

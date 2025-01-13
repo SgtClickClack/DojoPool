@@ -98,4 +98,4 @@ export interface MonitoringDashboardProps {
   onErrorClick?: (error: ErrorEvent) => void;
   onAlertAcknowledge?: (alert: Alert) => void;
   onMetricThresholdChange?: (metric: string, value: number) => void;
-} 
+}

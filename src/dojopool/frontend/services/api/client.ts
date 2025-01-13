@@ -37,12 +37,14 @@ apiClient.interceptors.response.use(
         // TODO: Implement refresh token logic
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await apiClient.post('/auth/refresh', { refreshToken });
+          const response = await apiClient.post('/auth/refresh', {
+            refreshToken,
+          });
           const { token } = response.data;
-          
+
           localStorage.setItem('token', token);
           originalRequest.headers.Authorization = `Bearer ${token}`;
-          
+
           return apiClient(originalRequest);
         }
       } catch (error) {
@@ -57,4 +59,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-export default apiClient; 
+export default apiClient;

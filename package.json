@@ -1,73 +1,57 @@
 {
   "name": "dojopool",
   "version": "1.0.0",
-  "description": "DojoPool - Interactive Scavenger Hunt Platform",
-  "main": "src/frontend/index.js",
+  "description": "DojoPool game platform",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "jest",
+    "test": "react-scripts test",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --maxWorkers=2",
-    "test:smoke": "cypress run",
-    "eject": "react-scripts eject",
-    "lint": "eslint src/frontend/**/*.{js,jsx,ts,tsx}",
-    "lint:fix": "eslint src/frontend/**/*.{js,jsx,ts,tsx} --fix",
-    "type-check": "tsc --noEmit",
-    "format": "prettier --write src/frontend/**/*.{js,jsx,ts,tsx,css,md,json}"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@googlemaps/js-api-loader": "^1.16.2",
-    "@mui/icons-material": "^5.14.9",
-    "@mui/material": "^5.14.9",
-    "@react-google-maps/api": "^2.19.2",
-    "axios": "^1.5.0",
-    "jest": "^27.5.1",
-    "qr-scanner": "^1.4.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.15.0",
-    "react-scripts": "^5.0.1",
-    "socket.io-client": "^4.7.2",
-    "use-places-autocomplete": "^4.0.1"
+    "build": "react-scripts build",
+    "start": "react-scripts start",
+    "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^14.3.1",
-    "@testing-library/user-event": "^14.5.2",
-    "@types/file-saver": "^2.0.7",
-    "@types/google.maps": "^3.54.3",
-    "@types/jest": "^29.5.5",
-    "@types/node": "^20.6.2",
-    "@types/pako": "^2.0.3",
-    "@types/react": "^18.2.21",
-    "@types/react-beautiful-dnd": "^13.1.8",
-    "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0",
-    "cypress": "^13.2.0",
-    "d3": "^7.9.0",
-    "eslint": "^8.49.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "file-saver": "^2.0.5",
-    "html2canvas": "^1.4.1",
-    "identity-obj-proxy": "^3.0.0",
-    "internmap": "^2.0.3",
-    "jest-canvas-mock": "^2.5.2",
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
+    "@babel/preset-env": "^7.26.0",
+    "babel-jest": "^29.7.0",
+    "canvas": "^2.11.2",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "jspdf": "^2.5.2",
-    "pako": "^2.1.0",
-    "prettier": "^3.0.3",
-    "react-beautiful-dnd": "^13.1.1",
-    "recharts": "^2.15.0",
-    "ts-jest": "^29.2.5",
-    "typescript": "^4.9.5"
+    "prettier": "^3.4.2",
+    "react-scripts": "^5.0.1"
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/tests/unit/**/*.test.js",
+      "<rootDir>/tests/unit/**/*.spec.js",
+      "<rootDir>/tests/integration/**/*.test.js",
+      "<rootDir>/tests/integration/**/*.spec.js"
+    ],
+    "setupFiles": [
+      "<rootDir>/tests/setup.js"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/dojopool/static/js/$1"
+    },
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "testEnvironment": "jsdom"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@firebase/performance": "^0.6.11",
+    "@mui/icons-material": "^6.3.1",
+    "@mui/material": "^6.3.1",
+    "firebase": "^11.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1"
   },
   "browserslist": {
     "production": [

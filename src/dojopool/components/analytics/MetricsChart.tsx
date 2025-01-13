@@ -7,7 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
 import { Box, Typography, useTheme } from '@mui/material';
 import { formatDate, parseDate } from '../../utils/dateUtils';
@@ -19,12 +19,12 @@ interface MetricsChartProps {
 }
 
 const COLORS = [
-  '#2196F3',  // Blue
-  '#4CAF50',  // Green
-  '#F44336',  // Red
-  '#FF9800',  // Orange
-  '#9C27B0',  // Purple
-  '#00BCD4'   // Cyan
+  '#2196F3', // Blue
+  '#4CAF50', // Green
+  '#F44336', // Red
+  '#FF9800', // Orange
+  '#9C27B0', // Purple
+  '#00BCD4', // Cyan
 ];
 
 const METRIC_LABELS: { [key: string]: string } = {
@@ -35,14 +35,10 @@ const METRIC_LABELS: { [key: string]: string } = {
   revenue: 'Revenue',
   response_time: 'Response Time',
   error_rate: 'Error Rate',
-  cpu_usage: 'CPU Usage'
+  cpu_usage: 'CPU Usage',
 };
 
-export const MetricsChart: React.FC<MetricsChartProps> = ({
-  data,
-  metrics,
-  period
-}) => {
+export const MetricsChart: React.FC<MetricsChartProps> = ({ data, metrics, period }) => {
   const theme = useTheme();
 
   const chartData = useMemo(() => {
@@ -107,7 +103,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
             formatter={formatTooltip}
             contentStyle={{
               backgroundColor: theme.palette.background.paper,
-              border: `1px solid ${theme.palette.divider}`
+              border: `1px solid ${theme.palette.divider}`,
             }}
           />
           <Legend />
@@ -127,4 +123,4 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
       </ResponsiveContainer>
     </Box>
   );
-}; 
+};

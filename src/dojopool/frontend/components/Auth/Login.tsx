@@ -69,13 +69,13 @@ const Login = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
     // Clear error when user starts typing
     if (formErrors[name as keyof typeof formErrors]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
         [name]: '',
       }));
@@ -150,4 +150,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

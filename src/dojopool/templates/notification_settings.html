@@ -4,90 +4,82 @@
 
 {% block content %}
 <div class="container py-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Notification Settings</h1>
-            
-            <div class="card">
-                <div class="card-body">
-                    <form id="notification-settings-form">
-                        <!-- Email Notifications -->
-                        <div class="mb-4">
-                            <h4>Email Notifications</h4>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="email_notifications">
-                                <label class="form-check-label" for="email_notifications">
+<div class="row">
+<div class="col-12">
+<h1 class="mb-4">Notification Settings</h1>
+<div class="card">
+<div class="card-body">
+<form id="notification-settings-form">
+<!-- Email Notifications -->
+<div class="mb-4">
+<h4>Email Notifications</h4>
+<div class="form-check form-switch">
+<input class="form-check-input" id="email_notifications" type="checkbox"/>
+<label class="form-check-label" for="email_notifications">
                                     Receive email notifications
                                 </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Push Notifications -->
-                        <div class="mb-4">
-                            <h4>Push Notifications</h4>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="push_notifications">
-                                <label class="form-check-label" for="push_notifications">
+</div>
+</div>
+<!-- Push Notifications -->
+<div class="mb-4">
+<h4>Push Notifications</h4>
+<div class="form-check form-switch">
+<input class="form-check-input" id="push_notifications" type="checkbox"/>
+<label class="form-check-label" for="push_notifications">
                                     Receive push notifications
                                 </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Notification Types -->
-                        <div class="mb-4">
-                            <h4>Notification Types</h4>
-                            
-                            <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="tournament_notifications">
-                                <label class="form-check-label" for="tournament_notifications">
+</div>
+</div>
+<!-- Notification Types -->
+<div class="mb-4">
+<h4>Notification Types</h4>
+<div class="form-check form-switch mb-2">
+<input class="form-check-input" id="tournament_notifications" type="checkbox"/>
+<label class="form-check-label" for="tournament_notifications">
                                     Tournament notifications
                                 </label>
-                                <small class="form-text text-muted d-block">
+<small class="form-text text-muted d-block">
                                     Updates about tournament registrations, matches, and results
                                 </small>
-                            </div>
-                            
-                            <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="game_notifications">
-                                <label class="form-check-label" for="game_notifications">
+</div>
+<div class="form-check form-switch mb-2">
+<input class="form-check-input" id="game_notifications" type="checkbox"/>
+<label class="form-check-label" for="game_notifications">
                                     Game notifications
                                 </label>
-                                <small class="form-text text-muted d-block">
+<small class="form-text text-muted d-block">
                                     Updates about game challenges, turns, and results
                                 </small>
-                            </div>
-                            
-                            <div class="form-check form-switch mb-2">
-                                <input class="form-check-input" type="checkbox" id="friend_notifications">
-                                <label class="form-check-label" for="friend_notifications">
+</div>
+<div class="form-check form-switch mb-2">
+<input class="form-check-input" id="friend_notifications" type="checkbox"/>
+<label class="form-check-label" for="friend_notifications">
                                     Friend notifications
                                 </label>
-                                <small class="form-text text-muted d-block">
+<small class="form-text text-muted d-block">
                                     Updates about friend requests and social interactions
                                 </small>
-                            </div>
-                            
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="system_notifications">
-                                <label class="form-check-label" for="system_notifications">
+</div>
+<div class="form-check form-switch">
+<input class="form-check-input" id="system_notifications" type="checkbox"/>
+<label class="form-check-label" for="system_notifications">
                                     System notifications
                                 </label>
-                                <small class="form-text text-muted d-block">
+<small class="form-text text-muted d-block">
                                     Important system updates and announcements
                                 </small>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">
+</div>
+</div>
+<div class="d-flex justify-content-end">
+<button class="btn btn-primary" type="submit">
                                 Save Settings
                             </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}
 

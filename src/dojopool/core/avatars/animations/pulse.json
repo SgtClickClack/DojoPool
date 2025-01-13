@@ -1,55 +1,55 @@
 {
-    "v": "1.0",
-    "fr": 30,
-    "ip": 0,
-    "op": 60,
-    "layers": [
+  "v": "1.0",
+  "fr": 30,
+  "ip": 0,
+  "op": 60,
+  "layers": [
+    {
+      "name": "Pulse Glow",
+      "frames": [
         {
-            "name": "Pulse Glow",
-            "frames": [
-                {
-                    "frame": 0,
-                    "effects": [
-                        {
-                            "type": "glow",
-                            "params": {
-                                "intensity": 0.2,
-                                "radius": 15,
-                                "color": [255, 200, 100]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "frame": 30,
-                    "effects": [
-                        {
-                            "type": "glow",
-                            "params": {
-                                "intensity": 0.8,
-                                "radius": 25,
-                                "color": [255, 200, 100]
-                            }
-                        }
-                    ]
-                },
-                {
-                    "frame": 60,
-                    "effects": [
-                        {
-                            "type": "glow",
-                            "params": {
-                                "intensity": 0.2,
-                                "radius": 15,
-                                "color": [255, 200, 100]
-                            }
-                        }
-                    ]
-                }
-            ]
+          "frame": 0,
+          "effects": [
+            {
+              "type": "glow",
+              "params": {
+                "intensity": 0.2,
+                "radius": 15,
+                "color": [255, 200, 100]
+              }
+            }
+          ]
+        },
+        {
+          "frame": 30,
+          "effects": [
+            {
+              "type": "glow",
+              "params": {
+                "intensity": 0.8,
+                "radius": 25,
+                "color": [255, 200, 100]
+              }
+            }
+          ]
+        },
+        {
+          "frame": 60,
+          "effects": [
+            {
+              "type": "glow",
+              "params": {
+                "intensity": 0.2,
+                "radius": 15,
+                "color": [255, 200, 100]
+              }
+            }
+          ]
         }
-    ],
-    "duration": 2.0,
-    "loop": true,
-    "trigger": "hover"
-} 
+      ]
+    }
+  ],
+  "duration": 2.0,
+  "loop": true,
+  "trigger": "hover"
+}

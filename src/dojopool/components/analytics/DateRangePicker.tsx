@@ -13,13 +13,13 @@ interface DateRangePickerProps {
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   startDate,
   endDate,
-  onChange
+  onChange,
 }) => {
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
       onChange({
         startDate: date,
-        endDate: endDate < date ? date : endDate
+        endDate: endDate < date ? date : endDate,
       });
     }
   };
@@ -28,7 +28,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     if (date) {
       onChange({
         startDate: startDate > date ? date : startDate,
-        endDate: date
+        endDate: date,
       });
     }
   };
@@ -41,13 +41,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           value={startDate}
           onChange={handleStartDateChange}
           maxDate={endDate}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              size="small"
-              sx={{ width: '100%' }}
-            />
-          )}
+          renderInput={(params) => <TextField {...params} size="small" sx={{ width: '100%' }} />}
         />
         <DatePicker
           label="End Date"
@@ -55,15 +49,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           onChange={handleEndDateChange}
           minDate={startDate}
           maxDate={new Date()}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              size="small"
-              sx={{ width: '100%' }}
-            />
-          )}
+          renderInput={(params) => <TextField {...params} size="small" sx={{ width: '100%' }} />}
         />
       </Box>
     </LocalizationProvider>
   );
-}; 
+};

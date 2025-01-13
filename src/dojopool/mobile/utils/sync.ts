@@ -47,7 +47,7 @@ class SyncManager {
   }
 
   private setupNetworkListener() {
-    NetInfo.addEventListener(state => {
+    NetInfo.addEventListener((state) => {
       if (state.isConnected && !this.isSyncing) {
         this.syncPendingItems();
       }
@@ -103,4 +103,4 @@ class SyncManager {
   }
 }
 
-export default SyncManager; 
+export default SyncManager;

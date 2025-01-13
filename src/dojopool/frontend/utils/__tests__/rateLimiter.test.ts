@@ -53,7 +53,7 @@ describe('RateLimiter', () => {
       rateLimiter.setConfig('test', {
         burstLimit: 5,
         tokensPerInterval: 2,
-        interval: 1000
+        interval: 1000,
       });
 
       // Use up all tokens
@@ -76,7 +76,7 @@ describe('RateLimiter', () => {
       rateLimiter.setConfig('custom', {
         tokensPerInterval: 5,
         interval: 2000,
-        burstLimit: 10
+        burstLimit: 10,
       });
 
       // Use up 6 tokens
@@ -92,7 +92,7 @@ describe('RateLimiter', () => {
 
     it('should allow partial configuration updates', () => {
       rateLimiter.setConfig('test', { tokensPerInterval: 5 });
-      
+
       // Use up 6 tokens
       for (let i = 0; i < 6; i++) {
         rateLimiter.checkLimit('test');
@@ -109,7 +109,7 @@ describe('RateLimiter', () => {
   describe('cleanup', () => {
     it('should cleanup unused buckets', () => {
       rateLimiter.checkLimit('test');
-      
+
       // Advance time by more than cleanup threshold
       jest.advanceTimersByTime(11000); // 10 intervals + 1 second
 
@@ -126,10 +126,10 @@ describe('RateLimiter', () => {
       }
 
       const waitPromise = rateLimiter.waitForTokens('test');
-      
+
       // Advance time to make tokens available
       jest.advanceTimersByTime(1000);
-      
+
       const result = await waitPromise;
       expect(result).toBe(true);
     });
@@ -160,7 +160,7 @@ describe('RateLimiter', () => {
       rateLimiter.setConfig('test', {
         tokensPerInterval: 5,
         interval: 1000,
-        burstLimit: 10
+        burstLimit: 10,
       });
 
       // Use some tokens
@@ -172,17 +172,17 @@ describe('RateLimiter', () => {
         config: {
           tokensPerInterval: 5,
           interval: 1000,
-          burstLimit: 10
+          burstLimit: 10,
         },
-        timeToNextRefill: expect.any(Number)
+        timeToNextRefill: expect.any(Number),
       });
     });
 
     it('should calculate time to next refill', () => {
       rateLimiter.checkLimit('test');
-      
+
       jest.advanceTimersByTime(500);
-      
+
       const stats = rateLimiter.getStats('test');
       expect(stats.timeToNextRefill).toBeLessThanOrEqual(500);
       expect(stats.timeToNextRefill).toBeGreaterThan(0);
@@ -197,7 +197,7 @@ describe('RateLimiter', () => {
       }
 
       rateLimiter.resetLimit('test');
-      
+
       const result = rateLimiter.checkLimit('test');
       expect(result.remaining).toBe(49); // 50 - 1
     });

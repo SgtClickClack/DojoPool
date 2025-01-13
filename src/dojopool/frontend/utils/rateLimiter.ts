@@ -1,7 +1,7 @@
 interface RateLimitConfig {
-  tokensPerInterval: number;  // Number of tokens added per interval
-  interval: number;          // Interval in milliseconds
-  burstLimit: number;        // Maximum number of tokens that can be accumulated
+  tokensPerInterval: number; // Number of tokens added per interval
+  interval: number; // Interval in milliseconds
+  burstLimit: number; // Maximum number of tokens that can be accumulated
 }
 
 interface TokenBucket {
@@ -17,8 +17,8 @@ interface RateLimitResult {
 
 const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = {
   tokensPerInterval: 10,
-  interval: 1000,  // 1 second
-  burstLimit: 50
+  interval: 1000, // 1 second
+  burstLimit: 50,
 };
 
 export class RateLimiter {
@@ -55,19 +55,16 @@ export class RateLimiter {
   private refillTokens(key: string): void {
     const bucket = this.buckets.get(key);
     const config = this.configs.get(key) || DEFAULT_RATE_LIMIT_CONFIG;
-    
+
     if (!bucket) return;
 
     const now = Date.now();
     const timePassed = now - bucket.lastRefill;
     const intervalsElapsed = Math.floor(timePassed / config.interval);
-    
+
     if (intervalsElapsed > 0) {
       const newTokens = intervalsElapsed * config.tokensPerInterval;
-      bucket.tokens = Math.min(
-        bucket.tokens + newTokens,
-        config.burstLimit
-      );
+      bucket.tokens = Math.min(bucket.tokens + newTokens, config.burstLimit);
       bucket.lastRefill = now;
     }
   }
@@ -79,11 +76,11 @@ export class RateLimiter {
 
   checkLimit(key: string, cost: number = 1): RateLimitResult {
     const config = this.configs.get(key) || DEFAULT_RATE_LIMIT_CONFIG;
-    
+
     if (!this.buckets.has(key)) {
       this.buckets.set(key, {
         tokens: config.burstLimit,
-        lastRefill: Date.now()
+        lastRefill: Date.now(),
       });
     }
 
@@ -94,27 +91,22 @@ export class RateLimiter {
       bucket.tokens -= cost;
       return {
         allowed: true,
-        remaining: bucket.tokens
+        remaining: bucket.tokens,
       };
     }
 
-    const timeToNextToken = config.interval -
-      (Date.now() - bucket.lastRefill) % config.interval;
+    const timeToNextToken = config.interval - ((Date.now() - bucket.lastRefill) % config.interval);
 
     return {
       allowed: false,
       retryAfter: timeToNextToken,
-      remaining: bucket.tokens
+      remaining: bucket.tokens,
     };
   }
 
-  async waitForTokens(
-    key: string,
-    cost: number = 1,
-    timeout: number = 30000
-  ): Promise<boolean> {
+  async waitForTokens(key: string, cost: number = 1, timeout: number = 30000): Promise<boolean> {
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < timeout) {
       const result = this.checkLimit(key, cost);
       if (result.allowed) {
@@ -122,9 +114,7 @@ export class RateLimiter {
       }
 
       if (result.retryAfter) {
-        await new Promise(resolve => 
-          setTimeout(resolve, Math.min(result.retryAfter, 1000))
-        );
+        await new Promise((resolve) => setTimeout(resolve, Math.min(result.retryAfter, 1000)));
       }
     }
 
@@ -135,7 +125,7 @@ export class RateLimiter {
     const config = this.configs.get(key) || DEFAULT_RATE_LIMIT_CONFIG;
     this.buckets.set(key, {
       tokens: config.burstLimit,
-      lastRefill: Date.now()
+      lastRefill: Date.now(),
     });
   }
 
@@ -161,19 +151,18 @@ export class RateLimiter {
       return {
         remaining: config.burstLimit,
         config,
-        timeToNextRefill: 0
+        timeToNextRefill: 0,
       };
     }
 
     this.refillTokens(key);
     const now = Date.now();
-    const timeToNextRefill = config.interval -
-      (now - bucket.lastRefill) % config.interval;
+    const timeToNextRefill = config.interval - ((now - bucket.lastRefill) % config.interval);
 
     return {
       remaining: bucket.tokens,
       config,
-      timeToNextRefill
+      timeToNextRefill,
     };
   }
 

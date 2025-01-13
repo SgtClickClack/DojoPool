@@ -1,6 +1,6 @@
 {
   "short_name": "DojoPool",
-  "name": "DojoPool - The Ultimate Pool Gaming Experience",
+  "name": "DojoPool - Pool Game Training and Analytics",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,50 +10,16 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any maskable"
+      "sizes": "192x192"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "orientation": "any",
-  "categories": ["games", "sports", "entertainment"],
-  "description": "Experience pool gaming like never before with real-time matches, tournaments, and advanced analytics.",
-  "screenshots": [
-    {
-      "src": "screenshots/home.png",
-      "sizes": "1280x720",
-      "type": "image/png"
-    },
-    {
-      "src": "screenshots/game.png",
-      "sizes": "1280x720",
-      "type": "image/png"
-    },
-    {
-      "src": "screenshots/stats.png",
-      "sizes": "1280x720",
-      "type": "image/png"
-    }
-  ],
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.dojopool.app",
-      "id": "com.dojopool.app"
-    },
-    {
-      "platform": "itunes",
-      "url": "https://apps.apple.com/app/dojopool/id123456789"
-    }
-  ],
-  "prefer_related_applications": false
-} 
+  "background_color": "#ffffff"
+}

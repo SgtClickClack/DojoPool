@@ -53,7 +53,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
   useEffect(() => {
     // Subscribe to error events
     const unsubscribe = gameMetricsMonitor.subscribeToErrors((error: ErrorEvent) => {
-      setErrors(prev => [error, ...prev].slice(0, 100)); // Keep last 100 errors
+      setErrors((prev) => [error, ...prev].slice(0, 100)); // Keep last 100 errors
       updateErrorStats(error);
     });
 
@@ -61,7 +61,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
   }, []);
 
   const updateErrorStats = (error: ErrorEvent) => {
-    setErrorStats(prev => ({
+    setErrorStats((prev) => ({
       total: prev.total + 1,
       byType: {
         ...prev.byType,
@@ -106,7 +106,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
 
   const calculateErrorRate = () => {
     const recentErrors = errors.filter(
-      e => Date.now() - e.timestamp < 5 * 60 * 1000 // Last 5 minutes
+      (e) => Date.now() - e.timestamp < 5 * 60 * 1000 // Last 5 minutes
     ).length;
     return (recentErrors / 5).toFixed(2); // Errors per minute
   };
@@ -156,7 +156,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
               </TableRow>
             </TableHead>
             <TableBody>
-              {errors.map(error => (
+              {errors.map((error) => (
                 <React.Fragment key={error.id}>
                   <TableRow
                     hover
@@ -194,9 +194,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
                             <Typography variant="subtitle2" gutterBottom>
                               Error Details
                             </Typography>
-                            <pre>
-                              {JSON.stringify(error.details, null, 2)}
-                            </pre>
+                            <pre>{JSON.stringify(error.details, null, 2)}</pre>
                           </Alert>
                         </Box>
                       </Collapse>
@@ -210,4 +208,4 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
       </CardContent>
     </Card>
   );
-}; 
+};

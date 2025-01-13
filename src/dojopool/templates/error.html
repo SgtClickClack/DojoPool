@@ -2,12 +2,12 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <h1 class="display-1">{{ error_code }}</h1>
-            <p class="lead">{{ message }}</p>
-            <a href="{{ url_for('routes.index') }}" class="btn btn-primary">Go Home</a>
-        </div>
-    </div>
+<div class="row justify-content-center">
+<div class="col-md-6 text-center">
+<h1 class="display-1">{{ error_code }}</h1>
+<p class="lead">{{ message }}</p>
+<a class="btn btn-primary" href="{{ url_for('routes.index') }}">Go Home</a>
+</div>
+</div>
 </div>
 {% endblock %}

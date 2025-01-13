@@ -49,7 +49,7 @@ export class GameMetricsMonitor {
     }
 
     // Remove old values
-    window.values = window.values.filter(v => now - v.timestamp <= this.metricsWindow);
+    window.values = window.values.filter((v) => now - v.timestamp <= this.metricsWindow);
     window.sum = window.values.reduce((sum, v) => sum + v.value, 0);
     window.count = window.values.length;
 
@@ -127,7 +127,7 @@ export class ErrorTracker {
 
   trackError(error: Error, context: ErrorContext): void {
     const { component = 'unknown' } = context;
-    
+
     if (!this.errors.has(component)) {
       this.errors.set(component, []);
     }
@@ -172,11 +172,8 @@ export class ErrorTracker {
 
     // Calculate error rates per component
     for (const [component, errors] of this.errors.entries()) {
-      const recentErrors = errors.filter(
-        ({ context }) => context.timestamp > hourAgo
-      );
-      this.errorStats.errorRates[component] =
-        (recentErrors.length / 3600) * 1000; // errors per hour
+      const recentErrors = errors.filter(({ context }) => context.timestamp > hourAgo);
+      this.errorStats.errorRates[component] = (recentErrors.length / 3600) * 1000; // errors per hour
     }
   }
 }
@@ -234,19 +231,16 @@ export class RetryMechanism {
     return RetryMechanism.instance;
   }
 
-  async retry<T>(
-    operation: () => Promise<T>,
-    maxAttempts = this.maxRetries
-  ): Promise<T> {
+  async retry<T>(operation: () => Promise<T>, maxAttempts = this.maxRetries): Promise<T> {
     let lastError: Error | null = null;
-    
+
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error as Error;
         if (attempt === maxAttempts) break;
-        
+
         await this.delay(this.retryDelay * attempt);
       }
     }
@@ -255,6 +249,6 @@ export class RetryMechanism {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

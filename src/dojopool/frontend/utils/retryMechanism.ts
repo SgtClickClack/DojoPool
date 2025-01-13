@@ -15,15 +15,15 @@ interface RetryState {
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
   maxAttempts: 3,
   initialDelay: 1000, // 1 second
-  maxDelay: 30000,    // 30 seconds
+  maxDelay: 30000, // 30 seconds
   backoffFactor: 2,
   retryableErrors: [
     'NETWORK_ERROR',
     'TIMEOUT',
-    /^5\d{2}$/,       // 5XX server errors
+    /^5\d{2}$/, // 5XX server errors
     'ECONNRESET',
-    'ETIMEDOUT'
-  ]
+    'ETIMEDOUT',
+  ],
 };
 
 export class RetryMechanism {
@@ -36,7 +36,7 @@ export class RetryMechanism {
   private isRetryableError(error: Error): boolean {
     if (!this.config.retryableErrors) return true;
 
-    return this.config.retryableErrors.some(pattern => {
+    return this.config.retryableErrors.some((pattern) => {
       if (pattern instanceof RegExp) {
         return pattern.test(error.message) || pattern.test(error.name);
       }
@@ -50,13 +50,10 @@ export class RetryMechanism {
   }
 
   private async delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async execute<T>(
-    operation: () => Promise<T>,
-    onRetry?: (state: RetryState) => void
-  ): Promise<T> {
+  async execute<T>(operation: () => Promise<T>, onRetry?: (state: RetryState) => void): Promise<T> {
     let attempt = 0;
     const startTime = Date.now();
 
@@ -68,13 +65,10 @@ export class RetryMechanism {
         const retryState: RetryState = {
           attempt,
           error: error as Error,
-          startTime
+          startTime,
         };
 
-        if (
-          attempt >= this.config.maxAttempts ||
-          !this.isRetryableError(error as Error)
-        ) {
+        if (attempt >= this.config.maxAttempts || !this.isRetryableError(error as Error)) {
           throw error;
         }
 
@@ -110,11 +104,11 @@ export class RetryMechanism {
 
     return retryMechanism.execute(async () => {
       const response = await fetch(input, init);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return response;
     });
   }

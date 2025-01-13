@@ -15,7 +15,7 @@ global.TextDecoder = TextDecoder;
 const mockGeolocation = {
   getCurrentPosition: jest.fn(),
   watchPosition: jest.fn(),
-  clearWatch: jest.fn()
+  clearWatch: jest.fn(),
 };
 
 (global as any).navigator.geolocation = mockGeolocation;
@@ -40,17 +40,17 @@ const mockLocalStorage = {
   removeItem: jest.fn(),
   clear: jest.fn(),
   length: 0,
-  key: jest.fn()
+  key: jest.fn(),
 };
 
 Object.defineProperty(window, 'localStorage', {
-  value: mockLocalStorage
+  value: mockLocalStorage,
 });
 
 // Mock performance.now
 if (!global.performance) {
   (global as any).performance = {
-    now: jest.fn(() => Date.now())
+    now: jest.fn(() => Date.now()),
   };
 }
 

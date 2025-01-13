@@ -176,3 +176,9 @@ class CSRFError(Exception):
         """
         self.message = message
         super().__init__(message) 
+
+"""Custom exceptions for the application."""
+
+class AnalysisError(Exception):
+    """Exception raised when analysis operations fail."""
+    pass 

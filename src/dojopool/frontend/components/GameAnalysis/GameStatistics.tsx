@@ -42,11 +42,7 @@ interface GameStatisticsProps {
 
 export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) => {
   if (!statistics) {
-    return (
-      <Typography color="textSecondary">
-        No statistics available
-      </Typography>
-    );
+    return <Typography color="textSecondary">No statistics available</Typography>;
   }
 
   const prepareChartData = (stats: any) => {
@@ -175,4 +171,4 @@ export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) =>
   );
 };
 
-export default GameStatistics; 
+export default GameStatistics;

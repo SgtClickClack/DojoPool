@@ -1,6 +1,8 @@
 """Test configuration file."""
 import os
 import tempfile
+import shutil
+from pathlib import Path
 
 import pytest
 from flask import Flask
@@ -159,3 +161,70 @@ def tournament_bracket(_db, tournament_round, tournament_game):
     _db.session.add(tournament_bracket)
     _db.session.commit()
     return tournament_bracket
+
+# Image processing test fixtures
+@pytest.fixture(scope="session")
+def test_assets_dir():
+    """Create a directory for test assets that persists across test session."""
+    assets_dir = Path(__file__).parent / "test_assets"
+    assets_dir.mkdir(exist_ok=True)
+    return assets_dir
+
+@pytest.fixture(autouse=True)
+def cleanup_test_files(request, tmp_path):
+    """Clean up temporary test files after each test."""
+    def cleanup():
+        # Clean up temporary directory
+        if tmp_path.exists():
+            shutil.rmtree(tmp_path)
+    request.addfinalizer(cleanup)
+
+@pytest.fixture
+def image_dimensions():
+    """Standard image dimensions for testing."""
+    return {
+        'sm': (400, 300),
+        'md': (800, 600),
+        'lg': (1200, 900),
+        'xl': (1600, 1200)
+    }
+
+@pytest.fixture
+def supported_formats():
+    """List of supported image formats for testing."""
+    return ['.jpg', '.jpeg', '.png', '.gif']
+
+@pytest.fixture
+def quality_levels():
+    """Different quality levels for image optimization testing."""
+    return {
+        'low': 60,
+        'medium': 80,
+        'high': 90,
+        'lossless': 100
+    }
+
+@pytest.fixture(autouse=True)
+def setup_test_env():
+    """Set up test environment variables."""
+    test_env = {
+        'FLASK_ENV': 'testing',
+        'TESTING': 'True',
+        'SECRET_KEY': 'test-secret-key',
+        'JWT_SECRET_KEY': 'test-jwt-secret',
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'MAIL_DEFAULT_SENDER': 'test@example.com',
+        'SENDGRID_API_KEY': 'test-sendgrid-key',
+        'GOOGLE_CLIENT_ID': 'test-google-client-id',
+        'GOOGLE_CLIENT_SECRET': 'test-google-client-secret'
+    }
+    
+    # Set environment variables
+    for key, value in test_env.items():
+        os.environ[key] = value
+    
+    yield
+    
+    # Clean up environment variables after tests
+    for key in test_env:
+        os.environ.pop(key, None)

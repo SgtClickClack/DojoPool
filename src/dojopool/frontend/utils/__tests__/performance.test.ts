@@ -14,9 +14,12 @@ describe('Performance and Error Recovery', () => {
 
   describe('Memory Usage', () => {
     it('maintains constant memory usage during rapid updates', () => {
-      const cache = new Cache<Record<string, Location>>({ maxAge: 1000, maxSize: 100 });
+      const cache = new Cache<Record<string, Location>>({
+        maxAge: 1000,
+        maxSize: 100,
+      });
       const memorySnapshots: number[] = [];
-      
+
       // Helper to get rough memory usage
       const getMemoryUsage = () => {
         const used = process.memoryUsage();
@@ -29,8 +32,8 @@ describe('Performance and Error Recovery', () => {
       // Simulate 1000 rapid updates
       for (let i = 0; i < 1000; i++) {
         const location = {
-          latitude: 51.5074 + (i * 0.0001),
-          longitude: -0.1278 + (i * 0.0001),
+          latitude: 51.5074 + i * 0.0001,
+          longitude: -0.1278 + i * 0.0001,
         };
         cache.set(`player${i % 10}`, location);
 
@@ -58,8 +61,8 @@ describe('Performance and Error Recovery', () => {
         // Fill cache
         for (let i = 0; i < 100; i++) {
           const location = {
-            latitude: 51.5074 + (i * 0.0001),
-            longitude: -0.1278 + (i * 0.0001),
+            latitude: 51.5074 + i * 0.0001,
+            longitude: -0.1278 + i * 0.0001,
           };
           tempCache.set(`player${i}`, location);
           locations.push(location);
@@ -92,7 +95,7 @@ describe('Performance and Error Recovery', () => {
 
       const throttled = throttleLocationUpdates(callback, 10, 1000);
       const location = { latitude: 51.5074, longitude: -0.1278 };
-      
+
       throttled(location);
       expect(cache.get('game123')).toEqual({ player1: location });
     });
@@ -106,7 +109,7 @@ describe('Performance and Error Recovery', () => {
         try {
           updates.push(location);
           // Simulate async operation
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           const currentLocations = cache.get('game123') || {};
           cache.set('game123', {
             ...currentLocations,
@@ -126,7 +129,7 @@ describe('Performance and Error Recovery', () => {
       }));
 
       await Promise.all(
-        locations.map(location => Promise.resolve().then(() => throttled(location)))
+        locations.map((location) => Promise.resolve().then(() => throttled(location)))
       );
 
       // Should handle concurrent access without errors
@@ -139,7 +142,7 @@ describe('Performance and Error Recovery', () => {
     it('maintains update frequency under load', () => {
       const updateTimes: number[] = [];
       const cache = new Cache<Record<string, Location>>({ maxAge: 5000 });
-      
+
       const callback = jest.fn((location: Location) => {
         updateTimes.push(Date.now());
         const currentLocations = cache.get('game123') || {};
@@ -154,8 +157,8 @@ describe('Performance and Error Recovery', () => {
       // Simulate high-frequency updates
       for (let i = 0; i < 100; i++) {
         const location = {
-          latitude: 51.5074 + (i * 0.0001),
-          longitude: -0.1278 + (i * 0.0001),
+          latitude: 51.5074 + i * 0.0001,
+          longitude: -0.1278 + i * 0.0001,
         };
         throttled(location);
         jest.advanceTimersByTime(10); // 10ms between updates
@@ -172,7 +175,7 @@ describe('Performance and Error Recovery', () => {
     it('optimizes cache access patterns', () => {
       const cache = new Cache<Record<string, Location>>({ maxAge: 5000 });
       const accessTimes: number[] = [];
-      
+
       // Monitor cache access time
       const originalGet = cache.get.bind(cache);
       cache.get = (key: string) => {
@@ -185,12 +188,12 @@ describe('Performance and Error Recovery', () => {
       // Simulate typical usage pattern
       for (let i = 0; i < 1000; i++) {
         const location = {
-          latitude: 51.5074 + (i * 0.0001),
-          longitude: -0.1278 + (i * 0.0001),
+          latitude: 51.5074 + i * 0.0001,
+          longitude: -0.1278 + i * 0.0001,
         };
         cache.set(`player${i % 10}`, location);
         cache.get(`player${i % 10}`);
-        
+
         if (i % 100 === 0) {
           jest.advanceTimersByTime(1000);
         }
@@ -204,7 +207,12 @@ describe('Performance and Error Recovery', () => {
 });
 
 describe('Geofencing Performance', () => {
-  const generatePolygon = (centerLat: number, centerLng: number, points: number, radius: number): Location[] => {
+  const generatePolygon = (
+    centerLat: number,
+    centerLng: number,
+    points: number,
+    radius: number
+  ): Location[] => {
     const polygon: Location[] = [];
     for (let i = 0; i < points; i++) {
       const angle = (i / points) * 2 * Math.PI;
@@ -216,7 +224,10 @@ describe('Geofencing Performance', () => {
     return polygon;
   };
 
-  const generateLocations = (count: number, bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }): Location[] => {
+  const generateLocations = (
+    count: number,
+    bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }
+  ): Location[] => {
     return Array.from({ length: count }, () => ({
       latitude: bounds.minLat + Math.random() * (bounds.maxLat - bounds.minLat),
       longitude: bounds.minLng + Math.random() * (bounds.maxLng - bounds.minLng),
@@ -232,7 +243,7 @@ describe('Geofencing Performance', () => {
     it('handles large polygons efficiently', () => {
       // Create a complex polygon with 100 points
       const complexPolygon = generatePolygon(45.0, -75.0, 100, 0.1);
-      
+
       locationValidator.addBoundary({
         id: 'complex_boundary',
         type: 'unsafe',
@@ -240,13 +251,13 @@ describe('Geofencing Performance', () => {
       });
 
       const testLocation: Location = { latitude: 45.0, longitude: -75.0 };
-      
+
       const start = performance.now();
       for (let i = 0; i < 1000; i++) {
         locationValidator.validateLocation(testLocation);
       }
       const end = performance.now();
-      
+
       // Should process 1000 validations in under 100ms
       expect(end - start).toBeLessThan(100);
     });
@@ -270,7 +281,7 @@ describe('Geofencing Performance', () => {
       });
 
       const start = performance.now();
-      testLocations.forEach(location => {
+      testLocations.forEach((location) => {
         locationValidator.validateLocation(location);
       });
       const end = performance.now();
@@ -296,11 +307,12 @@ describe('Geofencing Performance', () => {
 
       const start = performance.now();
       await Promise.all(
-        testLocations.map(location => 
-          new Promise<void>(resolve => {
-            locationValidator.validateLocation(location);
-            resolve();
-          })
+        testLocations.map(
+          (location) =>
+            new Promise<void>((resolve) => {
+              locationValidator.validateLocation(location);
+              resolve();
+            })
         )
       );
       const end = performance.now();
@@ -329,7 +341,7 @@ describe('Geofencing Performance', () => {
       }));
 
       const start = performance.now();
-      paths.forEach(path => {
+      paths.forEach((path) => {
         locationValidator.validateMovement(path.playerId, path.start);
         locationValidator.validateMovement(path.playerId, path.end);
       });
@@ -347,7 +359,7 @@ describe('Geofencing Performance', () => {
       }));
 
       const start = performance.now();
-      movements.forEach(location => {
+      movements.forEach((location) => {
         locationValidator.validateMovement(playerId, location);
       });
       const end = performance.now();
@@ -378,4 +390,4 @@ describe('Geofencing Performance', () => {
       expect(memoryIncrease).toBeLessThan(10);
     });
   });
-}); 
+});

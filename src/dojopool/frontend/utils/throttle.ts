@@ -59,7 +59,7 @@ export function throttleLocationUpdates<T extends { latitude: number; longitude:
   return throttle(
     (location: T) => {
       const now = Date.now();
-      
+
       // Always update if this is the first location
       if (!lastLocation) {
         lastLocation = location;
@@ -101,4 +101,4 @@ function calculateDistance(
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c;
-} 
+}

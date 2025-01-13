@@ -1,152 +1,155 @@
 {
-    "nodes": [
-        {
-            "id": "begin_journey",
-            "title": "The Path Begins",
-            "description": "Your journey in the world of pool begins. Every master was once a beginner, and your path starts here.",
-            "requirements": {},
-            "next_nodes": ["first_victory", "basic_techniques"],
-            "skill_level": "novice"
-        },
-        {
-            "id": "first_victory",
-            "title": "First Steps to Victory",
-            "description": "Your first win marks the beginning of your journey. Remember this feeling - it's the first of many.",
-            "requirements": {
-                "achievements": ["first_win"]
-            },
-            "next_nodes": ["winning_streak_novice", "technique_mastery_1"],
-            "achievement_type": "first_win",
-            "skill_level": "novice"
-        },
-        {
-            "id": "basic_techniques",
-            "title": "Fundamentals of the Game",
-            "description": "Master the basics: stance, grip, and straight shots. These fundamentals will serve as your foundation.",
-            "requirements": {},
-            "next_nodes": ["technique_mastery_1"],
-            "skill_level": "novice"
-        },
-        {
-            "id": "technique_mastery_1",
-            "title": "The Art of Control",
-            "description": "Learn to control the cue ball. Position play is the key to consistent victory.",
-            "requirements": {
-                "achievements": ["basic_techniques_complete"]
-            },
-            "next_nodes": ["apprentice_path"],
-            "achievement_type": "skill_milestone",
-            "skill_level": "novice"
-        },
-        {
-            "id": "winning_streak_novice",
-            "title": "Rising Momentum",
-            "description": "A string of victories shows your growing skill. Your reputation begins to grow.",
-            "requirements": {
-                "achievements": ["win_streak_3"]
-            },
-            "next_nodes": ["apprentice_path"],
-            "achievement_type": "winning_streak",
-            "skill_level": "novice"
-        },
-        {
-            "id": "apprentice_path",
-            "title": "The Apprentice's Journey",
-            "description": "Your dedication has earned you the title of Apprentice. New challenges and techniques await.",
-            "requirements": {
-                "achievements": ["win_streak_3", "basic_techniques_complete"]
-            },
-            "next_nodes": ["spin_mastery", "position_play"],
-            "skill_level": "apprentice"
-        },
-        {
-            "id": "spin_mastery",
-            "title": "Mastery of Spin",
-            "description": "Learn the subtle art of spin control. English, draw, and follow shots become your tools.",
-            "requirements": {},
-            "next_nodes": ["advanced_techniques"],
-            "skill_level": "apprentice"
-        },
-        {
-            "id": "position_play",
-            "title": "The Chess Game",
-            "description": "Pool is like chess - think several moves ahead. Position play becomes your strength.",
-            "requirements": {},
-            "next_nodes": ["advanced_techniques"],
-            "skill_level": "apprentice"
-        },
-        {
-            "id": "advanced_techniques",
-            "title": "Advanced Artistry",
-            "description": "Combine spin, speed, and position into flowing patterns. Your game becomes an art form.",
-            "requirements": {
-                "achievements": ["spin_master", "position_master"]
-            },
-            "next_nodes": ["journeyman_path"],
-            "achievement_type": "skill_milestone",
-            "skill_level": "apprentice"
-        },
-        {
-            "id": "journeyman_path",
-            "title": "The Journeyman's Way",
-            "description": "You've proven your skill and dedication. The path of the Journeyman opens before you.",
-            "requirements": {
-                "achievements": ["advanced_techniques_complete", "tournament_participation"]
-            },
-            "next_nodes": ["tournament_circuit", "trick_shot_mastery"],
-            "skill_level": "journeyman"
-        },
-        {
-            "id": "tournament_circuit",
-            "title": "The Tournament Circuit",
-            "description": "Enter the competitive world of tournament play. Each match is a chance to prove your worth.",
-            "requirements": {},
-            "next_nodes": ["master_path"],
-            "skill_level": "journeyman"
-        },
-        {
-            "id": "trick_shot_mastery",
-            "title": "The Way of the Artist",
-            "description": "Develop your own style through trick shots and creative play. Your signature moves become legendary.",
-            "requirements": {},
-            "next_nodes": ["master_path"],
-            "skill_level": "journeyman"
-        },
-        {
-            "id": "master_path",
-            "title": "Path to Mastery",
-            "description": "Few reach this level of skill. The title of Master awaits those who prove themselves worthy.",
-            "requirements": {
-                "achievements": ["tournament_victory", "trick_shot_master"]
-            },
-            "next_nodes": ["venue_conquest", "perfect_game"],
-            "skill_level": "master"
-        },
-        {
-            "id": "venue_conquest",
-            "title": "Conquest of Venues",
-            "description": "Travel to different venues, each with its own challenges. Leave your mark across the pool world.",
-            "requirements": {},
-            "next_nodes": ["grandmaster_path"],
-            "skill_level": "master"
-        },
-        {
-            "id": "perfect_game",
-            "title": "The Perfect Game",
-            "description": "Achieve perfection in your play. A perfect game is rare and beautiful.",
-            "requirements": {},
-            "next_nodes": ["grandmaster_path"],
-            "skill_level": "master"
-        },
-        {
-            "id": "grandmaster_path",
-            "title": "The Grandmaster's Journey",
-            "description": "The highest level of mastery. Few achieve this legendary status.",
-            "requirements": {
-                "achievements": ["venue_master", "perfect_game_achieved"]
-            },
-            "next_nodes": [],
-            "skill_level": "grandmaster"
-        }
-    ]
-} 
+  "nodes": [
+    {
+      "id": "begin_journey",
+      "title": "The Path Begins",
+      "description": "Your journey in the world of pool begins. Every master was once a beginner, and your path starts here.",
+      "requirements": {},
+      "next_nodes": ["first_victory", "basic_techniques"],
+      "skill_level": "novice"
+    },
+    {
+      "id": "first_victory",
+      "title": "First Steps to Victory",
+      "description": "Your first win marks the beginning of your journey. Remember this feeling - it's the first of many.",
+      "requirements": {
+        "achievements": ["first_win"]
+      },
+      "next_nodes": ["winning_streak_novice", "technique_mastery_1"],
+      "achievement_type": "first_win",
+      "skill_level": "novice"
+    },
+    {
+      "id": "basic_techniques",
+      "title": "Fundamentals of the Game",
+      "description": "Master the basics: stance, grip, and straight shots. These fundamentals will serve as your foundation.",
+      "requirements": {},
+      "next_nodes": ["technique_mastery_1"],
+      "skill_level": "novice"
+    },
+    {
+      "id": "technique_mastery_1",
+      "title": "The Art of Control",
+      "description": "Learn to control the cue ball. Position play is the key to consistent victory.",
+      "requirements": {
+        "achievements": ["basic_techniques_complete"]
+      },
+      "next_nodes": ["apprentice_path"],
+      "achievement_type": "skill_milestone",
+      "skill_level": "novice"
+    },
+    {
+      "id": "winning_streak_novice",
+      "title": "Rising Momentum",
+      "description": "A string of victories shows your growing skill. Your reputation begins to grow.",
+      "requirements": {
+        "achievements": ["win_streak_3"]
+      },
+      "next_nodes": ["apprentice_path"],
+      "achievement_type": "winning_streak",
+      "skill_level": "novice"
+    },
+    {
+      "id": "apprentice_path",
+      "title": "The Apprentice's Journey",
+      "description": "Your dedication has earned you the title of Apprentice. New challenges and techniques await.",
+      "requirements": {
+        "achievements": ["win_streak_3", "basic_techniques_complete"]
+      },
+      "next_nodes": ["spin_mastery", "position_play"],
+      "skill_level": "apprentice"
+    },
+    {
+      "id": "spin_mastery",
+      "title": "Mastery of Spin",
+      "description": "Learn the subtle art of spin control. English, draw, and follow shots become your tools.",
+      "requirements": {},
+      "next_nodes": ["advanced_techniques"],
+      "skill_level": "apprentice"
+    },
+    {
+      "id": "position_play",
+      "title": "The Chess Game",
+      "description": "Pool is like chess - think several moves ahead. Position play becomes your strength.",
+      "requirements": {},
+      "next_nodes": ["advanced_techniques"],
+      "skill_level": "apprentice"
+    },
+    {
+      "id": "advanced_techniques",
+      "title": "Advanced Artistry",
+      "description": "Combine spin, speed, and position into flowing patterns. Your game becomes an art form.",
+      "requirements": {
+        "achievements": ["spin_master", "position_master"]
+      },
+      "next_nodes": ["journeyman_path"],
+      "achievement_type": "skill_milestone",
+      "skill_level": "apprentice"
+    },
+    {
+      "id": "journeyman_path",
+      "title": "The Journeyman's Way",
+      "description": "You've proven your skill and dedication. The path of the Journeyman opens before you.",
+      "requirements": {
+        "achievements": [
+          "advanced_techniques_complete",
+          "tournament_participation"
+        ]
+      },
+      "next_nodes": ["tournament_circuit", "trick_shot_mastery"],
+      "skill_level": "journeyman"
+    },
+    {
+      "id": "tournament_circuit",
+      "title": "The Tournament Circuit",
+      "description": "Enter the competitive world of tournament play. Each match is a chance to prove your worth.",
+      "requirements": {},
+      "next_nodes": ["master_path"],
+      "skill_level": "journeyman"
+    },
+    {
+      "id": "trick_shot_mastery",
+      "title": "The Way of the Artist",
+      "description": "Develop your own style through trick shots and creative play. Your signature moves become legendary.",
+      "requirements": {},
+      "next_nodes": ["master_path"],
+      "skill_level": "journeyman"
+    },
+    {
+      "id": "master_path",
+      "title": "Path to Mastery",
+      "description": "Few reach this level of skill. The title of Master awaits those who prove themselves worthy.",
+      "requirements": {
+        "achievements": ["tournament_victory", "trick_shot_master"]
+      },
+      "next_nodes": ["venue_conquest", "perfect_game"],
+      "skill_level": "master"
+    },
+    {
+      "id": "venue_conquest",
+      "title": "Conquest of Venues",
+      "description": "Travel to different venues, each with its own challenges. Leave your mark across the pool world.",
+      "requirements": {},
+      "next_nodes": ["grandmaster_path"],
+      "skill_level": "master"
+    },
+    {
+      "id": "perfect_game",
+      "title": "The Perfect Game",
+      "description": "Achieve perfection in your play. A perfect game is rare and beautiful.",
+      "requirements": {},
+      "next_nodes": ["grandmaster_path"],
+      "skill_level": "master"
+    },
+    {
+      "id": "grandmaster_path",
+      "title": "The Grandmaster's Journey",
+      "description": "The highest level of mastery. Few achieve this legendary status.",
+      "requirements": {
+        "achievements": ["venue_master", "perfect_game_achieved"]
+      },
+      "next_nodes": [],
+      "skill_level": "grandmaster"
+    }
+  ]
+}

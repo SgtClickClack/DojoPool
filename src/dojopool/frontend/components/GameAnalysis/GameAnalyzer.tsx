@@ -97,19 +97,13 @@ export const GameAnalyzer: React.FC<GameAnalyzerProps> = ({ gameId }) => {
         <Tab label="Statistics" />
       </Tabs>
 
-      {activeTab === 0 && (
-        <ShotAnalysis gameId={gameId} />
-      )}
+      {activeTab === 0 && <ShotAnalysis gameId={gameId} />}
 
-      {activeTab === 1 && (
-        <GamePatterns patterns={analysisData.patterns} />
-      )}
+      {activeTab === 1 && <GamePatterns patterns={analysisData.patterns} />}
 
-      {activeTab === 2 && (
-        <GameStatistics statistics={analysisData.statistics} />
-      )}
+      {activeTab === 2 && <GameStatistics statistics={analysisData.statistics} />}
     </AnalyzerContainer>
   );
 };
 
-export default GameAnalyzer; 
+export default GameAnalyzer;

@@ -19,23 +19,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId, isAdmin }) => {
   const theme = useTheme();
   const [dateRange, setDateRange] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    endDate: new Date()
+    endDate: new Date(),
   });
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([
     'games_played',
     'win_rate',
-    'avg_score'
+    'avg_score',
   ]);
   const [selectedDimension, setSelectedDimension] = useState('user');
   const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
-  const {
-    metrics,
-    loading,
-    error,
-    fetchMetrics,
-    fetchAggregatedMetrics
-  } = useAnalytics();
+  const { metrics, loading, error, fetchMetrics, fetchAggregatedMetrics } = useAnalytics();
 
   useEffect(() => {
     if (isAdmin) {
@@ -44,7 +38,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId, isAdmin }) => {
         dimension: selectedDimension,
         period: selectedPeriod,
         startDate: formatDate(dateRange.startDate),
-        endDate: formatDate(dateRange.endDate)
+        endDate: formatDate(dateRange.endDate),
       });
     } else if (userId) {
       fetchMetrics({
@@ -52,17 +46,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId, isAdmin }) => {
         metricType: selectedMetrics[0],
         period: selectedPeriod,
         startDate: formatDate(dateRange.startDate),
-        endDate: formatDate(dateRange.endDate)
+        endDate: formatDate(dateRange.endDate),
       });
     }
-  }, [
-    userId,
-    isAdmin,
-    selectedMetrics,
-    selectedDimension,
-    selectedPeriod,
-    dateRange
-  ]);
+  }, [userId, isAdmin, selectedMetrics, selectedDimension, selectedPeriod, dateRange]);
 
   if (error) {
     return <ErrorAlert message={error} />;
@@ -107,11 +94,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId, isAdmin }) => {
             <Grid container spacing={2}>
               {selectedMetrics.map((metric) => (
                 <Grid item xs={12} sm={6} md={4} key={metric}>
-                  <MetricsSummary
-                    metric={metric}
-                    data={metrics}
-                    loading={loading}
-                  />
+                  <MetricsSummary metric={metric} data={metrics} loading={loading} />
                 </Grid>
               ))}
             </Grid>
@@ -123,11 +106,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId, isAdmin }) => {
               {loading ? (
                 <LoadingSpinner />
               ) : (
-                <MetricsChart
-                  data={metrics}
-                  metrics={selectedMetrics}
-                  period={selectedPeriod}
-                />
+                <MetricsChart data={metrics} metrics={selectedMetrics} period={selectedPeriod} />
               )}
             </Paper>
           </Grid>
@@ -135,15 +114,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId, isAdmin }) => {
           {/* Detailed Table */}
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
-              <MetricsTable
-                data={metrics}
-                metrics={selectedMetrics}
-                loading={loading}
-              />
+              <MetricsTable data={metrics} metrics={selectedMetrics} loading={loading} />
             </Paper>
           </Grid>
         </Grid>
       </Box>
     </Container>
   );
-}; 
+};

@@ -41,7 +41,7 @@ describe('Network Failure Simulation', () => {
         }
 
         const delay = this.latency + (Math.random() * 2 - 1) * this.jitter;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         return data;
       }
     }
@@ -82,7 +82,7 @@ describe('Network Failure Simulation', () => {
 
       // Restore network and process pending updates
       network.setOnline(true);
-      await Promise.all(pendingUpdates.map(loc => callback(loc)));
+      await Promise.all(pendingUpdates.map((loc) => callback(loc)));
       expect(lastSuccessfulUpdate).toEqual(location2);
     });
 
@@ -116,7 +116,7 @@ describe('Network Failure Simulation', () => {
         longitude: -0.1278 + i * 0.0001,
       }));
 
-      await Promise.all(locations.map(loc => throttled(loc)));
+      await Promise.all(locations.map((loc) => throttled(loc)));
 
       // Should have mix of successful and failed updates
       expect(successfulUpdates.length).toBeGreaterThan(0);
@@ -224,4 +224,4 @@ describe('Network Failure Simulation', () => {
       }
     });
   });
-}); 
+});

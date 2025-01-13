@@ -97,17 +97,13 @@ const MobileLeaderboardCard = ({ entry }: { entry: LeaderboardEntry }) => {
           <Grid item xs={6}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ScoreIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="body2">
-                Score: {entry.score}
-              </Typography>
+              <Typography variant="body2">Score: {entry.score}</Typography>
             </Box>
           </Grid>
           <Grid item xs={6}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <GamesIcon sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="body2">
-                Games: {entry.gamesCompleted}
-              </Typography>
+              <Typography variant="body2">Games: {entry.gamesCompleted}</Typography>
             </Box>
           </Grid>
         </Grid>
@@ -237,10 +233,7 @@ const Leaderboard = () => {
               >
                 <TableCell>
                   <Box display="flex" alignItems="center">
-                    {entry.rank === 1 && (
-                      <TrophyIcon sx={{ color: 'gold', mr: 1 }} />
-                    )}
-                    #{entry.rank}
+                    {entry.rank === 1 && <TrophyIcon sx={{ color: 'gold', mr: 1 }} />}#{entry.rank}
                   </Box>
                 </TableCell>
                 <TableCell>
@@ -277,33 +270,35 @@ const Leaderboard = () => {
   };
 
   return (
-    <Container 
-      maxWidth="lg" 
-      sx={{ 
-        mt: { xs: 2, sm: 4 }, 
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: { xs: 2, sm: 4 },
         mb: { xs: 2, sm: 4 },
-        px: { xs: 1, sm: 2, md: 3 }
+        px: { xs: 1, sm: 2, md: 3 },
       }}
     >
-      <Typography 
-        variant={isMobile ? "h5" : "h4"} 
-        component="h1" 
+      <Typography
+        variant={isMobile ? 'h5' : 'h4'}
+        component="h1"
         gutterBottom
         sx={{ mb: { xs: 2, sm: 3 } }}
       >
         Leaderboard
       </Typography>
 
-      <Box sx={{ 
-        borderBottom: 1, 
-        borderColor: 'divider',
-        mb: { xs: 2, sm: 3 }
-      }}>
-        <Tabs 
-          value={tabValue} 
-          onChange={handleTabChange} 
+      <Box
+        sx={{
+          borderBottom: 1,
+          borderColor: 'divider',
+          mb: { xs: 2, sm: 3 },
+        }}
+      >
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
           aria-label="leaderboard tabs"
-          variant={isMobile ? "fullWidth" : "standard"}
+          variant={isMobile ? 'fullWidth' : 'standard'}
           sx={{
             '& .MuiTab-root': {
               fontSize: isMobile ? '0.875rem' : '1rem',
@@ -336,4 +331,4 @@ const Leaderboard = () => {
   );
 };
 
-export default Leaderboard; 
+export default Leaderboard;

@@ -14,12 +14,7 @@ import {
   Chip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import {
-  FitnessCenter,
-  Timeline,
-  CheckCircle,
-  ArrowForward,
-} from '@mui/icons-material';
+import { FitnessCenter, Timeline, CheckCircle, ArrowForward } from '@mui/icons-material';
 import { api } from '../../services/api';
 import { ProgressChart } from './ProgressChart';
 import { ExerciseList } from './ExerciseList';
@@ -89,8 +84,8 @@ export const TrainingDashboard: React.FC = () => {
   const calculateCompletionRate = () => {
     if (!progress.length) return 0;
     const totalExercises = progress.length;
-    const completedExercises = progress.filter(
-      (p) => Object.values(p.performance_metrics).every((v) => v >= 0.7)
+    const completedExercises = progress.filter((p) =>
+      Object.values(p.performance_metrics).every((v) => v >= 0.7)
     ).length;
     return (completedExercises / totalExercises) * 100;
   };
@@ -167,10 +162,7 @@ export const TrainingDashboard: React.FC = () => {
                     {recommendation.program.description}
                   </Typography>
                   <Box display="flex" gap={1} mb={2}>
-                    <Chip
-                      label={`${recommendation.program.difficulty} Level`}
-                      color="primary"
-                    />
+                    <Chip label={`${recommendation.program.difficulty} Level`} color="primary" />
                     <Chip
                       label={`${recommendation.program.duration_weeks} Weeks`}
                       color="secondary"
@@ -224,4 +216,4 @@ export const TrainingDashboard: React.FC = () => {
   );
 };
 
-export default TrainingDashboard; 
+export default TrainingDashboard;

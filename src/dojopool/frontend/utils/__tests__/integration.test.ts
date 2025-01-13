@@ -60,7 +60,7 @@ describe('Location Update Integration', () => {
     it('handles multiple players with cache expiry', () => {
       const cache = new Cache<Record<string, Location>>({ maxAge: 5000 });
       const players = ['player1', 'player2'];
-      const callbacks = players.map(playerId => 
+      const callbacks = players.map((playerId) =>
         jest.fn((location: Location) => {
           const currentLocations = cache.get('game123') || {};
           cache.set('game123', {
@@ -70,14 +70,14 @@ describe('Location Update Integration', () => {
         })
       );
 
-      const throttledUpdates = players.map(
-        (_, index) => throttleLocationUpdates(callbacks[index], 10, 1000)
+      const throttledUpdates = players.map((_, index) =>
+        throttleLocationUpdates(callbacks[index], 10, 1000)
       );
 
       // Initial locations
       const locations = [
         { latitude: 51.5074, longitude: -0.1278 },
-        { latitude: 51.5080, longitude: -0.1280 },
+        { latitude: 51.508, longitude: -0.128 },
       ];
 
       throttledUpdates.forEach((update, index) => {
@@ -94,7 +94,7 @@ describe('Location Update Integration', () => {
       jest.advanceTimersByTime(4500);
 
       // Update one player
-      const newLocation = { latitude: 51.5090, longitude: -0.1290 };
+      const newLocation = { latitude: 51.509, longitude: -0.129 };
       throttledUpdates[0](newLocation);
 
       // Cache should still have both players
@@ -133,7 +133,7 @@ describe('Location Update Integration', () => {
 
       // Send updates concurrently
       await Promise.all(
-        locations.map(location => Promise.resolve().then(() => throttled(location)))
+        locations.map((location) => Promise.resolve().then(() => throttled(location)))
       );
 
       // Should only process first update initially
@@ -175,7 +175,7 @@ describe('Location Update Integration', () => {
       }));
 
       // Send updates in sequence
-      path.forEach(location => {
+      path.forEach((location) => {
         throttled(location);
         jest.advanceTimersByTime(500); // Half the throttle time
       });
@@ -228,7 +228,7 @@ describe('Safety System Integration', () => {
         { latitude: 45.02, longitude: -75.02 },
       ];
 
-      validLocations.forEach(location => {
+      validLocations.forEach((location) => {
         const validation = locationValidator.validateLocation(location, playerId);
         expect(validation.isValid).toBe(true);
         locationMonitor.recordLocation(playerId, location);
@@ -326,7 +326,7 @@ describe('Safety System Integration', () => {
           }
 
           // Small delay
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 50));
 
           // Attempt unsafe movement
           const validation2 = locationValidator.validateLocation(unsafeLocation, playerId);
@@ -349,7 +349,7 @@ describe('Safety System Integration', () => {
         const playerId = `player_${i}`;
         const path = locationMonitor.getPlayerPath(playerId);
         expect(path).toHaveLength(1); // Only valid locations recorded
-        
+
         const summary = locationValidator.getViolationSummary(playerId);
         expect(summary.recentViolations).toBe(1);
       }
@@ -393,7 +393,7 @@ describe('Safety System Integration', () => {
           }
 
           // Simulate small processing delay
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 10));
         })
       );
 
@@ -412,4 +412,4 @@ describe('Safety System Integration', () => {
       }
     });
   });
-}); 
+});

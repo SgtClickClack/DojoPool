@@ -3,304 +3,304 @@
 
 // Base card styles
 .card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: white;
-    background-clip: border-box;
-    border: 1px solid color(neutral, 200);
-    @include rounded(lg);
-    @include shadow(sm);
-    @include transition(transform, box-shadow);
-    
-    &:hover {
-        @include shadow(md);
-    }
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: white;
+  background-clip: border-box;
+  border: 1px solid color(neutral, 200);
+  @include rounded(lg);
+  @include shadow(sm);
+  @include transition(transform, box-shadow);
+
+  &:hover {
+    @include shadow(md);
+  }
 }
 
 // Card header
 .card-header {
-    padding: spacing(4) spacing(6);
-    margin-bottom: 0;
-    background-color: color(neutral, 50);
-    border-bottom: 1px solid color(neutral, 200);
+  padding: spacing(4) spacing(6);
+  margin-bottom: 0;
+  background-color: color(neutral, 50);
+  border-bottom: 1px solid color(neutral, 200);
+  @include rounded(lg lg 0 0);
+
+  &:first-child {
     @include rounded(lg lg 0 0);
-    
-    &:first-child {
-        @include rounded(lg lg 0 0);
+  }
+
+  + .list-group {
+    .list-group-item:first-child {
+      border-top: 0;
     }
-    
-    + .list-group {
-        .list-group-item:first-child {
-            border-top: 0;
-        }
-    }
+  }
 }
 
 // Card body
 .card-body {
-    flex: 1 1 auto;
-    padding: spacing(6);
-    color: color(neutral, 700);
+  flex: 1 1 auto;
+  padding: spacing(6);
+  color: color(neutral, 700);
 }
 
 // Card title
 .card-title {
-    margin-bottom: spacing(3);
-    color: color(neutral, 900);
-    @include font-size(xl);
-    @include font-weight(semibold);
+  margin-bottom: spacing(3);
+  color: color(neutral, 900);
+  @include font-size(xl);
+  @include font-weight(semibold);
 }
 
 // Card subtitle
 .card-subtitle {
-    margin-top: -#{spacing(1.5)};
-    margin-bottom: spacing(3);
-    color: color(neutral, 600);
-    @include font-size(base);
+  margin-top: -#{spacing(1.5)};
+  margin-bottom: spacing(3);
+  color: color(neutral, 600);
+  @include font-size(base);
 }
 
 // Card text
 .card-text {
-    &:last-child {
-        margin-bottom: 0;
-    }
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 // Card footer
 .card-footer {
-    padding: spacing(4) spacing(6);
-    background-color: color(neutral, 50);
-    border-top: 1px solid color(neutral, 200);
+  padding: spacing(4) spacing(6);
+  background-color: color(neutral, 50);
+  border-top: 1px solid color(neutral, 200);
+  @include rounded(0 0 lg lg);
+
+  &:last-child {
     @include rounded(0 0 lg lg);
-    
-    &:last-child {
-        @include rounded(0 0 lg lg);
-    }
+  }
 }
 
 // Card image
 .card-img-top {
-    width: 100%;
-    @include rounded(lg lg 0 0);
+  width: 100%;
+  @include rounded(lg lg 0 0);
 }
 
 .card-img-bottom {
-    width: 100%;
-    @include rounded(0 0 lg lg);
+  width: 100%;
+  @include rounded(0 0 lg lg);
 }
 
 .card-img-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: spacing(6);
+  @include rounded(lg);
+  background-color: rgba(color(neutral, 900), 0.5);
+  color: white;
+}
+
+// Card group
+.card-group {
+  display: flex;
+  flex-direction: column;
+
+  @include breakpoint(md) {
+    flex-flow: row wrap;
+
+    > .card {
+      flex: 1 0 0%;
+      margin-bottom: 0;
+
+      + .card {
+        margin-left: 0;
+        border-left: 0;
+      }
+
+      &:not(:last-child) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        .card-header,
+        .card-img-top {
+          border-top-right-radius: 0;
+        }
+
+        .card-footer,
+        .card-img-bottom {
+          border-bottom-right-radius: 0;
+        }
+      }
+
+      &:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+
+        .card-header,
+        .card-img-top {
+          border-top-left-radius: 0;
+        }
+
+        .card-footer,
+        .card-img-bottom {
+          border-bottom-left-radius: 0;
+        }
+      }
+    }
+  }
+}
+
+// Card deck
+.card-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: spacing(6);
+  padding: spacing(6);
+}
+
+// Card variants
+.card-primary {
+  background-color: color(primary, 500);
+  border-color: color(primary, 600);
+  color: white;
+
+  .card-header,
+  .card-footer {
+    background-color: rgba(white, 0.1);
+    border-color: rgba(white, 0.2);
+    color: white;
+  }
+
+  .card-title {
+    color: white;
+  }
+
+  .card-subtitle {
+    color: rgba(white, 0.8);
+  }
+}
+
+.card-secondary {
+  background-color: color(secondary, 500);
+  border-color: color(secondary, 600);
+  color: white;
+
+  .card-header,
+  .card-footer {
+    background-color: rgba(white, 0.1);
+    border-color: rgba(white, 0.2);
+    color: white;
+  }
+
+  .card-title {
+    color: white;
+  }
+
+  .card-subtitle {
+    color: rgba(white, 0.8);
+  }
+}
+
+// Card sizes
+.card-sm {
+  .card-header {
+    padding: spacing(2) spacing(4);
+  }
+
+  .card-body {
+    padding: spacing(4);
+  }
+
+  .card-footer {
+    padding: spacing(2) spacing(4);
+  }
+
+  .card-title {
+    @include font-size(lg);
+  }
+}
+
+.card-lg {
+  .card-header {
+    padding: spacing(6) spacing(8);
+  }
+
+  .card-body {
+    padding: spacing(8);
+  }
+
+  .card-footer {
+    padding: spacing(6) spacing(8);
+  }
+
+  .card-title {
+    @include font-size(2xl);
+  }
+}
+
+// Interactive cards
+.card-hover {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-#{spacing(1)});
+    @include shadow(lg);
+  }
+
+  &:active {
+    transform: translateY(0);
+    @include shadow(md);
+  }
+}
+
+// Card with list groups
+.card {
+  > .list-group {
+    border-top: inherit;
+    border-bottom: inherit;
+
+    &:first-child {
+      border-top-width: 0;
+      @include rounded(lg 0 0);
+    }
+
+    &:last-child {
+      border-bottom-width: 0;
+      @include rounded(0 0 lg lg);
+    }
+  }
+}
+
+// Card loading state
+.card-loading {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    padding: spacing(6);
-    @include rounded(lg);
-    background-color: rgba(color(neutral, 900), 0.5);
-    color: white;
-}
-
-// Card group
-.card-group {
-    display: flex;
-    flex-direction: column;
-    
-    @include breakpoint(md) {
-        flex-flow: row wrap;
-        
-        > .card {
-            flex: 1 0 0%;
-            margin-bottom: 0;
-            
-            + .card {
-                margin-left: 0;
-                border-left: 0;
-            }
-            
-            &:not(:last-child) {
-                border-top-right-radius: 0;
-                border-bottom-right-radius: 0;
-                
-                .card-header,
-                .card-img-top {
-                    border-top-right-radius: 0;
-                }
-                
-                .card-footer,
-                .card-img-bottom {
-                    border-bottom-right-radius: 0;
-                }
-            }
-            
-            &:not(:first-child) {
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
-                
-                .card-header,
-                .card-img-top {
-                    border-top-left-radius: 0;
-                }
-                
-                .card-footer,
-                .card-img-bottom {
-                    border-bottom-left-radius: 0;
-                }
-            }
-        }
-    }
-}
-
-// Card deck
-.card-deck {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: spacing(6);
-    padding: spacing(6);
-}
-
-// Card variants
-.card-primary {
-    background-color: color(primary, 500);
-    border-color: color(primary, 600);
-    color: white;
-    
-    .card-header,
-    .card-footer {
-        background-color: rgba(white, 0.1);
-        border-color: rgba(white, 0.2);
-        color: white;
-    }
-    
-    .card-title {
-        color: white;
-    }
-    
-    .card-subtitle {
-        color: rgba(white, 0.8);
-    }
-}
-
-.card-secondary {
-    background-color: color(secondary, 500);
-    border-color: color(secondary, 600);
-    color: white;
-    
-    .card-header,
-    .card-footer {
-        background-color: rgba(white, 0.1);
-        border-color: rgba(white, 0.2);
-        color: white;
-    }
-    
-    .card-title {
-        color: white;
-    }
-    
-    .card-subtitle {
-        color: rgba(white, 0.8);
-    }
-}
-
-// Card sizes
-.card-sm {
-    .card-header {
-        padding: spacing(2) spacing(4);
-    }
-    
-    .card-body {
-        padding: spacing(4);
-    }
-    
-    .card-footer {
-        padding: spacing(2) spacing(4);
-    }
-    
-    .card-title {
-        @include font-size(lg);
-    }
-}
-
-.card-lg {
-    .card-header {
-        padding: spacing(6) spacing(8);
-    }
-    
-    .card-body {
-        padding: spacing(8);
-    }
-    
-    .card-footer {
-        padding: spacing(6) spacing(8);
-    }
-    
-    .card-title {
-        @include font-size(2xl);
-    }
-}
-
-// Interactive cards
-.card-hover {
-    cursor: pointer;
-    
-    &:hover {
-        transform: translateY(-#{spacing(1)});
-        @include shadow(lg);
-    }
-    
-    &:active {
-        transform: translateY(0);
-        @include shadow(md);
-    }
-}
-
-// Card with list groups
-.card {
-    > .list-group {
-        border-top: inherit;
-        border-bottom: inherit;
-        
-        &:first-child {
-            border-top-width: 0;
-            @include rounded(lg 0 0);
-        }
-        
-        &:last-child {
-            border-bottom-width: 0;
-            @include rounded(0 0 lg lg);
-        }
-    }
-}
-
-// Card loading state
-.card-loading {
-    position: relative;
-    overflow: hidden;
-    
-    &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        transform: translateX(-100%);
-        background-image: linear-gradient(
-            90deg,
-            rgba(color(neutral, 500), 0) 0,
-            rgba(color(neutral, 500), 0.2) 20%,
-            rgba(color(neutral, 500), 0.5) 60%,
-            rgba(color(neutral, 500), 0)
-        );
-        animation: shimmer 2s infinite;
-    }
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(color(neutral, 500), 0) 0,
+      rgba(color(neutral, 500), 0.2) 20%,
+      rgba(color(neutral, 500), 0.5) 60%,
+      rgba(color(neutral, 500), 0)
+    );
+    animation: shimmer 2s infinite;
+  }
 }
 
 @keyframes shimmer {
-    100% {
-        transform: translateX(100%);
-    }
-} 
+  100% {
+    transform: translateX(100%);
+  }
+}

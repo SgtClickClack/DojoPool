@@ -130,4 +130,4 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   );
 };
 
-export default AvatarDisplay; 
+export default AvatarDisplay;

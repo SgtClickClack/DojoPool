@@ -34,7 +34,7 @@ export const initializeCamera = async (): Promise<{
 }> => {
   try {
     const hasPermission = await requestCameraPermission();
-    
+
     if (!hasPermission) {
       return {
         hasPermission: false,
@@ -64,12 +64,12 @@ export const initializeCamera = async (): Promise<{
 
 export const getCameraDevice = async () => {
   const { devices } = await initializeCamera();
-  return devices.find(device => device.position === 'back') || devices[0];
+  return devices.find((device) => device.position === 'back') || devices[0];
 };
 
 export const formatCameraError = (error: any): string => {
   if (typeof error === 'string') return error;
-  
+
   const errorMap: { [key: string]: string } = {
     'permission-denied': 'Camera permission was denied',
     'device-not-found': 'No camera device was found',
@@ -78,4 +78,4 @@ export const formatCameraError = (error: any): string => {
   };
 
   return errorMap[error.code] || 'An unknown error occurred';
-}; 
+};

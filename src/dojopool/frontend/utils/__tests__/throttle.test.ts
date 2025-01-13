@@ -146,9 +146,9 @@ describe('throttle utilities', () => {
 
       throttled(mockLocation);
       throttled(mockLocation);
-      
+
       // Should still throttle to prevent excessive updates
       expect(callback).toHaveBeenCalledTimes(1);
     });
   });
-}); 
+});

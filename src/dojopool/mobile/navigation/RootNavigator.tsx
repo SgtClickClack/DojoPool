@@ -15,13 +15,13 @@ const Stack = createStackNavigator();
 
 const GameStack = () => (
   <Stack.Navigator>
-    <Stack.Screen 
-      name="GameTracking" 
+    <Stack.Screen
+      name="GameTracking"
       component={GameTrackingScreen}
       options={{ headerTitle: 'Game Tracking' }}
     />
-    <Stack.Screen 
-      name="GameSummary" 
+    <Stack.Screen
+      name="GameSummary"
       component={GameSummaryScreen}
       options={{ headerTitle: 'Game Summary' }}
     />
@@ -34,11 +34,7 @@ const RootNavigator = () => {
   if (!isAuthenticated) {
     return (
       <Stack.Navigator>
-        <Stack.Screen 
-          name="Login" 
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     );
   }
@@ -67,21 +63,11 @@ const RootNavigator = () => {
         },
       })}
     >
-      <Tab.Screen 
-        name="Game" 
-        component={GameStack}
-        options={{ headerShown: false }}
-      />
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen}
-      />
-      <Tab.Screen 
-        name="Leaderboard" 
-        component={LeaderboardScreen}
-      />
+      <Tab.Screen name="Game" component={GameStack} options={{ headerShown: false }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
     </Tab.Navigator>
   );
 };
 
-export default RootNavigator; 
+export default RootNavigator;

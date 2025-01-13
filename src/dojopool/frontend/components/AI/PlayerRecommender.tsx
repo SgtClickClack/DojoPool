@@ -125,25 +125,19 @@ export const PlayerRecommender: React.FC = () => {
       )}
 
       {!loading && recommendations.length === 0 && (
-        <Alert severity="info">
-          No player recommendations found for the selected skill level.
-        </Alert>
+        <Alert severity="info">No player recommendations found for the selected skill level.</Alert>
       )}
 
       <List>
         {recommendations.map((recommendation) => (
           <PlayerCard key={recommendation.player_id}>
             <ListItemAvatar>
-              <Avatar>
-                {recommendation.username.charAt(0).toUpperCase()}
-              </Avatar>
+              <Avatar>{recommendation.username.charAt(0).toUpperCase()}</Avatar>
             </ListItemAvatar>
             <ListItemText
               primary={
                 <Box display="flex" alignItems="center" gap={1}>
-                  <Typography variant="h6">
-                    {recommendation.username}
-                  </Typography>
+                  <Typography variant="h6">{recommendation.username}</Typography>
                   <CompatibilityChip
                     label={getCompatibilityLabel(recommendation.compatibility_score)}
                     score={recommendation.compatibility_score}
@@ -156,26 +150,13 @@ export const PlayerRecommender: React.FC = () => {
                   <Typography variant="body2" color="textSecondary" gutterBottom>
                     Compatibility Score:
                   </Typography>
-                  <Rating
-                    value={recommendation.compatibility_score * 5}
-                    precision={0.5}
-                    readOnly
-                  />
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    sx={{ mt: 1 }}
-                  >
+                  <Rating value={recommendation.compatibility_score * 5} precision={0.5} readOnly />
+                  <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
                     Reasons for Compatibility:
                   </Typography>
                   <Box display="flex" gap={1} flexWrap="wrap" mt={0.5}>
                     {recommendation.reasons.map((reason, index) => (
-                      <Chip
-                        key={index}
-                        label={reason}
-                        size="small"
-                        variant="outlined"
-                      />
+                      <Chip key={index} label={reason} size="small" variant="outlined" />
                     ))}
                   </Box>
                 </Box>
@@ -188,4 +169,4 @@ export const PlayerRecommender: React.FC = () => {
   );
 };
 
-export default PlayerRecommender; 
+export default PlayerRecommender;

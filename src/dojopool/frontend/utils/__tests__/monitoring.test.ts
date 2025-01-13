@@ -163,9 +163,7 @@ describe('RetryMechanism', () => {
   test('throws error after max attempts', async () => {
     const operation = jest.fn().mockRejectedValue(new Error('Operation failed'));
 
-    await expect(retryMechanism.retry(operation, 3)).rejects.toThrow(
-      'Operation failed'
-    );
+    await expect(retryMechanism.retry(operation, 3)).rejects.toThrow('Operation failed');
     expect(operation).toHaveBeenCalledTimes(3);
   });
 
@@ -176,4 +174,4 @@ describe('RetryMechanism', () => {
     expect(result).toBe('success');
     expect(operation).toHaveBeenCalledTimes(1);
   });
-}); 
+});

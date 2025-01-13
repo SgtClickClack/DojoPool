@@ -16,7 +16,7 @@ describe('Game', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Reset location mock for each test
     mockUseLocation = jest.fn().mockReturnValue({
       location: mockLocation,
@@ -55,7 +55,7 @@ describe('Game', () => {
         expect(gameSocket.connect).toHaveBeenCalledWith('123');
       });
 
-      const newLocation = { latitude: 51.5080, longitude: -0.1280 };
+      const newLocation = { latitude: 51.508, longitude: -0.128 };
       mockUseLocation.mockReturnValue({
         location: newLocation,
         error: null,
@@ -101,8 +101,8 @@ describe('Game', () => {
       });
 
       const otherPlayers = {
-        player1: { latitude: 51.5080, longitude: -0.1280 },
-        player2: { latitude: 51.5090, longitude: -0.1290 },
+        player1: { latitude: 51.508, longitude: -0.128 },
+        player2: { latitude: 51.509, longitude: -0.129 },
       };
 
       // Simulate receiving other player locations
@@ -123,7 +123,7 @@ describe('Game', () => {
 
       // Simulate disconnect
       const disconnectHandler = (mockSocket.on as jest.Mock).mock.calls.find(
-        call => call[0] === 'disconnect'
+        (call) => call[0] === 'disconnect'
       )[1];
       act(() => {
         disconnectHandler();
@@ -131,7 +131,7 @@ describe('Game', () => {
 
       // Simulate reconnect
       const connectHandler = (mockSocket.on as jest.Mock).mock.calls.find(
-        call => call[0] === 'connect'
+        (call) => call[0] === 'connect'
       )[1];
       act(() => {
         connectHandler();
@@ -179,4 +179,4 @@ describe('Game', () => {
       expect(screen.getByText('Score: 200')).toBeInTheDocument();
     });
   });
-}); 
+});

@@ -17,13 +17,13 @@ describe('LocationValidator', () => {
 
     it('rejects coordinates outside valid bounds', () => {
       const invalidLocations: Location[] = [
-        { latitude: 91, longitude: 0 },    // Invalid latitude
-        { latitude: -91, longitude: 0 },   // Invalid latitude
-        { latitude: 0, longitude: 181 },   // Invalid longitude
-        { latitude: 0, longitude: -181 },  // Invalid longitude
+        { latitude: 91, longitude: 0 }, // Invalid latitude
+        { latitude: -91, longitude: 0 }, // Invalid latitude
+        { latitude: 0, longitude: 181 }, // Invalid longitude
+        { latitude: 0, longitude: -181 }, // Invalid longitude
       ];
 
-      invalidLocations.forEach(location => {
+      invalidLocations.forEach((location) => {
         const result = locationValidator.validateLocation(location);
         expect(result.isValid).toBe(false);
         expect(result.reason).toContain('Invalid coordinate values');
@@ -145,11 +145,11 @@ describe('LocationValidator', () => {
     it('detects path crossing unsafe area', () => {
       const start: Location = { latitude: 45.1, longitude: -74.6 };
       const end: Location = { latitude: 45.4, longitude: -74.3 };
-      
+
       const playerId = 'test-player';
       locationValidator.validateMovement(playerId, start);
       jest.advanceTimersByTime(1000);
-      
+
       const result = locationValidator.validateMovement(playerId, end);
       expect(result.isValidMovement).toBe(false);
       expect(result.suspiciousReason).toContain('crosses unsafe area');
@@ -179,7 +179,7 @@ describe('LocationValidator', () => {
       };
 
       locationValidator.addBoundary(boundary);
-      
+
       // Test location near the boundary
       const nearLocation: Location = {
         latitude: 45.1,
@@ -232,4 +232,4 @@ describe('LocationValidator', () => {
       expect(result.isValid).toBe(true);
     });
   });
-}); 
+});

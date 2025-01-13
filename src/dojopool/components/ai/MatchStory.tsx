@@ -10,7 +10,7 @@ import {
   Divider,
   IconButton,
   Tooltip,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   EmojiEvents as TrophyIcon,
@@ -18,7 +18,7 @@ import {
   Psychology as InsightIcon,
   Share as ShareIcon,
   Bookmark as BookmarkIcon,
-  BookmarkBorder as BookmarkOutlineIcon
+  BookmarkBorder as BookmarkOutlineIcon,
 } from '@mui/icons-material';
 
 interface Player {
@@ -53,7 +53,7 @@ export const MatchStory: React.FC<MatchStoryProps> = ({
   highlights,
   isBookmarked,
   onBookmark,
-  onShare
+  onShare,
 }) => {
   const theme = useTheme();
 
@@ -88,7 +88,13 @@ export const MatchStory: React.FC<MatchStoryProps> = ({
       {/* Header Card */}
       <Card variant="outlined">
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'start',
+            }}
+          >
             <Box>
               <Typography variant="h5" gutterBottom>
                 {title}
@@ -123,14 +129,12 @@ export const MatchStory: React.FC<MatchStoryProps> = ({
                   p: 1,
                   border: 1,
                   borderColor: 'divider',
-                  borderRadius: 1
+                  borderRadius: 1,
                 }}
               >
                 <Avatar src={player.avatar} alt={player.name} />
                 <Box>
-                  <Typography variant="subtitle2">
-                    {player.name}
-                  </Typography>
+                  <Typography variant="subtitle2">{player.name}</Typography>
                   <Typography variant="body2" color="text.secondary">
                     Score: {player.score}
                   </Typography>
@@ -139,7 +143,7 @@ export const MatchStory: React.FC<MatchStoryProps> = ({
                   <TrophyIcon
                     sx={{
                       ml: 1,
-                      color: theme.palette.warning.main
+                      color: theme.palette.warning.main,
                     }}
                   />
                 )}
@@ -180,29 +184,33 @@ export const MatchStory: React.FC<MatchStoryProps> = ({
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
-                      backgroundColor: `${getHighlightColor(highlight.type)}20`
+                      backgroundColor: `${getHighlightColor(highlight.type)}20`,
                     }}
                   >
                     {getHighlightIcon(highlight.type)}
                   </Box>
                   <Box sx={{ flex: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
                       <Chip
                         label={highlight.type.charAt(0).toUpperCase() + highlight.type.slice(1)}
                         size="small"
                         sx={{
                           backgroundColor: `${getHighlightColor(highlight.type)}20`,
                           color: getHighlightColor(highlight.type),
-                          mb: 1
+                          mb: 1,
                         }}
                       />
                       <Typography variant="caption" color="text.secondary">
                         {highlight.timestamp}
                       </Typography>
                     </Box>
-                    <Typography variant="body1">
-                      {highlight.description}
-                    </Typography>
+                    <Typography variant="body1">{highlight.description}</Typography>
                   </Box>
                 </Box>
               </React.Fragment>
@@ -212,4 +220,4 @@ export const MatchStory: React.FC<MatchStoryProps> = ({
       </Card>
     </Stack>
   );
-}; 
+};
