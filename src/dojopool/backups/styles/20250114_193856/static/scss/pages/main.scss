@@ -1,0 +1,11 @@
+// Import all page-specific styles
+@use 'home';
+@use 'auth';
+@use 'profile';
+@use 'game';
+@use 'tournament';
+@use 'error';
+@use 'leaderboard';
+@use 'news';
+@use 'settings';
+@use 'search';

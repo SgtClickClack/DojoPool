@@ -1,20 +1,21 @@
 # Image Compression Pipeline Documentation
 
 ## Overview
-The Image Compression Pipeline is a high-performance system for processing, optimizing, and converting images. It supports multiple formats, size variants, and parallel processing capabilities.
+The Image Compression Pipeline is a high-performance system for processing, optimizing, and converting images. It supports multiple formats, size variants, and parallel processing capabilities with memory optimization.
 
 ## Features
 - Multiple size variant generation (thumbnail, preview, full)
-- WebP conversion with configurable quality settings
-- Parallel processing for batch operations
+- AVIF, WebP, and JPEG format support with configurable quality settings
+- Parallel processing for batch operations with memory optimization
 - Transparent handling of RGBA images
 - Configurable output directory structure
 - Memory-efficient chunk processing
+- Automatic garbage collection between batches
 
 ## Installation
 Ensure you have the required dependencies installed:
 ```bash
-pip install Pillow==10.1.0
+pip install Pillow==10.1.0 pillow-avif==1.3.1
 ```
 
 ## Configuration
@@ -26,7 +27,9 @@ DEFAULT_COMPRESSION_CONFIG = {
     'max_dimension': 2048,      # Maximum dimension for any side
     'jpeg_quality': 85,         # JPEG compression quality (0-100)
     'webp_quality': 80,         # WebP compression quality (0-100)
+    'avif_quality': 75,         # AVIF compression quality (0-100)
     'webp_lossless': False,     # Whether to use lossless WebP
+    'avif_speed': 6,           # AVIF encoding speed (0-10, higher is faster)
     
     # Size variants configuration
     'size_variants': {
@@ -34,23 +37,28 @@ DEFAULT_COMPRESSION_CONFIG = {
             'max_dimension': 150,
             'jpeg_quality': 80,
             'webp_quality': 75,
+            'avif_quality': 70,
         },
         'preview': {
             'max_dimension': 500,
             'jpeg_quality': 85,
             'webp_quality': 80,
+            'avif_quality': 75,
         },
         'full': {
             'max_dimension': 2048,
             'jpeg_quality': 90,
             'webp_quality': 85,
+            'avif_quality': 80,
         }
     },
     
     'convert_to_webp': True,    # Generate WebP versions
+    'convert_to_avif': True,    # Generate AVIF versions
     'keep_original': True,      # Keep original format
     'max_threads': 4,           # Concurrent compression threads
     'chunk_size': 10,          # Images per batch
+    'avif_threads': 2,         # Threads for AVIF encoding
     
     'output_structure': {
         'use_subdirs': True,    # Use subdirectories
@@ -63,23 +71,30 @@ DEFAULT_COMPRESSION_CONFIG = {
 
 ### Basic Usage
 ```python
-from dojopool.services.image_compression import ImageCompressionService
+from dojopool.core.image.compression import ImageCompressionService, ImageFormat, CompressionConfig
 
 # Initialize with default settings
 compression_service = ImageCompressionService()
 
 # Compress a single image
-result = compression_service.compress_image(
-    input_path='path/to/image.jpg',
-    output_dir='path/to/output',
-    filename='processed_image'
+config = CompressionConfig(
+    format=ImageFormat.AVIF,
+    quality=85,
+    target_size=(800, 600)
 )
+compressed, mime_type = compression_service.compress_image(image_data, config)
 
 # Batch compress a directory
-results = compression_service.batch_compress_directory(
+result = compression_service.batch_compress_directory(
     input_dir='path/to/images',
-    output_dir='path/to/output'
+    output_dir='path/to/output',
+    chunk_size=10  # Optional: override default chunk size
 )
+
+# Check batch processing results
+print(f"Successfully processed: {len(result.successful)} images")
+print(f"Failed to process: {len(result.failed)} images")
+print(f"Total compression ratio: {(result.total_input_size - result.total_output_size) / result.total_input_size:.2%}")
 ```
 
 ### Custom Configuration
@@ -88,138 +103,130 @@ custom_config = {
     'max_dimension': 1024,
     'jpeg_quality': 90,
     'webp_quality': 85,
+    'avif_quality': 80,
     'size_variants': {
-        'thumbnail': {'max_dimension': 200, 'jpeg_quality': 85, 'webp_quality': 80},
-        'full': {'max_dimension': 1024, 'jpeg_quality': 90, 'webp_quality': 85}
-    }
+        'thumbnail': {
+            'max_dimension': 200,
+            'jpeg_quality': 85,
+            'webp_quality': 80,
+            'avif_quality': 75
+        },
+        'full': {
+            'max_dimension': 1024,
+            'jpeg_quality': 90,
+            'webp_quality': 85,
+            'avif_quality': 80
+        }
+    },
+    'max_threads': 2,
+    'chunk_size': 5
 }
 
 compression_service = ImageCompressionService(config=custom_config)
 ```
 
-## API Reference
+## Memory Management
+The service includes several features for efficient memory usage:
 
-### ImageCompressionService
+1. **Chunk Processing**: Images are processed in configurable chunks to limit memory usage
+2. **Garbage Collection**: Automatic garbage collection between chunks
+3. **Parallel Processing**: Configurable thread count for balancing performance and memory usage
+4. **Resource Cleanup**: Proper cleanup of image resources after processing
 
-#### `__init__(config: Optional[Dict[str, Any]] = None)`
-Initialize the compression service with optional custom configuration.
+### Memory Usage Guidelines
+- Adjust `chunk_size` based on your average image size and available memory
+- Monitor memory usage and adjust `max_threads` accordingly
+- For large images, use smaller chunk sizes
+- For high-resolution AVIF encoding, consider reducing `avif_threads`
 
-#### `compress_image(input_path: str, output_dir: str, filename: str) -> Dict[str, Dict[str, str]]`
-Compress a single image with all configured size variants.
+## Format Support
 
-**Arguments:**
-- `input_path`: Path to the input image file
-- `output_dir`: Base directory for output
-- `filename`: Original filename without extension
+### AVIF
+- High compression ratio
+- Excellent quality retention
+- Configurable encoding speed
+- RGB mode conversion for RGBA images
+- Multi-threaded encoding support
 
-**Returns:**
-Dictionary of variant paths by format:
-```python
-{
-    'thumbnail': {
-        'jpeg': 'path/to/thumbnail.jpg',
-        'webp': 'path/to/thumbnail.webp'
-    },
-    'preview': {
-        'jpeg': 'path/to/preview.jpg',
-        'webp': 'path/to/preview.webp'
-    },
-    'full': {
-        'jpeg': 'path/to/full.jpg',
-        'webp': 'path/to/full.webp'
-    }
-}
-```
+### WebP
+- Good balance of compression and quality
+- Fast encoding and decoding
+- Optional lossless compression
+- Wide browser support
 
-#### `batch_compress_directory(input_dir: str, output_dir: str) -> List[Dict[str, Dict[str, str]]]`
-Compress all images in a directory using parallel processing.
-
-**Arguments:**
-- `input_dir`: Directory containing input images
-- `output_dir`: Directory to save compressed images
-
-**Returns:**
-List of compression results for each image, following the same format as `compress_image`.
-
-## Performance Considerations
-
-### Memory Usage
-- Images are processed in chunks to manage memory usage
-- Each chunk is processed in parallel using a thread pool
-- Default chunk size is 10 images
-- Maximum concurrent threads is 4 by default
-
-### Optimization
-- JPEG compression uses optimize=True for better compression
-- WebP compression uses method=6 for highest compression effort
-- Images are resized using LANCZOS resampling for best quality
-- RGBA images are handled appropriately for each format
+### JPEG
+- Universal compatibility
+- Configurable quality settings
+- Optimized compression
 
 ## Error Handling
 The service includes comprehensive error handling:
-- Invalid image files are detected and reported
-- Missing files or directories trigger appropriate exceptions
-- Processing errors are logged with detailed information
-- Failed items in batch processing don't stop the entire batch
+- Invalid image detection
+- Format compatibility checks
+- Memory usage monitoring
+- Batch processing error isolation
+- Detailed error logging
 
 ## Best Practices
-1. **Memory Management**
-   - Adjust `chunk_size` based on your average image size
-   - Monitor memory usage and adjust `max_threads` accordingly
 
-2. **Quality Settings**
-   - Use lower quality for thumbnails (75-80)
-   - Use higher quality for full-size images (85-90)
-   - Enable WebP for better compression with transparency support
+### Quality Settings
+- Use lower quality for thumbnails (70-80)
+- Use medium quality for previews (75-85)
+- Use higher quality for full-size images (85-90)
+- Adjust AVIF speed based on your performance requirements
 
-3. **Directory Structure**
-   - Use subdirectories for better organization
-   - Keep variants in separate directories for easier management
+### Performance Optimization
+- Set appropriate thread counts based on CPU cores
+- Use chunk sizes that fit your memory constraints
+- Enable AVIF for best compression results
+- Keep original format for compatibility
 
-4. **Error Handling**
-   - Always wrap compression calls in try-except blocks
-   - Log errors for debugging
-   - Implement retry logic for failed items in production
+### Directory Structure
+- Use subdirectories for better organization
+- Separate variants into directories for easier management
+- Use consistent naming conventions
+
+### Error Handling
+- Implement retry logic for failed items
+- Log errors with sufficient context
+- Monitor batch processing results
+- Clean up temporary files
 
 ## Examples
 
-### Processing with Custom Size Variants
+### Processing with Progress Tracking
 ```python
-config = DEFAULT_COMPRESSION_CONFIG.copy()
-config['size_variants'] = {
-    'small': {
-        'max_dimension': 300,
-        'jpeg_quality': 80,
-        'webp_quality': 75,
-    },
-    'medium': {
-        'max_dimension': 800,
-        'jpeg_quality': 85,
-        'webp_quality': 80,
-    }
-}
+from tqdm import tqdm
+import os
 
-service = ImageCompressionService(config=config)
-result = service.compress_image('input.jpg', 'output', 'processed')
+def process_with_progress(input_dir: str, output_dir: str):
+    service = ImageCompressionService()
+    
+    # Get list of files
+    files = [f for f in os.listdir(input_dir) 
+             if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
+    
+    # Process with progress bar
+    with tqdm(total=len(files), desc="Processing images") as pbar:
+        result = service.batch_compress_directory(
+            input_dir=input_dir,
+            output_dir=output_dir
+        )
+        pbar.update(len(result.successful))
+    
+    return result
 ```
 
-### Batch Processing with Progress Tracking
+### Memory-Optimized Processing
 ```python
-import tqdm
-
-service = ImageCompressionService()
-results = []
-
-# Get list of files
-files = [f for f in os.listdir(input_dir) 
-         if f.lower().endswith(('.jpg', '.png', '.webp'))]
-
-# Process with progress bar
-for file in tqdm.tqdm(files, desc="Processing images"):
-    result = service.compress_image(
-        os.path.join(input_dir, file),
-        output_dir,
-        os.path.splitext(file)[0]
-    )
-    results.append(result)
+def process_large_directory(input_dir: str, output_dir: str):
+    config = DEFAULT_COMPRESSION_CONFIG.copy()
+    config.update({
+        'chunk_size': 5,        # Small chunks for memory efficiency
+        'max_threads': 2,       # Limit concurrent processing
+        'avif_threads': 1       # Single-threaded AVIF encoding
+    })
+    
+    service = ImageCompressionService(config=config)
+    return service.batch_compress_directory(input_dir, output_dir)
 ``` 

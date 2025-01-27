@@ -1,0 +1,34 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\components\\ThemeToggle.js",
+  "typescript_file": "src\\dojopool\\static\\js\\components\\ThemeToggle.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\ThemeToggle.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "ThemeToggle",
+        "extends": "HTMLElement",
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "currentTheme",
+        "type": "any"
+      },
+      {
+        "name": "isDark",
+        "type": "any"
+      },
+      {
+        "name": "button",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "ThemeToggle": "\nclass ThemeToggle extends HTMLElement {\n    // Properties and methods\n}"
+  }
+}

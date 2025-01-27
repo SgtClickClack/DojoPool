@@ -2,43 +2,42 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Helper functions
+    // Authentication check
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    function isImageType() {
-      return request.resource.contentType.matches('image/.*');
+    // Image validation
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024; // 5MB max
     }
     
-    function isValidSize() {
-      return request.resource.size <= 5 * 1024 * 1024; // 5MB max
-    }
-
     // Profile images
-    match /profile-images/{userId}/{fileName} {
+    match /users/{userId}/profile/{fileName} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() 
-        && request.auth.uid == userId 
-        && isImageType() 
-        && isValidSize();
-      allow update: if isAuthenticated() 
-        && request.auth.uid == userId 
-        && isImageType() 
-        && isValidSize();
-      allow delete: if isAuthenticated() 
-        && request.auth.uid == userId;
+      allow write: if isAuthenticated() 
+        && request.auth.uid == userId
+        && isValidImage();
     }
-
-    // Match images/replays
-    match /match-content/{matchId}/{fileName} {
+    
+    // Game recordings
+    match /games/{gameId}/{fileName} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() 
-        && isImageType() 
-        && isValidSize();
-      allow delete: if isAuthenticated() 
-        && (resource.metadata.uploadedBy == request.auth.uid 
-            || resource.metadata.isAdmin == true);
+      allow write: if isAuthenticated() 
+        && exists(/databases/$(database)/documents/games/$(gameId))
+        && (
+          get(/databases/$(database)/documents/games/$(gameId)).data.createdBy == request.auth.uid ||
+          get(/databases/$(database)/documents/games/$(gameId)).data.participants[request.auth.uid] == true
+        );
+    }
+    
+    // Venue images
+    match /venues/{venueId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        && isValidImage();
     }
   }
 } 

@@ -1,84 +1,109 @@
-from prometheus_client import Counter, Histogram, Info
-from functools import wraps
-import time
-import platform
-from flask import request
+"""
+Monitoring utilities and base Prometheus metrics.
+"""
+
+from prometheus_client import Counter, Histogram
 
 # Request metrics
 REQUEST_COUNT = Counter(
-    'app_request_count',
-    'Application Request Count',
+    'app_request_count_total',
+    'Total Request Count',
     ['method', 'endpoint', 'http_status']
 )
 
 REQUEST_LATENCY = Histogram(
     'app_request_latency_seconds',
-    'Application Request Latency',
+    'Request Latency',
     ['method', 'endpoint']
 )
 
+# Image processing metrics
+IMAGE_PROCESSING_COUNT = Counter(
+    'app_image_processing_total',
+    'Total Image Processing Count',
+    ['format', 'status']
+)
+
+IMAGE_PROCESSING_DURATION = Histogram(
+    'app_image_processing_duration_seconds',
+    'Image Processing Duration',
+    ['format']
+)
+
+IMAGE_SIZE_REDUCTION = Histogram(
+    'app_image_size_reduction_bytes',
+    'Image Size Reduction',
+    ['format']
+)
+
+# Memory usage metrics
+MEMORY_USAGE = Histogram(
+    'app_memory_usage_bytes',
+    'Memory Usage',
+    ['component']
+)
+
+# Error metrics
+ERROR_COUNT = Counter(
+    'app_error_count_total',
+    'Total Error Count',
+    ['severity', 'component']
+)
+
+ERROR_HANDLING_DURATION = Histogram(
+    'app_error_handling_duration_seconds',
+    'Error Handling Duration',
+    ['severity', 'component']
+)
+
+# Cache metrics
+CACHE_HIT_COUNT = Counter(
+    'app_cache_hit_total',
+    'Cache Hit Count',
+    ['cache_type']
+)
+
+CACHE_MISS_COUNT = Counter(
+    'app_cache_miss_total',
+    'Cache Miss Count',
+    ['cache_type']
+)
+
 # Database metrics
-DB_QUERY_LATENCY = Histogram(
-    'app_db_query_latency_seconds',
-    'Database Query Latency',
+DB_QUERY_DURATION = Histogram(
+    'app_db_query_duration_seconds',
+    'Database Query Duration',
     ['query_type']
 )
 
-# Custom metrics
-GAME_COUNT = Counter(
-    'app_game_count',
-    'Number of Games Played',
-    ['game_type']
+DB_CONNECTION_COUNT = Counter(
+    'app_db_connection_total',
+    'Database Connection Count',
+    ['status']
 )
 
-# System info
-APP_INFO = Info('app_version', 'Application Version')
+# System metrics
+SYSTEM_CPU_USAGE = Histogram(
+    'app_system_cpu_usage_percent',
+    'System CPU Usage',
+    ['component']
+)
 
-def track_request_metrics():
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            start_time = time.time()
-            
-            response = f(*args, **kwargs)
-            
-            # Record request latency
-            REQUEST_LATENCY.labels(
-                method=request.method,
-                endpoint=request.endpoint
-            ).observe(time.time() - start_time)
-            
-            # Record request count
-            REQUEST_COUNT.labels(
-                method=request.method,
-                endpoint=request.endpoint,
-                http_status=response.status_code
-            ).inc()
-            
-            return response
-        return decorated_function
-    return decorator
+SYSTEM_DISK_USAGE = Histogram(
+    'app_system_disk_usage_bytes',
+    'System Disk Usage',
+    ['mount_point']
+)
 
-def track_db_query(query_type):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            start_time = time.time()
-            
-            result = f(*args, **kwargs)
-            
-            DB_QUERY_LATENCY.labels(
-                query_type=query_type
-            ).observe(time.time() - start_time)
-            
-            return result
-        return decorated_function
-    return decorator
+# Network metrics
+NETWORK_IO = Counter(
+    'app_network_io_bytes_total',
+    'Network IO',
+    ['direction']  # in/out
+)
 
-def init_metrics(app):
-    """Initialize application metrics"""
-    APP_INFO.info({
-        'version': app.config.get('VERSION', 'unknown'),
-        'python_version': platform.python_version(),
-        'environment': app.config.get('ENV', 'unknown')
-    })
+NETWORK_LATENCY = Histogram(
+    'app_network_latency_seconds',
+    'Network Latency',
+    ['endpoint']
+)

@@ -1,0 +1,154 @@
+{% extends "venue/base_venue.html" %}
+
+{% block venue_content %}
+<div class="venue-detail-container">
+    <div class="venue-header">
+        <div class="venue-title">
+            <h1 class="neon-text">{{ venue.name }}</h1>
+            <span class="venue-status {% if venue.is_open %}open{% else %}closed{% endif %}">
+                {{ "Open" if venue.is_open else "Closed" }}
+            </span>
+        </div>
+        {% if current_user.is_admin %}
+        <div class="venue-actions">
+            <a href="{{ url_for('venue.edit_venue', venue_id=venue.id) }}" class="gaming-button">
+                <i class="fas fa-edit"></i> Edit Venue
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="venue-info-grid">
+        <!-- Basic Information -->
+        <div class="venue-info-section gaming-card">
+            <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+            <div class="info-content">
+                <p><strong>Address:</strong> {{ venue.address }}</p>
+                <p><strong>Phone:</strong> {{ venue.phone }}</p>
+                <p><strong>Email:</strong> {{ venue.email }}</p>
+                <p><strong>Operating Hours:</strong></p>
+                <ul class="hours-list">
+                    {% for day, hours in venue.operating_hours.items() %}
+                    <li>{{ day }}: {{ hours }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Current Status -->
+        <div class="venue-info-section gaming-card">
+            <h3><i class="fas fa-chart-line"></i> Current Status</h3>
+            <div class="info-content">
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">Active Players</span>
+                        <span class="status-value">{{ venue.active_players }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Available Tables</span>
+                        <span class="status-value">{{ venue.available_tables }}/{{ venue.total_tables }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Wait Time</span>
+                        <span class="status-value">{{ venue.estimated_wait_time }} min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Amenities -->
+        <div class="venue-info-section gaming-card">
+            <h3><i class="fas fa-concierge-bell"></i> Amenities</h3>
+            <div class="info-content">
+                <div class="amenities-grid">
+                    {% for amenity in venue.amenities %}
+                    <div class="amenity-item">
+                        <i class="fas {{ amenity.icon }}"></i>
+                        <span>{{ amenity.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Tournament -->
+        {% if venue.current_tournament %}
+        <div class="venue-info-section gaming-card highlight">
+            <h3><i class="fas fa-trophy"></i> Current Tournament</h3>
+            <div class="info-content">
+                <h4>{{ venue.current_tournament.name }}</h4>
+                <p><strong>Status:</strong> {{ venue.current_tournament.status }}</p>
+                <p><strong>Players:</strong> {{ venue.current_tournament.player_count }}/{{
+                    venue.current_tournament.max_players }}</p>
+                <p><strong>Prize Pool:</strong> {{ venue.current_tournament.prize_pool }}</p>
+                <a href="{{ url_for('tournament.tournament_detail', tournament_id=venue.current_tournament.id) }}"
+                    class="gaming-button">
+                    View Tournament
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Active Players -->
+    <div class="active-players-section gaming-card">
+        <h3><i class="fas fa-users"></i> Active Players</h3>
+        <div class="players-grid">
+            {% for player in active_players %}
+            <div class="player-card">
+                <img src="{{ player.avatar_url }}" alt="{{ player.username }}" class="player-avatar">
+                <div class="player-info">
+                    <h4>{{ player.username }}</h4>
+                    <p>Checked in: {{ player.check_in_time|timeago }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block venue_sidebar %}
+<aside class="venue-sidebar gaming-card">
+    <h3>Quick Actions</h3>
+    {% if current_user.is_authenticated %}
+    {% if venue.id in user_checkins %}
+    <button class="gaming-button danger checkout-btn" data-venue-id="{{ venue.id }}">
+        <i class="fas fa-sign-out-alt"></i> Check Out
+    </button>
+    {% else %}
+    <button class="gaming-button success checkin-btn" data-venue-id="{{ venue.id }}">
+        <i class="fas fa-sign-in-alt"></i> Check In
+    </button>
+    {% endif %}
+    {% endif %}
+
+    <div class="action-links">
+        <a href="{{ url_for('venue.venue_stats', venue_id=venue.id) }}" class="gaming-button">
+            <i class="fas fa-chart-bar"></i> View Statistics
+        </a>
+        <a href="{{ url_for('venue.venue_leaderboard', venue_id=venue.id) }}" class="gaming-button">
+            <i class="fas fa-trophy"></i> View Leaderboard
+        </a>
+        <a href="{{ url_for('venue.venue_tournaments', venue_id=venue.id) }}" class="gaming-button">
+            <i class="fas fa-gamepad"></i> View Tournaments
+        </a>
+    </div>
+
+    {% if venue.upcoming_tournaments %}
+    <div class="upcoming-tournaments">
+        <h3>Upcoming Tournaments</h3>
+        <ul>
+            {% for tournament in venue.upcoming_tournaments %}
+            <li>
+                <a href="{{ url_for('tournament.tournament_detail', tournament_id=tournament.id) }}">
+                    {{ tournament.name }}
+                </a>
+                <span class="tournament-date">{{ tournament.start_time|format_datetime }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</aside>
+{% endblock %}

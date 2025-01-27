@@ -74,7 +74,7 @@ git checkout -b feature/your-feature-name
 ```
 
 2. **Make Changes**
-- Follow [coding standards](./coding-standards.md)
+- Follow [coding standards](coding-standards.md)
 - Write tests
 - Update documentation
 

@@ -1,0 +1,109 @@
+{% extends "venue/base_venue.html" %}
+
+{% block venue_content %}
+<div class="venue-list-container">
+    <div class="venue-list-header">
+        <h1 class="neon-text">DojoPool Venues</h1>
+        <div class="venue-filters">
+            <input type="text" id="venue-search" class="gaming-input" placeholder="Search venues...">
+            <select id="venue-filter" class="gaming-select">
+                <option value="all">All Venues</option>
+                <option value="open">Open Now</option>
+                <option value="tournaments">With Tournaments</option>
+                <option value="active">Most Active</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="venue-grid" id="venue-grid">
+        {% for venue in venues %}
+        <div class="venue-card gaming-card">
+            <div class="venue-card-header">
+                <h3>{{ venue.name }}</h3>
+                <span class="venue-status {% if venue.is_open %}open{% else %}closed{% endif %}">
+                    {{ "Open" if venue.is_open else "Closed" }}
+                </span>
+            </div>
+            <div class="venue-card-body">
+                <p><i class="fas fa-map-marker-alt"></i> {{ venue.address }}</p>
+                <p><i class="fas fa-users"></i> {{ venue.active_players }} players now</p>
+                <p><i class="fas fa-table"></i> {{ venue.tables }} tables</p>
+                {% if venue.current_tournament %}
+                <p class="tournament-badge">
+                    <i class="fas fa-trophy"></i> Tournament in progress
+                </p>
+                {% endif %}
+            </div>
+            <div class="venue-card-footer">
+                <a href="{{ url_for('venue.venue_detail', venue_id=venue.id) }}" class="gaming-button">
+                    View Details
+                </a>
+                {% if current_user.is_authenticated %}
+                {% if venue.id in user_checkins %}
+                <button class="gaming-button danger checkout-btn" data-venue-id="{{ venue.id }}">
+                    Check Out
+                </button>
+                {% else %}
+                <button class="gaming-button success checkin-btn" data-venue-id="{{ venue.id }}">
+                    Check In
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- No results message -->
+    <div id="no-venues" class="no-results" style="display: none;">
+        <p>No venues found matching your criteria</p>
+    </div>
+
+    <!-- Load more button -->
+    {% if has_more %}
+    <button id="load-more" class="gaming-button load-more">
+        Load More Venues
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block venue_sidebar %}
+<aside class="venue-sidebar gaming-card">
+    <h3>Quick Stats</h3>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Total Venues</span>
+            <span class="stat-value">{{ total_venues }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Open Now</span>
+            <span class="stat-value">{{ open_venues }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Active Players</span>
+            <span class="stat-value">{{ total_active_players }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Active Tournaments</span>
+            <span class="stat-value">{{ active_tournaments }}</span>
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="recent-venues">
+        <h3>Your Recent Venues</h3>
+        <ul>
+            {% for venue in recent_venues %}
+            <li>
+                <a href="{{ url_for('venue.venue_detail', venue_id=venue.id) }}">
+                    {{ venue.name }}
+                </a>
+                <span class="visit-date">{{ venue.last_visit|timeago }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</aside>
+{% endblock %}

@@ -1,6 +1,0 @@
-# Testing Framework
-pytest==7.4.3
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-Pillow==10.1.0  # Same version as main requirements
-coverage==7.3.2 

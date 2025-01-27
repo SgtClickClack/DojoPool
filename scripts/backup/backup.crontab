@@ -1,2 +1,0 @@
-# Run database backup daily at 2 AM
-0 2 * * * /usr/local/bin/python /app/backup/database_backup.py >> /var/log/dojopool/cron.log 2>&1

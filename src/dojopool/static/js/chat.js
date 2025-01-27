@@ -241,12 +241,33 @@ async function sendMessage(event) {
 
   if (!content || !currentRoomId) return;
 
-  socket.emit('message', {
-    room_id: currentRoomId,
-    content: content,
-  });
+  try {
+    const response = await fetch(`/api/v1/chat/room/${currentRoomId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content }),
+    });
 
-  input.value = '';
+    const data = await response.json();
+    if (!response.ok) {
+      if (data.error && data.error.includes('must be in the same dojo')) {
+        showError('You can only chat with users in the same dojo');
+        // Optionally refresh the room list to show updated status
+        await loadChatRooms();
+      } else {
+        showError(data.error || 'Failed to send message');
+      }
+      return;
+    }
+
+    input.value = '';
+    appendMessage(data);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    showError('Failed to send message');
+  }
 }
 
 // Show new chat modal
@@ -257,57 +278,53 @@ function showNewChatModal() {
   modal.show();
 }
 
-// Load friend list
+// Load friend list with dojo status
 async function loadFriendList() {
   try {
-    const response = await fetch('/api/v1/friends');
-    const data = await response.json();
+    const response = await fetch('/api/v1/friends/with-status');
+    const friends = await response.json();
 
-    const friendList = document.getElementById('friend-select-list');
-    friendList.innerHTML = '';
+    const friendsList = document.getElementById('friends-list');
+    friendsList.innerHTML = '';
 
-    data.friends.forEach((friend) => {
+    friends.forEach(friend => {
       const friendElement = createFriendElement(friend);
-      friendList.appendChild(friendElement);
+      friendsList.appendChild(friendElement);
     });
   } catch (error) {
     console.error('Error loading friends:', error);
-    showError('Failed to load friends');
+    showError('Failed to load friends list');
   }
 }
 
-// Create friend element
+// Create friend element with dojo status
 function createFriendElement(friend) {
   const div = document.createElement('div');
   div.className = 'friend-item';
-  div.dataset.friendId = friend.id;
-  div.onclick = () => toggleFriendSelection(friend.id);
+
+  const canInteract = friend.can_interact;
+  const statusClass = canInteract ? 'status-available' : 'status-unavailable';
+  const statusText = canInteract ? 'In Same Dojo' : 'Different Dojo';
 
   div.innerHTML = `
-        <img src="${friend.avatar_url || '/static/img/default-avatar.png'}" alt="${friend.username}">
-        <div class="friend-name">${friend.username}</div>
-    `;
+    <div class="friend-info">
+      <img src="${friend.avatar_url || '/static/img/default-avatar.png'}" alt="${friend.username}" class="friend-avatar">
+      <span class="friend-name">${friend.username}</span>
+      <span class="friend-status ${statusClass}">${statusText}</span>
+    </div>
+    <input type="checkbox" value="${friend.id}" ${!canInteract ? 'disabled' : ''}>
+  `;
+
+  const checkbox = div.querySelector('input[type="checkbox"]');
+  checkbox.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      selectedFriends.add(friend.id);
+    } else {
+      selectedFriends.delete(friend.id);
+    }
+  });
 
   return div;
-}
-
-// Toggle friend selection
-function toggleFriendSelection(friendId) {
-  const friendElement = document.querySelector(
-    `.friend-item[data-friend-id="${friendId}"]`
-  );
-
-  if (selectedFriends.has(friendId)) {
-    selectedFriends.delete(friendId);
-    friendElement.classList.remove('selected');
-  } else {
-    selectedFriends.add(friendId);
-    friendElement.classList.add('selected');
-  }
-
-  // Show/hide group name input based on selection count
-  const groupNameDiv = document.querySelector('.group-chat-name');
-  groupNameDiv.style.display = selectedFriends.size > 1 ? 'block' : 'none';
 }
 
 // Create chat
@@ -333,14 +350,19 @@ async function createChat(event) {
       body: JSON.stringify(data),
     });
 
-    if (response.ok) {
-      const room = await response.json();
-      bootstrap.Modal.getInstance(
-        document.getElementById('newChatModal')
-      ).hide();
-      await loadChatRooms();
-      loadChatRoom(room.id);
+    const responseData = await response.json();
+    if (!response.ok) {
+      if (responseData.error && responseData.error.includes('must be in the same dojo')) {
+        showError('You can only chat with users in the same dojo');
+      } else {
+        showError(responseData.error || 'Failed to create chat');
+      }
+      return;
     }
+
+    bootstrap.Modal.getInstance(document.getElementById('newChatModal')).hide();
+    await loadChatRooms();
+    loadChatRoom(responseData.id);
   } catch (error) {
     console.error('Error creating chat:', error);
     showError('Failed to create chat');

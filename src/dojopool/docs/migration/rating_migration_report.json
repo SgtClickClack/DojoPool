@@ -1,0 +1,46 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\components\\rating.js",
+  "typescript_file": "src\\dojopool\\static\\js\\components\\rating.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\rating.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "Rating",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "icon",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "Rating": "\nclass Rating {\n    // Properties and methods\n}"
+  }
+}

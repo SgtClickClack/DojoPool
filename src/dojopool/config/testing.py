@@ -36,10 +36,10 @@ class TestingConfig(Config):
     
     # API keys
     MAIL_DEFAULT_SENDER = 'test@example.com'
-    SENDGRID_API_KEY = 'test-sendgrid-key'
+    SENDGRID_API_KEY = ''
     GOOGLE_CLIENT_ID = 'test-google-client-id'
-    GOOGLE_CLIENT_SECRET = 'test-google-client-secret'
-    OPENAI_API_KEY = 'test-openai-key'
+    GOOGLE_CLIENT_SECRET = ''
+    OPENAI_API_KEY = ''
     
     # Cache settings
     CACHE_TYPE = 'simple'

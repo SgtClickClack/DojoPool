@@ -1,19 +1,12 @@
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import GroupsIcon from '@mui/icons-material/Groups';
-import SchoolIcon from '@mui/icons-material/School';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Box, Button, Card, CardContent, Container, Grid, Typography, useTheme } from '@mui/material';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const features = [
-  {
-    title: 'AI-Powered Training',
-    description:
-      'Enhance your game with personalized training powered by advanced AI analysis of your technique and strategy.',
-    icon: <SchoolIcon sx={{ fontSize: 40 }} />,
-    path: '/training',
-  },
   {
     title: 'Marketplace',
     description:
@@ -35,147 +28,136 @@ const features = [
     icon: <GroupsIcon sx={{ fontSize: 40 }} />,
     path: '/community',
   },
+  {
+    title: 'Game Strategy',
+    description:
+      'Learn advanced techniques and strategies from top players and AI-powered analysis.',
+    icon: <SportsEsportsIcon sx={{ fontSize: 40 }} />,
+    path: '/game-strategy',
+  },
 ];
 
-const Home = () => {
+export default function Home() {
+  const theme = useTheme();
+
   return (
-    <Box>
+    <Box className="cyber-gradient" minHeight="100vh">
       {/* Hero Section */}
       <Box
         sx={{
           position: 'relative',
-          height: { xs: '70vh', md: '80vh' },
+          height: '70vh',
           display: 'flex',
           alignItems: 'center',
           overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(45deg, rgba(0,255,157,0.1) 0%, rgba(0,168,255,0.1) 100%)',
-            zIndex: -1,
-          },
         }}
       >
-        <Container maxWidth="lg">
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Box className="fade-in">
-                <Typography
-                  variant="h1"
-                  gutterBottom
-                  className="neon-text"
-                  sx={{
-                    fontWeight: 900,
-                    letterSpacing: '-0.05em',
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Level Up Your Pool Game
-                </Typography>
-                <Typography variant="h5" color="text.secondary" paragraph sx={{ mb: 4 }}>
-                  Master the art of pool with AI-powered training, analytics, and a vibrant
-                  community of players.
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    component={RouterLink}
-                    to="/register"
-                    startIcon={<SportsEsportsIcon />}
-                  >
-                    Get Started
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    size="large"
-                    component={RouterLink}
-                    to="/about"
-                  >
-                    Learn More
-                  </Button>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={6}
+        <Image
+          src="/images/pool-table-hero.jpg"
+          alt="Pool table with neon lighting"
+          layout="fill"
+          objectFit="cover"
+          priority
+          style={{ opacity: 0.7 }}
+        />
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+          <Typography
+            variant="h1"
+            className="neon-text"
+            sx={{
+              fontWeight: 700,
+              mb: 2,
+              textAlign: 'center',
+              fontSize: { xs: '2.5rem', md: '4rem' },
+            }}
+          >
+            Welcome to DojoPool
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              color: 'text.secondary',
+              mb: 4,
+              textAlign: 'center',
+              maxWidth: '800px',
+              mx: 'auto',
+            }}
+          >
+            Experience pool gaming like never before with our advanced tracking and analytics platform
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+            <Button
+              variant="contained"
+              size="large"
+              className="hover-glow"
               sx={{
-                display: { xs: 'none', md: 'flex' },
-                justifyContent: 'center',
+                fontSize: '1.2rem',
+                py: 1.5,
+                px: 4,
               }}
             >
-              {/* Add hero image or animation here */}
-            </Grid>
-          </Grid>
+              Get Started
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              className="hover-glow"
+              sx={{
+                fontSize: '1.2rem',
+                py: 1.5,
+                px: 4,
+              }}
+            >
+              Learn More
+            </Button>
+          </Box>
         </Container>
       </Box>
 
       {/* Features Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h2" align="center" gutterBottom className="neon-text" sx={{ mb: 6 }}>
-          Features
-        </Typography>
         <Grid container spacing={4}>
           {features.map((feature) => (
             <Grid item xs={12} sm={6} md={3} key={feature.title}>
-              <Card
-                component={RouterLink}
-                to={feature.path}
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  textDecoration: 'none',
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-8px)',
-                  },
-                }}
-              >
-                <CardContent
+              <Link href={feature.path} passHref style={{ textDecoration: 'none' }}>
+                <Card
+                  className="hover-glow"
                   sx={{
-                    flexGrow: 1,
-                    textAlign: 'center',
-                    p: 3,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.3s ease',
                   }}
                 >
-                  <Box
-                    sx={{
-                      mb: 2,
-                      color: 'primary.main',
-                      display: 'flex',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {feature.icon}
-                  </Box>
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    gutterBottom
-                    sx={{ color: 'text.primary' }}
-                  >
-                    {feature.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {feature.description}
-                  </Typography>
-                </CardContent>
-              </Card>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        mb: 2,
+                        color: 'primary.main',
+                      }}
+                    >
+                      {feature.icon}
+                    </Box>
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      component="h2"
+                      sx={{ textAlign: 'center', color: 'primary.main' }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                      {feature.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Link>
             </Grid>
           ))}
         </Grid>
       </Container>
     </Box>
   );
-};
-
-export default Home;
+}

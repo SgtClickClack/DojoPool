@@ -35,12 +35,12 @@ class UserUpdateSchema(Schema):
     @validates_schema
     def validate_password_update(self, data, **kwargs):
         """Validate password update fields."""
-        if any(field in data for field in ['new_password', 'confirm_new_password']):
+        if any(field in data for field in ['new_os.getenv("PASSWORD_23")]):
             if 'current_password' not in data:
                 raise ValidationError('Current password is required')
-            if 'new_password' not in data or 'confirm_new_password' not in data:
+            if 'new_os.getenv("PASSWORD_23") not in data:
                 raise ValidationError('New password and confirmation are required')
-            if data['new_password'] != data['confirm_new_password']:
+            if data['new_os.getenv("PASSWORD_23")]:
                 raise ValidationError('New passwords do not match')
             if len(data['new_password']) < 8:  # Using reasonable defaults
                 raise ValidationError('Password is too short')
@@ -107,9 +107,9 @@ class UserResource(BaseResource):
         
         # Handle password update
         if 'new_password' in data:
-            if not user.check_password(data['current_password']):
+            if not user.check_os.getenv("PASSWORD_23")]):
                 raise ValidationError('Current password is incorrect')
-            user.set_password(data['new_password'])
+            user.set_os.getenv("PASSWORD_23")])
         
         # Update other fields
         for field in ['first_name', 'last_name']:

@@ -1,0 +1,89 @@
+name: Performance Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  analyze-performance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download previous performance data
+        uses: actions/download-artifact@v3
+        with:
+          name: performance-history
+          path: performance-report
+        continue-on-error: true
+
+      - name: Run performance tests
+        run: npm run test:performance
+
+      - name: Generate performance analysis
+        run: |
+          node scripts/generate-trend-report.js
+          node scripts/generate-recommendations.js
+
+      - name: Check for critical regressions
+        run: |
+          if grep -q '"type":"critical"' performance-report/recommendations/recommendations.json; then
+            echo "::warning::Critical performance regressions detected! Check the performance report for details."
+            exit 1
+          fi
+
+      - name: Save performance data
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-history
+          path: performance-report/performance-history.json
+          retention-days: 90
+
+      - name: Deploy performance report
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: performance-report
+          destination_dir: performance-reports/${{ github.sha }}
+
+      - name: Update latest report link
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=./${{ github.sha }}/trend-report.html\">" > performance-report/index.html
+
+      - name: Deploy latest report link
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: performance-report
+          destination_dir: performance-reports
+
+      - name: Notify on performance changes
+        if: github.ref == 'refs/heads/main'
+        run: |
+          REPORT_URL="${{ github.server_url }}/${{ github.repository }}/performance-reports/${{ github.sha }}/trend-report.html"
+          if grep -q '"type":"warning"' performance-report/recommendations/recommendations.json; then
+            echo "::warning::Performance warnings detected. Check the report at: $REPORT_URL"
+          fi
+          if grep -q '"type":"improvement"' performance-report/recommendations/recommendations.json; then
+            echo "::notice::Performance improvements detected. Check the report at: $REPORT_URL"
+          fi 

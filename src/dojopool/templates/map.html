@@ -1,48 +1,181 @@
 {% extends "base.html" %}
 
-{% block title %}DojoPool - Find Venues{% endblock %}
+{% block title %}Map{% endblock %}
 
 {% block styles %}
 <style>
     .map-container {
+        position: relative;
+        min-height: calc(100vh - var(--navbar-height));
+        background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75)), url('/static/images/hero-vs.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         padding: 2rem;
-    }
-
-    .map-title {
-        font-family: 'Orbitron', sans-serif;
-        color: #00ff00;
-        text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        text-align: center;
-        margin-bottom: 2rem;
     }
 
     #venue-map {
         width: 100%;
-        height: 600px;
-        border: 2px solid #00ff00;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        height: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 168, 255, 0.3);
+        border: 1px solid var(--secondary-color);
     }
 
     .error-container {
-        color: #ff3860;
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        background-color: #f44336;
+        color: white;
+        padding: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        max-width: 80%;
         text-align: center;
-        margin-top: 1rem;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="map-container">
-        <h1 class="map-title">FIND VENUES NEAR YOU</h1>
-        <div id="venue-map"></div>
-        <div id="error-container" class="error-container"></div>
+<div class="map-container">
+    <div id="venue-map"></div>
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
     </div>
 </div>
+<div id="error-container" class="error-container"></div>
 {% endblock %}
 
 {% block scripts %}
-<script async
-    src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places,marker,visualization&callback=initMap&v=weekly"></script>
-<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script>
+    // Debug information
+    console.log('Template loaded');
+    console.log('Map container:', document.getElementById('venue-map'));
+
+    // Show error messages
+    function showError(message) {
+        console.error('Error:', message);
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Initialize map
+    async function initMap() {
+        console.log('initMap called');
+        try {
+            const mapDiv = document.getElementById('venue-map');
+            if (!mapDiv) {
+                throw new Error('Map container not found');
+            }
+
+            // Create map with configuration
+            const map = new google.maps.Map(mapDiv, {
+                center: {{ maps_config.default_center | tojson | safe }},
+        zoom: { { maps_config.default_zoom } },
+        styles: { { maps_config.map_styles | tojson | safe } },
+                ...{ { maps_config.map_options | tojson | safe } }
+    });
+
+    console.log('Map created successfully');
+
+    // Try HTML5 geolocation
+    if (navigator.geolocation) {
+        try {
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
+
+            const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            console.log('User location:', pos);
+            map.setCenter(pos);
+
+            // Add user location marker
+            new google.maps.Marker({
+                position: pos,
+                map: map,
+                title: "Your Location",
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: "#2196F3",
+                    fillOpacity: 0.8,
+                    strokeWeight: 2,
+                    strokeColor: "#ffffff"
+                }
+            });
+
+        } catch (error) {
+            console.warn('Geolocation error:', error);
+            showError("Could not get your location. Using default location.");
+        }
+    } else {
+        console.warn("Browser doesn't support geolocation");
+        showError("Your browser doesn't support geolocation. Using default location.");
+    }
+
+    // Hide loading overlay
+    document.getElementById('loading-overlay').style.display = 'none';
+
+        } catch (error) {
+        console.error('Map initialization error:', error);
+        showError('Failed to initialize map: ' + error.message);
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+    }
+
+    // Handle Google Maps API errors
+    function gm_authFailure() {
+        console.error('Google Maps authentication failed');
+        showError('Google Maps authentication failed. Please check your API key.');
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+</script>
+
+<!-- Load Google Maps API -->
+<script src="{{ maps_config.get_map_url('places,marker') | safe }}" async defer></script>
 {% endblock %}

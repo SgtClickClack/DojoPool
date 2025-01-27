@@ -1,210 +1,162 @@
-name: DojoPool CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
-  validate:
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9, 3.10]
-        node-version: [18.x]
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+    
     steps:
-      - uses: actions/checkout@v3
-      
-      # Python Setup and Tests
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r tests/requirements-test.txt
-          
-      - name: Run Python tests
-        env:
-          FLASK_ENV: testing
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          REDIS_URL: redis://localhost:6379/1
-          SECRET_KEY: test-secret-key
-          JWT_SECRET_KEY: test-jwt-secret
-        run: |
-          pytest tests -v --cov=src --cov-report=xml
-          
-      - name: Python Linting
-        run: |
-          pip install flake8 black mypy isort
-          flake8 src tests
-          black --check src tests
-          isort --check-only src tests
-          mypy src
-          
-      # Node.js Setup and Tests
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          
-      - name: Install Node.js dependencies
-        run: npm ci
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linting
+      run: npm run lint
+    
+    - name: Run unit tests
+      run: npm run test
+    
+    - name: Run E2E tests
+      uses: cypress-io/github-action@v5
+      with:
+        start: npm run dev
+        wait-on: 'http://localhost:3000'
+        browser: chrome
+        record: true
+      env:
+        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Run Percy visual tests
+      run: npx percy exec -- cypress run -s "cypress/e2e/visual.cy.ts"
+      env:
+        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
         
-      - name: Type check
-        run: npm run type-check
-        
-      - name: Lint
-        run: npm run lint
-        
-      - name: Test
-        run: npm run test
-        
-      - name: Build
-        run: npm run build
+    - name: Run performance tests
+      run: npx cypress run -s "cypress/e2e/performance.cy.ts"
+      env:
+        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
-  security:
-    needs: validate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Python Security Checks
-        run: |
-          pip install bandit safety
-          bandit -r src
-          safety check
-      
-      - name: Node.js Security Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          
-      - name: Run SAST
-        uses: github/codeql-action/analyze@v2
-        
-  performance:
-    needs: validate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v9
-        with:
-          urls: |
-            https://staging.dojopool.com
-          budgetPath: ./.github/lighthouse/budget.json
-          uploadArtifacts: true
-          
   deploy-staging:
-    if: github.ref == 'refs/heads/develop'
-    needs: [validate, security, performance]
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: dojopool/api:staging
-          
-      - name: Deploy to staging
-        run: |
-          # Add deployment commands for staging
-          echo "Deploying to staging environment"
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-          
-      - name: Run smoke tests
-        run: npm run test:smoke
-        
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+      env:
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+        NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+    
+    - name: Deploy to Vercel (Staging)
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        zeit-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: ./
+
   deploy-production:
-    if: github.ref == 'refs/heads/main'
-    needs: [validate, security, performance]
+    needs: deploy-staging
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: dojopool/api:latest
-          
-      - name: Deploy to production
-        run: |
-          # Add deployment commands for production
-          echo "Deploying to production environment"
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-          
-      - name: Run smoke tests
-        run: npm run test:smoke
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+      env:
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+        NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+    
+    - name: Deploy to Vercel (Production)
+      id: deploy
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        zeit-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: ./
         
-      - name: Create release
-        if: success()
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: false
-          prerelease: false 
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v9
+      with:
+        urls: |
+          ${{ steps.deploy.outputs.url }}
+          ${{ steps.deploy.outputs.url }}/auth/signin
+          ${{ steps.deploy.outputs.url }}/dashboard
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        configPath: './.github/lighthouse/config.json'
+        
+    - name: Run performance monitoring
+      run: |
+        npm install -g lighthouse-ci
+        lhci autorun --collect.url=${{ steps.deploy.outputs.url }} --upload.target=temporary-public-storage
+        
+    - name: Monitor deployment health
+      run: |
+        curl -sSf ${{ steps.deploy.outputs.url }} > /dev/null
+        curl -sSf ${{ steps.deploy.outputs.url }}/api/health > /dev/null
+        
+  notify:
+    needs: [deploy-production]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 

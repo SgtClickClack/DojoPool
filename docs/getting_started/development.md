@@ -266,6 +266,6 @@ def calculate_ranking(player_id: int, game_history: List[Game]) -> float:
 
 ## Next Steps
 
-- Review the [API Documentation](../api/README.md)
-- Learn about [Testing](../development/testing.md)
-- Understand the [Git Workflow](../development/git_workflow.md) 
+- Review the [API Documentation](../API_REFERENCE.md)
+- Learn about [Testing](../testing/README.md)
+- Understand the [Git Workflow](../guide/workflow.md) 

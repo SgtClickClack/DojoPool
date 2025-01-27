@@ -19,7 +19,7 @@ ERROR_CODES: Dict[str, str] = {
     
     # Authentication errors
     'UNAUTHORIZED': 'AUTH001',
-    'INVALID_TOKEN': 'AUTH002',
+    'INVALID_TOKEN': '',
     'TOKEN_EXPIRED': 'AUTH003',
     
     # Database errors

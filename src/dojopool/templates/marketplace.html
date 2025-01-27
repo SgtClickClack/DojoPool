@@ -198,134 +198,124 @@
 {% include 'includes/navigation.html' %}
 
 <div class="marketplace-container">
-    <div class="container">
-        <div class="marketplace-header">
-            <h1 class="marketplace-title">Marketplace</h1>
-        </div>
-
-        <div class="marketplace-actions">
-            <button class="btn btn-cyber">Create Listing</button>
-            <button class="btn btn-cyber">Start Auction</button>
-        </div>
-
-        <div class="filters">
-            <div class="filter-group">
-                <span class="filter-label">Item Type:</span>
-                <select class="filter-select">
-                    <option value="all">All Types</option>
-                    <option value="weapon">Weapons</option>
-                    <option value="armor">Armor</option>
-                    <option value="accessory">Accessories</option>
-                </select>
-
-                <span class="filter-label">Rarity:</span>
-                <select class="filter-select">
-                    <option value="all">All Rarities</option>
-                    <option value="common">Common</option>
-                    <option value="rare">Rare</option>
-                    <option value="epic">Epic</option>
-                    <option value="legendary">Legendary</option>
-                </select>
-
-                <span class="filter-label">Price Range:</span>
-                <select class="filter-select">
-                    <option value="all">All Prices</option>
-                    <option value="0-100">$0 - $100</option>
-                    <option value="100-500">$100 - $500</option>
-                    <option value="500+">$500+</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="items-grid">
-            <!-- Example Item Card -->
-            <div class="item-card">
-                <img src="{{ url_for('static', filename='images/items/cyber-sword.jpg') }}" alt="Cyber Sword"
-                    class="item-image">
-                <div class="item-content">
-                    <h3 class="item-name">Cyber Sword</h3>
-                    <div class="item-type">
-                        <i class="bi bi-shield-shaded"></i> Weapon
+<div class="container">
+<div class="marketplace-header">
+<h1 class="marketplace-title">Marketplace</h1>
+</div>
+<div class="marketplace-actions">
+<button class="btn btn-cyber">Create Listing</button>
+<button class="btn btn-cyber">Start Auction</button>
+</div>
+<div class="filters">
+<div class="filter-group">
+<span class="filter-label">Item Type:</span>
+<select class="filter-select">
+<option value="all">All Types</option>
+<option value="weapon">Weapons</option>
+<option value="armor">Armor</option>
+<option value="accessory">Accessories</option>
+</select>
+<span class="filter-label">Rarity:</span>
+<select class="filter-select">
+<option value="all">All Rarities</option>
+<option value="common">Common</option>
+<option value="rare">Rare</option>
+<option value="epic">Epic</option>
+<option value="legendary">Legendary</option>
+</select>
+<span class="filter-label">Price Range:</span>
+<select class="filter-select">
+<option value="all">All Prices</option>
+<option value="0-100">$0 - $100</option>
+<option value="100-500">$100 - $500</option>
+<option value="500+">$500+</option>
+</select>
+</div>
+</div>
+<div class="items-grid">
+<!-- Example Item Card -->
+<div class="item-card">
+<img alt="Cyber Sword" class="item-image" loading="lazy" src="{{ url_for('static', filename='images/items/cyber-sword.jpg') }}"/>
+<div class="item-content">
+<h3 class="item-name">Cyber Sword</h3>
+<div class="item-type">
+<i class="bi bi-shield-shaded"></i> Weapon
                     </div>
-                    <div class="item-stats">
-                        <div class="item-stat">
-                            <div class="stat-label">Attack</div>
-                            <div class="stat-value">85</div>
-                        </div>
-                        <div class="item-stat">
-                            <div class="stat-label">Speed</div>
-                            <div class="stat-value">65</div>
-                        </div>
+<div class="item-stats">
+<div class="item-stat">
+<div class="stat-label">Attack</div>
+<div class="stat-value">85</div>
+</div>
+<div class="item-stat">
+<div class="stat-label">Speed</div>
+<div class="stat-value">65</div>
+</div>
+</div>
+<div class="item-rarity rarity-epic">Epic</div>
+<div class="item-price">$299</div>
+<div class="item-actions">
+<button class="btn btn-cyber btn-item">View Details</button>
+<button class="btn btn-cyber btn-item">Buy Now</button>
+</div>
+</div>
+</div>
+<!-- Example Item Card -->
+<div class="item-card">
+<img alt="Neon Shield" class="item-image" loading="lazy" src="{{ url_for('static', filename='images/items/neon-shield.jpg') }}"/>
+<div class="item-content">
+<h3 class="item-name">Neon Shield</h3>
+<div class="item-type">
+<i class="bi bi-shield-fill"></i> Armor
                     </div>
-                    <div class="item-rarity rarity-epic">Epic</div>
-                    <div class="item-price">$299</div>
-                    <div class="item-actions">
-                        <button class="btn btn-cyber btn-item">View Details</button>
-                        <button class="btn btn-cyber btn-item">Buy Now</button>
+<div class="item-stats">
+<div class="item-stat">
+<div class="stat-label">Defense</div>
+<div class="stat-value">95</div>
+</div>
+<div class="item-stat">
+<div class="stat-label">Weight</div>
+<div class="stat-value">45</div>
+</div>
+</div>
+<div class="item-rarity rarity-legendary">Legendary</div>
+<div class="item-price">$599</div>
+<div class="item-actions">
+<button class="btn btn-cyber btn-item">View Details</button>
+<button class="btn btn-cyber btn-item">Buy Now</button>
+</div>
+</div>
+</div>
+<!-- Example Item Card -->
+<div class="item-card">
+<img alt="Data Ring" class="item-image" loading="lazy" src="{{ url_for('static', filename='images/items/data-ring.jpg') }}"/>
+<div class="item-content">
+<h3 class="item-name">Data Ring</h3>
+<div class="item-type">
+<i class="bi bi-gem"></i> Accessory
                     </div>
-                </div>
-            </div>
-
-            <!-- Example Item Card -->
-            <div class="item-card">
-                <img src="{{ url_for('static', filename='images/items/neon-shield.jpg') }}" alt="Neon Shield"
-                    class="item-image">
-                <div class="item-content">
-                    <h3 class="item-name">Neon Shield</h3>
-                    <div class="item-type">
-                        <i class="bi bi-shield-fill"></i> Armor
-                    </div>
-                    <div class="item-stats">
-                        <div class="item-stat">
-                            <div class="stat-label">Defense</div>
-                            <div class="stat-value">95</div>
-                        </div>
-                        <div class="item-stat">
-                            <div class="stat-label">Weight</div>
-                            <div class="stat-value">45</div>
-                        </div>
-                    </div>
-                    <div class="item-rarity rarity-legendary">Legendary</div>
-                    <div class="item-price">$599</div>
-                    <div class="item-actions">
-                        <button class="btn btn-cyber btn-item">View Details</button>
-                        <button class="btn btn-cyber btn-item">Buy Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Example Item Card -->
-            <div class="item-card">
-                <img src="{{ url_for('static', filename='images/items/data-ring.jpg') }}" alt="Data Ring"
-                    class="item-image">
-                <div class="item-content">
-                    <h3 class="item-name">Data Ring</h3>
-                    <div class="item-type">
-                        <i class="bi bi-gem"></i> Accessory
-                    </div>
-                    <div class="item-stats">
-                        <div class="item-stat">
-                            <div class="stat-label">Magic</div>
-                            <div class="stat-value">75</div>
-                        </div>
-                        <div class="item-stat">
-                            <div class="stat-label">Luck</div>
-                            <div class="stat-value">55</div>
-                        </div>
-                    </div>
-                    <div class="item-rarity rarity-rare">Rare</div>
-                    <div class="item-price">$149</div>
-                    <div class="item-actions">
-                        <button class="btn btn-cyber btn-item">View Details</button>
-                        <button class="btn btn-cyber btn-item">Buy Now</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="item-stats">
+<div class="item-stat">
+<div class="stat-label">Magic</div>
+<div class="stat-value">75</div>
+</div>
+<div class="item-stat">
+<div class="stat-label">Luck</div>
+<div class="stat-value">55</div>
+</div>
+</div>
+<div class="item-rarity rarity-rare">Rare</div>
+<div class="item-price">$149</div>
+<div class="item-actions">
+<button class="btn btn-cyber btn-item">View Details</button>
+<button class="btn btn-cyber btn-item">Buy Now</button>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/marketplace.js') }}" defer></script>
+<script defer="" src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
 {% endblock %}

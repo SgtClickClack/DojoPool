@@ -1,211 +1,162 @@
-"""Venue model module.
+"""Models for venue management."""
 
-This module contains the Venue model for tracking pool venues.
-"""
 from datetime import datetime
-from typing import Dict, List, Optional, Any
 from sqlalchemy.dialects.postgresql import JSONB
-from .base import BaseModel, db
+from sqlalchemy.ext.hybrid import hybrid_property
+from ..database import db
 
-class Venue(BaseModel):
-    """Venue model."""
-    __tablename__ = 'venues'
-    __table_args__ = {'extend_existing': True}
-    
+
+class Venue(db.Model):
+    """A physical venue/dojo location."""
+
+    __tablename__ = "venues"
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(200))
-    city = db.Column(db.String(100))
-    state = db.Column(db.String(50))
-    country = db.Column(db.String(50))
-    postal_code = db.Column(db.String(20))
+    address = db.Column(db.String(200), nullable=False)
     phone = db.Column(db.String(20))
     email = db.Column(db.String(100))
-    website = db.Column(db.String(200))
-    description = db.Column(db.Text)
-    hours = db.Column(JSONB)
-    amenities = db.Column(JSONB)
-    tables = db.Column(JSONB)
-    status = db.Column(db.String(20), default='active')
+    operating_hours = db.Column(JSONB)  # Store hours for each day
+    total_tables = db.Column(db.Integer, default=0)
+    amenities = db.Column(JSONB)  # List of available amenities
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    stats = db.Column(JSONB, default=dict)  # Store dynamic stats
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
-    checkins = db.relationship('VenueCheckin', back_populates='venue', lazy='dynamic')
-    
-    def __init__(self, **kwargs):
-        """Initialize venue."""
-        super(Venue, self).__init__(**kwargs)
-        self.hours = self.hours or {}
-        self.amenities = self.amenities or {}
-        self.tables = self.tables or {}
-    
-    def to_dict(self) -> Dict[str, Any]:
+    checkins = db.relationship("VenueCheckin", back_populates="venue")
+    tournaments = db.relationship("Tournament", back_populates="venue")
+    owner = db.relationship("User", foreign_keys=[owner_id])
+
+    @hybrid_property
+    def is_open(self):
+        """Check if venue is currently open based on operating hours."""
+        if not self.operating_hours:
+            return False
+
+        now = datetime.utcnow()
+        day = now.strftime("%A").lower()
+        hours = self.operating_hours.get(day)
+
+        if not hours:
+            return False
+
+        open_time, close_time = hours.split("-")
+        current_time = now.strftime("%H:%M")
+        return open_time <= current_time <= close_time
+
+    @hybrid_property
+    def active_players(self):
+        """Count of currently checked-in players."""
+        return VenueCheckin.query.filter_by(venue_id=self.id, checked_out_at=None).count()
+
+    @hybrid_property
+    def available_tables(self):
+        """Number of currently available tables."""
+        occupied = (
+            VenueCheckin.query.filter_by(venue_id=self.id, checked_out_at=None)
+            .filter(VenueCheckin.table_number.isnot(None))
+            .count()
+        )
+        return max(0, self.total_tables - occupied)
+
+    @property
+    def current_tournament(self):
+        """Get currently running tournament, if any."""
+        return next((t for t in self.tournaments if t.status == "ongoing"), None)
+
+    @property
+    def upcoming_tournaments(self):
+        """Get list of upcoming tournaments."""
+        return [t for t in self.tournaments if t.status == "upcoming"]
+
+    def get_stats(self, time_range="day"):
+        """Get venue statistics for the specified time range."""
+        # Implementation for gathering various stats
+        stats = {
+            "peak_players": 0,
+            "avg_players": 0,
+            "total_checkins": 0,
+            "peak_table_usage": 0,
+            "avg_table_usage": 0,
+            "most_used_table": 1,
+            "total_tournaments": 0,
+            "avg_tournament_players": 0,
+            "total_prize_pool": 0,
+            "busiest_day": "Friday",
+            "busiest_time": "19:00",
+            "avg_wait_time": 15,
+            # Chart data
+            "player_activity_data": {},
+            "table_usage_data": {},
+            "tournament_data": {},
+            "peak_hours_data": {},
+        }
+        return stats
+
+    @classmethod
+    def search(cls, query):
+        """Search venues by name, location, etc."""
+        return cls.query.filter(
+            db.or_(cls.name.ilike(f"%{query}%"), cls.address.ilike(f"%{query}%"))
+        ).all()
+
+    def to_dict(self):
         """Convert venue to dictionary."""
         return {
-            'id': self.id,
-            'name': self.name,
-            'address': self.address,
-            'city': self.city,
-            'state': self.state,
-            'country': self.country,
-            'postal_code': self.postal_code,
-            'phone': self.phone,
-            'email': self.email,
-            'website': self.website,
-            'description': self.description,
-            'hours': self.hours,
-            'amenities': self.amenities,
-            'tables': self.tables,
-            'status': self.status,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            "id": self.id,
+            "name": self.name,
+            "address": self.address,
+            "phone": self.phone,
+            "email": self.email,
+            "operating_hours": self.operating_hours,
+            "total_tables": self.total_tables,
+            "available_tables": self.available_tables,
+            "amenities": self.amenities,
+            "is_open": self.is_open,
+            "active_players": self.active_players,
+            "owner_id": self.owner_id,
+            "current_tournament": (
+                self.current_tournament.to_dict() if self.current_tournament else None
+            ),
         }
-    
-    @classmethod
-    def get_active_venues(cls) -> List['Venue']:
-        """Get all active venues."""
-        return cls.query.filter_by(status='active').order_by(cls.name.asc()).all()
-    
-    @classmethod
-    def get_venues_by_city(
-        cls,
-        city: str,
-        state: Optional[str] = None,
-        country: Optional[str] = None
-    ) -> List['Venue']:
-        """Get venues by city."""
-        query = cls.query.filter_by(city=city, status='active')
-        
-        if state:
-            query = query.filter_by(state=state)
-        if country:
-            query = query.filter_by(country=country)
-        
-        return query.order_by(cls.name.asc()).all()
-    
-    @classmethod
-    def create_venue(
-        cls,
-        name: str,
-        address: Optional[str] = None,
-        city: Optional[str] = None,
-        state: Optional[str] = None,
-        country: Optional[str] = None,
-        postal_code: Optional[str] = None,
-        phone: Optional[str] = None,
-        email: Optional[str] = None,
-        website: Optional[str] = None,
-        description: Optional[str] = None,
-        hours: Optional[Dict[str, Any]] = None,
-        amenities: Optional[Dict[str, Any]] = None,
-        tables: Optional[Dict[str, Any]] = None
-    ) -> 'Venue':
-        """Create a new venue."""
-        venue = cls(
-            name=name,
-            address=address,
-            city=city,
-            state=state,
-            country=country,
-            postal_code=postal_code,
-            phone=phone,
-            email=email,
-            website=website,
-            description=description,
-            hours=hours or {},
-            amenities=amenities or {},
-            tables=tables or {}
-        )
-        db.session.add(venue)
-        db.session.commit()
-        return venue
-    
-    def update_hours(self, hours: Dict[str, Any]) -> None:
-        """Update venue hours."""
-        self.hours = hours
-        self.updated_at = datetime.utcnow()
-        db.session.commit()
-    
-    def update_amenities(self, amenities: Dict[str, Any]) -> None:
-        """Update venue amenities."""
-        self.amenities = amenities
-        self.updated_at = datetime.utcnow()
-        db.session.commit()
-    
-    def update_tables(self, tables: Dict[str, Any]) -> None:
-        """Update venue tables."""
-        self.tables = tables
-        self.updated_at = datetime.utcnow()
-        db.session.commit()
-    
-    def deactivate(self) -> None:
-        """Deactivate the venue."""
-        self.status = 'inactive'
-        self.updated_at = datetime.utcnow()
-        db.session.commit()
-    
-    def activate(self) -> None:
-        """Activate the venue."""
-        self.status = 'active'
-        self.updated_at = datetime.utcnow()
-        db.session.commit()
-    
-    @classmethod
-    def search_venues(
-        cls,
-        query: str,
-        city: Optional[str] = None,
-        state: Optional[str] = None,
-        country: Optional[str] = None
-    ) -> List['Venue']:
-        """Search venues by name and location."""
-        search = f"%{query}%"
-        db_query = cls.query.filter(
-            cls.name.ilike(search),
-            cls.status == 'active'
-        )
-        
-        if city:
-            db_query = db_query.filter_by(city=city)
-        if state:
-            db_query = db_query.filter_by(state=state)
-        if country:
-            db_query = db_query.filter_by(country=country)
-        
-        return db_query.order_by(cls.name.asc()).all()
 
-class VenueCheckin(BaseModel):
-    """Venue check-in model."""
-    __tablename__ = 'venue_checkins'
-    __table_args__ = {'extend_existing': True}
-    
+
+class VenueCheckin(db.Model):
+    """Record of a user checking in/out of a venue."""
+
+    __tablename__ = "venue_checkins"
+
     id = db.Column(db.Integer, primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"), nullable=False)
     checked_in_at = db.Column(db.DateTime, default=datetime.utcnow)
     checked_out_at = db.Column(db.DateTime)
-    notes = db.Column(db.Text)
-    status = db.Column(db.String(20), default='active')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    venue = db.relationship('Venue', back_populates='checkins')
-    user = db.relationship('User', backref=db.backref('venue_checkins', lazy='dynamic'))
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert check-in to dictionary."""
-        return {
-            'id': self.id,
-            'venue_id': self.venue_id,
-            'user_id': self.user_id,
-            'checked_in_at': self.checked_in_at.isoformat() if self.checked_in_at else None,
-            'checked_out_at': self.checked_out_at.isoformat() if self.checked_out_at else None,
-            'notes': self.notes,
-            'status': self.status,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+    table_number = db.Column(db.Integer)
+    game_type = db.Column(db.String(50))  # e.g., "8-ball", "9-ball", etc.
 
-__all__ = ['Venue', 'VenueCheckin']
+    # Relationships
+    user = db.relationship("User", back_populates="venue_checkins")
+    venue = db.relationship("Venue", back_populates="checkins")
+
+    @property
+    def duration(self):
+        """Calculate duration of stay in minutes."""
+        if not self.checked_out_at:
+            return None
+        delta = self.checked_out_at - self.checked_in_at
+        return int(delta.total_seconds() / 60)
+
+    def to_dict(self):
+        """Convert check-in record to dictionary."""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "venue_id": self.venue_id,
+            "checked_in_at": self.checked_in_at.isoformat(),
+            "checked_out_at": self.checked_out_at.isoformat() if self.checked_out_at else None,
+            "table_number": self.table_number,
+            "game_type": self.game_type,
+            "duration": self.duration,
+        }

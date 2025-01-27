@@ -1,0 +1,777 @@
+# Security Audit Report
+Generated at: 2025-01-14T16:57:35.716233
+
+## Overview
+- Security Files Found: 15
+- Potential Secrets Found: 234
+- Issues Found: 2
+
+## Security Files
+- certs\server.crt
+  - Type: Certificate
+  - Size: 1134 bytes
+  - Last Modified: 2024-12-27T03:33:53.336273
+- certs\server.key
+  - Type: Private Key
+  - Size: 1732 bytes
+  - Last Modified: 2024-12-27T03:33:53.330274
+- ssl\dhparam.pem
+  - Type: PEM Certificate
+  - Size: 436 bytes
+  - Last Modified: 2025-01-14T13:24:11.067680
+- ssl\server.crt
+  - Type: Certificate
+  - Size: 1134 bytes
+  - Last Modified: 2025-01-14T13:23:52.609691
+- ssl\server.key
+  - Type: Private Key
+  - Size: 1732 bytes
+  - Last Modified: 2025-01-14T13:23:52.602692
+- deployment\ssl\nginx.crt
+  - Type: Certificate
+  - Size: 1134 bytes
+  - Last Modified: 2025-01-05T13:25:25.429208
+- deployment\ssl\nginx.key
+  - Type: Private Key
+  - Size: 1732 bytes
+  - Last Modified: 2025-01-05T13:25:25.425211
+- deployment\nginx\test\ssl\certs\dhparam.pem
+  - Type: PEM Certificate
+  - Size: 436 bytes
+  - Last Modified: 2024-12-29T16:15:05.837020
+- deployment\nginx\test\ssl\certs\dojopool.crt
+  - Type: Certificate
+  - Size: 1170 bytes
+  - Last Modified: 2024-12-29T16:13:42.231011
+- deployment\nginx\test\ssl\private\dojopool.key
+  - Type: Private Key
+  - Size: 1732 bytes
+  - Last Modified: 2024-12-29T16:13:42.226010
+- nginx\ssl\nginx.crt
+  - Type: Certificate
+  - Size: 1134 bytes
+  - Last Modified: 2024-12-27T03:57:39.906431
+- nginx\ssl\nginx.key
+  - Type: Private Key
+  - Size: 1732 bytes
+  - Last Modified: 2024-12-27T03:57:39.902427
+- src\dojopool\frontend\localhost.crt
+  - Type: Certificate
+  - Size: 969 bytes
+  - Last Modified: 2025-01-03T21:59:59.928453
+- src\dojopool\frontend\localhost.key
+  - Type: Private Key
+  - Size: 1704 bytes
+  - Last Modified: 2025-01-03T21:59:59.929538
+- venv_new\Lib\site-packages\pip\_vendor\certifi\cacert.pem
+  - Type: PEM Certificate
+  - Size: 299427 bytes
+  - Last Modified: 2025-01-10T12:39:15.175852
+
+## Potential Secrets Found
+- context_validation.yaml (Line 509)
+  - Type: password
+  - Risk Level: MEDIUM
+- context_validation.yaml (Line 938)
+  - Type: password
+  - Risk Level: MEDIUM
+- deployment\pre_deploy_check.py (Line 131)
+  - Type: password
+  - Risk Level: MEDIUM
+- instance\client_secret.json (Line 8)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\conftest.py (Line 217)
+  - Type: api_key
+  - Risk Level: HIGH
+- tests\conftest.py (Line 84)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\conftest.py (Line 219)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\factories.py (Line 41)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\factories.py (Line 213)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_api_handler.py (Line 21)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\test_api_handler.py (Line 48)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\test_api_handler.py (Line 78)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\test_websockets.py (Line 18)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets.py (Line 45)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets.py (Line 74)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets.py (Line 84)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets.py (Line 92)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_integration.py (Line 14)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_integration.py (Line 15)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_integration.py (Line 48)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_integration.py (Line 49)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_performance.py (Line 11)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_performance.py (Line 34)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_security.py (Line 13)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_security.py (Line 22)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_security.py (Line 30)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_security.py (Line 48)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_validation.py (Line 12)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_validation.py (Line 21)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_validation.py (Line 30)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\test_websockets_validation.py (Line 39)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\utils.py (Line 7)
+  - Type: password
+  - Risk Level: MEDIUM
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: api_key
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: api_key
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: api_key
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: password
+  - Risk Level: MEDIUM
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: password
+  - Risk Level: MEDIUM
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: password
+  - Risk Level: MEDIUM
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- build\static\js\main.23f9391b.js (Line 2)
+  - Type: secret
+  - Risk Level: HIGH
+- deployment\prometheus\alertmanager.yml (Line 6)
+  - Type: password
+  - Risk Level: MEDIUM
+- deployment\nginx\test\nginx\backend.conf (Line 14)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: api_key
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: password
+  - Risk Level: MEDIUM
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 3694)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- docs\cleanup\file_inventory.json (Line 4289)
+  - Type: secret
+  - Risk Level: HIGH
+- monitoring\alertmanager\alertmanager.yml (Line 6)
+  - Type: password
+  - Risk Level: MEDIUM
+- src\components\auth\ResetPassword.js (Line 23)
+  - Type: password
+  - Risk Level: MEDIUM
+- src\dojopool\config\testing.py (Line 39)
+  - Type: api_key
+  - Risk Level: HIGH
+- src\dojopool\config\testing.py (Line 42)
+  - Type: api_key
+  - Risk Level: HIGH
+- src\dojopool\config\testing.py (Line 41)
+  - Type: secret
+  - Risk Level: HIGH
+- src\dojopool\utils\errors.py (Line 22)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\api\conftest.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\api\conftest.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\api\conftest.py (Line 87)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\api\conftest.py (Line 108)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\api\test_auth.py (Line 12)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\api\test_auth.py (Line 39)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\api\test_auth.py (Line 79)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\api\test_auth.py (Line 80)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\api\test_auth.py (Line 115)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\helpers\auth.py (Line 6)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\conftest.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\conftest.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\conftest.py (Line 87)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\integration\conftest.py (Line 108)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\integration\test_validation_integration.py (Line 15)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\test_validation_integration.py (Line 25)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\test_validation_integration.py (Line 39)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\test_validation_integration.py (Line 66)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\integration\test_validation_integration.py (Line 73)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\conftest.py (Line 65)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\conftest.py (Line 77)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\conftest.py (Line 90)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\performance\conftest.py (Line 111)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\performance\locustfile.py (Line 66)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\locustfile.py (Line 178)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\test_api_performance.py (Line 39)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\test_load.py (Line 22)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\performance\test_performance.py (Line 19)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\conftest.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\conftest.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\conftest.py (Line 87)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\conftest.py (Line 108)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_api.py (Line 29)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth.py (Line 26)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth.py (Line 88)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth.py (Line 176)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth.py (Line 194)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth.py (Line 102)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_core_models.py (Line 14)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_validation.py (Line 58)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_validation.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_validation.py (Line 89)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_validation.py (Line 260)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_validation.py (Line 279)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_websocket.py (Line 83)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_websocket.py (Line 91)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_websocket_events.py (Line 28)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_ai\test_service.py (Line 9)
+  - Type: api_key
+  - Risk Level: HIGH
+- tests\unit\test_api\conftest.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\conftest.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\conftest.py (Line 87)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_api\conftest.py (Line 108)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_api\test_routes.py (Line 11)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_routes.py (Line 25)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 12)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 33)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 53)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 72)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 91)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 99)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 159)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 160)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 173)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_api\test_users.py (Line 174)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\conftest.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\conftest.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\conftest.py (Line 87)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_auth\conftest.py (Line 108)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_auth\test_auth.py (Line 19)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 153)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 197)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 218)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 236)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 243)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 294)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 311)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 332)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth.py (Line 340)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 20)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 21)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 39)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 40)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 67)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 75)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 157)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 158)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_auth\test_auth_routes.py (Line 97)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_auth\test_auth_routes.py (Line 103)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_auth\test_auth_routes.py (Line 109)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_email\test_email_service.py (Line 11)
+  - Type: api_key
+  - Risk Level: HIGH
+- tests\unit\test_models\conftest.py (Line 62)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_models\conftest.py (Line 74)
+  - Type: password
+  - Risk Level: MEDIUM
+- tests\unit\test_models\conftest.py (Line 87)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\conftest.py (Line 108)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\test_token.py (Line 12)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\test_token.py (Line 25)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\test_token.py (Line 34)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\test_token.py (Line 69)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\test_token.py (Line 79)
+  - Type: secret
+  - Risk Level: HIGH
+- tests\unit\test_models\test_token.py (Line 89)
+  - Type: secret
+  - Risk Level: HIGH
+- venv_new\Lib\site-packages\jinja2\lexer.py (Line 185)
+  - Type: secret
+  - Risk Level: HIGH
+- venv_new\Lib\site-packages\pip\_internal\network\auth.py (Line 467)
+  - Type: password
+  - Risk Level: MEDIUM
+- venv_new\Lib\site-packages\pip\_internal\utils\misc.py (Line 477)
+  - Type: password
+  - Risk Level: MEDIUM
+- venv_new\Lib\site-packages\pip\_vendor\rich\_emoji_codes.py (Line 2882)
+  - Type: secret
+  - Risk Level: HIGH
+- venv_new\Lib\site-packages\werkzeug\debug\tbtools.py (Line 30)
+  - Type: secret
+  - Risk Level: HIGH
+
+## Issues Found
+- deployment\nginx\test\nginx\nginx.conf: [Errno 13] Permission denied: 'C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\deployment\\nginx\\test\\nginx\\nginx.conf'
+- src\dojopool\core\backend\Dojo_Pool.py: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte

@@ -1,0 +1,978 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\map.js",
+  "typescript_file": "src\\dojopool\\static\\js\\map.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\map.js",
+  "analysis": {
+    "functions": [
+      {
+        "name": "createDojoMarker",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "adjustColor",
+        "params": [
+          "color",
+          "percent"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getVenueColor",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getRankGradient",
+        "params": [
+          "rank"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getStatusEffects",
+        "params": [
+          "status"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getVenueAnimation",
+        "params": [
+          "status"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "createCircleMarker",
+        "params": [
+          "color",
+          "scale = 8"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "searchVenues",
+        "params": [
+          "location"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "handleLocationError",
+        "params": [
+          "browserHasGeolocation",
+          "pos"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showError",
+        "params": [
+          "message"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "determineVenueRank",
+        "params": [
+          "place"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "createInfoWindowContent",
+        "params": [
+          "place",
+          "nameLower"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "checkVenueUnlock",
+        "params": [
+          "venue",
+          "playerPosition"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "checkVenueCapture",
+        "params": [
+          "venue",
+          "playerPosition"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "startVenueCapture",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "captureVenue",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updatePlayerTerritory",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updateTerritoryOverlay",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "generateTerritoryBoundary",
+        "params": [
+          "centers"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getNearbyVenues",
+        "params": [
+          "location",
+          "radius"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "checkUnlockRequirements",
+        "params": [
+          "venue",
+          "nearbyVenues"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getVenueMinLevel",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getRequiredCaptures",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getVenueInfluence",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "unlockVenue",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updateMarkerAppearance",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updateCaptureProgress",
+        "params": [
+          "venue",
+          "timeSpent"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "cancelVenueCapture",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showUnlockAnimation",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showCaptureProgress",
+        "params": [
+          "venue",
+          "progress"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "hideCaptureProgress",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "generateEvent",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "selectEventType",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getEventDuration",
+        "params": [
+          "rank"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "generateEventRewards",
+        "params": [
+          "rank"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "generateEventRequirements",
+        "params": [
+          "rank"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "joinEvent",
+        "params": [
+          "eventId"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "checkEventRequirements",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updateEventDisplay",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "generateEventIndicator",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "completeEvent",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "distributeRewards",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "initializeTerritorySystem",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "createTerritory",
+        "params": [
+          "venue"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updateTerritories",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "checkTerritoryConflict",
+        "params": [
+          "territory1",
+          "territory2"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "updateTerritoryVisualization",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "generateTerritoryBoundary",
+        "params": [
+          "territory"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showTerritoryInfo",
+        "params": [
+          "territory"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "checkLevelUp",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "levelUp",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "updatePlayerRank",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "showLevelUpNotification",
+        "params": [
+          "level",
+          "oldNextLevelXP"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getLevelUpRewards",
+        "params": [
+          "level"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getNewTitle",
+        "params": [
+          "level"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getSpecialItem",
+        "params": [
+          "level"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "checkAchievements",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "unlockAchievement",
+        "params": [
+          "achievement"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getAchievementDetails",
+        "params": [
+          "achievement"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "grantAchievementReward",
+        "params": [
+          "achievement"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getAchievementItem",
+        "params": [
+          "achievement"
+        ],
+        "return_type": "any"
+      }
+    ],
+    "classes": [
+      {
+        "name": "Territory",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "markers",
+        "type": "any"
+      },
+      {
+        "name": "currentInfoWindow",
+        "type": "any"
+      },
+      {
+        "name": "VenueStatus",
+        "type": "any"
+      },
+      {
+        "name": "VenueRank",
+        "type": "any"
+      },
+      {
+        "name": "VenueProgression",
+        "type": "any"
+      },
+      {
+        "name": "PlayerStats",
+        "type": "any"
+      },
+      {
+        "name": "PlayerProgression",
+        "type": "any"
+      },
+      {
+        "name": "PlayerAchievements",
+        "type": "any"
+      },
+      {
+        "name": "gameMapStyle",
+        "type": "any"
+      },
+      {
+        "name": "baseColor",
+        "type": "any"
+      },
+      {
+        "name": "darker",
+        "type": "any"
+      },
+      {
+        "name": "lighter",
+        "type": "any"
+      },
+      {
+        "name": "isLocked",
+        "type": "any"
+      },
+      {
+        "name": "opacity",
+        "type": "any"
+      },
+      {
+        "name": "lockEffect",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "num",
+        "type": "any"
+      },
+      {
+        "name": "r",
+        "type": "any"
+      },
+      {
+        "name": "g",
+        "type": "any"
+      },
+      {
+        "name": "b",
+        "type": "any"
+      },
+      {
+        "name": "style",
+        "type": "any"
+      },
+      {
+        "name": "defaultCenter",
+        "type": "any"
+      },
+      {
+        "name": "mapDiv",
+        "type": "any"
+      },
+      {
+        "name": "mapOptions",
+        "type": "any"
+      },
+      {
+        "name": "pos",
+        "type": "any"
+      },
+      {
+        "name": "userMarkerView",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "poolRequest",
+        "type": "any"
+      },
+      {
+        "name": "barHotelRequest",
+        "type": "any"
+      },
+      {
+        "name": "hotelRequest",
+        "type": "any"
+      },
+      {
+        "name": "allResults",
+        "type": "any"
+      },
+      {
+        "name": "seenPlaceIds",
+        "type": "any"
+      },
+      {
+        "name": "addResults",
+        "type": "any"
+      },
+      {
+        "name": "nameLower",
+        "type": "any"
+      },
+      {
+        "name": "isPoolVenue",
+        "type": "any"
+      },
+      {
+        "name": "markerView",
+        "type": "any"
+      },
+      {
+        "name": "infoWindow",
+        "type": "any"
+      },
+      {
+        "name": "mapDiv",
+        "type": "any"
+      },
+      {
+        "name": "errorDiv",
+        "type": "any"
+      },
+      {
+        "name": "nameLower",
+        "type": "any"
+      },
+      {
+        "name": "venueType",
+        "type": "any"
+      },
+      {
+        "name": "distance",
+        "type": "any"
+      },
+      {
+        "name": "nearbyVenues",
+        "type": "any"
+      },
+      {
+        "name": "canUnlock",
+        "type": "any"
+      },
+      {
+        "name": "distance",
+        "type": "any"
+      },
+      {
+        "name": "timeSpent",
+        "type": "any"
+      },
+      {
+        "name": "territoryOverlay",
+        "type": "any"
+      },
+      {
+        "name": "coordinates",
+        "type": "any"
+      },
+      {
+        "name": "originalSearchVenues",
+        "type": "any"
+      },
+      {
+        "name": "playerPos",
+        "type": "any"
+      },
+      {
+        "name": "venue",
+        "type": "any"
+      },
+      {
+        "name": "distance",
+        "type": "any"
+      },
+      {
+        "name": "capturedNearby",
+        "type": "any"
+      },
+      {
+        "name": "marker",
+        "type": "any"
+      },
+      {
+        "name": "progress",
+        "type": "any"
+      },
+      {
+        "name": "marker",
+        "type": "any"
+      },
+      {
+        "name": "element",
+        "type": "any"
+      },
+      {
+        "name": "marker",
+        "type": "any"
+      },
+      {
+        "name": "progressElement",
+        "type": "any"
+      },
+      {
+        "name": "circle",
+        "type": "any"
+      },
+      {
+        "name": "circumference",
+        "type": "any"
+      },
+      {
+        "name": "offset",
+        "type": "any"
+      },
+      {
+        "name": "marker",
+        "type": "any"
+      },
+      {
+        "name": "progressElement",
+        "type": "any"
+      },
+      {
+        "name": "captureStyles",
+        "type": "any"
+      },
+      {
+        "name": "EventTypes",
+        "type": "any"
+      },
+      {
+        "name": "EventRewards",
+        "type": "any"
+      },
+      {
+        "name": "activeEvents",
+        "type": "any"
+      },
+      {
+        "name": "event",
+        "type": "any"
+      },
+      {
+        "name": "random",
+        "type": "any"
+      },
+      {
+        "name": "baseTime",
+        "type": "any"
+      },
+      {
+        "name": "rewards",
+        "type": "any"
+      },
+      {
+        "name": "baseXP",
+        "type": "any"
+      },
+      {
+        "name": "baseInfluence",
+        "type": "any"
+      },
+      {
+        "name": "event",
+        "type": "any"
+      },
+      {
+        "name": "marker",
+        "type": "any"
+      },
+      {
+        "name": "eventIndicator",
+        "type": "any"
+      },
+      {
+        "name": "timeLeft",
+        "type": "any"
+      },
+      {
+        "name": "hours",
+        "type": "any"
+      },
+      {
+        "name": "minutes",
+        "type": "any"
+      },
+      {
+        "name": "now",
+        "type": "any"
+      },
+      {
+        "name": "TerritoryConstants",
+        "type": "any"
+      },
+      {
+        "name": "timeDiff",
+        "type": "any"
+      },
+      {
+        "name": "territories",
+        "type": "any"
+      },
+      {
+        "name": "territoryPolygons",
+        "type": "any"
+      },
+      {
+        "name": "heatmap",
+        "type": "any"
+      },
+      {
+        "name": "territory",
+        "type": "any"
+      },
+      {
+        "name": "now",
+        "type": "any"
+      },
+      {
+        "name": "heatmapData",
+        "type": "any"
+      },
+      {
+        "name": "distance",
+        "type": "any"
+      },
+      {
+        "name": "overlapDistance",
+        "type": "any"
+      },
+      {
+        "name": "smallerRadius",
+        "type": "any"
+      },
+      {
+        "name": "color",
+        "type": "any"
+      },
+      {
+        "name": "opacity",
+        "type": "any"
+      },
+      {
+        "name": "polygon",
+        "type": "any"
+      },
+      {
+        "name": "points",
+        "type": "any"
+      },
+      {
+        "name": "numPoints",
+        "type": "any"
+      },
+      {
+        "name": "i",
+        "type": "any"
+      },
+      {
+        "name": "angle",
+        "type": "any"
+      },
+      {
+        "name": "lat",
+        "type": "any"
+      },
+      {
+        "name": "lng",
+        "type": "any"
+      },
+      {
+        "name": "venue",
+        "type": "any"
+      },
+      {
+        "name": "infoWindow",
+        "type": "any"
+      },
+      {
+        "name": "originalInitMap",
+        "type": "any"
+      },
+      {
+        "name": "oldNextLevelXP",
+        "type": "any"
+      },
+      {
+        "name": "ranks",
+        "type": "any"
+      },
+      {
+        "name": "i",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "rewards",
+        "type": "any"
+      },
+      {
+        "name": "titles",
+        "type": "any"
+      },
+      {
+        "name": "items",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "achievements",
+        "type": "any"
+      },
+      {
+        "name": "details",
+        "type": "any"
+      },
+      {
+        "name": "xpMatch",
+        "type": "any"
+      },
+      {
+        "name": "titleMatch",
+        "type": "any"
+      },
+      {
+        "name": "items",
+        "type": "any"
+      },
+      {
+        "name": "progressionStyles",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "createDojoMarker": "\nfunction createDojoMarker(venue: any): any {\n    // Implementation\n}",
+    "adjustColor": "\nfunction adjustColor(color: any, percent: any): any {\n    // Implementation\n}",
+    "getVenueColor": "\nfunction getVenueColor(venue: any): any {\n    // Implementation\n}",
+    "getRankGradient": "\nfunction getRankGradient(rank: any): any {\n    // Implementation\n}",
+    "getStatusEffects": "\nfunction getStatusEffects(status: any): any {\n    // Implementation\n}",
+    "getVenueAnimation": "\nfunction getVenueAnimation(status: any): any {\n    // Implementation\n}",
+    "createCircleMarker": "\nfunction createCircleMarker(color: any, scale = 8: any): any {\n    // Implementation\n}",
+    "searchVenues": "\nfunction searchVenues(location: any): any {\n    // Implementation\n}",
+    "handleLocationError": "\nfunction handleLocationError(browserHasGeolocation: any, pos: any): any {\n    // Implementation\n}",
+    "showError": "\nfunction showError(message: any): any {\n    // Implementation\n}",
+    "determineVenueRank": "\nfunction determineVenueRank(place: any): any {\n    // Implementation\n}",
+    "createInfoWindowContent": "\nfunction createInfoWindowContent(place: any, nameLower: any): any {\n    // Implementation\n}",
+    "checkVenueUnlock": "\nfunction checkVenueUnlock(venue: any, playerPosition: any): any {\n    // Implementation\n}",
+    "checkVenueCapture": "\nfunction checkVenueCapture(venue: any, playerPosition: any): any {\n    // Implementation\n}",
+    "startVenueCapture": "\nfunction startVenueCapture(venue: any): any {\n    // Implementation\n}",
+    "captureVenue": "\nfunction captureVenue(venue: any): any {\n    // Implementation\n}",
+    "updatePlayerTerritory": "\nfunction updatePlayerTerritory(venue: any): any {\n    // Implementation\n}",
+    "updateTerritoryOverlay": "\nfunction updateTerritoryOverlay(): any {\n    // Implementation\n}",
+    "generateTerritoryBoundary": "\nfunction generateTerritoryBoundary(territory: any): any {\n    // Implementation\n}",
+    "getNearbyVenues": "\nfunction getNearbyVenues(location: any, radius: any): any {\n    // Implementation\n}",
+    "checkUnlockRequirements": "\nfunction checkUnlockRequirements(venue: any, nearbyVenues: any): any {\n    // Implementation\n}",
+    "getVenueMinLevel": "\nfunction getVenueMinLevel(venue: any): any {\n    // Implementation\n}",
+    "getRequiredCaptures": "\nfunction getRequiredCaptures(venue: any): any {\n    // Implementation\n}",
+    "getVenueInfluence": "\nfunction getVenueInfluence(venue: any): any {\n    // Implementation\n}",
+    "unlockVenue": "\nfunction unlockVenue(venue: any): any {\n    // Implementation\n}",
+    "updateMarkerAppearance": "\nfunction updateMarkerAppearance(venue: any): any {\n    // Implementation\n}",
+    "updateCaptureProgress": "\nfunction updateCaptureProgress(venue: any, timeSpent: any): any {\n    // Implementation\n}",
+    "cancelVenueCapture": "\nfunction cancelVenueCapture(venue: any): any {\n    // Implementation\n}",
+    "showUnlockAnimation": "\nfunction showUnlockAnimation(venue: any): any {\n    // Implementation\n}",
+    "showCaptureProgress": "\nfunction showCaptureProgress(venue: any, progress: any): any {\n    // Implementation\n}",
+    "hideCaptureProgress": "\nfunction hideCaptureProgress(venue: any): any {\n    // Implementation\n}",
+    "generateEvent": "\nfunction generateEvent(venue: any): any {\n    // Implementation\n}",
+    "selectEventType": "\nfunction selectEventType(venue: any): any {\n    // Implementation\n}",
+    "getEventDuration": "\nfunction getEventDuration(rank: any): any {\n    // Implementation\n}",
+    "generateEventRewards": "\nfunction generateEventRewards(rank: any): any {\n    // Implementation\n}",
+    "generateEventRequirements": "\nfunction generateEventRequirements(rank: any): any {\n    // Implementation\n}",
+    "joinEvent": "\nfunction joinEvent(eventId: any): any {\n    // Implementation\n}",
+    "checkEventRequirements": "\nfunction checkEventRequirements(event: any): any {\n    // Implementation\n}",
+    "updateEventDisplay": "\nfunction updateEventDisplay(event: any): any {\n    // Implementation\n}",
+    "generateEventIndicator": "\nfunction generateEventIndicator(event: any): any {\n    // Implementation\n}",
+    "completeEvent": "\nfunction completeEvent(event: any): any {\n    // Implementation\n}",
+    "distributeRewards": "\nfunction distributeRewards(event: any): any {\n    // Implementation\n}",
+    "initializeTerritorySystem": "\nfunction initializeTerritorySystem(): any {\n    // Implementation\n}",
+    "createTerritory": "\nfunction createTerritory(venue: any): any {\n    // Implementation\n}",
+    "updateTerritories": "\nfunction updateTerritories(): any {\n    // Implementation\n}",
+    "checkTerritoryConflict": "\nfunction checkTerritoryConflict(territory1: any, territory2: any): any {\n    // Implementation\n}",
+    "updateTerritoryVisualization": "\nfunction updateTerritoryVisualization(): any {\n    // Implementation\n}",
+    "showTerritoryInfo": "\nfunction showTerritoryInfo(territory: any): any {\n    // Implementation\n}",
+    "checkLevelUp": "\nfunction checkLevelUp(): any {\n    // Implementation\n}",
+    "levelUp": "\nfunction levelUp(): any {\n    // Implementation\n}",
+    "updatePlayerRank": "\nfunction updatePlayerRank(): any {\n    // Implementation\n}",
+    "showLevelUpNotification": "\nfunction showLevelUpNotification(level: any, oldNextLevelXP: any): any {\n    // Implementation\n}",
+    "getLevelUpRewards": "\nfunction getLevelUpRewards(level: any): any {\n    // Implementation\n}",
+    "getNewTitle": "\nfunction getNewTitle(level: any): any {\n    // Implementation\n}",
+    "getSpecialItem": "\nfunction getSpecialItem(level: any): any {\n    // Implementation\n}",
+    "checkAchievements": "\nfunction checkAchievements(): any {\n    // Implementation\n}",
+    "unlockAchievement": "\nfunction unlockAchievement(achievement: any): any {\n    // Implementation\n}",
+    "getAchievementDetails": "\nfunction getAchievementDetails(achievement: any): any {\n    // Implementation\n}",
+    "grantAchievementReward": "\nfunction grantAchievementReward(achievement: any): any {\n    // Implementation\n}",
+    "getAchievementItem": "\nfunction getAchievementItem(achievement: any): any {\n    // Implementation\n}",
+    "Territory": "\nclass Territory {\n    // Properties and methods\n}"
+  }
+}

@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from requests_oauthlib import OAuth2Session
 import json
+import os
 from typing import Optional, Any, cast
 from sqlalchemy import update
 
@@ -22,7 +23,7 @@ auth_bp = Blueprint('auth', __name__)
 class LoginForm(FlaskForm):
     """Login form."""
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = StringField('Password', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
 
 class RegisterForm(FlaskForm):

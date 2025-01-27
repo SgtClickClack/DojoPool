@@ -1,4 +1,6 @@
-"""Core package initialization."""
+"""
+Core package initialization.
+"""
 
 from .database import db, init_db, reference_col
 

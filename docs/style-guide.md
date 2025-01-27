@@ -220,7 +220,7 @@ The grid system uses CSS Grid with a 12-column layout:
 ```html
 <div role="dialog" aria-modal="true">
   <div class="dialog-header">
-    <button aria-label="Close">×</button>
+    <button aria-label="Close">Ã—</button>
   </div>
   <div class="dialog-body">Content</div>
 </div>

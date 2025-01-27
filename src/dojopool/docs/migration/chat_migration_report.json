@@ -1,0 +1,317 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\chat.js",
+  "typescript_file": "src\\dojopool\\static\\js\\chat.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\chat.js",
+  "analysis": {
+    "functions": [
+      {
+        "name": "initializeSocket",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "loadChatRooms",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "createRoomElement",
+        "params": [
+          "room"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "getRoomName",
+        "params": [
+          "room"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "loadChatRoom",
+        "params": [
+          "roomId"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "loadMessages",
+        "params": [
+          "roomId",
+          "page = 1"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "createMessageElement",
+        "params": [
+          "message"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "appendMessage",
+        "params": [
+          "message"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "appendSystemMessage",
+        "params": [
+          "content"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showTypingIndicator",
+        "params": [
+          "data"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "handleTyping",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "formatDate",
+        "params": [
+          "dateString"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "sendMessage",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showNewChatModal",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "loadFriendList",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "createFriendElement",
+        "params": [
+          "friend"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "toggleFriendSelection",
+        "params": [
+          "friendId"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "createChat",
+        "params": [
+          "event"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "setupMobileResponsiveness",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "showError",
+        "params": [
+          "message"
+        ],
+        "return_type": "any"
+      }
+    ],
+    "classes": [],
+    "variables": [
+      {
+        "name": "currentRoomId",
+        "type": "any"
+      },
+      {
+        "name": "socket",
+        "type": "any"
+      },
+      {
+        "name": "selectedFriends",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "roomsList",
+        "type": "any"
+      },
+      {
+        "name": "roomElement",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "lastMessage",
+        "type": "any"
+      },
+      {
+        "name": "otherParticipant",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "messagesList",
+        "type": "any"
+      },
+      {
+        "name": "messageElement",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "messagesList",
+        "type": "any"
+      },
+      {
+        "name": "messageElement",
+        "type": "any"
+      },
+      {
+        "name": "shouldScroll",
+        "type": "any"
+      },
+      {
+        "name": "messagesList",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "typingIndicator",
+        "type": "any"
+      },
+      {
+        "name": "date",
+        "type": "any"
+      },
+      {
+        "name": "now",
+        "type": "any"
+      },
+      {
+        "name": "input",
+        "type": "any"
+      },
+      {
+        "name": "content",
+        "type": "any"
+      },
+      {
+        "name": "modal",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "friendList",
+        "type": "any"
+      },
+      {
+        "name": "friendElement",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "friendElement",
+        "type": "any"
+      },
+      {
+        "name": "groupNameDiv",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "room",
+        "type": "any"
+      },
+      {
+        "name": "header",
+        "type": "any"
+      },
+      {
+        "name": "backButton",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "initializeSocket": "\nfunction initializeSocket(): any {\n    // Implementation\n}",
+    "loadChatRooms": "\nfunction loadChatRooms(): any {\n    // Implementation\n}",
+    "createRoomElement": "\nfunction createRoomElement(room: any): any {\n    // Implementation\n}",
+    "getRoomName": "\nfunction getRoomName(room: any): any {\n    // Implementation\n}",
+    "loadChatRoom": "\nfunction loadChatRoom(roomId: any): any {\n    // Implementation\n}",
+    "loadMessages": "\nfunction loadMessages(roomId: any, page = 1: any): any {\n    // Implementation\n}",
+    "createMessageElement": "\nfunction createMessageElement(message: any): any {\n    // Implementation\n}",
+    "appendMessage": "\nfunction appendMessage(message: any): any {\n    // Implementation\n}",
+    "appendSystemMessage": "\nfunction appendSystemMessage(content: any): any {\n    // Implementation\n}",
+    "showTypingIndicator": "\nfunction showTypingIndicator(data: any): any {\n    // Implementation\n}",
+    "handleTyping": "\nfunction handleTyping(): any {\n    // Implementation\n}",
+    "formatDate": "\nfunction formatDate(dateString: any): any {\n    // Implementation\n}",
+    "sendMessage": "\nfunction sendMessage(event: any): any {\n    // Implementation\n}",
+    "showNewChatModal": "\nfunction showNewChatModal(): any {\n    // Implementation\n}",
+    "loadFriendList": "\nfunction loadFriendList(): any {\n    // Implementation\n}",
+    "createFriendElement": "\nfunction createFriendElement(friend: any): any {\n    // Implementation\n}",
+    "toggleFriendSelection": "\nfunction toggleFriendSelection(friendId: any): any {\n    // Implementation\n}",
+    "createChat": "\nfunction createChat(event: any): any {\n    // Implementation\n}",
+    "setupMobileResponsiveness": "\nfunction setupMobileResponsiveness(): any {\n    // Implementation\n}",
+    "showError": "\nfunction showError(message: any): any {\n    // Implementation\n}"
+  }
+}

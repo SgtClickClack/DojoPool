@@ -1,22 +1,20 @@
-"""WebSocket room logging module.
+"""Room logger class for managing room-related logging."""
 
-This module provides logging functionality for room operations.
-"""
-from typing import Dict, Any, Optional, List
-from datetime import datetime
+import os
 import json
 import logging
-import logging.handlers
-import os
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+from logging.handlers import RotatingFileHandler
 
 from .constants import EventTypes
-from .log_config import logger
+from .query_builder import LogQueryBuilder
 
 class RoomLogger:
     """Room logger class."""
-    
-    def __init__(self, log_dir: str = 'logs/rooms'):
+
+    def __init__(self, log_dir: str):
         """Initialize RoomLogger.
         
         Args:
@@ -24,54 +22,25 @@ class RoomLogger:
         """
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Set up room event logger
-        self.event_logger = self._setup_logger(
-            'room_events',
-            self.log_dir / 'events.log',
-            formatter=logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s'
-            )
+
+        # Set up log files
+        self.events_log = self.log_dir / 'room_events.log'
+        self.access_log = self.log_dir / 'room_access.log'
+        self.error_log = self.log_dir / 'room_errors.log'
+        self.audit_log = self.log_dir / 'room_audit.log'
+
+        # Set up loggers
+        formatter = logging.Formatter(
+            '{"timestamp": "%(asctime)s", "level": "%(levelname)s", %(message)s}',
+            datefmt='%Y-%m-%dT%H:%M:%S'
         )
-        
-        # Set up room access logger
-        self.access_logger = self._setup_logger(
-            'room_access',
-            self.log_dir / 'access.log',
-            formatter=logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s'
-            )
-        )
-        
-        # Set up room error logger
-        self.error_logger = self._setup_logger(
-            'room_errors',
-            self.log_dir / 'errors.log',
-            formatter=logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s\n'
-                'Exception: %(exc_info)s\n'
-                'Details: %(details)s'
-            )
-        )
-        
-        # Set up room audit logger
-        self.audit_logger = self._setup_logger(
-            'room_audit',
-            self.log_dir / 'audit.log',
-            formatter=logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s\n'
-                'User: %(user_id)s\n'
-                'Action: %(action)s\n'
-                'Details: %(details)s'
-            )
-        )
-    
-    def _setup_logger(
-        self,
-        name: str,
-        log_file: Path,
-        formatter: logging.Formatter
-    ) -> logging.Logger:
+
+        self.events_logger = self._setup_logger('room_events', self.events_log, formatter)
+        self.access_logger = self._setup_logger('room_access', self.access_log, formatter)
+        self.error_logger = self._setup_logger('room_errors', self.error_log, formatter)
+        self.audit_logger = self._setup_logger('room_audit', self.audit_log, formatter)
+
+    def _setup_logger(self, name: str, log_file: Path, formatter: logging.Formatter) -> logging.Logger:
         """Set up logger instance.
         
         Args:
@@ -82,24 +51,25 @@ class RoomLogger:
         Returns:
             logging.Logger: Configured logger
         """
-        handler = logging.handlers.RotatingFileHandler(
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.INFO)
+
+        # Add rotating file handler
+        handler = RotatingFileHandler(
             log_file,
-            maxBytes=10 * 1024 * 1024,  # 10MB
+            maxBytes=10*1024*1024,  # 10MB
             backupCount=5
         )
         handler.setFormatter(formatter)
-        
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.INFO)
         logger.addHandler(handler)
-        
+
         return logger
-    
+
     def log_room_event(
         self,
         event_type: str,
         room_id: str,
-        user_id: Optional[str],
+        user_id: Optional[str] = None,
         data: Optional[Dict[str, Any]] = None
     ) -> None:
         """Log room event.
@@ -110,25 +80,20 @@ class RoomLogger:
             user_id: Optional user ID
             data: Optional event data
         """
-        event_data = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'event_type': event_type,
-            'room_id': room_id,
-            'user_id': user_id,
-            'data': data or {}
-        }
-        
-        self.event_logger.info(
-            f"Room event: {event_type}",
-            extra={'details': json.dumps(event_data)}
+        message = (
+            f'"event_type": "{event_type}", '
+            f'"room_id": "{room_id}", '
+            f'"user_id": "{user_id or ""}", '
+            f'"data": {json.dumps(data or {})}'
         )
-    
+        self.events_logger.info(message)
+
     def log_room_access(
         self,
         action: str,
         room_id: str,
-        user_id: Optional[str],
-        success: bool,
+        user_id: Optional[str] = None,
+        success: bool = True,
         details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Log room access attempt.
@@ -140,28 +105,21 @@ class RoomLogger:
             success: Whether access was successful
             details: Optional access details
         """
-        access_data = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'action': action,
-            'room_id': room_id,
-            'user_id': user_id,
-            'success': success,
-            'details': details or {}
-        }
-        
-        level = logging.INFO if success else logging.WARNING
-        self.access_logger.log(
-            level,
-            f"Room access: {action} - {'Success' if success else 'Failed'}",
-            extra={'details': json.dumps(access_data)}
+        message = (
+            f'"action": "{action}", '
+            f'"room_id": "{room_id}", '
+            f'"user_id": "{user_id or ""}", '
+            f'"success": {str(success).lower()}, '
+            f'"details": {json.dumps(details or {})}'
         )
-    
+        self.access_logger.info(message)
+
     def log_room_error(
         self,
         error_type: str,
         room_id: str,
-        user_id: Optional[str],
-        error: Exception,
+        user_id: Optional[str] = None,
+        error: Optional[Exception] = None,
         details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Log room error.
@@ -173,21 +131,15 @@ class RoomLogger:
             error: Error exception
             details: Optional error details
         """
-        error_data = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'error_type': error_type,
-            'room_id': room_id,
-            'user_id': user_id,
-            'error': str(error),
-            'details': details or {}
-        }
-        
-        self.error_logger.error(
-            f"Room error: {error_type}",
-            exc_info=error,
-            extra={'details': json.dumps(error_data)}
+        message = (
+            f'"error_type": "{error_type}", '
+            f'"room_id": "{room_id}", '
+            f'"user_id": "{user_id or ""}", '
+            f'"error": "{str(error) if error else ""}", '
+            f'"details": {json.dumps(details or {})}'
         )
-    
+        self.error_logger.error(message)
+
     def log_room_audit(
         self,
         action: str,
@@ -203,23 +155,14 @@ class RoomLogger:
             user_id: User ID
             details: Optional audit details
         """
-        audit_data = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'action': action,
-            'room_id': room_id,
-            'user_id': user_id,
-            'details': details or {}
-        }
-        
-        self.audit_logger.info(
-            f"Room audit: {action}",
-            extra={
-                'user_id': user_id,
-                'action': action,
-                'details': json.dumps(audit_data)
-            }
+        message = (
+            f'"action": "{action}", '
+            f'"room_id": "{room_id}", '
+            f'"user_id": "{user_id}", '
+            f'"details": {json.dumps(details or {})}'
         )
-    
+        self.audit_logger.info(message)
+
     def get_room_events(
         self,
         room_id: str,
@@ -238,53 +181,16 @@ class RoomLogger:
         Returns:
             List[Dict[str, Any]]: List of room events
         """
-        events = []
-        log_file = self.log_dir / 'events.log'
-        
-        if not log_file.exists():
-            return events
-        
-        with open(log_file, 'r') as f:
-            for line in f:
-                try:
-                    # Parse log entry
-                    parts = line.strip().split(' - ', 2)
-                    if len(parts) != 3:
-                        continue
-                    
-                    timestamp_str, level, message = parts
-                    timestamp = datetime.fromisoformat(timestamp_str)
-                    
-                    # Apply time filters
-                    if start_time and timestamp < start_time:
-                        continue
-                    if end_time and timestamp > end_time:
-                        continue
-                    
-                    # Parse event details
-                    if 'Room event:' not in message:
-                        continue
-                    
-                    details_str = message.split('details: ', 1)[1]
-                    details = json.loads(details_str)
-                    
-                    # Apply filters
-                    if details['room_id'] != room_id:
-                        continue
-                    if event_type and details['event_type'] != event_type:
-                        continue
-                    
-                    events.append(details)
-                    
-                except Exception as e:
-                    logger.error(
-                        "Error parsing room event log",
-                        exc_info=True,
-                        extra={'error': str(e)}
-                    )
-        
-        return events
-    
+        query = LogQueryBuilder(str(self.events_log)).filter_by_room(room_id)
+
+        if event_type:
+            query.filter_by_event_type(event_type)
+
+        if start_time or end_time:
+            query.time_range(start_time, end_time)
+
+        return query.execute()
+
     def get_room_access_logs(
         self,
         room_id: str,
@@ -303,53 +209,16 @@ class RoomLogger:
         Returns:
             List[Dict[str, Any]]: List of access logs
         """
-        logs = []
-        log_file = self.log_dir / 'access.log'
-        
-        if not log_file.exists():
-            return logs
-        
-        with open(log_file, 'r') as f:
-            for line in f:
-                try:
-                    # Parse log entry
-                    parts = line.strip().split(' - ', 2)
-                    if len(parts) != 3:
-                        continue
-                    
-                    timestamp_str, level, message = parts
-                    timestamp = datetime.fromisoformat(timestamp_str)
-                    
-                    # Apply time filters
-                    if start_time and timestamp < start_time:
-                        continue
-                    if end_time and timestamp > end_time:
-                        continue
-                    
-                    # Parse access details
-                    if 'Room access:' not in message:
-                        continue
-                    
-                    details_str = message.split('details: ', 1)[1]
-                    details = json.loads(details_str)
-                    
-                    # Apply filters
-                    if details['room_id'] != room_id:
-                        continue
-                    if user_id and details['user_id'] != user_id:
-                        continue
-                    
-                    logs.append(details)
-                    
-                except Exception as e:
-                    logger.error(
-                        "Error parsing room access log",
-                        exc_info=True,
-                        extra={'error': str(e)}
-                    )
-        
-        return logs
-    
+        query = LogQueryBuilder(str(self.access_log)).filter_by_room(room_id)
+
+        if user_id:
+            query.filter_by_user(user_id)
+
+        if start_time or end_time:
+            query.time_range(start_time, end_time)
+
+        return query.execute()
+
     def get_room_audit_logs(
         self,
         room_id: str,
@@ -370,54 +239,18 @@ class RoomLogger:
         Returns:
             List[Dict[str, Any]]: List of audit logs
         """
-        logs = []
-        log_file = self.log_dir / 'audit.log'
-        
-        if not log_file.exists():
-            return logs
-        
-        with open(log_file, 'r') as f:
-            for line in f:
-                try:
-                    # Parse log entry
-                    parts = line.strip().split(' - ', 2)
-                    if len(parts) != 3:
-                        continue
-                    
-                    timestamp_str, level, message = parts
-                    timestamp = datetime.fromisoformat(timestamp_str)
-                    
-                    # Apply time filters
-                    if start_time and timestamp < start_time:
-                        continue
-                    if end_time and timestamp > end_time:
-                        continue
-                    
-                    # Parse audit details
-                    if 'Room audit:' not in message:
-                        continue
-                    
-                    details_str = message.split('details: ', 1)[1]
-                    details = json.loads(details_str)
-                    
-                    # Apply filters
-                    if details['room_id'] != room_id:
-                        continue
-                    if user_id and details['user_id'] != user_id:
-                        continue
-                    if action and details['action'] != action:
-                        continue
-                    
-                    logs.append(details)
-                    
-                except Exception as e:
-                    logger.error(
-                        "Error parsing room audit log",
-                        exc_info=True,
-                        extra={'error': str(e)}
-                    )
-        
-        return logs
+        query = LogQueryBuilder(str(self.audit_log)).filter_by_room(room_id)
+
+        if user_id:
+            query.filter_by_user(user_id)
+
+        if action:
+            query.filter_by_action(action)
+
+        if start_time or end_time:
+            query.time_range(start_time, end_time)
+
+        return query.execute()
 
 # Global room logger instance
-room_logger = RoomLogger() 
+room_logger = RoomLogger('logs/rooms') 

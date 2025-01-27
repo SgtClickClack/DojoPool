@@ -1,0 +1,175 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\venues.js",
+  "typescript_file": "src\\dojopool\\static\\js\\venues.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\venues.js",
+  "analysis": {
+    "functions": [
+      {
+        "name": "debounce",
+        "params": [
+          "func",
+          "wait"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "executedFunction",
+        "params": [
+          "...args"
+        ],
+        "return_type": "any"
+      },
+      {
+        "name": "showNotification",
+        "params": [
+          "type",
+          "message"
+        ],
+        "return_type": "any"
+      }
+    ],
+    "classes": [
+      {
+        "name": "VenueManager",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "VenueDetailsManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "searchInput",
+        "type": "any"
+      },
+      {
+        "name": "statusFilter",
+        "type": "any"
+      },
+      {
+        "name": "sortByFilter",
+        "type": "any"
+      },
+      {
+        "name": "createForm",
+        "type": "any"
+      },
+      {
+        "name": "searchQuery",
+        "type": "any"
+      },
+      {
+        "name": "queryParams",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "grid",
+        "type": "any"
+      },
+      {
+        "name": "fullStars",
+        "type": "any"
+      },
+      {
+        "name": "hasHalfStar",
+        "type": "any"
+      },
+      {
+        "name": "emptyStars",
+        "type": "any"
+      },
+      {
+        "name": "pagination",
+        "type": "any"
+      },
+      {
+        "name": "totalPages",
+        "type": "any"
+      },
+      {
+        "name": "paginationHtml",
+        "type": "any"
+      },
+      {
+        "name": "form",
+        "type": "any"
+      },
+      {
+        "name": "formData",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "bookingForm",
+        "type": "any"
+      },
+      {
+        "name": "thumbnails",
+        "type": "any"
+      },
+      {
+        "name": "mainImage",
+        "type": "any"
+      },
+      {
+        "name": "calendar",
+        "type": "any"
+      },
+      {
+        "name": "form",
+        "type": "any"
+      },
+      {
+        "name": "formData",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "later",
+        "type": "any"
+      },
+      {
+        "name": "venueDetailsContainer",
+        "type": "any"
+      },
+      {
+        "name": "venueId",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "debounce": "\nfunction debounce(func: any, wait: any): any {\n    // Implementation\n}",
+    "executedFunction": "\nfunction executedFunction(...args: any): any {\n    // Implementation\n}",
+    "showNotification": "\nfunction showNotification(type: any, message: any): any {\n    // Implementation\n}",
+    "VenueManager": "\nclass VenueManager {\n    // Properties and methods\n}",
+    "VenueDetailsManager": "\nclass VenueDetailsManager {\n    // Properties and methods\n}"
+  }
+}

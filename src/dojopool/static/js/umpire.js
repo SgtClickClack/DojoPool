@@ -22,6 +22,107 @@ const umpireState = {
 // Initialize WebSocket connection for real-time updates
 let socket;
 
+class FrameManager {
+  constructor() {
+    this.framePool = [];
+    this.maxPoolSize = 3;
+    this.frameProcessor = null;
+    this.processingFrame = false;
+  }
+
+  initialize(width, height) {
+    // Initialize WASM frame processor
+    this.frameProcessor = new FrameProcessor(width, height);
+
+    // Pre-allocate ImageData objects
+    for (let i = 0; i < this.maxPoolSize; i++) {
+      this.framePool.push(new ImageData(width, height));
+    }
+  }
+
+  getFrame() {
+    return this.framePool.pop() || new ImageData(this.width, this.height);
+  }
+
+  returnFrame(frame) {
+    if (this.framePool.length < this.maxPoolSize) {
+      this.framePool.push(frame);
+    }
+  }
+
+  async processFrame(context) {
+    if (this.processingFrame) return;
+    this.processingFrame = true;
+
+    try {
+      // Get a frame from the pool
+      const frame = this.getFrame();
+
+      // Get frame data from canvas
+      const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+      frame.data.set(imageData.data);
+
+      // Validate frame
+      if (!this.validateFrame(frame)) {
+        this.returnFrame(frame);
+        return;
+      }
+
+      // Process frame
+      const result = this.frameProcessor.process_frame(frame.data);
+
+      // Return frame to pool
+      this.returnFrame(frame);
+
+      // Handle results
+      if (result) {
+        handleFrameProcessingResult(result);
+      }
+    } catch (error) {
+      console.error('Frame processing error:', error);
+      errorRecoveryManager.handleError(error);
+    } finally {
+      this.processingFrame = false;
+    }
+  }
+
+  validateFrame(imageData) {
+    const data = imageData.data;
+    let blackPixels = 0;
+    let whitePixels = 0;
+    const totalPixels = data.length / 4;
+
+    // Process in chunks for better performance
+    const chunkSize = 1024;
+    for (let i = 0; i < data.length; i += chunkSize * 4) {
+      const end = Math.min(i + chunkSize * 4, data.length);
+      for (let j = i; j < end; j += 4) {
+        const r = data[j];
+        const g = data[j + 1];
+        const b = data[j + 2];
+
+        if (r === 0 && g === 0 && b === 0) blackPixels++;
+        if (r === 255 && g === 255 && b === 255) whitePixels++;
+      }
+    }
+
+    const blackRatio = blackPixels / totalPixels;
+    const whiteRatio = whitePixels / totalPixels;
+    return blackRatio < 0.95 && whiteRatio < 0.95;
+  }
+
+  cleanup() {
+    if (this.frameProcessor) {
+      this.frameProcessor.cleanup();
+      this.frameProcessor = null;
+    }
+    this.framePool = [];
+  }
+}
+
+// Initialize frame manager
+const frameManager = new FrameManager();
+
 // Initialize the umpire system
 function initUmpireSystem() {
   initializeSocket();

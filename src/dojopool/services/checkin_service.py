@@ -1,270 +1,269 @@
-"""Service for handling venue check-ins and occupancy tracking."""
+"""Service for managing venue check-ins and check-outs."""
+
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 
 from sqlalchemy import func
 from dojopool.core.database import db
-from dojopool.models.venue import Venue, VenueCheckIn
+from dojopool.models.venue import Venue, VenueCheckin
 from dojopool.models.notification import Notification
 from dojopool.models.user import User
 
+
 class CheckInService:
-    """Service for managing venue check-ins."""
-    
+    """Service class for managing venue check-ins and check-outs."""
+
     def __init__(self):
         self.max_concurrent_checkins = 1  # Users can only be checked in at one venue
-    
+
+    @classmethod
     def check_in(
-        self,
+        cls,
         user_id: int,
         venue_id: int,
         table_number: Optional[int] = None,
-        game_type: Optional[str] = None
-    ) -> VenueCheckIn:
-        """Check in a user at a venue.
-        
+        game_type: Optional[str] = None,
+    ) -> VenueCheckin:
+        """Check a user into a venue.
+
         Args:
-            user_id: User ID
-            venue_id: Venue ID
-            table_number: Optional table number
+            user_id: ID of the user checking in
+            venue_id: ID of the venue to check into
+            table_number: Optional table number assignment
             game_type: Optional game type being played
-            
+
         Returns:
-            VenueCheckIn: Created check-in record
+            The created VenueCheckin record
+
+        Raises:
+            ValueError: If user is already checked in somewhere or venue is invalid
         """
         # Verify user and venue exist
         user = User.query.get(user_id)
         venue = Venue.query.get(venue_id)
-        
+
         if not user or not venue:
-            raise ValueError("User or venue not found")
-            
+            raise ValueError("Invalid user or venue ID")
+
         # Check if user is already checked in somewhere
-        active_checkin = (VenueCheckIn.query
-                         .filter_by(user_id=user_id, checked_out_at=None)
-                         .first())
-                         
-        if active_checkin:
-            if active_checkin.venue_id == venue_id:
-                raise ValueError("Already checked in at this venue")
+        existing_checkin = VenueCheckin.query.filter_by(
+            user_id=user_id, checked_out_at=None
+        ).first()
+
+        if existing_checkin:
+            if existing_checkin.venue_id == venue_id:
+                raise ValueError("User is already checked in to this venue")
             else:
-                # Auto check-out from previous venue
-                self.check_out(user_id, active_checkin.venue_id)
-        
-        # Create new check-in
-        checkin = VenueCheckIn(
-            user_id=user_id,
-            venue_id=venue_id,
-            table_number=table_number,
-            game_type=game_type,
-            checked_in_at=datetime.utcnow()
+                raise ValueError("User is already checked in to another venue")
+
+        # Verify table availability if table number provided
+        if table_number:
+            if table_number > venue.total_tables:
+                raise ValueError("Invalid table number")
+
+            table_occupied = VenueCheckin.query.filter_by(
+                venue_id=venue_id, table_number=table_number, checked_out_at=None
+            ).first()
+
+            if table_occupied:
+                raise ValueError("Table is already occupied")
+
+        # Create check-in record
+        checkin = VenueCheckin(
+            user_id=user_id, venue_id=venue_id, table_number=table_number, game_type=game_type
         )
-        
+
         db.session.add(checkin)
-        
+
         # Update venue stats
         if not venue.stats:
             venue.stats = {}
-        venue.stats['current_occupancy'] = venue.current_occupancy + 1
-        if venue.stats.get('peak_occupancy', 0) < venue.stats['current_occupancy']:
-            venue.stats['peak_occupancy'] = venue.stats['current_occupancy']
-        
+        venue.stats["current_occupancy"] = venue.current_occupancy + 1
+        if venue.stats.get("peak_occupancy", 0) < venue.stats["current_occupancy"]:
+            venue.stats["peak_occupancy"] = venue.stats["current_occupancy"]
+
         # Create notification for venue owner
         if venue.owner_id:
             Notification.create(
                 user_id=venue.owner_id,
-                type='checkin',
-                title='New Check-in',
-                message=f'{user.username} has checked in at {venue.name}',
+                type="checkin",
+                title="New Check-in",
+                message=f"{user.username} has checked in at {venue.name}",
                 data={
-                    'user_id': user_id,
-                    'venue_id': venue_id,
-                    'table_number': table_number,
-                    'game_type': game_type
-                }
+                    "user_id": user_id,
+                    "venue_id": venue_id,
+                    "table_number": table_number,
+                    "game_type": game_type,
+                },
             )
-        
+
         db.session.commit()
         return checkin
-    
-    def check_out(
-        self,
-        user_id: int,
-        venue_id: int
-    ) -> Optional[VenueCheckIn]:
-        """Check out a user from a venue.
-        
+
+    @classmethod
+    def check_out(cls, user_id: int, venue_id: int) -> VenueCheckin:
+        """Check a user out of a venue.
+
         Args:
-            user_id: User ID
-            venue_id: Venue ID
-            
+            user_id: ID of the user checking out
+            venue_id: ID of the venue to check out from
+
         Returns:
-            Optional[VenueCheckIn]: Updated check-in record
+            The updated VenueCheckin record
+
+        Raises:
+            ValueError: If user isn't checked in or venue doesn't match
         """
         # Find active check-in
-        checkin = (VenueCheckIn.query
-                  .filter_by(
-                      user_id=user_id,
-                      venue_id=venue_id,
-                      checked_out_at=None
-                  )
-                  .first())
-                  
+        checkin = VenueCheckin.query.filter_by(
+            user_id=user_id, venue_id=venue_id, checked_out_at=None
+        ).first()
+
         if not checkin:
-            raise ValueError("No active check-in found")
-            
-        # Update check-in record
+            raise ValueError("User is not checked in to this venue")
+
+        # Update check-out time
         checkin.checked_out_at = datetime.utcnow()
-        
+
         # Update venue stats
         venue = Venue.query.get(venue_id)
         if venue and venue.stats:
-            venue.stats['current_occupancy'] = max(0, venue.current_occupancy - 1)
-        
+            venue.stats["current_occupancy"] = max(0, venue.current_occupancy - 1)
+
         db.session.commit()
         return checkin
-    
+
+    @classmethod
     def get_active_checkins(
-        self,
-        venue_id: int,
-        limit: int = 10,
-        offset: int = 0
+        cls, venue_id: int, limit: int = 10, offset: int = 0
     ) -> List[Dict[str, Any]]:
         """Get active check-ins for a venue.
-        
+
         Args:
             venue_id: Venue ID
             limit: Maximum number of records to return
             offset: Number of records to skip
-            
+
         Returns:
             List[Dict[str, Any]]: List of active check-ins
         """
-        checkins = (VenueCheckIn.query
-                   .filter_by(venue_id=venue_id, checked_out_at=None)
-                   .order_by(VenueCheckIn.checked_in_at.desc())
-                   .offset(offset)
-                   .limit(limit)
-                   .all())
-                   
+        checkins = (
+            VenueCheckin.query.filter_by(venue_id=venue_id, checked_out_at=None)
+            .order_by(VenueCheckin.checked_in_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
         return [
             {
-                'id': c.id,
-                'user_id': c.user_id,
-                'username': c.user.username,
-                'avatar_url': c.user.avatar_url,
-                'table_number': c.table_number,
-                'game_type': c.game_type,
-                'checked_in_at': c.checked_in_at.isoformat()
+                "id": c.id,
+                "user_id": c.user_id,
+                "username": c.user.username,
+                "avatar_url": c.user.avatar_url,
+                "table_number": c.table_number,
+                "game_type": c.game_type,
+                "checked_in_at": c.checked_in_at.isoformat(),
             }
             for c in checkins
         ]
-    
+
+    @classmethod
     def get_checkin_history(
-        self,
+        cls,
         venue_id: int,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
         limit: int = 10,
-        offset: int = 0
+        offset: int = 0,
     ) -> List[Dict[str, Any]]:
         """Get check-in history for a venue.
-        
+
         Args:
             venue_id: Venue ID
             start_date: Optional start date filter
             end_date: Optional end date filter
             limit: Maximum number of records to return
             offset: Number of records to skip
-            
+
         Returns:
             List[Dict[str, Any]]: List of check-in records
         """
-        query = VenueCheckIn.query.filter_by(venue_id=venue_id)
-        
+        query = VenueCheckin.query.filter_by(venue_id=venue_id)
+
         if start_date:
-            query = query.filter(VenueCheckIn.checked_in_at >= start_date)
+            query = query.filter(VenueCheckin.checked_in_at >= start_date)
         if end_date:
-            query = query.filter(VenueCheckIn.checked_in_at <= end_date)
-            
-        checkins = (query.order_by(VenueCheckIn.checked_in_at.desc())
-                   .offset(offset)
-                   .limit(limit)
-                   .all())
-                   
+            query = query.filter(VenueCheckin.checked_in_at <= end_date)
+
+        checkins = (
+            query.order_by(VenueCheckin.checked_in_at.desc()).offset(offset).limit(limit).all()
+        )
+
         return [
             {
-                'id': c.id,
-                'user_id': c.user_id,
-                'username': c.user.username,
-                'avatar_url': c.user.avatar_url,
-                'table_number': c.table_number,
-                'game_type': c.game_type,
-                'checked_in_at': c.checked_in_at.isoformat(),
-                'checked_out_at': c.checked_out_at.isoformat() if c.checked_out_at else None,
-                'duration': str(c.checked_out_at - c.checked_in_at) if c.checked_out_at else None
+                "id": c.id,
+                "user_id": c.user_id,
+                "username": c.user.username,
+                "avatar_url": c.user.avatar_url,
+                "table_number": c.table_number,
+                "game_type": c.game_type,
+                "checked_in_at": c.checked_in_at.isoformat(),
+                "checked_out_at": c.checked_out_at.isoformat() if c.checked_out_at else None,
+                "duration": str(c.checked_out_at - c.checked_in_at) if c.checked_out_at else None,
             }
             for c in checkins
         ]
-    
-    def get_occupancy_stats(
-        self,
-        venue_id: int,
-        period: str = 'day'
-    ) -> Dict[str, Any]:
+
+    @classmethod
+    def get_occupancy_stats(cls, venue_id: int, period: str = "day") -> Dict[str, Any]:
         """Get occupancy statistics for a venue.
-        
+
         Args:
             venue_id: Venue ID
             period: Time period ('day', 'week', 'month')
-            
+
         Returns:
             Dict[str, Any]: Occupancy statistics
         """
         venue = Venue.query.get(venue_id)
         if not venue:
             raise ValueError("Venue not found")
-            
+
         now = datetime.utcnow()
-        if period == 'day':
+        if period == "day":
             start_date = now - timedelta(days=1)
-        elif period == 'week':
+        elif period == "week":
             start_date = now - timedelta(weeks=1)
-        elif period == 'month':
+        elif period == "month":
             start_date = now - timedelta(days=30)
         else:
             raise ValueError("Invalid period")
-            
+
         # Get check-in counts by hour
-        checkins_by_hour = (db.session.query(
-            func.date_trunc('hour', VenueCheckIn.checked_in_at),
-            func.count(VenueCheckIn.id)
+        checkins_by_hour = (
+            db.session.query(
+                func.date_trunc("hour", VenueCheckin.checked_in_at), func.count(VenueCheckin.id)
+            )
+            .filter(VenueCheckin.venue_id == venue_id, VenueCheckin.checked_in_at >= start_date)
+            .group_by(func.date_trunc("hour", VenueCheckin.checked_in_at))
+            .all()
         )
-        .filter(
-            VenueCheckIn.venue_id == venue_id,
-            VenueCheckIn.checked_in_at >= start_date
-        )
-        .group_by(func.date_trunc('hour', VenueCheckIn.checked_in_at))
-        .all())
-        
+
         # Calculate statistics
         total_checkins = sum(count for _, count in checkins_by_hour)
         peak_hour = max(checkins_by_hour, key=lambda x: x[1]) if checkins_by_hour else (None, 0)
-        current_occupancy = venue.current_occupancy
-        
+        current_occupancy = venue.active_players
+
         return {
-            'current_occupancy': current_occupancy,
-            'peak_occupancy': venue.stats.get('peak_occupancy', 0),
-            'total_checkins': total_checkins,
-            'peak_hour': {
-                'time': peak_hour[0].isoformat() if peak_hour[0] else None,
-                'count': peak_hour[1]
+            "current_occupancy": current_occupancy,
+            "peak_occupancy": venue.stats.get("peak_occupancy", 0) if venue.stats else 0,
+            "total_checkins": total_checkins,
+            "peak_hour": {
+                "time": peak_hour[0].isoformat() if peak_hour[0] else None,
+                "count": peak_hour[1],
             },
-            'checkins_by_hour': [
-                {
-                    'hour': hour.isoformat(),
-                    'count': count
-                }
-                for hour, count in checkins_by_hour
-            ]
-        } 
+            "checkins_by_hour": [
+                {"hour": hour.isoformat(), "count": count} for hour, count in checkins_by_hour
+            ],
+        }

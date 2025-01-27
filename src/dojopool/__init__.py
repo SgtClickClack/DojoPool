@@ -1,12 +1,5 @@
 """
-DojoPool application package.
+DojoPool package initialization.
 """
 
-from .app import create_app
-
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-__all__ = ['create_app']
+__version__ = '0.1.0'

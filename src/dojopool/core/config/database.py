@@ -5,7 +5,7 @@ from typing import Dict
 
 DATABASE_CONFIG: Dict = {
     'user': os.getenv('DB_USER', 'postgres'),
-    'password': os.getenv('DB_PASSWORD', ''),
+    'os.getenv("PASSWORD_39"), ''),
     'database': os.getenv('DB_NAME', 'dojo_pool'),
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': int(os.getenv('DB_PORT', '5432')),

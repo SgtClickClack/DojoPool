@@ -1,0 +1,134 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\tournaments.js",
+  "typescript_file": "src\\dojopool\\static\\js\\tournaments.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\tournaments.js",
+  "analysis": {
+    "functions": [],
+    "classes": [],
+    "variables": [
+      {
+        "name": "dateInputs",
+        "type": "any"
+      },
+      {
+        "name": "today",
+        "type": "any"
+      },
+      {
+        "name": "createTournamentForm",
+        "type": "any"
+      },
+      {
+        "name": "startDate",
+        "type": "any"
+      },
+      {
+        "name": "endDate",
+        "type": "any"
+      },
+      {
+        "name": "registrationDeadline",
+        "type": "any"
+      },
+      {
+        "name": "matchResultModal",
+        "type": "any"
+      },
+      {
+        "name": "button",
+        "type": "any"
+      },
+      {
+        "name": "matchId",
+        "type": "any"
+      },
+      {
+        "name": "player1Name",
+        "type": "any"
+      },
+      {
+        "name": "player2Name",
+        "type": "any"
+      },
+      {
+        "name": "player1Avatar",
+        "type": "any"
+      },
+      {
+        "name": "player2Avatar",
+        "type": "any"
+      },
+      {
+        "name": "form",
+        "type": "any"
+      },
+      {
+        "name": "actionUrl",
+        "type": "any"
+      },
+      {
+        "name": "matchResultForm",
+        "type": "any"
+      },
+      {
+        "name": "player1Score",
+        "type": "any"
+      },
+      {
+        "name": "player2Score",
+        "type": "any"
+      },
+      {
+        "name": "isFinal",
+        "type": "any"
+      },
+      {
+        "name": "registerForms",
+        "type": "any"
+      },
+      {
+        "name": "formatSelect",
+        "type": "any"
+      },
+      {
+        "name": "formatDescriptions",
+        "type": "any"
+      },
+      {
+        "name": "tooltip",
+        "type": "any"
+      },
+      {
+        "name": "entryFeeInput",
+        "type": "any"
+      },
+      {
+        "name": "maxParticipantsInput",
+        "type": "any"
+      },
+      {
+        "name": "prizePooInput",
+        "type": "any"
+      },
+      {
+        "name": "calculatePrizePool",
+        "type": "any"
+      },
+      {
+        "name": "entryFee",
+        "type": "any"
+      },
+      {
+        "name": "maxParticipants",
+        "type": "any"
+      },
+      {
+        "name": "suggestedPrizePool",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {}
+}

@@ -308,6 +308,56 @@ Hide content properly:
 </style>
 ```
 
+### Audio Content
+
+We provide audio content with transcripts for accessibility:
+
+```html
+<figure>
+    <audio controls>
+        <source src="../src/dojopool/static/audio/checkingoutdojopool.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <figcaption>
+        <a href="transcripts/checkingoutdojopool.html">
+            View transcript
+        </a>
+    </figcaption>
+</figure>
+```
+
+### Transcripts
+
+All audio content must have an accompanying transcript. Transcripts should:
+- Be placed in the `docs/transcripts` directory
+- Use clear, semantic HTML markup
+- Include speaker identification when applicable
+- Provide timestamps for longer content
+- Include relevant non-speech audio information
+
+Example transcript structure:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transcript - Checking Out DojoPool</title>
+</head>
+<body>
+    <main>
+        <h1>Transcript: Checking Out DojoPool</h1>
+        <article>
+            <h2>Introduction</h2>
+            <p><time>0:00</time> [Background music starts]</p>
+            <p><time>0:05</time> <strong>Host:</strong> Welcome to DojoPool...</p>
+            <!-- Additional transcript content -->
+        </article>
+    </main>
+</body>
+</html>
+```
+
 ## Color and Contrast
 
 ### Contrast Ratios

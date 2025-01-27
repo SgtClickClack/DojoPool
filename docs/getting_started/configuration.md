@@ -174,6 +174,6 @@ LOGGING_CONFIG = {
 
 ## Next Steps
 
-- Set up your [Development Environment](./development.md)
-- Review the [Architecture Overview](../architecture/README.md)
-- Learn about [Deployment](../deployment/README.md) 
+- Set up your [Development Environment](development.md)
+- Review the [Architecture Overview](../ARCHITECTURE.md)
+- Learn about [Deployment](../DEPLOYMENT.md) 

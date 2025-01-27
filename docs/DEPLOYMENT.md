@@ -13,7 +13,7 @@
      ```bash
      sudo cp nginx/production/nginx.conf /etc/nginx/conf.d/
      ```
-   - For detailed NGINX setup, see [NGINX Configuration](./NGINX_CONFIGURATION.md)
+   - For detailed NGINX setup, see [NGINX Configuration](NGINX_CONFIGURATION.md)
 
 2. Test and reload NGINX
    ```bash
@@ -62,14 +62,14 @@
    ```
 
 ### Security Considerations
-- Review [Security Documentation](./SECURITY.md)
+- Review [Security Documentation](SECURITY.md)
 - Ensure all secrets are properly configured
 - Follow security best practices
 
 ### Performance Optimization
 - Enable caching as configured
 - Monitor database performance
-- Review [Performance Recommendations](./performance_recommendations.md)
+- Review [Performance Recommendations](performance_recommendations.md)
 
 ### Maintenance
 - Regular updates

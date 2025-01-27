@@ -122,6 +122,6 @@ The application should now be running at `http://localhost:5000`
 
 ## Next Steps
 
-- Read the [Configuration Guide](./configuration.md)
-- Set up your [Development Environment](./development.md)
-- Review the [Architecture Overview](../architecture/README.md) 
+- Read the [Configuration Guide](configuration.md)
+- Set up your [Development Environment](development.md)
+- Review the [Architecture Overview](../ARCHITECTURE.md) 

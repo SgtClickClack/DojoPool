@@ -232,14 +232,14 @@ Verify theme variables are accessible:
 
 ## Next Steps
 
-1. Explore our [Component Documentation](../components/)
-2. Learn about our [Design System](../styles/)
-3. Check out [Advanced Topics](./advanced/)
-4. Read our [Contributing Guide](./contributing/)
+1. Explore our [Component Documentation](../components/README.md)
+2. Learn about our [Design System](../styles/README.md)
+3. Check out [Advanced Topics](advanced/README.md)
+4. Read our [Contributing Guide](contributing/README.md)
 
 ## Support
 
 - 📖 [Full Documentation](https://docs.dojopool.com)
 - 💬 [Discord Community](https://discord.gg/dojopool)
 - 🐛 [Issue Tracker](https://github.com/your-org/dojo-pool/issues)
-- 📝 [Release Notes](./changelog) 
+- 📝 [Release Notes](../CHANGELOG.md) 

@@ -1,6 +1,23 @@
 import '@testing-library/jest-dom';
-import 'jest-canvas-mock';
 import 'whatwg-fetch';
+
+// JSDOM provides its own canvas implementation
+// No need to mock canvas anymore as we're using JSDOM environment
+
+// Mock other browser APIs if needed
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
 
 // Mock IntersectionObserver
 class IntersectionObserver {
@@ -26,21 +43,6 @@ Object.defineProperty(window, 'ResizeObserver', {
   writable: true,
   configurable: true,
   value: ResizeObserver,
-});
-
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
 });
 
 // Mock scrollTo

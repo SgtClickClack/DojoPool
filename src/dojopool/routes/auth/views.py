@@ -1,180 +1,114 @@
-"""Authentication views."""
-from datetime import datetime
-from flask import Blueprint, request, jsonify, make_response
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from werkzeug.security import generate_password_hash, check_password_hash
-from marshmallow import Schema, fields, validate, ValidationError
-from dojopool.core.models import User
-from dojopool.core.database import db
-from dojopool.core.security.session import SessionManager
-from dojopool.core.security.tokens import generate_reset_token
-from dojopool.core.email import send_reset_email
-import time
-import random
-import re
+"""Authentication views and routes."""
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+from typing import Optional, cast
+from sqlalchemy import Column
 
-auth_bp = Blueprint('auth', __name__)
+from dojopool.core.security.tokens import generate_confirmation_token, verify_confirmation_token
+from dojopool.models.user import User
+from dojopool.extensions import db
 
-# Input validation schemas
-class LoginSchema(Schema):
-    email = fields.Email(required=True, validate=[
-        validate.Length(min=5, max=254),
-        validate.Regexp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-    ])
-    password = fields.Str(required=True, validate=[
-        validate.Length(min=8, max=72),
-        validate.Regexp(
-            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-            error='Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-        )
-    ])
-    remember_me = fields.Boolean(missing=False)
+bp = Blueprint('auth', __name__)
 
-class RegisterSchema(LoginSchema):
-    username = fields.Str(required=True, validate=[
-        validate.Length(min=3, max=30),
-        validate.Regexp(r'^[a-zA-Z0-9_-]+$', error='Username can only contain letters, numbers, underscores and hyphens')
-    ])
+def init_oauth(app):
+    """Initialize OAuth providers."""
+    # TODO: Add OAuth provider initialization
+    pass
 
-class PasswordResetRequestSchema(Schema):
-    email = fields.Email(required=True)
-
-class PasswordResetConfirmSchema(Schema):
-    token = fields.Str(required=True, validate=validate.Length(min=32, max=512))
-    new_password = fields.Str(required=True, validate=[
-        validate.Length(min=8, max=72),
-        validate.Regexp(
-            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-            error='Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-        )
-    ])
-
-# Rate limiting configuration
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="redis://localhost:6379"
-)
-
-session_manager = SessionManager()
-
-def sanitize_email(email: str) -> str:
-    """Sanitize email address."""
-    return email.lower().strip()
-
-def validate_password_strength(password: str) -> bool:
-    """Additional password strength validation."""
-    if re.search(r'(.)\1{2,}', password):  # Check for character repetition
-        return False
-    if any(common in password.lower() for common in ['password', '123456', 'qwerty']):
-        return False
-    return True
-
-@auth_bp.route('/login', methods=['POST'])
-@limiter.limit("5 per minute")
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Handle user login with rate limiting and enhanced validation."""
-    try:
-        data = LoginSchema().load(request.get_json())
-    except ValidationError as err:
-        return jsonify({'errors': err.messages}), 400
-
-    email = sanitize_email(data['email'])
-    password = data['password']
-
-    if not validate_password_strength(password):
-        return jsonify({'error': 'Password does not meet security requirements'}), 400
-
-    user = User.query.filter_by(email=email).first()
-    if not user or not check_password_hash(user.password_hash, password):
-        time.sleep(random.uniform(0.1, 0.3))  # Add delay to prevent timing attacks
-        return jsonify({'error': 'Invalid email or password'}), 401
-
-    # Check for too many failed attempts
-    if user.failed_login_attempts >= 5:
-        if (datetime.utcnow() - user.last_failed_login).total_seconds() < 300:  # 5 minutes lockout
-            return jsonify({'error': 'Account temporarily locked. Please try again later'}), 429
-
-        # Reset counter after lockout period
-        user.failed_login_attempts = 0
+    """Handle user login."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
     
-    # Update login tracking
-    user.last_login_at = datetime.utcnow()
-    user.failed_login_attempts = 0
-    user.last_failed_login = None
-    db.session.commit()
+    if request.method == 'POST':
+        email = request.form.get('email', '')
+        password = request.form.get('password', '')
+        remember = bool(request.form.get('remember'))
+        
+        if not email or not password:
+            flash('Email and password are required', 'error')
+            return render_template('auth/login.html')
+        
+        user = User.query.filter_by(email=email).first()
+        if user and user.check_password(password):
+            login_user(user, remember=remember)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('main.index'))
+        
+        flash('Invalid email or password', 'error')
+    
+    return render_template('auth/login.html')
 
-    # Create session with enhanced security
-    session_token = session_manager.create_session(
-        str(user.id),
-        remember=data.get('remember_me', False),
-        metadata={
-            'ip_address': request.remote_addr,
-            'user_agent': request.user_agent.string,
-            'origin': request.headers.get('Origin', 'unknown')
-        }
-    )
+@bp.route('/logout')
+@login_required
+def logout():
+    """Handle user logout."""
+    logout_user()
+    return redirect(url_for('main.index'))
 
-    response = make_response(jsonify({'message': 'Login successful'}))
-    response.set_cookie(
-        'session_token',
-        session_token,
-        httponly=True,
-        secure=True,
-        samesite='Lax',
-        max_age=30 * 24 * 3600 if data.get('remember_me') else None
-    )
-
-    return response
-
-@auth_bp.route('/register', methods=['POST'])
-@limiter.limit("3 per hour")
+@bp.route('/register', methods=['GET', 'POST'])
 def register():
-    """Handle user registration with enhanced validation."""
-    try:
-        data = RegisterSchema().load(request.get_json())
-    except ValidationError as err:
-        return jsonify({'errors': err.messages}), 400
+    """Handle user registration."""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email', '')
+        password = request.form.get('password', '')
+        username = request.form.get('username', '')
+        
+        if not email or not password or not username:
+            flash('All fields are required', 'error')
+            return render_template('auth/register.html')
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return render_template('auth/register.html')
+        
+        user = User()
+        setattr(user, 'email', email)  # type: ignore
+        setattr(user, 'username', username)  # type: ignore
+        setattr(user, 'password', password)  # type: ignore
+        db.session.add(user)
+        db.session.commit()
+        
+        # Ensure we have a valid user ID
+        if user is not None and user.id is not None:
+            # Cast the Column[int] to int
+            user_id = cast(int, user.id)
+            token = generate_confirmation_token(user_id)
+            # TODO: Send confirmation email
+            
+            flash('Registration successful. Please check your email to confirm your account.', 'success')
+            return redirect(url_for('auth.login'))
+        
+        flash('Error creating user account', 'error')
+        return render_template('auth/register.html')
+    
+    return render_template('auth/register.html')
 
-    email = sanitize_email(data['email'])
-    password = data['password']
-
-    if not validate_password_strength(password):
-        return jsonify({'error': 'Password does not meet security requirements'}), 400
-
-    if User.query.filter_by(email=email).first():
-        time.sleep(random.uniform(0.1, 0.3))  # Add delay to prevent enumeration
-        return jsonify({'error': 'Email already registered'}), 400
-
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Username already taken'}), 400
-
-    user = User(
-        email=email,
-        username=data['username'],
-        password_hash=generate_password_hash(password)
-    )
-    db.session.add(user)
-    db.session.commit()
-
-    return jsonify({'message': 'Registration successful'}), 201
-
-@auth_bp.route('/password-reset', methods=['POST'])
-@limiter.limit("3 per hour")
-def password_reset():
-    """Handle password reset requests with enhanced security."""
-    try:
-        data = PasswordResetRequestSchema().load(request.get_json())
-    except ValidationError as err:
-        return jsonify({'errors': err.messages}), 400
-
-    email = sanitize_email(data['email'])
-    user = User.query.filter_by(email=email).first()
-
-    if user:
-        token = generate_reset_token(user)
-        send_reset_email(user.email, token)
-
-    # Always return success to prevent email enumeration
-    return jsonify({'message': 'If an account exists with this email, a reset link has been sent'}) 
+@bp.route('/confirm/<token>')
+def confirm_email(token):
+    """Confirm user email address."""
+    if current_user.is_authenticated and current_user.is_verified:
+        return redirect(url_for('main.index'))
+    
+    user_id = verify_confirmation_token(token)
+    if not user_id:
+        flash('The confirmation link is invalid or has expired.', 'error')
+        return redirect(url_for('main.index'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('main.index'))
+    
+    if user.is_verified:
+        flash('Account already confirmed.', 'info')
+    else:
+        setattr(user, 'is_verified', True)  # type: ignore
+        db.session.commit()
+        flash('Your account has been confirmed!', 'success')
+    
+    return redirect(url_for('auth.login')) 

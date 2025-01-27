@@ -1,241 +1,357 @@
-"""Routes for venue management, check-ins, and leaderboards."""
-from flask import Blueprint, jsonify, request, g
-from marshmallow import ValidationError
+"""Venue routes for managing dojo venues."""
 
-from dojopool.core.auth import login_required
-from dojopool.services.venue_service import VenueService
-from dojopool.services.checkin_service import CheckInService
-from dojopool.schemas.venue import (
-    VenueSchema, VenueCheckInSchema,
-    VenueLeaderboardSchema, VenueEventSchema
-)
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, request, jsonify, g, current_app, abort
+from flask_login import login_required, current_user
+from sqlalchemy import func
+from ..models.venue import Venue, VenueCheckin
+from ..models.tournament import Tournament
+from ..models.user import User
+from ..services.checkin_service import CheckInService
+from ..core.auth import admin_required
+from ..database import db
 
-bp = Blueprint('venue', __name__, url_prefix='/api/venues')
-venue_service = VenueService()
-checkin_service = CheckInService()
+bp = Blueprint("venue", __name__, url_prefix="/venues")
 
-@bp.route('/', methods=['GET'])
-def get_venues():
-    """Get list of venues with optional filtering."""
-    try:
-        limit = int(request.args.get('limit', 10))
-        offset = int(request.args.get('offset', 0))
-        filters = {
-            'name': request.args.get('name'),
-            'is_verified': request.args.get('is_verified', type=bool)
+
+# Venue listing and search
+@bp.route("/")
+def venue_list():
+    """List all venues with optional filtering."""
+    # Get basic venue stats
+    total_venues = Venue.query.count()
+    open_venues = sum(1 for v in Venue.query.all() if v.is_open)
+    total_active_players = VenueCheckin.query.filter_by(checked_out_at=None).count()
+    active_tournaments = Tournament.query.filter_by(status="ongoing").count()
+
+    # Get user's recent venues if logged in
+    recent_venues = []
+    if current_user.is_authenticated:
+        recent_checkins = CheckInService.get_user_checkins(current_user.id)
+        recent_venues = [checkin.venue for checkin in recent_checkins]
+
+    # Get all venues for initial display
+    venues = Venue.query.all()
+    user_checkins = set()
+    if current_user.is_authenticated:
+        user_checkins = {
+            c.venue_id
+            for c in VenueCheckin.query.filter_by(
+                user_id=current_user.id, checked_out_at=None
+            ).all()
         }
-        
-        # Remove None values
-        filters = {k: v for k, v in filters.items() if v is not None}
-        
-        venues = VenueService.get_venues(limit=limit, offset=offset, filters=filters)
-        return jsonify(VenueSchema(many=True).dump(venues))
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
 
-@bp.route('/<int:venue_id>', methods=['GET'])
-def get_venue(venue_id):
-    """Get venue details by ID."""
-    venue = VenueService.get_venue(venue_id)
-    if not venue:
-        return jsonify({'error': 'Venue not found'}), 404
-        
-    return jsonify(VenueSchema().dump(venue))
+    return render_template(
+        "venue/venue_list.html",
+        venues=venues,
+        user_checkins=user_checkins,
+        total_venues=total_venues,
+        open_venues=open_venues,
+        total_active_players=total_active_players,
+        active_tournaments=active_tournaments,
+        recent_venues=recent_venues,
+        has_more=False,  # Implement pagination if needed
+    )
 
-@bp.route('/', methods=['POST'])
+
+@bp.route("/<int:venue_id>")
+def venue_detail(venue_id):
+    """Show venue details."""
+    venue = Venue.query.get_or_404(venue_id)
+    active_players = CheckInService.get_active_checkins(venue_id)
+    user_checkins = set()
+    if current_user.is_authenticated:
+        user_checkins = {
+            c.venue_id
+            for c in VenueCheckin.query.filter_by(
+                user_id=current_user.id, checked_out_at=None
+            ).all()
+        }
+
+    return render_template(
+        "venue/venue_detail.html",
+        venue=venue,
+        active_players=active_players,
+        user_checkins=user_checkins,
+    )
+
+
+# Venue management (admin only)
+@bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def create_venue():
     """Create a new venue."""
-    try:
-        data = VenueSchema().load(request.get_json())
-        venue = VenueService.create_venue(data)
-        return jsonify(VenueSchema().dump(venue)), 201
-        
-    except ValidationError as e:
-        return jsonify({'error': e.messages}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    if request.method == "POST":
+        data = request.get_json()
 
-@bp.route('/<int:venue_id>', methods=['PUT'])
+        venue = Venue(
+            name=data["name"],
+            address=data["address"],
+            phone=data.get("phone"),
+            email=data.get("email"),
+            operating_hours=data.get("operating_hours", {}),
+            total_tables=data.get("total_tables", 0),
+            amenities=data.get("amenities", []),
+        )
+
+        db.session.add(venue)
+        db.session.commit()
+
+        return jsonify(venue.to_dict()), 201
+
+    return render_template("venue/create.html")
+
+
+@bp.route("/<int:venue_id>/edit", methods=["GET", "POST"])
 @login_required
-def update_venue(venue_id):
-    """Update venue details."""
-    try:
-        data = VenueSchema().load(request.get_json(), partial=True)
-        venue = VenueService.update_venue(venue_id, data)
-        
-        if not venue:
-            return jsonify({'error': 'Venue not found'}), 404
-            
-        return jsonify(VenueSchema().dump(venue))
-        
-    except ValidationError as e:
-        return jsonify({'error': e.messages}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+@admin_required
+def edit_venue(venue_id):
+    """Edit an existing venue."""
+    venue = Venue.query.get_or_404(venue_id)
 
-@bp.route('/<int:venue_id>/check-in', methods=['POST'])
+    if request.method == "POST":
+        data = request.get_json()
+
+        venue.name = data.get("name", venue.name)
+        venue.address = data.get("address", venue.address)
+        venue.phone = data.get("phone", venue.phone)
+        venue.email = data.get("email", venue.email)
+        venue.operating_hours = data.get("operating_hours", venue.operating_hours)
+        venue.total_tables = data.get("total_tables", venue.total_tables)
+        venue.amenities = data.get("amenities", venue.amenities)
+
+        db.session.commit()
+
+        return jsonify(venue.to_dict())
+
+    return render_template("venue/edit.html", venue=venue)
+
+
+# Check-in system
+@bp.route("/<int:venue_id>/checkin", methods=["POST"])
 @login_required
 def check_in(venue_id):
     """Check in at a venue."""
     try:
         data = request.get_json() or {}
-        checkin = checkin_service.check_in(
-            user_id=g.user.id,
+        checkin = CheckInService.check_in(
+            user_id=current_user.id,
             venue_id=venue_id,
-            table_number=data.get('table_number'),
-            game_type=data.get('game_type')
+            table_number=data.get("table_number"),
+            game_type=data.get("game_type"),
         )
-        return jsonify(VenueCheckInSchema().dump(checkin)), 201
+        return jsonify(checkin.to_dict()), 201
     except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({"error": str(e)}), 400
 
-@bp.route('/<int:venue_id>/check-out', methods=['POST'])
+
+@bp.route("/<int:venue_id>/checkout", methods=["POST"])
 @login_required
 def check_out(venue_id):
     """Check out from a venue."""
     try:
-        checkin = checkin_service.check_out(
-            user_id=g.user.id,
-            venue_id=venue_id
-        )
-        return jsonify(VenueCheckInSchema().dump(checkin))
+        checkin = CheckInService.check_out(user_id=current_user.id, venue_id=venue_id)
+        return jsonify(checkin.to_dict())
     except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({"error": str(e)}), 400
 
-@bp.route('/<int:venue_id>/active-checkins', methods=['GET'])
-def get_active_checkins(venue_id):
-    """Get active check-ins for a venue."""
-    try:
-        limit = request.args.get('limit', 10, type=int)
-        offset = request.args.get('offset', 0, type=int)
-        checkins = checkin_service.get_active_checkins(
-            venue_id=venue_id,
-            limit=limit,
-            offset=offset
+
+# Venue stats and activity
+@bp.route("/<int:venue_id>/stats")
+def venue_stats(venue_id):
+    """Get venue statistics."""
+    venue = Venue.query.get_or_404(venue_id)
+    time_range = request.args.get("range", "day")
+    stats = venue.get_stats(time_range)
+
+    # Get detailed stats for comparison
+    now = datetime.utcnow()
+    if time_range == "day":
+        previous_start = now - timedelta(days=2)
+        current_start = now - timedelta(days=1)
+    elif time_range == "week":
+        previous_start = now - timedelta(weeks=2)
+        current_start = now - timedelta(weeks=1)
+    elif time_range == "month":
+        previous_start = now - timedelta(days=60)
+        current_start = now - timedelta(days=30)
+    else:  # year
+        previous_start = now - timedelta(days=730)
+        current_start = now - timedelta(days=365)
+
+    detailed_stats = []
+    metrics = [
+        ("Total Check-ins", VenueCheckin.query.filter_by(venue_id=venue_id)),
+        ("Average Duration", VenueCheckin.query.filter_by(venue_id=venue_id)),
+        ("Tournament Participation", Tournament.query.filter_by(venue_id=venue_id)),
+    ]
+
+    for name, query in metrics:
+        current_value = query.filter(
+            VenueCheckin.checked_in_at >= current_start, VenueCheckin.checked_in_at < now
+        ).count()
+
+        previous_value = query.filter(
+            VenueCheckin.checked_in_at >= previous_start, VenueCheckin.checked_in_at < current_start
+        ).count()
+
+        if previous_value > 0:
+            change = ((current_value - previous_value) / previous_value) * 100
+        else:
+            change = 100 if current_value > 0 else 0
+
+        detailed_stats.append(
+            {
+                "name": name,
+                "current": current_value,
+                "previous": previous_value,
+                "change": round(change, 1),
+            }
         )
-        return jsonify(checkins)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
 
-@bp.route('/<int:venue_id>/checkin-history', methods=['GET'])
-def get_checkin_history(venue_id):
-    """Get check-in history for a venue."""
-    try:
-        limit = request.args.get('limit', 10, type=int)
-        offset = request.args.get('offset', 0, type=int)
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
-        
-        checkins = checkin_service.get_checkin_history(
-            venue_id=venue_id,
-            start_date=start_date,
-            end_date=end_date,
-            limit=limit,
-            offset=offset
+    return render_template(
+        "venue/venue_stats.html", venue=venue, stats=stats, detailed_stats=detailed_stats
+    )
+
+
+@bp.route("/<int:venue_id>/leaderboard")
+def venue_leaderboard(venue_id):
+    """Show venue-specific leaderboard."""
+    venue = Venue.query.get_or_404(venue_id)
+
+    # Get leaderboard data
+    leaderboard_query = (
+        db.session.query(
+            VenueCheckin.user_id,
+            func.count(VenueCheckin.id).label("games_played"),
+            func.avg(VenueCheckin.duration).label("avg_duration"),
         )
-        return jsonify(checkins)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        .filter_by(venue_id=venue_id)
+        .group_by(VenueCheckin.user_id)
+        .order_by(func.count(VenueCheckin.id).desc())
+    )
 
-@bp.route('/<int:venue_id>/occupancy-stats', methods=['GET'])
-def get_occupancy_stats(venue_id):
-    """Get occupancy statistics for a venue."""
-    try:
-        period = request.args.get('period', 'day')
-        stats = checkin_service.get_occupancy_stats(
-            venue_id=venue_id,
-            period=period
+    leaderboard = []
+    for rank, (user_id, games_played, avg_duration) in enumerate(leaderboard_query, 1):
+        user = User.query.get(user_id)
+        if user:
+            leaderboard.append(
+                {
+                    "rank": rank,
+                    "id": user.id,
+                    "username": user.username,
+                    "avatar_url": user.avatar_url,
+                    "games_played": games_played,
+                    "win_rate": 50.0,  # Implement actual win rate calculation
+                    "high_break": 0,  # Implement high break tracking
+                    "score": games_played * 100,  # Implement proper scoring system
+                    "trend": 0,  # Implement trend calculation
+                }
+            )
+
+    # Get top 3 players for podium
+    top_players = leaderboard[:3] if len(leaderboard) >= 3 else []
+
+    # Get user stats if logged in
+    user_stats = None
+    if current_user.is_authenticated:
+        user_entry = next((entry for entry in leaderboard if entry["id"] == current_user.id), None)
+        if user_entry:
+            user_stats = user_entry
+
+    # Get venue records
+    venue_records = [
+        {"name": "Highest Break", "value": "147", "player": "John Doe"},
+        {"name": "Most Consecutive Wins", "value": "10", "player": "Jane Smith"},
+        {"name": "Longest Session", "value": "12 hours", "player": "Mike Johnson"},
+    ]
+
+    return render_template(
+        "venue/venue_leaderboard.html",
+        venue=venue,
+        leaderboard=leaderboard,
+        top_players=top_players,
+        user_stats=user_stats,
+        venue_records=venue_records,
+    )
+
+
+@bp.route("/<int:venue_id>/tournaments")
+def venue_tournaments(venue_id):
+    """List tournaments at this venue."""
+    venue = Venue.query.get_or_404(venue_id)
+
+    # Get current tournament
+    current_tournament = venue.current_tournament
+
+    # Get all other tournaments
+    tournaments = (
+        Tournament.query.filter_by(venue_id=venue_id).order_by(Tournament.start_time.desc()).all()
+    )
+
+    # Remove current tournament from list if it exists
+    if current_tournament:
+        tournaments = [t for t in tournaments if t.id != current_tournament.id]
+
+    return render_template(
+        "venue/venue_tournaments.html",
+        venue=venue,
+        current_tournament=current_tournament,
+        tournaments=tournaments,
+        has_more=False,  # Implement pagination if needed
+    )
+
+
+# API endpoints for venue data
+@bp.route("/api/search")
+def api_search_venues():
+    """Search venues by name, location, etc."""
+    query = request.args.get("q", "")
+    filter_type = request.args.get("filter", "all")
+
+    venues = Venue.query
+
+    if query:
+        venues = venues.filter(
+            db.or_(Venue.name.ilike(f"%{query}%"), Venue.address.ilike(f"%{query}%"))
         )
-        return jsonify(stats)
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
 
-@bp.route('/<int:venue_id>/leaderboard', methods=['GET'])
-def get_leaderboard(venue_id):
-    """Get venue leaderboard."""
-    try:
-        limit = int(request.args.get('limit', 10))
-        offset = int(request.args.get('offset', 0))
-        
-        entries = VenueService.get_venue_leaderboard(
-            venue_id=venue_id,
-            limit=limit,
-            offset=offset
-        )
-        return jsonify(entries)
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    if filter_type == "open":
+        venues = [v for v in venues if v.is_open]
+    elif filter_type == "tournaments":
+        venues = venues.join(Tournament).filter(Tournament.status == "ongoing")
+    elif filter_type == "active":
+        venues = sorted(venues, key=lambda v: v.active_players, reverse=True)
 
-@bp.route('/<int:venue_id>/leaderboard', methods=['POST'])
-@login_required
-def update_leaderboard(venue_id):
-    """Update venue leaderboard after a game."""
-    try:
-        data = request.get_json()
-        entry = VenueService.update_leaderboard(
-            venue_id=venue_id,
-            user_id=g.user.id,
-            won=data['won'],
-            points=data['points']
-        )
-        return jsonify(VenueLeaderboardSchema().dump(entry))
-        
-    except ValidationError as e:
-        return jsonify({'error': e.messages}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    return jsonify(
+        {
+            "venues": [v.to_dict() for v in venues],
+            "has_more": False,  # Implement pagination if needed
+        }
+    )
 
-@bp.route('/<int:venue_id>/events', methods=['GET'])
-def get_events(venue_id):
-    """Get venue events."""
-    try:
-        limit = int(request.args.get('limit', 10))
-        offset = int(request.args.get('offset', 0))
-        status = request.args.get('status')
-        
-        events = VenueService.get_venue_events(
-            venue_id=venue_id,
-            status=status,
-            limit=limit,
-            offset=offset
-        )
-        return jsonify(VenueEventSchema(many=True).dump(events))
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
 
-@bp.route('/<int:venue_id>/events', methods=['POST'])
-@login_required
-def create_event(venue_id):
-    """Create a new venue event."""
-    try:
-        data = VenueEventSchema().load(request.get_json())
-        event = VenueService.create_event(venue_id, data)
-        return jsonify(VenueEventSchema().dump(event)), 201
-        
-    except ValidationError as e:
-        return jsonify({'error': e.messages}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+@bp.route("/api/<int:venue_id>/active-players")
+def api_active_players(venue_id):
+    """Get list of currently active players at venue."""
+    active_checkins = CheckInService.get_active_checkins(venue_id)
+    return jsonify(
+        [
+            {
+                "user": checkin.user.to_dict(),
+                "checked_in_at": checkin.checked_in_at.isoformat(),
+                "table_number": checkin.table_number,
+                "game_type": checkin.game_type,
+            }
+            for checkin in active_checkins
+        ]
+    )
 
-@bp.route('/events/<int:event_id>/register', methods=['POST'])
-@login_required
-def register_for_event(event_id):
-    """Register for a venue event."""
-    try:
-        participant = VenueService.register_for_event(event_id, g.user.id)
-        return jsonify({'message': 'Successfully registered for event'}), 201
-        
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400 
+
+@bp.route("/api/<int:venue_id>/stats")
+def api_venue_stats(venue_id):
+    """Get venue statistics in JSON format."""
+    venue = Venue.query.get_or_404(venue_id)
+    time_range = request.args.get("range", "day")
+    return jsonify(venue.get_stats(time_range))

@@ -1,3 +1,7 @@
+@use 'abstracts/variables' as *;
+@use 'abstracts/mixins' as *;
+@use 'base/shared' as *;
+
 /**
  * Main stylesheet
  * This file imports all partials in the correct order

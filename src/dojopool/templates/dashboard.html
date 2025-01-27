@@ -118,7 +118,20 @@
         font-size: 0.9rem;
         color: rgba(255, 255, 255, 0.7);
     }
+
+    /* Performance status overrides */
+    quality-indicator {
+        --bg-color: rgba(10, 10, 10, 0.9);
+        --text-color: var(--text-light);
+        --button-bg: var(--primary-color);
+        --button-hover-bg: var(--secondary-color);
+        --button-active-bg: var(--accent-color);
+    }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/components/quality-indicator.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -175,4 +188,7 @@
         </div>
     </div>
 </div>
+
+<!-- Quality Indicator Component -->
+<quality-indicator></quality-indicator>
 {% endblock %}

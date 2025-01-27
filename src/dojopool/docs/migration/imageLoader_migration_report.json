@@ -1,0 +1,161 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\imageLoader.js",
+  "typescript_file": "src\\dojopool\\static\\js\\imageLoader.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\imageLoader.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "ImageLoader",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "rect",
+        "type": "any"
+      },
+      {
+        "name": "viewportHeight",
+        "type": "any"
+      },
+      {
+        "name": "img",
+        "type": "any"
+      },
+      {
+        "name": "quality",
+        "type": "any"
+      },
+      {
+        "name": "connection",
+        "type": "any"
+      },
+      {
+        "name": "bandwidthCondition",
+        "type": "any"
+      },
+      {
+        "name": "viewportWidth",
+        "type": "any"
+      },
+      {
+        "name": "quality",
+        "type": "any"
+      },
+      {
+        "name": "avgLoadTime",
+        "type": "any"
+      },
+      {
+        "name": "sizes",
+        "type": "any"
+      },
+      {
+        "name": "appropriateSize",
+        "type": "any"
+      },
+      {
+        "name": "index",
+        "type": "any"
+      },
+      {
+        "name": "index",
+        "type": "any"
+      },
+      {
+        "name": "nextIndex",
+        "type": "any"
+      },
+      {
+        "name": "criticalImages",
+        "type": "any"
+      },
+      {
+        "name": "img",
+        "type": "any"
+      },
+      {
+        "name": "src",
+        "type": "any"
+      },
+      {
+        "name": "webpSrc",
+        "type": "any"
+      },
+      {
+        "name": "sizes",
+        "type": "any"
+      },
+      {
+        "name": "appropriateSize",
+        "type": "any"
+      },
+      {
+        "name": "startTime",
+        "type": "any"
+      },
+      {
+        "name": "handleLoad",
+        "type": "any"
+      },
+      {
+        "name": "loadTime",
+        "type": "any"
+      },
+      {
+        "name": "size",
+        "type": "any"
+      },
+      {
+        "name": "handleError",
+        "type": "any"
+      },
+      {
+        "name": "originalSrc",
+        "type": "any"
+      },
+      {
+        "name": "originalWebp",
+        "type": "any"
+      },
+      {
+        "name": "sizes",
+        "type": "any"
+      },
+      {
+        "name": "appropriateSize",
+        "type": "any"
+      },
+      {
+        "name": "newSrc",
+        "type": "any"
+      },
+      {
+        "name": "webpData",
+        "type": "any"
+      },
+      {
+        "name": "blob",
+        "type": "any"
+      },
+      {
+        "name": "imageLoader",
+        "type": "any"
+      }
+    ],
+    "imports": [
+      "./bandwidthTracker.js"
+    ],
+    "exports": [
+      "instance",
+      "imageLoader"
+    ]
+  },
+  "generated_types": {
+    "ImageLoader": "\nclass ImageLoader {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "imageLoader": "\ninterface imageLoader {\n    // Properties\n}"
+  }
+}

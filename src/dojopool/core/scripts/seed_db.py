@@ -42,7 +42,7 @@ def seed_users():
             email=user_data['email'],
             is_admin=user_data['is_admin']
         )
-        user.set_password('password123')  # Development password
+        user.set_os.getenv("PASSWORD_41"))  # Development password
         db.session.add(user)
         created_users.append(user)
     

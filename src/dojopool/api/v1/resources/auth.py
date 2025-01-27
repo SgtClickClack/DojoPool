@@ -68,7 +68,7 @@ class LoginResource(BaseResource):
 
         user = User.query.filter_by(email=data["email"]).first()
 
-        if not user or not check_password(user.password_hash, data["password"]):
+        if not user or not check_os.getenv("PASSWORD_18")]):
             raise AuthenticationError("Invalid email or password")
 
         if not user.is_active:
@@ -101,7 +101,7 @@ class RegisterResource(BaseResource):
         """Handle registration request."""
         data = self.get_json_data()
 
-        if data["password"] != data["confirm_password"]:
+        if data["os.getenv("PASSWORD_18")]:
             raise ValidationError("Passwords do not match")
 
         if User.query.filter_by(email=data["email"]).first():
@@ -115,7 +115,7 @@ class RegisterResource(BaseResource):
             username=data["username"],
             first_name=data["first_name"],
             last_name=data["last_name"],
-            password_hash=generate_password_hash_with_method(data["password"]),
+            os.getenv("PASSWORD_18")]),
         )
         user.save()
 
@@ -160,7 +160,7 @@ class PasswordResetConfirmResource(BaseResource):
         """Handle password reset confirmation."""
         data = self.get_json_data()
 
-        if data["password"] != data["confirm_password"]:
+        if data["os.getenv("PASSWORD_18")]:
             raise ValidationError("Passwords do not match")
 
         try:
@@ -172,7 +172,7 @@ class PasswordResetConfirmResource(BaseResource):
         if not user:
             raise ValidationError("User not found")
 
-        user.password_hash = generate_password_hash_with_method(data["password"])
+        user.os.getenv("PASSWORD_18")])
         user.save()
 
         return self.success_response(message="Password reset successful")

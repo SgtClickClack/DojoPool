@@ -173,111 +173,103 @@
 {% include 'includes/navigation.html' %}
 
 <div class="venues-container">
-    <div class="container">
-        <div class="venues-header">
-            <h1 class="venues-title">Venues</h1>
-        </div>
-
-        <div class="filters">
-            <div class="filter-group">
-                <span class="filter-label">Sort by:</span>
-                <select class="filter-select">
-                    <option value="rating">Rating</option>
-                    <option value="distance">Distance</option>
-                    <option value="popularity">Popularity</option>
-                </select>
-
-                <span class="filter-label">Status:</span>
-                <select class="filter-select">
-                    <option value="all">All</option>
-                    <option value="open">Open</option>
-                    <option value="closed">Closed</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="venues-grid">
-            <!-- Example Venue Card -->
-            <div class="venue-card">
-                <img src="{{ url_for('static', filename='images/venues/cyber-arena.jpg') }}" alt="Cyber Arena"
-                    class="venue-image">
-                <div class="venue-content">
-                    <h3 class="venue-name">Cyber Arena</h3>
-                    <div class="venue-location">
-                        <i class="bi bi-geo-alt"></i> Downtown, Cyber City
+<div class="container">
+<div class="venues-header">
+<h1 class="venues-title">Venues</h1>
+</div>
+<div class="filters">
+<div class="filter-group">
+<span class="filter-label">Sort by:</span>
+<select class="filter-select">
+<option value="rating">Rating</option>
+<option value="distance">Distance</option>
+<option value="popularity">Popularity</option>
+</select>
+<span class="filter-label">Status:</span>
+<select class="filter-select">
+<option value="all">All</option>
+<option value="open">Open</option>
+<option value="closed">Closed</option>
+</select>
+</div>
+</div>
+<div class="venues-grid">
+<!-- Example Venue Card -->
+<div class="venue-card">
+<img alt="Cyber Arena" class="venue-image" loading="lazy" src="{{ url_for('static', filename='images/venues/cyber-arena.jpg') }}"/>
+<div class="venue-content">
+<h3 class="venue-name">Cyber Arena</h3>
+<div class="venue-location">
+<i class="bi bi-geo-alt"></i> Downtown, Cyber City
                     </div>
-                    <div class="venue-stats">
-                        <div class="venue-stat">
-                            <div class="stat-label">Rating</div>
-                            <div class="stat-value">4.8</div>
-                        </div>
-                        <div class="venue-stat">
-                            <div class="stat-label">Players</div>
-                            <div class="stat-value">42</div>
-                        </div>
+<div class="venue-stats">
+<div class="venue-stat">
+<div class="stat-label">Rating</div>
+<div class="stat-value">4.8</div>
+</div>
+<div class="venue-stat">
+<div class="stat-label">Players</div>
+<div class="stat-value">42</div>
+</div>
+</div>
+<div class="venue-status status-open">Open</div>
+<div class="venue-actions">
+<button class="btn btn-cyber btn-venue">View Details</button>
+<button class="btn btn-cyber btn-venue">Join Game</button>
+</div>
+</div>
+</div>
+<!-- Example Venue Card -->
+<div class="venue-card">
+<img alt="Neon Lounge" class="venue-image" loading="lazy" src="{{ url_for('static', filename='images/venues/neon-lounge.jpg') }}"/>
+<div class="venue-content">
+<h3 class="venue-name">Neon Lounge</h3>
+<div class="venue-location">
+<i class="bi bi-geo-alt"></i> Eastside, Cyber City
                     </div>
-                    <div class="venue-status status-open">Open</div>
-                    <div class="venue-actions">
-                        <button class="btn btn-cyber btn-venue">View Details</button>
-                        <button class="btn btn-cyber btn-venue">Join Game</button>
+<div class="venue-stats">
+<div class="venue-stat">
+<div class="stat-label">Rating</div>
+<div class="stat-value">4.5</div>
+</div>
+<div class="venue-stat">
+<div class="stat-label">Players</div>
+<div class="stat-value">28</div>
+</div>
+</div>
+<div class="venue-status status-closed">Closed</div>
+<div class="venue-actions">
+<button class="btn btn-cyber btn-venue">View Details</button>
+<button class="btn btn-cyber btn-venue" disabled="">Join Game</button>
+</div>
+</div>
+</div>
+<!-- Example Venue Card -->
+<div class="venue-card">
+<img alt="Matrix Hub" class="venue-image" loading="lazy" src="{{ url_for('static', filename='images/venues/matrix-hub.jpg') }}"/>
+<div class="venue-content">
+<h3 class="venue-name">Matrix Hub</h3>
+<div class="venue-location">
+<i class="bi bi-geo-alt"></i> Westside, Cyber City
                     </div>
-                </div>
-            </div>
-
-            <!-- Example Venue Card -->
-            <div class="venue-card">
-                <img src="{{ url_for('static', filename='images/venues/neon-lounge.jpg') }}" alt="Neon Lounge"
-                    class="venue-image">
-                <div class="venue-content">
-                    <h3 class="venue-name">Neon Lounge</h3>
-                    <div class="venue-location">
-                        <i class="bi bi-geo-alt"></i> Eastside, Cyber City
-                    </div>
-                    <div class="venue-stats">
-                        <div class="venue-stat">
-                            <div class="stat-label">Rating</div>
-                            <div class="stat-value">4.5</div>
-                        </div>
-                        <div class="venue-stat">
-                            <div class="stat-label">Players</div>
-                            <div class="stat-value">28</div>
-                        </div>
-                    </div>
-                    <div class="venue-status status-closed">Closed</div>
-                    <div class="venue-actions">
-                        <button class="btn btn-cyber btn-venue">View Details</button>
-                        <button class="btn btn-cyber btn-venue" disabled>Join Game</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Example Venue Card -->
-            <div class="venue-card">
-                <img src="{{ url_for('static', filename='images/venues/matrix-hub.jpg') }}" alt="Matrix Hub"
-                    class="venue-image">
-                <div class="venue-content">
-                    <h3 class="venue-name">Matrix Hub</h3>
-                    <div class="venue-location">
-                        <i class="bi bi-geo-alt"></i> Westside, Cyber City
-                    </div>
-                    <div class="venue-stats">
-                        <div class="venue-stat">
-                            <div class="stat-label">Rating</div>
-                            <div class="stat-value">4.9</div>
-                        </div>
-                        <div class="venue-stat">
-                            <div class="stat-label">Players</div>
-                            <div class="stat-value">56</div>
-                        </div>
-                    </div>
-                    <div class="venue-status status-open">Open</div>
-                    <div class="venue-actions">
-                        <button class="btn btn-cyber btn-venue">View Details</button>
-                        <button class="btn btn-cyber btn-venue">Join Game</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="venue-stats">
+<div class="venue-stat">
+<div class="stat-label">Rating</div>
+<div class="stat-value">4.9</div>
+</div>
+<div class="venue-stat">
+<div class="stat-label">Players</div>
+<div class="stat-value">56</div>
+</div>
+</div>
+<div class="venue-status status-open">Open</div>
+<div class="venue-actions">
+<button class="btn btn-cyber btn-venue">View Details</button>
+<button class="btn btn-cyber btn-venue">Join Game</button>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

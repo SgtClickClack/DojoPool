@@ -73,9 +73,9 @@ def settings():
 @login_required
 def change_password():
     """Handle password change."""
-    current_password = request.form.get('current_password')
-    new_password = request.form.get('new_password')
-    confirm_password = request.form.get('confirm_password')
+    current_os.getenv("PASSWORD_44"))
+    new_os.getenv("PASSWORD_44"))
+    confirm_os.getenv("PASSWORD_44"))
     
     if not current_password or not new_password or not confirm_password:
         flash('All fields are required.', 'error')
@@ -121,7 +121,7 @@ def update_privacy():
 @login_required
 def delete_account():
     """Handle account deletion."""
-    password = request.form.get('password')
+    os.getenv("PASSWORD_44"))
     
     if not password:
         flash('Password is required to delete your account.', 'error')

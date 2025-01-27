@@ -1,0 +1,40 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\components\\VenueInfoWindow.js",
+  "typescript_file": "src\\dojopool\\static\\js\\components\\VenueInfoWindow.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\VenueInfoWindow.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "VenueInfoWindow",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "style",
+        "type": "any"
+      },
+      {
+        "name": "point",
+        "type": "any"
+      },
+      {
+        "name": "containerRect",
+        "type": "any"
+      },
+      {
+        "name": "mapRect",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": [
+      "VenueInfoWindow"
+    ]
+  },
+  "generated_types": {
+    "VenueInfoWindow": "\nclass VenueInfoWindow {\n    // Properties and methods\n}"
+  }
+}

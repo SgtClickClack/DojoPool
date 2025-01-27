@@ -1,42 +1,42 @@
-from typing import Dict, Any
+"""Default configuration for image compression service."""
 
-# Default compression settings
-DEFAULT_COMPRESSION_CONFIG: Dict[str, Any] = {
-    'max_dimension': 2048,  # Maximum dimension for any side of the image
-    'jpeg_quality': 85,     # JPEG compression quality (0-100)
-    'webp_quality': 80,     # WebP compression quality (0-100)
-    'webp_lossless': False, # Whether to use lossless WebP compression
-    
-    # Size variants configuration
+DEFAULT_COMPRESSION_CONFIG = {
+    'chunk_size': 10,
+    'max_threads': 4,
+    'keep_original': True,
+    'convert_to_webp': True,
+    'convert_to_avif': True,
+    'output_structure': {
+        'variant_subdir': True
+    },
     'size_variants': {
-        'thumbnail': {
-            'max_dimension': 150,
-            'jpeg_quality': 80,
-            'webp_quality': 75,
-        },
-        'preview': {
-            'max_dimension': 500,
-            'jpeg_quality': 85,
-            'webp_quality': 80,
-        },
-        'full': {
-            'max_dimension': 2048,
-            'jpeg_quality': 90,
+        'sm': {
+            'max_dimension': 400,
+            'avif_quality': 80,
             'webp_quality': 85,
+            'jpeg_quality': 85
+        },
+        'md': {
+            'max_dimension': 800,
+            'avif_quality': 75,
+            'webp_quality': 80,
+            'jpeg_quality': 80
+        },
+        'lg': {
+            'max_dimension': 1200,
+            'avif_quality': 70,
+            'webp_quality': 75,
+            'jpeg_quality': 75
+        },
+        'xl': {
+            'max_dimension': 1920,
+            'avif_quality': 65,
+            'webp_quality': 70,
+            'jpeg_quality': 70
         }
     },
-    
-    # Format conversion settings
-    'convert_to_webp': True,    # Whether to create WebP versions
-    'keep_original': True,      # Whether to keep original format
-    
-    # Processing settings
-    'max_threads': 4,           # Maximum number of concurrent compression threads
-    'chunk_size': 10,          # Number of images to process in each batch
-    
-    # Output settings
-    'output_structure': {
-        'use_subdirs': True,    # Organize output in subdirectories
-        'variant_subdir': True, # Put size variants in subdirectories
+    'avif_settings': {
+        'speed': 4,  # 0-8, lower is slower but better quality
+        'threads': 2  # Number of threads for AVIF encoding
     }
 } 

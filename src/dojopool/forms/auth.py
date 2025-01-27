@@ -9,7 +9,7 @@ class LoginForm(FlaskForm):
         DataRequired(),
         Email()
     ])
-    password = PasswordField('Password', validators=[
+    os.getenv("PASSWORD_42"), validators=[
         DataRequired()
     ])
     remember_me = BooleanField('Remember Me')
@@ -26,7 +26,7 @@ class RegistrationForm(FlaskForm):
         DataRequired(),
         Email()
     ])
-    password = PasswordField('Password', validators=[
+    os.getenv("PASSWORD_42"), validators=[
         DataRequired(),
         Length(min=8),
         Regexp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$',

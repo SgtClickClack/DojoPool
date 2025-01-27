@@ -16,27 +16,27 @@ hero:
       link: https://github.com/your-org/dojo-pool
 
 features:
-  - icon: 🎨
+  - icon: ğŸ�¨
     title: Design System
     details: Comprehensive design tokens, components, and patterns for consistent user experiences.
     
-  - icon: ⚡️
+  - icon: âš¡ï¸�
     title: Performance First
     details: Built-in performance optimization practices and guidelines for fast loading times.
     
-  - icon: ♿️
+  - icon: â™¿ï¸�
     title: Accessibility
     details: WCAG compliance and accessibility best practices baked into every component.
     
-  - icon: 📱
+  - icon: ğŸ“±
     title: Responsive Design
     details: Mobile-first approach with responsive components and layouts.
     
-  - icon: 🧪
+  - icon: ğŸ§ª
     title: Testing
     details: Comprehensive testing strategies for components, accessibility, and performance.
     
-  - icon: 📦
+  - icon: ğŸ“¦
     title: Component Library
     details: Ready-to-use components with examples and documentation.
 
@@ -77,7 +77,7 @@ We welcome contributions! Please read our [Contributing Guide](./guide/contribut
 
 ## Support
 
-- 📖 [Documentation](./guide/introduction)
-- 💬 [Discord Community](https://discord.gg/your-server)
-- 🐛 [Issue Tracker](https://github.com/your-org/dojo-pool/issues)
-- 📝 [Release Notes](./guide/changelog) 
+- ğŸ“– [Documentation](./guide/introduction)
+- ğŸ’¬ [Discord Community](https://discord.gg/your-server)
+- ğŸ�› [Issue Tracker](https://github.com/your-org/dojo-pool/issues)
+- ğŸ“� [Release Notes](./guide/changelog) 
