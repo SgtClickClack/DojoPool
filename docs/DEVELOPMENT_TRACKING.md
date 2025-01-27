@@ -149,6 +149,9 @@ Status: 85% Complete
 - - Updated `docs/DEVELOPMENT_TRACKING.md`
   - Documentation changes
 
+- - Updated `docs/DEVELOPMENT_TRACKING.md`
+  - Documentation changes
+
 - - Updated `webp_libs/libwebp-1.3.2-windows-x64/doc/tools.md`
   - Documentation changes
 
