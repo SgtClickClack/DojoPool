@@ -31,3 +31,8 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Context files
+context_updates.log
+context_updates.yaml
+context_validation.yaml
