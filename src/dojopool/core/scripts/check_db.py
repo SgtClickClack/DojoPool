@@ -2,7 +2,6 @@
 Script to check database contents.
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -10,8 +9,9 @@ from pathlib import Path
 src_path = str(Path(__file__).parent.parent.parent)
 sys.path.insert(0, src_path)
 
-from app import create_app, db
-from core.models import User, Venue, Game, Tournament
+from app import create_app
+from core.models import Game, Tournament, User, Venue
+
 
 def check_database():
     """Check database contents."""
@@ -22,26 +22,29 @@ def check_database():
         print("\nUsers:")
         for user in users:
             print(f"- {user.username} ({user.email})")
-        
+
         # Check venues
         venues = Venue.query.all()
         print("\nVenues:")
         for venue in venues:
             print(f"- {venue.name} ({venue.address})")
-        
+
         # Check tournaments
         tournaments = Tournament.query.all()
         print("\nTournaments:")
         for tournament in tournaments:
             print(f"- {tournament.name} at {Venue.query.get(tournament.venue_id).name}")
-        
+
         # Check games
         games = Game.query.all()
         print("\nGames:")
         for game in games:
             player = User.query.get(game.player_id)
             venue = Venue.query.get(game.venue_id)
-            print(f"- {game.game_type} game by {player.username} at {venue.name} (Status: {game.status})")
+            print(
+                f"- {game.game_type} game by {player.username} at {venue.name} (Status: {game.status})"
+            )
 
-if __name__ == '__main__':
-    check_database() 
+
+if __name__ == "__main__":
+    check_database()

@@ -1,10 +1,10 @@
 """Chat service for handling messaging between users."""
 
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-from ..models.chat import ChatRoom, ChatParticipant, ChatMessage
+from typing import List, Optional
+
 from ..core.database import db
 from ..core.exceptions import ValidationError
+from ..models.chat import ChatMessage, ChatParticipant, ChatRoom
 
 
 class ChatService:

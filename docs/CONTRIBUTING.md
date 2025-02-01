@@ -1,269 +1,216 @@
 # Contributing to DojoPool
 
 ## Table of Contents
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Process](#development-process)
-- [Pull Request Process](#pull-request-process)
-- [Coding Standards](#coding-standards)
-- [Testing Guidelines](#testing-guidelines)
-- [Documentation](#documentation)
-- [Community](#community)
-
-## Code of Conduct
-
-### Our Pledge
-We are committed to providing a friendly, safe, and welcoming environment for all contributors.
-
-### Our Standards
-- Be respectful and inclusive
-- Accept constructive criticism gracefully
-- Focus on what's best for the community
-- Show empathy towards others
+1. [Getting Started](#getting-started)
+2. [Development Setup](#development-setup)
+3. [Code Style](#code-style)
+4. [Testing](#testing)
+5. [Performance](#performance)
+6. [Accessibility](#accessibility)
+7. [Security](#security)
+8. [Documentation](#documentation)
+9. [Pull Request Process](#pull-request-process)
 
 ## Getting Started
 
 ### Prerequisites
-- Python 3.9+
-- Node.js 16+
-- Docker and Docker Compose
+- Node.js (v16 or higher)
+- npm (v7 or higher)
 - Git
 
-### Setup Development Environment
+### Installation
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/dojopool.git
-   cd dojopool
+   git clone https://github.com/your-username/dojopool.git
    ```
-
-3. Set up development environment:
+3. Install dependencies:
    ```bash
-   # Backend setup
-   python -m venv .venv
-   source .venv/bin/activate  # Linux/Mac
-   .venv\Scripts\activate     # Windows
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
-
-   # Frontend setup
-   cd src/frontend
    npm install
    ```
-
-4. Set up pre-commit hooks:
+4. Set up environment variables:
    ```bash
-   pre-commit install
+   cp .env.example .env
    ```
 
-## Development Process
+## Development Setup
 
-### Branching Strategy
-- `main` - Production-ready code
-- `develop` - Integration branch for features
-- `feature/*` - New features
-- `bugfix/*` - Bug fixes
-- `hotfix/*` - Urgent production fixes
-- `release/*` - Release preparation
-
-### Branch Naming Convention
-```
-feature/issue-number-short-description
-bugfix/issue-number-short-description
-hotfix/issue-number-short-description
+### Running the Development Server
+```bash
+npm run dev
 ```
 
-Example: `feature/123-add-tournament-system`
-
-### Commit Messages
-Follow the conventional commits specification:
-```
-type(scope): description
-
-[optional body]
-
-[optional footer]
+### Building for Production
+```bash
+npm run build
 ```
 
-Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `style`: Code style changes
-- `refactor`: Code refactoring
-- `test`: Adding tests
-- `chore`: Maintenance tasks
-
-Example:
-```
-feat(tournament): add bracket generation system
-
-- Implement single elimination brackets
-- Add seeding algorithm
-- Include tournament progression logic
-
-Closes #123
+### Running Tests
+```bash
+npm run test        # Run unit tests
+npm run test:e2e    # Run end-to-end tests
+npm run test:a11y   # Run accessibility tests
 ```
 
-## Pull Request Process
+## Code Style
 
-1. Update Documentation
-   - Add/update API documentation
-   - Update README if needed
-   - Add comments for complex logic
+We use ESLint and Prettier for code formatting. Our style guide extends from:
+- Airbnb JavaScript Style Guide
+- React/JSX Style Guide
+- TypeScript ESLint Recommended
 
-2. Run Tests
-   ```bash
-   # Backend tests
-   pytest
-   
-   # Frontend tests
-   npm test
-   ```
-
-3. Create Pull Request
-   - Use PR template
-   - Reference related issues
-   - Add screenshots for UI changes
-   - Describe testing procedure
-
-4. Code Review
-   - Address review comments
-   - Keep discussions focused
-   - Be responsive to feedback
-
-5. Merge Requirements
-   - Passing CI/CD pipeline
-   - Approved code review
-   - Updated documentation
-   - No merge conflicts
-
-## Coding Standards
-
-### Python Code Style
-- Follow PEP 8
-- Use type hints
-- Maximum line length: 100 characters
-- Use docstrings for functions and classes
-
-Example:
-```python
-def calculate_ranking(player_id: int, matches: List[Match]) -> float:
-    """Calculate player ranking based on match history.
-
-    Args:
-        player_id: The ID of the player
-        matches: List of matches to analyze
-
-    Returns:
-        Float representing player's ranking score
-    """
-    pass
+### Running Linter
+```bash
+npm run lint        # Check code style
+npm run lint:fix    # Fix code style issues
 ```
 
-### TypeScript/JavaScript Style
-- Use ESLint configuration
-- Prefer TypeScript over JavaScript
-- Use functional components in React
-- Use hooks for state management
+### Key Style Points
+- Use TypeScript for type safety
+- Follow functional programming principles
+- Use React hooks for state management
+- Write meaningful component and function names
+- Keep components small and focused
+- Use proper prop types and interfaces
 
-Example:
-```typescript
-interface PlayerProps {
-  id: number;
-  name: string;
-  rank: number;
-}
+## Testing
 
-const Player: React.FC<PlayerProps> = ({ id, name, rank }) => {
-  const [score, setScore] = useState<number>(0);
-  
-  return (
-    <div className="player-card">
-      <h2>{name}</h2>
-      <p>Rank: {rank}</p>
-    </div>
-  );
-};
-```
+### Unit Tests
+- Write tests for all new features
+- Maintain 80% or higher coverage
+- Follow the AAA pattern (Arrange, Act, Assert)
+- Use meaningful test descriptions
+- Mock external dependencies
 
-## Testing Guidelines
+### Integration Tests
+- Test component interactions
+- Verify data flow
+- Test error scenarios
+- Check boundary conditions
 
-### Backend Testing
-- Write unit tests for all new features
-- Include integration tests for API endpoints
-- Test edge cases and error conditions
-- Use pytest fixtures for common setup
+### Accessibility Tests
+- Run axe-core tests
+- Test with screen readers
+- Verify keyboard navigation
+- Check color contrast
+- Test with different viewport sizes
 
-### Frontend Testing
-- Test component rendering
-- Test user interactions
-- Mock API calls
-- Test error states
-- Use React Testing Library
+## Performance
 
-### Performance Testing
-- Include load tests for API endpoints
-- Test WebSocket performance
+### Monitoring
+- Use the PerformanceMonitor service
+- Track Core Web Vitals
 - Monitor memory usage
-- Check bundle size
+- Check network performance
+- Profile render times
+
+### Optimization
+- Lazy load components
+- Optimize images
+- Minimize bundle size
+- Use proper caching
+- Implement code splitting
+
+## Accessibility
+
+### Requirements
+- Follow WCAG 2.1 Level AA guidelines
+- Use semantic HTML
+- Provide proper ARIA labels
+- Ensure keyboard navigation
+- Support screen readers
+- Maintain proper color contrast
+
+### Testing Tools
+- axe-core
+- WAVE
+- Lighthouse
+- VoiceOver/NVDA
+- Color contrast analyzers
+
+## Security
+
+### Guidelines
+- Follow OWASP security practices
+- Implement proper authentication
+- Use CSRF protection
+- Validate user input
+- Sanitize data output
+- Use secure dependencies
+
+### Testing
+- Run security audits
+- Perform penetration testing
+- Check for vulnerabilities
+- Review access controls
+- Validate data encryption
 
 ## Documentation
 
+### Code Documentation
+- Write clear comments
+- Document complex logic
+- Explain business rules
+- Provide usage examples
+- Keep documentation updated
+
 ### API Documentation
 - Document all endpoints
-- Include request/response examples
-- Document error responses
-- Keep OpenAPI spec updated
+- Provide request/response examples
+- List error codes
+- Explain authentication
+- Include rate limits
 
-### Code Documentation
-- Add docstrings to functions
-- Comment complex logic
-- Update README for new features
-- Include setup instructions
+## Pull Request Process
 
-### User Documentation
-- Update user guides
-- Add screenshots
-- Include troubleshooting
-- Document new features
+1. Create a feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-## Community
+2. Make your changes:
+   - Write code
+   - Add tests
+   - Update documentation
+   - Run linter
+   - Run tests
 
-### Communication Channels
-- GitHub Issues
-- Discord Server
-- Development Blog
-- Monthly Community Calls
+3. Commit your changes:
+   ```bash
+   git commit -m "feat: add your feature description"
+   ```
+   Follow [Conventional Commits](https://www.conventionalcommits.org/) specification.
 
-### Getting Help
-- Check existing issues
-- Read documentation
-- Ask in Discord
-- Join community calls
+4. Push to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
 
-### Recognition
-- Contributors list in README
-- Monthly MVP recognition
-- Feature highlights in blog
-- Community spotlights
+5. Create a Pull Request:
+   - Use the PR template
+   - Link related issues
+   - Provide clear description
+   - Add screenshots if relevant
+   - Request reviews
 
-## Additional Resources
+### PR Checklist
+- [ ] Code follows style guide
+- [ ] Tests are passing
+- [ ] Documentation is updated
+- [ ] Accessibility is verified
+- [ ] Performance is optimized
+- [ ] Security is reviewed
+- [ ] Changes are tested
+- [ ] PR is linked to issue
 
-### Learning Resources
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [React Documentation](https://reactjs.org/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Testing Library](https://testing-library.com/)
+### Review Process
+1. Automated checks must pass
+2. Two approvals required
+3. All comments addressed
+4. Documentation updated
+5. Tests added/updated
+6. Performance verified
 
-### Useful Tools
-- [pre-commit](https://pre-commit.com/)
-- [ESLint](https://eslint.org/)
-- [Prettier](https://prettier.io/)
-- [pytest](https://docs.pytest.org/)
+## Questions?
 
-### Project Links
-- [Project Board](https://github.com/orgs/dojopool/projects)
-- [Documentation](https://docs.dojopool.com)
-- [API Reference](https://api.dojopool.com/docs)
-- [Style Guide](https://docs.dojopool.com/style-guide) 
+Join our [Discord channel](https://discord.gg/dojopool) for help and discussions. 

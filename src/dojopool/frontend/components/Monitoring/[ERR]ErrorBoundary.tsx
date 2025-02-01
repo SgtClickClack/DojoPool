@@ -14,6 +14,8 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
+  private errorTracker: ErrorTracker;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -21,6 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
     };
+    this.errorTracker = ErrorTracker.getInstance();
   }
 
   static getDerivedStateFromError(error: Error): State {
@@ -33,17 +36,14 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({
+      error,
       errorInfo,
     });
 
-    // Track error
-    ErrorTracker.getInstance().trackError(error, {
-      component: 'ErrorBoundary',
-      severity: 'high',
-      timestamp: Date.now(),
-    });
+    // Track error using ErrorTracker
+    this.errorTracker.trackError(error, errorInfo);
 
-    // Call onError callback if provided
+    // Call onError prop if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
@@ -56,7 +56,6 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo: null,
     });
 
-    // Call onReset callback if provided
     if (this.props.onReset) {
       this.props.onReset();
     }
@@ -66,77 +65,13 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="error-boundary">
-          <div className="error-content">
-            <h2>Something went wrong</h2>
-            <div className="error-details">
-              <div className="error-message">{this.state.error && this.state.error.toString()}</div>
-              {this.state.errorInfo && (
-                <pre className="error-stack">{this.state.errorInfo.componentStack}</pre>
-              )}
-            </div>
-            <button className="retry-button" onClick={this.handleReset}>
-              Try Again
-            </button>
-          </div>
-
-          <style jsx>{`
-            .error-boundary {
-              padding: 20px;
-              border-radius: 8px;
-              background: #fff;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-
-            .error-content {
-              text-align: center;
-            }
-
-            h2 {
-              color: #e53e3e;
-              margin-bottom: 16px;
-            }
-
-            .error-details {
-              margin: 16px 0;
-              text-align: left;
-            }
-
-            .error-message {
-              color: #4a5568;
-              font-size: 16px;
-              margin-bottom: 8px;
-            }
-
-            .error-stack {
-              background: #f7fafc;
-              padding: 12px;
-              border-radius: 4px;
-              font-size: 14px;
-              color: #718096;
-              overflow-x: auto;
-              white-space: pre-wrap;
-            }
-
-            .retry-button {
-              background: #4299e1;
-              color: white;
-              border: none;
-              padding: 8px 16px;
-              border-radius: 4px;
-              cursor: pointer;
-              font-size: 14px;
-              transition: background-color 0.2s;
-            }
-
-            .retry-button:hover {
-              background: #3182ce;
-            }
-
-            .retry-button:focus {
-              outline: none;
-              box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
-            }
-          `}</style>
+          <h2>Something went wrong</h2>
+          <details style={{ whiteSpace: 'pre-wrap' }}>
+            {this.state.error && this.state.error.toString()}
+            <br />
+            {this.state.errorInfo && this.state.errorInfo.componentStack}
+          </details>
+          <button onClick={this.handleReset}>Try again</button>
         </div>
       );
     }

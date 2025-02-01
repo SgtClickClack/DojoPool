@@ -1,14 +1,15 @@
 """Mobile routes package."""
 
-from flask import Flask, Blueprint
+from flask import Blueprint, Flask
+
 
 def register_mobile_routes(app: Flask) -> None:
     """Register mobile routes with the application.
-    
+
     Args:
         app: Flask application instance
     """
-    mobile_bp = Blueprint('mobile', __name__, url_prefix='/mobile')
-    
+    mobile_bp = Blueprint("mobile", __name__, url_prefix="/mobile")
+
     # Register mobile blueprint with app
-    app.register_blueprint(mobile_bp) 
+    app.register_blueprint(mobile_bp)

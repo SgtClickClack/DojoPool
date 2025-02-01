@@ -1,144 +1,129 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Grid, Button, Chip } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Tournament, TournamentMatch, TournamentParticipant } from '../../types/tournament';
-
-const BracketContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
-  overflowX: 'auto',
-  minWidth: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  '& .round': {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    minWidth: 250,
-    margin: theme.spacing(0, 2),
-  },
-}));
-
-const MatchCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  margin: theme.spacing(1, 0),
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[2],
-  transition: 'transform 0.2s ease-in-out',
-  cursor: 'pointer',
-  '&:hover': {
-    transform: 'scale(1.02)',
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const PlayerChip = styled(Chip)<{ isWinner?: boolean }>(({ theme, isWinner }) => ({
-  margin: theme.spacing(0.5),
-  backgroundColor: isWinner ? theme.palette.success.light : theme.palette.grey[200],
-  color: isWinner ? theme.palette.success.contrastText : theme.palette.text.primary,
-  '& .MuiChip-label': {
-    fontWeight: isWinner ? 'bold' : 'normal',
-  },
-}));
+import React from 'react';
+import { Box, Typography, Paper } from '@mui/material';
+import { Tournament, TournamentMatch } from '../../types/tournament';
 
 interface TournamentBracketProps {
-  tournament: Tournament;
-  onMatchClick?: (match: TournamentMatch) => void;
+    tournament: Tournament;
 }
 
-export const TournamentBracket: React.FC<TournamentBracketProps> = ({
-  tournament,
-  onMatchClick,
-}) => {
-  const [rounds, setRounds] = useState<TournamentMatch[][]>([]);
+interface MatchBoxProps {
+    match: TournamentMatch;
+    players: Record<string, { name: string }>;
+}
 
-  useEffect(() => {
-    // Organize matches into rounds
-    const roundsMap = new Map<number, TournamentMatch[]>();
-    tournament.brackets.forEach((bracket) => {
-      bracket.matches.forEach((match) => {
-        const round = roundsMap.get(bracket.round_number) || [];
-        round.push(match);
-        roundsMap.set(bracket.round_number, round);
-      });
-    });
+const MatchBox: React.FC<MatchBoxProps> = ({ match, players }) => {
+    const player1 = match.player1Id ? players[match.player1Id] : null;
+    const player2 = match.player2Id ? players[match.player2Id] : null;
 
-    // Convert map to array of rounds
-    const sortedRounds = Array.from(roundsMap.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([_, matches]) => matches);
-
-    setRounds(sortedRounds);
-  }, [tournament]);
-
-  const getMatchStatus = (match: TournamentMatch) => {
-    switch (match.status) {
-      case 'completed':
-        return <Chip label="Completed" color="success" size="small" sx={{ ml: 1 }} />;
-      case 'in_progress':
-        return <Chip label="In Progress" color="primary" size="small" sx={{ ml: 1 }} />;
-      case 'scheduled':
-        return <Chip label="Scheduled" color="default" size="small" sx={{ ml: 1 }} />;
-      default:
-        return null;
-    }
-  };
-
-  const renderMatch = (match: TournamentMatch) => (
-    <MatchCard
-      key={match.id}
-      onClick={() => onMatchClick?.(match)}
-      elevation={match.status === 'in_progress' ? 4 : 1}
-    >
-      <Box sx={{ mb: 1 }}>
-        <Typography variant="subtitle2" color="textSecondary">
-          Match #{match.id}
-          {getMatchStatus(match)}
-        </Typography>
-      </Box>
-
-      <Box>
-        {match.players.map((player) => (
-          <PlayerChip
-            key={player.id}
-            label={player.username}
-            isWinner={player.id === match.winner_id}
-          />
-        ))}
-      </Box>
-
-      {match.score && (
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-          Score: {match.score}
-        </Typography>
-      )}
-
-      {match.scheduled_time && (
-        <Typography variant="caption" color="textSecondary" display="block">
-          {new Date(match.scheduled_time).toLocaleString()}
-        </Typography>
-      )}
-    </MatchCard>
-  );
-
-  return (
-    <Box sx={{ width: '100%', overflowX: 'auto' }}>
-      <Typography variant="h6" gutterBottom>
-        Tournament Bracket
-      </Typography>
-
-      <BracketContainer>
-        {rounds.map((roundMatches, index) => (
-          <div key={index} className="round">
-            <Typography variant="subtitle1" gutterBottom align="center">
-              Round {index + 1}
-            </Typography>
-            {roundMatches.map(renderMatch)}
-          </div>
-        ))}
-      </BracketContainer>
-    </Box>
-  );
+    return (
+        <Paper
+            sx={{
+                p: 1,
+                width: 200,
+                mb: 2,
+                backgroundColor: match.status === 'COMPLETED' ? 'action.hover' : 'background.paper'
+            }}
+        >
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 0.5,
+                    backgroundColor: match.player1Id === match.winnerId ? 'success.light' : 'background.paper'
+                }}
+            >
+                <Typography variant="body2">
+                    {player1 ? player1.name : 'TBD'}
+                </Typography>
+                <Typography variant="body2">
+                    {match.score?.player1 || 0}
+                </Typography>
+            </Box>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 0.5,
+                    backgroundColor: match.player2Id === match.winnerId ? 'success.light' : 'background.paper'
+                }}
+            >
+                <Typography variant="body2">
+                    {player2 ? player2.name : 'TBD'}
+                </Typography>
+                <Typography variant="body2">
+                    {match.score?.player2 || 0}
+                </Typography>
+            </Box>
+        </Paper>
+    );
 };
 
-export default TournamentBracket;
+export const TournamentBracket: React.FC<TournamentBracketProps> = ({ tournament }) => {
+    // Create a lookup object for quick player access
+    const playerLookup = tournament.players.reduce((acc, player) => {
+        acc[player.id] = { name: player.name };
+        return acc;
+    }, {} as Record<string, { name: string }>);
+
+    // Group matches by round
+    const matchesByRound = tournament.rounds.reduce((acc, round) => {
+        acc[round.roundNumber] = round.matches;
+        return acc;
+    }, {} as Record<number, TournamentMatch[]>);
+
+    return (
+        <Box>
+            <Typography variant="h6" gutterBottom>
+                Tournament Bracket
+            </Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    gap: 4,
+                    overflowX: 'auto',
+                    p: 2
+                }}
+            >
+                {Object.entries(matchesByRound).map(([roundNumber, matches]) => (
+                    <Box
+                        key={roundNumber}
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2
+                        }}
+                    >
+                        <Typography variant="subtitle1" align="center">
+                            Round {roundNumber}
+                        </Typography>
+                        {matches.map((match) => (
+                            <Box
+                                key={match.id}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <MatchBox
+                                    match={match}
+                                    players={playerLookup}
+                                />
+                                {match.status !== 'COMPLETED' && (
+                                    <Box
+                                        sx={{
+                                            width: 20,
+                                            height: 2,
+                                            backgroundColor: 'divider'
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                        ))}
+                    </Box>
+                ))}
+            </Box>
+        </Box>
+    );
+};

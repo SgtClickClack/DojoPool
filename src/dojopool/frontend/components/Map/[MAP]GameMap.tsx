@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { GoogleMap, LoadScript, Circle } from '@react-google-maps/api';
 import { useTheme } from '@mui/material';
-import { Location } from '@/utils/location';
+import { Location } from '../../utils/location';
 import {
   GOOGLE_MAPS_API_KEY,
   DEFAULT_MAP_OPTIONS,
   MAP_STYLES,
   PLAYER_MARKER_RADIUS,
   ANIMATION_DURATION,
-} from '@/constants';
+} from '../../constants';
 
 interface GameMapProps {
   currentLocation: Location;

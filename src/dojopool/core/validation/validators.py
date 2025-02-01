@@ -3,8 +3,10 @@
 This module contains validators for various models.
 """
 
-from typing import Dict, Any, Optional
-from marshmallow import Schema, fields, validate, validates, ValidationError
+from typing import Any, Dict
+
+from marshmallow import ValidationError, fields, validate, validates
+
 from .base import BaseValidator
 
 
@@ -100,9 +102,7 @@ class VenueValidator(BaseValidator):
                     if not (0 <= hours <= 23 and 0 <= minutes <= 59):
                         raise ValueError
             except (ValueError, AttributeError):
-                raise ValidationError(
-                    f'Invalid time format for {day}. Use HH:MM or "closed"'
-                )
+                raise ValidationError(f'Invalid time format for {day}. Use HH:MM or "closed"')
 
 
 class GameValidator(BaseValidator):
@@ -112,12 +112,8 @@ class GameValidator(BaseValidator):
     player1_id = fields.Integer(required=True, validate=validate.Range(min=1))
     player2_id = fields.Integer(required=True, validate=validate.Range(min=1))
     winner_id = fields.Integer(validate=validate.Range(min=1))
-    game_type = fields.String(
-        validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"])
-    )
-    status = fields.String(
-        validate=validate.OneOf(["pending", "active", "completed", "cancelled"])
-    )
+    game_type = fields.String(validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"]))
+    status = fields.String(validate=validate.OneOf(["pending", "active", "completed", "cancelled"]))
     stats = fields.Dict()
 
     @validates("player2_id")
@@ -164,9 +160,7 @@ class AchievementValidator(BaseValidator):
 
         valid_types = ["count", "score", "time", "streak", "custom"]
         if value["type"] not in valid_types:
-            raise ValidationError(
-                f"Invalid requirement type. Must be one of: {valid_types}"
-            )
+            raise ValidationError(f"Invalid requirement type. Must be one of: {valid_types}")
 
         if not isinstance(value["criteria"], dict):
             raise ValidationError("Criteria must be a dictionary")
@@ -225,17 +219,11 @@ class AchievementValidator(BaseValidator):
 
         elif value["type"] in ["badge", "title"]:
             if "name" not in value:
-                raise ValidationError(
-                    f'{value["type"].capitalize()} reward must include name'
-                )
+                raise ValidationError(f'{value["type"].capitalize()} reward must include name')
             if not isinstance(value["name"], str):
-                raise ValidationError(
-                    f'{value["type"].capitalize()} name must be a string'
-                )
+                raise ValidationError(f'{value["type"].capitalize()} name must be a string')
             if len(value["name"]) == 0:
-                raise ValidationError(
-                    f'{value["type"].capitalize()} name cannot be empty'
-                )
+                raise ValidationError(f'{value["type"].capitalize()} name cannot be empty')
 
         elif value["type"] == "item":
             if "item_id" not in value:

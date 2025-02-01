@@ -1,16 +1,17 @@
 """Main application module."""
 
-from flask import Flask, render_template, jsonify, request, send_from_directory
-from flask_login import LoginManager
-import os
-from dotenv import load_dotenv
 import logging
-from typing import Any, cast
+import os
+
+from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, send_from_directory
+from flask_login import LoginManager
 
 from .auth.routes import auth_bp
-from .core.auth.models import db, User
-from .routes.performance import bp as performance_bp
+from .core.auth.models import User, db
+from .routes.game import game_bp
 from .routes.main import main_bp
+from .routes.performance import bp as performance_bp
 
 # Configure logging
 logging.basicConfig(
@@ -41,7 +42,7 @@ def create_app(config_name=None):
     app.config["GOOGLE_MAPS_API_KEY"] = os.getenv("GOOGLE_MAPS_API_KEY", "")
     app.config["GOOGLE_CLIENT_ID"] = os.getenv("GOOGLE_CLIENT_ID", "")
     app.config["GOOGLE_CLIENT_SECRET"] = os.getenv("GOOGLE_CLIENT_SECRET", "")
-    
+
     # Database configuration
     db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "dojopool.db")
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
@@ -51,7 +52,7 @@ def create_app(config_name=None):
     db.init_app(app)
     login_manager = LoginManager()
     login_manager.init_app(app)
-    setattr(login_manager, 'login_view', 'auth.login')
+    login_manager.login_view = "auth.login"
 
     # Create database tables if they don't exist
     with app.app_context():
@@ -65,6 +66,7 @@ def create_app(config_name=None):
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(performance_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(game_bp)
 
     # Root route
     @app.route("/")

@@ -1,0 +1,504 @@
+openapi: 3.0.3
+info:
+  title: DojoPool QR Code Management API
+  description: |
+    API for managing QR codes, statistics, alerts, and audit logs in the DojoPool system.
+    
+    This API provides endpoints for:
+    - Generating and verifying QR codes for tables
+    - Tracking QR code usage statistics
+    - Managing alerts and notifications
+    - Exporting data and reports
+    - Accessing audit logs
+  version: 1.0.0
+  contact:
+    name: DojoPool Support
+    email: support@dojopool.com
+
+servers:
+  - url: /api/v1
+    description: Production server
+  - url: /api/v1/dev
+    description: Development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+    
+    QRCode:
+      type: object
+      properties:
+        qr_code:
+          type: string
+          description: Base64 encoded QR code image
+        table_id:
+          type: string
+          description: ID of the table
+        venue_id:
+          type: string
+          description: ID of the venue
+      required:
+        - qr_code
+        - table_id
+        - venue_id
+    
+    QRVerification:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: Whether QR code is valid
+        error:
+          type: string
+          description: Error message if invalid
+        table_id:
+          type: string
+          description: ID of the table if valid
+        venue_id:
+          type: string
+          description: ID of the venue if valid
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of verification
+      required:
+        - valid
+    
+    Statistics:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Venue or table ID
+        total_scans:
+          type: integer
+          description: Total number of scans
+        successful_scans:
+          type: integer
+          description: Number of successful scans
+        failed_scans:
+          type: integer
+          description: Number of failed scans
+        success_rate:
+          type: number
+          format: float
+          description: Success rate (0-1)
+        avg_scan_duration:
+          type: number
+          format: float
+          description: Average scan duration in seconds
+        error_types:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Count of each error type
+        hourly_stats:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Scans per hour
+        daily_stats:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Scans per day
+      required:
+        - id
+        - total_scans
+        - successful_scans
+        - failed_scans
+        - success_rate
+        - avg_scan_duration
+    
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Alert ID
+        type:
+          type: string
+          enum:
+            - high_error_rate
+            - slow_scan_time
+            - expired_codes
+            - repeated_errors
+            - low_success_rate
+            - unusual_activity
+          description: Type of alert
+        severity:
+          type: string
+          enum:
+            - info
+            - warning
+            - error
+            - critical
+          description: Alert severity
+        message:
+          type: string
+          description: Alert message
+        venue_id:
+          type: string
+          description: Related venue ID
+        table_id:
+          type: string
+          description: Related table ID
+        timestamp:
+          type: string
+          format: date-time
+          description: When alert was created
+        details:
+          type: object
+          description: Additional alert details
+        acknowledged:
+          type: boolean
+          description: Whether alert is acknowledged
+        acknowledged_by:
+          type: string
+          description: User who acknowledged alert
+        acknowledged_at:
+          type: string
+          format: date-time
+          description: When alert was acknowledged
+      required:
+        - id
+        - type
+        - severity
+        - message
+        - timestamp
+        - acknowledged
+
+security:
+  - bearerAuth: []
+
+paths:
+  /venues/{venue_id}/tables/{table_id}/qr:
+    get:
+      summary: Generate QR code for a table
+      description: Generate a new QR code for the specified table in a venue
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: table_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: size
+          in: query
+          description: Size of QR code in pixels
+          schema:
+            type: integer
+            default: 10
+        - name: include_logo
+          in: query
+          description: Whether to include venue logo
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: QR code generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCode'
+        '404':
+          description: Venue or table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Failed to generate QR code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /qr/verify:
+    post:
+      summary: Verify a scanned QR code
+      description: Verify the validity of a scanned QR code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                qr_data:
+                  type: string
+                  description: Scanned QR code data
+              required:
+                - qr_data
+      responses:
+        '200':
+          description: QR code verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRVerification'
+        '400':
+          description: Invalid QR code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /venues/{venue_id}/tables/{table_id}/qr/refresh:
+    post:
+      summary: Refresh QR code for a table
+      description: Generate a new QR code for the table, invalidating the old one
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: table_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: QR code refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCode'
+        '404':
+          description: Venue or table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Failed to refresh QR code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /venues/{venue_id}/qr/stats:
+    get:
+      summary: Get venue QR code statistics
+      description: Get QR code usage statistics for a venue
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          description: Number of days to include
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statistics'
+        '404':
+          description: No statistics available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /tables/{table_id}/qr/stats:
+    get:
+      summary: Get table QR code statistics
+      description: Get QR code usage statistics for a table
+      parameters:
+        - name: table_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          description: Number of days to include
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statistics'
+        '404':
+          description: No statistics available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /qr/alerts:
+    get:
+      summary: Get QR code alerts
+      description: Get alerts related to QR code usage
+      parameters:
+        - name: venue_id
+          in: query
+          description: Filter by venue ID
+          schema:
+            type: string
+        - name: table_id
+          in: query
+          description: Filter by table ID
+          schema:
+            type: string
+        - name: severity
+          in: query
+          description: Filter by severity level
+          schema:
+            type: string
+            enum:
+              - info
+              - warning
+              - error
+              - critical
+        - name: include_acknowledged
+          in: query
+          description: Include acknowledged alerts
+          schema:
+            type: boolean
+            default: false
+        - name: days
+          in: query
+          description: Number of days to include
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Alerts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+        '400':
+          description: Invalid severity level
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /qr/alerts/{alert_id}/acknowledge:
+    post:
+      summary: Acknowledge an alert
+      description: Mark an alert as acknowledged
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Alert acknowledged successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required:
+                  - success
+        '400':
+          description: Failed to acknowledge alert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /qr/export:
+    get:
+      summary: Export QR code statistics
+      description: Export statistics and error reports
+      parameters:
+        - name: venue_id
+          in: query
+          description: Filter by venue ID
+          schema:
+            type: string
+        - name: table_id
+          in: query
+          description: Filter by table ID
+          schema:
+            type: string
+        - name: days
+          in: query
+          description: Number of days to include
+          schema:
+            type: integer
+            default: 30
+        - name: format
+          in: query
+          description: Export format
+          schema:
+            type: string
+            enum:
+              - csv
+              - excel
+              - json
+            default: csv
+        - name: include_errors
+          in: query
+          description: Include error details
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Export generated successfully
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid export format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Failed to generate export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 

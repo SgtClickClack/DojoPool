@@ -5,7 +5,7 @@ import {
   TournamentMatch,
   TournamentFilters,
   CreateTournamentData,
-  UpdateMatchData,
+  TournamentMatchUpdateData,
 } from '../types/tournament';
 
 const BASE_URL = '/api/tournaments';

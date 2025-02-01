@@ -1,15 +1,16 @@
 """Query builder for room logging system."""
 
+import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
-import json
+
 
 class LogQueryBuilder:
     """Builder class for constructing and executing log queries."""
 
     def __init__(self, log_file: str):
         """Initialize query builder.
-        
+
         Args:
             log_file: Path to log file
         """
@@ -18,80 +19,80 @@ class LogQueryBuilder:
         self.start_time = None
         self.end_time = None
         self.limit = None
-        self.order_by = 'timestamp'
+        self.order_by = "timestamp"
         self.order_desc = True
 
-    def filter_by_room(self, room_id: str) -> 'LogQueryBuilder':
+    def filter_by_room(self, room_id: str) -> "LogQueryBuilder":
         """Filter logs by room ID.
-        
+
         Args:
             room_id: Room ID to filter by
-            
+
         Returns:
             Self for method chaining
         """
-        self.filters.append(lambda entry: entry.get('room_id') == room_id)
+        self.filters.append(lambda entry: entry.get("room_id") == room_id)
         return self
 
-    def filter_by_user(self, user_id: str) -> 'LogQueryBuilder':
+    def filter_by_user(self, user_id: str) -> "LogQueryBuilder":
         """Filter logs by user ID.
-        
+
         Args:
             user_id: User ID to filter by
-            
+
         Returns:
             Self for method chaining
         """
-        self.filters.append(lambda entry: entry.get('user_id') == user_id)
+        self.filters.append(lambda entry: entry.get("user_id") == user_id)
         return self
 
-    def filter_by_event_type(self, event_type: str) -> 'LogQueryBuilder':
+    def filter_by_event_type(self, event_type: str) -> "LogQueryBuilder":
         """Filter logs by event type.
-        
+
         Args:
             event_type: Event type to filter by
-            
+
         Returns:
             Self for method chaining
         """
-        self.filters.append(lambda entry: entry.get('event_type') == event_type)
+        self.filters.append(lambda entry: entry.get("event_type") == event_type)
         return self
 
-    def filter_by_action(self, action: str) -> 'LogQueryBuilder':
+    def filter_by_action(self, action: str) -> "LogQueryBuilder":
         """Filter logs by action.
-        
+
         Args:
             action: Action to filter by
-            
+
         Returns:
             Self for method chaining
         """
-        self.filters.append(lambda entry: entry.get('action') == action)
+        self.filters.append(lambda entry: entry.get("action") == action)
         return self
 
-    def filter_by_success(self, success: bool) -> 'LogQueryBuilder':
+    def filter_by_success(self, success: bool) -> "LogQueryBuilder":
         """Filter logs by success status.
-        
+
         Args:
             success: Success status to filter by
-            
+
         Returns:
             Self for method chaining
         """
-        self.filters.append(lambda entry: entry.get('success') == success)
+        self.filters.append(lambda entry: entry.get("success") == success)
         return self
 
     def time_range(
         self,
         start_time: Optional[Union[datetime, str]] = None,
-        end_time: Optional[Union[datetime, str]] = None
-    ) -> 'LogQueryBuilder':
+        end_time: Optional[Union[datetime, str]] = None,
+    ) -> "LogQueryBuilder":
         """Set time range for query.
-        
+
         Args:
             start_time: Start time (datetime or ISO format string)
             end_time: End time (datetime or ISO format string)
-            
+
         Returns:
             Self for method chaining
         """
@@ -107,25 +108,25 @@ class LogQueryBuilder:
 
         return self
 
-    def set_limit(self, limit: int) -> 'LogQueryBuilder':
+    def set_limit(self, limit: int) -> "LogQueryBuilder":
         """Set maximum number of results.
-        
+
         Args:
             limit: Maximum number of results to return
-            
+
         Returns:
             Self for method chaining
         """
         self.limit = limit
         return self
 
-    def order(self, field: str = 'timestamp', descending: bool = True) -> 'LogQueryBuilder':
+    def order(self, field: str = "timestamp", descending: bool = True) -> "LogQueryBuilder":
         """Set result ordering.
-        
+
         Args:
             field: Field to order by
             descending: Whether to order in descending order
-            
+
         Returns:
             Self for method chaining
         """
@@ -135,14 +136,14 @@ class LogQueryBuilder:
 
     def _apply_time_filter(self, entry: Dict[str, Any]) -> bool:
         """Apply time range filter to entry.
-        
+
         Args:
             entry: Log entry to check
-            
+
         Returns:
             bool: Whether entry passes time filter
         """
-        timestamp = entry.get('timestamp')
+        timestamp = entry.get("timestamp")
         if not timestamp:
             return False
 
@@ -154,10 +155,10 @@ class LogQueryBuilder:
 
     def _apply_filters(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Apply all filters to entries.
-        
+
         Args:
             entries: List of log entries
-            
+
         Returns:
             List[Dict[str, Any]]: Filtered entries
         """
@@ -175,27 +176,23 @@ class LogQueryBuilder:
 
     def _sort_results(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Sort filtered results.
-        
+
         Args:
             entries: List of log entries
-            
+
         Returns:
             List[Dict[str, Any]]: Sorted entries
         """
-        return sorted(
-            entries,
-            key=lambda x: x.get(self.order_by, ''),
-            reverse=self.order_desc
-        )
+        return sorted(entries, key=lambda x: x.get(self.order_by, ""), reverse=self.order_desc)
 
     def execute(self) -> List[Dict[str, Any]]:
         """Execute query and return results.
-        
+
         Returns:
             List[Dict[str, Any]]: Query results
         """
         try:
-            with open(self.log_file, 'r') as f:
+            with open(self.log_file, "r") as f:
                 entries = [json.loads(line) for line in f]
         except (FileNotFoundError, json.JSONDecodeError):
             return []
@@ -208,6 +205,6 @@ class LogQueryBuilder:
 
         # Apply limit
         if self.limit is not None:
-            sorted_entries = sorted_entries[:self.limit]
+            sorted_entries = sorted_entries[: self.limit]
 
-        return sorted_entries 
+        return sorted_entries

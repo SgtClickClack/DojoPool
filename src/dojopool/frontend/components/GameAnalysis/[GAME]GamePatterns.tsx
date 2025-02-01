@@ -22,10 +22,20 @@ const PatternCard = styled(Card)(({ theme }) => ({
 
 interface GamePatternsProps {
   patterns: {
-    shot_distribution: any;
-    player_positioning: any;
-    common_sequences: any[];
-    success_patterns: any;
+    shot_distribution: {
+      [key: string]: number;
+    };
+    player_positioning: {
+      [key: string]: number;
+    };
+    common_sequences: Array<{
+      description: string;
+      frequency: number;
+      success_rate: number;
+    }>;
+    success_patterns: {
+      [key: string]: string;
+    };
   };
 }
 

@@ -1,11 +1,12 @@
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import random
-from ..models.shot import Shot
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from ..models.match import Match
 from ..models.player import Player
-from ..services.shot_analysis import ShotAnalysis
+from ..models.shot import Shot
 from ..services.performance_tracking_service import PerformanceTrackingService
+from ..services.shot_analysis import ShotAnalysis
 
 
 class NarrativeGenerationService:
@@ -180,7 +181,7 @@ class NarrativeGenerationService:
         """
         # Determine shot characteristics
         shot_type = analysis["shot_type"]
-        effectiveness = analysis["effectiveness"]
+        analysis["effectiveness"]
         difficulty = analysis["difficulty"]
 
         # Select appropriate template

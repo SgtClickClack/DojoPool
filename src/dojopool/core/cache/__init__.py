@@ -1,11 +1,11 @@
 """Cache module."""
 
-from typing import Any, Optional, Dict, List, Union
+import json
 from datetime import datetime, timedelta
 from functools import wraps
-import json
-from flask_caching import Cache
+from typing import Any, Dict, List, Optional, Union
 
+from flask_caching import Cache
 
 cache = Cache()
 
@@ -70,11 +70,7 @@ class CacheService:
         Returns:
             Dict of key-value pairs
         """
-        return {
-            key: value
-            for key, value in zip(keys, cache.get_many(*keys))
-            if value is not None
-        }
+        return {key: value for key, value in zip(keys, cache.get_many(*keys)) if value is not None}
 
     def set_many(self, mapping: Dict[str, Any], timeout: Optional[int] = None) -> None:
         """Set multiple values in cache.

@@ -1,194 +1,276 @@
-"""Tournament model module."""
+"""Tournament model for managing pool tournaments."""
+
 from datetime import datetime
+from typing import List, Optional, Dict, Any
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Float, Enum as SQLEnum
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from enum import Enum
 
-from dojopool.core.extensions import db
+from ..extensions import db
 
-class TournamentType(Enum):
-    """Tournament type enumeration."""
-    SINGLE_ELIMINATION = 'single_elimination'
-    DOUBLE_ELIMINATION = 'double_elimination'
-    ROUND_ROBIN = 'round_robin'
-    SWISS = 'swiss'
+# Association table for tournament participants
+tournament_participants = Table(
+    "tournament_participants",
+    db.Model.metadata,
+    Column("tournament_id", Integer, ForeignKey("tournaments.id"), primary_key=True),
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
 
-class TournamentStatus(Enum):
+
+class TournamentStatus(str, Enum):
     """Tournament status enumeration."""
-    REGISTRATION_OPEN = 'registration_open'
-    REGISTRATION_CLOSED = 'registration_closed'
-    IN_PROGRESS = 'in_progress'
-    COMPLETED = 'completed'
-    CANCELLED = 'cancelled'
 
-class TournamentFormat(Enum):
+    PENDING = "pending"
+    REGISTRATION = "registration"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class TournamentFormat(str, Enum):
     """Tournament format enumeration."""
-    BRACKET = 'bracket'
-    POOL = 'pool'
-    GROUP = 'group'
 
-class TournamentRoundType(Enum):
-    """Tournament round type enumeration."""
-    WINNERS = 'winners'
-    LOSERS = 'losers'
-    FINALS = 'finals'
+    SINGLE_ELIMINATION = "single_elimination"
+    DOUBLE_ELIMINATION = "double_elimination"
+    ROUND_ROBIN = "round_robin"
+    SWISS = "swiss"
 
-class TournamentBracketType(Enum):
-    """Tournament bracket type enumeration."""
-    WINNERS = 'winners'
-    LOSERS = 'losers'
-    FINALS = 'finals'
-
-class GameType(Enum):
-    """Game type enumeration."""
-    EIGHT_BALL = 'eight_ball'
-    NINE_BALL = 'nine_ball'
-    TEN_BALL = 'ten_ball'
-    STRAIGHT_POOL = 'straight_pool'
 
 class Tournament(db.Model):
-    """Tournament model class."""
+    """Tournament model."""
 
-    __tablename__ = 'tournaments'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    organizer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    tournament_type = db.Column(db.Enum(TournamentType, name='tournament_type_enum'), nullable=False)
-    game_type = db.Column(db.Enum(GameType, name='game_type_enum'), nullable=False)
-    format = db.Column(db.Enum(TournamentFormat, name='tournament_format_enum'), nullable=False)
-    status = db.Column(db.Enum(TournamentStatus, name='tournament_status_enum'), nullable=False,
-                      default=TournamentStatus.REGISTRATION_OPEN)
-    max_players = db.Column(db.Integer)
-    entry_fee = db.Column(db.Float)
-    prize_pool = db.Column(db.Float)
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow,
-                          onupdate=datetime.utcnow)
-    
-    # Relationships
-    players = db.relationship('TournamentPlayer', backref='tournament',
-                            cascade='all, delete-orphan')
-    games = db.relationship('TournamentGame', backref='tournament',
-                          cascade='all, delete-orphan')
-    rounds = db.relationship('TournamentRound', backref='tournament',
-                           cascade='all, delete-orphan')
+    __tablename__ = "tournaments"
 
-    def __init__(self, name, organizer_id, tournament_type, game_type, format,
-                 status=TournamentStatus.REGISTRATION_OPEN):
-        """Initialize tournament."""
-        self.name = name
-        self.organizer_id = organizer_id
-        self.tournament_type = tournament_type
-        self.game_type = game_type
-        self.format = format
-        self.status = status
-
-    def start_tournament(self):
-        """Start the tournament."""
-        if self.status == TournamentStatus.REGISTRATION_CLOSED:
-            self.status = TournamentStatus.IN_PROGRESS
-            self.start_date = datetime.utcnow()
-
-    def complete_tournament(self):
-        """Complete the tournament."""
-        if self.status == TournamentStatus.IN_PROGRESS:
-            self.status = TournamentStatus.COMPLETED
-            self.end_date = datetime.utcnow()
-
-    def cancel_tournament(self):
-        """Cancel the tournament."""
-        if self.status != TournamentStatus.COMPLETED:
-            self.status = TournamentStatus.CANCELLED
-
-    def __repr__(self):
-        """Represent tournament as string."""
-        return f'<Tournament {self.name}>'
-
-class TournamentPlayer(db.Model):
-    """Tournament player model class."""
-
-    __tablename__ = 'tournament_players'
-
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'),
-                            nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    seed = db.Column(db.Integer)
-    status = db.Column(db.String(20), default='active')  # active, eliminated, winner
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow,
-                          onupdate=datetime.utcnow)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    description = Column(String(500))
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime)
+    registration_deadline = Column(DateTime)
+    max_participants = Column(Integer, default=32)
+    entry_fee = Column(Float, default=0.0)
+    prize_pool = Column(Float, default=0.0)
+    status = Column(db.Enum(TournamentStatus), nullable=False, default=TournamentStatus.PENDING)
+    format = Column(db.Enum(TournamentFormat), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    venue_id = Column(Integer, ForeignKey("venues.id"))
+    organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     # Relationships
-    player = db.relationship('User', backref='tournament_entries')
+    venue = relationship("Venue", backref="tournaments")
+    organizer = relationship("User", backref="organized_tournaments", foreign_keys=[organizer_id])
+    participants = relationship("User", secondary="tournament_participants", backref="tournaments")
+    matches = relationship("TournamentGame", backref="tournament", lazy="dynamic")
 
-    def __repr__(self):
-        """Represent tournament player as string."""
-        return f'<TournamentPlayer {self.player_id} in Tournament {self.tournament_id}>'
+    @hybrid_property
+    def is_active(self) -> bool:
+        """Check if tournament is active."""
+        return self.status == TournamentStatus.IN_PROGRESS
+
+    @hybrid_property
+    def is_completed(self) -> bool:
+        """Check if tournament is completed."""
+        return self.status == TournamentStatus.COMPLETED
+
+    @hybrid_property
+    def participant_count(self) -> int:
+        """Get number of participants."""
+        return len(self.participants)
+
+    def get_player_placement(self, user_id: int) -> Optional[int]:
+        """Get player's placement in tournament."""
+        if not self.is_completed:
+            return None
+
+        # Get all matches to calculate placements
+        matches = self.matches.all()
+        wins = sum(1 for m in matches if m.winner_id == user_id)
+        losses = sum(1 for m in matches if m.loser_id == user_id)
+
+        if not wins and not losses:
+            return None
+
+        # Calculate placement based on format
+        if self.format == TournamentFormat.SINGLE_ELIMINATION:
+            return self._calculate_single_elim_placement(user_id, matches)
+        elif self.format == TournamentFormat.DOUBLE_ELIMINATION:
+            return self._calculate_double_elim_placement(user_id, matches)
+        elif self.format == TournamentFormat.ROUND_ROBIN:
+            return self._calculate_round_robin_placement(user_id, matches)
+
+        return None
+
+    def _calculate_single_elim_placement(
+        self, user_id: int, matches: List["TournamentGame"]
+    ) -> int:
+        """Calculate placement in single elimination tournament."""
+        if not matches:
+            return 0
+
+        # Find the round where player was eliminated
+        elimination_round = 0
+        for match in matches:
+            if match.loser_id == user_id:
+                elimination_round = match.round_number
+                break
+
+        # Calculate placement based on elimination round
+        total_rounds = max(m.round_number for m in matches)
+        if elimination_round == 0:  # Won tournament
+            return 1
+        elif elimination_round == total_rounds:  # Runner up
+            return 2
+        else:
+            # Earlier rounds have lower placements
+            return 2 ** (total_rounds - elimination_round + 1)
+
+    def _calculate_double_elim_placement(
+        self, user_id: int, matches: List["TournamentGame"]
+    ) -> int:
+        """Calculate placement in double elimination tournament."""
+        if not matches:
+            return 0
+
+        # Track losses
+        loss_count = sum(1 for m in matches if m.loser_id == user_id)
+        if loss_count == 0:  # Won tournament
+            return 1
+        elif loss_count == 1:  # Lost in winners bracket
+            final_match = next(
+                (m for m in matches if m.round_number == max(m.round_number for m in matches)), None
+            )
+            return 2 if final_match and final_match.loser_id == user_id else 3
+        else:  # Lost in losers bracket
+            return loss_count + 1
+
+    def _calculate_round_robin_placement(
+        self, user_id: int, matches: List["TournamentGame"]
+    ) -> int:
+        """Calculate placement in round robin tournament."""
+        if not matches:
+            return 0
+
+        # Calculate points for all players
+        points = {}
+        for match in matches:
+            if match.winner_id not in points:
+                points[match.winner_id] = 0
+            if match.loser_id not in points:
+                points[match.loser_id] = 0
+
+            points[match.winner_id] += 2  # Win = 2 points
+            points[match.loser_id] += 1  # Loss = 1 point
+
+        # Sort players by points
+        sorted_players = sorted(points.items(), key=lambda x: x[1], reverse=True)
+        for i, (player_id, _) in enumerate(sorted_players, 1):
+            if player_id == user_id:
+                return i
+
+        return len(sorted_players)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert tournament to dictionary."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "max_participants": self.max_participants,
+            "entry_fee": self.entry_fee,
+            "prize_pool": self.prize_pool,
+            "status": self.status,
+            "format": self.format,
+            "participant_count": self.participant_count,
+            "is_active": self.is_active,
+            "is_completed": self.is_completed,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"<Tournament {self.name}>"
+
 
 class TournamentGame(db.Model):
-    """Tournament game model class."""
+    """Model for games played within tournaments."""
 
-    __tablename__ = 'tournament_games'
+    __tablename__ = "tournament_games"
 
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'),
-                            nullable=False)
-    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), nullable=False)
-    round_number = db.Column(db.Integer)
-    match_number = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow,
-                          onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        """Represent tournament game as string."""
-        return f'<TournamentGame {self.game_id} in Tournament {self.tournament_id}>'
-
-class TournamentRound(db.Model):
-    """Tournament round model class."""
-
-    __tablename__ = 'tournament_rounds'
-
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'),
-                            nullable=False)
-    round_number = db.Column(db.Integer, nullable=False)
-    round_type = db.Column(db.Enum(TournamentRoundType, name='tournament_round_type_enum'), nullable=False)
-    status = db.Column(db.String(20), default='pending')  # pending, in_progress, completed
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow,
-                          onupdate=datetime.utcnow)
+    id = Column(Integer, primary_key=True)
+    tournament_id = Column(Integer, ForeignKey("tournaments.id"), nullable=False)
+    round_number = Column(Integer, nullable=False)
+    match_number = Column(Integer, nullable=False)
+    player1_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    player2_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    winner_id = Column(Integer, ForeignKey("users.id"))
+    loser_id = Column(Integer, ForeignKey("users.id"))
+    score = Column(String(20))  # e.g., "7-5"
+    status = Column(String(20), default="pending")  # pending, in_progress, completed
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    brackets = db.relationship('TournamentBracket', backref='round',
-                             cascade='all, delete-orphan')
+    tournament = relationship("Tournament", back_populates="matches")
+    player1 = relationship("User", foreign_keys=[player1_id])
+    player2 = relationship("User", foreign_keys=[player2_id])
+    winner = relationship("User", foreign_keys=[winner_id])
+    loser = relationship("User", foreign_keys=[loser_id])
 
-    def __repr__(self):
-        """Represent tournament round as string."""
-        return f'<TournamentRound {self.round_number} in Tournament {self.tournament_id}>'
+    @hybrid_property
+    def duration(self) -> Optional[float]:
+        """Get game duration in seconds."""
+        if self.start_time and self.end_time:
+            return (self.end_time - self.start_time).total_seconds()
+        return None
 
-class TournamentBracket(db.Model):
-    """Tournament bracket model class."""
+    @hybrid_property
+    def is_completed(self) -> bool:
+        """Check if game is completed."""
+        return self.status == "completed"
 
-    __tablename__ = 'tournament_brackets'
+    def start(self) -> None:
+        """Start the game."""
+        if self.status == "pending":
+            self.status = "in_progress"
+            self.start_time = datetime.utcnow()
 
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_round_id = db.Column(db.Integer, db.ForeignKey('tournament_rounds.id'),
-                                  nullable=False)
-    tournament_game_id = db.Column(db.Integer, db.ForeignKey('tournament_games.id'),
-                                 nullable=False)
-    bracket_type = db.Column(db.Enum(TournamentBracketType, name='tournament_bracket_type_enum'), nullable=False)
-    position = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow,
-                          onupdate=datetime.utcnow)
+    def complete(self, winner_id: int, score: str) -> None:
+        """Complete the game with results."""
+        if self.status != "completed":
+            self.winner_id = winner_id
+            self.loser_id = self.player2_id if winner_id == self.player1_id else self.player1_id
+            self.score = score
+            self.status = "completed"
+            self.end_time = datetime.utcnow()
 
-    # Relationships
-    game = db.relationship('TournamentGame')
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert game to dictionary."""
+        return {
+            "id": self.id,
+            "tournament_id": self.tournament_id,
+            "round_number": self.round_number,
+            "match_number": self.match_number,
+            "player1_id": self.player1_id,
+            "player2_id": self.player2_id,
+            "winner_id": self.winner_id,
+            "loser_id": self.loser_id,
+            "score": self.score,
+            "status": self.status,
+            "start_time": self.start_time.isoformat() if self.start_time else None,
+            "end_time": self.end_time.isoformat() if self.end_time else None,
+            "duration": self.duration,
+            "is_completed": self.is_completed,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
 
-    def __repr__(self):
-        """Represent tournament bracket as string."""
-        return f'<TournamentBracket {self.id} in Round {self.tournament_round_id}>'
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"<TournamentGame {self.id}: {self.player1_id} vs {self.player2_id}>"

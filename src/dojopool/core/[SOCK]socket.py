@@ -48,14 +48,12 @@ Event Types:
     - frame_result: Frame processing result
 """
 
-import os
 import json
-import asyncio
 import logging
-from typing import Dict, Set, Optional, Any, Callable
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from dataclasses import dataclass
+from typing import Any, Callable, Dict, Optional, Set
 
 import socketio
 from aiohttp import web
@@ -63,17 +61,20 @@ from aiohttp import web
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 class ConnectionState(Enum):
     """Connection states for the socket manager."""
+
     INITIALIZING = "initializing"  # Initial setup
-    CONNECTED = "connected"        # Successfully connected
+    CONNECTED = "connected"  # Successfully connected
     DISCONNECTED = "disconnected"  # Connection lost
-    ERROR = "error"               # Error occurred
+    ERROR = "error"  # Error occurred
+
 
 @dataclass
 class SocketManagerOptions:
     """Configuration options for the socket manager.
-    
+
     Args:
         url: WebSocket server URL
         reconnect_attempts: Number of reconnection attempts (default: 15)
@@ -81,25 +82,28 @@ class SocketManagerOptions:
         debug: Enable debug logging (default: False)
         timeout: Connection timeout in ms (default: 60000)
     """
+
     url: str = ""
     reconnect_attempts: int = 15
     reconnect_delay: int = 1000
     debug: bool = False
     timeout: int = 60000
 
+
 class SocketManager:
     """Server-side WebSocket manager.
-    
+
     This class handles all WebSocket communication, including:
     - Connection management
     - Room-based message broadcasting
     - Event subscription
     - Error handling
     - Reconnection logic
-    
+
     The manager is implemented as a singleton to ensure consistent state
     across the application.
     """
+
     _instance = None
 
     def __new__(cls, options: Optional[SocketManagerOptions] = None):
@@ -111,7 +115,7 @@ class SocketManager:
 
     def __init__(self, options: Optional[SocketManagerOptions] = None):
         """Initialize the socket manager.
-        
+
         Args:
             options: Configuration options
         """
@@ -120,16 +124,16 @@ class SocketManager:
 
         self.options = options or SocketManagerOptions()
         self.sio = socketio.AsyncServer(
-            async_mode='aiohttp',
-            cors_allowed_origins='*',
+            async_mode="aiohttp",
+            cors_allowed_origins="*",
             ping_timeout=self.options.timeout,
-            ping_interval=self.options.timeout // 3
+            ping_interval=self.options.timeout // 3,
         )
         self.app = web.Application()
         self.sio.attach(self.app)
-        
+
         self.connections: Dict[str, Set[str]] = {}  # room_id -> set of sid
-        self.user_rooms: Dict[str, Set[str]] = {}   # user_id -> set of room_id
+        self.user_rooms: Dict[str, Set[str]] = {}  # user_id -> set of room_id
         self.subscriptions: Dict[str, Set[Callable]] = {}
         self.state = ConnectionState.INITIALIZING
         self.last_error: Optional[str] = None
@@ -141,10 +145,11 @@ class SocketManager:
 
     def setup_event_handlers(self):
         """Set up WebSocket event handlers."""
+
         @self.sio.event
         async def connect(sid, environ):
             """Handle client connection.
-            
+
             Args:
                 sid: Session ID
                 environ: WSGI environment
@@ -158,7 +163,7 @@ class SocketManager:
         @self.sio.event
         async def disconnect(sid):
             """Handle client disconnection.
-            
+
             Args:
                 sid: Session ID
             """
@@ -175,7 +180,7 @@ class SocketManager:
         @self.sio.event
         async def error(sid, error_data):
             """Handle connection errors.
-            
+
             Args:
                 sid: Session ID
                 error_data: Error information
@@ -188,7 +193,7 @@ class SocketManager:
         @self.sio.event
         async def message(sid, data):
             """Handle incoming messages.
-            
+
             Args:
                 sid: Session ID
                 data: Message data
@@ -196,11 +201,11 @@ class SocketManager:
             try:
                 if isinstance(data, str):
                     data = json.loads(data)
-                message_type = data.get('type')
+                message_type = data.get("type")
                 if message_type and message_type in self.subscriptions:
                     for callback in self.subscriptions[message_type]:
                         try:
-                            await callback(data.get('payload', {}))
+                            await callback(data.get("payload", {}))
                         except Exception as e:
                             logger.error(f"Error in message handler: {e}")
                             if self.options.debug:
@@ -212,24 +217,20 @@ class SocketManager:
 
     async def emit(self, room: str, event_type: str, data: Any):
         """Emit an event to a room.
-        
+
         Args:
             room: Room ID to send to
             event_type: Type of event
             data: Event data
         """
         if room in self.connections:
-            message = {
-                'type': event_type,
-                'payload': data,
-                'timestamp': datetime.now().isoformat()
-            }
-            await self.sio.emit('message', message, room=room)
+            message = {"type": event_type, "payload": data, "timestamp": datetime.now().isoformat()}
+            await self.sio.emit("message", message, room=room)
             logger.debug(f"Emitted {event_type} to room {room}")
 
     def subscribe(self, event_type: str, callback: Callable):
         """Subscribe to an event type.
-        
+
         Args:
             event_type: Type of event to subscribe to
             callback: Async function to call when event occurs
@@ -241,7 +242,7 @@ class SocketManager:
 
     def unsubscribe(self, event_type: str, callback: Callable):
         """Unsubscribe from an event type.
-        
+
         Args:
             event_type: Type of event to unsubscribe from
             callback: Callback function to remove
@@ -254,7 +255,7 @@ class SocketManager:
 
     async def join_room(self, sid: str, room: str):
         """Add a client to a room.
-        
+
         Args:
             sid: Session ID
             room: Room ID to join
@@ -267,7 +268,7 @@ class SocketManager:
 
     async def leave_room(self, sid: str, room: str):
         """Remove a client from a room.
-        
+
         Args:
             sid: Session ID
             room: Room ID to leave
@@ -281,10 +282,10 @@ class SocketManager:
 
     def get_room_members(self, room: str) -> Set[str]:
         """Get all client IDs in a room.
-        
+
         Args:
             room: Room ID
-            
+
         Returns:
             Set of session IDs in the room
         """
@@ -292,7 +293,7 @@ class SocketManager:
 
     def get_connection_state(self) -> Dict[str, Any]:
         """Get current connection state.
-        
+
         Returns:
             Dict containing:
             - state: Current connection state
@@ -301,11 +302,12 @@ class SocketManager:
             - connection_count: Total number of connections
         """
         return {
-            'state': self.state.value,
-            'last_error': self.last_error,
-            'last_event_time': self.last_event_time.isoformat(),
-            'connection_count': sum(len(room) for room in self.connections.values())
+            "state": self.state.value,
+            "last_error": self.last_error,
+            "last_event_time": self.last_event_time.isoformat(),
+            "connection_count": sum(len(room) for room in self.connections.values()),
         }
 
+
 # Create singleton instance with debug enabled
-socket_manager = SocketManager(SocketManagerOptions(debug=True)) 
+socket_manager = SocketManager(SocketManagerOptions(debug=True))

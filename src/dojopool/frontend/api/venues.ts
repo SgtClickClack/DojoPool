@@ -1,4 +1,3 @@
-import { api } from './api';
 import { Venue, VenueEvent, LeaderboardEntry } from '../types/venue';
 import axios from 'axios';
 
@@ -33,38 +32,40 @@ interface CheckInParams {
   game_type: string;
 }
 
+const BASE_URL = '/api/venues';
+
 export const getVenues = async (params: GetVenuesParams): Promise<GetVenuesResponse> => {
-  const response = await api.get('/venues', { params });
+  const response = await axios.get(BASE_URL, { params });
   return response.data;
 };
 
 export const getVenue = async (id: number): Promise<Venue> => {
-  const response = await api.get(`/venues/${id}`);
+  const response = await axios.get(`${BASE_URL}/${id}`);
   return response.data;
 };
 
 export const checkInUser = async (params: CheckInParams): Promise<void> => {
-  await api.post(`/venues/${params.venueId}/check-in`, params);
+  await axios.post(`${BASE_URL}/check-in`, params);
 };
 
 export const checkOutUser = async (): Promise<void> => {
-  await api.post('/venues/check-out');
+  await axios.post(`${BASE_URL}/check-out`);
 };
 
 export const getVenueLeaderboard = async (venueId: number, period?: string, params?: any) => {
-  const response = await axios.get(`/api/venues/${venueId}/leaderboard`, {
-    params: { period, ...params },
+  const response = await axios.get(`${BASE_URL}/${venueId}/leaderboard`, {
+    params: { period, ...params }
   });
   return response.data;
 };
 
 export const getUserStats = async (venueId: number, userId: number) => {
-  const response = await axios.get(`/api/venues/${venueId}/leaderboard/user/${userId}`);
+  const response = await axios.get(`${BASE_URL}/${venueId}/users/${userId}/stats`);
   return response.data;
 };
 
 export const updateLeaderboard = async (venueId: number, data: any) => {
-  const response = await axios.post(`/api/venues/${venueId}/leaderboard`, data);
+  const response = await axios.put(`${BASE_URL}/${venueId}/leaderboard`, data);
   return response.data;
 };
 
@@ -74,48 +75,48 @@ export const getVenueEvents = async (
   limit: number = 10,
   offset: number = 0
 ): Promise<VenueEvent[]> => {
-  const response = await api.get(`/venues/${venueId}/events`, {
-    params: { status, limit, offset },
+  const response = await axios.get(`${BASE_URL}/${venueId}/events`, {
+    params: { status, limit, offset }
   });
   return response.data;
 };
 
 export const createEvent = async (params: CreateEventParams): Promise<VenueEvent> => {
-  const response = await api.post(`/venues/${params.venueId}/events`, params);
+  const response = await axios.post(`${BASE_URL}/events`, params);
   return response.data;
 };
 
 export const registerForEvent = async (eventId: number): Promise<void> => {
-  await api.post(`/venues/events/${eventId}/register`);
+  await axios.post(`${BASE_URL}/events/${eventId}/register`);
 };
 
 export const checkIn = async (venueId: number, data?: any) => {
-  const response = await axios.post(`/api/venues/${venueId}/check-in`, data);
+  const response = await axios.post(`${BASE_URL}/${venueId}/check-in`, data);
   return response.data;
 };
 
 export const checkOut = async (venueId: number) => {
-  const response = await axios.post(`/api/venues/${venueId}/check-out`);
+  const response = await axios.post(`${BASE_URL}/${venueId}/check-out`);
   return response.data;
 };
 
 export const getActiveCheckins = async (venueId: number, params?: any) => {
-  const response = await axios.get(`/api/venues/${venueId}/active-checkins`, {
-    params,
+  const response = await axios.get(`${BASE_URL}/${venueId}/check-ins/active`, {
+    params
   });
   return response.data;
 };
 
 export const getCheckinHistory = async (venueId: number, params?: any) => {
-  const response = await axios.get(`/api/venues/${venueId}/checkin-history`, {
-    params,
+  const response = await axios.get(`${BASE_URL}/${venueId}/check-ins/history`, {
+    params
   });
   return response.data;
 };
 
 export const getOccupancyStats = async (venueId: number, period: string = 'day') => {
-  const response = await axios.get(`/api/venues/${venueId}/occupancy-stats`, {
-    params: { period },
+  const response = await axios.get(`${BASE_URL}/${venueId}/occupancy`, {
+    params: { period }
   });
   return response.data;
 };

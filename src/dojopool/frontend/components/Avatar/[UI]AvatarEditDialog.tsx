@@ -10,9 +10,9 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import AvatarGenerator from './AvatarGenerator';
+import AvatarGenerator from './[UI]AvatarGenerator';
 
-interface AvatarEditDialogProps {
+export interface AvatarEditDialogProps {
   open: boolean;
   onClose: () => void;
   onAvatarChange: (avatarUrl: string) => void;

@@ -1,186 +1,89 @@
-"""Match model module.
+"""Match model for tournament matches."""
 
-This module contains the Match model for tracking matches between players.
-"""
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-from sqlalchemy.dialects.postgresql import JSONB
-from .base import BaseModel, db
+from typing import Dict, Any, Optional
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 
-class Match(BaseModel):
-    """Match model."""
-    __tablename__ = 'matches'
-    __table_args__ = {'extend_existing': True}
-    
-    id = db.Column(db.Integer, primary_key=True)
-    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'))
-    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'))
-    start_time = db.Column(db.DateTime, default=datetime.utcnow)
-    end_time = db.Column(db.DateTime)
-    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    status = db.Column(db.String(20), default='pending')
-    score = db.Column(JSONB, default={})
-    stats = db.Column(JSONB, default={})
-    
+from ..core.extensions import db
+
+
+class Match(db.Model):
+    """Match model for tournament matches."""
+
+    __tablename__ = "matches"
+
+    id = Column(Integer, primary_key=True)
+    tournament_id = Column(Integer, ForeignKey("tournament_games.id"), nullable=False)
+    round = Column(Integer, nullable=False)  # Tournament round number
+    match_number = Column(Integer, nullable=False)  # Match number within round
+    player1_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    player2_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    winner_id = Column(Integer, ForeignKey("users.id"))
+    loser_id = Column(Integer, ForeignKey("users.id"))
+    score = Column(String(20))  # e.g., "7-5"
+    status = Column(String(20), default="pending")  # pending, in_progress, completed
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
     # Relationships
-    player1 = db.relationship('User', foreign_keys=[player1_id], backref='matches_as_player1')
-    player2 = db.relationship('User', foreign_keys=[player2_id], backref='matches_as_player2')
-    winner = db.relationship('User', foreign_keys=[winner_id], backref='matches_won')
-    tournament = db.relationship('Tournament', backref='matches')
-    venue = db.relationship('Venue', backref='matches')
-    
-    def __init__(self, **kwargs):
-        """Initialize match."""
-        super(Match, self).__init__(**kwargs)
-        self.start_time = datetime.utcnow()
-        self.status = 'pending'
-        self.score = {}
-        self.stats = {}
-    
+    tournament_game = relationship("TournamentGame", backref="matches")
+    player1 = relationship("User", foreign_keys=[player1_id])
+    player2 = relationship("User", foreign_keys=[player2_id])
+    winner = relationship("User", foreign_keys=[winner_id])
+    loser = relationship("User", foreign_keys=[loser_id])
+
+    @hybrid_property
+    def duration(self) -> Optional[float]:
+        """Get match duration in seconds."""
+        if self.start_time and self.end_time:
+            return (self.end_time - self.start_time).total_seconds()
+        return None
+
+    @hybrid_property
+    def is_completed(self) -> bool:
+        """Check if match is completed."""
+        return self.status == "completed"
+
+    def start(self) -> None:
+        """Start the match."""
+        if self.status == "pending":
+            self.status = "in_progress"
+            self.start_time = datetime.utcnow()
+
+    def complete(self, winner_id: int, score: str) -> None:
+        """Complete the match with results."""
+        if self.status != "completed":
+            self.winner_id = winner_id
+            self.loser_id = self.player2_id if winner_id == self.player1_id else self.player1_id
+            self.score = score
+            self.status = "completed"
+            self.end_time = datetime.utcnow()
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert match to dictionary."""
         return {
-            'id': self.id,
-            'player1_id': self.player1_id,
-            'player2_id': self.player2_id,
-            'tournament_id': self.tournament_id,
-            'venue_id': self.venue_id,
-            'start_time': self.start_time.isoformat() if self.start_time else None,
-            'end_time': self.end_time.isoformat() if self.end_time else None,
-            'winner_id': self.winner_id,
-            'status': self.status,
-            'score': self.score,
-            'stats': self.stats
+            "id": self.id,
+            "tournament_id": self.tournament_id,
+            "round": self.round,
+            "match_number": self.match_number,
+            "player1_id": self.player1_id,
+            "player2_id": self.player2_id,
+            "winner_id": self.winner_id,
+            "loser_id": self.loser_id,
+            "score": self.score,
+            "status": self.status,
+            "start_time": self.start_time.isoformat() if self.start_time else None,
+            "end_time": self.end_time.isoformat() if self.end_time else None,
+            "duration": self.duration,
+            "is_completed": self.is_completed,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
-    
-    @classmethod
-    def get_player_matches(
-        cls,
-        player_id: int,
-        status: Optional[str] = None,
-        time_range: Optional[Dict[str, datetime]] = None
-    ) -> List['Match']:
-        """Get all matches for a player."""
-        query = cls.query.filter(
-            db.or_(
-                cls.player1_id == player_id,
-                cls.player2_id == player_id
-            )
-        )
-        
-        if status:
-            query = query.filter_by(status=status)
-        
-        if time_range:
-            query = query.filter(
-                cls.start_time >= time_range.get('start'),
-                cls.start_time <= time_range.get('end')
-            )
-        
-        return query.order_by(cls.start_time.desc()).all()
-    
-    @classmethod
-    def get_tournament_matches(
-        cls,
-        tournament_id: int,
-        status: Optional[str] = None
-    ) -> List['Match']:
-        """Get all matches for a tournament."""
-        query = cls.query.filter_by(tournament_id=tournament_id)
-        
-        if status:
-            query = query.filter_by(status=status)
-        
-        return query.order_by(cls.start_time.desc()).all()
-    
-    @classmethod
-    def get_venue_matches(
-        cls,
-        venue_id: int,
-        status: Optional[str] = None,
-        time_range: Optional[Dict[str, datetime]] = None
-    ) -> List['Match']:
-        """Get all matches for a venue."""
-        query = cls.query.filter_by(venue_id=venue_id)
-        
-        if status:
-            query = query.filter_by(status=status)
-        
-        if time_range:
-            query = query.filter(
-                cls.start_time >= time_range.get('start'),
-                cls.start_time <= time_range.get('end')
-            )
-        
-        return query.order_by(cls.start_time.desc()).all()
-    
-    @classmethod
-    def create_match(
-        cls,
-        player1_id: int,
-        player2_id: int,
-        tournament_id: Optional[int] = None,
-        venue_id: Optional[int] = None
-    ) -> 'Match':
-        """Create a new match."""
-        match = cls(
-            player1_id=player1_id,
-            player2_id=player2_id,
-            tournament_id=tournament_id,
-            venue_id=venue_id
-        )
-        db.session.add(match)
-        db.session.commit()
-        return match
-    
-    def update_score(self, score: Dict[str, int]) -> None:
-        """Update the match score."""
-        self.score = score
-        db.session.commit()
-    
-    def update_stats(self, stats: Dict[str, Any]) -> None:
-        """Update match statistics."""
-        self.stats = stats
-        db.session.commit()
-    
-    def end_match(self, winner_id: int) -> None:
-        """End the match and set the winner."""
-        self.winner_id = winner_id
-        self.end_time = datetime.utcnow()
-        self.status = 'completed'
-        db.session.commit()
-    
-    def cancel_match(self) -> None:
-        """Cancel the match."""
-        self.status = 'cancelled'
-        self.end_time = datetime.utcnow()
-        db.session.commit()
-    
-    @classmethod
-    def get_player_stats(
-        cls,
-        player_id: int,
-        time_range: Optional[Dict[str, datetime]] = None
-    ) -> Dict[str, Any]:
-        """Get aggregated match statistics for a player."""
-        matches = cls.get_player_matches(player_id, status='completed', time_range=time_range)
-        
-        if not matches:
-            return {
-                'total_matches': 0,
-                'wins': 0,
-                'losses': 0,
-                'win_rate': 0
-            }
-        
-        total_matches = len(matches)
-        wins = sum(1 for match in matches if match.winner_id == player_id)
-        
-        return {
-            'total_matches': total_matches,
-            'wins': wins,
-            'losses': total_matches - wins,
-            'win_rate': wins / total_matches if total_matches > 0 else 0
-        } 
+
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"<Match {self.id}: {self.player1_id} vs {self.player2_id}>"

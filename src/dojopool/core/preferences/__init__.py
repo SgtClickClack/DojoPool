@@ -1,9 +1,10 @@
 """Preferences module."""
 
-from typing import Dict, Any, Optional
 from datetime import datetime
-from dojopool.models import db, User
+from typing import Any, Dict, Optional
+
 from dojopool.core.exceptions import PreferencesError
+from dojopool.models import User, db
 
 
 class PreferencesService:
@@ -70,9 +71,7 @@ class PreferencesService:
 
         return preferences
 
-    def update_preferences(
-        self, user_id: int, preferences: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def update_preferences(self, user_id: int, preferences: Dict[str, Any]) -> Dict[str, Any]:
         """Update user preferences.
 
         Args:

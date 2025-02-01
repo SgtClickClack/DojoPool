@@ -1,5 +1,6 @@
 """Application exceptions."""
 
+
 class ValidationError(Exception):
     """Exception raised for validation errors in the application.
 
@@ -10,6 +11,7 @@ class ValidationError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
 
 class AuthenticationError(Exception):
     """Exception raised for authentication errors.
@@ -22,6 +24,7 @@ class AuthenticationError(Exception):
         self.message = message
         super().__init__(self.message)
 
+
 class AuthorizationError(Exception):
     """Exception raised for authorization errors.
 
@@ -31,4 +34,4 @@ class AuthorizationError(Exception):
 
     def __init__(self, message):
         self.message = message
-        super().__init__(self.message) 
+        super().__init__(self.message)

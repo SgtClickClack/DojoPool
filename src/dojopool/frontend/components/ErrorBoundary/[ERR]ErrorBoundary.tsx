@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
         });
 
         // Log the error
-        logError(error, 'ErrorBoundary');
+        logError(error, errorInfo);
 
         // Call custom error handler if provided
         if (this.props.onError) {

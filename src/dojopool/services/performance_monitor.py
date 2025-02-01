@@ -1,18 +1,38 @@
-import time
-import psutil
 import asyncio
-from typing import Dict, List, Optional
-from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+
 import numpy as np
-from fastapi import HTTPException
+import psutil
 from redis import Redis
 from sqlalchemy.orm import Session
+
 from .memory_profiler import MemoryProfile, MemoryProfiler
 
+import time
+import logging
+from dataclasses import dataclass
+from threading import Thread
+import json
+import os
+
+@dataclass
+class PerformanceMetric:
+    name: str
+    value: float
+    timestamp: datetime
+    category: str
+    unit: str
 
 class PerformanceMonitor:
-    def __init__(self, redis_client: Redis, db: Session):
+    def __init__(
+        self,
+        redis_client: Redis,
+        db: Session,
+        metrics_dir: str = "metrics",
+        notification_service: Optional[NotificationService] = None
+    ):
         self.redis = redis_client
         self.db = db
         self.metrics_buffer = defaultdict(list)
@@ -24,6 +44,21 @@ class PerformanceMonitor:
             "request_rate": 1000,  # Requests per minute
         }
 
+        # Initialize notification service
+        self.notification_service = notification_service or NotificationService(
+            email_config={
+                'from_email': os.getenv('NOTIFICATION_EMAIL'),
+                'to_email': os.getenv('ADMIN_EMAIL'),
+                'smtp_host': os.getenv('SMTP_HOST', 'smtp.gmail.com'),
+                'smtp_port': int(os.getenv('SMTP_PORT', '587')),
+                'username': os.getenv('SMTP_USERNAME'),
+                'password': os.getenv('SMTP_PASSWORD')
+            },
+            slack_config={
+                'webhook_url': os.getenv('SLACK_WEBHOOK_URL')
+            }
+        )
+
         # Initialize memory profiler with default profile
         self.memory_profiler = MemoryProfiler(
             MemoryProfile(
@@ -34,15 +69,38 @@ class PerformanceMonitor:
             )
         )
 
+        self.metrics_dir = metrics_dir
+        self.metrics: List[PerformanceMetric] = []
+        self.is_running = False
+        self._monitor_thread: Optional[Thread] = None
+        self._setup_logging()
+        self._ensure_metrics_dir()
+
+    def _setup_logging(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        handler = logging.FileHandler("performance_monitor.log")
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        self.logger.addHandler(handler)
+
+    def _ensure_metrics_dir(self):
+        if not os.path.exists(self.metrics_dir):
+            os.makedirs(self.metrics_dir)
+            self.logger.info(f"Created metrics directory: {self.metrics_dir}")
+
     async def start_monitoring(self):
         """Start the performance monitoring tasks."""
         await self.memory_profiler.start_monitoring()
         asyncio.create_task(self._collect_system_metrics())
         asyncio.create_task(self._analyze_performance())
+        self.start()
 
     async def stop_monitoring(self):
         """Stop all monitoring tasks."""
         await self.memory_profiler.stop_monitoring()
+        self.stop()
 
     async def _collect_system_metrics(self, interval: int = 60):
         """Collect system metrics at regular intervals."""
@@ -160,38 +218,79 @@ class PerformanceMonitor:
     def _detect_performance_issues(self, analysis: Dict) -> List[Dict]:
         """Detect performance issues based on analysis."""
         issues = []
+        alerts = []
 
         # Check CPU usage
         if analysis.get("cpu_usage", {}).get("current", 0) > self.alert_thresholds["cpu_usage"]:
-            issues.append(
-                {
-                    "type": "high_cpu_usage",
-                    "severity": "high",
-                    "value": analysis["cpu_usage"]["current"],
-                }
-            )
+            issue = {
+                "type": "high_cpu_usage",
+                "severity": "high",
+                "value": analysis["cpu_usage"]["current"],
+            }
+            issues.append(issue)
+            alerts.append(Alert(
+                title="High CPU Usage Detected",
+                message=f"CPU usage has exceeded threshold: {analysis['cpu_usage']['current']}%",
+                severity=AlertSeverity.CRITICAL,
+                timestamp=datetime.now(),
+                metric_name="CPU Usage",
+                current_value=analysis["cpu_usage"]["current"],
+                threshold_value=self.alert_thresholds["cpu_usage"],
+                channel=[AlertChannel.EMAIL, AlertChannel.SLACK, AlertChannel.IN_APP]
+            ))
 
         # Check memory usage
-        if (
-            analysis.get("memory_usage", {}).get("current", 0)
-            > self.alert_thresholds["memory_usage"]
-        ):
-            issues.append(
-                {
-                    "type": "high_memory_usage",
-                    "severity": "high",
-                    "value": analysis["memory_usage"]["current"],
-                }
-            )
+        if analysis.get("memory_usage", {}).get("current", 0) > self.alert_thresholds["memory_usage"]:
+            issue = {
+                "type": "high_memory_usage",
+                "severity": "high",
+                "value": analysis["memory_usage"]["current"],
+            }
+            issues.append(issue)
+            alerts.append(Alert(
+                title="High Memory Usage Detected",
+                message=f"Memory usage has exceeded threshold: {analysis['memory_usage']['current']}%",
+                severity=AlertSeverity.CRITICAL,
+                timestamp=datetime.now(),
+                metric_name="Memory Usage",
+                current_value=analysis["memory_usage"]["current"],
+                threshold_value=self.alert_thresholds["memory_usage"],
+                channel=[AlertChannel.EMAIL, AlertChannel.SLACK, AlertChannel.IN_APP]
+            ))
 
         # Check for increasing trends
         for metric, data in analysis.items():
             if data.get("trend") == "increasing":
-                issues.append(
-                    {"type": f"increasing_{metric}", "severity": "medium", "value": data["current"]}
-                )
+                issue = {
+                    "type": f"increasing_{metric}",
+                    "severity": "medium",
+                    "value": data["current"]
+                }
+                issues.append(issue)
+                alerts.append(Alert(
+                    title=f"Increasing {metric.replace('_', ' ').title()} Trend",
+                    message=f"{metric.replace('_', ' ').title()} shows an increasing trend: {data['current']}",
+                    severity=AlertSeverity.WARNING,
+                    timestamp=datetime.now(),
+                    metric_name=metric,
+                    current_value=data["current"],
+                    threshold_value=data["mean"] * 1.2,  # 20% above mean as threshold
+                    channel=[AlertChannel.SLACK, AlertChannel.IN_APP]
+                ))
+
+        # Send alerts if any were generated
+        if alerts:
+            asyncio.create_task(self._send_alerts(alerts))
 
         return issues
+
+    async def _send_alerts(self, alerts: List[Alert]):
+        """Send alerts through the notification service"""
+        try:
+            for alert in alerts:
+                await self.notification_service.send_alert(alert)
+        except Exception as e:
+            self.logger.error(f"Failed to send alerts: {str(e)}")
 
     async def _apply_optimizations(self, issues: List[Dict]):
         """Apply automatic optimizations based on detected issues."""
@@ -301,3 +400,144 @@ class PerformanceMonitor:
                 )
 
         return recommendations
+
+    def start(self):
+        """Start the performance monitoring service"""
+        if self.is_running:
+            return
+        
+        self.is_running = True
+        self._monitor_thread = Thread(target=self._monitor_loop)
+        self._monitor_thread.daemon = True
+        self._monitor_thread.start()
+        self.logger.info("Performance monitoring started")
+
+    def stop(self):
+        """Stop the performance monitoring service"""
+        self.is_running = False
+        if self._monitor_thread:
+            self._monitor_thread.join()
+        self.logger.info("Performance monitoring stopped")
+
+    def _monitor_loop(self):
+        """Main monitoring loop"""
+        while self.is_running:
+            try:
+                self._collect_metrics()
+                self._save_metrics()
+                time.sleep(60)  # Collect metrics every minute
+            except Exception as e:
+                self.logger.error(f"Error in monitoring loop: {str(e)}")
+
+    def _collect_metrics(self):
+        """Collect various performance metrics"""
+        # System metrics
+        cpu_percent = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+
+        # Add system metrics
+        self._add_metric("CPU Usage", cpu_percent, "system", "%")
+        self._add_metric("Memory Usage", memory.percent, "system", "%")
+        self._add_metric("Disk Usage", disk.percent, "system", "%")
+
+        # Game-specific metrics (example)
+        self._collect_game_metrics()
+
+        # API metrics
+        self._collect_api_metrics()
+
+    def _collect_game_metrics(self):
+        """Collect game-specific performance metrics"""
+        # These would be integrated with your game engine
+        # Example metrics:
+        self._add_metric("Frame Rate", 60.0, "game", "fps")  # Placeholder
+        self._add_metric("Latency", 50.0, "game", "ms")  # Placeholder
+
+    def _collect_api_metrics(self):
+        """Collect API performance metrics"""
+        # These would be integrated with your API monitoring
+        # Example metrics:
+        self._add_metric("API Response Time", 100.0, "api", "ms")  # Placeholder
+        self._add_metric("API Error Rate", 0.1, "api", "%")  # Placeholder
+
+    def _add_metric(self, name: str, value: float, category: str, unit: str):
+        """Add a new metric to the collection"""
+        metric = PerformanceMetric(
+            name=name,
+            value=value,
+            timestamp=datetime.now(),
+            category=category,
+            unit=unit
+        )
+        self.metrics.append(metric)
+
+    def _save_metrics(self):
+        """Save collected metrics to file"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{self.metrics_dir}/metrics_{timestamp}.json"
+        
+        metrics_data = [
+            {
+                "name": m.name,
+                "value": m.value,
+                "timestamp": m.timestamp.isoformat(),
+                "category": m.category,
+                "unit": m.unit
+            }
+            for m in self.metrics
+        ]
+        
+        with open(filename, 'w') as f:
+            json.dump(metrics_data, f, indent=2)
+        
+        self.logger.info(f"Saved metrics to {filename}")
+        self.metrics.clear()  # Clear after saving
+
+    def get_latest_metrics(self) -> Dict[str, Dict]:
+        """Get the most recent metrics for each metric name"""
+        latest_metrics = {}
+        
+        # Find the most recent metrics file
+        metric_files = sorted([f for f in os.listdir(self.metrics_dir) if f.startswith('metrics_')])
+        if not metric_files:
+            return {}
+        
+        latest_file = os.path.join(self.metrics_dir, metric_files[-1])
+        with open(latest_file, 'r') as f:
+            metrics_data = json.load(f)
+        
+        # Group by metric name and get latest
+        for metric in metrics_data:
+            name = metric['name']
+            if name not in latest_metrics or \
+               metric['timestamp'] > latest_metrics[name]['timestamp']:
+                latest_metrics[name] = metric
+        
+        return latest_metrics
+
+    def get_metric_history(self, metric_name: str, hours: int = 24) -> List[Dict]:
+        """Get historical data for a specific metric"""
+        history = []
+        cutoff_time = datetime.now().timestamp() - (hours * 3600)
+        
+        metric_files = sorted([f for f in os.listdir(self.metrics_dir) if f.startswith('metrics_')])
+        for filename in metric_files:
+            with open(os.path.join(self.metrics_dir, filename), 'r') as f:
+                metrics_data = json.load(f)
+                for metric in metrics_data:
+                    if metric['name'] == metric_name and \
+                       datetime.fromisoformat(metric['timestamp']).timestamp() > cutoff_time:
+                        history.append(metric)
+        
+        return sorted(history, key=lambda x: x['timestamp'])
+
+# Example usage:
+if __name__ == "__main__":
+    monitor = PerformanceMonitor(None, None)
+    monitor.start()
+    try:
+        # Run for a while
+        time.sleep(300)  # 5 minutes
+    finally:
+        monitor.stop()

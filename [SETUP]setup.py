@@ -1,6 +1,6 @@
 """DojoPool package setup."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="dojopool",
@@ -22,4 +22,4 @@ setup(
         "gevent-websocket>=0.10.1",
     ],
     python_requires=">=3.11",
-) 
+)

@@ -1,170 +1,159 @@
 import React from 'react';
 import {
   Box,
-  Grid,
+  Typography,
   Card,
   CardContent,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Grid,
+  CircularProgress,
+  LinearProgress,
 } from '@mui/material';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import { styled } from '@mui/material/styles';
 
-const StatsCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-}));
+interface Statistics {
+  total_shots: number;
+  successful_shots: number;
+  average_difficulty: number;
+  average_power: number;
+  average_spin: number;
+  shot_types: {
+    [key: string]: number;
+  };
+  success_by_difficulty: {
+    easy: number;
+    medium: number;
+    hard: number;
+  };
+}
 
 interface GameStatisticsProps {
-  statistics: {
-    shot_stats: any;
-    positional_stats: any;
-    scoring_stats: any;
-    player_stats: any;
-  };
+  statistics: Statistics | null;
 }
 
 export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) => {
   if (!statistics) {
-    return <Typography color="textSecondary">No statistics available</Typography>;
+    return (
+      <Box>
+        <Typography variant="body1" color="text.secondary">
+          No statistics available for this game.
+        </Typography>
+      </Box>
+    );
   }
 
-  const prepareChartData = (stats: any) => {
-    return Object.entries(stats).map(([key, value]) => ({
-      name: key.replace(/_/g, ' ').toUpperCase(),
-      value: typeof value === 'number' ? value : 0,
-    }));
-  };
+  const successRate = Math.round(
+    (statistics.successful_shots / statistics.total_shots) * 100
+  );
 
   return (
     <Box>
+      <Typography variant="h6" gutterBottom>
+        Game Statistics
+      </Typography>
+
       <Grid container spacing={3}>
-        {/* Shot Statistics */}
+        {/* Overall Stats */}
         <Grid item xs={12}>
-          <StatsCard>
+          <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Shot Statistics
+                Overall Performance
               </Typography>
-              <Box sx={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer>
-                  <BarChart data={prepareChartData(statistics.shot_stats)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <Box textAlign="center">
+                    <Typography variant="subtitle1">Success Rate</Typography>
+                    <Box position="relative" display="inline-flex">
+                      <CircularProgress
+                        variant="determinate"
+                        value={successRate}
+                        size={80}
+                      />
+                      <Box
+                        position="absolute"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                      >
+                        <Typography variant="caption">{successRate}%</Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Box textAlign="center">
+                    <Typography variant="subtitle1">Average Difficulty</Typography>
+                    <Typography variant="h4">
+                      {statistics.average_difficulty.toFixed(1)}/10
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Box textAlign="center">
+                    <Typography variant="subtitle1">Total Shots</Typography>
+                    <Typography variant="h4">{statistics.total_shots}</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
             </CardContent>
-          </StatsCard>
+          </Card>
         </Grid>
 
-        {/* Positional Statistics */}
+        {/* Shot Types */}
         <Grid item xs={12} md={6}>
-          <StatsCard>
+          <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Positional Statistics
+                Shot Types
               </Typography>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Metric</TableCell>
-                      <TableCell align="right">Value</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.entries(statistics.positional_stats).map(([key, value]) => (
-                      <TableRow key={key}>
-                        <TableCell component="th" scope="row">
-                          {key.replace(/_/g, ' ').toUpperCase()}
-                        </TableCell>
-                        <TableCell align="right">
-                          {typeof value === 'number' ? value.toFixed(2) : value}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              {Object.entries(statistics.shot_types).map(([type, count]) => (
+                <Box key={type} mb={1}>
+                  <Typography variant="body2" gutterBottom>
+                    {type}: {count} shots
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={(count / statistics.total_shots) * 100}
+                  />
+                </Box>
+              ))}
             </CardContent>
-          </StatsCard>
+          </Card>
         </Grid>
 
-        {/* Scoring Statistics */}
+        {/* Success by Difficulty */}
         <Grid item xs={12} md={6}>
-          <StatsCard>
+          <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Scoring Statistics
+                Success by Difficulty
               </Typography>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Metric</TableCell>
-                      <TableCell align="right">Value</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.entries(statistics.scoring_stats).map(([key, value]) => (
-                      <TableRow key={key}>
-                        <TableCell component="th" scope="row">
-                          {key.replace(/_/g, ' ').toUpperCase()}
-                        </TableCell>
-                        <TableCell align="right">
-                          {typeof value === 'number' ? value.toFixed(2) : value}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              {Object.entries(statistics.success_by_difficulty).map(
+                ([difficulty, rate]) => (
+                  <Box key={difficulty} mb={1}>
+                    <Typography variant="body2" gutterBottom>
+                      {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}:{' '}
+                      {rate}%
+                    </Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={rate}
+                      color={
+                        difficulty === 'easy'
+                          ? 'success'
+                          : difficulty === 'medium'
+                          ? 'warning'
+                          : 'error'
+                      }
+                    />
+                  </Box>
+                )
+              )}
             </CardContent>
-          </StatsCard>
-        </Grid>
-
-        {/* Player Statistics */}
-        <Grid item xs={12}>
-          <StatsCard>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Player Statistics
-              </Typography>
-              <Box sx={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer>
-                  <BarChart data={prepareChartData(statistics.player_stats)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="value" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </StatsCard>
+          </Card>
         </Grid>
       </Grid>
     </Box>

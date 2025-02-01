@@ -1,0 +1,845 @@
+"""Venue models module."""
+
+from datetime import datetime, time, timedelta
+from enum import Enum
+from typing import Dict, List, Optional, Set, Tuple
+
+from sqlalchemy import (
+    JSON,
+    Column,
+    Integer,
+    String,
+    Float,
+    Boolean,
+    Text,
+    DateTime,
+    ForeignKey,
+    Time,
+    Enum as SQLEnum,
+)
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+
+from ..extensions import db
+from ..validation import VenueValidator
+from .base import BaseModel
+from .staff import StaffMember
+
+
+class VenueEventType(Enum):
+    """Venue event type enumeration."""
+
+    TOURNAMENT = "tournament"
+    LEAGUE = "league"
+    SOCIAL = "social"
+    TRAINING = "training"
+    SPECIAL = "special"
+
+
+class VenueEventStatus(Enum):
+    """Venue event status enumeration."""
+
+    UPCOMING = "upcoming"
+    ONGOING = "ongoing"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class VenueEvent(db.Model):
+    """Venue event model."""
+
+    __tablename__ = "venue_events"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    event_type = Column(SQLEnum(VenueEventType), nullable=False)
+    status = Column(SQLEnum(VenueEventStatus), default=VenueEventStatus.UPCOMING)
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=False)
+    registration_deadline = Column(DateTime)
+    max_participants = Column(Integer)
+    entry_fee = Column(Float)
+    prize_pool = Column(Float)
+    rules = Column(Text)
+    details = Column(JSON)  # Additional event details
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    venue = relationship("Venue", backref="events")
+    participants = relationship("VenueEventParticipant", back_populates="event")
+
+    def __repr__(self):
+        return f"<VenueEvent {self.name} at {self.venue_id}>"
+
+    def to_dict(self):
+        """Convert to dictionary representation."""
+        return {
+            "id": self.id,
+            "venue_id": self.venue_id,
+            "name": self.name,
+            "description": self.description,
+            "event_type": self.event_type.value,
+            "status": self.status.value,
+            "start_time": self.start_time.isoformat(),
+            "end_time": self.end_time.isoformat(),
+            "registration_deadline": (
+                self.registration_deadline.isoformat() if self.registration_deadline else None
+            ),
+            "max_participants": self.max_participants,
+            "entry_fee": self.entry_fee,
+            "prize_pool": self.prize_pool,
+            "rules": self.rules,
+            "details": self.details,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+    def start(self):
+        """Start the event."""
+        if self.status == VenueEventStatus.UPCOMING:
+            self.status = VenueEventStatus.ONGOING
+            db.session.commit()
+
+    def complete(self):
+        """Complete the event."""
+        if self.status == VenueEventStatus.ONGOING:
+            self.status = VenueEventStatus.COMPLETED
+            db.session.commit()
+
+    def cancel(self):
+        """Cancel the event."""
+        if self.status != VenueEventStatus.COMPLETED:
+            self.status = VenueEventStatus.CANCELLED
+            db.session.commit()
+
+    def is_registration_open(self):
+        """Check if registration is open."""
+        if self.status != VenueEventStatus.UPCOMING:
+            return False
+
+        if self.registration_deadline:
+            return datetime.utcnow() <= self.registration_deadline
+
+        return True
+
+    def is_full(self):
+        """Check if event is full."""
+        if not self.max_participants:
+            return False
+
+        return self.participants.count() >= self.max_participants
+
+
+class VenueEventParticipant(db.Model):
+    """Venue event participant model."""
+
+    __tablename__ = "venue_event_participants"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    event_id = Column(Integer, ForeignKey("venue_events.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(
+        String(20), default="registered"
+    )  # registered, checked_in, completed, cancelled
+    checked_in_at = Column(DateTime)
+    checked_out_at = Column(DateTime)
+    placement = Column(Integer)  # For competitive events
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    event = relationship("VenueEvent", back_populates="participants")
+    user = relationship("User", backref="event_participations")
+
+    def __repr__(self):
+        return f"<VenueEventParticipant {self.user_id} in {self.event_id}>"
+
+    def to_dict(self):
+        """Convert to dictionary representation."""
+        return {
+            "id": self.id,
+            "event_id": self.event_id,
+            "user_id": self.user_id,
+            "status": self.status,
+            "checked_in_at": self.checked_in_at.isoformat() if self.checked_in_at else None,
+            "checked_out_at": self.checked_out_at.isoformat() if self.checked_out_at else None,
+            "placement": self.placement,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+    def check_in(self):
+        """Check in participant."""
+        if self.status == "registered":
+            self.status = "checked_in"
+            self.checked_in_at = datetime.utcnow()
+            db.session.commit()
+
+    def check_out(self):
+        """Check out participant."""
+        if self.status == "checked_in":
+            self.status = "completed"
+            self.checked_out_at = datetime.utcnow()
+            db.session.commit()
+
+    def cancel(self):
+        """Cancel participation."""
+        if self.status != "completed":
+            self.status = "cancelled"
+            db.session.commit()
+
+
+class VenueEquipment:
+    """Represents a piece of equipment in a venue."""
+
+    def __init__(
+        self,
+        equipment_type: str,
+        serial_number: str,
+        installation_date: datetime,
+        last_maintenance: Optional[datetime] = None,
+        status: str = "active",
+    ):
+        self.type = equipment_type
+        self.serial_number = serial_number
+        self.installation_date = installation_date
+        self.last_maintenance = last_maintenance
+        self.status = status
+        self.maintenance_history: List[Dict] = []
+
+
+class Venue(db.Model):
+    """Represents a pool venue in the system."""
+
+    __tablename__ = "venues"
+    __table_args__ = {"extend_existing": True}
+
+    # Basic fields
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    address = Column(String(255), nullable=False)
+    city = Column(String(100), nullable=False)
+    state = Column(String(50), nullable=False)
+    country = Column(String(50), nullable=False)
+    postal_code = Column(String(20), nullable=False)
+    phone = Column(String(20))
+    email = Column(String(100))
+    website = Column(String(255))
+
+    # Capacity and equipment
+    capacity = Column(Integer)  # Total venue capacity
+    tables = Column(Integer)  # Number of pool tables
+    table_rate = Column(Float)  # Hourly rate per table
+
+    # Status and ratings
+    rating = Column(Float)  # Average rating
+    review_count = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    status = Column(String(20), default="active")  # active, maintenance, closed
+
+    # Location
+    latitude = Column(Float)
+    longitude = Column(Float)
+
+    # Media and links
+    photos = Column(JSON)  # List of photo URLs
+    social_links = Column(JSON)  # Social media links
+    featured_image = Column(String(255))  # Main venue image
+    virtual_tour = Column(String(255))  # Virtual tour URL
+
+    # Additional info
+    hours_data = Column(JSON)  # Operating hours data
+    amenities_summary = Column(JSON)  # Quick access to available amenities
+    rules = Column(Text)  # Venue rules and policies
+    notes = Column(Text)  # Internal notes
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    checkins = relationship("VenueCheckIn", back_populates="venue")
+    operating_hours = relationship("VenueOperatingHours", back_populates="venue")
+    amenities = relationship("VenueAmenity", back_populates="venue")
+    leaderboard_entries = relationship("VenueLeaderboard", back_populates="venue")
+
+    # Validation
+    validator_class = VenueValidator
+
+    def __init__(
+        self,
+        name: str,
+        address: str,
+        city: str,
+        state: str,
+        country: str,
+        postal_code: str,
+        tables: int,
+        latitude: float = None,
+        longitude: float = None,
+        contact_email: str = None,
+        contact_phone: str = None,
+        status: str = "active",
+    ):
+        """Initialize venue."""
+        self.name = name
+        self.address = address
+        self.city = city
+        self.state = state
+        self.country = country
+        self.postal_code = postal_code
+        self.tables = tables
+        self.latitude = latitude
+        self.longitude = longitude
+        self.email = contact_email
+        self.phone = contact_phone
+        self.status = status
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
+
+        # Onboarding fields
+        self.verification_date: Optional[datetime] = None
+        self.verification_notes: Optional[str] = None
+        self.equipment_setup_date: Optional[datetime] = None
+        self.staff_training_date: Optional[datetime] = None
+        self.integration_test_date: Optional[datetime] = None
+        self.activation_date: Optional[datetime] = None
+
+        # Equipment and staff
+        self.equipment: List[VenueEquipment] = []
+        self.trained_staff: List[StaffMember] = []
+
+        # API and integration
+        self.api_key: Optional[str] = None
+        self.test_results: Dict = {}
+
+        # Analytics and metrics
+        self.total_games: int = 0
+        self.active_games: int = 0
+        self.revenue: float = 0.0
+        self.rating: float = 0.0
+        self.reviews: List[Dict] = []
+
+    @classmethod
+    def get(cls, venue_id: str) -> Optional["Venue"]:
+        """Get a venue by ID."""
+        # Implement database retrieval
+        return None
+
+    @classmethod
+    def get_all(cls) -> List["Venue"]:
+        """Get all venues."""
+        # Implement database retrieval
+        return []
+
+    def save(self) -> bool:
+        """Save venue to database."""
+        try:
+            # Implement database save
+            return True
+        except Exception:
+            return False
+
+    def add_equipment(self, equipment: VenueEquipment) -> bool:
+        """Add a piece of equipment to the venue."""
+        try:
+            self.equipment.append(equipment)
+            return True
+        except Exception:
+            return False
+
+    def add_staff_member(self, staff: StaffMember) -> bool:
+        """Add a staff member to the venue."""
+        try:
+            self.trained_staff.append(staff)
+            return True
+        except Exception:
+            return False
+
+    def update_status(self, new_status: str) -> bool:
+        """Update venue status."""
+        try:
+            self.status = new_status
+            return True
+        except Exception:
+            return False
+
+    def get_analytics(self) -> Dict:
+        """Get venue analytics data."""
+        return {
+            "total_games": self.total_games,
+            "active_games": self.active_games,
+            "revenue": self.revenue,
+            "rating": self.rating,
+            "num_reviews": len(self.reviews),
+            "equipment_status": self._get_equipment_status(),
+            "staff_coverage": self._get_staff_coverage(),
+        }
+
+    def _get_equipment_status(self) -> Dict:
+        """Get status of all equipment."""
+        status_counts = {}
+        for eq in self.equipment:
+            status_counts[eq.status] = status_counts.get(eq.status, 0) + 1
+        return status_counts
+
+    def _get_staff_coverage(self) -> Dict:
+        """Get staff coverage metrics."""
+        return {
+            "total_staff": len(self.trained_staff),
+            "active_staff": len([s for s in self.trained_staff if s.is_active]),
+            "training_completion": (
+                sum(s.training_completed for s in self.trained_staff) / len(self.trained_staff)
+                if self.trained_staff
+                else 0
+            ),
+        }
+
+    def __repr__(self):
+        return f"<Venue {self.name}>"
+
+    @hybrid_property
+    def average_rating(self):
+        """Get calculated average rating."""
+        if not self.review_count:
+            return None
+        return round(self.rating, 1)
+
+    @hybrid_property
+    def is_open(self):
+        """Check if venue is currently open."""
+        current_time = datetime.now()
+        current_day = current_time.weekday()
+        hours = self.operating_hours.filter_by(day_of_week=current_day).first()
+        return hours and hours.is_open(current_time.time())
+
+    def get_available_tables(self, start_time=None, duration=None):
+        """Get number of available tables.
+
+        Args:
+            start_time: Start time to check (defaults to current time)
+            duration: Duration in hours
+
+        Returns:
+            int: Number of available tables
+        """
+        start_time = start_time or datetime.now()
+
+        # Get active games during the period
+        active_games = self.games.filter(
+            db.or_(
+                db.and_(Game.start_time <= start_time, Game.end_time >= start_time),
+                (
+                    db.and_(
+                        Game.start_time >= start_time,
+                        Game.start_time <= start_time + timedelta(hours=duration or 1),
+                    )
+                    if duration
+                    else False
+                ),
+            )
+        ).count()
+
+        return self.tables - active_games
+
+    def deactivate(self, reason=None):
+        """Deactivate venue.
+
+        Args:
+            reason: Deactivation reason
+        """
+        self.is_active = False
+        self.status = "closed"
+        if reason:
+            self.notes = reason
+        db.session.commit()
+
+    def activate(self):
+        """Activate venue."""
+        self.is_active = True
+        self.status = "active"
+        db.session.commit()
+
+    def update_rating(self, new_rating):
+        """Update venue rating.
+
+        Args:
+            new_rating: New rating value
+        """
+        if self.rating is None:
+            self.rating = new_rating
+            self.review_count = 1
+        else:
+            total = self.rating * self.review_count
+            self.review_count += 1
+            self.rating = (total + new_rating) / self.review_count
+        db.session.commit()
+
+    def add_photo(self, photo_url, is_featured=False):
+        """Add photo to venue.
+
+        Args:
+            photo_url: URL of photo
+            is_featured: Whether to set as featured image
+        """
+        if not self.photos:
+            self.photos = []
+        self.photos.append(photo_url)
+        if is_featured:
+            self.featured_image = photo_url
+        db.session.commit()
+
+    def remove_photo(self, photo_url):
+        """Remove photo from venue.
+
+        Args:
+            photo_url: URL of photo to remove
+        """
+        if self.photos and photo_url in self.photos:
+            self.photos.remove(photo_url)
+            if self.featured_image == photo_url:
+                self.featured_image = self.photos[0] if self.photos else None
+            db.session.commit()
+
+    def update_amenities_summary(self):
+        """Update amenities summary."""
+        self.amenities_summary = {amenity.name: amenity.is_available for amenity in self.amenities}
+        db.session.commit()
+
+    @classmethod
+    def search(cls, query=None, city=None, state=None, is_active=True):
+        """Search venues.
+
+        Args:
+            query: Search query
+            city: City filter
+            state: State filter
+            is_active: Active status filter
+
+        Returns:
+            list: Matching venues
+        """
+        filters = [cls.is_active == is_active] if is_active is not None else []
+
+        if query:
+            filters.append(
+                db.or_(cls.name.ilike(f"%{query}%"), cls.description.ilike(f"%{query}%"))
+            )
+
+        if city:
+            filters.append(cls.city.ilike(f"%{city}%"))
+
+        if state:
+            filters.append(cls.state.ilike(f"%{state}%"))
+
+        return cls.query.filter(*filters).all()
+
+
+class VenueCheckIn(db.Model):
+    """Venue check-in model."""
+
+    __tablename__ = "venue_checkins"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    checked_in_at = Column(DateTime, default=datetime.utcnow)
+    checked_out_at = Column(DateTime)
+    table_number = Column(Integer)
+    game_type = Column(String(50))  # e.g., "8-ball", "9-ball", etc.
+
+    # Relationships
+    venue = relationship("Venue", back_populates="checkins")
+    user = relationship("User", backref="venue_checkins")
+
+    def __repr__(self):
+        return f"<VenueCheckIn {self.user_id} at {self.venue_id}>"
+
+    @property
+    def duration(self):
+        """Calculate duration of stay in minutes."""
+        if not self.checked_out_at:
+            return None
+        delta = self.checked_out_at - self.checked_in_at
+        return int(delta.total_seconds() / 60)
+
+
+class VenueLeaderboard(db.Model):
+    """Venue leaderboard model."""
+
+    __tablename__ = "venue_leaderboards"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    points = Column(Integer, default=0)
+    wins = Column(Integer, default=0)
+    losses = Column(Integer, default=0)
+    current_streak = Column(Integer, default=0)
+    highest_streak = Column(Integer, default=0)
+    last_played = Column(DateTime)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    venue = relationship("Venue", back_populates="leaderboard_entries")
+    user = relationship("User", backref="venue_leaderboard_entries")
+
+    def __repr__(self):
+        return f"<VenueLeaderboard {self.user_id} at {self.venue_id}>"
+
+    def to_dict(self):
+        """Convert to dictionary representation."""
+        return {
+            "id": self.id,
+            "venue_id": self.venue_id,
+            "user_id": self.user_id,
+            "points": self.points,
+            "wins": self.wins,
+            "losses": self.losses,
+            "current_streak": self.current_streak,
+            "highest_streak": self.highest_streak,
+            "last_played": self.last_played.isoformat() if self.last_played else None,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+
+class VenueAmenity(db.Model):
+    """Venue amenity model."""
+
+    __tablename__ = "venue_amenities"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
+    name = Column(String(100), nullable=False)  # parking, food, bar, etc.
+    description = Column(Text)
+    icon = Column(String(50))  # Icon identifier
+    is_available = Column(Boolean, default=True)
+    details = Column(JSON)  # Additional amenity details
+    price = Column(Float)  # Price if amenity is paid
+    schedule = Column(JSON)  # Availability schedule
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    venue = relationship("Venue", back_populates="amenities")
+
+    # Validation
+    validator_class = VenueValidator
+
+    def __repr__(self):
+        return f"<VenueAmenity {self.venue_id}:{self.name}>"
+
+    def set_availability(self, is_available, reason=None):
+        """Set amenity availability.
+
+        Args:
+            is_available: Availability status
+            reason: Reason for change
+        """
+        self.is_available = is_available
+        if reason:
+            self.notes = reason
+        self.venue.update_amenities_summary()
+        db.session.commit()
+
+    def update_schedule(self, schedule_data):
+        """Update amenity schedule.
+
+        Args:
+            schedule_data: New schedule data
+        """
+        self.schedule = schedule_data
+        db.session.commit()
+
+    def is_available_at(self, check_time=None):
+        """Check if amenity is available at given time.
+
+        Args:
+            check_time: Time to check (defaults to current time)
+
+        Returns:
+            bool: True if available
+        """
+        if not self.is_available or not self.schedule:
+            return False
+
+        check_time = check_time or datetime.now()
+        day_schedule = self.schedule.get(str(check_time.weekday()))
+
+        if not day_schedule:
+            return False
+
+        check_time = check_time.time()
+        return any(
+            time.fromisoformat(slot["start"]) <= check_time <= time.fromisoformat(slot["end"])
+            for slot in day_schedule
+        )
+
+
+class VenueOperatingHours(db.Model):
+    """Venue operating hours model."""
+
+    __tablename__ = "venue_operating_hours"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
+    day_of_week = Column(Integer, nullable=False)  # 0=Monday, 6=Sunday
+    open_time = Column(Time, nullable=False)
+    close_time = Column(Time, nullable=False)
+    is_closed = Column(Boolean, default=False)
+    special_hours = Column(Boolean, default=False)  # For holidays, events, etc.
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    venue = relationship("Venue", back_populates="operating_hours")
+
+    # Validation
+    validator_class = VenueValidator
+
+    def __repr__(self):
+        return f"<VenueOperatingHours {self.venue_id}:{self.day_of_week}>"
+
+    @hybrid_property
+    def is_24h(self):
+        """Check if venue is open 24 hours."""
+        return self.open_time == time(0, 0) and self.close_time == time(23, 59)
+
+    @hybrid_property
+    def duration(self):
+        """Get operating duration in hours."""
+        if self.is_closed:
+            return 0
+
+        open_dt = datetime.combine(datetime.today(), self.open_time)
+        close_dt = datetime.combine(datetime.today(), self.close_time)
+
+        if close_dt < open_dt:  # Handles case where venue is open past midnight
+            close_dt += timedelta(days=1)
+
+        return (close_dt - open_dt).total_seconds() / 3600
+
+    def is_open(self, current_time=None):
+        """Check if venue is open at given time.
+
+        Args:
+            current_time: Time to check (defaults to current time)
+
+        Returns:
+            bool: True if venue is open
+        """
+        if self.is_closed:
+            return False
+
+        current_time = current_time or datetime.now().time()
+
+        if self.is_24h:
+            return True
+
+        if self.open_time <= self.close_time:
+            return self.open_time <= current_time <= self.close_time
+        else:  # Handles case where venue is open past midnight
+            return current_time >= self.open_time or current_time <= self.close_time
+
+    def set_hours(self, open_time, close_time, notes=None):
+        """Set operating hours.
+
+        Args:
+            open_time: Opening time
+            close_time: Closing time
+            notes: Optional notes
+        """
+        self.open_time = open_time
+        self.close_time = close_time
+        if notes:
+            self.notes = notes
+        db.session.commit()
+
+    def close(self, reason=None):
+        """Mark venue as closed for the day.
+
+        Args:
+            reason: Closure reason
+        """
+        self.is_closed = True
+        if reason:
+            self.notes = reason
+        db.session.commit()
+
+    def open(self):
+        """Mark venue as open for the day."""
+        self.is_closed = False
+        db.session.commit()
+
+    def set_special_hours(self, is_special=True, notes=None):
+        """Set special hours status.
+
+        Args:
+            is_special: Special hours status
+            notes: Optional notes
+        """
+        self.special_hours = is_special
+        if notes:
+            self.notes = notes
+        db.session.commit()
+
+    @classmethod
+    def get_current_status(cls, venue_id):
+        """Get current operating status for venue.
+
+        Args:
+            venue_id: Venue ID
+
+        Returns:
+            dict: Operating status
+        """
+        current_time = datetime.now()
+        hours = cls.query.filter_by(venue_id=venue_id, day_of_week=current_time.weekday()).first()
+
+        if not hours:
+            return {"status": "unknown"}
+
+        is_open = hours.is_open(current_time.time())
+        next_change = None
+
+        if is_open:
+            next_change = datetime.combine(current_time.date(), hours.close_time)
+            if next_change < current_time:
+                next_change += timedelta(days=1)
+        else:
+            next_change = datetime.combine(current_time.date(), hours.open_time)
+            if next_change < current_time:
+                next_change += timedelta(days=1)
+
+        return {
+            "status": "open" if is_open else "closed",
+            "next_change": next_change,
+            "special_hours": hours.special_hours,
+            "notes": hours.notes,
+        }

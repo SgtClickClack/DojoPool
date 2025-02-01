@@ -1,15 +1,17 @@
 """Venue routes for managing dojo venues."""
 
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, jsonify, g, current_app, abort
-from flask_login import login_required, current_user
+
+from flask import Blueprint, jsonify, render_template, request
+from flask_login import current_user, login_required
 from sqlalchemy import func
-from ..models.venue import Venue, VenueCheckin
-from ..models.tournament import Tournament
-from ..models.user import User
+
+from ..core.database import db
+from ..core.models.auth import User
+from ..core.models.tournament import Tournament
+from ..core.models.venue import Venue, VenueCheckIn
 from ..services.checkin_service import CheckInService
-from ..core.auth import admin_required
-from ..database import db
+from ..utils.decorators import admin_required
 
 bp = Blueprint("venue", __name__, url_prefix="/venues")
 
@@ -21,7 +23,7 @@ def venue_list():
     # Get basic venue stats
     total_venues = Venue.query.count()
     open_venues = sum(1 for v in Venue.query.all() if v.is_open)
-    total_active_players = VenueCheckin.query.filter_by(checked_out_at=None).count()
+    total_active_players = VenueCheckIn.query.filter_by(checked_out_at=None).count()
     active_tournaments = Tournament.query.filter_by(status="ongoing").count()
 
     # Get user's recent venues if logged in
@@ -36,7 +38,7 @@ def venue_list():
     if current_user.is_authenticated:
         user_checkins = {
             c.venue_id
-            for c in VenueCheckin.query.filter_by(
+            for c in VenueCheckIn.query.filter_by(
                 user_id=current_user.id, checked_out_at=None
             ).all()
         }
@@ -63,7 +65,7 @@ def venue_detail(venue_id):
     if current_user.is_authenticated:
         user_checkins = {
             c.venue_id
-            for c in VenueCheckin.query.filter_by(
+            for c in VenueCheckIn.query.filter_by(
                 user_id=current_user.id, checked_out_at=None
             ).all()
         }
@@ -182,18 +184,18 @@ def venue_stats(venue_id):
 
     detailed_stats = []
     metrics = [
-        ("Total Check-ins", VenueCheckin.query.filter_by(venue_id=venue_id)),
-        ("Average Duration", VenueCheckin.query.filter_by(venue_id=venue_id)),
+        ("Total Check-ins", VenueCheckIn.query.filter_by(venue_id=venue_id)),
+        ("Average Duration", VenueCheckIn.query.filter_by(venue_id=venue_id)),
         ("Tournament Participation", Tournament.query.filter_by(venue_id=venue_id)),
     ]
 
     for name, query in metrics:
         current_value = query.filter(
-            VenueCheckin.checked_in_at >= current_start, VenueCheckin.checked_in_at < now
+            VenueCheckIn.checked_in_at >= current_start, VenueCheckIn.checked_in_at < now
         ).count()
 
         previous_value = query.filter(
-            VenueCheckin.checked_in_at >= previous_start, VenueCheckin.checked_in_at < current_start
+            VenueCheckIn.checked_in_at >= previous_start, VenueCheckIn.checked_in_at < current_start
         ).count()
 
         if previous_value > 0:
@@ -223,17 +225,17 @@ def venue_leaderboard(venue_id):
     # Get leaderboard data
     leaderboard_query = (
         db.session.query(
-            VenueCheckin.user_id,
-            func.count(VenueCheckin.id).label("games_played"),
-            func.avg(VenueCheckin.duration).label("avg_duration"),
+            VenueCheckIn.user_id,
+            func.count(VenueCheckIn.id).label("games_played"),
+            func.avg(VenueCheckIn.duration).label("avg_duration"),
         )
         .filter_by(venue_id=venue_id)
-        .group_by(VenueCheckin.user_id)
-        .order_by(func.count(VenueCheckin.id).desc())
+        .group_by(VenueCheckIn.user_id)
+        .order_by(func.count(VenueCheckIn.id).desc())
     )
 
     leaderboard = []
-    for rank, (user_id, games_played, avg_duration) in enumerate(leaderboard_query, 1):
+    for rank, (user_id, games_played, _avg_duration) in enumerate(leaderboard_query, 1):
         user = User.query.get(user_id)
         if user:
             leaderboard.append(

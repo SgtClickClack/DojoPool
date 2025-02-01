@@ -5,25 +5,55 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - FLASK_APP=src.dojopool.app
-      - FLASK_ENV=production
-      - PYTHONPATH=/app
-      - PYTHONUNBUFFERED=1
-      - GUNICORN_CMD_ARGS=--bind=0.0.0.0:5000 --workers=4 --timeout=120 --log-level=debug --error-logfile=- --access-logfile=-
-      # Google OAuth settings
-      - GOOGLE_CLIENT_ID=1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com
-      - GOOGLE_CLIENT_SECRET=GOCSPX-abcdefghijklmnopqrstuvwxyz
-      - GOOGLE_MAPS_API_KEY=AIzaSyABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
-      # Session settings
-      - SECRET_KEY=your-super-secret-key-change-this-in-production
+    env_file: .env
     ports:
       - "8080:5000"
     volumes:
       - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - log_volume:/app/logs
+    depends_on:
+      - postgres
+      - redis
     restart: unless-stopped
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+  postgres:
+    image: postgres:14-alpine
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dojopool"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:
+  log_volume:

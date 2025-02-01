@@ -27,7 +27,7 @@ import {
 import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { NetworkStatus } from '../../services/networkStatus';
+import { NetworkStatus } from '../../services/[NET]networkStatus';
 import { VirtualizedList } from '../VirtualizedList';
 
 interface PerformanceMetrics {

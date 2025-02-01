@@ -1,13 +1,14 @@
 """Service for managing venue check-ins and check-outs."""
 
-from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import func
-from dojopool.core.database import db
-from dojopool.models.venue import Venue, VenueCheckin
-from dojopool.models.notification import Notification
-from dojopool.models.user import User
+
+from ..core.extensions import db
+from ..core.models.auth import User
+from ..core.models.notification import Notification
+from ..core.models.venue import Venue, VenueCheckIn
 
 
 class CheckInService:
@@ -23,7 +24,7 @@ class CheckInService:
         venue_id: int,
         table_number: Optional[int] = None,
         game_type: Optional[str] = None,
-    ) -> VenueCheckin:
+    ) -> VenueCheckIn:
         """Check a user into a venue.
 
         Args:
@@ -33,7 +34,7 @@ class CheckInService:
             game_type: Optional game type being played
 
         Returns:
-            The created VenueCheckin record
+            The created VenueCheckIn record
 
         Raises:
             ValueError: If user is already checked in somewhere or venue is invalid
@@ -46,7 +47,7 @@ class CheckInService:
             raise ValueError("Invalid user or venue ID")
 
         # Check if user is already checked in somewhere
-        existing_checkin = VenueCheckin.query.filter_by(
+        existing_checkin = VenueCheckIn.query.filter_by(
             user_id=user_id, checked_out_at=None
         ).first()
 
@@ -61,7 +62,7 @@ class CheckInService:
             if table_number > venue.total_tables:
                 raise ValueError("Invalid table number")
 
-            table_occupied = VenueCheckin.query.filter_by(
+            table_occupied = VenueCheckIn.query.filter_by(
                 venue_id=venue_id, table_number=table_number, checked_out_at=None
             ).first()
 
@@ -69,7 +70,7 @@ class CheckInService:
                 raise ValueError("Table is already occupied")
 
         # Create check-in record
-        checkin = VenueCheckin(
+        checkin = VenueCheckIn(
             user_id=user_id, venue_id=venue_id, table_number=table_number, game_type=game_type
         )
 
@@ -101,7 +102,7 @@ class CheckInService:
         return checkin
 
     @classmethod
-    def check_out(cls, user_id: int, venue_id: int) -> VenueCheckin:
+    def check_out(cls, user_id: int, venue_id: int) -> VenueCheckIn:
         """Check a user out of a venue.
 
         Args:
@@ -109,13 +110,13 @@ class CheckInService:
             venue_id: ID of the venue to check out from
 
         Returns:
-            The updated VenueCheckin record
+            The updated VenueCheckIn record
 
         Raises:
             ValueError: If user isn't checked in or venue doesn't match
         """
         # Find active check-in
-        checkin = VenueCheckin.query.filter_by(
+        checkin = VenueCheckIn.query.filter_by(
             user_id=user_id, venue_id=venue_id, checked_out_at=None
         ).first()
 
@@ -148,8 +149,8 @@ class CheckInService:
             List[Dict[str, Any]]: List of active check-ins
         """
         checkins = (
-            VenueCheckin.query.filter_by(venue_id=venue_id, checked_out_at=None)
-            .order_by(VenueCheckin.checked_in_at.desc())
+            VenueCheckIn.query.filter_by(venue_id=venue_id, checked_out_at=None)
+            .order_by(VenueCheckIn.checked_in_at.desc())
             .offset(offset)
             .limit(limit)
             .all()
@@ -189,15 +190,15 @@ class CheckInService:
         Returns:
             List[Dict[str, Any]]: List of check-in records
         """
-        query = VenueCheckin.query.filter_by(venue_id=venue_id)
+        query = VenueCheckIn.query.filter_by(venue_id=venue_id)
 
         if start_date:
-            query = query.filter(VenueCheckin.checked_in_at >= start_date)
+            query = query.filter(VenueCheckIn.checked_in_at >= start_date)
         if end_date:
-            query = query.filter(VenueCheckin.checked_in_at <= end_date)
+            query = query.filter(VenueCheckIn.checked_in_at <= end_date)
 
         checkins = (
-            query.order_by(VenueCheckin.checked_in_at.desc()).offset(offset).limit(limit).all()
+            query.order_by(VenueCheckIn.checked_in_at.desc()).offset(offset).limit(limit).all()
         )
 
         return [
@@ -243,10 +244,10 @@ class CheckInService:
         # Get check-in counts by hour
         checkins_by_hour = (
             db.session.query(
-                func.date_trunc("hour", VenueCheckin.checked_in_at), func.count(VenueCheckin.id)
+                func.date_trunc("hour", VenueCheckIn.checked_in_at), func.count(VenueCheckIn.id)
             )
-            .filter(VenueCheckin.venue_id == venue_id, VenueCheckin.checked_in_at >= start_date)
-            .group_by(func.date_trunc("hour", VenueCheckin.checked_in_at))
+            .filter(VenueCheckIn.venue_id == venue_id, VenueCheckIn.checked_in_at >= start_date)
+            .group_by(func.date_trunc("hour", VenueCheckIn.checked_in_at))
             .all()
         )
 

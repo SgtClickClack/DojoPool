@@ -33,3 +33,56 @@ export const MONITORING_CONFIG = {
   metricsInterval: 5000,
   retentionPeriod: 24 * 60 * 60 * 1000, // 24 hours
 };
+
+// Map Configuration
+export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+export const DEFAULT_MAP_OPTIONS = {
+  disableDefaultUI: true,
+  zoomControl: true,
+  mapTypeControl: false,
+  scaleControl: true,
+  streetViewControl: false,
+  rotateControl: false,
+  fullscreenControl: true,
+  gestureHandling: 'greedy',
+  clickableIcons: false,
+  zoom: 15,
+};
+
+export const MAP_STYLES = [
+  {
+    featureType: 'all',
+    elementType: 'geometry',
+    stylers: [{ color: '#242f3e' }],
+  },
+  {
+    featureType: 'all',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#242f3e' }],
+  },
+  {
+    featureType: 'all',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#746855' }],
+  },
+  {
+    featureType: 'water',
+    elementType: 'geometry',
+    stylers: [{ color: '#17263c' }],
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#515c6d' }],
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#17263c' }],
+  },
+];
+
+// Animation Configuration
+export const PLAYER_MARKER_RADIUS = 50; // meters
+export const ANIMATION_DURATION = 1000; // milliseconds

@@ -4,9 +4,11 @@ This module provides validation decorators for request data.
 """
 
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Optional, Type
+
+from flask import jsonify, request
 from marshmallow import Schema, ValidationError
-from flask import request, jsonify
+
 from .base import BaseValidator
 
 
@@ -52,9 +54,7 @@ def validate_with(
                     if error_handler:
                         return error_handler(result.errors)
                     return (
-                        jsonify(
-                            {"error": "Validation failed", "errors": result.errors}
-                        ),
+                        jsonify({"error": "Validation failed", "errors": result.errors}),
                         error_status_code,
                     )
 

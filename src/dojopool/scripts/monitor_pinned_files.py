@@ -1,20 +1,17 @@
-import os
-import re
-from pathlib import Path
-from datetime import datetime
 import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
 import yaml
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('pinned_files.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("pinned_files.log"), logging.StreamHandler()],
 )
+
 
 class PinnedFile:
     def __init__(self, path: str, purpose: str, update_frequency: str, priority: str):
@@ -36,10 +33,10 @@ class PinnedFile:
 
         self.exists = True
         self.last_modified = datetime.fromtimestamp(self.path.stat().st_mtime)
-        
+
         # Check if file needs attention based on update frequency
         days_since_update = (datetime.now() - self.last_modified).days
-        
+
         if "daily" in self.update_frequency.lower():
             if days_since_update > 1:
                 self.status = "Needs Update"
@@ -58,10 +55,11 @@ class PinnedFile:
         else:
             self.status = "Current"  # For "as needed" or other frequencies
 
+
 class PinnedFileMonitor:
     def __init__(self):
         """Initialize the pinned file monitor."""
-        self.base_path = Path('docs/PINNED_FILES.md')
+        self.base_path = Path("docs/PINNED_FILES.md")
         self.pinned_files: Dict[str, PinnedFile] = {}
         self.load_pinned_files()
 
@@ -72,22 +70,22 @@ class PinnedFileMonitor:
         in_table = False
         headers = []
 
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             line = line.strip()
             if not line:
                 continue
 
-            if line.startswith('|'):
+            if line.startswith("|"):
                 if not in_table:
                     # First row is headers
-                    headers = [h.strip() for h in line.strip('|').split('|')]
+                    headers = [h.strip() for h in line.strip("|").split("|")]
                     in_table = True
-                elif '---' in line:
+                elif "---" in line:
                     # Separator row, skip
                     continue
                 else:
                     # Data row
-                    values = [v.strip() for v in line.strip('|').split('|')]
+                    values = [v.strip() for v in line.strip("|").split("|")]
                     if len(values) == len(headers):
                         row = dict(zip(headers, values))
                         current_table.append(row)
@@ -114,13 +112,13 @@ class PinnedFileMonitor:
         tables = self.parse_markdown_table(content)
 
         for row in tables:
-            path = row.get('File Path', '').strip('`')
+            path = row.get("File Path", "").strip("`")
             if path:
                 self.pinned_files[path] = PinnedFile(
                     path=path,
-                    purpose=row.get('Purpose', ''),
-                    update_frequency=row.get('Update Frequency', ''),
-                    priority=row.get('Priority', 'Low')
+                    purpose=row.get("Purpose", ""),
+                    update_frequency=row.get("Update Frequency", ""),
+                    priority=row.get("Priority", "Low"),
                 )
 
     def check_files(self) -> Tuple[List[str], List[str], List[str]]:
@@ -131,7 +129,7 @@ class PinnedFileMonitor:
 
         for path, pinned_file in self.pinned_files.items():
             pinned_file.update_status()
-            
+
             if not pinned_file.exists:
                 missing.append(path)
             elif pinned_file.status == "Needs Update":
@@ -144,10 +142,10 @@ class PinnedFileMonitor:
     def generate_report(self):
         """Generate a report of pinned files status."""
         missing, outdated, current = self.check_files()
-        
+
         logging.info("\nPinned Files Status Report")
         logging.info("=========================")
-        
+
         if missing:
             logging.warning("\nMissing Files:")
             for path in missing:
@@ -178,27 +176,29 @@ class PinnedFileMonitor:
     def export_status(self):
         """Export the current status to YAML for other tools."""
         status = {
-            'timestamp': datetime.now().isoformat(),
-            'files': {
+            "timestamp": datetime.now().isoformat(),
+            "files": {
                 path: {
-                    'exists': file.exists,
-                    'status': file.status,
-                    'last_modified': file.last_modified.isoformat() if file.last_modified else None,
-                    'priority': file.priority,
-                    'update_frequency': file.update_frequency,
-                    'purpose': file.purpose
+                    "exists": file.exists,
+                    "status": file.status,
+                    "last_modified": file.last_modified.isoformat() if file.last_modified else None,
+                    "priority": file.priority,
+                    "update_frequency": file.update_frequency,
+                    "purpose": file.purpose,
                 }
                 for path, file in self.pinned_files.items()
-            }
+            },
         }
 
-        with open('pinned_files_status.yaml', 'w') as f:
+        with open("pinned_files_status.yaml", "w") as f:
             yaml.dump(status, f, default_flow_style=False)
+
 
 def main():
     monitor = PinnedFileMonitor()
     monitor.generate_report()
     monitor.export_status()
 
-if __name__ == '__main__':
-    main() 
+
+if __name__ == "__main__":
+    main()

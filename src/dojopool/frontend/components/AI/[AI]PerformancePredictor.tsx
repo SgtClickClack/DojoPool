@@ -20,7 +20,7 @@ import {
   Warning,
   CheckCircle,
 } from '@mui/icons-material';
-import { api } from '../../services/api';
+import axios from 'axios';
 
 const PredictorContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -52,36 +52,37 @@ interface PerformancePrediction {
 }
 
 export const PerformancePredictor: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [prediction, setPrediction] = useState<PerformancePrediction | null>(null);
-
-  useEffect(() => {
-    fetchPrediction();
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchPrediction = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/ai/predict-performance');
+      setError(null);
+      const response = await axios.get('/api/ai/performance-prediction');
       setPrediction(response.data);
     } catch (err) {
-      setError('Failed to fetch performance prediction');
-      console.error('Performance prediction error:', err);
+      setError('Failed to fetch performance prediction. Please try again later.');
+      console.error('Error fetching prediction:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPrediction();
+  }, []);
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'improving_rapidly':
       case 'improving_steadily':
         return <TrendingUp color="success" />;
-      case 'stable':
-        return <RemoveCircle color="primary" />;
       case 'declining':
         return <TrendingDown color="error" />;
+      case 'stable':
+        return <RemoveCircle color="info" />;
       default:
         return <Warning color="warning" />;
     }
@@ -96,23 +97,25 @@ export const PerformancePredictor: React.FC = () => {
       case 'low':
         return 'success';
       default:
-        return 'primary';
+        return 'info';
     }
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" my={3}>
-        <CircularProgress />
-      </Box>
+      <PredictorContainer>
+        <Box display="flex" justifyContent="center" alignItems="center" p={3}>
+          <CircularProgress />
+        </Box>
+      </PredictorContainer>
     );
   }
 
   if (error) {
     return (
-      <Alert severity="error" sx={{ mb: 2 }}>
-        {error}
-      </Alert>
+      <PredictorContainer>
+        <Alert severity="error">{error}</Alert>
+      </PredictorContainer>
     );
   }
 
@@ -121,73 +124,62 @@ export const PerformancePredictor: React.FC = () => {
   }
 
   return (
-    <PredictorContainer elevation={3}>
+    <PredictorContainer>
       <Typography variant="h5" gutterBottom>
-        Performance Analysis
+        Performance Prediction
       </Typography>
 
       <MetricBox>
         <Box display="flex" alignItems="center" mb={1}>
           {getTrendIcon(prediction.skill_trend.trend)}
-          <Typography variant="h6" sx={{ ml: 1 }}>
+          <Typography variant="h6" ml={1}>
             Skill Trend
           </Typography>
         </Box>
-        <Typography variant="body1" color="textSecondary">
-          {prediction.skill_trend.trend.replace('_', ' ').toUpperCase()}
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Confidence: {(prediction.skill_trend.confidence * 100).toFixed(1)}%
+        <Typography>
+          Your performance is{' '}
+          <strong>
+            {prediction.skill_trend.trend.replace('_', ' ')}
+          </strong>{' '}
+          with {Math.round(prediction.skill_trend.confidence * 100)}% confidence
         </Typography>
       </MetricBox>
 
       <MetricBox>
         <Box display="flex" alignItems="center" mb={1}>
           <Star color="primary" />
-          <Typography variant="h6" sx={{ ml: 1 }}>
-            Performance Potential
+          <Typography variant="h6" ml={1}>
+            Potential Peak
           </Typography>
         </Box>
-        <Typography variant="body1">
-          Current Level: {(prediction.potential_peak.current_level * 100).toFixed(1)}%
-        </Typography>
-        <Typography variant="body1">
-          Estimated Peak: {(prediction.potential_peak.estimated_peak * 100).toFixed(1)}%
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Confidence: {(prediction.potential_peak.confidence * 100).toFixed(1)}%
+        <Typography>
+          Current Level: {prediction.potential_peak.current_level}
+          <br />
+          Estimated Peak: {prediction.potential_peak.estimated_peak}
+          <br />
+          Confidence: {Math.round(prediction.potential_peak.confidence * 100)}%
         </Typography>
       </MetricBox>
-
-      <Divider sx={{ my: 2 }} />
 
       <Typography variant="h6" gutterBottom>
         Areas for Improvement
       </Typography>
-
       <List>
         {prediction.areas_for_improvement.map((area, index) => (
-          <ListItem key={index}>
-            <ListItemIcon>
-              <CheckCircle color={getPriorityColor(area.priority) as any} />
-            </ListItemIcon>
-            <ListItemText
-              primary={area.aspect.replace('_', ' ').toUpperCase()}
-              secondary={
-                <>
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color={`${getPriorityColor(area.priority)}.main`}
-                  >
-                    {area.priority.toUpperCase()} PRIORITY
-                  </Typography>
-                  <br />
-                  {area.suggestion}
-                </>
-              }
-            />
-          </ListItem>
+          <React.Fragment key={area.aspect}>
+            <ListItem>
+              <ListItemIcon>
+                <CheckCircle color={getPriorityColor(area.priority) as any} />
+              </ListItemIcon>
+              <ListItemText
+                primary={area.aspect}
+                secondary={area.suggestion}
+              />
+            </ListItem>
+            {index < prediction.areas_for_improvement.length - 1 && (
+              <Divider variant="inset" component="li" />
+            )}
+          </React.Fragment>
         ))}
       </List>
     </PredictorContainer>

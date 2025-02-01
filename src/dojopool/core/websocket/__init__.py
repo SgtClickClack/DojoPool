@@ -1,11 +1,12 @@
 """WebSocket module."""
 
-from typing import Dict, Any, Optional, List, Set
 from datetime import datetime
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from dojopool.models import User
-from dojopool.core.exceptions import WebSocketError
+from typing import Any, Dict, List, Optional, Set
 
+from flask_socketio import SocketIO, emit, join_room, leave_room
+
+from dojopool.core.exceptions import WebSocketError
+from dojopool.models import User
 
 socketio = SocketIO()
 

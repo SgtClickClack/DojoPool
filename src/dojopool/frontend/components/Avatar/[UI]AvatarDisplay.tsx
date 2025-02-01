@@ -3,7 +3,7 @@ import { Avatar as MuiAvatar, Badge, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 
-interface AvatarDisplayProps {
+export interface AvatarDisplayProps {
   avatarUrl?: string | null;
   username: string;
   size?: number;

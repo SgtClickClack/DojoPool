@@ -1,25 +1,27 @@
 """Tournament module."""
 
-from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
 from sqlalchemy import func
+
+from dojopool.core.exceptions import TournamentError
 from dojopool.models import (
-    db,
-    User,
-    Tournament,
-    TournamentPlayer,
-    TournamentGame,
-    TournamentRound,
-    TournamentBracket,
-    TournamentType,
-    TournamentStatus,
-    TournamentFormat,
-    TournamentRoundType,
-    TournamentBracketType,
     Game,
     GameType,
+    Tournament,
+    TournamentBracket,
+    TournamentBracketType,
+    TournamentFormat,
+    TournamentGame,
+    TournamentPlayer,
+    TournamentRound,
+    TournamentRoundType,
+    TournamentStatus,
+    TournamentType,
+    User,
+    db,
 )
-from dojopool.core.exceptions import TournamentError
 
 
 class TournamentService:
@@ -384,9 +386,7 @@ class TournamentService:
         else:
             return self._get_elimination_standings(tournament)
 
-    def _get_round_robin_standings(
-        self, tournament: Tournament
-    ) -> List[Dict[str, Any]]:
+    def _get_round_robin_standings(self, tournament: Tournament) -> List[Dict[str, Any]]:
         """Get round robin tournament standings.
 
         Args:
@@ -403,8 +403,7 @@ class TournamentService:
                 Game.query.join(TournamentBracket, Game.id == TournamentBracket.game_id)
                 .filter(
                     TournamentBracket.tournament_id == tournament.id,
-                    (Game.winner_id == player.user_id)
-                    | (Game.loser_id == player.user_id),
+                    (Game.winner_id == player.user_id) | (Game.loser_id == player.user_id),
                 )
                 .all()
             )
@@ -430,9 +429,7 @@ class TournamentService:
 
         return standings
 
-    def _get_elimination_standings(
-        self, tournament: Tournament
-    ) -> List[Dict[str, Any]]:
+    def _get_elimination_standings(self, tournament: Tournament) -> List[Dict[str, Any]]:
         """Get elimination tournament standings.
 
         Args:
@@ -445,9 +442,7 @@ class TournamentService:
 
         # Get all completed brackets
         brackets = (
-            TournamentBracket.query.filter_by(
-                tournament_id=tournament.id, completed_at=not None
-            )
+            TournamentBracket.query.filter_by(tournament_id=tournament.id, completed_at=not None)
             .order_by(TournamentBracket.completed_at.desc())
             .all()
         )

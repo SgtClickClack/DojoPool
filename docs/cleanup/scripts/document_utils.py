@@ -1,13 +1,11 @@
 """Generate detailed documentation for utility files with high import counts."""
 
-import os
 import ast
-import json
-from pathlib import Path
-from typing import Dict, List, Set, Optional, Any
 from dataclasses import dataclass
-import re
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
+
 
 @dataclass
 class FunctionInfo:
@@ -19,6 +17,7 @@ class FunctionInfo:
     line_count: int
     complexity: int
 
+
 @dataclass
 class ClassInfo:
     name: str
@@ -28,24 +27,36 @@ class ClassInfo:
     decorators: List[str]
     line_count: int
 
+
 class UtilityAnalyzer:
     def __init__(self, root_dir: str):
         self.root_dir = Path(root_dir)
         self.target_files = [
-            'src/dojopool/core/realtime/room_logging.py',
-            'src/dojopool/core/db_optimization.py',
-            'src/dojopool/core/logging/utils.py'
+            "src/dojopool/core/realtime/room_logging.py",
+            "src/dojopool/core/db_optimization.py",
+            "src/dojopool/core/logging/utils.py",
         ]
-        self.docs_dir = self.root_dir / 'docs' / 'cleanup' / 'utils_documentation'
+        self.docs_dir = self.root_dir / "docs" / "cleanup" / "utils_documentation"
         self.docs_dir.mkdir(parents=True, exist_ok=True)
 
     def calculate_complexity(self, node: ast.AST) -> int:
         """Calculate cyclomatic complexity of an AST node."""
         complexity = 1
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.Try,
-                                ast.ExceptHandler, ast.With, ast.Assert,
-                                ast.Raise, ast.Return)):
+            if isinstance(
+                child,
+                (
+                    ast.If,
+                    ast.While,
+                    ast.For,
+                    ast.Try,
+                    ast.ExceptHandler,
+                    ast.With,
+                    ast.Assert,
+                    ast.Raise,
+                    ast.Return,
+                ),
+            ):
                 complexity += 1
             elif isinstance(child, ast.BoolOp):
                 complexity += len(child.values) - 1
@@ -67,7 +78,7 @@ class UtilityAnalyzer:
         """Analyze a function node and return its information."""
         docstring = ast.get_docstring(node)
         params = [arg.arg for arg in node.args.args]
-        
+
         # Try to get return type from type annotation
         return_type = None
         if node.returns:
@@ -77,8 +88,8 @@ class UtilityAnalyzer:
                 return_type = str(node.returns.value)
 
         # Get line numbers safely
-        start_line = getattr(node, 'lineno', 0)
-        end_line = getattr(node, 'end_lineno', start_line)
+        start_line = getattr(node, "lineno", 0)
+        end_line = getattr(node, "end_lineno", start_line)
         line_count = max(1, end_line - start_line + 1)
 
         return FunctionInfo(
@@ -88,7 +99,7 @@ class UtilityAnalyzer:
             return_type=return_type,
             decorators=self.get_decorators(node),
             line_count=line_count,
-            complexity=self.calculate_complexity(node)
+            complexity=self.calculate_complexity(node),
         )
 
     def analyze_class(self, node: ast.ClassDef) -> ClassInfo:
@@ -105,8 +116,8 @@ class UtilityAnalyzer:
                 base_classes.append(base.id)
 
         # Get line numbers safely
-        start_line = getattr(node, 'lineno', 0)
-        end_line = getattr(node, 'end_lineno', start_line)
+        start_line = getattr(node, "lineno", 0)
+        end_line = getattr(node, "end_lineno", start_line)
         line_count = max(1, end_line - start_line + 1)
 
         return ClassInfo(
@@ -115,19 +126,19 @@ class UtilityAnalyzer:
             methods=methods,
             base_classes=base_classes,
             decorators=self.get_decorators(node),
-            line_count=line_count
+            line_count=line_count,
         )
 
     def analyze_file(self, file_path: Path) -> Dict:
         """Analyze a Python file and return its structure."""
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
         imports = []
         functions = []
         classes = []
-        
+
         # First get all module-level nodes
         module_nodes = tree.body
 
@@ -137,7 +148,7 @@ class UtilityAnalyzer:
                 for name in node.names:
                     imports.append(name.name)
             elif isinstance(node, ast.ImportFrom):
-                module = node.module or ''
+                module = node.module or ""
                 for name in node.names:
                     imports.append(f"{module}.{name.name}")
             elif isinstance(node, ast.FunctionDef):
@@ -146,10 +157,10 @@ class UtilityAnalyzer:
                 classes.append(self.analyze_class(node))
 
         return {
-            'file_path': str(file_path.relative_to(self.root_dir)),
-            'imports': imports,
-            'functions': functions,
-            'classes': classes
+            "file_path": str(file_path.relative_to(self.root_dir)),
+            "imports": imports,
+            "functions": functions,
+            "classes": classes,
         }
 
     def generate_markdown(self, analysis: Dict) -> str:
@@ -162,15 +173,15 @@ class UtilityAnalyzer:
         md.append(f"- Classes: {len(analysis['classes'])}")
         md.append(f"- Imports: {len(analysis['imports'])}\n")
 
-        if analysis['imports']:
+        if analysis["imports"]:
             md.append("## Imports\n")
-            for imp in sorted(analysis['imports']):
+            for imp in sorted(analysis["imports"]):
                 md.append(f"- `{imp}`")
             md.append("")
 
-        if analysis['functions']:
+        if analysis["functions"]:
             md.append("## Functions\n")
-            for func in analysis['functions']:
+            for func in analysis["functions"]:
                 md.append(f"### `{func.name}`\n")
                 if func.docstring:
                     md.append(f"{func.docstring}\n")
@@ -184,9 +195,9 @@ class UtilityAnalyzer:
                     md.append(f"- Decorators: {', '.join(func.decorators)}")
                 md.append("")
 
-        if analysis['classes']:
+        if analysis["classes"]:
             md.append("## Classes\n")
-            for cls in analysis['classes']:
+            for cls in analysis["classes"]:
                 md.append(f"### `{cls.name}`\n")
                 if cls.docstring:
                     md.append(f"{cls.docstring}\n")
@@ -209,28 +220,38 @@ class UtilityAnalyzer:
 
         md.append("## Recommendations\n")
         recommendations = []
-        
+
         # Add recommendations based on analysis
-        for func in analysis['functions']:
+        for func in analysis["functions"]:
             if func.complexity > 10:
-                recommendations.append(f"- Consider splitting complex function `{func.name}` (complexity: {func.complexity})")
+                recommendations.append(
+                    f"- Consider splitting complex function `{func.name}` (complexity: {func.complexity})"
+                )
             if func.line_count > 50:
-                recommendations.append(f"- Consider breaking down large function `{func.name}` ({func.line_count} lines)")
+                recommendations.append(
+                    f"- Consider breaking down large function `{func.name}` ({func.line_count} lines)"
+                )
             if not func.docstring:
                 recommendations.append(f"- Add documentation for function `{func.name}`")
 
-        for cls in analysis['classes']:
+        for cls in analysis["classes"]:
             if not cls.docstring:
                 recommendations.append(f"- Add documentation for class `{cls.name}`")
             for method in cls.methods:
                 if method.complexity > 10:
-                    recommendations.append(f"- Consider splitting complex method `{cls.name}.{method.name}` (complexity: {method.complexity})")
+                    recommendations.append(
+                        f"- Consider splitting complex method `{cls.name}.{method.name}` (complexity: {method.complexity})"
+                    )
                 if method.line_count > 50:
-                    recommendations.append(f"- Consider breaking down large method `{cls.name}.{method.name}` ({method.line_count} lines)")
+                    recommendations.append(
+                        f"- Consider breaking down large method `{cls.name}.{method.name}` ({method.line_count} lines)"
+                    )
                 if not method.docstring:
-                    recommendations.append(f"- Add documentation for method `{cls.name}.{method.name}`")
+                    recommendations.append(
+                        f"- Add documentation for method `{cls.name}.{method.name}`"
+                    )
 
-        if len(analysis['imports']) > 20:
+        if len(analysis["imports"]) > 20:
             recommendations.append("- Consider organizing imports into logical groups")
             recommendations.append("- Check for unused imports")
 
@@ -239,7 +260,7 @@ class UtilityAnalyzer:
         else:
             md.append("- No immediate improvements needed")
 
-        return '\n'.join(md)
+        return "\n".join(md)
 
     def analyze_all(self):
         """Analyze all target utility files and generate documentation."""
@@ -252,14 +273,15 @@ class UtilityAnalyzer:
 
             print(f"Analyzing {file_path}...")
             analysis = self.analyze_file(full_path)
-            
+
             # Generate markdown documentation
             markdown = self.generate_markdown(analysis)
             doc_path = self.docs_dir / f"{full_path.stem}_documentation.md"
-            with open(doc_path, 'w') as f:
+            with open(doc_path, "w") as f:
                 f.write(markdown)
 
             print(f"Documentation generated: {doc_path}")
+
 
 def main():
     """Main function to run the utility analysis."""
@@ -268,5 +290,6 @@ def main():
     analyzer.analyze_all()
     print("Analysis complete. Check docs/cleanup/utils_documentation/ for detailed documentation.")
 
-if __name__ == '__main__':
-    main() 
+
+if __name__ == "__main__":
+    main()

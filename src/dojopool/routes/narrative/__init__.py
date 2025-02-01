@@ -1,6 +1,7 @@
 """Narrative routes."""
+
 from flask import Blueprint
 
-narrative_bp = Blueprint('narrative', __name__)
+narrative_bp = Blueprint("narrative", __name__)
 
-from . import views  # noqa 
+from . import views  # noqa

@@ -1,22 +1,21 @@
 """Room logger class for managing room-related logging."""
 
-import os
 import json
 import logging
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from logging.handlers import RotatingFileHandler
 
-from .constants import EventTypes
 from .query_builder import LogQueryBuilder
+
 
 class RoomLogger:
     """Room logger class."""
 
     def __init__(self, log_dir: str):
         """Initialize RoomLogger.
-        
+
         Args:
             log_dir: Directory for log files
         """
@@ -24,30 +23,32 @@ class RoomLogger:
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # Set up log files
-        self.events_log = self.log_dir / 'room_events.log'
-        self.access_log = self.log_dir / 'room_access.log'
-        self.error_log = self.log_dir / 'room_errors.log'
-        self.audit_log = self.log_dir / 'room_audit.log'
+        self.events_log = self.log_dir / "room_events.log"
+        self.access_log = self.log_dir / "room_access.log"
+        self.error_log = self.log_dir / "room_errors.log"
+        self.audit_log = self.log_dir / "room_audit.log"
 
         # Set up loggers
         formatter = logging.Formatter(
             '{"timestamp": "%(asctime)s", "level": "%(levelname)s", %(message)s}',
-            datefmt='%Y-%m-%dT%H:%M:%S'
+            datefmt="%Y-%m-%dT%H:%M:%S",
         )
 
-        self.events_logger = self._setup_logger('room_events', self.events_log, formatter)
-        self.access_logger = self._setup_logger('room_access', self.access_log, formatter)
-        self.error_logger = self._setup_logger('room_errors', self.error_log, formatter)
-        self.audit_logger = self._setup_logger('room_audit', self.audit_log, formatter)
+        self.events_logger = self._setup_logger("room_events", self.events_log, formatter)
+        self.access_logger = self._setup_logger("room_access", self.access_log, formatter)
+        self.error_logger = self._setup_logger("room_errors", self.error_log, formatter)
+        self.audit_logger = self._setup_logger("room_audit", self.audit_log, formatter)
 
-    def _setup_logger(self, name: str, log_file: Path, formatter: logging.Formatter) -> logging.Logger:
+    def _setup_logger(
+        self, name: str, log_file: Path, formatter: logging.Formatter
+    ) -> logging.Logger:
         """Set up logger instance.
-        
+
         Args:
             name: Logger name
             log_file: Log file path
             formatter: Log formatter
-            
+
         Returns:
             logging.Logger: Configured logger
         """
@@ -55,11 +56,7 @@ class RoomLogger:
         logger.setLevel(logging.INFO)
 
         # Add rotating file handler
-        handler = RotatingFileHandler(
-            log_file,
-            maxBytes=10*1024*1024,  # 10MB
-            backupCount=5
-        )
+        handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)  # 10MB
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
@@ -70,10 +67,10 @@ class RoomLogger:
         event_type: str,
         room_id: str,
         user_id: Optional[str] = None,
-        data: Optional[Dict[str, Any]] = None
+        data: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log room event.
-        
+
         Args:
             event_type: Event type
             room_id: Room ID
@@ -94,10 +91,10 @@ class RoomLogger:
         room_id: str,
         user_id: Optional[str] = None,
         success: bool = True,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log room access attempt.
-        
+
         Args:
             action: Access action
             room_id: Room ID
@@ -120,10 +117,10 @@ class RoomLogger:
         room_id: str,
         user_id: Optional[str] = None,
         error: Optional[Exception] = None,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log room error.
-        
+
         Args:
             error_type: Error type
             room_id: Room ID
@@ -141,14 +138,10 @@ class RoomLogger:
         self.error_logger.error(message)
 
     def log_room_audit(
-        self,
-        action: str,
-        room_id: str,
-        user_id: str,
-        details: Optional[Dict[str, Any]] = None
+        self, action: str, room_id: str, user_id: str, details: Optional[Dict[str, Any]] = None
     ) -> None:
         """Log room audit event.
-        
+
         Args:
             action: Audit action
             room_id: Room ID
@@ -168,16 +161,16 @@ class RoomLogger:
         room_id: str,
         event_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None
+        end_time: Optional[datetime] = None,
     ) -> List[Dict[str, Any]]:
         """Get room events from log.
-        
+
         Args:
             room_id: Room ID
             event_type: Optional event type filter
             start_time: Optional start time filter
             end_time: Optional end time filter
-            
+
         Returns:
             List[Dict[str, Any]]: List of room events
         """
@@ -196,16 +189,16 @@ class RoomLogger:
         room_id: str,
         user_id: Optional[str] = None,
         start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None
+        end_time: Optional[datetime] = None,
     ) -> List[Dict[str, Any]]:
         """Get room access logs.
-        
+
         Args:
             room_id: Room ID
             user_id: Optional user ID filter
             start_time: Optional start time filter
             end_time: Optional end time filter
-            
+
         Returns:
             List[Dict[str, Any]]: List of access logs
         """
@@ -225,17 +218,17 @@ class RoomLogger:
         user_id: Optional[str] = None,
         action: Optional[str] = None,
         start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None
+        end_time: Optional[datetime] = None,
     ) -> List[Dict[str, Any]]:
         """Get room audit logs.
-        
+
         Args:
             room_id: Room ID
             user_id: Optional user ID filter
             action: Optional action filter
             start_time: Optional start time filter
             end_time: Optional end time filter
-            
+
         Returns:
             List[Dict[str, Any]]: List of audit logs
         """
@@ -252,5 +245,6 @@ class RoomLogger:
 
         return query.execute()
 
+
 # Global room logger instance
-room_logger = RoomLogger('logs/rooms') 
+room_logger = RoomLogger("logs/rooms")

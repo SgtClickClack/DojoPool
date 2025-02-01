@@ -31,7 +31,7 @@ import {
   NotificationsOff as MutedIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
-import notificationService from '../../services/notification';
+import notificationService from '../../services/[NET]notification';
 import { formatDistanceToNow } from 'date-fns';
 
 interface NotificationCenterProps {

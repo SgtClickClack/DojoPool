@@ -1,15 +1,31 @@
+def add_security_headers(response):
+    """Add security headers to response."""
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = (
+        "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    )
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    return response
+
+
 """
 Certificate management script for DojoPool cleanup.
 This script helps organize and manage SSL certificates.
 """
 
-import os
-import shutil
 import hashlib
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Set
+import shutil
 import subprocess
+from datetime import datetime
+from pathlib import Path
+
 
 class CertificateManager:
     def __init__(self, root_dir: Path):
@@ -17,12 +33,12 @@ class CertificateManager:
         self.cert_files = []
         self.cert_hashes = {}
         self.duplicates = []
-        
+
         # Define standard locations
-        self.cert_dir = root_dir / 'certs'
-        self.dev_cert_dir = self.cert_dir / 'development'
-        self.prod_cert_dir = self.cert_dir / 'production'
-        self.backup_dir = self.cert_dir / 'backup'
+        self.cert_dir = root_dir / "certs"
+        self.dev_cert_dir = self.cert_dir / "development"
+        self.prod_cert_dir = self.cert_dir / "production"
+        self.backup_dir = self.cert_dir / "backup"
 
     def setup_directories(self):
         """Create necessary directory structure."""
@@ -32,9 +48,9 @@ class CertificateManager:
 
     def find_certificates(self):
         """Find all certificate files in the project."""
-        cert_extensions = {'.key', '.pem', '.crt', '.cert', '.p12', '.jks', '.keystore', '.pub'}
-        
-        for path in self.root_dir.rglob('*'):
+        cert_extensions = {".key", ".pem", ".crt", ".cert", ".p12", ".jks", ".keystore", ".pub"}
+
+        for path in self.root_dir.rglob("*"):
             if path.suffix in cert_extensions:
                 print(f"Found certificate: {path.relative_to(self.root_dir)}")
                 self.cert_files.append(path)
@@ -74,41 +90,52 @@ class CertificateManager:
 
     def generate_development_certificates(self):
         """Generate development certificates for localhost."""
-        key_file = self.dev_cert_dir / 'localhost.key'
-        cert_file = self.dev_cert_dir / 'localhost.crt'
-        
+        key_file = self.dev_cert_dir / "localhost.key"
+        cert_file = self.dev_cert_dir / "localhost.crt"
+
         # Generate private key
-        subprocess.run([
-            'openssl', 'genrsa',
-            '-out', str(key_file),
-            '2048'
-        ], check=True)
+        subprocess.run(["openssl", "genrsa", "-out", str(key_file), "2048"], check=True)
 
         # Generate certificate signing request
-        subprocess.run([
-            'openssl', 'req',
-            '-new',
-            '-key', str(key_file),
-            '-out', str(self.dev_cert_dir / 'localhost.csr'),
-            '-subj', '/CN=localhost'
-        ], check=True)
+        subprocess.run(
+            [
+                "openssl",
+                "req",
+                "-new",
+                "-key",
+                str(key_file),
+                "-out",
+                str(self.dev_cert_dir / "localhost.csr"),
+                "-subj",
+                "/CN=localhost",
+            ],
+            check=True,
+        )
 
         # Generate self-signed certificate
-        subprocess.run([
-            'openssl', 'x509',
-            '-req',
-            '-days', '365',
-            '-in', str(self.dev_cert_dir / 'localhost.csr'),
-            '-signkey', str(key_file),
-            '-out', str(cert_file)
-        ], check=True)
+        subprocess.run(
+            [
+                "openssl",
+                "x509",
+                "-req",
+                "-days",
+                "365",
+                "-in",
+                str(self.dev_cert_dir / "localhost.csr"),
+                "-signkey",
+                str(key_file),
+                "-out",
+                str(cert_file),
+            ],
+            check=True,
+        )
 
         print("Generated development certificates")
 
     def organize_certificates(self):
         """Organize certificates into production and development directories."""
         for cert_file in self.cert_files:
-            if 'localhost' in cert_file.name.lower() or 'development' in str(cert_file):
+            if "localhost" in cert_file.name.lower() or "development" in str(cert_file):
                 target_dir = self.dev_cert_dir
             else:
                 target_dir = self.prod_cert_dir
@@ -144,22 +171,22 @@ Total Files: {len(self.cert_files)}
 
         report += "\n## Backup Information\n"
         report += f"Backup location: {self.backup_dir}\n"
-        
+
         # Save report
-        report_path = self.root_dir / 'docs' / 'cleanup' / 'certificate_management_report.md'
-        report_path.write_text(report, encoding='utf-8')
+        report_path = self.root_dir / "docs" / "cleanup" / "certificate_management_report.md"
+        report_path.write_text(report, encoding="utf-8")
         print(f"Report generated: {report_path}")
 
     def _list_files(self, directory: Path) -> str:
         """Helper to list files in a directory for the report."""
         if not directory.exists():
             return "Directory not created yet.\n"
-        
-        files = list(directory.glob('*'))
+
+        files = list(directory.glob("*"))
         if not files:
             return "No files found.\n"
-        
-        return '\n'.join(f"- {f.name}" for f in files) + '\n'
+
+        return "\n".join(f"- {f.name}" for f in files) + "\n"
 
     def run(self):
         """Run the certificate management process."""
@@ -184,11 +211,13 @@ Total Files: {len(self.cert_files)}
         print("Generating report...")
         self.generate_report()
 
+
 def main():
     """Main function to run the certificate management."""
     root_dir = Path(__file__).parent.parent.parent.parent
     manager = CertificateManager(root_dir)
     manager.run()
 
+
 if __name__ == "__main__":
-    main() 
+    main()

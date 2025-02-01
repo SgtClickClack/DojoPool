@@ -1,10 +1,11 @@
-from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 from models.shot import Shot
-from models.player import Player
+
 from services.shot_analysis import ShotAnalysis
-from utils.analysis import analyze_shot_pattern, calculate_player_rating
+from utils.analysis import analyze_shot_pattern
 
 
 class PerformanceTrackingService:
@@ -125,10 +126,10 @@ class PerformanceTrackingService:
 
         # Calculate versatility based on shot types used
         shot_types_used = len(
-            set(
+            {
                 self.shot_analysis._determine_shot_type(shot.power, shot.spin, shot.result)
                 for shot in shots
-            )
+            }
         )
         versatility = min(1.0, shot_types_used / len(self.shot_analysis.shot_types))
 

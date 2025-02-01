@@ -1,9 +1,10 @@
 """Friend routes for managing user friendships."""
 
-from flask import Blueprint, jsonify, g
-from ..models.chat import ChatRoom
-from ..models.user import User, Friendship
+from flask import Blueprint, g, jsonify
+
 from ..core.auth import login_required
+from ..models.chat import ChatRoom
+from ..models.user import Friendship, User
 
 bp = Blueprint("friends", __name__)
 

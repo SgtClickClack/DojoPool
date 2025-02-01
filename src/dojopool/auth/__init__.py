@@ -1,10 +1,9 @@
-"""Authentication blueprint for DojoPool."""
-from flask import Blueprint
+"""Authentication package."""
 
-# Import routes after blueprint creation to avoid circular imports
-from .routes import auth_bp
+from flask_login import current_user, login_required, login_user, logout_user
 
-from .utils import verified_user_required
-from .oauth import GoogleOAuth
+from ..models.user import User
+from ..models.role import Role
 
-__all__ = ['auth_bp', 'verified_user_required', 'GoogleOAuth']
+# Re-export commonly used items
+__all__ = ["current_user", "login_required", "login_user", "logout_user", "User", "Role"]

@@ -1,14 +1,15 @@
 """Game strategy service for AI-driven strategy recommendations."""
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional
+
 import numpy as np
-from tensorflow.keras.models import load_model
-from services.shot_analysis import ShotAnalysis
 from models.game_state import GameState
 from models.player import Player
+from tensorflow.keras.models import load_model
+
+from services.shot_analysis import ShotAnalysis
 from src.core.config import AI_CONFIG
-from src.extensions import cache
 
 
 @dataclass

@@ -1,12 +1,14 @@
 """Payment module."""
 
-from typing import Dict, Any, Optional, List
 from datetime import datetime
 from decimal import Decimal
+from typing import Any, Dict, List, Optional
+
 import stripe
 from flask import current_app
-from dojopool.models import db, User, Transaction, Wallet
+
 from dojopool.core.exceptions import PaymentError
+from dojopool.models import Transaction, User, Wallet, db
 
 
 class PaymentService:
@@ -34,9 +36,7 @@ class PaymentService:
             raise PaymentError("User not found")
 
         try:
-            customer = self.stripe.Customer.create(
-                email=user.email, metadata={"user_id": user_id}
-            )
+            customer = self.stripe.Customer.create(email=user.email, metadata={"user_id": user_id})
 
             user.stripe_customer_id = customer.id
             db.session.commit()
@@ -45,9 +45,7 @@ class PaymentService:
         except stripe.error.StripeError as e:
             raise PaymentError(f"Failed to create customer: {str(e)}")
 
-    def add_payment_method(
-        self, user_id: int, payment_method_id: str
-    ) -> Dict[str, Any]:
+    def add_payment_method(self, user_id: int, payment_method_id: str) -> Dict[str, Any]:
         """Add payment method to customer.
 
         Args:
@@ -82,11 +80,7 @@ class PaymentService:
             return {
                 "id": payment_method.id,
                 "type": payment_method.type,
-                "card": (
-                    payment_method.card.to_dict()
-                    if payment_method.type == "card"
-                    else None
-                ),
+                "card": (payment_method.card.to_dict() if payment_method.type == "card" else None),
             }
         except stripe.error.StripeError as e:
             raise PaymentError(f"Failed to add payment method: {str(e)}")

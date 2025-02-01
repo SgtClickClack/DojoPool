@@ -3,12 +3,13 @@
 This module provides email functionality.
 """
 
-from flask_mail import Mail, Message
-from typing import Optional, List, Dict, Any
+import os
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 import jinja2
-import os
+from flask_mail import Mail, Message
 
 mail = Mail()
 

@@ -1,22 +1,21 @@
 """Unified shot analysis service combining AI/ML capabilities with statistical analysis."""
 
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
 import cv2
+import mediapipe as mp
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-import mediapipe as mp
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
 from models.shot import Shot
-from models.player import Player
-from utils.validation import validate_shot_data
-from utils.analysis import calculate_shot_metrics
-from src.extensions import cache
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.models import load_model
+
 from src.core.config import AI_CONFIG
+from src.extensions import cache
+from utils.analysis import calculate_shot_metrics
+from utils.validation import validate_shot_data
 
 
 @dataclass
@@ -319,7 +318,7 @@ class ShotAnalysis:
         try:
             required_keys = ["balls", "dimensions", "obstacles"]
             return all(key in table_state for key in required_keys)
-        except Exception as e:
+        except Exception:
             return False
 
     def _extract_position_features(

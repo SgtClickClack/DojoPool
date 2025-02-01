@@ -1,17 +1,18 @@
 """Authentication service module."""
 
-from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
+from typing import Any, Dict
+
 import jwt
 from flask import current_app
-from dojopool.models import User, db
+
+from dojopool.core.exceptions import AuthenticationError
 from dojopool.core.security import (
-    generate_password_hash,
     check_password_hash,
-    generate_token,
+    generate_password_hash,
     verify_token,
 )
-from dojopool.core.exceptions import AuthenticationError, AuthorizationError
+from dojopool.models import User, db
 
 
 class AuthService:
@@ -77,9 +78,7 @@ class AuthService:
             AuthenticationError: If token is invalid
         """
         try:
-            return jwt.decode(
-                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
-            )
+            return jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
         except jwt.InvalidTokenError as e:
             raise AuthenticationError(f"Invalid token: {str(e)}")
 
@@ -143,9 +142,7 @@ class AuthService:
 
         return user
 
-    def change_password(
-        self, user: User, current_password: str, new_password: str
-    ) -> None:
+    def change_password(self, user: User, current_password: str, new_password: str) -> None:
         """Change user password.
 
         Args:

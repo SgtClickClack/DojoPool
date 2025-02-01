@@ -3,8 +3,9 @@
 This module provides base validation classes and utilities.
 """
 
-from typing import Dict, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
 from marshmallow import Schema, ValidationError
 
 

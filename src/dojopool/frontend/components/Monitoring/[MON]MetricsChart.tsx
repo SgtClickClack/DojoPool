@@ -22,20 +22,55 @@ import { gameMetricsMonitor } from '../../utils/monitoring';
 
 interface MetricsChartProps {
   gameId?: string;
+  metricId: string;
+  chartType: 'line' | 'bar' | 'pie';
   refreshInterval?: number;
+  timeRange: {
+    startTime: number;
+    endTime: number;
+  };
+  aggregatedData: {
+    updateTimes: MetricData[];
+    latency: MetricData[];
+    memoryUsage: MetricData[];
+  };
+  aggregationInterval: number;
+  onDataPointClick?: (dataPoint: MetricData) => void;
+  showTrendLine?: boolean;
+  showForecast?: boolean;
+  showAnomalies?: boolean;
+  trendAnalysis?: TrendAnalysis;
 }
 
-export const MetricsChart: React.FC<MetricsChartProps> = ({ gameId, refreshInterval = 1000 }) => {
+export const MetricsChart: React.FC<MetricsChartProps> = ({
+  gameId,
+  metricId,
+  chartType,
+  refreshInterval = 1000,
+  timeRange,
+  aggregatedData,
+  aggregationInterval,
+  onDataPointClick,
+  showTrendLine,
+  showForecast,
+  showAnomalies,
+  trendAnalysis,
+}) => {
   const theme = useTheme();
-  const [metrics, setMetrics] = useState<MetricsSnapshot>(gameMetricsMonitor.getMetrics());
+  const [metrics, setMetrics] = useState<MetricsSnapshot | null>(null);
 
   useEffect(() => {
-    const updateMetrics = () => {
-      setMetrics(gameMetricsMonitor.getMetrics());
+    const fetchMetrics = async () => {
+      try {
+        const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
+        setMetrics(snapshot);
+      } catch (error) {
+        console.error('Failed to fetch metrics:', error);
+      }
     };
 
-    updateMetrics();
-    const interval = setInterval(updateMetrics, refreshInterval);
+    fetchMetrics();
+    const interval = setInterval(fetchMetrics, refreshInterval);
 
     return () => clearInterval(interval);
   }, [refreshInterval]);
@@ -48,190 +83,89 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ gameId, refreshInter
     }));
   };
 
-  return (
-    <Grid container spacing={3}>
-      {/* Update Times */}
-      <Grid item xs={12} md={6}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Update Times
-            </Typography>
-            <Box sx={{ height: 300 }}>
-              <ResponsiveContainer>
-                <LineChart
-                  data={formatMetricData(metrics.updateTimes)}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    name="Time (ms)"
-                    stroke={theme.palette.primary.main}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+  const getMetricData = () => {
+    if (!aggregatedData) return [];
 
-      {/* Network Latency */}
-      <Grid item xs={12} md={6}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Network Latency
-            </Typography>
-            <Box sx={{ height: 300 }}>
-              <ResponsiveContainer>
-                <LineChart
-                  data={formatMetricData(metrics.latency)}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    name="Latency (ms)"
-                    stroke={theme.palette.secondary.main}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+    switch (metricId) {
+      case 'updateTimes':
+        return aggregatedData.updateTimes;
+      case 'latency':
+        return aggregatedData.latency;
+      case 'memoryUsage':
+        return aggregatedData.memoryUsage;
+      default:
+        return [];
+    }
+  };
 
-      {/* Memory Usage */}
-      <Grid item xs={12} md={6}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Memory Usage
-            </Typography>
-            <Box sx={{ height: 300 }}>
-              <ResponsiveContainer>
-                <LineChart
-                  data={formatMetricData(metrics.memoryUsage)}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    name="Memory (MB)"
-                    stroke={theme.palette.warning.main}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+  const renderChart = () => {
+    const data = getMetricData();
+    const formattedData = formatMetricData(data);
 
-      {/* Success Rate */}
-      <Grid item xs={12} md={6}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Success Rate
-            </Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: 300,
-              }}
-            >
-              <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                <CircularProgress
-                  variant="determinate"
-                  value={metrics.successRate * 100}
-                  size={200}
-                  thickness={4}
-                  sx={{ color: theme.palette.success.main }}
+    switch (chartType) {
+      case 'line':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={formattedData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="time"
+                tick={{ fill: theme.palette.text.secondary }}
+                tickLine={{ stroke: theme.palette.text.secondary }}
+              />
+              <YAxis
+                tick={{ fill: theme.palette.text.secondary }}
+                tickLine={{ stroke: theme.palette.text.secondary }}
+              />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke={theme.palette.primary.main}
+                dot={false}
+                onClick={(point) => onDataPointClick?.(point as unknown as MetricData)}
+              />
+              {showTrendLine && trendAnalysis?.trendLine && (
+                <Line
+                  type="monotone"
+                  data={formatMetricData(trendAnalysis.trendLine)}
+                  dataKey="value"
+                  stroke={theme.palette.secondary.main}
+                  strokeDasharray="5 5"
+                  dot={false}
                 />
-                <Box
-                  sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Typography variant="h4" component="div" color="textSecondary">
-                    {(metrics.successRate * 100).toFixed(1)}%
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
+              )}
+              {showForecast && trendAnalysis?.forecast && (
+                <Line
+                  type="monotone"
+                  data={formatMetricData(trendAnalysis.forecast.map(f => ({ timestamp: f.timestamp, value: f.value })))}
+                  dataKey="value"
+                  stroke={theme.palette.info.main}
+                  strokeDasharray="3 3"
+                  dot={false}
+                />
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        );
+      // Add other chart types (bar, pie) here if needed
+      default:
+        return null;
+    }
+  };
 
-      {/* Game Stats */}
-      <Grid item xs={12}>
-        <Card>
-          <CardContent>
+  return (
+    <Card>
+      <CardContent>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
-              Game Statistics
+              {metricId}
             </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Active Players
-                  </Typography>
-                  <Typography variant="h4">{metrics.activePlayers}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Active Games
-                  </Typography>
-                  <Typography variant="h4">{metrics.activeGames}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Completed Clues
-                  </Typography>
-                  <Typography variant="h4">{metrics.completedClues}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Average Score
-                  </Typography>
-                  <Typography variant="h4">{metrics.averageScore.toFixed(0)}</Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+            {metrics ? renderChart() : <CircularProgress />}
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   );
 };

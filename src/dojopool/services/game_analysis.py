@@ -1,16 +1,16 @@
 """Game analysis service for pattern recognition and performance analytics."""
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional
+
 import numpy as np
-from datetime import datetime, timedelta
-from tensorflow.keras.models import load_model
-from services.shot_analysis import ShotAnalysis
-from services.game_strategy import GameStrategy
 from models.game_state import GameState
 from models.player import Player
+from tensorflow.keras.models import load_model
+
+from services.game_strategy import GameStrategy
+from services.shot_analysis import ShotAnalysis
 from src.core.config import AI_CONFIG
-from src.extensions import cache
 
 
 @dataclass
@@ -144,7 +144,7 @@ class GameAnalysisService:
         features = self._extract_performance_features(game_states, player)
 
         # Get model predictions
-        predictions = self.performance_analyzer.predict(features)
+        self.performance_analyzer.predict(features)
 
         # Calculate base metrics
         shot_accuracy = self._calculate_shot_accuracy(game_states, player)

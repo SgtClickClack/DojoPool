@@ -1,9 +1,7 @@
-from typing import Dict, List, Optional, Union
-from dataclasses import dataclass
 import logging
-import asyncio
-from datetime import datetime
+from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List, Optional, Union
 
 
 class DeviceTier(Enum):

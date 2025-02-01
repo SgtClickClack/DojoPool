@@ -1,17 +1,19 @@
 from datetime import datetime
 from typing import Dict, List, Optional
-from .models import RewardTier, Reward, UserReward
-from ..models import db, User
+
+from ..models import User, db
+from .models import Reward, RewardTier, UserReward
+
 
 class RewardsService:
     def create_tier(self, data: Dict) -> RewardTier:
         """Create a new reward tier."""
         tier = RewardTier(
-            name=data['name'],
-            description=data.get('description'),
-            points_required=data['points_required'],
-            benefits=data.get('benefits', {}),
-            is_active=True
+            name=data["name"],
+            description=data.get("description"),
+            points_required=data["points_required"],
+            benefits=data.get("benefits", {}),
+            is_active=True,
         )
         db.session.add(tier)
         db.session.commit()
@@ -28,13 +30,13 @@ class RewardsService:
     def create_reward(self, data: Dict) -> Reward:
         """Create a new reward."""
         reward = Reward(
-            tier_id=data['tier_id'],
-            name=data['name'],
-            description=data.get('description'),
-            points_cost=data['points_cost'],
-            quantity_available=data.get('quantity_available'),
+            tier_id=data["tier_id"],
+            name=data["name"],
+            description=data.get("description"),
+            points_cost=data["points_cost"],
+            quantity_available=data.get("quantity_available"),
             is_active=True,
-            expiry_date=data.get('expiry_date')
+            expiry_date=data.get("expiry_date"),
         )
         db.session.add(reward)
         db.session.commit()
@@ -57,24 +59,22 @@ class RewardsService:
             # Check if reward is out of stock
             if reward.quantity_available is not None:
                 claimed_count = UserReward.query.filter_by(
-                    reward_id=reward.id,
-                    status='claimed'
+                    reward_id=reward.id, status="claimed"
                 ).count()
                 if claimed_count >= reward.quantity_available:
                     continue
 
             # Check if user has enough points
             if user.points >= reward.points_cost:
-                available_rewards.append({
-                    'id': reward.id,
-                    'name': reward.name,
-                    'description': reward.description,
-                    'points_cost': reward.points_cost,
-                    'tier': {
-                        'id': reward.tier.id,
-                        'name': reward.tier.name
+                available_rewards.append(
+                    {
+                        "id": reward.id,
+                        "name": reward.name,
+                        "description": reward.description,
+                        "points_cost": reward.points_cost,
+                        "tier": {"id": reward.tier.id, "name": reward.tier.name},
                     }
-                })
+                )
 
         return available_rewards
 
@@ -95,8 +95,7 @@ class RewardsService:
 
         if reward.quantity_available is not None:
             claimed_count = UserReward.query.filter_by(
-                reward_id=reward.id,
-                status='claimed'
+                reward_id=reward.id, status="claimed"
             ).count()
             if claimed_count >= reward.quantity_available:
                 return None
@@ -107,10 +106,7 @@ class RewardsService:
 
         # Create user reward
         user_reward = UserReward(
-            user_id=user_id,
-            reward_id=reward_id,
-            status='claimed',
-            points_spent=reward.points_cost
+            user_id=user_id, reward_id=reward_id, status="claimed", points_spent=reward.points_cost
         )
 
         # Deduct points from user
@@ -123,10 +119,10 @@ class RewardsService:
     def use_reward(self, user_reward_id: int) -> bool:
         """Mark a reward as used."""
         user_reward = UserReward.query.get(user_reward_id)
-        if not user_reward or user_reward.status != 'claimed':
+        if not user_reward or user_reward.status != "claimed":
             return False
 
-        user_reward.status = 'used'
+        user_reward.status = "used"
         user_reward.used_at = datetime.utcnow()
         db.session.commit()
         return True
@@ -134,15 +130,18 @@ class RewardsService:
     def get_user_rewards(self, user_id: int) -> List[Dict]:
         """Get all rewards claimed by a user."""
         user_rewards = UserReward.query.filter_by(user_id=user_id).all()
-        return [{
-            'id': ur.id,
-            'reward': {
-                'id': ur.reward.id,
-                'name': ur.reward.name,
-                'description': ur.reward.description
-            },
-            'claimed_at': ur.claimed_at.isoformat(),
-            'used_at': ur.used_at.isoformat() if ur.used_at else None,
-            'status': ur.status,
-            'points_spent': ur.points_spent
-        } for ur in user_rewards] 
+        return [
+            {
+                "id": ur.id,
+                "reward": {
+                    "id": ur.reward.id,
+                    "name": ur.reward.name,
+                    "description": ur.reward.description,
+                },
+                "claimed_at": ur.claimed_at.isoformat(),
+                "used_at": ur.used_at.isoformat() if ur.used_at else None,
+                "status": ur.status,
+                "points_spent": ur.points_spent,
+            }
+            for ur in user_rewards
+        ]

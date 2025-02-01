@@ -43,7 +43,7 @@ interface ErrorReportProps {
 
 export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }) => {
   const [errors, setErrors] = useState<ErrorEvent[]>([]);
-  const [expandedError, setExpandedError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | false>(false);
   const [errorStats, setErrorStats] = useState({
     total: 0,
     byType: {} as Record<string, number>,
@@ -51,13 +51,14 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
   });
 
   useEffect(() => {
-    // Subscribe to error events
     const unsubscribe = gameMetricsMonitor.subscribeToErrors((error: ErrorEvent) => {
       setErrors((prev) => [error, ...prev].slice(0, 100)); // Keep last 100 errors
       updateErrorStats(error);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const updateErrorStats = (error: ErrorEvent) => {
@@ -168,10 +169,10 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
                         size="small"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setExpandedError(expandedError === error.id ? null : error.id);
+                          setExpanded(expanded === error.id ? false : error.id);
                         }}
                       >
-                        {expandedError === error.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        {expanded === error.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                       </IconButton>
                     </TableCell>
                     <TableCell>{formatTimestamp(error.timestamp)}</TableCell>
@@ -188,7 +189,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
                   </TableRow>
                   <TableRow>
                     <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                      <Collapse in={expandedError === error.id} timeout="auto" unmountOnExit>
+                      <Collapse in={expanded === error.id} timeout="auto" unmountOnExit>
                         <Box p={2}>
                           <Alert severity={error.severity as any}>
                             <Typography variant="subtitle2" gutterBottom>

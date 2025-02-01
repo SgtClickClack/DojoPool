@@ -1,6 +1,7 @@
 """Ranking routes."""
+
 from flask import Blueprint
 
-ranking_bp = Blueprint('ranking', __name__)
+ranking_bp = Blueprint("ranking", __name__)
 
-from . import views  # noqa 
+from . import views  # noqa

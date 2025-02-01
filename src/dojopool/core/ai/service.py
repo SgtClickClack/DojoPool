@@ -1,7 +1,9 @@
 """AI service for text generation and analysis."""
 
 from typing import Optional
+
 import openai
+
 from ..config import Config
 
 
@@ -17,10 +19,10 @@ class AIService:
     async def generate_text(self, prompt: str) -> Optional[str]:
         """
         Generate text using OpenAI's GPT model.
-        
+
         Args:
             prompt: The prompt to generate text from
-            
+
         Returns:
             Generated text or None if generation fails
         """
@@ -29,12 +31,12 @@ class AIService:
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are a pool game analysis expert."},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.7,
-                max_tokens=500
+                max_tokens=500,
             )
             return response.choices[0].message.content
         except Exception as e:
             print(f"Error generating text: {str(e)}")
-            return None 
+            return None

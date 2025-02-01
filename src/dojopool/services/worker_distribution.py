@@ -1,12 +1,13 @@
-from typing import Dict, List, Optional, Set, Tuple
 import asyncio
 import logging
-from datetime import datetime, timedelta
 from dataclasses import dataclass
-import numpy as np
+from datetime import datetime
 from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
-from .worker_pool import Task, Worker, TaskPriority
+import numpy as np
+
+from .worker_pool import Task, TaskPriority, Worker
 
 
 class DistributionStrategy(Enum):
@@ -230,7 +231,7 @@ class WorkerDistributionOptimizer:
 
     async def _rebalance_workers(self, imbalances: List[Tuple[str, str, float]]):
         """Rebalance load between workers."""
-        for worker1, worker2, load_diff in imbalances:
+        for worker1, worker2, _load_diff in imbalances:
             # Update distribution strategy to prefer the less loaded worker
             if self.worker_loads[worker1] > self.worker_loads[worker2]:
                 self.worker_loads[worker1] *= 0.9  # Reduce load score to encourage task assignment
@@ -276,7 +277,7 @@ class WorkerDistributionOptimizer:
     def _update_distribution_strategy(self):
         """Update distribution strategy based on system state."""
         # Calculate overall system metrics
-        avg_load = np.mean(list(self.worker_loads.values()))
+        np.mean(list(self.worker_loads.values()))
         max_load = max(self.worker_loads.values())
         load_variance = np.var(list(self.worker_loads.values()))
 

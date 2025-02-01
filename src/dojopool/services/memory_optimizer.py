@@ -1,12 +1,10 @@
-from typing import Dict, List, Optional, Set
 import asyncio
-import logging
-from datetime import datetime, timedelta
 import gc
-import psutil
+import logging
 import weakref
-import numpy as np
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, List
 
 
 @dataclass
@@ -118,7 +116,7 @@ class MemoryOptimizer:
     def _detect_memory_leaks(self) -> List[Dict]:
         """Detect potential memory leaks."""
         leaks = []
-        current_time = datetime.now().timestamp()
+        datetime.now().timestamp()
 
         # Analyze allocation patterns
         allocation_rates = {}
@@ -186,7 +184,7 @@ class MemoryOptimizer:
             allocations_by_type[alloc.type].append(alloc)
 
         # Consolidate allocations of the same type
-        for alloc_type, allocs in allocations_by_type.items():
+        for _alloc_type, allocs in allocations_by_type.items():
             if len(allocs) > 1:
                 # Sort by size to optimize consolidation
                 allocs.sort(key=lambda x: x.size)
@@ -198,7 +196,7 @@ class MemoryOptimizer:
 
     async def _consolidate_allocations(self, allocations: List[MemoryAllocation]):
         """Consolidate small allocations into a pool."""
-        total_size = sum(alloc.size for alloc in allocations)
+        sum(alloc.size for alloc in allocations)
         pool_type = allocations[0].type
 
         # Create or get pool

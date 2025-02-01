@@ -15,7 +15,7 @@ import { styled } from '@mui/material/styles';
 import { ShotAnalysis } from './ShotAnalysis';
 import { GamePatterns } from './GamePatterns';
 import { GameStatistics } from './GameStatistics';
-import { api } from '../../services/api';
+import axios from 'axios';
 
 const AnalyzerContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -43,8 +43,8 @@ export const GameAnalyzer: React.FC<GameAnalyzerProps> = ({ gameId }) => {
     try {
       setLoading(true);
       const [patternsRes, statsRes] = await Promise.all([
-        api.get(`/analysis/game/${gameId}/patterns`),
-        api.get(`/analysis/game/${gameId}/statistics`),
+        axios.get(`/api/analysis/game/${gameId}/patterns`),
+        axios.get(`/api/analysis/game/${gameId}/statistics`),
       ]);
 
       setAnalysisData({

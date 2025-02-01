@@ -1,12 +1,12 @@
-from pathlib import Path
-import time
-import os
-import json
-from typing import Dict, Optional, List, Tuple, Any, Set
-from dataclasses import dataclass, asdict
-import logging
 import heapq
+import json
+import logging
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
+
 
 @dataclass
 class CacheEntry:
@@ -20,6 +20,7 @@ class CacheEntry:
     last_validated: float = time.time()
     is_stale: bool = False
 
+
 class ImageCache:
     def __init__(
         self,
@@ -28,10 +29,10 @@ class ImageCache:
         max_entries: int = 1000,
         max_age_days: int = 30,
         cleanup_interval: int = 3600,  # 1 hour
-        min_hit_count: int = 5
+        min_hit_count: int = 5,
     ):
         """Initialize the image cache with the given parameters.
-        
+
         Args:
             cache_dir: Directory to store cached files
             max_size_bytes: Maximum cache size in bytes
@@ -51,7 +52,13 @@ class ImageCache:
         self.last_cleanup = time.time()
         self._load_manifest()
 
-    def add(self, key: str, file_path: str, webp_path: Optional[str] = None, variants: Optional[Dict[str, str]] = None) -> bool:
+    def add(
+        self,
+        key: str,
+        file_path: str,
+        webp_path: Optional[str] = None,
+        variants: Optional[Dict[str, str]] = None,
+    ) -> bool:
         """Add a file to the cache with optional WebP version and variants."""
         self._run_cleanup_if_needed()
 
@@ -67,7 +74,10 @@ class ImageCache:
             return False
 
         # Check if we need to evict entries
-        if len(self.entries) >= self.max_entries or self.current_size + file_size > self.max_size_bytes:
+        if (
+            len(self.entries) >= self.max_entries
+            or self.current_size + file_size > self.max_size_bytes
+        ):
             if not self._evict_entries(file_size):
                 logging.warning(f"Not enough space in cache for {key}")
                 return False
@@ -82,7 +92,7 @@ class ImageCache:
             variants=variants,
             created_at=time.time(),
             last_validated=time.time(),
-            is_stale=False
+            is_stale=False,
         )
         self.entries[key] = entry
         self.current_size += file_size
@@ -92,7 +102,7 @@ class ImageCache:
     def get(self, key: str) -> Optional[CacheEntry]:
         """Get an entry from the cache by key."""
         self._run_cleanup_if_needed()
-        
+
         entry = self.entries.get(key)
         if entry:
             if self._is_entry_valid(entry):
@@ -129,7 +139,9 @@ class ImageCache:
 
         return True
 
-    def _calculate_total_size(self, file_path: Path, webp_path: Optional[str], variants: Optional[Dict[str, str]]) -> int:
+    def _calculate_total_size(
+        self, file_path: Path, webp_path: Optional[str], variants: Optional[Dict[str, str]]
+    ) -> int:
         """Calculate total size of an entry including all variants."""
         total_size = file_path.stat().st_size
 
@@ -158,30 +170,25 @@ class ImageCache:
             # - Higher score = more likely to be evicted
             # - Age factor: older entries score higher
             age_factor = (time.time() - entry.created_at) / self.max_age.total_seconds()
-            
+
             # Access factor: less frequently accessed entries score higher
             access_factor = 1.0 / (entry.hits + 1)
-            
+
             # Size factor: larger entries score higher when space is needed
             size_factor = entry.size / self.max_size_bytes
-            
+
             # Staleness factor: stale entries score higher
             stale_factor = 2.0 if entry.is_stale else 1.0
-            
+
             # Combine factors with weights
-            score = (
-                0.3 * age_factor +
-                0.3 * access_factor +
-                0.2 * size_factor +
-                0.2 * stale_factor
-            )
-            
+            score = 0.3 * age_factor + 0.3 * access_factor + 0.2 * size_factor + 0.2 * stale_factor
+
             heapq.heappush(entry_scores, (-score, key))  # Negative score for max-heap
 
         # Evict entries until we have enough space
         while entry_scores and (
-            len(self.entries) >= self.max_entries or
-            self.current_size + required_space > self.max_size_bytes
+            len(self.entries) >= self.max_entries
+            or self.current_size + required_space > self.max_size_bytes
         ):
             _, key = heapq.heappop(entry_scores)
             if self.remove(key):
@@ -237,35 +244,44 @@ class ImageCache:
         hit_counts = {key: entry.hits for key, entry in self.entries.items()}
         total_size_mb = self.current_size / (1024 * 1024)
         max_size_mb = self.max_size_bytes / (1024 * 1024)
-        utilization = (self.current_size / self.max_size_bytes) * 100 if self.max_size_bytes > 0 else 0
+        utilization = (
+            (self.current_size / self.max_size_bytes) * 100 if self.max_size_bytes > 0 else 0
+        )
 
         # Calculate additional stats
         stale_entries = sum(1 for entry in self.entries.values() if entry.is_stale)
-        avg_age = sum(current_time - entry.created_at for entry in self.entries.values()) / len(self.entries) if self.entries else 0
-        avg_hits = sum(entry.hits for entry in self.entries.values()) / len(self.entries) if self.entries else 0
+        avg_age = (
+            sum(current_time - entry.created_at for entry in self.entries.values())
+            / len(self.entries)
+            if self.entries
+            else 0
+        )
+        avg_hits = (
+            sum(entry.hits for entry in self.entries.values()) / len(self.entries)
+            if self.entries
+            else 0
+        )
 
         return {
-            'total_entries': len(self.entries),
-            'current_size_mb': round(total_size_mb, 2),
-            'max_size_mb': round(max_size_mb, 2),
-            'utilization': round(utilization, 2),
-            'hit_counts': hit_counts,
-            'stale_entries': stale_entries,
-            'avg_age_days': round(avg_age / (24 * 3600), 2),
-            'avg_hits': round(avg_hits, 2),
-            'last_cleanup': datetime.fromtimestamp(self.last_cleanup).isoformat()
+            "total_entries": len(self.entries),
+            "current_size_mb": round(total_size_mb, 2),
+            "max_size_mb": round(max_size_mb, 2),
+            "utilization": round(utilization, 2),
+            "hit_counts": hit_counts,
+            "stale_entries": stale_entries,
+            "avg_age_days": round(avg_age / (24 * 3600), 2),
+            "avg_hits": round(avg_hits, 2),
+            "last_cleanup": datetime.fromtimestamp(self.last_cleanup).isoformat(),
         }
 
     def _load_manifest(self) -> None:
         """Load the cache manifest from disk."""
-        manifest_path = self.cache_dir / 'manifest.json'
+        manifest_path = self.cache_dir / "manifest.json"
         if manifest_path.exists():
             try:
-                with open(manifest_path, 'r') as f:
+                with open(manifest_path, "r") as f:
                     data = json.load(f)
-                    self.entries = {
-                        k: CacheEntry(**v) for k, v in data['entries'].items()
-                    }
+                    self.entries = {k: CacheEntry(**v) for k, v in data["entries"].items()}
                     self.current_size = sum(entry.size for entry in self.entries.values())
             except Exception as e:
                 logging.error(f"Error loading manifest: {str(e)}")
@@ -274,45 +290,43 @@ class ImageCache:
 
     def _save_manifest(self) -> None:
         """Save the cache manifest to disk."""
-        manifest_path = self.cache_dir / 'manifest.json'
+        manifest_path = self.cache_dir / "manifest.json"
         try:
             manifest_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(manifest_path, 'w') as f:
-                json.dump({
-                    'entries': {
-                        k: asdict(v) for k, v in self.entries.items()
-                    }
-                }, f)
+            with open(manifest_path, "w") as f:
+                json.dump({"entries": {k: asdict(v) for k, v in self.entries.items()}}, f)
         except Exception as e:
-            logging.error(f"Error saving manifest: {str(e)}") 
+            logging.error(f"Error saving manifest: {str(e)}")
 
     def remove(self, key: str) -> bool:
         """Remove an entry from the cache."""
         try:
             entry = self.entries.pop(key)
             self.current_size -= entry.size
-            
+
             # Clean up files if they're in the cache directory
             if str(self.cache_dir) in entry.path:
                 try:
                     Path(entry.path).unlink(missing_ok=True)
                 except Exception as e:
                     logging.warning(f"Failed to delete file {entry.path}: {str(e)}")
-            
+
             if entry.webp_path and str(self.cache_dir) in entry.webp_path:
                 try:
                     Path(entry.webp_path).unlink(missing_ok=True)
                 except Exception as e:
                     logging.warning(f"Failed to delete WebP file {entry.webp_path}: {str(e)}")
-            
+
             if entry.variants:
                 for variant_path in entry.variants.values():
                     if str(self.cache_dir) in variant_path:
                         try:
                             Path(variant_path).unlink(missing_ok=True)
                         except Exception as e:
-                            logging.warning(f"Failed to delete variant file {variant_path}: {str(e)}")
-            
+                            logging.warning(
+                                f"Failed to delete variant file {variant_path}: {str(e)}"
+                            )
+
             self._save_manifest()
             return True
         except KeyError:
@@ -326,8 +340,8 @@ class ImageCache:
         """Clear all entries from the cache."""
         # Remove all files in the cache directory
         try:
-            for file_path in self.cache_dir.glob('**/*'):
-                if file_path.is_file() and file_path.name != 'manifest.json':
+            for file_path in self.cache_dir.glob("**/*"):
+                if file_path.is_file() and file_path.name != "manifest.json":
                     try:
                         file_path.unlink()
                     except Exception as e:
@@ -337,4 +351,4 @@ class ImageCache:
 
         self.entries.clear()
         self.current_size = 0
-        self._save_manifest() 
+        self._save_manifest()

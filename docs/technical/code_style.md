@@ -98,7 +98,17 @@
 - Example:
   ```python
   def analyze_game_style(games: List[Dict]) -> Dict[str, Any]:
-      """Analyze a player's game style from their history.
+      """Analyze a player's game style 
+@app.after_request
+def add_security_headers(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+from their history.
       
       Args:
           games: List of game dictionaries containing:

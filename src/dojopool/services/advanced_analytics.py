@@ -1,22 +1,19 @@
 """Advanced analytics service for comprehensive game and player analysis."""
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union, Any
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-from .game_analysis import GameAnalysis, PerformanceMetrics
-from .shot_analysis import ShotAnalysis
-from models.player import Player
-from models.game_state import GameState
-from models.shot import Shot
 from config import AI_CONFIG
+
+from .shot_analysis import ShotAnalysis
 
 
 @dataclass

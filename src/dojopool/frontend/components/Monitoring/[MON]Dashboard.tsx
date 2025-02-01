@@ -12,6 +12,7 @@ import {
   TrendingUp as PositiveCorrelationIcon,
   Share as ShareIcon,
   ShowChart as TrendLineIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import {
   Autocomplete,
@@ -51,19 +52,20 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+} from '@mui/material';
+import {
   Timeline,
   TimelineConnector,
   TimelineContent,
   TimelineDot,
   TimelineItem,
+  TimelineOppositeContent,
   TimelineSeparator,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography,
-  Tab,
-  Tabs,
-} from '@mui/material';
+} from '@mui/lab';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -79,13 +81,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Alert, ErrorEvent, MetricData } from '../../types/monitoring';
-import { ErrorTracker } from '../../utils/errorTracker';
-import { gameMetricsMonitor } from '../../utils/monitoring';
-import { ErrorBoundary } from './ErrorBoundary';
-import { MetricsChart } from './MetricsChart';
+import { Alert, ErrorData, ErrorEvent as MonitoringErrorEvent, MetricData, MetricsSnapshot } from '../../types/monitoring';
+import { ErrorTracker, gameMetricsMonitor } from '../../utils/monitoring';
+import { ErrorBoundary } from './[ERR]ErrorBoundary';
+import { MetricsChart } from './[MON]MetricsChart';
 import { exportToPDF } from '../../utils/pdfExport';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MetricCard from './[MON]MetricCard';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -115,27 +117,29 @@ interface DashboardProps {
 type TimeRange = '1h' | '6h' | '24h' | '7d' | 'custom';
 
 const exportToCSV = (data: any[], filename: string) => {
-  const headers = Object.keys(data[0]);
-  const csvContent = [
-    headers.join(','),
-    ...data.map((row) => headers.map((header) => JSON.stringify(row[header])).join(',')),
-  ].join('\n');
-
+  const csvContent = convertToCSV(data);
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${filename}_${new Date().toISOString()}.csv`;
-  link.click();
+  saveAs(blob, `${filename}_${new Date().toISOString()}.csv`);
 };
 
-const exportToJSON = (data: any[], filename: string) => {
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: 'application/json',
-  });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${filename}_${new Date().toISOString()}.json`;
-  link.click();
+const exportToJSON = (data: any, filename: string) => {
+  const jsonContent = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonContent], { type: 'application/json' });
+  saveAs(blob, `${filename}.json`);
+};
+
+const convertToCSV = (data: any[]): string => {
+  if (!data.length) return '';
+  
+  const headers = Object.keys(data[0]);
+  const rows = data.map(item => 
+    headers.map(header => {
+      const value = item[header];
+      return typeof value === 'object' ? JSON.stringify(value) : String(value);
+    }).join(',')
+  );
+  
+  return [headers.join(','), ...rows].join('\n');
 };
 
 // Data aggregation utilities
@@ -331,7 +335,7 @@ interface ExportData {
   correlations: CorrelationData[];
   thresholds: Record<string, ThresholdConfig>;
   alerts: Alert[];
-  errors: ErrorEvent[];
+  errors: MonitoringErrorEvent[];
   timestamp: number;
 }
 
@@ -407,7 +411,7 @@ interface ErrorTrends {
 
 export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedError, setSelectedError] = useState<ErrorEvent | null>(null);
+  const [selectedError, setSelectedError] = useState<MonitoringErrorEvent | null>(null);
   const [alertCount, setAlertCount] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
   const [timeRange, setTimeRange] = useState<TimeRange>('1h');
@@ -454,6 +458,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const errorTracker = ErrorTracker.getInstance();
   const [errorData, setErrorData] = useState<ErrorData[]>([]);
+  const [metrics, setMetrics] = useState<MetricsSnapshot | null>(null);
+  const [historicalData, setHistoricalData] = useState<MetricData[]>([]);
 
   const getTimeRangeInMs = (): { startTime: number; endTime: number } => {
     const now = Date.now();
@@ -476,10 +482,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     }
   };
 
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const timeRange = getTimeRangeInMs();
+        const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
+        setMetrics(snapshot);
+      } catch (error) {
+        console.error('Failed to fetch metrics:', error);
+      }
+    };
+
+    fetchMetrics();
+    const interval = setInterval(fetchMetrics, 60000); // Refresh every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
   const aggregatedMetrics = useMemo(() => {
+    if (!metrics) return { updateTimes: [], latency: [], memoryUsage: [] };
+
     const timeRange = getTimeRangeInMs();
     const interval = getAggregationInterval(timeRange);
-    const metrics = gameMetricsMonitor.getMetrics();
 
     return {
       updateTimes: aggregateDataPoints(
@@ -489,19 +513,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         interval
       ),
       latency: aggregateDataPoints(
-        metrics.latency.filter(
+        metrics.latencyData.filter(
           (point) => point.timestamp >= timeRange.startTime && point.timestamp <= timeRange.endTime
         ),
         interval
       ),
       memoryUsage: aggregateDataPoints(
-        metrics.memoryUsage.filter(
+        metrics.historical.memoryUsage.filter(
           (point) => point.timestamp >= timeRange.startTime && point.timestamp <= timeRange.endTime
         ),
         interval
       ),
     };
-  }, [timeRange, customStartDate, customEndDate]);
+  }, [metrics, timeRange, customStartDate, customEndDate]);
 
   const calculateStatistics = (data: MetricData[]): DrillDownData['statistics'] => {
     if (!data.length) {
@@ -581,7 +605,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       .map((point) => ({
         timestamp: point.timestamp,
         value: point.value,
-        severity: Math.abs((point.value - mean) / stdDev) > 3 ? 'critical' : 'warning',
+        severity: Math.abs((point.value - mean) / stdDev) > 3 ? ('critical' as const) : ('warning' as const),
       }));
 
     return {
@@ -591,39 +615,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     };
   };
 
-  const handleMetricClick = (metricId: string, dataPoint: MetricData) => {
+  const handleMetricClick = async (metricId: string, dataPoint: MetricData) => {
+    if (!metrics) return;
+
     const timeRange = getTimeRangeInMs();
-    const metrics = gameMetricsMonitor.getMetrics();
-    let metricData: MetricData[] = [];
-
-    switch (metricId) {
-      case 'updateTimes':
-        metricData = metrics.updateTimes;
-        break;
-      case 'latency':
-        metricData = metrics.latency;
-        break;
-      case 'memoryUsage':
-        metricData = metrics.memoryUsage;
-        break;
-      case 'successRate':
-        metricData = [{ timestamp: Date.now(), value: metrics.successRate }];
-        break;
-    }
-
-    // Filter data for the selected time range
-    const filteredData = metricData.filter(
-      (d) => d.timestamp >= timeRange.startTime && d.timestamp <= timeRange.endTime
+    // Calculate weekly trend from historical data
+    const historicalData = metrics.historical.cpuUsage.filter(
+      (m) => m.timestamp >= timeRange.startTime && m.timestamp <= timeRange.endTime
     );
 
-    const trendAnalysis = calculateTrendAnalysis(filteredData);
+    const trendAnalysis = calculateTrendAnalysis(historicalData.map(m => ({
+      timestamp: m.timestamp,
+      value: m.value,
+      label: m.label
+    })));
 
     setDrillDownData({
       metricId,
       startTime: timeRange.startTime,
       endTime: timeRange.endTime,
-      data: filteredData,
-      statistics: calculateStatistics(filteredData),
+      data: historicalData.map(m => ({
+        timestamp: m.timestamp,
+        value: m.value,
+        label: m.label
+      })),
+      statistics: calculateStatistics(historicalData.map(m => ({
+        timestamp: m.timestamp,
+        value: m.value,
+        label: m.label
+      }))),
       trendAnalysis,
     });
     setShowDrillDown(true);
@@ -666,24 +686,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     });
 
     // Subscribe to errors
-    const errorUnsubscribe = gameMetricsMonitor.subscribeToErrors((error: ErrorEvent) => {
+    const errorUnsubscribe = gameMetricsMonitor.subscribeToErrors((error: MonitoringErrorEvent) => {
       const { startTime, endTime } = getTimeRangeInMs();
       if (error.timestamp >= startTime && error.timestamp <= endTime) {
         setErrorCount((prev) => prev + 1);
+        // Track the error in our error tracking system
+        errorTracker.trackError(
+          new Error(error.message || 'Unknown error'),
+          {
+            componentStack: error.stack || ''
+          }
+        );
       }
     });
 
     // Get initial counts
-    const { startTime, endTime } = getTimeRangeInMs();
-    const metrics = gameMetricsMonitor.getMetrics();
-    setAlertCount(
-      metrics.alerts?.filter(
-        (a) => !a.acknowledged && a.timestamp >= startTime && a.timestamp <= endTime
-      ).length || 0
-    );
-    setErrorCount(
-      metrics.errors?.filter((e) => e.timestamp >= startTime && e.timestamp <= endTime).length || 0
-    );
+    const fetchInitialCounts = async () => {
+      const { startTime, endTime } = getTimeRangeInMs();
+      const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
+      setAlertCount(
+        snapshot.alerts?.filter(
+          (a) => !a.acknowledged && a.timestamp >= startTime && a.timestamp <= endTime
+        ).length || 0
+      );
+      setErrorCount(
+        snapshot.errorData?.filter(
+          (e) => e.timestamp >= startTime && e.timestamp <= endTime
+        ).length || 0
+      );
+    };
+    fetchInitialCounts();
 
     return () => {
       alertUnsubscribe();
@@ -704,36 +736,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     localStorage.setItem('monitoringRetentionConfig', JSON.stringify(retentionConfig));
 
     // Apply retention policy if auto-cleanup is enabled
-    if (retentionConfig.autoCleanup) {
-      const now = Date.now();
-      const metrics = gameMetricsMonitor.getMetrics();
+    const applyRetentionPolicy = async () => {
+      if (retentionConfig.autoCleanup) {
+        const now = Date.now();
+        const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
+        const metrics = snapshot.current;
 
-      // Clean up old metrics
-      const metricsRetention = retentionConfig.metrics * 24 * 60 * 60 * 1000;
-      const cleanedMetrics = {
-        updateTimes: metrics.updateTimes.filter((m) => now - m.timestamp <= metricsRetention),
-        latency: metrics.latency.filter((m) => now - m.timestamp <= metricsRetention),
-        memoryUsage: metrics.memoryUsage.filter((m) => now - m.timestamp <= metricsRetention),
-      };
+        // Clean up old metrics
+        const metricsRetention = retentionConfig.metrics * 24 * 60 * 60 * 1000;
+        const cleanedMetrics = {
+          updateTimes: metrics.updateTimes.filter((m) => now - m.timestamp <= metricsRetention),
+          latency: metrics.latency.filter((m) => now - m.timestamp <= metricsRetention),
+          memoryUsage: metrics.memoryUsage.filter((m) => now - m.timestamp <= metricsRetention),
+        };
 
-      // Clean up old alerts
-      const alertsRetention = retentionConfig.alerts * 24 * 60 * 60 * 1000;
-      const cleanedAlerts =
-        metrics.alerts?.filter((a) => now - a.timestamp <= alertsRetention) || [];
-
-      // Clean up old errors
-      const errorsRetention = retentionConfig.errors * 24 * 60 * 60 * 1000;
-      const cleanedErrors =
-        metrics.errors?.filter((e) => now - e.timestamp <= errorsRetention) || [];
-
-      // Update metrics with cleaned data
-      gameMetricsMonitor.updateMetrics({
-        ...metrics,
-        ...cleanedMetrics,
-        alerts: cleanedAlerts,
-        errors: cleanedErrors,
-      });
-    }
+        // Clean up old alerts
+        const alertsRetention = retentionConfig.alerts * 24 * 60 * 60 * 1000;
+        const cleanedAlerts =
+          metrics.alerts?.filter((a) => now - a.timestamp <= alertsRetention) || [];
+      }
+    };
+    applyRetentionPolicy();
   }, [retentionConfig]);
 
   useEffect(() => {
@@ -764,76 +787,76 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Check for threshold breaches
-    const metrics = gameMetricsMonitor.getMetrics();
-    const newBreaches = [];
+    const checkThresholds = async () => {
+      const metrics = await gameMetricsMonitor.getMetricsSnapshot();
+      const newBreaches = [];
 
-    for (const [metricId, config] of Object.entries(thresholds)) {
-      if (!config.enabled) continue;
+      for (const [metricId, config] of Object.entries(thresholds)) {
+        if (!config.enabled) continue;
 
-      let currentValue: number;
-      switch (metricId) {
-        case 'updateTimes':
-          currentValue = metrics.updateTimes[metrics.updateTimes.length - 1]?.value || 0;
-          break;
-        case 'latency':
-          currentValue = metrics.latency[metrics.latency.length - 1]?.value || 0;
-          break;
-        case 'memoryUsage':
-          currentValue = metrics.memoryUsage[metrics.memoryUsage.length - 1]?.value || 0;
-          break;
-        case 'successRate':
-          currentValue = metrics.successRate;
-          break;
-        default:
-          continue;
+        let currentValue: number;
+        switch (metricId) {
+          case 'updateTimes':
+            currentValue = metrics.updateTimes[metrics.updateTimes.length - 1]?.value || 0;
+            break;
+          case 'latency':
+            currentValue = metrics.latency[metrics.latency.length - 1]?.value || 0;
+            break;
+          case 'memoryUsage':
+            currentValue = metrics.memoryUsage[metrics.memoryUsage.length - 1]?.value || 0;
+            break;
+          case 'successRate':
+            currentValue = metrics.successRate;
+            break;
+          default:
+            continue;
+        }
+
+        if (currentValue >= config.critical) {
+          newBreaches.push({
+            metric: metricId,
+            level: 'critical',
+            value: currentValue,
+          });
+        } else if (currentValue >= config.warning) {
+          newBreaches.push({
+            metric: metricId,
+            level: 'warning',
+            value: currentValue,
+          });
+        }
       }
 
-      if (currentValue >= config.critical) {
-        newBreaches.push({
-          metric: metricId,
-          level: 'critical',
-          value: currentValue,
-        });
-      } else if (currentValue >= config.warning) {
-        newBreaches.push({
-          metric: metricId,
-          level: 'warning',
-          value: currentValue,
-        });
-      }
-    }
+      setThresholdBreaches(newBreaches);
 
-    setThresholdBreaches(newBreaches);
+      // Notify if configured
+      newBreaches.forEach((breach) => {
+        if (thresholds[breach.metric].notifyOnBreach) {
+          gameMetricsMonitor.addAlert(
+            breach.level === 'critical' ? 'error' : 'warning',
+            `${metricConfig.find((m) => m.id === breach.metric)?.name} threshold breach: ${breach.value}`
+          );
+        }
+      });
+    };
 
-    // Notify if configured
-    newBreaches.forEach((breach) => {
-      if (thresholds[breach.metric].notifyOnBreach) {
-        gameMetricsMonitor.addAlert({
-          severity: breach.level === 'critical' ? 'error' : 'warning',
-          message: `${metricConfig.find((m) => m.id === breach.metric)?.name} threshold breach: ${breach.value}`,
-          timestamp: Date.now(),
-          details: {
-            metric: breach.metric,
-            value: breach.value,
-            threshold: thresholds[breach.metric][breach.level],
-          },
-        });
-      }
-    });
-  }, [aggregatedMetrics]);
+    checkThresholds();
+  }, [thresholds, gameMetricsMonitor]);
 
   const handleAlertAcknowledge = (alert: Alert) => {
     gameMetricsMonitor.acknowledgeAlert(alert.id, alert.details?.acknowledgeNote);
     setAlertCount((prev) => Math.max(0, prev - 1));
   };
 
-  const handleErrorClick = (error: ErrorEvent) => {
+  const handleErrorClick = (error: MonitoringErrorEvent) => {
     setSelectedError(error);
-    gameMetricsMonitor.monitorError(new Error(error.message), {
-      errorId: error.id,
-      type: error.type,
-      playerId: error.playerId,
-    });
+    // Track the error in our error tracking system with additional context
+    errorTracker.trackError(
+      new Error(error.message || 'Unknown error'),
+      {
+        componentStack: error.stack || '',
+      }
+    );
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -843,41 +866,64 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     if (newValue === 2) setErrorCount(0);
   };
 
-  const handleExport = (format: 'csv' | 'json') => {
+  const handleExport = async (format: 'csv' | 'json' | 'pdf') => {
     const { startTime, endTime } = getTimeRangeInMs();
-    const metrics = gameMetricsMonitor.getMetrics();
+    const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
 
-    switch (selectedTab) {
-      case 0: // Alerts
-        const alertData =
-          metrics.alerts?.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime) || [];
-        format === 'csv' ? exportToCSV(alertData, 'alerts') : exportToJSON(alertData, 'alerts');
+    const exportData: ExportData = {
+      metrics: {
+        cpuUsage: snapshot.historical.cpuUsage,
+        memoryUsage: snapshot.historical.memoryUsage,
+        diskUsage: snapshot.historical.diskUsage,
+        networkTraffic: snapshot.historical.networkTraffic
+      },
+      correlations: correlationData ? [correlationData] : [],
+      thresholds,
+      alerts: snapshot.alerts,
+      errors: snapshot.errorData,
+      timestamp: Date.now()
+    };
+
+    switch (format) {
+      case 'csv':
+        switch (selectedTab) {
+          case 0: // Alerts
+            exportToCSV(
+              snapshot.alerts.filter(a => a.timestamp >= startTime && a.timestamp <= endTime),
+              'alerts'
+            );
+            break;
+          case 1: // Metrics
+            exportToCSV(
+              Object.entries(exportData.metrics).map(([key, data]) => ({
+                metric: key,
+                data: data.filter(d => d.timestamp >= startTime && d.timestamp <= endTime)
+              })),
+              'metrics'
+            );
+            break;
+          case 2: // Errors
+            exportToCSV(
+              snapshot.errorData.filter(e => e.timestamp >= startTime && e.timestamp <= endTime),
+              'errors'
+            );
+            break;
+        }
         break;
 
-      case 1: // Metrics
-        const metricData = {
-          updateTimes: metrics.updateTimes,
-          latency: metrics.latency,
-          memoryUsage: metrics.memoryUsage,
-          successRate: metrics.successRate,
-          playerSpeeds: metrics.playerSpeeds,
-        };
-        format === 'csv'
-          ? exportToCSV([metricData], 'metrics')
-          : exportToJSON([metricData], 'metrics');
+      case 'json':
+        exportToJSON(exportData, `monitoring_data_${new Date().toISOString()}`);
         break;
 
-      case 2: // Errors
-        const errorData =
-          metrics.errors?.filter((e) => e.timestamp >= startTime && e.timestamp <= endTime) || [];
-        format === 'csv' ? exportToCSV(errorData, 'errors') : exportToJSON(errorData, 'errors');
+      case 'pdf':
+        await exportToPDF(exportData, `monitoring_report_${new Date().toISOString()}`);
         break;
     }
   };
 
-  const createSnapshot = () => {
+  const createSnapshot = async () => {
     const { startTime, endTime } = getTimeRangeInMs();
-    const metrics = gameMetricsMonitor.getMetrics();
+    const metrics = await gameMetricsMonitor.getMetricsSnapshot();
 
     const snapshot = {
       timestamp: Date.now(),
@@ -1040,8 +1086,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                 size="small"
                                 value={metric.chartType}
                                 onChange={(e) => {
+                                  const chartType = e.target.value as 'line' | 'bar' | 'pie';
                                   const updated = metricConfig.map((m) =>
-                                    m.id === metric.id ? { ...m, chartType: e.target.value } : m
+                                    m.id === metric.id ? { ...m, chartType } : m
                                   );
                                   setMetricConfig(updated);
                                 }}
@@ -1628,7 +1675,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const calculateCorrelation = useCallback(
     (metric1: string, metric2: string) => {
       const timeRange = getTimeRangeInMs();
-      const metrics = gameMetricsMonitor.getMetrics();
+      const metrics = gameMetricsMonitor.getMetricsSnapshot().current;
 
       // Get data points for both metrics
       const data1 = metrics[metric1] || [];
@@ -1805,7 +1852,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   };
 
   const generateExportData = (): ExportData => {
-    const metrics = gameMetricsMonitor.getMetrics();
+    const metrics = gameMetricsMonitor.getMetricsSnapshot().current;
     const timeRange = getTimeRangeInMs();
 
     return {
@@ -1946,7 +1993,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const analyzeMetricPatterns = useCallback(
     async (metricId: string) => {
       setIsAnalyzing(true);
-      const metrics = gameMetricsMonitor.getMetrics();
+      const metrics = gameMetricsMonitor.getMetricsSnapshot().current;
       const timeRange = getTimeRangeInMs();
       const metricData = metrics[metricId] || [];
 
@@ -2178,7 +2225,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   const analyzeCauseEffect = useCallback(async () => {
     setAnalyzingCauseEffect(true);
-    const metrics = gameMetricsMonitor.getMetrics();
+    const metrics = gameMetricsMonitor.getMetricsSnapshot().current;
     const timeRange = getTimeRangeInMs();
 
     // Calculate lag correlations between all metric pairs
@@ -2451,58 +2498,178 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     </Dialog>
   );
 
-  useEffect(() => {
-    // Subscribe to error updates
-    const unsubscribe = errorTracker.onError(() => {
-      // Update stats when new errors occur
-      setErrorStats(errorTracker.getErrorStats());
-      errorTracker.analyzeErrorTrends().then(setErrorTrends);
-    });
+  const renderErrorStats = () => {
+    if (!errorStats || !errorTrends) return <div>Loading error statistics...</div>;
 
-    // Initial load
-    setErrorStats(errorTracker.getErrorStats());
-    errorTracker.analyzeErrorTrends().then(setErrorTrends);
-
-    return () => unsubscribe();
-  }, []);
-
-  const formatTimestamp = (timestamp: number): string => {
-    return new Date(timestamp).toLocaleString();
+    return (
+      <div className="error-stats">
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Paper className="stats-card">
+              <Typography variant="h6">Error Distribution</Typography>
+              <List>
+                {errorTrends.topErrorTypes.map(({ type, count }) => (
+                  <ListItem key={type}>
+                    <ListItemText
+                      primary={type}
+                      secondary={`Count: ${count}`}
+                    />
+                    <LinearProgress
+                      variant="determinate"
+                      value={(count / errorStats.total) * 100}
+                      color={count > 10 ? 'error' : count > 5 ? 'warning' : 'primary'}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper className="stats-card">
+              <Typography variant="h6">Component Impact</Typography>
+              <List>
+                {errorTrends.topComponents.map(({ component, count }) => (
+                  <ListItem
+                    key={component}
+                    button
+                    onClick={() => setSelectedComponent(component)}
+                    selected={selectedComponent === component}
+                  >
+                    <ListItemText
+                      primary={component}
+                      secondary={`Errors: ${count} | Rate: ${
+                        errorTrends.errorRates.find(r => r.component === component)?.rate.toFixed(2)
+                      } per hour`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          </Grid>
+          <Grid item xs={12}>
+            <Paper className="stats-card">
+              <Typography variant="h6">Error Trend (Last Hour)</Typography>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={errorTrends.recentTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="timestamp"
+                    tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                  />
+                  <YAxis />
+                  <Tooltip
+                    labelFormatter={(value) => new Date(value).toLocaleString()}
+                    formatter={(value: any) => [`${value} errors`, 'Error Count']}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="errorCount"
+                    stroke="#ff4444"
+                    name="Error Count"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Grid>
+        </Grid>
+      </div>
+    );
   };
 
-  const formatErrorRate = (rate: number): string => {
-    return `${rate.toFixed(2)} errors/hour`;
-  };
-
   useEffect(() => {
-    const updateStats = () => {
-      const stats = ErrorTracker.getInstance().getErrorStats();
-      setErrorStats(stats);
-
-      // Update error data for chart
-      const now = Date.now();
-      const newDataPoint = {
-        timestamp: now,
-        count: stats.total,
-      };
-
-      setErrorData((prevData) => {
-        const newData = [...prevData, newDataPoint].filter(
-          (d) => now - d.timestamp <= 3600000 // Keep last hour
-        );
-        return newData;
-      });
+    const fetchErrorStats = async () => {
+      try {
+        const stats = errorTracker.getErrorStats();
+        const trends = await errorTracker.analyzeErrorTrends();
+        setErrorStats(stats);
+        setErrorTrends(trends);
+      } catch (error) {
+        console.error('Failed to fetch error statistics:', error);
+      }
     };
 
-    updateStats();
-    const interval = setInterval(updateStats, 5000);
+    fetchErrorStats();
+    const interval = setInterval(fetchErrorStats, 60000); // Update every minute
 
     return () => clearInterval(interval);
   }, []);
 
-  const filteredErrors = selectedComponent
-    ? errorStats.recentErrors.filter(({ context }) => context.component === selectedComponent)
-    : errorStats.recentErrors;
+  const handleErrorClick = (error: MonitoringErrorEvent) => {
+    setSelectedError(error);
+    // Track the error in our error tracking system with additional context
+    errorTracker.trackError(
+      new Error(error.message || 'Unknown error'),
+      {
+        componentStack: error.stack || '',
+      }
+    );
+  };
+
+  const renderErrorDialog = () => (
+    <Dialog
+      open={!!selectedError}
+      onClose={() => setSelectedError(null)}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle>
+        Error Details
+        <IconButton
+          aria-label="close"
+          onClick={() => setSelectedError(null)}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        {selectedError && (
+          <div>
+            <Typography variant="h6" gutterBottom>
+              {selectedError.type}
+            </Typography>
+            <Typography color="error" paragraph>
+              {selectedError.message}
+            </Typography>
+            {selectedError.component && (
+              <Typography variant="body2" gutterBottom>
+                Component: {selectedError.component}
+              </Typography>
+            )}
+            <Typography variant="body2" color="textSecondary" paragraph>
+              Time: {new Date(selectedError.timestamp).toLocaleString()}
+            </Typography>
+            {selectedError.stack && (
+              <Paper
+                variant="outlined"
+                sx={{ p: 2, backgroundColor: '#f5f5f5', maxHeight: 200, overflow: 'auto' }}
+              >
+                <pre style={{ margin: 0 }}>{selectedError.stack}</pre>
+              </Paper>
+            )}
+            {selectedError.context && Object.keys(selectedError.context).length > 0 && (
+              <>
+                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                  Additional Context:
+                </Typography>
+                <Paper
+                  variant="outlined"
+                  sx={{ p: 2, backgroundColor: '#f5f5f5', maxHeight: 150, overflow: 'auto' }}
+                >
+                  <pre style={{ margin: 0 }}>
+                    {JSON.stringify(selectedError.context, null, 2)}
+                  </pre>
+                </Paper>
+              </>
+            )}
+          </div>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setSelectedError(null)}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <ErrorBoundary>

@@ -1,42 +1,41 @@
 """Script to implement style optimizations."""
 
-import os
-import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set
+
 
 class StyleOptimizer:
     """Implements style optimizations."""
-    
+
     def __init__(self, root_dir: str):
         self.root_dir = Path(root_dir)
-        self.styles_dir = self.root_dir / 'frontend' / 'styles'
-        self.scss_dir = self.root_dir / 'static' / 'scss'
-        self.backup_dir = self.root_dir / 'backups' / 'styles'
-        self.ignored_dirs = {'.git', '__pycache__', 'node_modules', 'venv', 'build', 'dist'}
-        
+        self.styles_dir = self.root_dir / "frontend" / "styles"
+        self.scss_dir = self.root_dir / "static" / "scss"
+        self.backup_dir = self.root_dir / "backups" / "styles"
+        self.ignored_dirs = {".git", "__pycache__", "node_modules", "venv", "build", "dist"}
+
     def create_backup(self) -> None:
         """Create backup of current styles."""
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_path = self.backup_dir / timestamp
-        
+
         # Backup frontend styles
         if self.styles_dir.exists():
-            shutil.copytree(self.styles_dir, backup_path / 'frontend' / 'styles')
-            
+            shutil.copytree(self.styles_dir, backup_path / "frontend" / "styles")
+
         # Backup SCSS files
         if self.scss_dir.exists():
-            shutil.copytree(self.scss_dir, backup_path / 'static' / 'scss')
-            
+            shutil.copytree(self.scss_dir, backup_path / "static" / "scss")
+
     def create_variables_file(self) -> None:
         """Create variables.scss file with common values."""
-        variables_file = self.scss_dir / 'abstracts' / '_variables.scss'
+        variables_file = self.scss_dir / "abstracts" / "_variables.scss"
         variables_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(variables_file, 'w', encoding='utf-8') as f:
-            f.write("""// Colors
+
+        with open(variables_file, "w", encoding="utf-8") as f:
+            f.write(
+                """// Colors
 $color-background: #ffffff;
 $color-surface: #f8f9fa;
 $color-overlay: rgba(0, 0, 0, 0.5);
@@ -162,21 +161,21 @@ $safe-area-inset-right: env(safe-area-inset-right);
   --color-text-disabled: #{$color-text-disabled};
   --color-border-primary: #{$color-border-primary};
   --color-border-secondary: #{$color-border-secondary};
-  
+
   // Brand Colors
   @each $color in (50, 100, 200, 300, 400, 500, 600, 700, 800, 900) {
     --color-primary-#{$color}: #{map-get($color-primary, $color)};
     --color-secondary-#{$color}: #{map-get($color-secondary, $color)};
     --color-neutral-#{$color}: #{map-get($color-neutral, $color)};
   }
-  
+
   // Status Colors
   @each $color in (50, 500, 900) {
     --color-success-#{$color}: #{map-get($color-success, $color)};
     --color-warning-#{$color}: #{map-get($color-warning, $color)};
     --color-error-#{$color}: #{map-get($color-error, $color)};
   }
-  
+
   // Border Radius
   --radius-sm: #{$radius-sm};
   --radius-base: #{$radius-base};
@@ -185,12 +184,12 @@ $safe-area-inset-right: env(safe-area-inset-right);
   --radius-xl: #{$radius-xl};
   --radius-2xl: #{$radius-2xl};
   --radius-full: #{$radius-full};
-  
+
   // Transitions
   --transition-fast: #{$transition-fast};
   --transition-base: #{$transition-base};
   --transition-slow: #{$transition-slow};
-  
+
   // Z-Index
   --z-hide: #{$z-hide};
   --z-base: #{$z-base};
@@ -202,14 +201,14 @@ $safe-area-inset-right: env(safe-area-inset-right);
   --z-popover: #{$z-popover};
   --z-tooltip: #{$z-tooltip};
   --z-toast: #{$z-toast};
-  
+
   // Layout
   --header-height: #{$header-height};
   --sidebar-width: #{$sidebar-width};
   --footer-height: #{$footer-height};
   --grid-columns: #{$grid-columns};
   --grid-gutter-width: #{$grid-gutter-width};
-  
+
   // Breakpoints
   --breakpoint-xs: #{$breakpoint-xs};
   --breakpoint-sm: #{$breakpoint-sm};
@@ -217,30 +216,32 @@ $safe-area-inset-right: env(safe-area-inset-right);
   --breakpoint-lg: #{$breakpoint-lg};
   --breakpoint-xl: #{$breakpoint-xl};
   --breakpoint-xxl: #{$breakpoint-xxl};
-  
+
   // Content
   --content-max-width: #{$content-max-width};
   --spacing-unit: #{$spacing-unit};
-  
+
   // Touch
   --touch-target-size: #{$touch-target-size};
   --touch-target-spacing: #{$touch-target-spacing};
-  
+
   // Safe Area Insets
   --safe-area-inset-top: #{$safe-area-inset-top};
   --safe-area-inset-bottom: #{$safe-area-inset-bottom};
   --safe-area-inset-left: #{$safe-area-inset-left};
   --safe-area-inset-right: #{$safe-area-inset-right};
 }
-""")
-            
+"""
+            )
+
     def create_mixins_file(self) -> None:
         """Create mixins.scss file with common mixins."""
-        mixins_file = self.scss_dir / 'abstracts' / '_mixins.scss'
+        mixins_file = self.scss_dir / "abstracts" / "_mixins.scss"
         mixins_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(mixins_file, 'w', encoding='utf-8') as f:
-            f.write("""// Breakpoint mixins
+
+        with open(mixins_file, "w", encoding="utf-8") as f:
+            f.write(
+                """// Breakpoint mixins
 @mixin mobile {
   @media (max-width: var(--breakpoint-sm)) {
     @content;
@@ -315,7 +316,7 @@ $safe-area-inset-right: env(safe-area-inset-right);
 // Animation mixins
 @mixin fade-in {
   animation: fadeIn var(--transition-base) ease-in;
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -328,7 +329,7 @@ $safe-area-inset-right: env(safe-area-inset-right);
 
 @mixin slide-in {
   animation: slideIn var(--transition-base) ease-out;
-  
+
   @keyframes slideIn {
     from {
       transform: translateY(20px);
@@ -398,15 +399,17 @@ $safe-area-inset-right: env(safe-area-inset-right);
   padding-left: var(--safe-area-inset-left);
   padding-right: var(--safe-area-inset-right);
 }
-""")
-            
+"""
+            )
+
     def create_shared_styles_file(self) -> None:
         """Create shared.scss file for common styles."""
-        shared_file = self.scss_dir / 'base' / '_shared.scss'
+        shared_file = self.scss_dir / "base" / "_shared.scss"
         shared_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(shared_file, 'w', encoding='utf-8') as f:
-            f.write("""// Import variables and mixins
+
+        with open(shared_file, "w", encoding="utf-8") as f:
+            f.write(
+                """// Import variables and mixins
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
@@ -443,12 +446,12 @@ p {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  
+
   &-title {
     @include heading-4;
     margin-bottom: 1rem;
   }
-  
+
   &-body {
     padding: 1.5rem;
   }
@@ -464,12 +467,12 @@ p {
     @include heading-2;
     margin-bottom: 1.5rem;
   }
-  
+
   &-description {
     color: var(--color-text-secondary);
     margin-bottom: 2rem;
   }
-  
+
   &-header {
     margin-bottom: 2rem;
   }
@@ -482,7 +485,7 @@ p {
     margin-bottom: 0.5rem;
     font-weight: 500;
   }
-  
+
   &-hint {
     color: var(--color-text-secondary);
     font-size: 0.875rem;
@@ -496,18 +499,18 @@ p {
     list-style: none;
     margin: 0;
   }
-  
+
   &-link {
     display: inline-flex;
     align-items: center;
     padding: 0.5rem 1rem;
     color: var(--color-text-primary);
     text-decoration: none;
-    
+
     &:hover {
       color: var(--color-primary-600);
     }
-    
+
     &.active {
       color: var(--color-primary-500);
       font-weight: 500;
@@ -541,7 +544,7 @@ p {
 ::-webkit-scrollbar-thumb {
   background-color: var(--color-neutral-300);
   border-radius: var(--radius-full);
-  
+
   &:hover {
     background-color: var(--color-neutral-400);
   }
@@ -565,43 +568,45 @@ p {
     background-position: 200% 0;
   }
 }
-""")
-            
+"""
+            )
+
     def update_style_imports(self) -> None:
         """Update style imports in all SCSS files."""
-        for scss_file in self.scss_dir.rglob('*.scss'):
-            if scss_file.name.startswith('_'):
+        for scss_file in self.scss_dir.rglob("*.scss"):
+            if scss_file.name.startswith("_"):
                 continue
-                
-            with open(scss_file, 'r', encoding='utf-8') as f:
+
+            with open(scss_file, "r", encoding="utf-8") as f:
                 content = f.read()
-                
+
             # Add imports at the start of the file
             imports = """@use 'abstracts/variables' as *;
 @use 'abstracts/mixins' as *;
 @use 'base/shared' as *;
 
 """
-            
-            if not content.startswith('@use'):
+
+            if not content.startswith("@use"):
                 content = imports + content
-                
-            with open(scss_file, 'w', encoding='utf-8') as f:
+
+            with open(scss_file, "w", encoding="utf-8") as f:
                 f.write(content)
-                
+
     def optimize_styles(self) -> None:
         """Run all style optimizations."""
         # Create backup
         self.create_backup()
-        
+
         # Create new files
         self.create_variables_file()
         self.create_mixins_file()
         self.create_shared_styles_file()
-        
+
         # Update imports
         self.update_style_imports()
-        
-if __name__ == '__main__':
-    optimizer = StyleOptimizer('src/dojopool')
-    optimizer.optimize_styles() 
+
+
+if __name__ == "__main__":
+    optimizer = StyleOptimizer("src/dojopool")
+    optimizer.optimize_styles()

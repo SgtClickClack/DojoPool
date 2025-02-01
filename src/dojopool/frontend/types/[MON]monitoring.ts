@@ -29,31 +29,18 @@ export interface Alert {
   };
 }
 
+export interface GameMetrics {
+  timestamp: number;
+  count: number;
+  type: string;
+  severity: string;
+  message?: string;
+}
+
 export interface MetricsSnapshot {
-  updateTimes: MetricData[];
-  latency: MetricData[];
-  memoryUsage: MetricData[];
-  successRate: number;
-  playerSpeeds: Record<string, number>;
-  activePlayers: number;
-  activeGames: number;
-  completedClues: number;
-  clueDiscoveryRate: number;
-  averageCompletionTime: number;
-  playerRetention: number;
-  totalGamesCompleted: number;
-  completionRate: number;
-  averageScore: number;
-  playerProgress: Record<string, number>;
-  safetyIncidents: {
-    total: number;
-    byType: Record<string, number>;
-    recentIncidents: Array<{
-      playerId: string;
-      type: string;
-      reason: string;
-      timestamp: number;
-    }>;
+  current: GameMetrics;
+  historical: {
+    weeklyTrend: GameMetrics[];
   };
 }
 
@@ -98,4 +85,12 @@ export interface MonitoringDashboardProps {
   onErrorClick?: (error: ErrorEvent) => void;
   onAlertAcknowledge?: (alert: Alert) => void;
   onMetricThresholdChange?: (metric: string, value: number) => void;
+}
+
+export interface ErrorData {
+  timestamp: number;
+  count: number;
+  type: string;
+  severity: string;
+  message?: string;
 }

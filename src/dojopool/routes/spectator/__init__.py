@@ -1,6 +1,7 @@
 """Spectator routes."""
+
 from flask import Blueprint
 
-spectator_bp = Blueprint('spectator', __name__)
+spectator_bp = Blueprint("spectator", __name__)
 
-from . import views  # noqa 
+from . import views  # noqa

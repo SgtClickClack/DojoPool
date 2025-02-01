@@ -2,22 +2,27 @@
 
 This module contains the PlayerStatus model for tracking player status in games and venues.
 """
+
 from datetime import datetime
-from typing import Dict, Any
-from dojopool.core.extensions import db
+from typing import Any, Dict
+
 from dojopool.core.database import reference_col
+from dojopool.core.extensions import db
+
 from .base import TimestampedModel
+
 
 class PlayerStatus(TimestampedModel):
     """Player status model."""
-    __tablename__ = 'player_status'
-    __table_args__ = {'extend_existing': True}
+
+    __tablename__ = "player_status"
+    __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
-    player_id = reference_col('player', nullable=False)
-    game_id = reference_col('games', nullable=True)
-    venue_id = reference_col('venues', nullable=True)
-    status = db.Column(db.String(50), nullable=False, default='offline')
+    player_id = reference_col("player", nullable=False)
+    game_id = reference_col("games", nullable=True)
+    venue_id = reference_col("venues", nullable=True)
+    status = db.Column(db.String(50), nullable=False, default="offline")
     last_active = db.Column(db.DateTime, default=datetime.utcnow)
     current_activity = db.Column(db.String(100))
     is_available = db.Column(db.Boolean, default=True)
@@ -26,9 +31,9 @@ class PlayerStatus(TimestampedModel):
     custom_status = db.Column(db.String(200))
 
     # Relationships
-    player = db.relationship('Player', backref='status_history')
-    game = db.relationship('Game', backref='player_statuses')
-    venue = db.relationship('Venue', backref='player_statuses')
+    player = db.relationship("Player", backref="status_history")
+    game = db.relationship("Game", backref="player_statuses")
+    venue = db.relationship("Venue", backref="player_statuses")
 
     def __init__(self, **kwargs):
         """Initialize player status."""
@@ -38,19 +43,19 @@ class PlayerStatus(TimestampedModel):
     def to_dict(self) -> Dict[str, Any]:
         """Convert player status to dictionary."""
         return {
-            'id': self.id,
-            'player_id': self.player_id,
-            'game_id': self.game_id,
-            'venue_id': self.venue_id,
-            'status': self.status,
-            'last_active': self.last_active.isoformat() if self.last_active else None,
-            'current_activity': self.current_activity,
-            'is_available': self.is_available,
-            'is_busy': self.is_busy,
-            'is_away': self.is_away,
-            'custom_status': self.custom_status,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            "id": self.id,
+            "player_id": self.player_id,
+            "game_id": self.game_id,
+            "venue_id": self.venue_id,
+            "status": self.status,
+            "last_active": self.last_active.isoformat() if self.last_active else None,
+            "current_activity": self.current_activity,
+            "is_available": self.is_available,
+            "is_busy": self.is_busy,
+            "is_away": self.is_away,
+            "custom_status": self.custom_status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
     def update_status(self, status: str, activity: str = None) -> None:

@@ -1,17 +1,21 @@
-import qrcode
+import base64
 import io
 import json
-import base64
 import logging
-from typing import Dict, Optional
 from datetime import datetime, timedelta
-from .models import PoolTable
+from typing import Dict, Optional
+
+import qrcode
 from core.models import db
+
+from .models import PoolTable
 
 logger = logging.getLogger(__name__)
 
+
 class QRCodeManager:
     """Manages QR codes for pool tables."""
+
     def __init__(self, secret_key: str, expiry_minutes: int = 60):
         self.secret_key = secret_key
         self.expiry_minutes = expiry_minutes
@@ -21,10 +25,10 @@ class QRCodeManager:
         try:
             # Create QR code data
             qr_data = {
-                'table_id': table_id,
-                'venue_id': venue_id,
-                'timestamp': datetime.utcnow().isoformat(),
-                'expires': (datetime.utcnow() + timedelta(minutes=self.expiry_minutes)).isoformat()
+                "table_id": table_id,
+                "venue_id": venue_id,
+                "timestamp": datetime.utcnow().isoformat(),
+                "expires": (datetime.utcnow() + timedelta(minutes=self.expiry_minutes)).isoformat(),
             }
 
             # Generate QR code
@@ -39,10 +43,10 @@ class QRCodeManager:
 
             # Create QR code image
             img = qr.make_image(fill_color="black", back_color="white")
-            
+
             # Convert to base64
             img_buffer = io.BytesIO()
-            img.save(img_buffer, format='PNG')
+            img.save(img_buffer, format="PNG")
             img_str = base64.b64encode(img_buffer.getvalue()).decode()
 
             return f"data:image/png;base64,{img_str}"
@@ -56,17 +60,16 @@ class QRCodeManager:
         try:
             # Parse QR data
             data = json.loads(qr_data)
-            
+
             # Check expiration
-            expires = datetime.fromisoformat(data['expires'])
+            expires = datetime.fromisoformat(data["expires"])
             if expires < datetime.utcnow():
                 logger.warning("QR code has expired")
                 return None
 
             # Get table information
             table = PoolTable.query.filter_by(
-                id=data['table_id'],
-                venue_id=data['venue_id']
+                id=data["table_id"], venue_id=data["venue_id"]
             ).first()
 
             if not table:
@@ -74,12 +77,12 @@ class QRCodeManager:
                 return None
 
             return {
-                'table_id': table.id,
-                'venue_id': table.venue_id,
-                'table_number': table.table_number,
-                'is_occupied': table.is_occupied,
-                'needs_maintenance': table.needs_maintenance,
-                'current_game_id': table.current_game_id
+                "table_id": table.id,
+                "venue_id": table.venue_id,
+                "table_number": table.table_number,
+                "is_occupied": table.is_occupied,
+                "needs_maintenance": table.needs_maintenance,
+                "current_game_id": table.current_game_id,
             }
 
         except Exception as e:
@@ -104,10 +107,7 @@ class QRCodeManager:
             return {}
 
     def update_table_status_from_qr(
-        self,
-        qr_data: str,
-        user_id: int,
-        action: str
+        self, qr_data: str, user_id: int, action: str
     ) -> Optional[Dict]:
         """Update table status using QR code scan."""
         try:
@@ -116,44 +116,35 @@ class QRCodeManager:
             if not table_info:
                 return None
 
-            table = PoolTable.query.get(table_info['table_id'])
+            table = PoolTable.query.get(table_info["table_id"])
             if not table:
                 return None
 
             # Handle different actions
-            if action == 'check_in':
+            if action == "check_in":
                 if table.is_occupied:
-                    return {
-                        'success': False,
-                        'message': 'Table is already occupied'
-                    }
+                    return {"success": False, "message": "Table is already occupied"}
                 table.is_occupied = True
-                
-            elif action == 'check_out':
+
+            elif action == "check_out":
                 if not table.is_occupied:
-                    return {
-                        'success': False,
-                        'message': 'Table is not occupied'
-                    }
+                    return {"success": False, "message": "Table is not occupied"}
                 table.is_occupied = False
                 table.current_game_id = None
-                
-            elif action == 'report_maintenance':
+
+            elif action == "report_maintenance":
                 table.needs_maintenance = True
-                
+
             else:
-                return {
-                    'success': False,
-                    'message': 'Invalid action'
-                }
+                return {"success": False, "message": "Invalid action"}
 
             # Save changes
             db.session.commit()
 
             return {
-                'success': True,
-                'table': table.to_dict(),
-                'message': f'Successfully performed {action}'
+                "success": True,
+                "table": table.to_dict(),
+                "message": f"Successfully performed {action}",
             }
 
         except Exception as e:
@@ -168,15 +159,15 @@ class QRCodeManager:
             if not table_info:
                 return None
 
-            table = PoolTable.query.get(table_info['table_id'])
+            table = PoolTable.query.get(table_info["table_id"])
             if not table:
                 return None
 
             return {
-                'table': table.to_dict(),
-                'venue': table.venue.to_dict() if table.venue else None
+                "table": table.to_dict(),
+                "venue": table.venue.to_dict() if table.venue else None,
             }
 
         except Exception as e:
             logger.error(f"Failed to get table status: {str(e)}")
-            return None 
+            return None

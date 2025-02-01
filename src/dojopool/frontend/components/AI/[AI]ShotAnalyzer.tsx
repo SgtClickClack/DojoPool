@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { PhotoCamera } from '@mui/icons-material';
-import { api } from '../../services/api';
+import axios from 'axios';
 
 const AnalyzerContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -52,101 +52,97 @@ interface ShotAnalysis {
 }
 
 export const ShotAnalyzer: React.FC = () => {
-  const [analyzing, setAnalyzing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<ShotAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setAnalyzing(true);
-    setError(null);
+    const formData = new FormData();
+    formData.append('shot_video', file);
 
     try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append('frames', file);
-      });
-
-      const response = await api.post('/ai/analyze-shot', formData, {
+      setLoading(true);
+      setError(null);
+      const response = await axios.post('/api/ai/analyze-shot', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
       setAnalysis(response.data);
     } catch (err) {
-      setError('Failed to analyze shot. Please try again.');
-      console.error('Shot analysis error:', err);
+      setError('Failed to analyze shot. Please try again with a different video.');
+      console.error('Error analyzing shot:', err);
     } finally {
-      setAnalyzing(false);
+      setLoading(false);
     }
   };
 
   const renderMetrics = (metrics: ShotMetrics) => (
     <MetricsContainer>
-      <MetricCard elevation={2}>
-        <Typography variant="h6" color="primary">
+      <MetricCard>
+        <Typography variant="h6" gutterBottom>
           Velocity
         </Typography>
-        <Typography variant="h4">{metrics.velocity.toFixed(1)}</Typography>
+        <Typography variant="h4" color="primary">
+          {metrics.velocity.toFixed(1)}
+        </Typography>
         <Typography variant="body2" color="textSecondary">
-          m/s
+          mph
         </Typography>
       </MetricCard>
-
-      <MetricCard elevation={2}>
-        <Typography variant="h6" color="primary">
+      <MetricCard>
+        <Typography variant="h6" gutterBottom>
           Spin
         </Typography>
-        <Typography variant="h4">{(metrics.spin * 100).toFixed(1)}</Typography>
+        <Typography variant="h4" color="primary">
+          {metrics.spin.toFixed(1)}
+        </Typography>
         <Typography variant="body2" color="textSecondary">
-          %
+          rpm
         </Typography>
       </MetricCard>
-
-      <MetricCard elevation={2}>
-        <Typography variant="h6" color="primary">
+      <MetricCard>
+        <Typography variant="h6" gutterBottom>
           Accuracy
         </Typography>
-        <Typography variant="h4">{(metrics.accuracy * 100).toFixed(1)}</Typography>
-        <Typography variant="body2" color="textSecondary">
-          %
+        <Typography variant="h4" color="primary">
+          {(metrics.accuracy * 100).toFixed(1)}%
         </Typography>
       </MetricCard>
     </MetricsContainer>
   );
 
   return (
-    <AnalyzerContainer elevation={3}>
+    <AnalyzerContainer>
       <Typography variant="h5" gutterBottom>
         Shot Analysis
       </Typography>
 
-      <Box sx={{ mb: 3 }}>
-        <label htmlFor="shot-upload">
+      <Box display="flex" justifyContent="center" mb={3}>
+        <label htmlFor="shot-video-upload">
           <Input
-            accept="image/*"
-            id="shot-upload"
-            multiple
+            accept="video/*"
+            id="shot-video-upload"
             type="file"
             onChange={handleFileUpload}
-            disabled={analyzing}
+            disabled={loading}
           />
           <Button
             variant="contained"
             component="span"
             startIcon={<PhotoCamera />}
-            disabled={analyzing}
+            disabled={loading}
           >
-            Upload Shot Sequence
+            Upload Shot Video
           </Button>
         </label>
       </Box>
 
-      {analyzing && (
-        <Box display="flex" justifyContent="center" my={3}>
+      {loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" p={3}>
           <CircularProgress />
         </Box>
       )}
@@ -157,23 +153,29 @@ export const ShotAnalyzer: React.FC = () => {
         </Alert>
       )}
 
-      {analysis && analysis.success && analysis.metrics && (
+      {analysis && !loading && (
         <>
-          {renderMetrics(analysis.metrics)}
+          {analysis.metrics && renderMetrics(analysis.metrics)}
 
-          <Divider sx={{ my: 2 }} />
-
-          <Typography variant="h6" gutterBottom>
-            Recommendations
-          </Typography>
-
-          <List>
-            {analysis.recommendations?.map((recommendation, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={recommendation} />
-              </ListItem>
-            ))}
-          </List>
+          {analysis.recommendations && analysis.recommendations.length > 0 && (
+            <>
+              <Typography variant="h6" gutterBottom>
+                Recommendations
+              </Typography>
+              <List>
+                {analysis.recommendations.map((recommendation, index) => (
+                  <React.Fragment key={index}>
+                    <ListItem>
+                      <ListItemText primary={recommendation} />
+                    </ListItem>
+                    {index < analysis.recommendations.length - 1 && (
+                      <Divider component="li" />
+                    )}
+                  </React.Fragment>
+                ))}
+              </List>
+            </>
+          )}
         </>
       )}
     </AnalyzerContainer>

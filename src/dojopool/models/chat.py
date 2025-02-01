@@ -1,82 +1,71 @@
 """Chat models for messaging between users."""
 
 from datetime import datetime
-from ..core.database import db
-from ..core.mixins import TimestampMixin
-from .venue import VenueCheckin
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import relationship
+
+from .base import BaseModel
 
 
-class ChatRoom(TimestampMixin, db.Model):
-    """Model for chat rooms."""
+class ChatRoom(BaseModel):
+    """Chat room model."""
 
     __tablename__ = "chat_rooms"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))  # Optional name for group chats
-    type = db.Column(db.String(20), default="direct")  # direct, group, tournament, etc.
-    status = db.Column(db.String(20), default="active")  # active, archived, deleted
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    description = Column(Text)
+    is_private = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    participants = db.relationship("ChatParticipant", back_populates="room")
-    messages = db.relationship("ChatMessage", back_populates="room")
+    messages = relationship("ChatMessage", back_populates="room")
+    participants = relationship("ChatParticipant", back_populates="room")
 
-    @staticmethod
-    def can_users_interact(user1_id: int, user2_id: int) -> bool:
-        """Check if two users can interact based on their dojo check-in status.
-
-        Args:
-            user1_id: First user's ID
-            user2_id: Second user's ID
-
-        Returns:
-            bool: True if users can interact, False otherwise
-        """
-        # Get active check-ins for both users
-        user1_checkin = VenueCheckin.query.filter_by(user_id=user1_id, checked_out_at=None).first()
-
-        user2_checkin = VenueCheckin.query.filter_by(user_id=user2_id, checked_out_at=None).first()
-
-        # Users can interact if they're checked into the same venue
-        if user1_checkin and user2_checkin:
-            return user1_checkin.venue_id == user2_checkin.venue_id
-
-        return False
+    def __repr__(self):
+        return f"<ChatRoom {self.name}>"
 
 
-class ChatParticipant(TimestampMixin, db.Model):
-    """Model for chat room participants."""
-
-    __tablename__ = "chat_participants"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.Integer, db.ForeignKey("chat_rooms.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    role = db.Column(db.String(20), default="member")  # member, admin, moderator
-    status = db.Column(db.String(20), default="active")  # active, muted, left
-    last_read_at = db.Column(db.DateTime)
-
-    # Relationships
-    room = db.relationship("ChatRoom", back_populates="participants")
-    user = db.relationship("User", back_populates="chat_rooms")
-
-
-class ChatMessage(TimestampMixin, db.Model):
-    """Model for chat messages."""
+class ChatMessage(BaseModel):
+    """Chat message model."""
 
     __tablename__ = "chat_messages"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.Integer, db.ForeignKey("chat_rooms.id"), nullable=False)
-    sender_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    message_type = db.Column(db.String(20), default="text")  # text, image, system
-    status = db.Column(db.String(20), default="sent")  # sent, delivered, read, deleted
-    delivered_at = db.Column(db.DateTime)
-    read_at = db.Column(db.DateTime)
+    id = Column(Integer, primary_key=True)
+    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    room = db.relationship("ChatRoom", back_populates="messages")
-    sender = db.relationship("User", back_populates="sent_messages")
+    room = relationship("ChatRoom", back_populates="messages")
+    user = relationship("User", backref="chat_messages")
+
+    def __repr__(self):
+        return f"<ChatMessage {self.id} in Room {self.room_id}>"
+
+
+class ChatParticipant(BaseModel):
+    """Chat participant model."""
+
+    __tablename__ = "chat_participants"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True)
+    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    joined_at = Column(DateTime, default=datetime.utcnow)
+    last_read_at = Column(DateTime)
+    is_admin = Column(Boolean, default=False)
+
+    # Relationships
+    room = relationship("ChatRoom", back_populates="participants")
+    user = relationship("User", backref="chat_participations")
+
+    def __repr__(self):
+        return f"<ChatParticipant {self.user_id} in Room {self.room_id}>"

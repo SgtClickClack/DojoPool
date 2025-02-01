@@ -1,234 +1,210 @@
-"""
-Certificate rotation script for DojoPool project.
-Handles automatic rotation of SSL certificates.
-"""
+def add_security_headers(response):
+    """Add security headers to response."""
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = (
+        "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    )
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    return response
 
-import os
-import sys
+
+#!/usr/bin/env python3
+"""Certificate rotation script for DojoPool."""
 import logging
+import os
 import subprocess
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Dict, List, Optional
-import OpenSSL.crypto
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
+import sys
+from datetime import datetime
+from typing import Optional, Tuple
 
-class CertificateRotator:
-    def __init__(self, root_dir: str | Path):
-        self.root_dir = Path(root_dir)
-        self.setup_logging()
-        
-    def setup_logging(self):
-        """Set up logging configuration."""
-        log_dir = self.root_dir / "logs" / "certificates"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler(log_dir / f"cert_rotation_{datetime.now(timezone.utc).strftime('%Y%m%d')}.log"),
-                logging.StreamHandler()
-            ]
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("certificate_rotation.log"), logging.StreamHandler()],
+)
+
+
+def check_certificate(domain: str) -> Tuple[bool, Optional[datetime]]:
+    """Check SSL certificate expiration date."""
+    try:
+        # Use OpenSSL to check certificate
+        cmd = [
+            "openssl",
+            "s_client",
+            "-connect",
+            f"{domain}:443",
+            "-servername",
+            domain,
+            "-showcerts",
+        ]
+        process = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE
         )
-        
-    def check_certificate_expiry(self) -> List[Dict]:
-        """Check SSL certificates for expiration."""
-        expiring_certs = []
-        cert_dir = self.root_dir / "certs" / "production"
-        
-        for cert_file in cert_dir.glob("*.crt"):
-            try:
-                with open(cert_file, "rb") as f:
-                    cert_data = f.read()
-                    cert = x509.load_pem_x509_certificate(cert_data, default_backend())
-                    
-                days_until_expiry = (cert.not_valid_after_utc - datetime.now(timezone.utc)).days
-                
-                if days_until_expiry < 30:
-                    expiring_certs.append({
-                        "file": cert_file,
-                        "days_remaining": days_until_expiry
-                    })
-            except Exception as e:
-                logging.error(f"Error checking certificate {cert_file}: {str(e)}")
-                
-        return expiring_certs
-    
-    def backup_certificate(self, cert_file: Path) -> Optional[Path]:
-        """Create a backup of a certificate file."""
+        output, _ = process.communicate(input=b"")
+
+        # Parse certificate info
+        cert_info = subprocess.check_output(
+            ["openssl", "x509", "-noout", "-enddate"], input=output
+        ).decode()
+
+        # Extract expiration date
+        expiry_str = cert_info.split("=")[1].strip()
+        expiry_date = datetime.strptime(expiry_str, "%b %d %H:%M:%S %Y %Z")
+
+        # Check if certificate expires within 30 days
+        days_until_expiry = (expiry_date - datetime.now()).days
+        needs_renewal = days_until_expiry <= 30
+
+        return needs_renewal, expiry_date
+    except Exception as e:
+        logging.error(f"Error checking certificate: {str(e)}")
+        return True, None
+
+
+def backup_certificate(domain: str) -> bool:
+    """Backup existing SSL certificate."""
+    try:
+        cert_dir = f"/etc/letsencrypt/live/{domain}"
+        backup_dir = f'/etc/letsencrypt/backup/{domain}_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
+
+        # Create backup directory
+        os.makedirs(backup_dir, exist_ok=True)
+
+        # Backup certificate files
+        for file in ["cert.pem", "chain.pem", "fullchain.pem", "privkey.pem"]:
+            src = os.path.join(cert_dir, file)
+            dst = os.path.join(backup_dir, file)
+            if os.path.exists(src):
+                subprocess.run(["cp", src, dst], check=True)
+
+        logging.info(f"Certificate backup created at {backup_dir}")
+        return True
+    except Exception as e:
+        logging.error(f"Error backing up certificate: {str(e)}")
+        return False
+
+
+def renew_certificate(domain: str) -> bool:
+    """Renew SSL certificate using Let's Encrypt."""
+    try:
+        # Stop Nginx
+        subprocess.run(["systemctl", "stop", "nginx"], check=True)
+
+        # Renew certificate
+        cmd = [
+            "certbot",
+            "renew",
+            "--cert-name",
+            domain,
+            "--preferred-challenges",
+            "http",
+            "--http-01-port",
+            "80",
+            "--force-renewal",
+        ]
+        subprocess.run(cmd, check=True)
+
+        # Start Nginx
+        subprocess.run(["systemctl", "start", "nginx"], check=True)
+
+        logging.info(f"Certificate renewed for {domain}")
+        return True
+    except Exception as e:
+        logging.error(f"Error renewing certificate: {str(e)}")
+        # Try to restart Nginx in case of failure
         try:
-            backup_dir = self.root_dir / "certs" / "backup"
-            backup_dir.mkdir(parents=True, exist_ok=True)
-            
-            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            backup_file = backup_dir / f"{cert_file.stem}_{timestamp}{cert_file.suffix}"
-            
-            with open(cert_file, "rb") as src, open(backup_file, "wb") as dst:
-                dst.write(src.read())
-                
-            logging.info(f"Created backup of {cert_file} at {backup_file}")
-            return backup_file
-            
-        except Exception as e:
-            logging.error(f"Error backing up certificate {cert_file}: {str(e)}")
-            return None
-    
-    def generate_new_certificate(self, domain: str) -> Dict[str, Path]:
-        """Generate a new SSL certificate using OpenSSL."""
-        try:
-            cert_dir = self.root_dir / "certs" / "production"
-            cert_dir.mkdir(parents=True, exist_ok=True)
-            
-            key_file = cert_dir / f"{domain}.key"
-            csr_file = cert_dir / f"{domain}.csr"
-            cert_file = cert_dir / f"{domain}.crt"
-            
-            # Generate private key
-            subprocess.run([
-                "openssl", "genrsa",
-                "-out", str(key_file),
-                "2048"
-            ], check=True)
-            
-            # Generate CSR
-            subprocess.run([
-                "openssl", "req",
-                "-new",
-                "-key", str(key_file),
-                "-out", str(csr_file),
-                "-subj", f"/CN={domain}"
-            ], check=True)
-            
-            # For development/testing, self-sign the certificate
-            # In production, you would submit the CSR to a CA
-            subprocess.run([
-                "openssl", "x509",
-                "-req",
-                "-days", "365",
-                "-in", str(csr_file),
-                "-signkey", str(key_file),
-                "-out", str(cert_file)
-            ], check=True)
-            
-            logging.info(f"Generated new certificate for {domain}")
-            return {
-                "key": key_file,
-                "csr": csr_file,
-                "cert": cert_file
-            }
-            
-        except subprocess.CalledProcessError as e:
-            logging.error(f"OpenSSL command failed: {str(e)}")
-            raise
-        except Exception as e:
-            logging.error(f"Error generating certificate for {domain}: {str(e)}")
-            raise
-    
-    def update_nginx_config(self, cert_files: Dict[str, Path]) -> bool:
-        """Update Nginx configuration with new certificate paths."""
-        try:
-            nginx_conf = self.root_dir / "deployment" / "nginx" / "nginx.conf"
-            
-            if not nginx_conf.exists():
-                logging.error("Nginx configuration file not found")
-                return False
-                
-            with open(nginx_conf, "r") as f:
-                content = f.read()
-                
-            # Update SSL certificate paths
-            content = content.replace(
-                "ssl_certificate ", 
-                f"ssl_certificate {cert_files['cert']} "
-            )
-            content = content.replace(
-                "ssl_certificate_key ",
-                f"ssl_certificate_key {cert_files['key']} "
-            )
-            
-            with open(nginx_conf, "w") as f:
-                f.write(content)
-                
-            logging.info("Updated Nginx configuration with new certificate paths")
+            subprocess.run(["systemctl", "start", "nginx"])
+        except:
+            pass
+        return False
+
+
+def verify_certificate(domain: str) -> bool:
+    """Verify the renewed certificate."""
+    try:
+        # Check HTTPS connection
+        cmd = ["curl", "-sS", "--head", f"https://{domain}"]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        # Verify response
+        if "HTTP/2 200" in result.stdout or "HTTP/1.1 200" in result.stdout:
+            logging.info(f"Certificate verification successful for {domain}")
             return True
-            
-        except Exception as e:
-            logging.error(f"Error updating Nginx configuration: {str(e)}")
+        else:
+            logging.error(f"Certificate verification failed for {domain}")
             return False
-    
-    def reload_nginx(self) -> bool:
-        """Reload Nginx to apply new certificate configuration."""
-        try:
-            subprocess.run(["nginx", "-s", "reload"], check=True)
-            logging.info("Successfully reloaded Nginx")
-            return True
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Failed to reload Nginx: {str(e)}")
-            return False
-    
-    def rotate_certificates(self) -> bool:
-        """Main method to handle certificate rotation."""
-        try:
-            # Check for expiring certificates
-            expiring_certs = self.check_certificate_expiry()
-            
-            if not expiring_certs:
-                logging.info("No certificates need rotation at this time")
-                return True
-                
-            success = True
-            for cert_info in expiring_certs:
-                cert_file = cert_info["file"]
-                domain = cert_file.stem
-                
-                logging.info(f"Rotating certificate for {domain} (expires in {cert_info['days_remaining']} days)")
-                
-                # Backup existing certificate
-                if not self.backup_certificate(cert_file):
-                    logging.error(f"Failed to backup certificate for {domain}")
-                    success = False
-                    continue
-                    
-                # Generate new certificate
-                try:
-                    new_cert_files = self.generate_new_certificate(domain)
-                except Exception as e:
-                    logging.error(f"Failed to generate new certificate for {domain}")
-                    success = False
-                    continue
-                    
-                # Update Nginx configuration
-                if not self.update_nginx_config(new_cert_files):
-                    logging.error(f"Failed to update Nginx configuration for {domain}")
-                    success = False
-                    continue
-                    
-                # Reload Nginx
-                if not self.reload_nginx():
-                    logging.error(f"Failed to reload Nginx after rotating certificate for {domain}")
-                    success = False
-                    continue
-                    
-                logging.info(f"Successfully rotated certificate for {domain}")
-                
-            return success
-            
-        except Exception as e:
-            logging.error(f"Certificate rotation failed: {str(e)}")
-            return False
+    except Exception as e:
+        logging.error(f"Error verifying certificate: {str(e)}")
+        return False
+
+
+def notify_team(domain: str, expiry_date: Optional[datetime], success: bool) -> None:
+    """Notify team about certificate rotation status."""
+    try:
+        message = f"""
+Certificate Rotation Report
+Domain: {domain}
+Status: {"Success" if success else "Failed"}
+"""
+        if expiry_date:
+            message += f"Expiry Date: {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}\n"
+
+        # Send email notification
+        subprocess.run(
+            ["mail", "-s", f"Certificate Rotation Report - {domain}", "security@dojopool.com.au"],
+            input=message.encode(),
+        )
+
+        logging.info("Team notification sent")
+    except Exception as e:
+        logging.error(f"Error sending notification: {str(e)}")
+
 
 def main():
-    """Main entry point for certificate rotation script."""
-    try:
-        root_dir = Path(__file__).parent.parent.parent.parent
-        rotator = CertificateRotator(root_dir)
-        success = rotator.rotate_certificates()
-        sys.exit(0 if success else 1)
-    except Exception as e:
-        logging.error(f"Certificate rotation failed: {str(e)}")
+    """Main function."""
+    if len(sys.argv) != 2:
+        print("Usage: certificate_rotation.py <domain>")
         sys.exit(1)
 
+    domain = sys.argv[1]
+    logging.info(f"Starting certificate rotation for {domain}")
+
+    # Check certificate
+    needs_renewal, expiry_date = check_certificate(domain)
+    if not needs_renewal:
+        logging.info("Certificate is still valid")
+        sys.exit(0)
+
+    # Backup existing certificate
+    if not backup_certificate(domain):
+        logging.error("Certificate backup failed")
+        notify_team(domain, expiry_date, False)
+        sys.exit(1)
+
+    # Renew certificate
+    if not renew_certificate(domain):
+        logging.error("Certificate renewal failed")
+        notify_team(domain, expiry_date, False)
+        sys.exit(1)
+
+    # Verify new certificate
+    if not verify_certificate(domain):
+        logging.error("Certificate verification failed")
+        notify_team(domain, expiry_date, False)
+        sys.exit(1)
+
+    # Notify team
+    notify_team(domain, expiry_date, True)
+    logging.info("Certificate rotation completed successfully")
+
+
 if __name__ == "__main__":
-    main() 
+    main()

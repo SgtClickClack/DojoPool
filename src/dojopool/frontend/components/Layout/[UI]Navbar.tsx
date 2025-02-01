@@ -23,9 +23,9 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '@/contexts/AuthContext';
-import NotificationCenter from './NotificationCenter';
-import notificationService from '../../services/notification';
+import { useAuth } from '../../contexts/AuthContext';
+import NotificationCenter from './[NOTIFY]NotificationCenter';
+import notificationService from '../../services/[NET]notification';
 
 const publicPages = [
   { title: 'Home', path: '/' },

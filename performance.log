@@ -1,0 +1,229 @@
+2025-02-02 04:29:32,195 - INFO - Monitoring started
+2025-02-02 04:29:33,203 - WARNING - High disk usage: 92.8%
+2025-02-02 04:30:34,210 - WARNING - High disk usage: 92.8%
+2025-02-02 04:31:35,218 - WARNING - High disk usage: 92.8%
+2025-02-02 04:32:36,224 - WARNING - High disk usage: 92.8%
+2025-02-02 04:33:37,234 - WARNING - High disk usage: 92.8%
+2025-02-02 04:34:38,241 - WARNING - High disk usage: 92.8%
+2025-02-02 04:35:39,248 - WARNING - High disk usage: 92.8%
+2025-02-02 04:36:40,255 - WARNING - High disk usage: 92.8%
+2025-02-02 04:37:41,262 - WARNING - High disk usage: 92.8%
+2025-02-02 04:38:42,270 - WARNING - High disk usage: 92.8%
+2025-02-02 04:39:43,277 - WARNING - High disk usage: 92.8%
+2025-02-02 04:40:44,284 - WARNING - High disk usage: 92.8%
+2025-02-02 04:44:24,311 - WARNING - High CPU usage: 100.0%
+2025-02-02 04:44:24,317 - WARNING - High disk usage: 92.8%
+2025-02-02 04:44:31,684 - WARNING - High CPU usage: 100.0%
+2025-02-02 04:44:31,694 - WARNING - High disk usage: 92.8%
+2025-02-02 04:44:38,488 - WARNING - High CPU usage: 99.8%
+2025-02-02 04:44:38,512 - WARNING - High disk usage: 92.8%
+2025-02-02 04:44:45,908 - WARNING - High CPU usage: 100.0%
+2025-02-02 04:44:45,919 - WARNING - High disk usage: 92.8%
+2025-02-02 04:44:53,341 - WARNING - High CPU usage: 99.9%
+2025-02-02 04:44:53,355 - WARNING - High disk usage: 92.8%
+2025-02-02 04:44:59,377 - WARNING - High CPU usage: 93.4%
+2025-02-02 04:44:59,377 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:05,382 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:11,398 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:17,406 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:23,414 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:29,423 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:35,435 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:41,445 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:47,454 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:53,464 - WARNING - High disk usage: 92.8%
+2025-02-02 04:45:59,472 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:05,481 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:11,489 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:17,498 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:23,506 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:29,514 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:35,526 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:41,535 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:47,538 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:53,556 - WARNING - High disk usage: 92.8%
+2025-02-02 04:46:59,559 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:05,571 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:11,578 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:17,586 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:23,592 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:29,603 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:35,609 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:41,618 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:47,626 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:53,636 - WARNING - High disk usage: 92.8%
+2025-02-02 04:47:59,638 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:05,646 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:11,656 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:17,665 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:23,673 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:29,681 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:35,688 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:41,696 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:47,705 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:53,712 - WARNING - High disk usage: 92.8%
+2025-02-02 04:48:59,720 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:05,727 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:11,736 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:17,738 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:23,752 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:29,759 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:35,767 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:41,776 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:47,779 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:53,792 - WARNING - High disk usage: 92.8%
+2025-02-02 04:49:59,799 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:05,807 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:11,810 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:17,822 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:23,829 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:29,837 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:35,848 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:41,854 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:47,862 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:53,869 - WARNING - High disk usage: 92.8%
+2025-02-02 04:50:59,878 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:05,887 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:11,895 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:17,902 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:23,910 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:29,917 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:35,925 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:41,932 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:47,939 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:53,949 - WARNING - High disk usage: 92.8%
+2025-02-02 04:51:59,957 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:05,964 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:11,973 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:17,979 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:23,997 - WARNING - High disk usage: 92.9%
+2025-02-02 04:52:30,005 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:36,015 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:42,024 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:48,032 - WARNING - High disk usage: 92.8%
+2025-02-02 04:52:54,040 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:00,048 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:06,057 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:12,063 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:18,071 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:24,079 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:30,088 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:36,097 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:42,107 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:48,116 - WARNING - High disk usage: 92.8%
+2025-02-02 04:53:54,124 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:00,133 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:06,140 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:12,163 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:18,173 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:24,182 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:30,192 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:36,199 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:42,207 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:48,215 - WARNING - High disk usage: 92.8%
+2025-02-02 04:54:54,223 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:00,229 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:06,238 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:12,245 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:18,253 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:24,261 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:30,268 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:36,276 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:42,285 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:48,292 - WARNING - High disk usage: 92.8%
+2025-02-02 04:55:54,298 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:00,306 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:06,314 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:12,322 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:18,332 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:24,340 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:30,346 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:36,355 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:42,363 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:48,369 - WARNING - High disk usage: 92.8%
+2025-02-02 04:56:54,376 - WARNING - High disk usage: 92.8%
+2025-02-02 04:57:00,384 - WARNING - High disk usage: 92.8%
+2025-02-02 04:57:06,392 - WARNING - High disk usage: 92.8%
+2025-02-02 04:57:12,400 - WARNING - High disk usage: 92.8%
+2025-02-02 04:57:18,409 - WARNING - High disk usage: 92.8%
+2025-02-02 04:57:24,426 - WARNING - High disk usage: 92.8%
+2025-02-02 04:57:30,434 - WARNING - High disk usage: 92.8%
+2025-02-02 04:58:31,484 - WARNING - High CPU usage: 100.0%
+2025-02-02 04:58:38,327 - WARNING - High CPU usage: 100.0%
+2025-02-02 05:02:15,601 - WARNING - High CPU usage: 100.0%
+Top CPU Processes:
+  - System Idle Process (PID: 0): 0.0%
+  - System (PID: 4): 0.0%
+  - lsass.exe (PID: 8): 0.0%
+  -  (PID: 136): 0.0%
+  - services.exe (PID: 164): 0.0%
+2025-02-02 05:02:27,868 - WARNING - High CPU usage: 100.0%
+Top CPU Processes:
+  - svchost.exe (PID: 5100): 87.6%
+  - dwm.exe (PID: 1452): 58.0%
+  - Cursor.exe (PID: 20304): 46.3%
+  - UninstallMonitor.exe (PID: 38096): 33.3%
+  - Cursor.exe (PID: 40912): 31.0%
+2025-02-02 05:02:38,631 - WARNING - High CPU usage: 100.0%
+Top CPU Processes:
+  - Cursor.exe (PID: 20304): 109.4%
+  - svchost.exe (PID: 5100): 80.4%
+  - dwm.exe (PID: 1452): 59.3%
+  - Cursor.exe (PID: 40912): 45.8%
+  - UninstallMonitor.exe (PID: 38096): 38.4%
+2025-02-02 05:02:47,944 - WARNING - High CPU usage: 100.0%
+Top CPU Processes:
+  - Cursor.exe (PID: 20304): 115.9%
+  - svchost.exe (PID: 5100): 87.5%
+  - Cursor.exe (PID: 40912): 69.1%
+  - dwm.exe (PID: 1452): 54.0%
+  - UninstallMonitor.exe (PID: 38096): 50.0%
+2025-02-02 05:04:05,167 - WARNING - High CPU usage: 100.0%
+Top CPU Processes:
+  - Cursor.exe (PID: 20304): 113.5%
+  - MsMpEng.exe (PID: 5584): 43.8%
+  - UninstallMonitor.exe (PID: 38096): 43.1%
+  - dwm.exe (PID: 1452): 31.0%
+  - Cursor.exe (PID: 40912): 28.1%
+2025-02-02 05:04:14,108 - WARNING - High CPU usage: 100.0%
+Top CPU Processes:
+  - Cursor.exe (PID: 20304): 105.7%
+  - UninstallMonitor.exe (PID: 38096): 31.1%
+  - dwm.exe (PID: 1452): 31.0%
+  - msedge.exe (PID: 25320): 25.6%
+  - Cursor.exe (PID: 27004): 23.4%
+2025-02-02 05:08:10,602 - WARNING - High CPU usage: 100.0% \u27a1\ufe0f
+Top CPU Processes:
+  - System Idle Process (PID: 0): 0.0%
+    CMD: 
+  - System (PID: 4): 0.0%
+    CMD: 
+  - lsass.exe (PID: 8): 0.0%
+    CMD: C:\Windows\system32\lsass.exe
+  -  (PID: 136): 0.0%
+  - services.exe (PID: 164): 0.0%
+    CMD: C:\Windows\system32\services.exe
+Recommendations:
+- Consider closing unnecessary applications
+- Check for background tasks or updates
+- Monitor for potential malware activity
+2025-02-02 05:08:23,493 - WARNING - High CPU usage: 100.0% \u27a1\ufe0f
+Top CPU Processes:
+  - PPUninstaller.exe (PID: 33824): 138.9%
+    \u26a0\ufe0f Consistently high CPU usage (132.7% avg)
+    CMD: C:\Program Files (x86)\IObit\IObit Uninstaller\PPU...
+  - Cursor.exe (PID: 20304): 127.2%
+    \u26a0\ufe0f Consistently high CPU usage (98.9% avg)
+    CMD: C:\Users\JR\AppData\Local\Programs\cursor\Cursor.e...
+  - Cursor.exe (PID: 40912): 72.6%
+    \u26a0\ufe0f Consistently high CPU usage (59.9% avg)
+    CMD: C:\Users\JR\AppData\Local\Programs\cursor\Cursor.e...
+  - msedge.exe (PID: 25320): 53.5%
+    CMD: C:\Program Files (x86)\Microsoft\Edge\Application\...
+  - dwm.exe (PID: 1452): 39.4%
+    CMD: dwm.exe
+Recommendations:
+- Consider closing unnecessary applications
+- Check for background tasks or updates
+- Monitor for potential malware activity
+2025-02-02 05:27:18,168 - WARNING - \U0001f504 Consider closing or investigating high CPU apps: System Idle Process, Cursor.exe, MsMpEng.exe, msedge.exe

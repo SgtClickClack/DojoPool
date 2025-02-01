@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-interface AvatarStyle {
+export interface AvatarStyle {
   name: string;
   base_prompt: string;
   strength: number;

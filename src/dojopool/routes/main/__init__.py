@@ -1,6 +1,7 @@
 """Main routes."""
+
 from flask import Blueprint
 
-main_bp = Blueprint('main', __name__)
+main_bp = Blueprint("main", __name__)
 
-from . import views  # noqa 
+from . import views  # noqa

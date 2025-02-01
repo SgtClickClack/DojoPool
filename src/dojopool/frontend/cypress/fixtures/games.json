@@ -1,0 +1,136 @@
+{
+  "activeGame": {
+    "id": "game_123",
+    "player1": {
+      "id": "user_123",
+      "username": "TestPlayer",
+      "stats": {
+        "totalShots": 10,
+        "successfulShots": 7,
+        "fouls": 1,
+        "longestStreak": 3,
+        "accuracy": 70
+      }
+    },
+    "player2": {
+      "id": "user_456",
+      "username": "ExistingPlayer",
+      "stats": {
+        "totalShots": 8,
+        "successfulShots": 5,
+        "fouls": 0,
+        "longestStreak": 2,
+        "accuracy": 62.5
+      }
+    },
+    "status": "active",
+    "currentTurn": "user_123",
+    "venue": "venue_123",
+    "startTime": "2024-03-20T10:00:00Z",
+    "lastAction": "2024-03-20T10:15:32Z",
+    "gameType": "8ball",
+    "remainingBalls": [3, 5, 7, 8],
+    "pocketedBalls": [1, 2, 4, 6],
+    "shotHistory": [
+      {
+        "playerId": "user_123",
+        "type": "shot",
+        "ball": 1,
+        "success": true,
+        "timestamp": "2024-03-20T10:05:00Z"
+      },
+      {
+        "playerId": "user_456",
+        "type": "shot",
+        "ball": 2,
+        "success": true,
+        "timestamp": "2024-03-20T10:07:30Z"
+      }
+    ]
+  },
+  "completedGame": {
+    "id": "game_456",
+    "player1": {
+      "id": "user_123",
+      "username": "TestPlayer",
+      "stats": {
+        "totalShots": 15,
+        "successfulShots": 12,
+        "fouls": 1,
+        "longestStreak": 5,
+        "accuracy": 80
+      }
+    },
+    "player2": {
+      "id": "user_456",
+      "username": "ExistingPlayer",
+      "stats": {
+        "totalShots": 12,
+        "successfulShots": 8,
+        "fouls": 2,
+        "longestStreak": 3,
+        "accuracy": 66.7
+      }
+    },
+    "status": "completed",
+    "winner": "user_123",
+    "venue": "venue_123",
+    "startTime": "2024-03-20T09:00:00Z",
+    "endTime": "2024-03-20T09:45:00Z",
+    "gameType": "8ball",
+    "finalScore": {
+      "user_123": 8,
+      "user_456": 5
+    },
+    "highlights": [
+      {
+        "type": "streak",
+        "playerId": "user_123",
+        "value": 5,
+        "timestamp": "2024-03-20T09:30:00Z"
+      },
+      {
+        "type": "skillShot",
+        "playerId": "user_456",
+        "description": "Double bank shot",
+        "timestamp": "2024-03-20T09:15:00Z"
+      }
+    ]
+  },
+  "pendingGame": {
+    "id": "game_789",
+    "player1": {
+      "id": "user_123",
+      "username": "TestPlayer"
+    },
+    "player2": null,
+    "status": "pending",
+    "venue": "venue_123",
+    "createdAt": "2024-03-20T11:00:00Z",
+    "gameType": "8ball",
+    "settings": {
+      "timeLimit": 3600,
+      "skillLevel": "intermediate",
+      "allowSpectators": true
+    }
+  },
+  "tournamentGame": {
+    "id": "game_101",
+    "player1": {
+      "id": "user_123",
+      "username": "TestPlayer",
+      "tournamentSeed": 1
+    },
+    "player2": {
+      "id": "user_456",
+      "username": "ExistingPlayer",
+      "tournamentSeed": 4
+    },
+    "status": "scheduled",
+    "venue": "venue_123",
+    "scheduledTime": "2024-03-21T15:00:00Z",
+    "tournamentId": "tournament_001",
+    "round": "semi-final",
+    "gameType": "9ball"
+  }
+} 

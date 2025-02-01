@@ -1,0 +1,27 @@
+# Security-related dependencies
+
+# Vulnerability scanning
+bandit==1.7.5
+safety==2.3.5
+
+# Security headers and CSRF protection
+Flask-SeaSurf==1.1.1
+Flask-Talisman==1.0.0
+
+# Authentication and authorization
+Flask-Login==0.6.2
+PyJWT==2.8.0
+
+# Cryptography
+cryptography==41.0.4
+itsdangerous==2.1.2
+
+# Rate limiting
+Flask-Limiter==3.5.0
+
+# Input validation and sanitization
+bleach==6.0.0
+marshmallow==3.20.1
+
+# Dependency checking
+pip-audit==2.6.1 

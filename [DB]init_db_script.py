@@ -8,25 +8,26 @@ sys.path.insert(0, str(project_root))
 
 from src.app import create_app, db
 
+
 def init_db():
     """Initialize the database with proper permissions."""
     app = create_app()
-    
+
     # Get the database path
     instance_dir = Path(app.instance_path)
-    db_path = instance_dir / 'dojopool.db'
-    
+    db_path = instance_dir / "dojopool.db"
+
     print(f"Instance directory: {instance_dir}")
     print(f"Database path: {db_path}")
-    
+
     # Ensure instance directory exists and is writable
     instance_dir.mkdir(parents=True, exist_ok=True)
     os.chmod(instance_dir, 0o777)
-    
+
     # If database file exists, ensure it's writable
     if db_path.exists():
         os.chmod(db_path, 0o666)
-    
+
     with app.app_context():
         try:
             # Create all tables
@@ -42,5 +43,6 @@ def init_db():
                 db.create_all()
                 print(f"Created new database file at {db_path}")
 
-if __name__ == '__main__':
-    init_db() 
+
+if __name__ == "__main__":
+    init_db()

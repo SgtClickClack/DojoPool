@@ -1,9 +1,9 @@
-from typing import Dict, List, Optional, Union
-from dataclasses import dataclass
-import logging
 import asyncio
-from datetime import datetime, timedelta
+import logging
 import statistics
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
 from .system_integrator import SystemIntegrator
 

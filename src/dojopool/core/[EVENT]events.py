@@ -7,7 +7,9 @@ import json
 import queue
 import threading
 from datetime import datetime
+
 from flask import Response, current_app
+
 from dojopool.extensions import redis_client
 
 

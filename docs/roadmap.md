@@ -1,4 +1,145 @@
-# DojoPool Project Roadmap - Updated
+# DojoPool: Revolutionizing Pool Gaming
+
+## Core Concept
+DojoPool is an innovative platform that transforms traditional pool games into an immersive, tech-enhanced experience by bridging physical and digital gameplay. It combines real-world pool venues with advanced technology, creating a unique social gaming ecosystem.
+
+## Key Components
+
+### 1. Physical-Digital Integration
+- [ ] Smart Venues ("Dojos")
+  - [ ] Overhead cameras for real-time game tracking
+  - [ ] Local processing units for low-latency performance
+  - [ ] QR code-enabled tables for easy game initiation
+- [ ] Real-Time Tracking
+  - [ ] Tracks ball positions and movements
+  - [ ] Enforces rules automatically
+  - [ ] Provides instant scoring and feedback
+  - [ ] Processes data locally to ensure minimal latency
+
+### 2. Digital Platform
+- [x] Backend Infrastructure
+  - [x] Database setup and optimization
+  - [x] API development
+  - [x] WebSocket implementation
+  - [x] Authentication system
+  - [x] Redis integration
+- [ ] Mobile App & Website
+  - [ ] Player profiles and rankings
+  - [ ] Game matchmaking
+  - [ ] Tournament organization
+  - [ ] Venue discovery and booking
+- [ ] Social Features
+  - [ ] Player challenges
+  - [ ] Community events
+  - [ ] Leaderboards
+  - [ ] Social interaction
+
+### 3. Game Rules Engine
+- [x] Shot Validation System
+  - [x] 8-ball rules implementation
+  - [x] 9-ball rules implementation
+  - [x] Physics validation
+  - [x] Rail contact validation
+  - [x] Path obstruction detection
+- [x] Ball Tracking System
+  - [x] Position tracking
+  - [x] Velocity calculation
+  - [x] Collision detection
+  - [x] Rail contact detection
+  - [x] Pocket detection
+  - [x] Trajectory recording
+  - [x] Shot statistics
+- [x] Game State Management
+  - [x] State transitions
+  - [x] Legal moves validation
+  - [x] Turn management
+  - [x] Foul detection
+- [x] Scoring System
+  - [x] Multiple scoring types
+  - [x] Frame statistics
+  - [x] Player statistics
+  - [x] Shot history
+  - [x] Game summary
+- [x] Win Condition Detection
+  - [x] Standard game wins
+  - [x] Special rule wins
+  - [x] Three consecutive fouls
+  - [x] Points/frames targets
+  - [x] Win condition reporting
+
+### 4. Frontend Development
+- [ ] WebSocket Client
+  - [ ] Real-time game state updates
+  - [ ] Player connection management
+  - [ ] Event handling
+- [ ] Game Visualization
+  - [ ] Table rendering
+  - [ ] Ball movement animation
+  - [ ] Shot preview
+  - [ ] Score display
+- [ ] User Interface
+  - [ ] Player controls
+  - [ ] Game setup
+  - [ ] Statistics view
+  - [ ] Chat system
+
+### 5. Tournament System
+- [ ] Tournament Creation
+  - [ ] Format selection
+  - [ ] Player registration
+  - [ ] Schedule management
+- [ ] Bracket Management
+  - [ ] Automatic generation
+  - [ ] Match assignment
+  - [ ] Results tracking
+- [ ] Statistics & Reporting
+  - [ ] Tournament statistics
+  - [ ] Player performance
+  - [ ] Prize distribution
+
+## Development Phases
+
+### Phase 1: MVP Launch (Complete)
+- [x] Core backend infrastructure
+- [x] Basic game rules engine
+- [x] Essential API endpoints
+- [x] WebSocket foundation
+- [x] Database structure
+
+### Phase 2: Frontend Development (In Progress)
+- [ ] WebSocket client implementation
+- [ ] Game visualization system
+- [ ] Basic user interface
+- [ ] Player controls
+- [ ] Real-time updates
+
+### Phase 3: Tournament System
+- [ ] Tournament creation
+- [ ] Bracket management
+- [ ] Results tracking
+- [ ] Statistics system
+- [ ] Prize management
+
+### Phase 4: Physical Integration
+- [ ] Camera system setup
+- [ ] Local processing units
+- [ ] QR code integration
+- [ ] Real-time tracking
+- [ ] Venue management
+
+### Phase 5: Social Features
+- [ ] Player profiles
+- [ ] Matchmaking system
+- [ ] Community events
+- [ ] Leaderboards
+- [ ] Social interaction
+
+### Phase 6: Mobile App
+- [ ] Cross-platform development
+- [ ] Real-time game viewing
+- [ ] Tournament participation
+- [ ] Social features
+- [ ] Venue discovery
 
 ## Current Phase: Phase 2 - Advanced Features (Q2 2024)
 Current Progress: 85% Complete

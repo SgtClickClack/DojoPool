@@ -1,15 +1,20 @@
 """File virus scanning utility."""
+
 import os
-import tempfile
 import subprocess
+import tempfile
 from typing import Optional
-from flask import current_app
+
 import clamd
+from flask import current_app
 from werkzeug.datastructures import FileStorage
+
 
 class VirusScanError(Exception):
     """Custom exception for virus scanning errors."""
+
     pass
+
 
 def get_clamd_client() -> Optional[clamd.ClamdUnixSocket]:
     """Get ClamAV daemon client."""
@@ -18,6 +23,7 @@ def get_clamd_client() -> Optional[clamd.ClamdUnixSocket]:
     except Exception as e:
         current_app.logger.error(f"Failed to connect to ClamAV: {str(e)}")
         return None
+
 
 def scan_file_with_clamav(file_path: str) -> bool:
     """Scan file using ClamAV."""
@@ -33,15 +39,13 @@ def scan_file_with_clamav(file_path: str) -> bool:
         current_app.logger.error(f"ClamAV scan failed: {str(e)}")
         raise VirusScanError(f"Virus scan failed: {str(e)}")
 
+
 def scan_file_with_yara(file_path: str) -> bool:
     """Scan file using YARA rules."""
     try:
-        rules_path = current_app.config.get('YARA_RULES_PATH', '/etc/yara/rules')
+        rules_path = current_app.config.get("YARA_RULES_PATH", "/etc/yara/rules")
         result = subprocess.run(
-            ['yara', '-C', rules_path, file_path],
-            capture_output=True,
-            text=True,
-            timeout=30
+            ["yara", "-C", rules_path, file_path], capture_output=True, text=True, timeout=30
         )
         # If any rules match, YARA returns output and exit code 0
         return not bool(result.stdout.strip())
@@ -50,6 +54,7 @@ def scan_file_with_yara(file_path: str) -> bool:
     except Exception as e:
         current_app.logger.error(f"Yara scan failed: {str(e)}")
         raise VirusScanError(f"Yara scan failed: {str(e)}")
+
 
 def scan_file(file: FileStorage) -> bool:
     """
@@ -64,7 +69,7 @@ def scan_file(file: FileStorage) -> bool:
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             file.save(temp_file)
             temp_file.flush()
-            
+
             try:
                 # Scan with ClamAV
                 is_safe = scan_file_with_clamav(temp_file.name)
@@ -95,4 +100,4 @@ def scan_file(file: FileStorage) -> bool:
         current_app.logger.error(f"File scanning failed: {str(e)}")
         return False
 
-    return True 
+    return True

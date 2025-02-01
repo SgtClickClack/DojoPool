@@ -1,126 +1,188 @@
-"""Game tracking module."""
+"""Game-specific vision tracking implementation."""
+
+import logging
+from datetime import datetime
+from typing import Any, Dict, Optional, Tuple
 
 import cv2
 import numpy as np
-from typing import List, Dict, Optional
-import logging
-from datetime import datetime
-
-from .ball_tracker import BallTracker
 
 logger = logging.getLogger(__name__)
 
+
 class GameTracker:
-    """Track game state using ball positions."""
-    
+    """Track game-specific events using computer vision."""
+
     def __init__(self):
         """Initialize the game tracker."""
-        self.last_positions = {}
-        self.last_update = None
-        self.shots = []
-        self.current_shot = None
-        
-    def process(self, balls: List[Dict]) -> List[Dict]:
-        """Process ball positions and detect game events."""
+        self.calibration_matrix = None
+        self.pocket_locations = None
+        self.last_ball_positions = {}
+        self.shot_detection_threshold = 0.1  # Minimum speed for shot detection
+        self.pocket_detection_radius = 30  # Pixels around pocket for detection
+
+    def calibrate(self, frame: np.ndarray, corners: Dict[str, Any]) -> bool:
+        """Calibrate the game tracker with table corners and pocket locations.
+
+        Args:
+            frame: Current video frame
+            corners: Dictionary containing table corners and pocket locations
+
+        Returns:
+            bool: True if calibration successful
+        """
         try:
-            now = datetime.utcnow()
-            events = []
-            
-            # First update - just store positions
-            if not self.last_positions:
-                self.last_positions = {
-                    ball['color']: ball['position']
-                    for ball in balls
-                }
-                self.last_update = now
-                return events
-            
-            # Calculate ball movements
-            movements = {}
-            for ball in balls:
-                color = ball['color']
-                curr_pos = ball['position']
-                if color in self.last_positions:
-                    prev_pos = self.last_positions[color]
-                    dx = curr_pos[0] - prev_pos[0]
-                    dy = curr_pos[1] - prev_pos[1]
-                    movements[color] = (dx, dy)
-            
-            # Detect shot events
-            if self._is_shot(movements):
-                if not self.current_shot:
-                    # New shot started
-                    self.current_shot = {
-                        'start_time': now,
-                        'initial_positions': self.last_positions.copy(),
-                        'balls_moved': set()
-                    }
-                    events.append({
-                        'type': 'shot_started',
-                        'timestamp': now
-                    })
-                
-                # Track which balls moved
-                for color, (dx, dy) in movements.items():
-                    if abs(dx) > 5 or abs(dy) > 5:  # Movement threshold
-                        self.current_shot['balls_moved'].add(color)
-            
-            elif self.current_shot and self._is_table_static(movements):
-                # Shot ended - all balls stopped
-                shot_data = {
-                    'type': 'shot_completed',
-                    'timestamp': now,
-                    'duration': (now - self.current_shot['start_time']).total_seconds(),
-                    'balls_moved': list(self.current_shot['balls_moved'])
-                }
-                events.append(shot_data)
-                self.shots.append(shot_data)
-                self.current_shot = None
-            
-            # Update state
-            self.last_positions = {
-                ball['color']: ball['position']
-                for ball in balls
-            }
-            self.last_update = now
-            
-            return events
-            
-        except Exception as e:
-            logger.error(f"Error processing game state: {str(e)}")
-            return []
-    
-    def _is_shot(self, movements: Dict[str, tuple]) -> bool:
-        """Detect if a shot is occurring."""
-        if not movements:
-            return False
-        
-        # Look for significant ball movement
-        for dx, dy in movements.values():
-            if abs(dx) > 10 or abs(dy) > 10:  # Movement threshold
-                return True
-        
-        return False
-    
-    def _is_table_static(self, movements: Dict[str, tuple]) -> bool:
-        """Check if all balls have stopped moving."""
-        if not movements:
+            # Convert table corners to numpy array
+            table_corners = np.array(corners["table"], dtype=np.float32)
+
+            # Calculate perspective transform matrix
+            table_rect = np.array([[0, 0], [1000, 0], [1000, 500], [0, 500]], dtype=np.float32)
+
+            self.calibration_matrix = cv2.getPerspectiveTransform(table_corners, table_rect)
+
+            # Store pocket locations
+            self.pocket_locations = corners.get("pockets", [])
+
             return True
-        
-        # Check if any ball is still moving
-        for dx, dy in movements.values():
-            if abs(dx) > 2 or abs(dy) > 2:  # Static threshold
-                return False
-        
-        return True
-    
-    def get_shot_history(self) -> List[Dict]:
-        """Get history of shots in the game."""
-        return self.shots.copy()
-    
-    def reset(self):
-        """Reset game tracking state."""
-        self.last_positions = {}
-        self.last_update = None
-        self.shots = []
-        self.current_shot = None 
+
+        except Exception as e:
+            logger.error(f"Calibration error: {str(e)}")
+            return False
+
+    def detect_shot(
+        self, frame: np.ndarray, ball_positions: Dict[int, Dict[str, float]]
+    ) -> Optional[Dict]:
+        """Detect if a shot has been taken.
+
+        Args:
+            frame: Current video frame
+            ball_positions: Current positions of all balls
+
+        Returns:
+            Optional[Dict]: Shot data if detected, None otherwise
+        """
+        if not ball_positions or not self.last_ball_positions:
+            self.last_ball_positions = ball_positions.copy()
+            return None
+
+        # Calculate ball velocities
+        max_velocity = 0
+        moving_ball = None
+
+        for ball_id, pos in ball_positions.items():
+            if ball_id in self.last_ball_positions:
+                last_pos = self.last_ball_positions[ball_id]
+                dx = pos["x"] - last_pos["x"]
+                dy = pos["y"] - last_pos["y"]
+                velocity = (dx * dx + dy * dy) ** 0.5
+
+                if velocity > max_velocity:
+                    max_velocity = velocity
+                    moving_ball = ball_id
+
+        # Update last positions
+        self.last_ball_positions = ball_positions.copy()
+
+        # Detect shot based on sudden ball movement
+        if max_velocity > self.shot_detection_threshold:
+            return {
+                "timestamp": datetime.utcnow().isoformat(),
+                "ball_id": moving_ball,
+                "velocity": max_velocity,
+                "direction": {
+                    "x": dx / max_velocity if max_velocity > 0 else 0,
+                    "y": dy / max_velocity if max_velocity > 0 else 0,
+                },
+            }
+
+        return None
+
+    def detect_pocketed_balls(
+        self, frame: np.ndarray, ball_positions: Dict[int, Dict[str, float]]
+    ) -> Optional[Dict]:
+        """Detect if any balls have been pocketed.
+
+        Args:
+            frame: Current video frame
+            ball_positions: Current positions of all balls
+
+        Returns:
+            Optional[Dict]: Pocket data if ball pocketed, None otherwise
+        """
+        if not self.pocket_locations or not self.last_ball_positions:
+            return None
+
+        # Check for balls that were present but are now missing
+        for ball_id, last_pos in self.last_ball_positions.items():
+            if ball_id not in ball_positions:
+                # Ball disappeared - check if near a pocket
+                for pocket_idx, pocket_pos in enumerate(self.pocket_locations):
+                    dx = last_pos["x"] - pocket_pos["x"]
+                    dy = last_pos["y"] - pocket_pos["y"]
+                    distance = (dx * dx + dy * dy) ** 0.5
+
+                    if distance < self.pocket_detection_radius:
+                        return {
+                            "timestamp": datetime.utcnow().isoformat(),
+                            "ball_number": ball_id,
+                            "pocket_number": pocket_idx,
+                            "position": {"x": last_pos["x"], "y": last_pos["y"]},
+                        }
+
+        return None
+
+    def detect_fouls(
+        self,
+        frame: np.ndarray,
+        ball_positions: Dict[int, Dict[str, float]],
+        last_shot: Optional[Dict],
+    ) -> Optional[Dict]:
+        """Detect various types of fouls.
+
+        Args:
+            frame: Current video frame
+            ball_positions: Current positions of all balls
+            last_shot: Data about the last detected shot
+
+        Returns:
+            Optional[Dict]: Foul data if detected, None otherwise
+        """
+        if not last_shot or not self.last_ball_positions:
+            return None
+
+        foul_data = None
+
+        # Detect cue ball scratch
+        if 0 in self.last_ball_positions and 0 not in ball_positions:
+            foul_data = {
+                "type": "scratch",
+                "timestamp": datetime.utcnow().isoformat(),
+                "details": "Cue ball pocketed",
+            }
+
+        # Detect no rail contact after object ball hit
+        elif last_shot and len(ball_positions) == len(self.last_ball_positions):
+            # Implementation depends on rail detection capability
+            pass
+
+        # Detect wrong ball first hit
+        # Implementation depends on game type and current player's ball group
+
+        return foul_data
+
+    def transform_coordinates(self, point: Tuple[float, float]) -> Tuple[float, float]:
+        """Transform coordinates using calibration matrix.
+
+        Args:
+            point: Point to transform (x, y)
+
+        Returns:
+            Tuple[float, float]: Transformed coordinates
+        """
+        if self.calibration_matrix is None:
+            return point
+
+        transformed = cv2.perspectiveTransform(
+            np.array([[[point[0], point[1]]]], dtype=np.float32), self.calibration_matrix
+        )
+        return (transformed[0][0][0], transformed[0][0][1])

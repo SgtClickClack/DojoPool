@@ -38,8 +38,8 @@ interface AlertPanelProps {
 export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowledge }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [expandedAlert, setExpandedAlert] = useState<string | null>(null);
-  const [selectedAlert, setSelectedAlert] = useState<AlertType | null>(null);
   const [acknowledgeDialogOpen, setAcknowledgeDialogOpen] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState<AlertType | null>(null);
   const [acknowledgeNote, setAcknowledgeNote] = useState('');
 
   useEffect(() => {
@@ -48,7 +48,10 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
       setAlerts((prev) => [alert, ...prev].slice(0, 100)); // Keep last 100 alerts
     });
 
-    return () => unsubscribe();
+    // Return cleanup function
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const handleExpandClick = (alertId: string) => {
@@ -61,24 +64,15 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
   };
 
   const handleAcknowledgeConfirm = () => {
-    if (selectedAlert) {
-      const acknowledgedAlert = {
-        ...selectedAlert,
-        acknowledged: true,
-        details: {
-          ...selectedAlert.details,
-          acknowledgeNote,
-          acknowledgeTime: Date.now(),
-        },
-      };
-
-      onAlertAcknowledge?.(acknowledgedAlert);
-      setAlerts((prev) => prev.map((a) => (a.id === selectedAlert.id ? acknowledgedAlert : a)));
-
-      setAcknowledgeDialogOpen(false);
-      setAcknowledgeNote('');
-      setSelectedAlert(null);
+    if (selectedAlert && gameId) {
+      gameMetricsMonitor.acknowledgeAlert(selectedAlert.id, gameId);
+      if (onAlertAcknowledge) {
+        onAlertAcknowledge(selectedAlert);
+      }
     }
+    setAcknowledgeDialogOpen(false);
+    setSelectedAlert(null);
+    setAcknowledgeNote('');
   };
 
   const getSeverityIcon = (severity: string) => {
@@ -87,23 +81,29 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
         return <ErrorIcon color="error" />;
       case 'warning':
         return <WarningIcon color="warning" />;
+      case 'info':
+        return <InfoIcon color="info" />;
       default:
         return <InfoIcon color="info" />;
     }
   };
 
-  const formatTimestamp = (timestamp: number) => {
+  const formatTimestamp = (timestamp: Date | number) => {
+    if (timestamp instanceof Date) {
+      return timestamp.toLocaleString();
+    }
     return new Date(timestamp).toLocaleString();
   };
 
   const getAlertsByType = () => {
-    return alerts.reduce(
-      (acc, alert) => {
-        acc[alert.severity] = (acc[alert.severity] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
+    const result: Record<string, AlertType[]> = {};
+    alerts.forEach((alert) => {
+      if (!result[alert.type]) {
+        result[alert.type] = [];
+      }
+      result[alert.type].push(alert);
+    });
+    return result;
   };
 
   return (
@@ -113,92 +113,97 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
           Active Alerts
         </Typography>
 
-        {/* Alert Summary */}
-        <Box display="flex" gap={1} mb={2} flexWrap="wrap">
-          {Object.entries(getAlertsByType()).map(([severity, count]) => (
-            <Chip
-              key={severity}
-              icon={getSeverityIcon(severity)}
-              label={`${severity}: ${count}`}
-              color={severity as 'error' | 'warning' | 'info'}
-            />
-          ))}
-        </Box>
-
-        {/* Alert List */}
-        <List>
-          {alerts.map((alert) => (
-            <React.Fragment key={alert.id}>
-              <ListItem
-                sx={{
-                  bgcolor: alert.acknowledged ? 'action.selected' : 'background.paper',
-                }}
-              >
-                <ListItemIcon>{getSeverityIcon(alert.severity)}</ListItemIcon>
-                <ListItemText
-                  primary={alert.message}
-                  secondary={formatTimestamp(alert.timestamp)}
-                />
-                <Box display="flex" alignItems="center" gap={1}>
-                  {!alert.acknowledged && (
-                    <IconButton
-                      size="small"
-                      onClick={() => handleAcknowledgeClick(alert)}
-                      title="Acknowledge"
-                    >
-                      <AcknowledgeIcon />
-                    </IconButton>
-                  )}
-                  <IconButton size="small" onClick={() => handleExpandClick(alert.id)}>
-                    {expandedAlert === alert.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  </IconButton>
-                </Box>
-              </ListItem>
-              <Collapse in={expandedAlert === alert.id} timeout="auto" unmountOnExit>
-                <Box p={2}>
-                  <Alert severity={alert.severity as 'error' | 'warning' | 'info'}>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Alert Details
-                    </Typography>
-                    <Box component="pre" sx={{ mt: 1, overflow: 'auto' }}>
-                      {JSON.stringify(alert.details, null, 2)}
-                    </Box>
-                    {alert.acknowledged && alert.details?.acknowledgeNote && (
-                      <Box mt={2}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          Acknowledgment Note
-                        </Typography>
-                        <Typography variant="body2">{alert.details.acknowledgeNote}</Typography>
-                        <Typography variant="caption" display="block" mt={1}>
-                          Acknowledged at: {formatTimestamp(alert.details.acknowledgeTime)}
-                        </Typography>
+        {Object.entries(getAlertsByType()).map(([type, typeAlerts]) => (
+          <Box key={type} mb={3}>
+            <Typography variant="subtitle1" gutterBottom>
+              {type.charAt(0).toUpperCase() + type.slice(1)} Alerts
+            </Typography>
+            <List>
+              {typeAlerts.map((alert) => (
+                <React.Fragment key={alert.id}>
+                  <ListItem
+                    secondaryAction={
+                      <Box display="flex" alignItems="center" gap={1}>
+                        {!alert.acknowledged && (
+                          <IconButton
+                            edge="end"
+                            onClick={() => handleAcknowledgeClick(alert)}
+                            size="small"
+                          >
+                            <AcknowledgeIcon />
+                          </IconButton>
+                        )}
+                        <IconButton
+                          edge="end"
+                          onClick={() => handleExpandClick(alert.id)}
+                          size="small"
+                        >
+                          {expandedAlert === alert.id ? (
+                            <ExpandLessIcon />
+                          ) : (
+                            <ExpandMoreIcon />
+                          )}
+                        </IconButton>
                       </Box>
-                    )}
-                  </Alert>
-                </Box>
-              </Collapse>
-            </React.Fragment>
-          ))}
-        </List>
+                    }
+                  >
+                    <ListItemIcon>{getSeverityIcon(alert.severity)}</ListItemIcon>
+                    <ListItemText
+                      primary={alert.message}
+                      secondary={formatTimestamp(alert.timestamp)}
+                    />
+                  </ListItem>
+                  <Collapse in={expandedAlert === alert.id} timeout="auto" unmountOnExit>
+                    <Box pl={9} pr={2} pb={2}>
+                      <Alert severity={alert.severity as any}>
+                        <Typography variant="subtitle2" gutterBottom>
+                          Alert Details
+                        </Typography>
+                        <pre>{JSON.stringify(alert.details, null, 2)}</pre>
+                        {alert.acknowledged && (
+                          <Box mt={1}>
+                            <Typography variant="caption" display="block">
+                              Acknowledged by: {alert.acknowledgedBy}
+                            </Typography>
+                            <Typography variant="caption" display="block">
+                              At: {formatTimestamp(alert.acknowledgedAt!)}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Alert>
+                    </Box>
+                  </Collapse>
+                </React.Fragment>
+              ))}
+            </List>
+          </Box>
+        ))}
 
-        {/* Acknowledge Dialog */}
-        <Dialog open={acknowledgeDialogOpen} onClose={() => setAcknowledgeDialogOpen(false)}>
+        <Dialog
+          open={acknowledgeDialogOpen}
+          onClose={() => setAcknowledgeDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>Acknowledge Alert</DialogTitle>
           <DialogContent>
+            <Typography gutterBottom>
+              Are you sure you want to acknowledge this alert?
+            </Typography>
             <TextField
               autoFocus
               margin="dense"
-              label="Acknowledgment Note"
+              label="Note (optional)"
               fullWidth
               multiline
-              rows={4}
+              rows={3}
               value={acknowledgeNote}
               onChange={(e) => setAcknowledgeNote(e.target.value)}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setAcknowledgeDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAcknowledgeConfirm} variant="contained">
+            <Button onClick={handleAcknowledgeConfirm} variant="contained" color="primary">
               Acknowledge
             </Button>
           </DialogActions>
