@@ -210,6 +210,35 @@ class Game(db.Model):
         """Represent game as string."""
         return f"<Game {self.id}: {self.player1_id} vs {self.player2_id}>"
 
+    def __str__(self) -> str:
+        """
+        Returns the string representation of the Game.
+
+        Returns:
+            str: The game name.
+        """
+        return f"{self.player1_id} vs {self.player2_id}"
+
+    def add_player(self, player: User) -> None:
+        """
+        Adds a player to the game.
+
+        Args:
+            player (User): The user instance to add.
+        """
+        self.players.add(player)
+        self.save()
+
+    def remove_player(self, player: User) -> None:
+        """
+        Removes a player from the game.
+
+        Args:
+            player (User): The user instance to remove.
+        """
+        self.players.remove(player)
+        self.save()
+
 
 class GameSession(db.Model):
     """Game session model."""

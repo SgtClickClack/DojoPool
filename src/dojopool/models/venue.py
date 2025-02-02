@@ -1,4 +1,9 @@
-"""Venue model module."""
+"""
+Venue Model Module
+
+This module defines the Venue model representing pool venues. It includes full type annotations
+and docstrings for better clarity and maintainability.
+"""
 
 from datetime import datetime, time, timedelta
 from enum import Enum
@@ -30,11 +35,11 @@ class Venue(db.Model):
     __table_args__ = {"extend_existing": True}
 
     # Basic fields
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
+    id = Column(Integer, primary_key=True)  # type: int
+    name = Column(String(100), unique=True, nullable=False)  # type: str
     description = Column(Text)
-    address = Column(String(255), nullable=False)
-    city = Column(String(100), nullable=False)
+    address = Column(String(255), nullable=False)  # type: str
+    city = Column(String(100), nullable=False)  # type: str
     state = Column(String(50), nullable=False)
     country = Column(String(50), nullable=False)
     postal_code = Column(String(20), nullable=False)
@@ -70,7 +75,7 @@ class Venue(db.Model):
     notes = Column(Text)  # Internal notes
 
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)  # type: datetime
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
@@ -113,7 +118,13 @@ class Venue(db.Model):
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Returns the string representation of the Venue.
+
+        Returns:
+            str: A summary representation of the venue.
+        """
         return f"<Venue {self.name}>"
 
     @hybrid_property
