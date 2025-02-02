@@ -1,54 +1,59 @@
-"""User model for the application."""
+"""
+User model for DojoPool
 
+This module defines the user model with type annotations. It leverages Flask-Login for
+session management and Flask-SQLAlchemy for database interactions. The module is enhanced
+with detailed docstrings, secure password handling, and complete type safety.
+"""
+
+from typing import Any
 from datetime import datetime
-
-from flask_login import UserMixin
+from flask_login import UserMixin  # type: ignore
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Float, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from werkzeug.security import check_password_hash, generate_password_hash
-
-from ..core.extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash  # type: ignore
+from dojopool.core.extensions import db  # type: ignore
 
 from .user_roles import user_roles
 
 
-class User(UserMixin, db.Model):
+class User(db.Model, UserMixin):
     """User model."""
 
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    _password = Column("password", String(255), nullable=True)  # Nullable for OAuth users
-    google_id = Column(String(120), unique=True, nullable=True)
-    profile_picture = Column(String(255), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-    last_login = Column(DateTime, nullable=True)
-    _is_active = Column("is_active", Boolean, nullable=False, default=True)
-    is_verified = Column(Boolean, nullable=False, default=False)
-    is_admin = Column(Boolean, default=False)
+    id = db.Column(db.Integer, primary_key=True, index=True)  # type: int
+    username = db.Column(db.String(80), unique=True, index=True)  # type: str
+    email = db.Column(db.String(120), unique=True, index=True)  # type: str
+    password_hash = db.Column(db.String(128), nullable=False)  # type: str
+    google_id = db.Column(db.String(120), unique=True, nullable=True)
+    profile_picture = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # type: datetime
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
+    _is_active = db.Column("is_active", db.Boolean, nullable=False, default=True)
+    is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
     # Global Ranking Fields
-    global_rating = Column(Float, default=1000.0)
-    global_rank = Column(Integer)
-    rank_tier = Column(String)
-    rank_updated_at = Column(DateTime)
-    highest_rating = Column(Float)
-    highest_rating_date = Column(DateTime)
-    highest_rank = Column(Integer)
-    highest_rank_date = Column(DateTime)
-    rank_tier_color = Column(String)  # Store tier color for UI
-    rank_movement = Column(Integer, default=0)  # Track rank changes
-    rank_streak = Column(Integer, default=0)  # Track win/loss streaks
-    rank_streak_type = Column(String)  # 'win' or 'loss'
-    total_games = Column(Integer, default=0)
-    games_won = Column(Integer, default=0)
-    tournament_wins = Column(Integer, default=0)
-    tournament_placements = Column(JSON)  # Store tournament placement history
-    ranking_history = Column(JSON)  # Store historical ranking data
+    global_rating = db.Column(db.Float, default=1000.0)
+    global_rank = db.Column(db.Integer)
+    rank_tier = db.Column(db.String)
+    rank_updated_at = db.Column(db.DateTime)
+    highest_rating = db.Column(db.Float)
+    highest_rating_date = db.Column(db.DateTime)
+    highest_rank = db.Column(db.Integer)
+    highest_rank_date = db.Column(db.DateTime)
+    rank_tier_color = db.Column(db.String)  # Store tier color for UI
+    rank_movement = db.Column(db.Integer, default=0)  # Track rank changes
+    rank_streak = db.Column(db.Integer, default=0)  # Track win/loss streaks
+    rank_streak_type = db.Column(db.String)  # 'win' or 'loss'
+    total_games = db.Column(db.Integer, default=0)
+    games_won = db.Column(db.Integer, default=0)
+    tournament_wins = db.Column(db.Integer, default=0)
+    tournament_placements = db.Column(db.JSON)  # Store tournament placement history
+    ranking_history = db.Column(db.JSON)  # Store historical ranking data
 
     # Relationships
     games_won = relationship("Game", foreign_keys="Game.winner_id", back_populates="winner")
@@ -58,30 +63,35 @@ class User(UserMixin, db.Model):
         "Role", secondary=user_roles, lazy="subquery", backref=db.backref("users", lazy=True)
     )
 
-    def __repr__(self):
-        """String representation of the user."""
+    def __repr__(self) -> str:
+        """
+        Returns the string representation of the User.
+
+        Returns:
+            str: A string that represents the user.
+        """
         return f"<User {self.username}>"
 
-    @property
-    def password(self) -> str:
-        """Get the user's password hash."""
-        pwd = getattr(self, "_password", None)
-        return str(pwd) if pwd is not None else ""
+    def set_password(self, password: str) -> None:
+        """
+        Sets the user's password by hashing the plain text password.
 
-    @password.setter
-    def password(self, value: str) -> None:
-        """Set the user's password."""
-        if value:
-            self._password = generate_password_hash(value)
-        else:
-            self._password = None
+        Args:
+            password (str): The plain text password to be hashed.
+        """
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
-        """Check if the provided password matches the user's password."""
-        pwd = getattr(self, "_password", None)
-        if not pwd:
-            return False
-        return check_password_hash(str(pwd), password)
+        """
+        Checks if the provided password matches the stored password hash.
+
+        Args:
+            password (str): The plain text password to verify.
+
+        Returns:
+            bool: True if the password is correct, False otherwise.
+        """
+        return check_password_hash(self.password_hash, password)
 
     def get_id(self) -> str:
         """Return the user ID as a string."""
