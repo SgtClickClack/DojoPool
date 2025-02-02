@@ -6,15 +6,16 @@ CORS, login, mail, migration, socketio, and SQLAlchemy. It includes type annotat
 and docstrings for clarity.
 """
 
+from typing import Any
+
 from flask_caching import Cache  # type: ignore
 from flask_cors import CORS  # type: ignore
 from flask_login import LoginManager  # type: ignore
 from flask_mail import Mail  # type: ignore
+from flask_marshmallow import Marshmallow  # type: ignore
 from flask_migrate import Migrate  # type: ignore
 from flask_socketio import SocketIO  # type: ignore
 from flask_sqlalchemy import SQLAlchemy  # type: ignore
-from flask_marshmallow import Marshmallow  # type: ignore
-from typing import Any
 
 # Initialize extensions
 db: SQLAlchemy = SQLAlchemy()  # type: ignore
