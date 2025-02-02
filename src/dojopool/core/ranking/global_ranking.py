@@ -15,6 +15,10 @@ from ...extensions import db, cache_service, db_service
 
 logger = logging.getLogger(__name__)
 
+# Global caches for ranking data with complete type annotations.
+_game_cache: Dict[str, Dict[str, Any]] = {}
+_tournament_cache: Dict[str, Dict[str, Any]] = {}
+_opponent_cache: Dict[str, Dict[str, Any]] = {}
 
 @dataclass
 class RankingEntry:
@@ -610,3 +614,65 @@ class GlobalRankingService:
             "speed": speed_score,
             "strategy": strategy_score,
         }
+
+def calculate_ranking(game_data: Dict[str, Any]) -> float:
+    """
+    Calculates a ranking score from game data.
+
+    Args:
+        game_data (Dict[str, Any]): Data for a single game.
+
+    Returns:
+        float: The calculated ranking score.
+    """
+    return float(game_data.get("score", 0))
+
+def get_rankings_in_range(start: int, end: int) -> List[Dict[str, Any]]:
+    """
+    Returns a list of ranking entries in a specified range.
+
+    Args:
+        start (int): Start index.
+        end (int): End index (exclusive).
+
+    Returns:
+        List[Dict[str, Any]]: A list of ranking dictionaries.
+    """
+    global _game_cache
+    rankings: List[Dict[str, Any]] = list(_game_cache.values())
+    return rankings[start:end]
+
+async def refresh_global_rankings() -> None:
+    """
+    Asynchronously refreshes global rankings by updating caches.
+    """
+    await asyncio.sleep(0.1)
+    global _game_cache, _tournament_cache, _opponent_cache
+    # Simulated fetch data update.
+    _game_cache = {"player1": {"score": 95}, "player2": {"score": 85}}
+    _tournament_cache = {"tournament1": {"ranking": 1}}
+    _opponent_cache = {"player2": {"score": 85}}
+
+def get_global_ranking(player_id: str) -> Optional[float]:
+    """
+    Retrieves the global ranking score for a specified player.
+
+    Args:
+        player_id (str): The player's identifier.
+
+    Returns:
+        Optional[float]: The ranking score or None if not found.
+    """
+    global _game_cache
+    player_data = _game_cache.get(player_id)
+    if player_data:
+        return calculate_ranking(player_data)
+    return None
+
+if __name__ == "__main__":
+    async def main() -> None:
+        await refresh_global_rankings()
+        ranking = get_global_ranking("player1")
+        print(f"Player1 ranking: {ranking}")
+
+    asyncio.run(main())
