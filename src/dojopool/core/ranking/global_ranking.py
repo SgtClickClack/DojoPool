@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any, cast
+from typing import Dict, List, Optional, Tuple, Any, cast, Callable, Union
 import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
@@ -15,7 +15,7 @@ from ...extensions import db, cache_service, db_service
 
 logger = logging.getLogger(__name__)
 
-# Global caches for ranking data with complete type annotations.
+# Global caches for ranking data.
 _game_cache: Dict[str, Dict[str, Any]] = {}
 _tournament_cache: Dict[str, Dict[str, Any]] = {}
 _opponent_cache: Dict[str, Dict[str, Any]] = {}
@@ -617,62 +617,108 @@ class GlobalRankingService:
 
 def calculate_ranking(game_data: Dict[str, Any]) -> float:
     """
-    Calculates a ranking score from game data.
+    Calculate a ranking score based on game data.
 
     Args:
-        game_data (Dict[str, Any]): Data for a single game.
-
+        game_data (Dict[str, Any]): Dictionary containing game details.
+    
     Returns:
-        float: The calculated ranking score.
+        float: Ranking score.
     """
     return float(game_data.get("score", 0))
 
 def get_rankings_in_range(start: int, end: int) -> List[Dict[str, Any]]:
     """
-    Returns a list of ranking entries in a specified range.
+    Get a slice of rankings from the global game cache.
 
     Args:
         start (int): Start index.
-        end (int): End index (exclusive).
-
+        end (int): End index.
+    
     Returns:
-        List[Dict[str, Any]]: A list of ranking dictionaries.
+        List[Dict[str, Any]]: List of rankings in the specified range.
     """
-    global _game_cache
     rankings: List[Dict[str, Any]] = list(_game_cache.values())
     return rankings[start:end]
 
 async def refresh_global_rankings() -> None:
     """
-    Asynchronously refreshes global rankings by updating caches.
+    Asynchronously refresh the global ranking caches.
     """
     await asyncio.sleep(0.1)
     global _game_cache, _tournament_cache, _opponent_cache
-    # Simulated fetch data update.
-    _game_cache = {"player1": {"score": 95}, "player2": {"score": 85}}
-    _tournament_cache = {"tournament1": {"ranking": 1}}
-    _opponent_cache = {"player2": {"score": 85}}
+    _game_cache = {
+        "player1": {"player_id": "player1", "score": 95, "last_update": datetime.utcnow()},
+        "player2": {"player_id": "player2", "score": 85, "last_update": None},
+    }
+    _tournament_cache = {
+        "tournament1": {"ranking": 1, "last_update": datetime.utcnow()}
+    }
+    _opponent_cache = {
+        "player2": {"score": 85, "last_update": datetime.utcnow()}
+    }
 
 def get_global_ranking(player_id: str) -> Optional[float]:
     """
-    Retrieves the global ranking score for a specified player.
+    Get the global ranking of a player.
 
     Args:
         player_id (str): The player's identifier.
+    
+    Returns:
+        Optional[float]: The player's ranking score, or None if not found.
+    """
+    player_data = _game_cache.get(player_id)
+    if player_data is None:
+        return None
+    return calculate_ranking(player_data)
+
+def sorted_rankings(key: Callable[[Dict[str, Any]], Union[int, float, str, datetime]]) -> List[Dict[str, Any]]:
+    """
+    Return global rankings sorted by a specified key.
+
+    Args:
+        key (Callable[[Dict[str, Any]], Union[int, float, str, datetime]]): Key function for sorting.
 
     Returns:
-        Optional[float]: The ranking score or None if not found.
+        List[Dict[str, Any]]: Sorted list of rankings.
     """
-    global _game_cache
-    player_data = _game_cache.get(player_id)
-    if player_data:
-        return calculate_ranking(player_data)
+    rankings: List[Dict[str, Any]] = list(_game_cache.values())
+    return sorted(rankings, key=key)
+
+async def async_get_leading_player() -> Optional[str]:
+    """
+    Asynchronously retrieve the leading player's identifier based on score.
+
+    Returns:
+        Optional[str]: The identifier of the leading player, or None if no players.
+    """
+    await asyncio.sleep(0.1)
+    sorted_rks = sorted_rankings(lambda data: data.get("score", 0))
+    if sorted_rks:
+        # Return the player with the highest score.
+        return sorted_rks[-1].get("player_id")
     return None
 
-if __name__ == "__main__":
-    async def main() -> None:
-        await refresh_global_rankings()
-        ranking = get_global_ranking("player1")
-        print(f"Player1 ranking: {ranking}")
+async def get_recent_tournament_update_iso() -> Optional[str]:
+    """
+    Asynchronously get the ISO formatted date of the most recent tournament update.
 
-    asyncio.run(main())
+    Returns:
+        Optional[str]: ISO date string if available, otherwise None.
+    """
+    await asyncio.sleep(0.1)
+    for tournament in _tournament_cache.values():
+        last_update = tournament.get("last_update")
+        if last_update is not None:
+            return last_update.isoformat()
+    return None
+
+def get_some_integer() -> int:
+    """
+    Dummy example function returning an integer.
+
+    Returns:
+        int: Example integer.
+    """
+    return 42

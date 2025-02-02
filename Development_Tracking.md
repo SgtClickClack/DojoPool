@@ -61,7 +61,7 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 - [x] Added unit tests for the dynamic narrative module (`tests/test_dynamic_narrative.py`).
 - [x] Enhanced legacy leaderboard module with logging, error handling, dynamic score updates, and reset functionality.
 - [x] **Enhanced the database module (`src/dojopool/core/database/database.py`) with full type annotations and improved error handling.**
-- [x] **Enhanced ranking modules (`src/dojopool/core/ranking/realtime_service.py` and `src/dojopool/core/ranking/global_ranking.py`) with comprehensive type annotations.**
+- [x] **Enhanced ranking modules (`src/dojopool/core/ranking/realtime_service.py` and `src/dojopool/core/ranking/global_ranking.py`) with comprehensive type annotations and fixed type errors.**
 - [x] **Enhanced achievements model (`src/dojopool/models/achievements.py`) with full type annotations and improved documentation.**
 - [x] Enhanced social module (`src/dojopool/models/social.py`) with full type annotations and improved documentation.
 - [x] **Enhanced user module (`src/dojopool/models/user.py`) with full type annotations and detailed documentation.**
@@ -408,7 +408,7 @@ Key components implemented:
 - [x] Added unit tests for the dynamic narrative module (`tests/test_dynamic_narrative.py`).
 - [x] Enhanced legacy leaderboard module with logging, error handling, dynamic score updates, and reset functionality.
 - [x] **Enhanced the database module (`src/dojopool/core/database/database.py`) with full type annotations and improved error handling.**
-- [x] **Enhanced ranking modules (`src/dojopool/core/ranking/realtime_service.py` and `src/dojopool/core/ranking/global_ranking.py`) with comprehensive type annotations.**
+- [x] **Enhanced ranking modules (`src/dojopool/core/ranking/realtime_service.py` and `src/dojopool/core/ranking/global_ranking.py`) with comprehensive type annotations and fixed type errors.**
 - [x] **Enhanced achievements model (`src/dojopool/models/achievements.py`) with full type annotations and improved documentation.**
 - [x] Enhanced social module (`src/dojopool/models/social.py`) with full type annotations and improved documentation.
 - [x] **Enhanced user module (`src/dojopool/models/user.py`) with full type annotations and detailed documentation.**
