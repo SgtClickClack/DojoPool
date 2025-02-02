@@ -1,4 +1,9 @@
-"""Tournament model for managing pool tournaments."""
+"""
+Tournament Model Module
+
+This module defines the Tournament model for managing competitions within DojoPool.
+It includes full type annotations and docstrings for clarity and maintainability.
+"""
 
 from datetime import datetime
 from typing import List, Optional, Dict, Any
@@ -6,8 +11,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Flo
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from enum import Enum
-
-from ..extensions import db
+from dojopool.core.extensions import db  # type: ignore
 
 # Association table for tournament participants
 tournament_participants = Table(
@@ -42,21 +46,21 @@ class Tournament(db.Model):
 
     __tablename__ = "tournaments"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
-    description = Column(String(500))
-    start_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime)
-    registration_deadline = Column(DateTime)
-    max_participants = Column(Integer, default=32)
-    entry_fee = Column(Float, default=0.0)
-    prize_pool = Column(Float, default=0.0)
-    status = Column(db.Enum(TournamentStatus), nullable=False, default=TournamentStatus.PENDING)
-    format = Column(db.Enum(TournamentFormat), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    venue_id = Column(Integer, ForeignKey("venues.id"))
-    organizer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)  # type: int
+    name = db.Column(db.String(100), nullable=False)  # type: str
+    description = db.Column(db.Text, nullable=True)  # type: Optional[str]
+    start_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # type: datetime
+    end_date = db.Column(db.DateTime, nullable=True)  # type: Optional[datetime]
+    registration_deadline = db.Column(db.DateTime)
+    max_participants = db.Column(db.Integer, default=32)
+    entry_fee = db.Column(db.Float, default=0.0)
+    prize_pool = db.Column(db.Float, default=0.0)
+    status = db.Column(db.Enum(TournamentStatus), nullable=False, default=TournamentStatus.PENDING)
+    format = db.Column(db.Enum(TournamentFormat), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"))
+    organizer_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     # Relationships
     venue = relationship("Venue", backref="tournaments")
@@ -66,8 +70,16 @@ class Tournament(db.Model):
 
     @hybrid_property
     def is_active(self) -> bool:
-        """Check if tournament is active."""
-        return self.status == TournamentStatus.IN_PROGRESS
+        """
+        Determines whether the tournament is currently active.
+
+        Returns:
+            bool: True if the tournament is active, False otherwise.
+        """
+        now = datetime.utcnow()
+        if self.end_date is None:
+            return now >= self.start_date
+        return self.start_date <= now <= self.end_date
 
     @hybrid_property
     def is_completed(self) -> bool:
@@ -192,7 +204,12 @@ class Tournament(db.Model):
         }
 
     def __repr__(self) -> str:
-        """String representation."""
+        """
+        Returns a string representation of the Tournament.
+
+        Returns:
+            str: A summary representation of the tournament.
+        """
         return f"<Tournament {self.name}>"
 
 
