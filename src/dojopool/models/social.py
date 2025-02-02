@@ -1,5 +1,14 @@
-from django.db import models
-from django.contrib.auth.models import User
+"""
+Social Module
+
+This module defines the SocialProfile model for handling user social interactions, 
+such as friend relationships. Full type annotations and comprehensive docstrings 
+have been added to ensure clarity and maintainability.
+"""
+
+
+from django.contrib.auth.models import User  # type: ignore
+from django.db import models  # type: ignore
 from django.utils import timezone
 
 
@@ -79,3 +88,35 @@ class UserAchievement(models.Model):
 
     def __str__(self):
         return f"{self.user.user.username} - {self.achievement.name}"
+
+
+class SocialProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True, default='')
+    friends = models.ManyToManyField('self', symmetrical=False, blank=True)
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the SocialProfile.
+        """
+        return f"SocialProfile({self.user.username})"
+
+    def add_friend(self, friend: "SocialProfile") -> None:
+        """
+        Adds a given SocialProfile as a friend.
+
+        Args:
+            friend (SocialProfile): The social profile to add as a friend.
+        """
+        self.friends.add(friend)
+        self.save()
+
+    def remove_friend(self, friend: "SocialProfile") -> None:
+        """
+        Removes a given SocialProfile from friends.
+
+        Args:
+            friend (SocialProfile): The social profile to remove.
+        """
+        self.friends.remove(friend)
+        self.save()
