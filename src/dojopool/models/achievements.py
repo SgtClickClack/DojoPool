@@ -1,8 +1,16 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils import timezone
+"""
+Achievements Model Module
+
+This module defines the Achievement model for tracking user achievements.
+Enhanced with type annotations and improved readability.
+"""
+
+from typing import Any
+from django.db import models  # type: ignore
+from django.contrib.auth.models import User  # type: ignore
+from django.db.models.signals import post_save  # type: ignore
+from django.dispatch import receiver  # type: ignore
+from django.utils import timezone  # type: ignore
 
 
 class AchievementCategory(models.Model):
@@ -20,7 +28,8 @@ class Achievement(models.Model):
     category = models.ForeignKey(AchievementCategory, on_delete=models.CASCADE)
     icon = models.ImageField(upload_to="achievements/", null=True)
     points = models.IntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # Progress tracking
     has_progress = models.BooleanField(default=False)
@@ -34,7 +43,7 @@ class Achievement(models.Model):
     # Unlock conditions as JSON
     conditions = models.JSONField(default=dict)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     def update_rarity(self):
@@ -135,4 +144,23 @@ def achievement_unlocked_notification(sender, instance, created, **kwargs):
                     "rarity": instance.achievement.rarity,
                 },
             },
+        )
+
+
+@receiver(post_save, sender=User)
+def create_user_achievement(sender: Any, instance: User, created: bool, **kwargs: Any) -> None:
+    """
+    Creates a welcome achievement for a new user.
+
+    Args:
+        sender (Any): The model class sending the signal.
+        instance (User): The user instance.
+        created (bool): A flag indicating whether a new record was created.
+        **kwargs (Any): Additional keyword arguments.
+    """
+    if created:
+        Achievement.objects.create(
+            user=instance, 
+            name="Welcome", 
+            description="Achievement unlocked: Welcome!"
         )
