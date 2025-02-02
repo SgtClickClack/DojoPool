@@ -72,6 +72,7 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 - [x] **Enhanced extensions module (`src/dojopool/core/extensions.py`) with full type annotations and documentation.**
 - [x] **Enhanced application initializer (`src/dojopool/__init__.py`) with type annotations.**
 - [x] **Enhanced dynamic narrative module (`src/ai/dynamic_narrative.py`) with full type annotations and documentation.**
+- [x] **Added unit tests for global ranking and realtime ranking modules.**
 
 ### Time Tracking
 Total Hours: 16
@@ -419,6 +420,7 @@ Key components implemented:
 - [x] **Enhanced extensions module (`src/dojopool/core/extensions.py`) with full type annotations and documentation.**
 - [x] **Enhanced application initializer (`src/dojopool/__init__.py`) with type annotations.**
 - [x] **Enhanced dynamic narrative module (`src/ai/dynamic_narrative.py`) with full type annotations and documentation.**
+- [x] **Added unit tests for global ranking and realtime ranking modules.**
 
 ## Next Steps:
 - Monitor the CI/CD pipeline to verify that all static type checks pass.
