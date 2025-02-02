@@ -60,6 +60,7 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 - [x] **Added dynamic narrative module (`src/ai/dynamic_narrative.py`) with complete type annotations and documentation.**
 - [x] **Added unit tests for dynamic narrative module (`tests/test_dynamic_narrative.py`).**
 - [x] **Refactored legacy leaderboard module in `src/dojopool/core/ranking/legacy_leaderboard.py`**
+- [x] **Enhanced legacy leaderboard module with logging, error handling, dynamic score updates (add_score), and reset functionality.**
 
 ### Time Tracking
 Total Hours: 16
