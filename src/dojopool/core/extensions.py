@@ -1,36 +1,51 @@
-"""Core extensions module."""
+"""
+Extensions Module
 
-from flask_caching import Cache
-from flask_cors import CORS
-from flask_login import LoginManager
-from flask_mail import Mail
-from flask_migrate import Migrate
-from flask_socketio import SocketIO
-from flask_sqlalchemy import SQLAlchemy
+This module initializes and configures various Flask extensions such as caching,
+CORS, login, mail, migration, socketio, and SQLAlchemy. It includes type annotations
+and docstrings for clarity.
+"""
+
+from flask_caching import Cache  # type: ignore
+from flask_cors import CORS  # type: ignore
+from flask_login import LoginManager  # type: ignore
+from flask_mail import Mail  # type: ignore
+from flask_migrate import Migrate  # type: ignore
+from flask_socketio import SocketIO  # type: ignore
+from flask_sqlalchemy import SQLAlchemy  # type: ignore
+from flask_marshmallow import Marshmallow  # type: ignore
+from typing import Any
 
 # Initialize extensions
-db = SQLAlchemy()
-cache = Cache()
-migrate = Migrate()
-mail = Mail()
-cors = CORS()
-socketio = SocketIO()
-login_manager = LoginManager()
+db: SQLAlchemy = SQLAlchemy()  # type: ignore
+ma: Marshmallow = Marshmallow()  # type: ignore
+cache: Cache = Cache()  # type: ignore
+cors: CORS = CORS()  # type: ignore
+login_manager: LoginManager = LoginManager()  # type: ignore
+mail: Mail = Mail()  # type: ignore
+migrate: Migrate = Migrate()  # type: ignore
+socketio: SocketIO = SocketIO()  # type: ignore
 
 # Import services
-from .services.db_service import db_service
 from .services.cache_service import cache_service
+from .services.db_service import db_service
 
 
-def init_extensions(app):
-    """Initialize Flask extensions."""
+def init_extensions(app: Any) -> None:
+    """
+    Initialize all Flask extensions with the given app.
+
+    Args:
+        app (Any): The Flask application instance.
+    """
     db.init_app(app)
+    ma.init_app(app)
     cache.init_app(app)
-    migrate.init_app(app, db)
-    mail.init_app(app)
     cors.init_app(app)
-    socketio.init_app(app)
     login_manager.init_app(app)
+    mail.init_app(app)
+    migrate.init_app(app, db)
+    socketio.init_app(app)
 
     # Configure login manager
     login_manager.login_view = "auth.login"

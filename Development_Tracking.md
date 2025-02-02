@@ -68,6 +68,10 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 - [x] **Enhanced match module (`src/dojopool/models/match.py`) with full type annotations and improved documentation.**
 - [x] **Enhanced role, venue, and game modules with full type annotations and comprehensive documentation.**
 - [x] **Enhanced tournament module (`src/dojopool/models/tournament.py`) with full type annotations and detailed documentation.**
+- [x] **Enhanced DB service module (`src/dojopool/core/services/db_service.py`) with full type annotations and error handling.**
+- [x] **Enhanced extensions module (`src/dojopool/core/extensions.py`) with full type annotations and documentation.**
+- [x] **Enhanced application initializer (`src/dojopool/__init__.py`) with type annotations.**
+- [x] **Enhanced dynamic narrative module (`src/ai/dynamic_narrative.py`) with full type annotations and documentation.**
 
 ### Time Tracking
 Total Hours: 16
@@ -411,6 +415,10 @@ Key components implemented:
 - [x] **Enhanced match module (`src/dojopool/models/match.py`) with full type annotations and improved documentation.**
 - [x] **Enhanced role, venue, and game modules with full type annotations and comprehensive documentation.**
 - [x] **Enhanced tournament module (`src/dojopool/models/tournament.py`) with full type annotations and detailed documentation.**
+- [x] **Enhanced DB service module (`src/dojopool/core/services/db_service.py`) with full type annotations and error handling.**
+- [x] **Enhanced extensions module (`src/dojopool/core/extensions.py`) with full type annotations and documentation.**
+- [x] **Enhanced application initializer (`src/dojopool/__init__.py`) with type annotations.**
+- [x] **Enhanced dynamic narrative module (`src/ai/dynamic_narrative.py`) with full type annotations and documentation.**
 
 ## Next Steps:
 - Monitor the CI/CD pipeline to verify that all static type checks pass.

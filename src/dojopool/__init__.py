@@ -1,11 +1,27 @@
 from flask import Flask
 
 """
-DojoPool package initialization.
+DojoPool Application
+
+This module initializes the DojoPool application and registers Flask extensions,
+blueprints, and other application components with full type annotations.
 """
 
 __version__ = "0.1.0"
 
+from dojopool.core.extensions import init_extensions
+
+def create_app() -> Flask:
+    """
+    Create and configure the DojoPool Flask application.
+
+    Returns:
+        Flask: The configured Flask application.
+    """
+    app = Flask(__name__)
+    app.config.from_object("dojopool.config.Config")
+    init_extensions(app)
+    return app
 
 def setup_security_headers(app):
     """Setup security headers for Flask application."""
