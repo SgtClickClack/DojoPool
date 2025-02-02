@@ -1,4 +1,10 @@
-"""Match model for tournament matches."""
+"""
+Match Model Module
+
+This module defines the Match model for tracking pool games between users.
+Enhanced with type annotations and complete docstrings for improved clarity
+and maintainability.
+"""
 
 from datetime import datetime
 from typing import Dict, Any, Optional
@@ -7,6 +13,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from ..core.extensions import db
+from ..models.user import User
 
 
 class Match(db.Model):
@@ -85,5 +92,10 @@ class Match(db.Model):
         }
 
     def __repr__(self) -> str:
-        """String representation."""
-        return f"<Match {self.id}: {self.player1_id} vs {self.player2_id}>"
+        """
+        Returns a string representation of the Match.
+
+        Returns:
+            str: A string summarizing the match.
+        """
+        return f"<Match {self.id}: {self.player1.username} vs {self.player2.username}>"
