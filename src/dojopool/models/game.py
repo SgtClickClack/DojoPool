@@ -5,15 +5,16 @@ This module contains game-related models.
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Any, Dict
+from typing import Any, Dict, Optional
 
-from ..core.extensions import db
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+
+from ..core.extensions import db
+from .achievements import Achievement, UserAchievement
 from .social import UserProfile
-from .achievements import UserAchievement, Achievement
 
 
 class GameType(Enum):
@@ -325,8 +326,8 @@ def game_completed_notification(sender, instance, created, **kwargs):
     """Send notifications when a game is completed."""
     if not created and instance.status == "completed" and instance.completed_at == timezone.now():
         # Send WebSocket notifications to both players
-        from channels.layers import get_channel_layer
         from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
 
         channel_layer = get_channel_layer()
 

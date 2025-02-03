@@ -5,21 +5,18 @@ This module defines the Venue model representing pool venues. It includes full t
 and docstrings for better clarity and maintainability.
 """
 
-from datetime import datetime, time, timedelta
-from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
+from datetime import datetime, timedelta
+from typing import Optional
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     Column,
+    DateTime,
+    Float,
     Integer,
     String,
-    Float,
-    Boolean,
     Text,
-    DateTime,
-    ForeignKey,
-    Enum as SQLEnum,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship

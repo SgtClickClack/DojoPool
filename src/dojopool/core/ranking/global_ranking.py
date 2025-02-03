@@ -1,17 +1,16 @@
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any, cast, Callable, Union
-import math
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import logging
 import asyncio
+import logging
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional
 
-from sqlalchemy import or_, func, text
-from .config import GLOBAL_RANKING_CONFIG
-from ...models.user import User
+from sqlalchemy import or_, text
+
+from ...extensions import cache_service, db, db_service
 from ...models.game import Game
 from ...models.tournament import Tournament
-from ...extensions import db, cache_service, db_service
+from ...models.user import User
+from .config import GLOBAL_RANKING_CONFIG
 
 logger = logging.getLogger(__name__)
 
