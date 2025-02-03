@@ -1,11 +1,15 @@
+const recommended = require("eslint/conf/eslint-recommended");
+
 module.exports = [
+  // Include the recommended ESLint config first.
+  recommended,
   {
     languageOptions: {
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: "module"
       },
-      // Manually define globals that were previously provided by the "env" key.
+      // Define global variables that were previously provided by the "env" key.
       globals: {
         // Browser globals
         window: "readonly",
@@ -16,11 +20,9 @@ module.exports = [
         module: "readonly"
       }
     },
-    extends: ["eslint:recommended"],
     rules: {
-      // Define or override any custom rules here:
-      // For example, to warn on console usage:
-      // "no-console": "warn"
+      // Add your custom rules or overrides here.
+      // For example: "no-console": "warn",
     },
   },
 ]; 
