@@ -1,5 +1,7 @@
 module.exports = [
   {
+    // Specify patterns to ignore files/folders from linting (using ESLint flat config "ignores").
+    ignores: ['**/node_modules/**', '**/venv/**', '**/dist/**', '**/build/**'],
     languageOptions: {
       parserOptions: {
         ecmaVersion: 2020,
