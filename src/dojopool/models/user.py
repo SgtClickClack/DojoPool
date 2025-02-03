@@ -6,12 +6,12 @@ session management and Flask-SQLAlchemy for database interactions. The module is
 with detailed docstrings, secure password handling, and complete type safety.
 """
 
-from typing import Any
 from datetime import datetime
+
 from flask_login import UserMixin  # type: ignore
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Float, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, check_password_hash  # type: ignore
+from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
+
 from dojopool.core.extensions import db  # type: ignore
 
 from .user_roles import user_roles
@@ -127,3 +127,11 @@ class User(db.Model, UserMixin):
             "is_verified": self.is_verified,
             "roles": [role.name for role in self.roles],
         }
+
+    def __init__(self, id: int, username: str) -> None:
+        self.id = id
+        self.username = username
+
+    def is_active(self) -> bool:
+        # Dummy implementation.
+        return True

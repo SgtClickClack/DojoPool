@@ -7,13 +7,13 @@ and maintainability.
 """
 
 from datetime import datetime
-from typing import Dict, Any, Optional
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
-from sqlalchemy.orm import relationship
+from typing import Any, Dict, Optional
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
 
 from ..core.extensions import db
-from ..models.user import User
 
 
 class Match(db.Model):
@@ -99,3 +99,12 @@ class Match(db.Model):
             str: A string summarizing the match.
         """
         return f"<Match {self.id}: {self.player1.username} vs {self.player2.username}>"
+
+    def get_score_difference(self) -> Optional[float]:
+        """
+        Calculate the score difference between the two players.
+
+        Returns:
+            Optional[float]: The score difference.
+        """
+        return float(self.player1_score - self.player2_score)

@@ -6,7 +6,7 @@ Enhanced with type annotations and robust error handling.
 """
 
 from typing import Any, Dict, List, Optional, Type, TypeVar
-from sqlalchemy.orm import Query, Session  # type: ignore
+
 from sqlalchemy.sql import text
 
 from ..extensions import db
@@ -15,7 +15,7 @@ T = TypeVar("T")
 
 
 class DBService:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Any) -> None:
         """
         Initialize the database service with a SQLAlchemy session.
 
@@ -24,46 +24,30 @@ class DBService:
         """
         self.session = session
 
-    def fetch_all(self, model: Type[T], filters: Optional[List[Any]] = None) -> List[T]:
+    def fetch_all(self, model: Type[T]) -> List[T]:
         """
-        Fetch all records of the specified model that match the given filters.
+        Fetches all records for the given model.
 
         Args:
-            model (Type[T]): The SQLAlchemy model class.
-            filters (Optional[List[Any]]): A list of filter expressions.
-
+            model (Type[T]): The database model.
+        
         Returns:
-            List[T]: A list of matching records.
+            List[T]: A list of model instances.
         """
-        if filters is None:
-            filters = []
-        query = self.session.query(model)
-        for f in filters:
-            query = query.filter(f)
-        try:
-            records = query.all()
-            return records
-        except Exception as e:
-            self.session.rollback()
-            raise e
+        return self.session.query(model).all()
 
     def fetch_by_id(self, model: Type[T], record_id: int) -> Optional[T]:
         """
-        Fetch a single record by its ID.
+        Fetch a single record by ID.
 
         Args:
-            model (Type[T]): The SQLAlchemy model class.
-            record_id (int): The primary key of the record.
-
+            model (Type[T]): The database model.
+            record_id (int): The record's ID.
+        
         Returns:
-            Optional[T]: The record if found, else None.
+            Optional[T]: The model instance, or None if not found.
         """
-        try:
-            record = self.session.get(model, record_id)
-            return record
-        except Exception as e:
-            self.session.rollback()
-            raise e
+        return self.session.get(model, record_id)
 
     @staticmethod
     async def get(model: Type[T], id: int) -> Optional[T]:
@@ -101,6 +85,13 @@ class DBService:
         """
         result = db.session.execute(text(sql), params or {})
         return [dict(row) for row in result]
+
+    def update_record(self, record: T) -> None:
+        """
+        Update a record in the database.
+        """
+        self.session.add(record)
+        self.session.commit()
 
 
 db_service = DBService(db.session)

@@ -5,7 +5,7 @@ This module contains game-related models.
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from ..core.extensions import db
 from django.contrib.auth.models import User
@@ -347,3 +347,17 @@ def game_completed_notification(sender, instance, created, **kwargs):
                     },
                 },
             )
+
+
+def get_game_details(game_id: int) -> Any:
+    """
+    Retrieve game details (dummy implementation).
+
+    Args:
+        game_id (int): The game ID.
+    
+    Returns:
+        Any: Game details.
+    """
+    # Replace with actual implementation.
+    return {"id": game_id, "title": "Dummy Game"}

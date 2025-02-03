@@ -70,4 +70,16 @@ class TimestampedModel(BaseModel):
         }
 
 
+def helper_function(data: Any, flag: bool) -> None:
+    """
+    A helper function.
+
+    Args:
+        data (Any): Input data.
+        flag (bool): A boolean flag.
+    """
+    if flag:
+        print(data)
+
+
 __all__ = ["BaseModel", "TimestampedModel"]

@@ -1,5 +1,8 @@
 """Flask extensions for the application."""
 
+from typing import Any, Dict, List, Optional
+
+from flask_caching import Cache
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
@@ -8,8 +11,6 @@ from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
-from flask_caching import Cache
-from typing import Any, List, Dict, Optional
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -121,3 +122,32 @@ __all__ = [
     "db_service",
     "init_app",
 ]
+
+def get_config(timeout: Optional[int] = None) -> Dict[str, Any]:
+    """
+    Retrieves configuration settings.
+
+    Args:
+        timeout (Optional[int]): Timeout setting in seconds; defaults to 30 if not provided.
+    
+    Returns:
+        Dict[str, Any]: A dictionary of configuration settings.
+    """
+    if timeout is None:
+        timeout = 30
+    return {"timeout": timeout}
+
+def request_with_params(url: str, params: Optional[List[Any]] = None) -> Dict[str, Any]:
+    """
+    Simulated request function that uses parameters.
+
+    Args:
+        url (str): The endpoint URL.
+        params (Optional[List[Any]]): A list of parameters; defaults to empty list if not provided.
+    
+    Returns:
+        Dict[str, Any]: A dummy response dictionary.
+    """
+    if params is None:
+        params = []
+    return {"url": url, "params": params}

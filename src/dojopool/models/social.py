@@ -6,6 +6,7 @@ such as friend relationships. Full type annotations and comprehensive docstrings
 have been added to ensure clarity and maintainability.
 """
 
+from typing import List
 
 from django.contrib.auth.models import User  # type: ignore
 from django.db import models  # type: ignore
@@ -120,3 +121,17 @@ class SocialProfile(models.Model):
         """
         self.friends.remove(friend)
         self.save()
+
+
+class SocialProfile:
+    def __init__(self, username: str) -> None:
+        self.username = username
+        self.friends: List[SocialProfile] = []
+
+    def add_friend(self, friend: "SocialProfile") -> None:
+        if friend not in self.friends:
+            self.friends.append(friend)
+
+    def remove_friend(self, friend: "SocialProfile") -> None:
+        if friend in self.friends:
+            self.friends.remove(friend)

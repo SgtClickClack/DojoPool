@@ -75,6 +75,10 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 - [x] **Added unit tests for global ranking and realtime ranking modules.**
 - [x] **Added unit tests for DB service module.**
 - [x] **Added unit tests for Match module.**
+- [x] Removed unused "type: ignore" comments across models.
+- [x] Updated all default parameter annotations (e.g., using Optional for parameters with default None).
+- [x] Expanded unit tests across core modules (global ranking, realtime ranking, DB service, match, social, etc.).
+- [x] Fixed mypy type errors in achievements, social, extensions, base, venue, user, DB service, match, game, global ranking, and realtime ranking modules.
 
 ### Time Tracking
 Total Hours: 16
@@ -393,17 +397,17 @@ Key components implemented:
 - Review accessibility compliance
 
 ## Next Steps:
-- Monitor CI/CD pipeline results to ensure all tests and checks pass.
-- Continue refactoring remaining legacy modules to improve maintainability and performance.
-- Begin performance profiling of the AI and gameplay components.
-- Expand the unit test suite to cover additional critical paths of the application.
+- Verify that the CI/CD pipeline (including type checking) passes.
+- Expand unit test coverage for additional features.
+- Begin performance profiling for AI and gameplay components.
 
 ## Completed Tasks:
-- [x] Integrated GitHub Actions CI/CD pipeline with `mypy`, Black, and flake8.
-- [x] Refactored backend database module with detailed type hints, robust error handling, and comprehensive docstrings.
-- [x] Consolidated legacy duplicate files:
-  - Removed `src/backend/legacy/database.py`
-  - Removed `src/frontend/components/utils/helpers.py`
+- [x] Integrated GitHub Actions CI/CD pipeline with mypy, Black, and flake8.
+- [x] Refactored backend database, extensions, and ranking modules with full type annotations and improved error handling.
+- [x] Removed unused "type: ignore" comments across models.
+- [x] Updated all default parameter annotations (e.g., using Optional for parameters with default None).
+- [x] Expanded unit tests across core modules (global ranking, realtime ranking, DB service, match, social, etc.).
+- [x] Fixed mypy type errors in achievements, social, extensions, base, venue, user, DB service, match, game, global ranking, and realtime ranking modules.
 - [x] Updated README with project structure and CI/CD instructions.
 - [x] Added pre-commit hooks configuration via `.pre-commit-config.yaml`.
 - [x] Added unit tests for the database module in `tests/test_database.py`.
@@ -427,6 +431,6 @@ Key components implemented:
 - [x] **Added unit tests for Match module.**
 
 ## Next Steps:
-- Monitor the CI/CD pipeline to verify that all tests pass.
-- Expand unit test coverage to additional critical modules.
-- Begin performance profiling and optimization for core AI and gameplay components. 
+- Verify the CI/CD pipeline (including type checking) passes.
+- Expand unit test coverage for additional features.
+- Begin performance profiling for AI and gameplay components. 
