@@ -62,7 +62,6 @@ class RealTimeRankingService:
         }
         self._message_queues: Dict[UserID, MessageQueue] = {}
         self._batch_tasks: BatchTasks = {}
-        self.rankings: List[Any] = []
 
     def _get_stat(self, key: str, default: Any = 0) -> Any:
         """Safely get a stat value with proper type casting."""
@@ -408,26 +407,6 @@ class RealTimeRankingService:
             self._increment_stat("rate_limited_attempts")
             return True
         return False
-
-    async def fetch_new_rankings(self) -> List[Any]:
-        await asyncio.sleep(0.1)
-        return [5, 4, 3, 2, 1]
-
-    async def update_rankings(self) -> None:
-        new_rankings: List[Any] = await self.fetch_new_rankings()
-        self.rankings = new_rankings
-
-    async def process_rankings(self) -> None:
-        await self.update_rankings()
-        print("Updated Rankings:", self.rankings)
-
-    def get_top_rankings(self, start_index: int, end_index: int) -> List[Any]:
-        return self.rankings[start_index:end_index]
-
-    async def periodic_update(self) -> None:
-        while True:
-            await self.update_rankings()
-            await asyncio.sleep(5)
 
 
 realtime_ranking_service = RealTimeRankingService()

@@ -89,32 +89,19 @@ class Venue(db.Model):
 
     def __init__(
         self,
+        id: int,
         name: str,
-        address: str,
-        city: str,
-        state: str,
-        country: str,
-        postal_code: str,
-        tables: int,
-        latitude: float = None,
-        longitude: float = None,
-        contact_email: str = None,
-        contact_phone: str = None,
-        status: str = "active",
-    ):
-        """Initialize venue."""
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
+        contact_email: Optional[str] = None,
+        contact_phone: Optional[str] = None,
+    ) -> None:
+        self.id = id
         self.name = name
-        self.address = address
-        self.city = city
-        self.state = state
-        self.country = country
-        self.postal_code = postal_code
-        self.tables = tables
         self.latitude = latitude
         self.longitude = longitude
-        self.email = contact_email
-        self.phone = contact_phone
-        self.status = status
+        self.contact_email = contact_email
+        self.contact_phone = contact_phone
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
@@ -235,30 +222,8 @@ class Venue(db.Model):
         self.amenities_summary = {amenity.name: amenity.is_available for amenity in self.amenities}
         db.session.commit()
 
-    @classmethod
-    def search(cls, query=None, city=None, state=None, is_active=True):
-        """Search venues.
-
-        Args:
-            query: Search query
-            city: City filter
-            state: State filter
-            is_active: Active status filter
-
-        Returns:
-            list: Matching venues
+    def search(self, query: str) -> bool:
         """
-        filters = [cls.is_active == is_active] if is_active is not None else []
-
-        if query:
-            filters.append(
-                db.or_(cls.name.ilike(f"%{query}%"), cls.description.ilike(f"%{query}%"))
-            )
-
-        if city:
-            filters.append(cls.city.ilike(f"%{city}%"))
-
-        if state:
-            filters.append(cls.state.ilike(f"%{state}%"))
-
-        return cls.query.filter(*filters).all()
+        Performs a simple case-insensitive search on the venue name.
+        """
+        return query.lower() in self.name.lower()

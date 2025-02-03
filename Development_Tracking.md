@@ -405,7 +405,7 @@ Key components implemented:
 - [x] Integrated GitHub Actions CI/CD pipeline with mypy, Black, and flake8.
 - [x] Refactored backend database, extensions, and ranking modules with full type annotations and improved error handling.
 - [x] Removed unused "type: ignore" comments across models.
-- [x] Updated all default parameter annotations (e.g., using Optional for parameters with default None).
+- [x] Updated all default parameter annotations (using Optional for parameters with default None).
 - [x] Expanded unit tests across core modules (global ranking, realtime ranking, DB service, match, social, etc.).
 - [x] Fixed mypy type errors in achievements, social, extensions, base, venue, user, DB service, match, game, global ranking, and realtime ranking modules.
 - [x] Updated README with project structure and CI/CD instructions.
