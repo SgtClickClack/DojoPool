@@ -1,12 +1,23 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    # Only trigger when changes occur in your source code or workflow definitions.
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
+  call-common:
+    uses: ./.github/workflows/common.yml
+    with:
+      test_path: "./src"
+
   test:
     runs-on: ubuntu-latest
 
@@ -155,3 +166,20 @@ jobs:
           fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+defaults: &default-steps
+  - uses: actions/checkout@v3
+  - name: Set up Node.js
+    uses: actions/setup-node@v3
+    with:
+      node-version: '16'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      <<: *default-steps
+      - name: Install dependencies
+        run: npm install
+      - name: Build project
+        run: npm run build

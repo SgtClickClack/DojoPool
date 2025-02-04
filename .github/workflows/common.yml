@@ -1,0 +1,46 @@
+name: Common CI Steps
+
+on:
+  workflow_call:
+    inputs:
+      test_path:
+        required: true
+        type: string
+
+jobs:
+  run-ci:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repository
+      - uses: actions/checkout@v3
+
+      # Step 2: Cache Node.js modules to speed up installations
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 3: Set up Node.js (using YAML anchor for possible reuse)
+      - &setup-node
+        name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      # Execute Node.js setup using the defined anchor
+      - <<: *setup-node
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 5: Run tests using the provided test path
+      - name: Run tests
+        run: npm test -- ${{ inputs.test_path }}
+
+      # Step 6: Lint the code
+      - name: Lint code
+        run: npm run lint 
