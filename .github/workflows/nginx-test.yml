@@ -1,141 +1,129 @@
----
 name: NGINX Configuration Test
-
-on:
+true:
   push:
     paths:
-      - "deployment/nginx/**"
-      - ".github/workflows/nginx-test.yml"
+    - deployment/nginx/**
+    - .github/workflows/nginx-test.yml
   pull_request:
     paths:
-      - "deployment/nginx/**"
-      - ".github/workflows/nginx-test.yml"
-  workflow_dispatch:
-
+    - deployment/nginx/**
+    - .github/workflows/nginx-test.yml
+  workflow_dispatch: null
 jobs:
   test-nginx:
     runs-on: ubuntu-latest
-
     services:
       nginx:
         image: nginx:latest
         ports:
-          - 80:80
-          - 443:443
+        - 80:80
+        - 443:443
         volumes:
-          - ${{ github.workspace }}/deployment/nginx:/etc/nginx/conf.d
-          - ${{ github.workspace }}/deployment/ssl:/etc/ssl
+        - ${{ github.workspace }}/deployment/nginx:/etc/nginx/conf.d
+        - ${{ github.workspace }}/deployment/ssl:/etc/ssl
         options: --name nginx-test
-
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+    - name: Set up test environment
+      run: "sudo apt-get update\nsudo apt-get install -y curl openssl wscat apache2-utils\n\
+        mkdir -p deployment/ssl/certs deployment/ssl/private\n\n# Generate self-signed\
+        \ certificates for testing\nopenssl req -x509 -nodes -days 365 -newkey rsa:2048\
+        \ \\\n  -keyout deployment/ssl/private/dojopool.key \\\n  -out deployment/ssl/certs/dojopool.crt\
+        \ \\\n  -subj \"/CN=dojopool.com.au\"\n\n# Generate DH parameters\nopenssl\
+        \ dhparam -out deployment/ssl/certs/dhparam.pem 2048\n\n# Create test static\
+        \ files\nmkdir -p /var/www/dojopool/static/{css,js,img}\necho \"body { margin:\
+        \ 0; }\" > /var/www/dojopool/static/css/main.css\necho \"console.log('test');\"\
+        \ > /var/www/dojopool/static/js/main.js\nconvert -size 100x100 xc:white /var/www/dojopool/static/img/logo.png\n\
+        \n# Create test error pages\necho \"<html><body>404 Not Found</body></html>\"\
+        \ > /var/www/dojopool/404.html\necho \"<html><body>500 Server Error</body></html>\"\
+        \ > /var/www/dojopool/50x.html\n"
+    - name: Test NGINX configuration
+      run: '# Test NGINX configuration syntax
 
-      - name: Set up test environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl openssl wscat apache2-utils
-          mkdir -p deployment/ssl/certs deployment/ssl/private
+        docker exec nginx-test nginx -t
 
-          # Generate self-signed certificates for testing
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-            -keyout deployment/ssl/private/dojopool.key \
-            -out deployment/ssl/certs/dojopool.crt \
-            -subj "/CN=dojopool.com.au"
 
-          # Generate DH parameters
-          openssl dhparam -out deployment/ssl/certs/dhparam.pem 2048
+        # Run the test suite
 
-          # Create test static files
-          mkdir -p /var/www/dojopool/static/{css,js,img}
-          echo "body { margin: 0; }" > /var/www/dojopool/static/css/main.css
-          echo "console.log('test');" > /var/www/dojopool/static/js/main.js
-          convert -size 100x100 xc:white /var/www/dojopool/static/img/logo.png
+        chmod +x deployment/nginx/test_nginx.sh
 
-          # Create test error pages
-          echo "<html><body>404 Not Found</body></html>" > /var/www/dojopool/404.html
-          echo "<html><body>500 Server Error</body></html>" > /var/www/dojopool/50x.html
+        ./deployment/nginx/test_nginx.sh
 
-      - name: Test NGINX configuration
-        run: |
-          # Test NGINX configuration syntax
-          docker exec nginx-test nginx -t
+        '
+    - name: Test SSL configuration
+      run: '# Test SSL handshake
 
-          # Run the test suite
-          chmod +x deployment/nginx/test_nginx.sh
-          ./deployment/nginx/test_nginx.sh
+        openssl s_client -connect localhost:443 -tls1_2 </dev/null
 
-      - name: Test SSL configuration
-        run: |
-          # Test SSL handshake
-          openssl s_client -connect localhost:443 -tls1_2 </dev/null
-          openssl s_client -connect localhost:443 -tls1_3 </dev/null
+        openssl s_client -connect localhost:443 -tls1_3 </dev/null
 
-          # Test SSL cipher strength
-          openssl s_client -connect localhost:443 -cipher "ECDHE-RSA-AES256-GCM-SHA384" </dev/null
 
-          # Verify HSTS header
-          curl -sI https://localhost | grep -i "strict-transport-security"
+        # Test SSL cipher strength
 
-      - name: Test security headers
-        run: |
-          # Test security headers on main endpoint
-          curl -sI https://localhost | grep -i "x-frame-options"
-          curl -sI https://localhost | grep -i "x-content-type-options"
-          curl -sI https://localhost | grep -i "x-xss-protection"
-          curl -sI https://localhost | grep -i "content-security-policy"
-          curl -sI https://localhost | grep -i "referrer-policy"
-          curl -sI https://localhost | grep -i "permissions-policy"
+        openssl s_client -connect localhost:443 -cipher "ECDHE-RSA-AES256-GCM-SHA384"
+        </dev/null
 
-          # Test security headers on API endpoint
-          curl -sI https://localhost/api/ | grep -i "content-security-policy"
 
-      - name: Test rate limiting
-        run: |
-          # Test API rate limiting
-          for i in {1..11}; do
-            curl -sI https://localhost/api/
-          done
+        # Verify HSTS header
 
-          # Test auth rate limiting
-          for i in {1..6}; do
-            curl -sI https://localhost/api/auth/
-          done
+        curl -sI https://localhost | grep -i "strict-transport-security"
 
-          # Test WebSocket rate limiting
-          for i in {1..6}; do
-            curl -sI -H "Connection: Upgrade" \
-                 -H "Upgrade: websocket" \
-                 -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
-                 -H "Sec-WebSocket-Version: 13" \
-                 https://localhost/ws/
-          done
+        '
+    - name: Test security headers
+      run: '# Test security headers on main endpoint
 
-      - name: Test WebSocket configuration
-        run: |
-          # Test WebSocket upgrade
-          curl -sI -H "Connection: Upgrade" \
-               -H "Upgrade: websocket" \
-               -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
-               -H "Sec-WebSocket-Version: 13" \
-               https://localhost/ws/
+        curl -sI https://localhost | grep -i "x-frame-options"
 
-      - name: Performance testing
-        run: |
-          # Test static file serving performance
-          ab -n 1000 -c 10 https://localhost/static/css/main.css
-          ab -n 1000 -c 10 https://localhost/static/js/main.js
+        curl -sI https://localhost | grep -i "x-content-type-options"
 
-          # Test API endpoint performance
-          ab -n 500 -c 5 https://localhost/api/health
+        curl -sI https://localhost | grep -i "x-xss-protection"
 
-          # Test WebSocket connection performance
-          wscat -c wss://localhost/ws/ -n 100
+        curl -sI https://localhost | grep -i "content-security-policy"
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: nginx-test-results
-          path: |
-            /var/log/nginx/*.log
-            deployment/nginx/test_results.log
+        curl -sI https://localhost | grep -i "referrer-policy"
+
+        curl -sI https://localhost | grep -i "permissions-policy"
+
+
+        # Test security headers on API endpoint
+
+        curl -sI https://localhost/api/ | grep -i "content-security-policy"
+
+        '
+    - name: Test rate limiting
+      run: "# Test API rate limiting\nfor i in {1..11}; do\n  curl -sI https://localhost/api/\n\
+        done\n\n# Test auth rate limiting\nfor i in {1..6}; do\n  curl -sI https://localhost/api/auth/\n\
+        done\n\n# Test WebSocket rate limiting\nfor i in {1..6}; do\n  curl -sI -H\
+        \ \"Connection: Upgrade\" \\\n       -H \"Upgrade: websocket\" \\\n      \
+        \ -H \"Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==\" \\\n       -H \"Sec-WebSocket-Version:\
+        \ 13\" \\\n       https://localhost/ws/\ndone\n"
+    - name: Test WebSocket configuration
+      run: "# Test WebSocket upgrade\ncurl -sI -H \"Connection: Upgrade\" \\\n   \
+        \  -H \"Upgrade: websocket\" \\\n     -H \"Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==\"\
+        \ \\\n     -H \"Sec-WebSocket-Version: 13\" \\\n     https://localhost/ws/\n"
+    - name: Performance testing
+      run: '# Test static file serving performance
+
+        ab -n 1000 -c 10 https://localhost/static/css/main.css
+
+        ab -n 1000 -c 10 https://localhost/static/js/main.js
+
+
+        # Test API endpoint performance
+
+        ab -n 500 -c 5 https://localhost/api/health
+
+
+        # Test WebSocket connection performance
+
+        wscat -c wss://localhost/ws/ -n 100
+
+        '
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: nginx-test-results
+        path: '/var/log/nginx/*.log
+
+          deployment/nginx/test_results.log'
