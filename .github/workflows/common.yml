@@ -43,4 +43,4 @@ jobs:
 
       # Step 6: Lint the code
       - name: Lint code
-        run: npm run lint 
+        run: npm run lint

@@ -4,18 +4,18 @@ name: NGINX Configuration Test
 on:
   push:
     paths:
-      - 'deployment/nginx/**'
-      - '.github/workflows/nginx-test.yml'
+      - "deployment/nginx/**"
+      - ".github/workflows/nginx-test.yml"
   pull_request:
     paths:
-      - 'deployment/nginx/**'
-      - '.github/workflows/nginx-test.yml'
+      - "deployment/nginx/**"
+      - ".github/workflows/nginx-test.yml"
   workflow_dispatch:
 
 jobs:
   test-nginx:
     runs-on: ubuntu-latest
-    
+
     services:
       nginx:
         image: nginx:latest
@@ -29,28 +29,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up test environment
         run: |
           sudo apt-get update
           sudo apt-get install -y curl openssl wscat apache2-utils
           mkdir -p deployment/ssl/certs deployment/ssl/private
-          
+
           # Generate self-signed certificates for testing
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
             -keyout deployment/ssl/private/dojopool.key \
             -out deployment/ssl/certs/dojopool.crt \
             -subj "/CN=dojopool.com.au"
-            
+
           # Generate DH parameters
           openssl dhparam -out deployment/ssl/certs/dhparam.pem 2048
-          
+
           # Create test static files
           mkdir -p /var/www/dojopool/static/{css,js,img}
           echo "body { margin: 0; }" > /var/www/dojopool/static/css/main.css
           echo "console.log('test');" > /var/www/dojopool/static/js/main.js
           convert -size 100x100 xc:white /var/www/dojopool/static/img/logo.png
-          
+
           # Create test error pages
           echo "<html><body>404 Not Found</body></html>" > /var/www/dojopool/404.html
           echo "<html><body>500 Server Error</body></html>" > /var/www/dojopool/50x.html
@@ -59,7 +59,7 @@ jobs:
         run: |
           # Test NGINX configuration syntax
           docker exec nginx-test nginx -t
-          
+
           # Run the test suite
           chmod +x deployment/nginx/test_nginx.sh
           ./deployment/nginx/test_nginx.sh
@@ -69,10 +69,10 @@ jobs:
           # Test SSL handshake
           openssl s_client -connect localhost:443 -tls1_2 </dev/null
           openssl s_client -connect localhost:443 -tls1_3 </dev/null
-          
+
           # Test SSL cipher strength
           openssl s_client -connect localhost:443 -cipher "ECDHE-RSA-AES256-GCM-SHA384" </dev/null
-          
+
           # Verify HSTS header
           curl -sI https://localhost | grep -i "strict-transport-security"
 
@@ -85,7 +85,7 @@ jobs:
           curl -sI https://localhost | grep -i "content-security-policy"
           curl -sI https://localhost | grep -i "referrer-policy"
           curl -sI https://localhost | grep -i "permissions-policy"
-          
+
           # Test security headers on API endpoint
           curl -sI https://localhost/api/ | grep -i "content-security-policy"
 
@@ -95,12 +95,12 @@ jobs:
           for i in {1..11}; do
             curl -sI https://localhost/api/
           done
-          
+
           # Test auth rate limiting
           for i in {1..6}; do
             curl -sI https://localhost/api/auth/
           done
-          
+
           # Test WebSocket rate limiting
           for i in {1..6}; do
             curl -sI -H "Connection: Upgrade" \
@@ -124,10 +124,10 @@ jobs:
           # Test static file serving performance
           ab -n 1000 -c 10 https://localhost/static/css/main.css
           ab -n 1000 -c 10 https://localhost/static/js/main.js
-          
+
           # Test API endpoint performance
           ab -n 500 -c 5 https://localhost/api/health
-          
+
           # Test WebSocket connection performance
           wscat -c wss://localhost/ws/ -n 100
 
@@ -138,4 +138,4 @@ jobs:
           name: nginx-test-results
           path: |
             /var/log/nginx/*.log
-            deployment/nginx/test_results.log 
+            deployment/nginx/test_results.log
