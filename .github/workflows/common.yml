@@ -1,5 +1,5 @@
 name: Common CI Steps
-true:
+on:
   workflow_call:
     inputs:
       test_path:
