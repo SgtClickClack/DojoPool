@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-    # Only trigger when changes occur in your source code or workflow definitions.
+    # Only trigger when changes occur in your source code or workflow files.
     paths:
-      - 'src/**'
-      - '.github/workflows/**'
+      - "src/**"
+      - ".github/workflows/**"
   pull_request:
     branches:
       - main
