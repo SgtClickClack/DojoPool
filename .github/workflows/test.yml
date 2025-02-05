@@ -8,14 +8,13 @@ on:
     branches:
     - main
     - develop
+
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version:
-        - 18.x
-        - 20.x
+        node-version: [18.x, 20.x]
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
@@ -34,15 +33,13 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
     - name: Run E2E tests
-      run: 'npm run build
-
+      run: |
+        npm run build
         npm run start & npx wait-on http://localhost:3000
-
         npm run cypress:run
-
-        '
       env:
         CI: true
+
   performance:
     needs: test
     runs-on: ubuntu-latest
@@ -60,11 +57,9 @@ jobs:
     - name: Build
       run: npm run build
     - name: Run Lighthouse CI
-      run: 'npm install -g @lhci/cli@0.12.x
-
+      run: |
+        npm install -g @lhci/cli@0.12.x
         lhci autorun
-
-        '
       env:
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
     - name: Download previous performance results
@@ -74,14 +69,10 @@ jobs:
         name: performance-history
         path: performance-report
     - name: Run performance tests
-      run: 'npm run start &
-
+      run: |
+        npm run start &
         sleep 10
-
-        npx cypress run --spec "cypress/integration/game-scenarios.spec.ts" --config
-        video=true
-
-        '
+        npx cypress run --spec "cypress/integration/game-scenarios.spec.ts" --config video=true
       env:
         NODE_ENV: production
         CYPRESS_PERFORMANCE_TEST: true
@@ -100,6 +91,7 @@ jobs:
         name: performance-history
         path: performance-report/performance-history.json
         retention-days: 90
+
   visual-regression:
     needs: test
     runs-on: ubuntu-latest
@@ -113,9 +105,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
     - name: Run visual regression tests
-      run: 'npx cypress run --spec "cypress/integration/visual.spec.ts" --config screenshotsFolder=cypress/snapshots/actual
-
-        '
+      run: |
+        npx cypress run --spec "cypress/integration/visual.spec.ts" --config screenshotsFolder=cypress/snapshots/actual
       env:
         CYPRESS_updateSnapshots: ${{ github.event_name == 'push' && github.ref ==
           'refs/heads/main' }}
@@ -126,6 +117,7 @@ jobs:
         name: visual-test-diff
         path: cypress/snapshots/diff
         retention-days: 7
+
   deploy-coverage:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
