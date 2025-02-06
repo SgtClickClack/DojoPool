@@ -22,10 +22,10 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: npm
@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       
       - name: Cache Snyk CLI
         uses: actions/cache@v4
@@ -72,13 +72,25 @@ jobs:
           project: DojoPool
           path: .
           format: HTML
+        
+      - name: Upload security scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: |
+            reports/
+            dependency-check-report.html
+          retention-days: 30
 
   build:
     needs: [test, security-scan]
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.docker_build.outputs.digest }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -90,6 +102,7 @@ jobs:
           password: ${{secrets.DOCKERHUB_TOKEN}}
       
       - name: Build and push
+        id: docker_build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -104,7 +117,8 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: ${{steps.deploy.outputs.url}}
+    outputs:
+      deployment_url: ${{ steps.set_url.outputs.url }}
     steps:
       - name: Configure SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -120,14 +134,53 @@ jobs:
             docker system prune -f
           ENDSSH
       
+      - name: Set deployment URL
+        id: set_url
+        run: echo "url=https://${{secrets.STAGING_DOMAIN}}" >> $GITHUB_OUTPUT
+      
       - name: Run health check
         run: |
-          curl --retry 5 --retry-delay 10 -f https://${{secrets.STAGING_DOMAIN}}/health
+          for i in {1..12}; do
+            if curl --silent --fail "https://${{secrets.STAGING_DOMAIN}}/health"; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Waiting for service to be healthy... (attempt $i/12)"
+            sleep 10
+          done
+          echo "Health check failed after 2 minutes"
+          exit 1
+      
+      - name: Verify deployment
+        run: |
+          # Check if main page is accessible
+          curl --fail --silent "https://${{secrets.STAGING_DOMAIN}}" > /dev/null
+          
+          # Check if API is responsive
+          curl --fail --silent "https://${{secrets.STAGING_DOMAIN}}/api/health" > /dev/null
       
       - name: Notify deployment status
         if: always()
         uses: rtCamp/action-slack-notify@v2.2.1
         env:
           SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
-          SLACK_MESSAGE: Staging deployment ${{job.status}}
+          SLACK_MESSAGE: |
+            Staging deployment ${{job.status}}
+            Environment: ${{secrets.STAGING_DOMAIN}}
+            Image: dojopoolapp/staging@${{needs.build.outputs.image_tag}}
           SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+
+  smoke-test:
+    needs: deploy
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run smoke tests
+        run: |
+          # Basic endpoint checks
+          curl -sSf "${{needs.deploy.outputs.deployment_url}}/health" > /dev/null
+          curl -sSf "${{needs.deploy.outputs.deployment_url}}/api/health" > /dev/null
+          
+          # Check response times
+          time curl -sSf "${{needs.deploy.outputs.deployment_url}}" > /dev/null
+          time curl -sSf "${{needs.deploy.outputs.deployment_url}}/api/health" > /dev/null
