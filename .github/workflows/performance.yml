@@ -1,6 +1,12 @@
 name: Performance Tests
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**.txt'
     branches:
     - main
   pull_request:

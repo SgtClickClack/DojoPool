@@ -1,6 +1,12 @@
 name: NGINX Configuration Test
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**.txt'
     paths:
     - deployment/nginx/**
     - .github/workflows/nginx-test.yml

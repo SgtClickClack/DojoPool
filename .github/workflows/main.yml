@@ -1,6 +1,12 @@
 name: CI
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**.txt'
     branches:
     - main
     paths:

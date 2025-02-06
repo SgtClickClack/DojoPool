@@ -1,6 +1,12 @@
 name: Deploy to Firebase
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**.txt'
     branches:
     - main
     - master

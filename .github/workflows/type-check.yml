@@ -1,6 +1,12 @@
 name: Type Check
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**.txt'
     branches:
     - main
   pull_request:
