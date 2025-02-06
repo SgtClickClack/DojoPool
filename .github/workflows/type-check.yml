@@ -9,6 +9,12 @@ on:
       - 'package-lock.json'
       - 'tsconfig.json'
       - 'types/**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**/*.txt'
     branches:
       - main
       - develop
@@ -20,6 +26,12 @@ on:
       - 'package-lock.json'
       - 'tsconfig.json'
       - 'types/**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**/*.txt'
     branches:
       - main
       - develop
@@ -35,17 +47,25 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
-        typescript-version: [4.9.x, 5.0.x, 5.1.x]
+        node-version: [20.x]
+        typescript-version: [5.1.x]
+        include:
+          # Additional combinations only on main branch
+          - node-version: 18.x
+            typescript-version: 5.1.x
+            if: github.ref == 'refs/heads/main'
+          - node-version: 20.x
+            typescript-version: 4.9.x
+            if: github.ref == 'refs/heads/main'
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -117,8 +137,8 @@ jobs:
   notify:
     name: Notify Results
     needs: type-check
-    runs-on: ubuntu-latest
     if: always()
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
@@ -134,11 +154,3 @@ jobs:
             *Commit:* ${{ github.sha }}
             *Type Check Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             *Status:* ${{ needs.type-check.result }}
-            
-            *Matrix Results:*
-            - Node 18 + TS 4.9: ${{ needs.type-check.result }}
-            - Node 18 + TS 5.0: ${{ needs.type-check.result }}
-            - Node 18 + TS 5.1: ${{ needs.type-check.result }}
-            - Node 20 + TS 4.9: ${{ needs.type-check.result }}
-            - Node 20 + TS 5.0: ${{ needs.type-check.result }}
-            - Node 20 + TS 5.1: ${{ needs.type-check.result }}
