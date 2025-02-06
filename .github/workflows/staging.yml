@@ -32,7 +32,7 @@ jobs:
     - name: Run security scan
       uses: snyk/actions/node@master
       env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
     - name: Run OWASP dependency check
       uses: dependency-check/Dependency-Check_Action@main
       with:
@@ -51,8 +51,8 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_TOKEN}}
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
@@ -68,21 +68,19 @@ jobs:
     - name: Configure SSH
       uses: webfactory/ssh-agent@v0.9.0
       with:
-        ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
+        ssh-private-key: ${{secrets.STAGING_SSH_KEY}}
     - name: Deploy to staging
-      run: "ssh ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_HOST
-        }} << 'ENDSSH'\n  cd /opt/dojopool\n  docker-compose -f docker-compose.staging.yml
+      run: "ssh ${{secrets.STAGING_SERVER_USER}}@${{secrets.STAGING_SERVER_HOST}} << 'ENDSSH'\n  cd /opt/dojopool\n  docker-compose -f docker-compose.staging.yml
         pull\n  docker-compose -f docker-compose.staging.yml up -d\n  docker system
         prune -f\nENDSSH\n"
     - name: Run health check
-      run: 'curl --retry 5 --retry-delay 10 -f https://${{ secrets.STAGING_DOMAIN
-        }}/health
+      run: 'curl --retry 5 --retry-delay 10 -f https://${{secrets.STAGING_DOMAIN}}/health
 
         '
     - name: Notify deployment status
       if: always()
       uses: rtCamp/action-slack-notify@v2.2.1
       env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_MESSAGE: Staging deployment ${{ job.status }}
-        SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+        SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+        SLACK_MESSAGE: Staging deployment ${{job.status}}
+        SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}

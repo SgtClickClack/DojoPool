@@ -19,11 +19,11 @@ jobs:
         - 80:80
         - 443:443
         volumes:
-        - ${{ github.workspace }}/deployment/nginx:/etc/nginx/conf.d
-        - ${{ github.workspace }}/deployment/ssl:/etc/ssl
+        - ${{github.workspace}}/deployment/nginx:/etc/nginx/conf.d
+        - ${{github.workspace}}/deployment/ssl:/etc/ssl
         options: --name nginx-test
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up test environment
       run: "sudo apt-get update\nsudo apt-get install -y curl openssl wscat apache2-utils\n
         mkdir -p deployment/ssl/certs deployment/ssl/private\n\n# Generate self-signed

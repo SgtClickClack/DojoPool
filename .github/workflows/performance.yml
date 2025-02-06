@@ -28,7 +28,7 @@ jobs:
         npx cypress run --spec "cypress/e2e/performance/**/*.cy.ts" --browser chrome --headless
       env:
         CYPRESS_PERFORMANCE_MODE: true
-        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        CYPRESS_RECORD_KEY: ${{secrets.CYPRESS_RECORD_KEY}}
     - name: Generate performance report
       run: node scripts/generate-performance-report.js
     - name: Upload performance results
