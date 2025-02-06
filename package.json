@@ -41,7 +41,7 @@
     "antd": "5.23.3",
     "axios": "1.7.9",
     "connect-redis": "^7.1.1",
-    "csurf": "1.11.0",
+    "csurf": "1.2.2",
     "date-fns": "4.1.0",
     "express-rate-limit": "^7.1.5",
     "express-session": "^1.18.0",

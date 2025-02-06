@@ -4,28 +4,38 @@ on:
   push:
     paths:
       - 'src/**'
-      - '.github/workflows/common.yml'
       - 'package.json'
       - 'package-lock.json'
       - '.eslintrc.js'
       - '.prettierrc'
+      - 'tsconfig.json'
+      - 'tests/**'
+      - 'cypress/**'
     branches:
       - main
       - develop
   pull_request:
     paths:
       - 'src/**'
-      - '.github/workflows/common.yml'
       - 'package.json'
       - 'package-lock.json'
       - '.eslintrc.js'
       - '.prettierrc'
+      - 'tsconfig.json'
+      - 'tests/**'
+      - 'cypress/**'
     branches:
       - main
       - develop
 
+permissions:
+  contents: read
+  actions: write
+  checks: write
+  pull-requests: write
+
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -35,27 +45,80 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
-        run: npm ci
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: |
+          for i in {1..3}; do
+            echo "Attempt $i of 3"
+            if npm ci; then
+              exit 0
+            fi
+            echo "npm ci failed, retrying..."
+            sleep 5
+          done
+          exit 1
 
       - name: Run linting
+        id: lint
         run: npm run lint
+        continue-on-error: true
 
       - name: Run formatting check
+        id: format
         run: npm run format:check
+        continue-on-error: true
+
+      - name: Run type checking
+        id: types
+        run: npm run type-check
+        continue-on-error: true
 
       - name: Upload lint results
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: lint-results
-          path: reports/eslint/
+          path: |
+            reports/eslint/
+            reports/prettier/
+            reports/tsc/
           retention-days: 30
+          if-no-files-found: warn
+
+      - name: Report status
+        if: always()
+        run: |
+          if [[ "${{ steps.lint.outcome }}" == "failure" || "${{ steps.format.outcome }}" == "failure" || "${{ steps.types.outcome }}" == "failure" ]]; then
+            echo "::error::One or more checks failed"
+            echo "::group::Lint Results"
+            cat reports/eslint/results.json || true
+            echo "::endgroup::"
+            echo "::group::Format Results"
+            cat reports/prettier/results.json || true
+            echo "::endgroup::"
+            echo "::group::Type Check Results"
+            cat reports/tsc/results.json || true
+            echo "::endgroup::"
+            exit 1
+          fi

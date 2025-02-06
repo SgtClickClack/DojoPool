@@ -4,18 +4,26 @@ on:
   push:
     paths:
       - 'src/**'
-      - '.github/workflows/production.yml'
       - 'package.json'
       - 'package-lock.json'
       - 'docker/**'
       - 'docker-compose.prod.yml'
+      - 'tests/**'
+      - 'cypress/**'
     branches:
       - main
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+  actions: write
+  packages: write
+  deployments: write
+  security-events: write
+
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -28,7 +36,9 @@ jobs:
       url: ${{ steps.set_url.outputs.url }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -37,25 +47,31 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: buildx-${{runner.os}}-${{github.sha}}
+          key: buildx-${{ runner.os }}-${{ github.sha }}
           restore-keys: |
-            buildx-${{runner.os}}-
+            buildx-${{ runner.os }}-
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
-          username: ${{secrets.DOCKERHUB_USERNAME}}
-          password: ${{secrets.DOCKERHUB_TOKEN}}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: dojopoolapp/production:latest,dojopoolapp/production:${{github.ref_name}}
+          tags: |
+            dojopoolapp/production:latest
+            dojopoolapp/production:${{ github.ref_name }}
+            dojopoolapp/production:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          build-args: |
+            NODE_ENV=production
+            NEXT_PUBLIC_API_URL=${{ secrets.PROD_API_URL }}
 
       - name: Move cache
         run: |
@@ -65,11 +81,11 @@ jobs:
       - name: Configure SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
-          ssh-private-key: ${{secrets.PROD_SSH_KEY}}
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
 
       - name: Deploy to production
         run: |
-          ssh ${{secrets.PROD_SERVER_USER}}@${{secrets.PROD_SERVER_HOST}} << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'ENDSSH'
             cd /opt/dojopool
             docker-compose -f docker-compose.prod.yml pull
             docker-compose -f docker-compose.prod.yml up -d
@@ -78,12 +94,12 @@ jobs:
 
       - name: Set deployment URL
         id: set_url
-        run: echo "url=https://${{secrets.PROD_DOMAIN}}" >> $GITHUB_OUTPUT
+        run: echo "url=https://${{ secrets.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
 
-      - name: Run health check
+      - name: Health check
         run: |
           for i in {1..12}; do
-            if curl --silent --fail "https://${{secrets.PROD_DOMAIN}}/health"; then
+            if curl --silent --fail "https://${{ secrets.PROD_DOMAIN }}/health"; then
               echo "Health check passed"
               exit 0
             fi
@@ -96,21 +112,25 @@ jobs:
       - name: Verify deployment
         run: |
           # Check if main page is accessible
-          curl --fail --silent "https://${{secrets.PROD_DOMAIN}}" > /dev/null
+          curl --fail --silent "https://${{ secrets.PROD_DOMAIN }}" > /dev/null
           
           # Check if API is responsive
-          curl --fail --silent "https://${{secrets.PROD_DOMAIN}}/api/health" > /dev/null
+          curl --fail --silent "https://${{ secrets.PROD_DOMAIN }}/api/health" > /dev/null
+          
+          # Check if static assets are accessible
+          curl --fail --silent "https://${{ secrets.PROD_DOMAIN }}/static/manifest.json" > /dev/null
 
       - name: Notify Slack
         if: always()
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
-          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
-          SLACK_TITLE: Production Deployment ${{job.status == 'success' && 'Successful' || 'Failed'}}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: Production Deployment ${{ job.status == 'success' && 'Successful' || 'Failed' }}
           SLACK_MESSAGE: |
             Environment: Production
-            Image: dojopoolapp/production@${{steps.docker_build.outputs.digest}}
-            Branch: ${{github.ref_name}}
-            Commit: ${{github.sha}} 
+            Image: dojopoolapp/production@${{ steps.docker_build.outputs.digest }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            URL: ${{ steps.set_url.outputs.url }} 
