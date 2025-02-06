@@ -56,9 +56,11 @@ jobs:
           key: snyk-${{runner.os}}-${{hashFiles('**/package.json')}}
       
       - name: Run security scan
-        uses: snyk/actions/node@v1
+        uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+        with:
+          args: --severity-threshold=high
       
       - name: Cache OWASP dependency check
         uses: actions/cache@v2
@@ -67,11 +69,14 @@ jobs:
           key: owasp-${{runner.os}}-${{hashFiles('**/package.json')}}
       
       - name: Run OWASP dependency check
-        uses: dependency-check/Dependency-Check_Action@v2
+        uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: DojoPool
-          path: .
-          format: HTML
+          project: 'DojoPool'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --failOnCVSS 7
+            --enableRetired
         
       - name: Upload security scan results
         if: always()
@@ -161,7 +166,7 @@ jobs:
       
       - name: Notify deployment status
         if: always()
-        uses: rtCamp/action-slack-notify@v2.0.0
+        uses: rtCamp/action-slack-notify@v2.2.0
         env:
           SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
           SLACK_MESSAGE: |
