@@ -22,10 +22,10 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: '18'
           cache: npm
@@ -47,27 +47,27 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       
       - name: Cache Snyk CLI
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: ~/.snyk
           key: snyk-${{runner.os}}-${{hashFiles('**/package.json')}}
       
       - name: Run security scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@v1
         env:
           SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
       
       - name: Cache OWASP dependency check
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: owasp-${{runner.os}}-${{hashFiles('**/package.json')}}
       
       - name: Run OWASP dependency check
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: dependency-check/Dependency-Check_Action@v2
         with:
           project: DojoPool
           path: .
@@ -75,7 +75,7 @@ jobs:
         
       - name: Upload security scan results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: security-scan-results
           path: |
@@ -90,20 +90,20 @@ jobs:
     outputs:
       image_tag: ${{ steps.docker_build.outputs.digest }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v2
       
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v2
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
       
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
@@ -121,7 +121,7 @@ jobs:
       deployment_url: ${{ steps.set_url.outputs.url }}
     steps:
       - name: Configure SSH
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{secrets.STAGING_SSH_KEY}}
       
@@ -161,7 +161,7 @@ jobs:
       
       - name: Notify deployment status
         if: always()
-        uses: rtCamp/action-slack-notify@v2.2.1
+        uses: rtCamp/action-slack-notify@v2.0.0
         env:
           SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
           SLACK_MESSAGE: |
