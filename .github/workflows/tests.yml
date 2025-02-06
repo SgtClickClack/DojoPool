@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'src/**'
-      - 'tests/**'
       - '.github/workflows/tests.yml'
       - 'package.json'
       - 'package-lock.json'
@@ -15,7 +14,6 @@ on:
   pull_request:
     paths:
       - 'src/**'
-      - 'tests/**'
       - '.github/workflows/tests.yml'
       - 'package.json'
       - 'package-lock.json'
@@ -35,10 +33,10 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
@@ -47,10 +45,11 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm run test -- --coverage
+        run: npm test -- --coverage
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: coverage/
