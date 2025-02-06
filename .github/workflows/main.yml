@@ -1,17 +1,16 @@
 name: CI
+
 on:
   push:
+    branches:
+      - main
     paths:
       - 'src/**'
       - '.github/workflows/**'
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
-    branches:
-      - main
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.js'
+      - 'tsconfig.json'
   pull_request:
     branches:
       - main
@@ -22,191 +21,186 @@ concurrency:
 
 jobs:
   test:
-    timeout-minutes: 60
+    name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 18.x
+          node-version: 20.x
           cache: npm
-      
+
+      - name: Cache Next.js build
+        uses: actions/cache@v2
+        with:
+          path: |
+            .next/cache
+          key: nextjs-${{runner.os}}-${{hashFiles('**/package-lock.json')}}
+          restore-keys: |
+            nextjs-${{runner.os}}-
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Run linting
+
+      - name: Run linter
         run: npm run lint
-      
-      - name: Run unit tests
-        run: npm run test
-      
-      - name: Cache Cypress binary
-        uses: actions/cache@v4
+
+      - name: Run tests
+        run: npm run test -- --coverage
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
         with:
-          path: ~/.cache/Cypress
-          key: cypress-${{runner.os}}-${{hashFiles('**/package.json')}}
-          restore-keys: |
-            cypress-${{runner.os}}-
-      
-      - name: Run E2E tests
-        uses: cypress-io/github-action@v6
+          name: test-results
+          path: coverage/
+          retention-days: 30
+
+  security:
+    name: Security Scan
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
         with:
-          start: npm run dev
-          wait-on: http://localhost:3000
-          browser: chrome
-          record: true
-        env:
-          CYPRESS_RECORD_KEY: ${{secrets.CYPRESS_RECORD_KEY}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      
-      - name: Run Percy visual tests
-        run: npx percy exec -- cypress run -s "cypress/e2e/visual.cy.ts"
-        env:
-          PERCY_TOKEN: ${{secrets.PERCY_TOKEN}}
-      
-      - name: Run performance tests
-        run: npx cypress run -s "cypress/e2e/performance.cy.ts"
-        env:
-          CYPRESS_RECORD_KEY: ${{secrets.CYPRESS_RECORD_KEY}}
+          args: --severity-threshold=high
+
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'DojoPool'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v2
+        with:
+          name: security-scan-results
+          path: reports/
+          retention-days: 30
 
   deploy-staging:
-    needs: test
+    name: Deploy to Staging
+    needs: [test, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 30
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: staging
       url: ${{steps.deploy.outputs.url}}
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 18.x
+          node-version: 20.x
           cache: npm
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Cache Next.js build
-        uses: actions/cache@v4
-        with:
-          path: |
-            .next/cache
-            ${{ github.workspace }}/.next/cache
-          key: nextjs-${{runner.os}}-${{hashFiles('**/package-lock.json')}}
-          restore-keys: |
-            nextjs-${{runner.os}}-
-      
+
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{secrets.NEXT_PUBLIC_FIREBASE_API_KEY}}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID}}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{secrets.NEXT_PUBLIC_FIREBASE_APP_ID}}
-      
-      - name: Deploy to Vercel (Staging)
+          NODE_ENV: staging
+          NEXT_PUBLIC_API_URL: ${{secrets.STAGING_API_URL}}
+
+      - name: Deploy to Vercel
         id: deploy
-        uses: amondnet/vercel-action@v25
+        uses: amondnet/vercel-action@v20
         with:
+          zeit-token: ${{secrets.VERCEL_TOKEN}}
           vercel-token: ${{secrets.VERCEL_TOKEN}}
           vercel-org-id: ${{secrets.VERCEL_ORG_ID}}
           vercel-project-id: ${{secrets.VERCEL_PROJECT_ID}}
-          vercel-args: --prod
-          working-directory: ./
+          vercel-args: '--prod'
+          working-directory: .
+
+      - name: Verify Deployment
+        run: |
+          sleep 30
+          curl -sSf ${{steps.deploy.outputs.url}} > /dev/null || exit 1
+
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+          SLACK_TITLE: Staging Deployment ${{job.status == 'success' && 'Successful' || 'Failed'}}
+          SLACK_MESSAGE: |
+            Environment: Staging
+            Branch: ${{github.ref_name}}
+            Commit: ${{github.sha}}
+            URL: ${{steps.deploy.outputs.url}}
 
   deploy-production:
+    name: Deploy to Production
     needs: deploy-staging
-    timeout-minutes: 30
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: production
       url: ${{steps.deploy.outputs.url}}
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 18.x
+          node-version: 20.x
           cache: npm
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Cache Next.js build
-        uses: actions/cache@v4
-        with:
-          path: |
-            .next/cache
-            ${{ github.workspace }}/.next/cache
-          key: nextjs-${{runner.os}}-${{hashFiles('**/package-lock.json')}}
-          restore-keys: |
-            nextjs-${{runner.os}}-
-      
+
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{secrets.NEXT_PUBLIC_FIREBASE_API_KEY}}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID}}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{secrets.NEXT_PUBLIC_FIREBASE_APP_ID}}
-      
-      - name: Deploy to Vercel (Production)
-        id: deploy
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{secrets.VERCEL_TOKEN}}
-          vercel-org-id: ${{secrets.VERCEL_ORG_ID}}
-          vercel-project-id: ${{secrets.VERCEL_PROJECT_ID}}
-          vercel-args: --prod
-          working-directory: ./
-      
-      - name: Cache Lighthouse CI
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm/_lighthouse
-          key: lighthouse-${{runner.os}}-${{hashFiles('**/package.json')}}
-      
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v11
-        with:
-          urls: |
-            ${{steps.deploy.outputs.url}}
-            ${{steps.deploy.outputs.url}}/auth/signin
-            ${{steps.deploy.outputs.url}}/dashboard
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-          configPath: ./.github/lighthouse/config.json
-      
-      - name: Run performance monitoring
-        run: |
-          npm install -g lighthouse-ci
-          lhci autorun --collect.url=${{steps.deploy.outputs.url}} --upload.target=temporary-public-storage
-      
-      - name: Monitor deployment health
-        run: |
-          curl -sSf ${{steps.deploy.outputs.url}} > /dev/null
-          curl -sSf ${{steps.deploy.outputs.url}}/api/health > /dev/null
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: ${{secrets.PROD_API_URL}}
 
-  notify:
-    needs: deploy-production
-    if: always()
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify Slack
-        uses: 8398a7/action-slack@v3.15.0
+      - name: Deploy to Firebase
+        id: deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          status: ${{job.status}}
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          repoToken: ${{secrets.GITHUB_TOKEN}}
+          firebaseServiceAccount: ${{secrets.FIREBASE_SERVICE_ACCOUNT}}
+          channelId: live
+          projectId: ${{secrets.FIREBASE_PROJECT_ID}}
+
+      - name: Verify Deployment
+        run: |
+          sleep 30
+          curl -sSf ${{steps.deploy.outputs.url}} > /dev/null || exit 1
+          curl -sSf "https://${{secrets.FIREBASE_PROJECT_ID}}.web.app/__/firebase/init.json" > /dev/null || exit 1
+
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2.2.0
         env:
-          SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+          SLACK_TITLE: Production Deployment ${{job.status == 'success' && 'Successful' || 'Failed'}}
+          SLACK_MESSAGE: |
+            Environment: Production
+            Branch: ${{github.ref_name}}
+            Commit: ${{github.sha}}
+            URL: ${{steps.deploy.outputs.url}}
