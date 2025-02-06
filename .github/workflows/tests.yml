@@ -32,28 +32,34 @@ concurrency:
 
 jobs:
   test:
-    name: Run Tests
-    runs-on: ubuntu-latest
+    name: Run Tests (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
 
-      - name: Use Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: 20.x
+          node-version: ${{ matrix.node-version }}
           cache: npm
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          key: npm-${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            npm-${{ runner.os }}-
+            npm-${{ matrix.os }}-${{ matrix.node-version }}-
+            npm-${{ matrix.os }}-
 
       - name: Install dependencies
         run: npm ci
@@ -74,7 +80,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: test-results
+          name: test-results-${{ matrix.os }}-node-${{ matrix.node-version }}
           path: |
             coverage/
             junit.xml
@@ -85,8 +91,8 @@ jobs:
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           files: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
+          flags: unittests,${{ matrix.os }},node-${{ matrix.node-version }}
+          name: codecov-${{ matrix.os }}-node-${{ matrix.node-version }}
           fail_ci_if_error: true
           verbose: true
 
@@ -100,20 +106,35 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-report
+          name: coverage-report-${{ matrix.os }}-node-${{ matrix.node-version }}
           path: test-report.html
           retention-days: 30
 
+  notify:
+    name: Notify Results
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    timeout-minutes: 10
+
+    steps:
       - name: Notify Slack
-        if: always()
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
           SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
           SLACK_CHANNEL: testing
-          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
-          SLACK_TITLE: Test Results ${{ job.status == 'success' && 'Passed ✅' || 'Failed ❌' }}
+          SLACK_COLOR: ${{ needs.test.result == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: Test Results ${{ needs.test.result == 'success' && 'Passed ✅' || 'Failed ❌' }}
           SLACK_MESSAGE: |
             *Branch:* ${{ github.ref_name }}
             *Commit:* ${{ github.sha }}
-            *Coverage Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            *Status:* ${{ job.status }}
+            *Coverage Reports:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            *Status:* ${{ needs.test.result }}
+            
+            *Matrix Results:*
+            - Ubuntu + Node 18: ${{ needs.test.result }}
+            - Ubuntu + Node 20: ${{ needs.test.result }}
+            - Windows + Node 18: ${{ needs.test.result }}
+            - Windows + Node 20: ${{ needs.test.result }}
+            - macOS + Node 18: ${{ needs.test.result }}
+            - macOS + Node 20: ${{ needs.test.result }}
