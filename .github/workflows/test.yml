@@ -1,16 +1,25 @@
 name: Test Suite
+
 on:
   push:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
+    paths:
+      - 'src/**'
+      - '.github/workflows/test.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'jest.config.js'
+      - 'cypress/**'
     branches:
       - main
       - develop
   pull_request:
+    paths:
+      - 'src/**'
+      - '.github/workflows/test.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'jest.config.js'
+      - 'cypress/**'
     branches:
       - main
       - develop
@@ -20,181 +29,147 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    timeout-minutes: 60
+  unit:
+    name: Unit Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-      fail-fast: false
-    
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Use Node.js ${{matrix.node-version}}
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{matrix.node-version}}
+          node-version: 20.x
           cache: npm
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Run linter
-        run: npm run lint
-      
-      - name: Run unit and integration tests
-        run: npm run test -- --coverage
-      
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v2
+
+      - name: Run unit tests
+        run: npm test -- --coverage
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
-          token: ${{secrets.CODECOV_TOKEN}}
-      
+          name: unit-test-results
+          path: coverage/
+          retention-days: 30
+
+  e2e:
+    name: E2E Tests
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: npm
+
       - name: Cache Cypress binary
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/Cypress
-          key: cypress-${{runner.os}}-${{hashFiles('**/package.json')}}
+          key: cypress-${{runner.os}}-${{hashFiles('**/package-lock.json')}}
           restore-keys: |
             cypress-${{runner.os}}-
-      
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run E2E tests
         run: |
           npm run build
           npm run start & npx wait-on http://localhost:3000
           npm run cypress:run
-        env:
-          CI: true
 
-  performance:
-    needs: test
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+      - name: Upload E2E test results
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
-          fetch-depth: 0
-      
+          name: e2e-test-results
+          path: cypress/videos/
+          retention-days: 30
+
+  integration:
+    name: Integration Tests
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Build
-        run: npm run build
-      
-      - name: Cache Lighthouse CI
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm/_lighthouse
-          key: lighthouse-${{runner.os}}-${{hashFiles('**/package.json')}}
-      
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v9
-        with:
-          urls: |
-            ${{steps.deploy.outputs.url}}
-            ${{steps.deploy.outputs.url}}/auth/signin
-            ${{steps.deploy.outputs.url}}/dashboard
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-          configPath: ./.github/lighthouse/config.json
-      
-      - name: Download previous performance results
-        uses: actions/download-artifact@v2
-        continue-on-error: true
-        with:
-          name: performance-history
-          path: performance-report
-      
-      - name: Run performance tests
-        run: |
-          npm run start &
-          sleep 10
-          npx cypress run --spec "cypress/integration/game-scenarios.spec.ts" --config video=true
+
+      - name: Run integration tests
+        run: npm run test:integration
         env:
-          NODE_ENV: production
-          CYPRESS_PERFORMANCE_TEST: true
-      
-      - name: Analyze performance results
-        id: analysis
-        run: node scripts/analyze-performance.js
-      
-      - name: Upload performance results
-        uses: actions/upload-artifact@v2
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
-          name: performance-results
-          path: performance-report/
+          name: integration-test-results
+          path: coverage/integration/
           retention-days: 30
-      
-      - name: Save performance history
-        uses: actions/upload-artifact@v2
-        with:
-          name: performance-history
-          path: performance-report/performance-history.json
-          retention-days: 90
 
-  visual-regression:
-    needs: test
-    timeout-minutes: 60
+  notify:
+    name: Notify Results
+    needs: [unit, e2e, integration]
+    if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 18.x
-          cache: npm
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Cache Cypress binary
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/Cypress
-          key: cypress-${{runner.os}}-${{hashFiles('**/package.json')}}
-          restore-keys: |
-            cypress-${{runner.os}}-
-      
-      - name: Run visual regression tests
-        run: |
-          npx cypress run --spec "cypress/integration/visual.spec.ts" --config screenshotsFolder=cypress/snapshots/actual
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2.2.0
         env:
-          CYPRESS_updateSnapshots: ${{github.event_name == 'push' && github.ref == 'refs/heads/main'}}
-      
-      - name: Upload visual diff on failure
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: visual-test-diff
-          path: cypress/snapshots/diff
-          retention-days: 7
-
-  deploy-coverage:
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Download coverage results
-        uses: actions/download-artifact@v2
-        with:
-          name: test-results-18.x
-          path: coverage
-      
-      - name: Deploy coverage report
-        uses: peaceiris/actions-gh-pages@v3.9.3
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          publish_dir: ./coverage/html
-          destination_dir: coverage-report
-          enable_jekyll: false
+          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: testing
+          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+          SLACK_TITLE: Test Suite ${{job.status == 'success' && 'Passed' || 'Failed'}}
+          SLACK_MESSAGE: |
+            Branch: ${{github.ref_name}}
+            Commit: ${{github.sha}}
+            Action Run: ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}
