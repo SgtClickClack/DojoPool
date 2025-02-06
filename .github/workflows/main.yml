@@ -26,16 +26,16 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
 
       - name: Cache Next.js build
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             .next/cache
@@ -53,7 +53,7 @@ jobs:
         run: npm run test -- --coverage
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: coverage/
@@ -66,14 +66,15 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
+        run: snyk test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
-        with:
-          args: --severity-threshold=high
 
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
@@ -86,7 +87,7 @@ jobs:
             --enableRetired
 
       - name: Upload security scan results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: security-scan-results
           path: reports/
@@ -103,10 +104,10 @@ jobs:
       url: ${{steps.deploy.outputs.url}}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
@@ -160,10 +161,10 @@ jobs:
       url: ${{steps.deploy.outputs.url}}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
@@ -179,7 +180,7 @@ jobs:
 
       - name: Deploy to Firebase
         id: deploy
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        uses: FirebaseExtended/action-hosting-deploy@v0.7.1
         with:
           repoToken: ${{secrets.GITHUB_TOKEN}}
           firebaseServiceAccount: ${{secrets.FIREBASE_SERVICE_ACCOUNT}}
