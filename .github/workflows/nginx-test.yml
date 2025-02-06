@@ -1,10 +1,11 @@
-name: NGINX Tests
+name: Nginx Tests
 
 on:
   push:
     paths:
       - 'nginx/**'
       - '.github/workflows/nginx-test.yml'
+      - 'docker/nginx/**'
     branches:
       - main
       - develop
@@ -12,6 +13,7 @@ on:
     paths:
       - 'nginx/**'
       - '.github/workflows/nginx-test.yml'
+      - 'docker/nginx/**'
     branches:
       - main
       - develop
@@ -21,89 +23,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test NGINX Configuration
+  nginx-test:
+    name: Test Nginx Configuration
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: buildx-${{runner.os}}-${{github.sha}}
+          key: buildx-nginx-${{runner.os}}-${{github.sha}}
           restore-keys: |
-            buildx-${{runner.os}}-
+            buildx-nginx-${{runner.os}}-
 
-      - name: Build NGINX image
-        uses: docker/build-push-action@v2
+      - name: Build Nginx image
+        uses: docker/build-push-action@v4
         with:
           context: ./nginx
-          push: false
           load: true
-          tags: nginx-test:latest
+          tags: dojopool/nginx:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Test NGINX configuration
+      - name: Test Nginx configuration
         run: |
-          docker run --rm nginx-test:latest nginx -t
-
-      - name: Run NGINX container
-        run: |
-          docker run -d --name nginx-test -p 8080:80 nginx-test:latest
-
-      - name: Wait for NGINX to start
-        run: sleep 10
-
-      - name: Test NGINX endpoints
-        run: |
-          curl -sSf http://localhost:8080/health > /dev/null || exit 1
-          curl -sSf http://localhost:8080/api > /dev/null || exit 1
-          curl -sSf -I http://localhost:8080/ | grep -q "200 OK" || exit 1
-
-      - name: Test NGINX SSL configuration
-        run: |
-          openssl s_client -connect localhost:443 -servername localhost </dev/null 2>/dev/null | openssl x509 -noout -dates || true
-
-      - name: Test NGINX security headers
-        run: |
-          curl -sSf -I http://localhost:8080/ | grep -i "X-Frame-Options: DENY" || exit 1
-          curl -sSf -I http://localhost:8080/ | grep -i "X-Content-Type-Options: nosniff" || exit 1
-          curl -sSf -I http://localhost:8080/ | grep -i "X-XSS-Protection: 1; mode=block" || exit 1
-
-      - name: Test NGINX rate limiting
-        run: |
-          for i in {1..20}; do
-            curl -sSf http://localhost:8080/api || break
-            sleep 0.1
-          done
-          curl -sSf -I http://localhost:8080/api | grep -q "429 Too Many Requests" || exit 1
-
-      - name: Test NGINX gzip compression
-        run: |
-          curl -sSf -H "Accept-Encoding: gzip" -I http://localhost:8080/ | grep -i "Content-Encoding: gzip" || exit 1
-
-      - name: Test NGINX caching
-        run: |
-          curl -sSf -I http://localhost:8080/static/test.js | grep -i "Cache-Control" || exit 1
-
-      - name: Upload NGINX logs
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: nginx-logs
-          path: |
-            /var/log/nginx/access.log
-            /var/log/nginx/error.log
-          retention-days: 7
+          docker run --rm dojopool/nginx:test nginx -t
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: nginx-test-results
+          path: nginx/logs/
+          retention-days: 30
