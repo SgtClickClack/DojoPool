@@ -12,8 +12,11 @@ on:
   pull_request:
     branches:
     - main
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  performance:
+  timeout-minutes: 60\n  performance:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -31,3 +34,6 @@ jobs:
       with:
         name: performance-results
         path: performance/results/
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

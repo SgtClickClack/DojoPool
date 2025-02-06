@@ -15,8 +15,11 @@ on:
     - main
     - develop
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  test:
+  timeout-minutes: 60\n  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -142,3 +145,6 @@ jobs:
         publish_dir: ./coverage/html
         destination_dir: coverage-report
         enable_jekyll: false
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

@@ -20,8 +20,11 @@ on:
     - src/core/matchmaking/**
     - test-requirements.txt
     - .github/workflows/tests.yml
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  test:
+  timeout-minutes: 60\n  test:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
@@ -58,3 +61,6 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

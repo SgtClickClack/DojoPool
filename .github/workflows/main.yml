@@ -16,8 +16,11 @@ on:
     branches:
     - main
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  test:
+  timeout-minutes: 60\n  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -144,3 +147,6 @@ jobs:
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
       env:
         SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

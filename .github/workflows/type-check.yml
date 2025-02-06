@@ -13,8 +13,11 @@ on:
     branches:
     - main
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  typecheck:
+  timeout-minutes: 60\n  typecheck:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -47,3 +50,6 @@ jobs:
         enableCrossOsArchive: true
         fail-on-cache-miss: false
         lookup-only: false
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

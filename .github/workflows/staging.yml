@@ -12,8 +12,11 @@ on:
   pull_request:
     branches:
     - staging
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  test:
+  timeout-minutes: 60\n  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -90,3 +93,6 @@ jobs:
         SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
         SLACK_MESSAGE: Staging deployment ${{job.status}}
         SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

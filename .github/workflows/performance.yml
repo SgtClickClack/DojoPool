@@ -15,8 +15,11 @@ on:
   schedule:
   - cron: '0 0 * * *'
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  performance:
+  timeout-minutes: 60\n  performance:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -74,3 +77,6 @@ jobs:
             repo: context.repo.repo,
             body: summary
           });
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true

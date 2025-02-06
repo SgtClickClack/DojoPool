@@ -14,8 +14,11 @@ on:
     branches:
     - main
     - develop
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
 jobs:
-  test:
+  timeout-minutes: 60\n  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -58,7 +61,7 @@ jobs:
         name: build
         path: .next/
         retention-days: 90
-  security:
+  timeout-minutes: 60\n  security:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -70,7 +73,7 @@ jobs:
         languages: javascript
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
-  accessibility:
+  timeout-minutes: 60\n  accessibility:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -84,7 +87,7 @@ jobs:
       run: npm run build
     - name: Run accessibility tests
       run: npm run test:a11y
-  performance:
+  timeout-minutes: 60\n  performance:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -115,3 +118,6 @@ jobs:
         vercel-org-id: ${{secrets.VERCEL_ORG_ID}}
         vercel-project-id: ${{secrets.VERCEL_PROJECT_ID}}
         vercel-args: --prod
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
