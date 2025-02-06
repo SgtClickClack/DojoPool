@@ -1,15 +1,23 @@
 name: Staging Deployment
 on:
   push:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
+    paths:
+      - 'src/**'
+      - '.github/workflows/staging.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'docker/**'
+      - 'docker-compose.staging.yml'
     branches:
       - staging
   pull_request:
+    paths:
+      - 'src/**'
+      - '.github/workflows/staging.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'docker/**'
+      - 'docker-compose.staging.yml'
     branches:
       - staging
 
@@ -19,16 +27,26 @@ concurrency:
 
 jobs:
   test:
+    name: Run Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 20.x
           cache: npm
+      
+      - name: Cache Next.js build
+        uses: actions/cache@v3
+        with:
+          path: |
+            .next/cache
+          key: nextjs-${{runner.os}}-${{hashFiles('**/package-lock.json')}}
+          restore-keys: |
+            nextjs-${{runner.os}}-
       
       - name: Install dependencies
         run: npm ci
@@ -42,31 +60,44 @@ jobs:
       - name: Run type checking
         run: npm run type-check
 
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: coverage/
+          retention-days: 30
+
   security-scan:
+    name: Security Scan
     needs: test
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - name: Cache Snyk CLI
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.snyk
           key: snyk-${{runner.os}}-${{hashFiles('**/package.json')}}
+          restore-keys: |
+            snyk-${{runner.os}}-
       
       - name: Run security scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions-node@v3
         env:
           SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
         with:
           args: --severity-threshold=high
       
       - name: Cache OWASP dependency check
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: owasp-${{runner.os}}-${{hashFiles('**/package.json')}}
+          restore-keys: |
+            owasp-${{runner.os}}-
       
       - name: Run OWASP dependency check
         uses: dependency-check/Dependency-Check_Action@main
@@ -80,7 +111,7 @@ jobs:
         
       - name: Upload security scan results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: security-scan-results
           path: |
@@ -89,16 +120,25 @@ jobs:
           retention-days: 30
 
   build:
+    name: Build and Push
     needs: [test, security-scan]
     timeout-minutes: 30
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.docker_build.outputs.digest }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: buildx-${{runner.os}}-${{github.sha}}
+          restore-keys: |
+            buildx-${{runner.os}}-
       
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -113,15 +153,22 @@ jobs:
           context: .
           push: true
           tags: dojopoolapp/staging:latest
-          cache-from: type=registry,ref=dojopoolapp/staging:buildcache
-          cache-to: type=registry,ref=dojopoolapp/staging:buildcache,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   deploy:
+    name: Deploy to Staging
     needs: build
     timeout-minutes: 30
     runs-on: ubuntu-latest
     environment:
       name: staging
+      url: ${{ steps.set_url.outputs.url }}
     outputs:
       deployment_url: ${{ steps.set_url.outputs.url }}
     steps:
@@ -169,16 +216,21 @@ jobs:
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
           SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: deployments
+          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+          SLACK_TITLE: Staging Deployment ${{job.status == 'success' && 'Successful' || 'Failed'}}
           SLACK_MESSAGE: |
-            Staging deployment ${{job.status}}
             Environment: ${{secrets.STAGING_DOMAIN}}
             Image: dojopoolapp/staging@${{needs.build.outputs.image_tag}}
-          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+            Branch: ${{github.ref_name}}
+            Commit: ${{github.sha}}
 
   smoke-test:
+    name: Smoke Tests
     needs: deploy
     if: success()
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Run smoke tests
         run: |
