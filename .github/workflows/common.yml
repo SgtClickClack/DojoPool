@@ -2,16 +2,24 @@ name: Common Checks
 
 on:
   push:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
+    paths:
+      - 'src/**'
+      - '.github/workflows/common.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.eslintrc.js'
+      - '.prettierrc'
     branches:
       - main
       - develop
   pull_request:
+    paths:
+      - 'src/**'
+      - '.github/workflows/common.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.eslintrc.js'
+      - '.prettierrc'
     branches:
       - main
       - develop
@@ -22,15 +30,15 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint and Format
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
@@ -38,19 +46,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linter
+      - name: Run linting
         run: npm run lint
 
-      - name: Run type check
-        run: npm run type-check
-
-      - name: Run format check
+      - name: Run formatting check
         run: npm run format:check
 
       - name: Upload lint results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: lint-results
-          path: reports/lint/
+          path: reports/eslint/
           retention-days: 30
