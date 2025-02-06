@@ -4,20 +4,24 @@ on:
   push:
     paths:
       - 'src/**'
+      - 'tests/**'
       - '.github/workflows/tests.yml'
       - 'package.json'
       - 'package-lock.json'
       - 'jest.config.js'
+      - 'coverage/**'
     branches:
       - main
       - develop
   pull_request:
     paths:
       - 'src/**'
+      - 'tests/**'
       - '.github/workflows/tests.yml'
       - 'package.json'
       - 'package-lock.json'
       - 'jest.config.js'
+      - 'coverage/**'
     branches:
       - main
       - develop
@@ -34,6 +38,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -41,18 +47,37 @@ jobs:
           node-version: 20.x
           cache: npm
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test -- --coverage
+      - name: Run tests with coverage
+        id: test
+        run: |
+          npm test -- --coverage --coverageThreshold='{"global":{"branches":"80","functions":"80","lines":"80","statements":"80"}}'
+        continue-on-error: true
+
+      - name: Check test status
+        if: steps.test.outcome == 'failure'
+        run: |
+          echo "Tests failed or coverage thresholds not met"
+          exit 1
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: coverage/
+          path: |
+            coverage/
+            junit.xml
           retention-days: 30
 
       - name: Upload coverage to Codecov
@@ -63,3 +88,32 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
+          verbose: true
+
+      - name: Generate coverage report
+        if: always()
+        run: |
+          npm install -g jest-html-reporter
+          jest --coverage --reporters=jest-html-reporter
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: test-report.html
+          retention-days: 30
+
+      - name: Notify Slack
+        if: always()
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: testing
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: Test Results ${{ job.status == 'success' && 'Passed ✅' || 'Failed ❌' }}
+          SLACK_MESSAGE: |
+            *Branch:* ${{ github.ref_name }}
+            *Commit:* ${{ github.sha }}
+            *Coverage Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            *Status:* ${{ job.status }}
