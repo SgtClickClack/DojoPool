@@ -2,47 +2,38 @@ name: Firebase Deployment
 
 on:
   push:
+    paths:
+      - 'src/**'
+      - '.github/workflows/firebase-deploy.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'firebase.json'
+      - '.firebaserc'
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
+      - staging
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
 jobs:
-  build_and_deploy:
-    name: Build and Deploy
+  deploy:
+    name: Deploy to Firebase
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     environment:
-      name: production
-      url: ${{steps.deploy.outputs.url}}
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      url: ${{ steps.deploy.outputs.url }}
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
-
-      - name: Cache Next.js build
-        uses: actions/cache@v2
-        with:
-          path: |
-            .next/cache
-          key: nextjs-${{runner.os}}-${{hashFiles('**/package-lock.json')}}
-          restore-keys: |
-            nextjs-${{runner.os}}-
 
       - name: Install dependencies
         run: npm ci
@@ -50,54 +41,33 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NODE_ENV: production
-          NEXT_PUBLIC_API_URL: ${{secrets.PROD_API_URL}}
-
-      - name: Cache Firebase Tools
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/firebase
-          key: firebase-${{runner.os}}-${{hashFiles('**/firebase.json')}}
+          NODE_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          NEXT_PUBLIC_API_URL: ${{ github.ref == 'refs/heads/main' && secrets.PROD_API_URL || secrets.STAGING_API_URL }}
 
       - name: Deploy to Firebase
         id: deploy
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        uses: FirebaseExtended/action-hosting-deploy@v0.7.1
         with:
           repoToken: ${{secrets.GITHUB_TOKEN}}
           firebaseServiceAccount: ${{secrets.FIREBASE_SERVICE_ACCOUNT}}
-          channelId: live
+          channelId: ${{ github.ref == 'refs/heads/main' && 'live' || 'staging' }}
           projectId: ${{secrets.FIREBASE_PROJECT_ID}}
 
-      - name: Verify Deployment
+      - name: Verify deployment
         run: |
           sleep 30
           curl -sSf ${{steps.deploy.outputs.url}} > /dev/null || exit 1
-          curl -sSf "https://${{secrets.FIREBASE_PROJECT_ID}}.web.app/__/firebase/init.json" > /dev/null || exit 1
+          curl -sSf "${{steps.deploy.outputs.url}}/__/firebase/init.json" > /dev/null || exit 1
 
-      - name: Notify Slack on Success
-        if: success()
+      - name: Notify Slack
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
           SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
           SLACK_CHANNEL: deployments
-          SLACK_COLOR: good
-          SLACK_TITLE: Firebase Deployment Successful
+          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+          SLACK_TITLE: Firebase Deployment ${{job.status == 'success' && 'Successful' || 'Failed'}}
           SLACK_MESSAGE: |
-            Environment: Production
+            Environment: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
             Branch: ${{github.ref_name}}
             Commit: ${{github.sha}}
             URL: ${{steps.deploy.outputs.url}}
-
-      - name: Notify Slack on Failure
-        if: failure()
-        uses: rtCamp/action-slack-notify@v2.2.0
-        env:
-          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: danger
-          SLACK_TITLE: Firebase Deployment Failed
-          SLACK_MESSAGE: |
-            Environment: Production
-            Branch: ${{github.ref_name}}
-            Commit: ${{github.sha}}
-            Action Run: ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}
