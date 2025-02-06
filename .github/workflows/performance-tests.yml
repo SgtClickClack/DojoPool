@@ -8,6 +8,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'cypress/integration/performance/**'
+      - 'lighthouse/**'
     branches:
       - main
       - develop
@@ -18,9 +19,12 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'cypress/integration/performance/**'
+      - 'lighthouse/**'
     branches:
       - main
       - develop
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
@@ -34,12 +38,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: npm
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-perf-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-perf-${{ runner.os }}-
 
       - name: Cache Cypress binary
         uses: actions/cache@v3
@@ -52,17 +66,77 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v9
+        with:
+          urls: |
+            http://localhost:3000
+            http://localhost:3000/dashboard
+            http://localhost:3000/game
+          configPath: ./.github/lighthouse/config.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Start server
+        run: npm run start & npx wait-on http://localhost:3000
+
       - name: Run performance tests
+        id: perf_test
         run: |
-          npm run build
-          npm run start & npx wait-on http://localhost:3000
-          npm run cypress:run -- --spec "cypress/integration/performance/**/*.spec.ts"
+          npm run cypress:run -- --spec "cypress/integration/performance/**/*.spec.ts" --env grepTags=@performance
         env:
           CYPRESS_PERFORMANCE_TEST: true
+          CYPRESS_PERFORMANCE_THRESHOLD_FPS: 30
+          CYPRESS_PERFORMANCE_THRESHOLD_CPU: 80
+          CYPRESS_PERFORMANCE_THRESHOLD_MEMORY: 80
+          CYPRESS_PERFORMANCE_THRESHOLD_LOAD: 3000
+
+      - name: Generate performance report
+        if: always()
+        run: |
+          npm run generate:performance-report
 
       - name: Upload performance results
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: performance-results
-          path: cypress/results/performance/
+          path: |
+            cypress/results/performance/
+            lighthouse/
+            performance-report/
           retention-days: 30
+
+      - name: Compare with baseline
+        if: always()
+        run: |
+          npm run compare:performance-baseline
+          if [ $? -ne 0 ]; then
+            echo "Performance degradation detected!"
+            exit 1
+          fi
+
+      - name: Notify Slack
+        if: always()
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: performance
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: Performance Tests ${{ job.status == 'success' && 'Passed ✅' || 'Failed ❌' }}
+          SLACK_MESSAGE: |
+            *Branch:* ${{ github.ref_name }}
+            *Commit:* ${{ github.sha }}
+            *Performance Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            *Status:* ${{ job.status }}
+            
+            *Key Metrics:*
+            - FPS Threshold: 30
+            - CPU Usage Threshold: 80%
+            - Memory Usage Threshold: 80%
+            - Load Time Threshold: 3000ms
