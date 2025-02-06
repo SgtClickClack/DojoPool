@@ -84,12 +84,13 @@ jobs:
           restore-keys: |
             snyk-${{runner.os}}-
       
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+      
       - name: Run security scan
-        uses: snyk/actions-node@v3
+        run: snyk test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
-        with:
-          args: --severity-threshold=high
       
       - name: Cache OWASP dependency check
         uses: actions/cache@v3
