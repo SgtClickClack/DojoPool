@@ -8,6 +8,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig.json'
+      - 'types/**'
     branches:
       - main
       - develop
@@ -18,6 +19,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig.json'
+      - 'types/**'
     branches:
       - main
       - develop
@@ -34,6 +36,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -41,16 +45,75 @@ jobs:
           node-version: 20.x
           cache: npm
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-types-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-types-${{ runner.os }}-
+
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate type definitions
+        run: npm run types:generate || echo "No type generation script found"
+
       - name: Run type check
-        run: npm run type-check
+        id: typecheck
+        run: |
+          npm run type-check | tee type-check-output.txt
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "Type check failed"
+            exit 1
+          fi
+
+      - name: Process type check results
+        if: always()
+        run: |
+          if [ -f type-check-output.txt ]; then
+            echo "::group::Type Check Results"
+            cat type-check-output.txt
+            echo "::endgroup::"
+            
+            # Generate error report in GitHub annotations format
+            while IFS= read -r line; do
+              if [[ $line =~ ^.*\(([0-9]+,[0-9]+)\):\ (.*)$ ]]; then
+                file=$(echo "$line" | cut -d'(' -f1)
+                position="${BASH_REMATCH[1]}"
+                message="${BASH_REMATCH[2]}"
+                echo "::error file=$file,line=${position%%,*},col=${position##*,}::$message"
+              fi
+            done < type-check-output.txt
+          fi
+
+      - name: Generate type documentation
+        if: success()
+        run: |
+          npm install -g typedoc
+          typedoc --out type-docs src/
 
       - name: Upload type check results
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: type-check-results
-          path: tsconfig.tsbuildinfo
+          path: |
+            type-check-output.txt
+            tsconfig.tsbuildinfo
+            type-docs/
           retention-days: 30
+
+      - name: Notify Slack
+        if: always()
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+          SLACK_CHANNEL: typescript
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: Type Check ${{ job.status == 'success' && 'Passed ✅' || 'Failed ❌' }}
+          SLACK_MESSAGE: |
+            *Branch:* ${{ github.ref_name }}
+            *Commit:* ${{ github.sha }}
+            *Type Check Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            *Status:* ${{ job.status }}
