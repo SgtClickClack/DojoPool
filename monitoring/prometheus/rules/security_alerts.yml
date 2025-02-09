@@ -1,0 +1,47 @@
+groups:
+  - name: SecurityAlerts
+    rules:
+      - alert: HighSeverityVulnerabilityDetected
+        expr: security_vulnerabilities_by_severity{severity="high"} > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High severity vulnerability detected
+          description: "{{ $value }} high severity vulnerabilities found"
+
+      - alert: CriticalSecurityComplianceScore
+        expr: security_compliance_score * 100 < 80
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: Security compliance score below threshold
+          description: "Security compliance score is {{ $value }}%"
+
+      - alert: SecurityScanFailure
+        expr: rate(security_scan_failures_total[1h]) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Security scans are failing
+          description: "{{ $value }} security scans failed in the last hour"
+
+      - alert: SecurityScanDelay
+        expr: time() - security_last_successful_scan > 7200
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Security scans are delayed
+          description: "Last successful security scan was {{ $value }} seconds ago"
+
+      - alert: VulnerabilityTrendIncrease
+        expr: delta(security_vulnerabilities_total[24h]) > 5
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: Increasing vulnerability trend detected
+          description: "{{ $value }} new vulnerabilities detected in the last 24 hours" 
