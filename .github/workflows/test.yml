@@ -1,0 +1,21 @@
+name: Test Workflow
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  test:
+    name: Basic Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simple Check
+        run: |
+          echo "Running simple test"
+          echo "Node version:"
+          node --version
+          echo "NPM version:"
+          npm --version
+          echo "Test completed successfully" 
