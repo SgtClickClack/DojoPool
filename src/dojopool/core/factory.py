@@ -14,6 +14,7 @@ from redis import Redis
 
 from config.security_config import SecurityConfig
 from middleware.security import SecurityMiddleware
+from middleware.input_validation import InputValidationMiddleware
 from services.token_service import TokenService
 
 db = SQLAlchemy()
@@ -78,7 +79,10 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     app.redis = Redis.from_url(app.config["REDIS_URL"])
     
     # Initialize security middleware
-    SecurityMiddleware(app, security_config)
+    security_middleware = SecurityMiddleware(app, security_config)
+    
+    # Initialize input validation middleware
+    input_validation_middleware = InputValidationMiddleware(app)
     
     # Initialize token service
     app.token_service = TokenService()
