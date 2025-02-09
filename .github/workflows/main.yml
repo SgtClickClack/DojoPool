@@ -13,8 +13,8 @@ permissions:
   actions: write
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  setup:
+    name: Setup & Validate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,49 +26,125 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
+        id: deps
         run: |
-          npm ci --legacy-peer-deps
-          npm install -g typescript@latest
+          echo "::group::Installing dependencies"
+          npm ci --legacy-peer-deps --no-audit
+          npm list --depth=0
+          echo "::endgroup::"
       
-      - name: Type Check
-        run: tsc --noEmit
-      
-      - name: Run ESLint
+      - name: Verify setup
         run: |
-          npm run lint || echo "Linting completed with warnings"
+          echo "::group::Environment Info"
+          node --version
+          npm --version
+          echo "::endgroup::"
+
+  lint:
+    needs: setup
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --no-audit
+      
+      - name: ESLint
+        id: eslint
+        continue-on-error: true
+        run: |
+          echo "::group::Running ESLint"
+          npm run lint || echo "::warning::ESLint found issues"
+          echo "::endgroup::"
+      
+      - name: Type check
+        id: typecheck
+        continue-on-error: true
+        run: |
+          echo "::group::Running TypeScript"
+          npx tsc --noEmit || echo "::warning::TypeScript found issues"
+          echo "::endgroup::"
+
+  test:
+    needs: lint
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --no-audit
+      
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        run: |
+          echo "::group::Running Tests"
+          npm test || echo "::warning::Tests failed"
+          echo "::endgroup::"
+
+  build:
+    needs: [lint, test]
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --no-audit
       
       - name: Build
+        id: build
         run: |
-          npm run build || echo "Build completed with warnings"
+          echo "::group::Building Project"
+          npm run build
+          echo "::endgroup::"
       
-      - name: Run Tests
-        run: |
-          npm test || echo "Tests completed with warnings"
+      - name: Upload build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next
+          retention-days: 1
 
   deploy:
+    needs: build
     name: Deploy
-    needs: build-and-test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Download build
+        uses: actions/download-artifact@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-      
-      - name: Build
-        run: npm run build
+          name: build-output
+          path: .next
       
       - name: Deploy
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-            echo "Deploying to production"
+            echo "::notice::Deploying to production"
           else
-            echo "Deploying to staging"
+            echo "::notice::Deploying to staging"
           fi

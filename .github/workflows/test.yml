@@ -11,11 +11,22 @@ jobs:
     name: Basic Test
     runs-on: ubuntu-latest
     steps:
-      - name: Simple Check
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Environment Check
         run: |
-          echo "Running simple test"
-          echo "Node version:"
+          echo "🔍 Checking environment setup..."
+          echo "📦 Node version:"
           node --version
-          echo "NPM version:"
+          echo "📦 NPM version:"
           npm --version
-          echo "Test completed successfully" 
+          echo "📂 Working directory:"
+          pwd
+          echo "📋 Directory contents:"
+          ls -la
+          echo "✅ Environment check completed" 
