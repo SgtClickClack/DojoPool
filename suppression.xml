@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+   <suppress>
+      <notes><![CDATA[
+      False positive on React dev dependencies
+      ]]></notes>
+      <packageUrl regex="true">^pkg:npm/@testing-library/.*$</packageUrl>
+      <vulnerabilityName regex="true">.*</vulnerabilityName>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      Dev dependencies for build tools
+      ]]></notes>
+      <packageUrl regex="true">^pkg:npm/@next/bundle-analyzer@.*$</packageUrl>
+      <vulnerabilityName regex="true">.*</vulnerabilityName>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      Linting and formatting tools - dev only
+      ]]></notes>
+      <packageUrl regex="true">^pkg:npm/eslint.*$</packageUrl>
+      <vulnerabilityName regex="true">.*</vulnerabilityName>
+   </suppress>
+</suppressions> 

@@ -1,155 +1,122 @@
-name: Security Scanning
+name: Security Scan
+
 on:
-  schedule:
-  - cron: 0 0 * * *
   push:
-    paths:
-    - package.json
-    - package-lock.json
-    - requirements.txt
-    - poetry.lock
-    - Pipfile.lock
+    branches: [ main, develop ]
   pull_request:
-    paths:
-    - package.json
-    - package-lock.json
-    - requirements.txt
-    - poetry.lock
-    - Pipfile.lock
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly
+
 permissions:
+  actions: read
   contents: read
-  actions: write
-  checks: write
-  pull-requests: write
   security-events: write
-  issues: write
+  pull-requests: write
+
 jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript, python
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+        
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'DojoPool'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --suppression suppression.xml
+            --failOnCVSS 7
+            --enableRetired
+            
+      - name: Upload Dependency Check Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: reports
+          
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog-actions-scan@master
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+          
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    
     steps:
-    - uses: actions/checkout@v4
-    - name: Dependency Review
-      uses: actions/dependency-review-action@v3
-      with:
-        fail-on-severity: high
-        deny-licenses: GPL-1.0, LGPL-2.0
-    timeout-minutes: 60
-  python-security:
-    name: Python Security Scan
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: high
+          
+  container-scan:
+    name: Container Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        cache: pip
-    - name: Install safety
-      run: pip install safety
-    - name: Run safety check
-      run: safety check
-    - name: Install Bandit
-      run: pip install bandit
-    - name: Run Bandit
-      run: bandit -r ./src -f json -o bandit-results.json
-      continue-on-error: true
-    - name: Upload Bandit results
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: bandit-results.json
-        category: Python Security
-    timeout-minutes: 60
-    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name,
-      'security') }}
-  npm-audit:
-    name: NPM Security Audit
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        cache: npm
-    - name: Run npm audit
-      run: npm audit --json > npm-audit.json || true
-    - name: Process audit results
-      run: "if jq -e '.advisories | length > 0' npm-audit.json > /dev/null; then\n\
-        \  echo \"::warning::Security vulnerabilities found in npm packages\"\n  jq\
-        \ -r '.advisories[] | \"- \\(.title) (\\(.severity)): \\(.url)\"' npm-audit.json\n\
-        fi\n"
-    timeout-minutes: 60
-    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name,
-      'security') }}
-  snyk-security:
-    name: Snyk Vulnerability Scan
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
-    - name: Run Snyk Python scan
-      uses: snyk/actions/python@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
-    timeout-minutes: 60
-  auto-fix:
-    name: Auto Fix Dependencies
-    needs:
-    - dependency-review
-    - python-security
-    - npm-audit
-    - snyk-security
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    steps:
-    - uses: actions/checkout@v4
-    - name: Update Python dependencies
-      run: 'pip install pip-audit
-
-        pip-audit --fix
-
-        '
-    - name: Update NPM dependencies
-      run: 'npm audit fix
-
-        npm update
-
-        '
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: 'fix: Update dependencies to fix security vulnerabilities'
-        title: '🔒 Security: Update dependencies'
-        body: 'This PR updates dependencies to fix security vulnerabilities:
-
-
-          - Updates Python cryptography package
-
-          - Updates vulnerable npm packages
-
-          - Fixes ReDoS vulnerabilities
-
-          - Updates OpenSSL dependencies
-
-
-          Auto-generated by security workflow.
-
-          '
-        branch: fix/security-updates
-        base: main
-        labels: security,dependencies
-        assignees: ${{ github.actor }}
-        reviewers: ${{ github.actor }}
-    timeout-minutes: 60
-concurrency:
-  group: ${{ github.workflow }}-security-${{ github.ref }}
-  cancel-in-progress: true
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
