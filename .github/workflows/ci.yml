@@ -61,7 +61,6 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
         run: |
           echo "Running security scans..."
-          # Replace the following commands with your actual security commands:
           snyk test || echo "Snyk found issues."
           gitleaks detect || echo "Gitleaks detected potential secrets."
 
@@ -72,7 +71,6 @@ jobs:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
         run: |
           echo "Sending notification to Slack..."
-          # Example using curl to post a message (customize as needed):
           curl -X POST -H 'Content-type: application/json' \
           --data "{\"text\": \"DOJOPOOL CI failed. Please check the details on GitHub Actions.\", \"channel\": \"${SLACK_CHANNEL}\"}" \
           https://slack.com/api/chat.postMessage?token=${SLACK_BOT_TOKEN} 
