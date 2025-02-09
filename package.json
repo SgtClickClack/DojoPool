@@ -14,8 +14,6 @@
     "security:fix": "npm audit fix",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "prepare": "husky install",
-    "precommit": "lint-staged",
     "validate": "npm run lint && npm run type-check && npm run test",
     "analyze": "ANALYZE=true next build",
     "clean": "rimraf .next out coverage"
@@ -105,17 +103,23 @@
     "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "4.6.2",
     "eslint-plugin-security": "2.1.1",
-    "husky": "8.0.3",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "15.4.3",
     "prettier": "3.5.0",
     "rimraf": "5.0.10",
+    "simple-git-hooks": "2.11.1",
     "typescript": "^5.4.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
   },
