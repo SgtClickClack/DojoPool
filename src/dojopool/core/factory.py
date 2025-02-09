@@ -17,6 +17,7 @@ from config.security_config import SecurityConfig
 from middleware.security import SecurityMiddleware
 from middleware.input_validation import InputValidationMiddleware
 from middleware.session import SessionSecurityMiddleware
+from middleware.rate_limit import RateLimitMiddleware
 from services.token_service import TokenService
 from core.errors import setup_error_handlers
 
@@ -97,18 +98,14 @@ def create_app(config: Optional[dict] = None) -> Flask:
     # Initialize security middleware
     session_middleware = SessionSecurityMiddleware(app, redis_client)
     input_validation = InputValidationMiddleware(app)
+    rate_limit = RateLimitMiddleware(app, redis_client)
     
-    # Initialize rate limiting
-    limiter = Limiter(
-        app=app,
-        key_func=get_remote_address,
-        default_limits=["200 per day", "50 per hour"],
-        storage_uri=app.config['REDIS_URL']
-    )
-    
-    # Add specific rate limits
-    limiter.limit("5/minute")(app.route("/api/auth/login"))
-    limiter.limit("3/minute")(app.route("/api/auth/reset-password"))
+    # Configure rate limit excluded endpoints
+    app.config['RATE_LIMIT_EXCLUDED_ENDPOINTS'] = {
+        'static',
+        'metrics',
+        'health_check'
+    }
     
     # Initialize Talisman for security headers
     Talisman(
