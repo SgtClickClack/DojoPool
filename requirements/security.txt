@@ -1,27 +1,32 @@
-# Security-related dependencies
+# Security Dependencies
+PyJWT>=2.8.0
+cryptography>=44.0.0
+Flask-SeaSurf>=2.0.0
+Flask-Talisman>=1.1.0
+Flask-Limiter>=3.10.1
+Flask-Login>=0.6.3
+Flask-WTF>=1.2.2
+bcrypt>=4.1.2
+redis>=5.0.1
+bandit>=1.8.2
+safety>=3.2.14
+python-dotenv>=1.0.1
 
-# Vulnerability scanning
-bandit==1.7.5
-safety==2.3.5
+# Input Validation & Sanitization
+email-validator>=2.1.0
+bleach>=6.1.0
+marshmallow>=3.26.1
+pydantic>=2.9.2
 
-# Security headers and CSRF protection
-Flask-SeaSurf==1.1.1
-Flask-Talisman==1.0.0
+# Rate Limiting & Security Headers
+secure>=0.3.0
+ratelimit>=2.2.1
 
-# Authentication and authorization
-Flask-Login==0.6.2
-PyJWT==2.8.0
+# Dependency Security
+pip-audit>=2.8.0
+pip-review>=1.3.0
 
-# Cryptography
-cryptography==41.0.4
-itsdangerous==2.1.2
-
-# Rate limiting
-Flask-Limiter==3.5.0
-
-# Input validation and sanitization
-bleach==6.0.0
-marshmallow==3.20.1
-
-# Dependency checking
-pip-audit==2.6.1 
+# CORS & Authentication
+Flask-Cors>=4.0.0
+Authlib>=1.4.1
+oauthlib>=3.2.2 

@@ -1,13 +1,15 @@
-import os
+"""Secure JWT implementation using PyJWT."""
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 import jwt
+from jwt.exceptions import InvalidTokenError
 
 from ..utils.redis import RedisCache
+from dojopool.core.config import settings
 
 # Constants
-JWT_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "your-secret-key-here")
+JWT_SECRET_KEY = settings.SECRET_KEY
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -15,85 +17,113 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 # Redis cache for token blacklisting
 redis_cache = RedisCache()
 
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """
-    Create a new JWT access token
-    """
-    to_encode = data.copy()
-
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    to_encode.update({"exp": expire, "iat": datetime.utcnow(), "type": "access"})
-
-    return jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-
-
-def create_refresh_token(data: dict) -> str:
-    """
-    Create a new JWT refresh token
-    """
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-
-    to_encode.update({"exp": expire, "iat": datetime.utcnow(), "type": "refresh"})
-
-    return jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-
-
-def verify_token(token: str) -> Dict[str, Any]:
-    """
-    Verify a JWT token and return its payload
-    Raises jwt.InvalidTokenError if token is invalid
-    """
-    try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-
-        # Check if token is blacklisted
-        if is_token_blacklisted(token):
-            raise jwt.InvalidTokenError("Token has been blacklisted")
-
-        return payload
-
-    except jwt.ExpiredSignatureError:
-        raise jwt.InvalidTokenError("Token has expired")
-    except jwt.InvalidTokenError:
-        raise jwt.InvalidTokenError("Invalid token")
-
-
-async def blacklist_token(token: str, expires_in: int = None) -> bool:
-    """
-    Add a token to the blacklist
-    """
-    try:
-        # Decode token without verification to get expiration time
-        payload = jwt.decode(token, options={"verify_signature": False})
-        exp = payload.get("exp")
-
-        if not expires_in and exp:
-            # Calculate remaining time until token expiration
-            exp_datetime = datetime.fromtimestamp(exp)
-            remaining = (exp_datetime - datetime.utcnow()).total_seconds()
-            expires_in = int(remaining) if remaining > 0 else 3600  # Default to 1 hour if expired
-
-        # Add token to blacklist with expiration
-        return await redis_cache.set(f"blacklist:{token}", "1", expire=expires_in or 3600)
-    except Exception:
-        return False
-
-
-async def is_token_blacklisted(token: str) -> bool:
-    """
-    Check if a token is blacklisted
-    """
-    try:
-        return await redis_cache.exists(f"blacklist:{token}")
-    except Exception:
-        return False
-
+class JWTManager:
+    """Secure JWT token manager using PyJWT."""
+    
+    def __init__(
+        self,
+        secret_key: str = settings.SECRET_KEY,
+        algorithm: str = "HS256",
+        access_token_expire_minutes: int = 30,
+        refresh_token_expire_days: int = 7
+    ):
+        """Initialize the JWT manager."""
+        self.secret_key = secret_key
+        self.algorithm = algorithm
+        self.access_token_expire_minutes = access_token_expire_minutes
+        self.refresh_token_expire_days = refresh_token_expire_days
+        
+    def _create_token(
+        self,
+        data: Dict[str, Any],
+        expires_delta: Optional[timedelta] = None
+    ) -> str:
+        """Create a JWT token with the given data and expiration."""
+        to_encode = data.copy()
+        
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(minutes=15)
+            
+        to_encode.update({
+            "exp": expire,
+            "iat": datetime.utcnow(),
+            "type": data.get("type", "access")
+        })
+        
+        return jwt.encode(
+            to_encode,
+            self.secret_key,
+            algorithm=self.algorithm
+        )
+        
+    def create_access_token(
+        self,
+        data: Dict[str, Any],
+        expires_delta: Optional[timedelta] = None
+    ) -> str:
+        """Create an access token."""
+        if expires_delta is None:
+            expires_delta = timedelta(minutes=self.access_token_expire_minutes)
+            
+        data["type"] = "access"
+        return self._create_token(data, expires_delta)
+        
+    def create_refresh_token(
+        self,
+        data: Dict[str, Any],
+        expires_delta: Optional[timedelta] = None
+    ) -> str:
+        """Create a refresh token."""
+        if expires_delta is None:
+            expires_delta = timedelta(days=self.refresh_token_expire_days)
+            
+        data["type"] = "refresh"
+        return self._create_token(data, expires_delta)
+        
+    def decode_token(self, token: str) -> Dict[str, Any]:
+        """Decode and validate a JWT token."""
+        try:
+            payload = jwt.decode(
+                token,
+                self.secret_key,
+                algorithms=[self.algorithm],
+                options={
+                    "verify_signature": True,
+                    "verify_exp": True,
+                    "verify_iat": True,
+                    "require": ["exp", "iat", "type"]
+                }
+            )
+            return payload
+        except InvalidTokenError as e:
+            raise ValueError(f"Invalid token: {str(e)}")
+            
+    def refresh_access_token(self, refresh_token: str) -> str:
+        """Create a new access token from a refresh token."""
+        try:
+            payload = self.decode_token(refresh_token)
+            if payload["type"] != "refresh":
+                raise ValueError("Invalid token type")
+                
+            # Create new access token without refresh token specific data
+            data = payload.copy()
+            data.pop("exp", None)
+            data.pop("iat", None)
+            data.pop("type", None)
+            
+            return self.create_access_token(data)
+        except (InvalidTokenError, ValueError) as e:
+            raise ValueError(f"Invalid refresh token: {str(e)}")
+            
+    def verify_token(self, token: str, token_type: str = "access") -> bool:
+        """Verify if a token is valid and of the correct type."""
+        try:
+            payload = self.decode_token(token)
+            return payload["type"] == token_type
+        except (InvalidTokenError, ValueError):
+            return False
 
 def create_tokens_for_user(user_id: str, additional_claims: dict = None) -> tuple[str, str]:
     """
@@ -107,35 +137,6 @@ def create_tokens_for_user(user_id: str, additional_claims: dict = None) -> tupl
     refresh_token = create_refresh_token(claims)
 
     return access_token, refresh_token
-
-
-async def refresh_access_token(refresh_token: str) -> Optional[str]:
-    """
-    Create a new access token using a refresh token
-    """
-    try:
-        payload = verify_token(refresh_token)
-
-        # Verify this is a refresh token
-        if payload.get("type") != "refresh":
-            raise jwt.InvalidTokenError("Not a refresh token")
-
-        # Create new access token
-        user_id = payload.get("sub")
-        if not user_id:
-            raise jwt.InvalidTokenError("Invalid user ID in token")
-
-        # Remove type and exp claims for new token
-        claims = payload.copy()
-        claims.pop("type", None)
-        claims.pop("exp", None)
-        claims.pop("iat", None)
-
-        return create_access_token(claims)
-
-    except jwt.InvalidTokenError:
-        return None
-
 
 def get_token_expiration(token: str) -> Optional[datetime]:
     """
