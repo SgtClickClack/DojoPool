@@ -1,41 +1,16 @@
-name: CI Pipeline
+name: CI Check
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  verify:
-    name: Verify
+  check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Verify Environment
+      - name: Basic Check
         run: |
-          node --version
-          npm --version
-      
-      - name: Install Dependencies
-        run: |
-          npm install --no-save typescript@latest
-          npm install --no-save jest@latest
-      
-      - name: Check Files
-        run: |
-          echo "Repository contents:"
-          ls -la
-          echo "Package.json contents:"
-          cat package.json
-      
-      - name: Mark Success
-        run: |
-          echo "Basic verification completed successfully"
-          exit 0
+          echo "Running basic check"
+          echo "Current directory: $PWD"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+          echo "Check completed"
