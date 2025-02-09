@@ -16,6 +16,7 @@ from config.security_config import SecurityConfig
 from middleware.security import SecurityMiddleware
 from middleware.input_validation import InputValidationMiddleware
 from services.token_service import TokenService
+from core.errors import setup_error_handlers
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -170,8 +171,8 @@ def create_app(config_name: Optional[str] = None) -> Flask:
         from models.user import User
         return User.query.get(int(user_id))
     
-    # Register error handlers
-    register_error_handlers(app)
+    # Set up security error handlers
+    setup_error_handlers(app)
     
     return app
 
