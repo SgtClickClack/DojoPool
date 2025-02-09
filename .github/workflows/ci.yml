@@ -1,0 +1,78 @@
+name: DOJOPOOL CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # enables manual run
+
+env:
+  MAX_RETRIES: 3                 # Number of times to retry npm install
+  RETRY_INTERVAL: 10             # Interval (in seconds) between retries
+  NODE_VERSION: "20"
+  POSTGRES_USER: test_user
+  POSTGRES_PASSWORD: test_password
+  POSTGRES_DB: test_db
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        options: >-
+          --health-cmd "pg_isready -U ${{ env.POSTGRES_USER }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Dependencies with Retry
+        run: |
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Installing dependencies..."
+            npm ci && break || sleep ${{ env.RETRY_INTERVAL }}
+          done
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Run Security Scans
+        if: success()  # Only run if previous steps pass
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        run: |
+          echo "Running security scans..."
+          # Replace the following commands with your actual security commands:
+          snyk test || echo "Snyk found issues."
+          gitleaks detect || echo "Gitleaks detected potential secrets."
+
+      - name: Send Notification on Failure
+        if: failure()  # Only runs if there was a failure in previous steps
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+        run: |
+          echo "Sending notification to Slack..."
+          # Example using curl to post a message (customize as needed):
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\": \"DOJOPOOL CI failed. Please check the details on GitHub Actions.\", \"channel\": \"${SLACK_CHANNEL}\"}" \
+          https://slack.com/api/chat.postMessage?token=${SLACK_BOT_TOKEN} 

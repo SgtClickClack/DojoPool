@@ -1,18 +1,31 @@
 name: Production Deployment
+
 on:
   push:
     paths:
-    - src/**
-    - package.json
-    - package-lock.json
-    - docker/**
-    - docker-compose.prod.yml
-    - tests/**
-    - cypress/**
+      - src/**
+      - package.json
+      - package-lock.json
+      - docker/**
+      - docker-compose.prod.yml
+      - tests/**
+      - cypress/**
     branches:
-    - main
+      - main
     tags:
-    - v*
+      - v*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (leave empty for latest)'
+        required: false
+        type: string
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
   actions: write
@@ -20,111 +33,267 @@ permissions:
   pull-requests: write
   security-events: write
   issues: write
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  deployments: write
+
 jobs:
+  validate:
+    uses: ./.github/workflows/common.yml
+    with:
+      node-version: '20'
+      cache-dependency-path: 'package-lock.json'
+      working-directory: '.'
+      slack-channel: 'deployments'
+    strategy:
+      fail-fast: false
+
+  security:
+    uses: ./.github/workflows/security.yml
+    if: github.event_name == 'push'
+
   deploy:
     name: Deploy to Production
+    needs: [validate, security]
+    if: success() || inputs.force_deploy
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    environment:
-      name: production
-      url: ${{ steps.set_url.outputs.url }}
+    outputs:
+      deployment_url: ${{ steps.set_url.outputs.url }}
+      deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: buildx-${{ runner.os }}-${{ github.sha }}
-        restore-keys: 'buildx-${{ runner.os }}-
+      - name: Start Deployment
+        id: deployment
+        uses: bobheadxi/deployments@v1
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: production
+          ref: ${{ github.head_ref }}
+          auto_inactive: true
 
-          '
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: 'dojopoolapp/production:latest
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-          dojopoolapp/production:${{ github.ref_name }}
+      - name: Set deployment URL
+        id: set_url
+        run: echo "url=https://${{ secrets.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
 
-          dojopoolapp/production:${{ github.sha }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
 
-          '
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        build-args: 'NODE_ENV=production
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: buildx-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            buildx-${{ runner.os }}-
 
-          NEXT_PUBLIC_API_URL=${{ secrets.PROD_API_URL }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-          '
-    - name: Move cache
-      run: 'rm -rf /tmp/.buildx-cache
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: dojopoolapp/production
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
 
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          build-args: |
+            NODE_ENV=production
+            NEXT_PUBLIC_API_URL=${{ secrets.PROD_API_URL }}
+            NODE_VERSION=20
+            PYTHON_VERSION=3.11
 
-        '
-    - name: Configure SSH
-      uses: webfactory/ssh-agent@v0.8.0
-      with:
-        ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
-    - name: Deploy to production
-      run: "ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST\
-        \ }} << 'ENDSSH'\n  cd /opt/dojopool\n  docker-compose -f docker-compose.prod.yml\
-        \ pull\n  docker-compose -f docker-compose.prod.yml up -d\n  docker system\
-        \ prune -f\nENDSSH\n"
-    - name: Set deployment URL
-      id: set_url
-      run: echo "url=https://${{ secrets.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
-    - name: Health check
-      run: "for i in {1..12}; do\n  if curl --silent --fail \"https://${{ secrets.PROD_DOMAIN\
-        \ }}/health\"; then\n    echo \"Health check passed\"\n    exit 0\n  fi\n\
-        \  echo \"Waiting for service to be healthy... (attempt $i/12)\"\n  sleep\
-        \ 10\ndone\necho \"Health check failed after 2 minutes\"\nexit 1\n"
-    - name: Verify deployment
-      run: '# Check if main page is accessible
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-        curl --fail --silent "https://${{ secrets.PROD_DOMAIN }}" > /dev/null
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
 
+      - name: Create backup directory
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'ENDSSH'
+            BACKUP_DIR="/opt/dojopool/backups/$(date +%Y%m%d_%H%M%S)"
+            mkdir -p $BACKUP_DIR
+            cd /opt/dojopool
+            cp docker-compose.prod.yml $BACKUP_DIR/
+            docker-compose -f docker-compose.prod.yml ps -q > $BACKUP_DIR/current_containers.txt
+            docker-compose -f docker-compose.prod.yml config > $BACKUP_DIR/current_config.yml
+            echo "Created backup at $BACKUP_DIR"
+          ENDSSH
 
-        # Check if API is responsive
+      - name: Deploy to production
+        id: deploy
+        run: |
+          DEPLOY_START_TIME=$(date +%s)
+          
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'ENDSSH'
+            cd /opt/dojopool
+            
+            echo "Pulling latest images..."
+            docker-compose -f docker-compose.prod.yml pull
+            
+            echo "Stopping current services..."
+            docker-compose -f docker-compose.prod.yml down --remove-orphans
+            
+            echo "Starting new services..."
+            docker-compose -f docker-compose.prod.yml up -d
+            
+            echo "Cleaning up old images..."
+            docker system prune -f
+          ENDSSH
+          
+          DEPLOY_END_TIME=$(date +%s)
+          DEPLOY_DURATION=$((DEPLOY_END_TIME - DEPLOY_START_TIME))
+          echo "Deployment completed in $DEPLOY_DURATION seconds"
 
-        curl --fail --silent "https://${{ secrets.PROD_DOMAIN }}/api/health" > /dev/null
+      - name: Health check
+        id: health_check
+        run: |
+          MAX_RETRIES=15
+          RETRY_INTERVAL=20
+          DEPLOYMENT_URL="${{ steps.set_url.outputs.url }}"
+          
+          check_endpoint() {
+            local endpoint=$1
+            local description=$2
+            
+            for i in $(seq 1 $MAX_RETRIES); do
+              echo "Checking $description (attempt $i/$MAX_RETRIES)..."
+              
+              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOYMENT_URL$endpoint" || echo "failed")
+              
+              if [ "$RESPONSE" = "200" ]; then
+                echo "✅ $description check passed"
+                return 0
+              fi
+              
+              echo "   Status code: $RESPONSE"
+              
+              if [ $i -eq $MAX_RETRIES ]; then
+                echo "::error::$description check failed after $(($MAX_RETRIES * $RETRY_INTERVAL)) seconds"
+                return 1
+              fi
+              
+              sleep $RETRY_INTERVAL
+            done
+          }
+          
+          # Check multiple endpoints
+          check_endpoint "/api/health" "API Health" || FAILED=1
+          check_endpoint "/" "Frontend" || FAILED=1
+          check_endpoint "/api/status" "API Status" || FAILED=1
+          
+          if [ "$FAILED" = "1" ]; then
+            exit 1
+          fi
+        timeout-minutes: 15
 
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "🔄 Initiating rollback..."
+          
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_HOST }} << 'ENDSSH'
+            cd /opt/dojopool
+            
+            # Find latest backup
+            LATEST_BACKUP=$(ls -td /opt/dojopool/backups/* | head -1)
+            
+            if [ -z "$LATEST_BACKUP" ]; then
+              echo "::error::No backup found for rollback"
+              exit 1
+            fi
+            
+            echo "Rolling back to backup: $LATEST_BACKUP"
+            
+            # Stop current deployment
+            docker-compose -f docker-compose.prod.yml down --remove-orphans
+            
+            # Restore previous configuration
+            cp $LATEST_BACKUP/docker-compose.prod.yml .
+            cp $LATEST_BACKUP/current_config.yml .
+            
+            # Start previous version
+            docker-compose -f current_config.yml up -d
+            
+            # Cleanup
+            rm current_config.yml
+            
+            echo "✅ Rollback completed"
+          ENDSSH
 
-        # Check if static assets are accessible
+      - name: Update Deployment Status
+        if: always()
+        uses: bobheadxi/deployments@v1
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env: production
+          env_url: ${{ steps.set_url.outputs.url }}
+          auto_inactive: true
 
-        curl --fail --silent "https://${{ secrets.PROD_DOMAIN }}/static/manifest.json"
-        > /dev/null
+      - name: Verify deployment
+        if: success()
+        run: |
+          DEPLOYMENT_URL="${{ steps.set_url.outputs.url }}"
+          
+          # Check multiple endpoints
+          curl --fail --silent "$DEPLOYMENT_URL" > /dev/null
+          curl --fail --silent "$DEPLOYMENT_URL/api/health" > /dev/null
+          curl --fail --silent "$DEPLOYMENT_URL/api/status" > /dev/null
+          curl --fail --silent "$DEPLOYMENT_URL/static/manifest.json" > /dev/null
+          
+          echo "✅ All endpoints verified successfully"
 
-        '
-    - name: Notify Slack
-      if: always()
-      uses: rtCamp/action-slack-notify@v2.2.0
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_CHANNEL: deployments
-        SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
-        SLACK_TITLE: Production Deployment ${{ job.status == 'success' && 'Successful'
-          || 'Failed' }}
-        SLACK_MESSAGE: 'Environment: Production
-
-          Image: dojopoolapp/production@${{ steps.docker_build.outputs.digest }}
-
-          Branch: ${{ github.ref_name }}
-
-          Commit: ${{ github.sha }}
-
-          URL: ${{ steps.set_url.outputs.url }} '
+  notify:
+    needs: [deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Deployment Status
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: 'deployments'
+          slack-message: |
+            *Production Deployment ${{ needs.deploy.result == 'success' && 'Successful ✅' || 'Failed ❌' }}*
+            
+            *Details:*
+            - Branch: ${{ github.ref_name }}
+            - Commit: ${{ github.sha }}
+            - Environment: Production
+            - URL: ${{ needs.deploy.outputs.deployment_url }}
+            
+            ${{ needs.deploy.result != 'success' && '⚠️ Deployment failed - Rollback initiated' || '✨ Application is now live in production' }}
+            
+            ${{ github.event.inputs.force_deploy == 'true' && '⚠️ Note: This was a forced deployment' || '' }}
+            ${{ github.event.inputs.version != '' && format('📦 Deployed version: {0}', github.event.inputs.version) || '' }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

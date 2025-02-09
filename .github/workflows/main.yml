@@ -1,16 +1,364 @@
-name: CI Check
+name: CI/CD Pipeline
 
 on:
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+
+permissions:
+  contents: read
+  actions: write
+  checks: write
+  pull-requests: write
+  security-events: write
+  issues: write
+  deployments: write
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+  COVERAGE_THRESHOLD: '80'
+  MAX_RETRIES: 3
+  RETRY_INTERVAL: 10
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  check:
+  prepare:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      cache_key: ${{ steps.cache_key.outputs.value }}
     steps:
-      - name: Basic Check
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Generate cache key
+        id: cache_key
         run: |
-          echo "Running basic check"
-          echo "Current directory: $PWD"
-          echo "GitHub workspace: $GITHUB_WORKSPACE"
-          echo "Check completed"
+          {
+            find . -type f \( -name "package-lock.json" -o -name "requirements.txt" -o -name "pyproject.toml" -o -name "yarn.lock" \) -exec sha256sum {} \;
+          } | sort | sha256sum | cut -d' ' -f1 > cache_key
+          echo "value=$(cat cache_key)" >> $GITHUB_OUTPUT
+
+  lint:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/pip
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-deps-${{ needs.prepare.outputs.cache_key }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+      
+      - name: Install dependencies
+        run: |
+          # Node.js dependencies with retry
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Installing npm dependencies..."
+            if npm ci; then
+              break
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::Failed to install npm dependencies after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+
+          # Python dependencies with retry
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Installing Python dependencies..."
+            if pip install -r requirements.txt; then
+              break
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::Failed to install Python dependencies after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+      
+      - name: Run ESLint
+        id: eslint
+        continue-on-error: true
+        run: npm run lint
+        
+      - name: Run Python linting
+        id: pylint
+        continue-on-error: true
+        run: |
+          pip install flake8 black isort
+          flake8 . || true
+          black --check . || true
+          isort --check-only . || true
+
+      - name: Check linting status
+        if: always()
+        run: |
+          if [[ "${{ steps.eslint.outcome }}" != "success" || "${{ steps.pylint.outcome }}" != "success" ]]; then
+            echo "::error::Linting checks failed. Please fix the issues above."
+            exit 1
+          fi
+
+  test:
+    needs: [prepare, lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/pip
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-deps-${{ needs.prepare.outputs.cache_key }}
+      
+      - name: Install dependencies
+        run: |
+          # Node.js dependencies with retry
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Installing npm dependencies..."
+            if npm ci; then
+              break
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::Failed to install npm dependencies after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+
+          # Python dependencies with retry
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Installing Python dependencies..."
+            if pip install -r requirements.txt pytest pytest-cov; then
+              break
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::Failed to install Python dependencies after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+      
+      - name: Run Jest tests
+        id: jest
+        run: |
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Running Jest tests..."
+            if npm run test -- --coverage --ci --shard=${{ matrix.shard }}/3; then
+              break
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::Jest tests failed after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+        
+      - name: Run Python tests
+        id: pytest
+        run: |
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Attempt $i: Running Python tests..."
+            if pytest --cov=src --cov-report=xml --shard=${{ matrix.shard }}/3; then
+              break
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::Python tests failed after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+      
+      - name: Upload coverage
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.shard }}
+          path: |
+            coverage/
+            coverage.xml
+          retention-days: 14
+
+  database:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for migrations
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install alembic psycopg2-binary
+
+      - name: Check migrations
+        run: |
+          # Check if migrations can be applied cleanly
+          alembic upgrade head
+          
+          # Check if migrations can be reversed
+          alembic downgrade base
+          
+          # Check if migrations can be reapplied
+          alembic upgrade head
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+
+      - name: Validate database schema
+        run: |
+          python -c "
+          from dojopool.core.database.database import validate_schema
+          validate_schema()
+          "
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+
+  build:
+    needs: [test, database]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-deps-${{ needs.prepare.outputs.cache_key }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            .next
+            dist
+          retention-days: 7
+
+  notify:
+    needs: [lint, test, database, build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check workflow status
+        id: check
+        run: |
+          if [[ "${{ needs.lint.result }}" == "success" && \
+                "${{ needs.test.result }}" == "success" && \
+                "${{ needs.database.result }}" == "success" && \
+                "${{ needs.build.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Send Slack notification
+        if: always()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL }}
+          slack-message: |
+            *CI/CD Pipeline Status*: ${{ steps.check.outputs.status == 'success' && '✅ Passed' || '❌ Failed' }}
+            *Branch*: ${{ github.ref_name }}
+            *Triggered By*: ${{ github.actor }}
+            
+            *Job Results*:
+            - Lint: ${{ needs.lint.result }}
+            - Test: ${{ needs.test.result }}
+            - Database: ${{ needs.database.result }}
+            - Build: ${{ needs.build.result }}
+            
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

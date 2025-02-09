@@ -109,17 +109,13 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "lint-staged": "15.4.3",
-    "prettier": "^3.2.5",
+    "prettier": "3.5.0",
     "rimraf": "5.0.10",
     "typescript": "^5.4.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
-      "prettier --write",
-      "jest --findRelatedTests --passWithNoTests"
-    ],
-    "*.{json,md,yml}": [
       "prettier --write"
     ]
   },

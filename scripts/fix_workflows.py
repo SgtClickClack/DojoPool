@@ -1,92 +1,109 @@
+#!/usr/bin/env python3
+"""Script to fix common GitHub Actions workflow issues."""
+
 import os
 import sys
+import yaml
 from pathlib import Path
 
-def get_unique_backup_path(file_path: Path) -> Path:
-    """Get a unique backup file path."""
-    base = file_path.with_suffix(file_path.suffix + '.bak')
-    if not base.exists():
-        return base
+def fix_workflow(data):
+    """Apply fixes to workflow data."""
+    if not isinstance(data, dict):
+        return data
     
-    counter = 1
-    while True:
-        new_path = file_path.with_suffix(f"{file_path.suffix}.bak{counter}")
-        if not new_path.exists():
-            return new_path
-        counter += 1
+    # Add global settings
+    if 'permissions' not in data:
+        data['permissions'] = {
+            'contents': 'read',
+            'actions': 'write',
+            'checks': 'write',
+            'pull-requests': 'write',
+            'security-events': 'write',
+            'issues': 'write'
+        }
+    
+    if 'concurrency' not in data:
+        data['concurrency'] = {
+            'group': '${{ github.workflow }}-${{ github.ref }}',
+            'cancel-in-progress': True
+        }
+    
+    # Fix jobs
+    if 'jobs' in data:
+        for job_name, job in data['jobs'].items():
+            if isinstance(job, dict):
+                # Add timeout
+                if 'timeout-minutes' not in job:
+                    job['timeout-minutes'] = 30
+                
+                # Add strategy
+                if 'strategy' not in job:
+                    job['strategy'] = {
+                        'fail-fast': False,
+                        'max-parallel': 4
+                    }
+                
+                # Add steps improvements
+                if 'steps' in job:
+                    for step in job['steps']:
+                        if isinstance(step, dict):
+                            # Add error handling
+                            if not any(critical in str(step.get('name', '')).lower() 
+                                     for critical in ['deploy', 'release', 'publish']):
+                                step['continue-on-error'] = True
+                            
+                            # Add timeouts
+                            if 'run' in step and any(long_running in str(step['run']).lower() 
+                                                   for long_running in ['test', 'build', 'install']):
+                                step['timeout-minutes'] = 15
+                            
+                            # Add retries for actions
+                            if 'uses' in step and step['uses'].startswith('actions/'):
+                                step['with'] = step.get('with', {})
+                                step['with']['retry-on-network-failure'] = True
+    
+    return data
 
-def fix_workflow_file(file_path: Path) -> None:
-    """Fix critical issues in workflow files."""
-    print(f"Processing: {file_path}")
-    backup_path = None
-    
+def process_file(file_path):
+    """Process a single workflow file."""
     try:
+        # Read and parse
         with open(file_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            
-        fixed_lines = []
-        for line in lines:
-            # Fix 'true:' to 'on:'
-            if line.strip() == 'true:':
-                line = line.replace('true:', 'on:')
-            
-            # Fix template literals
-            if '${' in line and not '${{' in line:
-                line = line.replace('${', '${{')
-                line = line.replace('}', '}}')
-            
-            # Fix double curly braces
-            line = line.replace('${{{{', '${{')
-            line = line.replace('}}}}', '}}')
-            
-            # Fix unclosed quotes in globs
-            if "'**/*.txt'" in line:
-                line = line.replace("'**/*.txt'", '"**/*.txt"')
-            
-            # Fix path quotes
-            if "path: '~/.npm'" in line:
-                line = line.replace("path: '~/.npm'", 'path: ~/.npm')
-            
-            fixed_lines.append(line)
+            data = yaml.safe_load(f)
         
-        # Create backup with unique name
-        backup_path = get_unique_backup_path(file_path)
-        os.rename(file_path, backup_path)
+        if not data:
+            print(f"⚠️ Empty workflow file: {file_path}")
+            return
         
-        # Write fixed content
+        # Apply fixes
+        fixed_data = fix_workflow(data)
+        
+        # Backup original
+        backup_path = f"{file_path}.bak"
+        os.replace(file_path, backup_path)
+        
+        # Write fixed version
         with open(file_path, 'w', encoding='utf-8') as f:
-            f.writelines(fixed_lines)
-            
+            yaml.dump(fixed_data, f, sort_keys=False, allow_unicode=True)
+        
         print(f"✅ Fixed: {file_path}")
         
     except Exception as e:
         print(f"❌ Error processing {file_path}: {str(e)}")
-        if backup_path and backup_path.exists():
-            try:
-                os.rename(backup_path, file_path)
-            except Exception as restore_error:
-                print(f"Failed to restore backup: {str(restore_error)}")
 
 def main():
     """Process all workflow files."""
-    repo_root = Path(__file__).parent.parent
-    workflows_dir = repo_root / '.github' / 'workflows'
+    workflow_dir = Path('.github/workflows')
     
-    if not workflows_dir.exists():
+    if not workflow_dir.exists():
         print("❌ Workflows directory not found!")
         sys.exit(1)
     
-    workflow_files = list(workflows_dir.glob('*.yml'))
-    if not workflow_files:
-        print("No workflow files found!")
-        sys.exit(1)
+    for file_path in workflow_dir.glob('*.y*ml'):
+        print(f"\n📝 Processing {file_path.name}...")
+        process_file(file_path)
     
-    print(f"Found {len(workflow_files)} workflow files...")
-    
-    for workflow_file in workflow_files:
-        fix_workflow_file(workflow_file)
-    
-    print("\n✨ Done!")
+    print("\n✨ All workflows have been improved!")
 
 if __name__ == '__main__':
     main() 

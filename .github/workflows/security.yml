@@ -1,88 +1,297 @@
 name: Security Scan
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
   schedule:
-    - cron: '0 0 * * 0'  # Run weekly
+    - cron: '0 0 * * *'  # Run daily at midnight
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
   security-events: write
+  actions: read
   pull-requests: write
 
+env:
+  MAX_RETRIES: 3
+  RETRY_INTERVAL: 10
+
 jobs:
-  basic-security-checks:
-    name: Basic Security Checks
+  verify-setup:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          
-      - name: Check package.json
+      - name: Verify Required Secrets
+        id: verify_secrets
         run: |
-          if [ -f "package.json" ]; then
-            echo "Found package.json"
-            cat package.json
-          else
-            echo "No package.json found"
+          missing_secrets=()
+          
+          # Check SNYK_TOKEN
+          if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
+            missing_secrets+=("SNYK_TOKEN")
+          fi
+          
+          # Check Slack configuration
+          if [ -z "${{ secrets.SLACK_BOT_TOKEN }}" ]; then
+            missing_secrets+=("SLACK_BOT_TOKEN")
+          fi
+          if [ -z "${{ secrets.SLACK_CHANNEL }}" ]; then
+            missing_secrets+=("SLACK_CHANNEL")
+          fi
+          if [ -z "${{ secrets.SECURITY_SLACK_CHANNEL }}" ]; then
+            missing_secrets+=("SECURITY_SLACK_CHANNEL")
+          fi
+          
+          # Report missing secrets
+          if [ ${#missing_secrets[@]} -ne 0 ]; then
+            echo "::error::Missing required secrets: ${missing_secrets[*]}"
             exit 1
           fi
           
-      - name: Install dependencies
-        run: |
-          npm install --package-lock-only
-          npm audit --json || true
-        continue-on-error: true
-        
-      - name: Run security audit
-        run: |
-          if [ -f "package-lock.json" ]; then
-            npm audit --audit-level=high || true
-          fi
-        continue-on-error: true
-        
-  secret-scan:
-    name: Secret Scanning
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        
-      - name: Check for Secrets
-        uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true
-        env:
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          echo "All required secrets are configured"
           
+      - name: Test Slack Notification
+        if: success()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SECURITY_SLACK_CHANNEL }}
+          slack-message: |
+            🔍 *Security Workflow Configuration Test*
+            
+            All required secrets are properly configured.
+            Security scanning is ready to run.
+            
+            *Repository:* ${{ github.repository }}
+            *Workflow:* ${{ github.workflow }}
+            *Triggered By:* ${{ github.actor }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
   dependency-review:
-    name: Dependency Review
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     if: github.event_name == 'pull_request'
-    
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        
+      - uses: actions/checkout@v4
+      
       - name: Review Dependencies
-        uses: actions/dependency-review-action@v3
+        id: review
         continue-on-error: true
+        uses: actions/dependency-review-action@v3
         with:
           fail-on-severity: high
+          deny-licenses: 'GPL-1.0-or-later, LGPL-2.0-or-later'
+      
+      - name: Check review status
+        if: steps.review.outcome != 'success'
+        run: |
+          echo "::error::Dependency review failed. Please check the dependencies."
+          exit 1
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  code-scanning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'python']
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+      
+      - name: Autobuild
+        id: autobuild
+        continue-on-error: true
+        uses: github/codeql-action/autobuild@v2
+      
+      - name: Retry Autobuild on failure
+        if: steps.autobuild.outcome != 'success'
+        run: |
+          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            echo "Retry $i: Running CodeQL Autobuild..."
+            if ${{ github.workspace }}/.github/codeql/autobuild.sh; then
+              exit 0
+            fi
+            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
+              echo "::error::CodeQL Autobuild failed after ${{ env.MAX_RETRIES }} attempts"
+              exit 1
+            fi
+            sleep ${{ env.RETRY_INTERVAL }}
+          done
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  vulnerability-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Snyk Security Scan
+        id: snyk
+        continue-on-error: true
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+      
+      - name: Run OWASP Dependency Check
+        id: owasp
+        continue-on-error: true
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'DojoPool'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --suppression suppression.xml
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Run Trivy vulnerability scanner
+        id: trivy
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Check vulnerability scan status
+        if: always()
+        run: |
+          if [[ "${{ steps.snyk.outcome }}" != "success" || \
+                "${{ steps.owasp.outcome }}" != "success" || \
+                "${{ steps.trivy.outcome }}" != "success" ]]; then
+            echo "::warning::One or more vulnerability scans failed. Review the results carefully."
+          fi
+
+  secret-scanning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check Gitleaks License
+        id: check_license
+        run: |
+          if [ -n "${{ env.GITLEAKS_LICENSE }}" ]; then
+            echo "has_license=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_license=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+      
+      - name: Run Gitleaks
+        id: gitleaks
+        if: steps.check_license.outputs.has_license == 'true'
+        continue-on-error: true
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Skip Gitleaks
+        if: steps.check_license.outputs.has_license != 'true'
+        run: |
+          echo "::warning::Skipping Gitleaks scan - license not configured yet"
+
+      - name: Run tfsec
+        id: tfsec
+        continue-on-error: true
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          soft_fail: true
+
+      - name: Run Checkov
+        id: checkov
+        continue-on-error: true
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          soft_fail: true
+          framework: all
+      
+      - name: Check secret scanning status
+        if: always()
+        run: |
+          if [[ "${{ steps.gitleaks.outcome }}" != "success" || \
+                "${{ steps.tfsec.outcome }}" != "success" || \
+                "${{ steps.checkov.outcome }}" != "success" ]]; then
+            echo "::warning::One or more secret scanning tools reported issues. Review the results carefully."
+          fi
+  
+  notify:
+    needs: [dependency-review, code-scanning, vulnerability-scan, secret-scanning]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check workflow status
+        id: check
+        run: |
+          if [[ "${{ needs.dependency-review.result }}" == "success" && \
+                "${{ needs.code-scanning.result }}" == "success" && \
+                "${{ needs.vulnerability-scan.result }}" == "success" && \
+                "${{ needs.secret-scanning.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "severity=low" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            # Determine severity based on which checks failed
+            if [[ "${{ needs.dependency-review.result }}" == "failure" || \
+                  "${{ needs.code-scanning.result }}" == "failure" ]]; then
+              echo "severity=high" >> $GITHUB_OUTPUT
+            else
+              echo "severity=medium" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      - name: Send Slack notification
+        if: always()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SECURITY_SLACK_CHANNEL }}
+          slack-message: |
+            *Security Scan Status*: ${{ steps.check.outputs.status == 'success' && '✅ Passed' || '❌ Failed' }}
+            *Severity*: ${{ steps.check.outputs.severity == 'high' && '🔴 High' || steps.check.outputs.severity == 'medium' && '🟡 Medium' || '🟢 Low' }}
+            *Triggered By*: ${{ github.actor }}
+            *Event*: ${{ github.event_name }}
+            *Repository*: ${{ github.repository }}
+            
+            *Job Results*:
+            - Dependency Review: ${{ needs.dependency-review.result }}
+            - Code Scanning: ${{ needs.code-scanning.result }}
+            - Vulnerability Scan: ${{ needs.vulnerability-scan.result }}
+            - Secret Scanning: ${{ needs.secret-scanning.result }}
+            
+            ${{ github.server_url }}/${{ github.repository }}/security/code-scanning
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
