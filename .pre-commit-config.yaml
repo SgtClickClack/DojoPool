@@ -1,0 +1,134 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: detect-private-key
+      - id: detect-aws-credentials
+        args: [--allow-missing-credentials]
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, master]
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        args: ["-c", "setup.cfg"]
+        additional_dependencies: ["bandit[toml]"]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-bandit
+          - flake8-bugbear
+          - flake8-builtins
+          - flake8-comprehensions
+          - flake8-debugger
+          - flake8-eradicate
+          - flake8-logging-format
+          - flake8-print
+          - flake8-pytest-style
+          - flake8-secure-coding-standard
+          - flake8-variables-names
+
+  - repo: https://github.com/python-security/safety-db-check
+    rev: main
+    hooks:
+      - id: safety-db-check
+        args: ["check", "--full-report"]
+
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
+    rev: v1.1.2
+    hooks:
+      - id: dockerfile_lint
+      - id: markdown-toc
+      - id: package-json-validator
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.88.4
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+      - id: terraform_tflint
+      - id: terraform_tfsec
+
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/thoughtworks/talisman
+    rev: v1.32.0
+    hooks:
+      - id: talisman-commit
+
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npx eslint
+        language: node
+        types: [javascript, jsx, ts, tsx]
+        additional_dependencies:
+          - eslint
+          - "@typescript-eslint/parser"
+          - "@typescript-eslint/eslint-plugin"
+          - eslint-plugin-react
+          - eslint-plugin-react-hooks
+          - eslint-plugin-jsx-a11y
+          - eslint-plugin-security
+          - eslint-config-prettier
+          - eslint-plugin-prettier
+
+      - id: typescript-check
+        name: TypeScript Check
+        entry: npx tsc
+        language: node
+        pass_filenames: false
+        types: [ts, tsx]
+        additional_dependencies:
+          - typescript
+
+      - id: npm-audit
+        name: npm audit
+        entry: npm audit
+        language: node
+        pass_filenames: false
+        args: ["--audit-level=moderate"]
+
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: python
+        types: [python]
+        pass_filenames: false
+        additional_dependencies:
+          - pytest
+          - pytest-cov
+          - pytest-randomly
+          - pytest-timeout
+
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: python
+        types: [python]
+        require_serial: true
+        additional_dependencies:
+          - mypy
+          - types-all
+
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: python
+        types: [python]
+        args: ["--rcfile=setup.cfg"]
+        additional_dependencies:
+          - pylint
+          - pylint-security 

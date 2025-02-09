@@ -2,7 +2,7 @@ name: Security Scan
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
+    - cron: '0 */6 * * *'  # Run every 6 hours instead of daily
   push:
     branches: [main, develop]
     paths-ignore:
@@ -19,10 +19,13 @@ permissions:
   security-events: write
   actions: read
   pull-requests: write
+  issues: write
 
 env:
   MAX_RETRIES: 3
   RETRY_INTERVAL: 10
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '20'
 
 jobs:
   verify-setup:
@@ -33,12 +36,18 @@ jobs:
         run: |
           missing_secrets=()
           
-          # Check SNYK_TOKEN
+          # Check security tokens
           if [ -z "${{ secrets.SNYK_TOKEN }}" ]; then
             missing_secrets+=("SNYK_TOKEN")
           fi
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+            missing_secrets+=("SONAR_TOKEN")
+          fi
+          if [ -z "${{ secrets.CODACY_TOKEN }}" ]; then
+            missing_secrets+=("CODACY_TOKEN")
+          fi
           
-          # Check Slack configuration
+          # Check notification tokens
           if [ -z "${{ secrets.SLACK_BOT_TOKEN }}" ]; then
             missing_secrets+=("SLACK_BOT_TOKEN")
           fi
@@ -56,23 +65,6 @@ jobs:
           fi
           
           echo "All required secrets are configured"
-          
-      - name: Test Slack Notification
-        if: success()
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          channel-id: ${{ secrets.SECURITY_SLACK_CHANNEL }}
-          slack-message: |
-            🔍 *Security Workflow Configuration Test*
-            
-            All required secrets are properly configured.
-            Security scanning is ready to run.
-            
-            *Repository:* ${{ github.repository }}
-            *Workflow:* ${{ github.workflow }}
-            *Triggered By:* ${{ github.actor }}
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
   dependency-review:
     runs-on: ubuntu-latest
@@ -80,19 +72,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          npm install -g npm@latest
+          npm install -g audit-ci
+          pip install safety
+      
       - name: Review Dependencies
         id: review
-        continue-on-error: true
-        uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: high
-          deny-licenses: 'GPL-1.0-or-later, LGPL-2.0-or-later'
-      
-      - name: Check review status
-        if: steps.review.outcome != 'success'
         run: |
-          echo "::error::Dependency review failed. Please check the dependencies."
-          exit 1
+          # NPM audit with stricter settings
+          audit-ci --high --critical
+          
+          # Python safety check
+          safety check
+          
+          # Check for outdated dependencies
+          npm outdated || true
+          pip list --outdated
+      
+      - name: Run Snyk
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium
 
   code-scanning:
     runs-on: ubuntu-latest
@@ -112,85 +126,47 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
-      
-      - name: Autobuild
-        id: autobuild
-        continue-on-error: true
-        uses: github/codeql-action/autobuild@v2
-      
-      - name: Retry Autobuild on failure
-        if: steps.autobuild.outcome != 'success'
+          
+      - name: Setup Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install Python security tools
+        if: matrix.language == 'python'
         run: |
-          for i in $(seq 1 ${{ env.MAX_RETRIES }}); do
-            echo "Retry $i: Running CodeQL Autobuild..."
-            if ${{ github.workspace }}/.github/codeql/autobuild.sh; then
-              exit 0
-            fi
-            if [ $i -eq ${{ env.MAX_RETRIES }} ]; then
-              echo "::error::CodeQL Autobuild failed after ${{ env.MAX_RETRIES }} attempts"
-              exit 1
-            fi
-            sleep ${{ env.RETRY_INTERVAL }}
-          done
+          pip install bandit pylint safety
+          
+      - name: Run Bandit
+        if: matrix.language == 'python'
+        run: bandit -r . -ll -ii -x tests/
+        
+      - name: Run PyLint Security Checks
+        if: matrix.language == 'python'
+        run: |
+          pylint --disable=all --enable=security,authentication . || true
+      
+      - name: Setup Node.js
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Node.js security tools
+        if: matrix.language == 'javascript'
+        run: |
+          npm install -g eslint-plugin-security
+          
+      - name: Run ESLint Security Rules
+        if: matrix.language == 'javascript'
+        run: |
+          eslint . -c .eslintrc.js --plugin security --rule 'security/detect-possible-timing-attacks: error'
       
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
         with:
           category: "/language:${{ matrix.language }}"
-
-  vulnerability-scan:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Run Snyk Security Scan
-        id: snyk
-        continue-on-error: true
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-      
-      - name: Run OWASP Dependency Check
-        id: owasp
-        continue-on-error: true
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: 'DojoPool'
-          path: '.'
-          format: 'HTML'
-          args: >
-            --suppression suppression.xml
-            --failOnCVSS 7
-            --enableRetired
-
-      - name: Run Trivy vulnerability scanner
-        id: trivy
-        continue-on-error: true
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy scan results
-        if: always()
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
-      
-      - name: Check vulnerability scan status
-        if: always()
-        run: |
-          if [[ "${{ steps.snyk.outcome }}" != "success" || \
-                "${{ steps.owasp.outcome }}" != "success" || \
-                "${{ steps.trivy.outcome }}" != "success" ]]; then
-            echo "::warning::One or more vulnerability scans failed. Review the results carefully."
-          fi
 
   secret-scanning:
     runs-on: ubuntu-latest
@@ -200,57 +176,51 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Check Gitleaks License
-        id: check_license
-        run: |
-          if [ -n "${{ env.GITLEAKS_LICENSE }}" ]; then
-            echo "has_license=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_license=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-      
       - name: Run Gitleaks
-        id: gitleaks
-        if: steps.check_license.outputs.has_license == 'true'
-        continue-on-error: true
         uses: gitleaks/gitleaks-action@v2
         env:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-
-      - name: Skip Gitleaks
-        if: steps.check_license.outputs.has_license != 'true'
-        run: |
-          echo "::warning::Skipping Gitleaks scan - license not configured yet"
-
-      - name: Run tfsec
-        id: tfsec
-        continue-on-error: true
-        uses: aquasecurity/tfsec-action@v1.0.3
+          
+      - name: Run trufflehog
+        uses: trufflesecurity/trufflehog@main
         with:
-          soft_fail: true
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          
+      - name: Run detect-secrets
+        run: |
+          pip install detect-secrets
+          detect-secrets scan > secrets.baseline
+          detect-secrets audit secrets.baseline
 
+  infrastructure-scanning:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        
       - name: Run Checkov
-        id: checkov
-        continue-on-error: true
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: .
-          soft_fail: true
           framework: all
-      
-      - name: Check secret scanning status
-        if: always()
-        run: |
-          if [[ "${{ steps.gitleaks.outcome }}" != "success" || \
-                "${{ steps.tfsec.outcome }}" != "success" || \
-                "${{ steps.checkov.outcome }}" != "success" ]]; then
-            echo "::warning::One or more secret scanning tools reported issues. Review the results carefully."
-          fi
-  
+          
+      - name: Run KICS
+        uses: checkmarx/kics-action@v1.7.0
+        with:
+          path: .
+          fail_on: high
+          
+      - name: Run Docker security scan
+        uses: azure/container-scan@v0
+        with:
+          image-name: your-registry/your-image:tag
+
   notify:
-    needs: [dependency-review, code-scanning, vulnerability-scan, secret-scanning]
+    needs: [dependency-review, code-scanning, secret-scanning, infrastructure-scanning]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -259,13 +229,12 @@ jobs:
         run: |
           if [[ "${{ needs.dependency-review.result }}" == "success" && \
                 "${{ needs.code-scanning.result }}" == "success" && \
-                "${{ needs.vulnerability-scan.result }}" == "success" && \
-                "${{ needs.secret-scanning.result }}" == "success" ]]; then
+                "${{ needs.secret-scanning.result }}" == "success" && \
+                "${{ needs.infrastructure-scanning.result }}" == "success" ]]; then
             echo "status=success" >> $GITHUB_OUTPUT
             echo "severity=low" >> $GITHUB_OUTPUT
           else
             echo "status=failure" >> $GITHUB_OUTPUT
-            # Determine severity based on which checks failed
             if [[ "${{ needs.dependency-review.result }}" == "failure" || \
                   "${{ needs.code-scanning.result }}" == "failure" ]]; then
               echo "severity=high" >> $GITHUB_OUTPUT
@@ -275,7 +244,6 @@ jobs:
           fi
       
       - name: Send Slack notification
-        if: always()
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: ${{ secrets.SECURITY_SLACK_CHANNEL }}
@@ -284,13 +252,12 @@ jobs:
             *Severity*: ${{ steps.check.outputs.severity == 'high' && '🔴 High' || steps.check.outputs.severity == 'medium' && '🟡 Medium' || '🟢 Low' }}
             *Triggered By*: ${{ github.actor }}
             *Event*: ${{ github.event_name }}
-            *Repository*: ${{ github.repository }}
             
             *Job Results*:
             - Dependency Review: ${{ needs.dependency-review.result }}
             - Code Scanning: ${{ needs.code-scanning.result }}
-            - Vulnerability Scan: ${{ needs.vulnerability-scan.result }}
             - Secret Scanning: ${{ needs.secret-scanning.result }}
+            - Infrastructure Scanning: ${{ needs.infrastructure-scanning.result }}
             
             ${{ github.server_url }}/${{ github.repository }}/security/code-scanning
         env:
