@@ -15,6 +15,7 @@ from redis import Redis
 from config.security_config import SecurityConfig
 from middleware.security import SecurityMiddleware
 from middleware.input_validation import InputValidationMiddleware
+from middleware.session import SessionSecurityMiddleware
 from services.token_service import TokenService
 from core.errors import setup_error_handlers
 
@@ -122,6 +123,9 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     
     # Initialize input validation middleware
     input_validation_middleware = InputValidationMiddleware(app)
+    
+    # Initialize session security middleware
+    session_security = SessionSecurityMiddleware(app)
     
     # Initialize token service
     app.token_service = TokenService()
