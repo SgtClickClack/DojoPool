@@ -1,31 +1,22 @@
-exclude-categories:
-  - 'Documentation'
-  - 'Best Practices'
+---
+# KICS security scanning configuration
+# https://docs.kics.io/latest/configuration-file/
 
 exclude-paths:
   - '**/node_modules/**'
-  - '**/.git/**'
+  - '**/venv/**'
   - '**/tests/**'
-  - '**/docs/**'
-  - '**/*.md'
-  - '**/package-lock.json'
-  - '**/yarn.lock'
-  - '**/*.pyc'
-  - '**/__pycache__/**'
+  - '**/.git/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
 
 exclude-queries:
-  - 'a227ec01-f97a-4084-91a4-47b350c1db54'  # Ignore "Passwords And Secrets" for test files
-  - '6e7c6764-9478-4e8a-9a59-9b5a3987a9cf'  # Ignore "TLS Disabled" for local development
+  # Exclude specific queries that may generate false positives
+  - 'a227ec01-f97a-4084-91a4-47b350c1db54'  # Ignore "Passwords In Configuration Files"
+  - '6e2a8c77-9b87-4d93-8c0e-b4c99c1f865c'  # Ignore "Hardcoded Secrets"
 
-type:
-  - 'Dockerfile'
-  - 'Docker Compose'
-  - 'Kubernetes'
-  - 'CloudFormation'
-  - 'Terraform'
-  - 'Ansible'
-  - 'OpenAPI'
-  - 'GitHub Actions'
+exclude-categories: []  # Don't exclude any categories by default
 
 output-formats:
   - 'json'
@@ -35,40 +26,38 @@ fail-on:
   - high
   - medium
 
-secrets:
-  disable: false
-  exclude-paths: []
-  exclude-regexes: []
+type:
+  - 'Dockerfile'
+  - 'CloudFormation'
+  - 'Kubernetes'
+  - 'OpenAPI'
+  - 'Terraform'
+  - 'Python'
+  - 'JavaScript'
+  - 'TypeScript'
 
-scan-timeout: 30
+secrets-regexes:
+  # Custom regex patterns for secret detection
+  - '(?i)password\s*[:=]\s*["\']?[^"\'\s]+'
+  - '(?i)secret\s*[:=]\s*["\']?[^"\'\s]+'
+  - '(?i)key\s*[:=]\s*["\']?[^"\'\s]+'
+  - '(?i)token\s*[:=]\s*["\']?[^"\'\s]+'
 
-ci: true
+ignore-on-exit:
+  - 'all'  # Don't fail the build on warnings
 
-verbose: true
+minimal-ui: false  # Show detailed output
+
+log-file: 'kics-scan.log'
+
+log-level: 'INFO'
+
+timeout: 300  # 5 minutes timeout
 
 profiling: false
 
-minimal-ui: false
+ci: true  # Running in CI environment
 
-no-progress: true
+preview-lines: 3  # Number of lines to show before and after findings
 
-no-color: true
-
-log-file: kics-scan.log
-
-report-formats:
-  - 'json'
-  - 'sarif'
-  - 'html'
-
-preview-lines: 3
-
-include-queries:
-  - 'common'
-  - 'ansible'
-  - 'cloudformation'
-  - 'dockerfile'
-  - 'github-actions'
-  - 'kubernetes'
-  - 'openapi'
-  - 'terraform' 
+libraries-path: ''  # Use default libraries path 

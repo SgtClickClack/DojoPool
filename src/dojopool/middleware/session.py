@@ -1,169 +1,167 @@
-"""Session security middleware."""
+"""Session security middleware with enhanced protections."""
 
+import functools
+import time
 from datetime import datetime, timedelta
-from functools import wraps
-from typing import Optional
-from uuid import uuid4
+from typing import Any, Callable, Dict, Optional, Union
 
-from flask import Flask, Request, session, request, g
-from werkzeug.useragents import UserAgent
+import redis
+from flask import Flask, Request, Response, current_app, g, request, session
+from werkzeug.local import LocalProxy
 
-from core.errors import SecurityError
+from dojopool.core.errors import AuthenticationError, SecurityError
+from dojopool.services.token_service import TokenService
 
 class SessionSecurityMiddleware:
-    """Middleware for enhanced session security."""
-    
-    def __init__(self, app: Optional[Flask] = None):
-        self.app = app
-        if app is not None:
-            self.init_app(app)
-    
-    def init_app(self, app: Flask) -> None:
-        """Initialize the middleware with a Flask app."""
-        self.app = app
+    """Middleware for enhancing session security."""
+
+    def __init__(self, app: Flask, redis_client: redis.Redis) -> None:
+        """Initialize session security middleware.
         
-        # Session configuration
+        Args:
+            app: Flask application instance
+            redis_client: Redis client for session storage
+        """
+        self.app = app
+        self.redis = redis_client
+        self.token_service = TokenService()
+        
+        # Configure secure session settings
         app.config.setdefault('SESSION_COOKIE_SECURE', True)
         app.config.setdefault('SESSION_COOKIE_HTTPONLY', True)
         app.config.setdefault('SESSION_COOKIE_SAMESITE', 'Lax')
-        app.config.setdefault('PERMANENT_SESSION_LIFETIME', timedelta(days=1))
+        app.config.setdefault('PERMANENT_SESSION_LIFETIME', timedelta(hours=1))
         app.config.setdefault('SESSION_PROTECTION', 'strong')
-        
-        # Maximum number of sessions per user
         app.config.setdefault('MAX_SESSIONS_PER_USER', 5)
         
-        # Session refresh settings
-        app.config.setdefault('SESSION_REFRESH_EACH_REQUEST', True)
-        app.config.setdefault('SESSION_REFRESH_INTERVAL', timedelta(minutes=5))
+        # Register before_request handlers
+        app.before_request(self._validate_session)
+        app.before_request(self._check_session_expiry)
+        app.before_request(self._validate_fingerprint)
         
-        self.setup_handlers()
-    
-    def setup_handlers(self) -> None:
-        """Set up request handlers."""
-        
-        @self.app.before_request
-        def validate_session() -> Optional[str]:
-            """Validate and refresh session if needed."""
-            if not session:
-                return None
-                
-            # Check session expiry
-            if self._is_session_expired():
-                session.clear()
-                raise SecurityError("Session expired", code=401)
+        # Register after_request handlers
+        app.after_request(self._refresh_session)
+
+    def _validate_session(self) -> None:
+        """Validate the current session."""
+        if not session.get('user_id'):
+            return
             
-            # Validate session fingerprint
-            if not self._validate_fingerprint():
-                session.clear()
-                raise SecurityError("Invalid session", code=401)
+        session_id = session.get('session_id')
+        if not session_id:
+            raise SecurityError('Invalid session')
             
-            # Refresh session if needed
-            if self._should_refresh_session():
-                self._refresh_session()
-            
-            # Store session info in g for logging
-            g.session_id = session.get('id')
-            g.user_id = session.get('user_id')
-    
-    def _is_session_expired(self) -> bool:
+        stored_session = self.redis.get(f'session:{session_id}')
+        if not stored_session:
+            raise SecurityError('Session not found')
+
+    def _check_session_expiry(self) -> None:
         """Check if the current session has expired."""
+        if not session.get('user_id'):
+            return
+            
         expiry = session.get('expiry')
-        if not expiry:
-            return True
-        return datetime.utcnow() > datetime.fromisoformat(expiry)
-    
-    def _validate_fingerprint(self) -> bool:
-        """Validate session fingerprint against current request."""
-        stored = session.get('fingerprint')
-        if not stored:
-            return False
+        if not expiry or datetime.fromtimestamp(expiry) < datetime.utcnow():
+            raise SecurityError('Session expired')
+
+    def _validate_fingerprint(self) -> None:
+        """Validate the client fingerprint."""
+        if not session.get('user_id'):
+            return
             
-        current = self._generate_fingerprint()
-        return stored == current
-    
-    def _should_refresh_session(self) -> bool:
-        """Check if session should be refreshed."""
-        if not self.app.config['SESSION_REFRESH_EACH_REQUEST']:
-            last_refresh = session.get('last_refresh')
-            if not last_refresh:
-                return True
+        fingerprint = request.headers.get('X-Client-Fingerprint')
+        stored_fingerprint = session.get('fingerprint')
+        
+        if not fingerprint or not stored_fingerprint:
+            raise SecurityError('Missing client fingerprint')
             
-            refresh_interval = self.app.config['SESSION_REFRESH_INTERVAL']
-            return (datetime.utcnow() - datetime.fromisoformat(last_refresh)) > refresh_interval
+        if fingerprint != stored_fingerprint:
+            raise SecurityError('Invalid client fingerprint')
+
+    def _refresh_session(self, response: Response) -> Response:
+        """Refresh the session and update expiry."""
+        if not session.get('user_id'):
+            return response
             
-        return True
-    
-    def _refresh_session(self) -> None:
-        """Refresh session data."""
-        session['last_refresh'] = datetime.utcnow().isoformat()
-        session['expiry'] = (
-            datetime.utcnow() + self.app.config['PERMANENT_SESSION_LIFETIME']
-        ).isoformat()
-        
-        # Rotate session ID periodically
-        if not session.get('rotation_time') or \
-           datetime.utcnow() - datetime.fromisoformat(session['rotation_time']) > timedelta(hours=1):
-            session['id'] = str(uuid4())
-            session['rotation_time'] = datetime.utcnow().isoformat()
-    
-    def _generate_fingerprint(self) -> str:
-        """Generate a fingerprint for the current request."""
-        user_agent: UserAgent = request.user_agent
-        
-        components = [
-            user_agent.string,
-            request.remote_addr,
-            request.headers.get('Accept-Language', ''),
-            request.headers.get('Sec-Ch-Ua', '')  # Browser details
-        ]
-        
-        return ':'.join(components)
-    
-    @staticmethod
-    def session_required(f):
-        """Decorator to require a valid session."""
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            if not session:
-                raise SecurityError("Session required", code=401)
+        session['expiry'] = int((datetime.utcnow() + 
+                               current_app.config['PERMANENT_SESSION_LIFETIME']).timestamp())
+        return response
+
+    def session_required(self, f: Callable) -> Callable:
+        """Decorator to enforce session validation on routes."""
+        @functools.wraps(f)
+        def decorated(*args: Any, **kwargs: Any) -> Any:
+            if not session.get('user_id'):
+                raise AuthenticationError('Authentication required')
             return f(*args, **kwargs)
         return decorated
-    
-    @staticmethod
-    def enforce_max_sessions(redis_client):
-        """Decorator to enforce maximum sessions per user."""
-        def decorator(f):
-            @wraps(f)
-            def decorated(*args, **kwargs):
-                if 'user_id' in session:
-                    user_id = session['user_id']
-                    session_key = f"user_sessions:{user_id}"
-                    
-                    # Get current sessions
-                    sessions = redis_client.smembers(session_key)
-                    
-                    # Clean up expired sessions
-                    for s in sessions:
-                        if redis_client.get(f"session:{s}") is None:
-                            redis_client.srem(session_key, s)
-                    
-                    # Check session limit
-                    if redis_client.scard(session_key) >= current_app.config['MAX_SESSIONS_PER_USER']:
-                        raise SecurityError(
-                            "Maximum number of sessions reached",
-                            code=429,
-                            details={"max_sessions": current_app.config['MAX_SESSIONS_PER_USER']}
-                        )
-                    
-                    # Add current session
-                    session_id = session.get('id', str(uuid4()))
-                    redis_client.sadd(session_key, session_id)
-                    redis_client.setex(
-                        f"session:{session_id}",
-                        int(current_app.config['PERMANENT_SESSION_LIFETIME'].total_seconds()),
-                        user_id
-                    )
-                
-                return f(*args, **kwargs)
-            return decorated
-        return decorator 
+
+    def enforce_max_sessions(self, user_id: Union[str, int]) -> None:
+        """Enforce maximum number of active sessions per user.
+        
+        Args:
+            user_id: User identifier
+        """
+        max_sessions = current_app.config['MAX_SESSIONS_PER_USER']
+        user_sessions = self.redis.smembers(f'user_sessions:{user_id}')
+        
+        if len(user_sessions) >= max_sessions:
+            oldest_session = min(
+                user_sessions,
+                key=lambda s: float(self.redis.hget(f'session:{s}', 'created_at') or 0)
+            )
+            self.redis.delete(f'session:{oldest_session}')
+            self.redis.srem(f'user_sessions:{user_id}', oldest_session)
+
+    def create_session(self, user_id: Union[str, int], fingerprint: str) -> Dict[str, Any]:
+        """Create a new session for a user.
+        
+        Args:
+            user_id: User identifier
+            fingerprint: Client fingerprint
+            
+        Returns:
+            Dict containing session information
+        """
+        self.enforce_max_sessions(user_id)
+        
+        session_id = self.token_service.generate_session_token()
+        created_at = time.time()
+        expiry = int((datetime.utcnow() + 
+                     current_app.config['PERMANENT_SESSION_LIFETIME']).timestamp())
+        
+        session_data = {
+            'session_id': session_id,
+            'user_id': user_id,
+            'fingerprint': fingerprint,
+            'created_at': created_at,
+            'expiry': expiry
+        }
+        
+        # Store session in Redis
+        self.redis.hmset(f'session:{session_id}', session_data)
+        self.redis.sadd(f'user_sessions:{user_id}', session_id)
+        self.redis.expire(f'session:{session_id}', 
+                         int(current_app.config['PERMANENT_SESSION_LIFETIME'].total_seconds()))
+        
+        # Update Flask session
+        session.update(session_data)
+        
+        return session_data
+
+    def destroy_session(self, session_id: Optional[str] = None) -> None:
+        """Destroy a session.
+        
+        Args:
+            session_id: Optional session ID to destroy. If None, destroys current session.
+        """
+        if session_id is None:
+            session_id = session.get('session_id')
+            
+        if session_id:
+            user_id = session.get('user_id')
+            if user_id:
+                self.redis.srem(f'user_sessions:{user_id}', session_id)
+            self.redis.delete(f'session:{session_id}')
+            
+        session.clear() 

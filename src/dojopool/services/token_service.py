@@ -1,138 +1,117 @@
-"""Token management service with enhanced security.
-
-This module provides secure token management with key rotation and separate keys for different token types.
-"""
+"""Token service for secure session management."""
 
 import secrets
-from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
+import time
+from typing import Dict, Optional, Union
 
 import jwt
 from flask import current_app
-from models.user import User
 
 class TokenService:
-    """Service for secure token management with key rotation."""
-    
-    # Token expiration times
-    ACCESS_TOKEN_EXPIRY = timedelta(minutes=15)  # Shorter lived access tokens
-    REFRESH_TOKEN_EXPIRY = timedelta(days=7)     # 7 days for refresh tokens
-    
-    # Key rotation intervals
-    KEY_ROTATION_INTERVAL = timedelta(days=1)  # Rotate keys daily
-    
-    def __init__(self):
+    """Service for managing secure tokens."""
+
+    def __init__(self) -> None:
         """Initialize the token service."""
-        self._access_keys: Dict[str, Tuple[str, datetime]] = {}
-        self._refresh_keys: Dict[str, Tuple[str, datetime]] = {}
-        self._rotate_keys()
-    
-    def _rotate_keys(self) -> None:
-        """Rotate encryption keys and clean up old ones."""
-        now = datetime.utcnow()
+        self.secret_key = current_app.config.get('SECRET_KEY')
+        if not self.secret_key:
+            raise ValueError('SECRET_KEY must be configured')
+
+    def generate_session_token(self) -> str:
+        """Generate a secure session token.
         
-        # Generate new keys
-        new_access_key = secrets.token_hex(32)
-        new_refresh_key = secrets.token_hex(32)
+        Returns:
+            A secure random token string
+        """
+        return secrets.token_urlsafe(32)
+
+    def generate_jwt(self, 
+                    payload: Dict[str, Union[str, int, float]], 
+                    expiry: Optional[int] = None) -> str:
+        """Generate a JWT token.
         
-        # Add new keys
-        key_id = secrets.token_hex(8)
-        self._access_keys[key_id] = (new_access_key, now)
-        self._refresh_keys[key_id] = (new_refresh_key, now)
-        
-        # Remove old keys (keep last 2 for validation)
-        self._clean_old_keys(self._access_keys)
-        self._clean_old_keys(self._refresh_keys)
-    
-    def _clean_old_keys(self, keys: Dict[str, Tuple[str, datetime]]) -> None:
-        """Remove old keys, keeping only the 2 most recent."""
-        if len(keys) <= 2:
-            return
+        Args:
+            payload: Data to encode in the token
+            expiry: Optional expiration time in seconds
             
-        sorted_keys = sorted(keys.items(), key=lambda x: x[1][1], reverse=True)
-        for key_id, _ in sorted_keys[2:]:
-            keys.pop(key_id)
-    
-    def _get_current_key(self, keys: Dict[str, Tuple[str, datetime]]) -> Tuple[str, str]:
-        """Get the current key and its ID."""
-        now = datetime.utcnow()
+        Returns:
+            Encoded JWT token
+        """
+        if expiry:
+            payload['exp'] = int(time.time()) + expiry
+            
+        return jwt.encode(
+            payload,
+            self.secret_key,
+            algorithm='HS256'
+        )
+
+    def verify_jwt(self, token: str) -> Dict[str, Union[str, int, float]]:
+        """Verify and decode a JWT token.
         
-        # Check if we need to rotate keys
-        if not keys or (now - list(keys.values())[0][1]) > self.KEY_ROTATION_INTERVAL:
-            self._rotate_keys()
+        Args:
+            token: JWT token to verify
+            
+        Returns:
+            Decoded token payload
+            
+        Raises:
+            jwt.InvalidTokenError: If token is invalid
+            jwt.ExpiredSignatureError: If token has expired
+        """
+        return jwt.decode(
+            token,
+            self.secret_key,
+            algorithms=['HS256']
+        )
+
+    def generate_csrf_token(self) -> str:
+        """Generate a CSRF token.
         
-        # Get most recent key
-        key_id = max(keys.keys(), key=lambda k: keys[k][1])
-        return key_id, keys[key_id][0]
-    
-    def generate_access_token(self, user: User, device_id: Optional[str] = None) -> str:
-        """Generate a short-lived access token."""
-        now = datetime.utcnow()
-        key_id, key = self._get_current_key(self._access_keys)
+        Returns:
+            Secure random token for CSRF protection
+        """
+        return secrets.token_hex(32)
+
+    def generate_api_key(self) -> str:
+        """Generate a secure API key.
         
+        Returns:
+            Secure random API key
+        """
+        prefix = 'dojo'
+        random_part = secrets.token_urlsafe(32)
+        return f"{prefix}_{random_part}"
+
+    def generate_reset_token(self, user_id: Union[str, int]) -> str:
+        """Generate a password reset token.
+        
+        Args:
+            user_id: User identifier
+            
+        Returns:
+            JWT token for password reset
+        """
         payload = {
-            "typ": "access",
-            "uid": user.id,
-            "kid": key_id,
-            "did": device_id,
-            "iat": now,
-            "exp": now + self.ACCESS_TOKEN_EXPIRY
+            'user_id': user_id,
+            'type': 'password_reset',
+            'iat': int(time.time())
         }
+        return self.generate_jwt(payload, expiry=3600)  # 1 hour expiry
+
+    def verify_reset_token(self, token: str) -> Dict[str, Union[str, int, float]]:
+        """Verify a password reset token.
         
-        return jwt.encode(payload, key, algorithm="HS256")
-    
-    def generate_refresh_token(self, user: User, device_id: Optional[str] = None) -> str:
-        """Generate a longer-lived refresh token."""
-        now = datetime.utcnow()
-        key_id, key = self._get_current_key(self._refresh_keys)
-        
-        payload = {
-            "typ": "refresh",
-            "uid": user.id,
-            "kid": key_id,
-            "did": device_id,
-            "iat": now,
-            "exp": now + self.REFRESH_TOKEN_EXPIRY
-        }
-        
-        return jwt.encode(payload, key, algorithm="HS256")
-    
-    def verify_token(self, token: str, token_type: str = "access") -> Optional[dict]:
-        """Verify a token and return its payload if valid."""
-        try:
-            # Decode without verification to get key ID
-            unverified = jwt.decode(token, options={"verify_signature": False})
-            key_id = unverified.get("kid")
-            token_keys = self._access_keys if token_type == "access" else self._refresh_keys
+        Args:
+            token: Reset token to verify
             
-            if not key_id or key_id not in token_keys:
-                return None
-                
-            # Verify token with correct key
-            key = token_keys[key_id][0]
-            payload = jwt.decode(token, key, algorithms=["HS256"])
+        Returns:
+            Decoded token payload
             
-            # Verify token type
-            if payload.get("typ") != token_type:
-                return None
-                
-            return payload
-            
-        except jwt.InvalidTokenError:
-            return None
-    
-    def refresh_tokens(self, refresh_token: str) -> Optional[Dict[str, str]]:
-        """Generate new access and refresh tokens using a valid refresh token."""
-        payload = self.verify_token(refresh_token, "refresh")
-        if not payload:
-            return None
-            
-        user = User.query.get(payload["uid"])
-        if not user:
-            return None
-            
-        return {
-            "access_token": self.generate_access_token(user, payload.get("did")),
-            "refresh_token": self.generate_refresh_token(user, payload.get("did")),
-            "expires_in": int(self.ACCESS_TOKEN_EXPIRY.total_seconds())
-        } 
+        Raises:
+            jwt.InvalidTokenError: If token is invalid
+            jwt.ExpiredSignatureError: If token has expired
+        """
+        payload = self.verify_jwt(token)
+        if payload.get('type') != 'password_reset':
+            raise jwt.InvalidTokenError('Invalid token type')
+        return payload 

@@ -1,8 +1,9 @@
-"""Application factory module."""
+"""Application factory with enhanced security configuration."""
 
 import os
 from typing import Optional
 
+import redis
 from flask import Flask
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -10,7 +11,7 @@ from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from redis import Redis
+from flask_talisman import Talisman
 
 from config.security_config import SecurityConfig
 from middleware.security import SecurityMiddleware
@@ -60,75 +61,84 @@ def configure_rate_limits(app: Flask) -> None:
         if endpoint in app.view_functions:
             limiter.limit(RATE_LIMITS["LENIENT"])(app.view_functions[endpoint])
 
-def create_app(config_name: Optional[str] = None) -> Flask:
-    """Create Flask application.
+def create_app(config: Optional[dict] = None) -> Flask:
+    """Create and configure the Flask application.
     
     Args:
-        config_name: Name of configuration to use
+        config: Optional configuration dictionary
         
     Returns:
-        Flask: Configured Flask application
+        Configured Flask application
     """
     app = Flask(__name__)
     
     # Load configuration
-    config_module = f"config.{config_name}_config" if config_name else "config.default_config"
-    app.config.from_object(config_module)
-    
-    # Load instance config if it exists
-    instance_config = os.path.join(app.instance_path, "config.py")
-    if os.path.exists(instance_config):
-        app.config.from_pyfile(instance_config)
-    
-    # Initialize security configuration
-    security_config = SecurityConfig(**app.config.get("SECURITY_CONFIG", {}))
-    if not security_config.validate_configuration():
-        raise ValueError("Invalid security configuration")
-    
-    # Initialize extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
-    login_manager.init_app(app)
-    limiter.init_app(app)
-    
-    # Configure rate limits for specific endpoints
-    configure_rate_limits(app)
-    
-    # Configure CORS
-    CORS(
-        app,
-        resources={
-            r"/*": {
-                "origins": app.config.get("CORS_ORIGINS", []),
-                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                "allow_headers": [
-                    "Content-Type",
-                    "Authorization",
-                    "X-CSRF-Token",
-                ],
-                "expose_headers": [
-                    "Content-Type",
-                    "X-CSRF-Token",
-                ],
-                "supports_credentials": True,
-            }
-        },
-    )
-    
+    app.config.from_object('dojopool.config.default')
+    if 'DOJOPOOL_CONFIG' in os.environ:
+        app.config.from_envvar('DOJOPOOL_CONFIG')
+    if config:
+        app.config.update(config)
+        
+    # Ensure required configs are set
+    required_configs = [
+        'SECRET_KEY',
+        'REDIS_URL',
+        'SESSION_COOKIE_SECURE',
+        'SESSION_COOKIE_HTTPONLY',
+        'SESSION_COOKIE_SAMESITE',
+    ]
+    for config_key in required_configs:
+        if not app.config.get(config_key):
+            raise ValueError(f"Missing required config: {config_key}")
+            
     # Initialize Redis
-    app.redis = Redis.from_url(app.config["REDIS_URL"])
+    redis_client = redis.from_url(app.config['REDIS_URL'])
     
     # Initialize security middleware
-    security_middleware = SecurityMiddleware(app, security_config)
+    session_middleware = SessionSecurityMiddleware(app, redis_client)
+    input_validation = InputValidationMiddleware(app)
     
-    # Initialize input validation middleware
-    input_validation_middleware = InputValidationMiddleware(app)
+    # Initialize rate limiting
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=["200 per day", "50 per hour"],
+        storage_uri=app.config['REDIS_URL']
+    )
     
-    # Initialize session security middleware
-    session_security = SessionSecurityMiddleware(app)
+    # Add specific rate limits
+    limiter.limit("5/minute")(app.route("/api/auth/login"))
+    limiter.limit("3/minute")(app.route("/api/auth/reset-password"))
     
-    # Initialize token service
-    app.token_service = TokenService()
+    # Initialize Talisman for security headers
+    Talisman(
+        app,
+        force_https=True,
+        strict_transport_security=True,
+        session_cookie_secure=True,
+        content_security_policy={
+            'default-src': "'self'",
+            'img-src': ["'self'", 'data:', 'https:'],
+            'script-src': ["'self'", "'unsafe-inline'"],
+            'style-src': ["'self'", "'unsafe-inline'"],
+            'connect-src': ["'self'", 'https:'],
+            'frame-ancestors': "'none'",
+            'form-action': "'self'",
+            'base-uri': "'self'",
+            'object-src': "'none'"
+        },
+        content_security_policy_nonce_in=['script-src'],
+        feature_policy={
+            'geolocation': "'none'",
+            'camera': "'none'",
+            'microphone': "'none'",
+            'payment': "'none'",
+            'usb': "'none'"
+        }
+    )
+    
+    # Register error handlers
+    setup_error_handlers(app)
     
     # Register blueprints
     from routes import (
@@ -175,9 +185,21 @@ def create_app(config_name: Optional[str] = None) -> Flask:
         from models.user import User
         return User.query.get(int(user_id))
     
-    # Set up security error handlers
-    setup_error_handlers(app)
-    
+    @app.before_request
+    def before_request():
+        """Global before request handler."""
+        # Add additional security checks here
+        pass
+        
+    @app.after_request
+    def after_request(response):
+        """Global after request handler."""
+        # Add security headers
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        return response
+        
     return app
 
 

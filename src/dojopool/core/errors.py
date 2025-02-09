@@ -1,152 +1,196 @@
-"""Error handling module for security-related issues."""
+"""Error handling module for security-related errors."""
 
-from typing import Dict, Optional, Union
-from flask import jsonify, current_app
 import logging
+from typing import Any, Dict, Optional, Union
+
+from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
-# Configure security logger
-security_logger = logging.getLogger('security')
+logger = logging.getLogger(__name__)
 
-class SecurityError(HTTPException):
+class SecurityError(Exception):
     """Base class for security-related errors."""
-    
-    def __init__(self, message: str, code: int = 400, details: Optional[Dict] = None):
-        super().__init__(description=message)
+
+    def __init__(self, 
+                 message: str, 
+                 code: int = 400, 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize security error.
+        
+        Args:
+            message: Error message
+            code: HTTP status code
+            details: Additional error details
+        """
+        super().__init__(message)
+        self.message = message
         self.code = code
         self.details = details or {}
         
-    def get_response(self):
-        """Get formatted error response."""
-        response = jsonify({
-            'error': self.name,
-            'message': self.description,
-            'code': self.code,
-            'details': self.details
-        })
-        response.status_code = self.code
-        return response
+        # Log the error
+        self._log_error()
         
-    def log(self):
-        """Log security error with appropriate severity."""
-        security_logger.error(
-            f"Security error: {self.name} - {self.description}",
-            extra={
-                'error_code': self.code,
-                'details': self.details,
-                'request_id': getattr(current_app, 'request_id', None)
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert error to dictionary format.
+        
+        Returns:
+            Dictionary representation of the error
+        """
+        error_dict = {
+            'error': {
+                'type': self.__class__.__name__,
+                'message': self.message,
+                'code': self.code
             }
+        }
+        
+        if self.details:
+            error_dict['error']['details'] = self.details
+            
+        return error_dict
+        
+    def _log_error(self) -> None:
+        """Log error details."""
+        log_data = {
+            'error_type': self.__class__.__name__,
+            'message': self.message,
+            'code': self.code,
+            'details': self.details,
+            'request_id': request.headers.get('X-Request-ID'),
+            'user_id': getattr(request, 'user_id', None),
+            'ip_address': request.remote_addr,
+            'user_agent': request.user_agent.string,
+            'endpoint': request.endpoint,
+            'method': request.method,
+            'path': request.path
+        }
+        
+        logger.error(
+            f"Security error occurred: {self.__class__.__name__}",
+            extra=log_data
         )
 
 class AuthenticationError(SecurityError):
     """Error raised for authentication failures."""
-    
-    name = 'authentication_error'
-    
-    def __init__(self, message: str = "Authentication failed", details: Optional[Dict] = None):
-        super().__init__(message=message, code=401, details=details)
+
+    def __init__(self, 
+                 message: str = 'Authentication failed', 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize authentication error."""
+        super().__init__(message, code=401, details=details)
 
 class AuthorizationError(SecurityError):
     """Error raised for authorization failures."""
-    
-    name = 'authorization_error'
-    
-    def __init__(self, message: str = "Authorization failed", details: Optional[Dict] = None):
-        super().__init__(message=message, code=403, details=details)
+
+    def __init__(self, 
+                 message: str = 'Unauthorized access', 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize authorization error."""
+        super().__init__(message, code=403, details=details)
 
 class InvalidTokenError(SecurityError):
-    """Error raised for invalid or expired tokens."""
-    
-    name = 'invalid_token'
-    
-    def __init__(self, message: str = "Invalid or expired token", details: Optional[Dict] = None):
-        super().__init__(message=message, code=401, details=details)
+    """Error raised for invalid token issues."""
+
+    def __init__(self, 
+                 message: str = 'Invalid token', 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize invalid token error."""
+        super().__init__(message, code=401, details=details)
 
 class RateLimitExceededError(SecurityError):
     """Error raised when rate limit is exceeded."""
-    
-    name = 'rate_limit_exceeded'
-    
-    def __init__(
-        self,
-        message: str = "Rate limit exceeded",
-        retry_after: Optional[int] = None,
-        details: Optional[Dict] = None
-    ):
-        details = details or {}
-        if retry_after:
-            details['retry_after'] = retry_after
-        super().__init__(message=message, code=429, details=details)
+
+    def __init__(self, 
+                 message: str = 'Rate limit exceeded', 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize rate limit error."""
+        super().__init__(message, code=429, details=details)
 
 class InvalidInputError(SecurityError):
-    """Error raised for invalid or malicious input."""
-    
-    name = 'invalid_input'
-    
-    def __init__(self, message: str = "Invalid input", details: Optional[Dict] = None):
-        super().__init__(message=message, code=400, details=details)
+    """Error raised for invalid input data."""
+
+    def __init__(self, 
+                 message: str = 'Invalid input', 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize invalid input error."""
+        super().__init__(message, code=400, details=details)
 
 class CSRFError(SecurityError):
     """Error raised for CSRF token validation failures."""
-    
-    name = 'csrf_error'
-    
-    def __init__(self, message: str = "CSRF token validation failed", details: Optional[Dict] = None):
-        super().__init__(message=message, code=403, details=details)
 
-def handle_security_error(error: Union[SecurityError, Exception]) -> tuple:
-    """Global handler for security-related errors.
+    def __init__(self, 
+                 message: str = 'CSRF token validation failed', 
+                 details: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize CSRF error."""
+        super().__init__(message, code=400, details=details)
+
+def handle_security_error(error: SecurityError) -> tuple[Dict[str, Any], int]:
+    """Handle security errors.
     
     Args:
-        error: The error to handle
+        error: Security error instance
         
     Returns:
-        tuple: Response and status code
+        Tuple of error response and status code
     """
-    if isinstance(error, SecurityError):
-        error.log()
-        return error.get_response()
-        
-    # Handle unexpected errors
-    security_logger.critical(
-        f"Unexpected security error: {str(error)}",
-        exc_info=True,
-        extra={'request_id': getattr(current_app, 'request_id', None)}
-    )
-    
-    if current_app.debug:
-        return jsonify({
-            'error': 'unexpected_error',
-            'message': str(error),
-            'type': error.__class__.__name__
-        }), 500
-    
-    return jsonify({
-        'error': 'internal_error',
-        'message': 'An unexpected error occurred'
-    }), 500
+    return error.to_dict(), error.code
 
-def setup_error_handlers(app):
-    """Register security error handlers with the application.
+def handle_http_error(error: HTTPException) -> tuple[Dict[str, Any], int]:
+    """Handle HTTP errors.
+    
+    Args:
+        error: HTTP exception instance
+        
+    Returns:
+        Tuple of error response and status code
+    """
+    response = {
+        'error': {
+            'type': error.__class__.__name__,
+            'message': str(error),
+            'code': error.code
+        }
+    }
+    return response, error.code
+
+def handle_unknown_error(error: Exception) -> tuple[Dict[str, Any], int]:
+    """Handle unknown errors.
+    
+    Args:
+        error: Exception instance
+        
+    Returns:
+        Tuple of error response and status code
+    """
+    # Log the unknown error
+    logger.exception('An unknown error occurred')
+    
+    response = {
+        'error': {
+            'type': 'InternalServerError',
+            'message': 'An unexpected error occurred',
+            'code': 500
+        }
+    }
+    return response, 500
+
+def setup_error_handlers(app: Flask) -> None:
+    """Set up error handlers for the application.
     
     Args:
         app: Flask application instance
     """
-    # Set up security logger
-    if not app.debug:
-        security_handler = logging.FileHandler('security.log')
-        security_handler.setLevel(logging.INFO)
-        security_formatter = logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(message)s'
-        )
-        security_handler.setFormatter(security_formatter)
-        security_logger.addHandler(security_handler)
-    
-    # Register error handlers
     app.register_error_handler(SecurityError, handle_security_error)
-    app.register_error_handler(AuthenticationError, handle_security_error)
-    app.register_error_handler(AuthorizationError, handle_security_error)
-    app.register_error_handler(InvalidTokenError, handle_security_error)
-    app.register_error_handler(RateLimitExceededError, handle_security_error)
-    app.register_error_handler(InvalidInputError, handle_security_error)
-    app.register_error_handler(CSRFError, handle_security_error) 
+    app.register_error_handler(HTTPException, handle_http_error)
+    app.register_error_handler(Exception, handle_unknown_error)
+    
+    # Register specific security error handlers
+    for error_cls in [
+        AuthenticationError,
+        AuthorizationError,
+        InvalidTokenError,
+        RateLimitExceededError,
+        InvalidInputError,
+        CSRFError
+    ]:
+        app.register_error_handler(error_cls, handle_security_error) 

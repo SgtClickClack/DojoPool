@@ -1,124 +1,198 @@
-from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Union
-import bleach
-import json
-from flask import Request, request
+"""Input validation and sanitization middleware."""
+
+import functools
+from typing import Any, Callable, Dict, Optional, Type, Union
+
+from flask import Flask, Request, request
 from marshmallow import Schema, ValidationError
-import re
+from werkzeug.exceptions import BadRequest
+
+from dojopool.core.errors import InvalidInputError
+from dojopool.schemas.validation import BaseSchema
 
 class InputValidationMiddleware:
-    """Middleware for input validation and sanitization."""
-    
-    def __init__(self, app=None):
-        self.app = app
-        if app is not None:
-            self.init_app(app)
-            
-    def init_app(self, app):
-        """Initialize the middleware with a Flask app."""
-        self.app = app
-        self.setup_request_handlers()
+    """Middleware for validating and sanitizing request input."""
+
+    def __init__(self, app: Flask) -> None:
+        """Initialize input validation middleware.
         
-    def setup_request_handlers(self):
-        """Set up request handlers for input validation and sanitization."""
-        @self.app.before_request
-        def sanitize_request_data():
-            """Sanitize incoming request data."""
-            if request.method in ['POST', 'PUT', 'PATCH']:
-                self._sanitize_request_json()
-                self._sanitize_request_form()
-            self._sanitize_query_params()
+        Args:
+            app: Flask application instance
+        """
+        self.app = app
+        self.schemas: Dict[str, Schema] = {}
+
+    def validate_request(self, 
+                        schema_cls: Type[BaseSchema], 
+                        location: str = 'json') -> Callable:
+        """Decorator to validate request data against a schema.
+        
+        Args:
+            schema_cls: Schema class to use for validation
+            location: Request location to validate ('json', 'form', 'args', 'headers')
             
-    def validate_with_schema(self, schema: Schema) -> Callable:
-        """Decorator to validate request data against a schema."""
+        Returns:
+            Decorated function
+        """
         def decorator(f: Callable) -> Callable:
-            @wraps(f)
-            def wrapper(*args, **kwargs):
+            @functools.wraps(f)
+            def decorated_function(*args: Any, **kwargs: Any) -> Any:
+                schema = schema_cls()
+                
+                # Get data from the specified location
+                if location == 'json':
+                    data = request.get_json(silent=True)
+                elif location in ('form', 'args', 'headers'):
+                    data = getattr(request, location)
+                else:
+                    raise ValueError(f'Invalid location: {location}')
+                    
+                if data is None:
+                    raise BadRequest('No data provided')
+                    
                 try:
-                    if request.is_json:
-                        data = request.get_json()
-                        validated_data = schema.load(data)
-                        request.validated_data = validated_data
-                    elif request.form:
-                        validated_data = schema.load(request.form.to_dict())
-                        request.validated_data = validated_data
-                    else:
-                        validated_data = schema.load(request.args.to_dict())
-                        request.validated_data = validated_data
-                except ValidationError as err:
-                    return {'errors': err.messages}, 400
-                return f(*args, **kwargs)
-            return wrapper
+                    # Validate and sanitize input
+                    validated_data = schema.load(data)
+                    
+                    # Store validated data
+                    setattr(request, f'validated_{location}', validated_data)
+                    
+                    return f(*args, **kwargs)
+                    
+                except ValidationError as e:
+                    raise InvalidInputError(
+                        message='Invalid input data',
+                        details=e.messages
+                    )
+                    
+            return decorated_function
         return decorator
+
+    def sanitize_input(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Sanitize input data to prevent XSS and injection attacks.
         
-    def _sanitize_request_json(self):
-        """Sanitize JSON request data."""
-        if request.is_json and request.get_json(silent=True):
-            data = request.get_json()
-            sanitized = self._sanitize_data(data)
-            setattr(request, '_cached_json', sanitized)
+        Args:
+            data: Input data to sanitize
             
-    def _sanitize_request_form(self):
-        """Sanitize form data."""
-        if request.form:
-            sanitized_form = {
-                key: self._sanitize_string(value)
-                for key, value in request.form.items()
-            }
-            request.form = sanitized_form
+        Returns:
+            Sanitized data
+        """
+        if not isinstance(data, dict):
+            return data
             
-    def _sanitize_query_params(self):
-        """Sanitize query parameters."""
-        if request.args:
-            sanitized_args = {
-                key: self._sanitize_string(value)
-                for key, value in request.args.items()
-            }
-            request.args = sanitized_args
+        sanitized = {}
+        for key, value in data.items():
+            if isinstance(value, str):
+                # Remove potentially dangerous characters
+                value = self._sanitize_string(value)
+            elif isinstance(value, dict):
+                value = self.sanitize_input(value)
+            elif isinstance(value, list):
+                value = [
+                    self.sanitize_input(item) if isinstance(item, dict)
+                    else self._sanitize_string(item) if isinstance(item, str)
+                    else item
+                    for item in value
+                ]
+            sanitized[key] = value
             
-    def _sanitize_data(self, data: Any) -> Any:
-        """Recursively sanitize data structures."""
-        if isinstance(data, dict):
-            return {key: self._sanitize_data(value) for key, value in data.items()}
-        elif isinstance(data, list):
-            return [self._sanitize_data(item) for item in data]
-        elif isinstance(data, str):
-            return self._sanitize_string(data)
-        return data
-        
+        return sanitized
+
     def _sanitize_string(self, value: str) -> str:
-        """Sanitize a string value."""
-        # Remove potential SQL injection patterns
-        sql_patterns = r'(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)'
-        value = re.sub(sql_patterns, '', value, flags=re.IGNORECASE)
+        """Sanitize a string value.
         
-        # Sanitize HTML/JavaScript
-        allowed_tags = ['b', 'i', 'u', 'em', 'strong']
-        allowed_attributes = {}
-        value = bleach.clean(
-            value,
-            tags=allowed_tags,
-            attributes=allowed_attributes,
-            strip=True
-        )
+        Args:
+            value: String to sanitize
+            
+        Returns:
+            Sanitized string
+        """
+        # Replace potentially dangerous characters
+        replacements = {
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            '/': '&#x2F;',
+            '\\': '&#x5C;',
+            '\n': ' ',
+            '\r': ' '
+        }
         
-        # Remove potential command injection patterns
-        cmd_patterns = r'[;&|`]'
-        value = re.sub(cmd_patterns, '', value)
-        
+        for char, replacement in replacements.items():
+            value = value.replace(char, replacement)
+            
         return value.strip()
+
+    def validate_content_type(self, 
+                            allowed_types: Optional[list] = None) -> Callable:
+        """Decorator to validate request content type.
         
-    @staticmethod
-    def validate_content_type(allowed_types: List[str]) -> Callable:
-        """Decorator to validate content type of requests."""
+        Args:
+            allowed_types: List of allowed content types
+            
+        Returns:
+            Decorated function
+        """
+        if allowed_types is None:
+            allowed_types = ['application/json']
+            
         def decorator(f: Callable) -> Callable:
-            @wraps(f)
-            def wrapper(*args, **kwargs):
-                content_type = request.headers.get('Content-Type', '')
-                if not any(allowed_type in content_type for allowed_type in allowed_types):
-                    return {
-                        'error': f'Invalid Content-Type. Allowed types: {", ".join(allowed_types)}'
-                    }, 415
+            @functools.wraps(f)
+            def decorated_function(*args: Any, **kwargs: Any) -> Any:
+                content_type = request.content_type
+                
+                if not content_type:
+                    raise BadRequest('Content-Type header is required')
+                    
+                if content_type.lower() not in allowed_types:
+                    raise BadRequest(
+                        f'Invalid Content-Type. Must be one of: {", ".join(allowed_types)}'
+                    )
+                    
                 return f(*args, **kwargs)
-            return wrapper
+            return decorated_function
+        return decorator
+
+    def validate_file_upload(self, 
+                           allowed_extensions: Optional[list] = None,
+                           max_size: Optional[int] = None) -> Callable:
+        """Decorator to validate file uploads.
+        
+        Args:
+            allowed_extensions: List of allowed file extensions
+            max_size: Maximum file size in bytes
+            
+        Returns:
+            Decorated function
+        """
+        if allowed_extensions is None:
+            allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf']
+            
+        def decorator(f: Callable) -> Callable:
+            @functools.wraps(f)
+            def decorated_function(*args: Any, **kwargs: Any) -> Any:
+                if 'file' not in request.files:
+                    raise BadRequest('No file uploaded')
+                    
+                file = request.files['file']
+                
+                if not file.filename:
+                    raise BadRequest('No file selected')
+                    
+                # Check file extension
+                extension = file.filename.rsplit('.', 1)[1].lower()
+                if extension not in allowed_extensions:
+                    raise BadRequest(
+                        f'Invalid file type. Must be one of: {", ".join(allowed_extensions)}'
+                    )
+                    
+                # Check file size
+                if max_size and file.content_length > max_size:
+                    raise BadRequest(
+                        f'File too large. Maximum size is {max_size} bytes'
+                    )
+                    
+                return f(*args, **kwargs)
+            return decorated_function
         return decorator 

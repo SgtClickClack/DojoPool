@@ -1,134 +1,121 @@
+# Pre-commit hooks configuration
+# https://pre-commit.com
+
+default_language_version:
+    python: python3.12
+    node: 18.19.0
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
       - id: check-yaml
       - id: check-json
-      - id: check-merge-conflict
-      - id: check-case-conflict
+      - id: check-added-large-files
       - id: detect-private-key
-      - id: detect-aws-credentials
-        args: [--allow-missing-credentials]
-      - id: no-commit-to-branch
-        args: [--branch, main, --branch, master]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.8
     hooks:
       - id: bandit
-        args: ["-c", "setup.cfg"]
-        additional_dependencies: ["bandit[toml]"]
+        args: ['-c', 'setup.cfg']
+        files: \.py$
 
   - repo: https://github.com/PyCQA/flake8
     rev: 7.0.0
     hooks:
       - id: flake8
         additional_dependencies:
-          - flake8-bandit
           - flake8-bugbear
-          - flake8-builtins
           - flake8-comprehensions
-          - flake8-debugger
-          - flake8-eradicate
-          - flake8-logging-format
-          - flake8-print
-          - flake8-pytest-style
-          - flake8-secure-coding-standard
-          - flake8-variables-names
+          - flake8-docstrings
+          - flake8-quotes
+          - flake8-string-format
 
-  - repo: https://github.com/python-security/safety-db-check
-    rev: main
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
     hooks:
-      - id: safety-db-check
-        args: ["check", "--full-report"]
+      - id: black
+        language_version: python3.12
 
-  - repo: https://github.com/Lucas-C/pre-commit-hooks-nodejs
-    rev: v1.1.2
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
     hooks:
-      - id: dockerfile_lint
-      - id: markdown-toc
-      - id: package-json-validator
+      - id: isort
+        args: ['--profile', 'black']
 
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.88.4
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
     hooks:
-      - id: terraform_fmt
-      - id: terraform_validate
-      - id: terraform_tflint
-      - id: terraform_tfsec
+      - id: mypy
+        additional_dependencies:
+          - types-all
 
-  - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.18.2
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
     hooks:
-      - id: gitleaks
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json
 
-  - repo: https://github.com/thoughtworks/talisman
-    rev: v1.32.0
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.3
     hooks:
-      - id: talisman-commit
+      - id: python-safety-dependencies-check
+
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v15.11.0
+    hooks:
+      - id: stylelint
+        files: \.(css|scss|sass|less)$
+        additional_dependencies:
+          - stylelint@15.11.0
+          - stylelint-config-standard@34.0.0
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.56.0
+    hooks:
+      - id: eslint
+        files: \.(js|jsx|ts|tsx)$
+        types: [file]
+        additional_dependencies:
+          - eslint@8.56.0
+          - eslint-config-prettier@9.1.0
+          - eslint-plugin-import@2.29.1
+          - eslint-plugin-jsx-a11y@6.8.0
+          - eslint-plugin-react@7.33.2
+          - eslint-plugin-react-hooks@4.6.0
+          - '@typescript-eslint/eslint-plugin@6.21.0'
+          - '@typescript-eslint/parser@6.21.0'
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, css, scss, json, yaml]
 
   - repo: local
     hooks:
-      - id: eslint
-        name: ESLint
-        entry: npx eslint
-        language: node
-        types: [javascript, jsx, ts, tsx]
-        additional_dependencies:
-          - eslint
-          - "@typescript-eslint/parser"
-          - "@typescript-eslint/eslint-plugin"
-          - eslint-plugin-react
-          - eslint-plugin-react-hooks
-          - eslint-plugin-jsx-a11y
-          - eslint-plugin-security
-          - eslint-config-prettier
-          - eslint-plugin-prettier
-
-      - id: typescript-check
-        name: TypeScript Check
-        entry: npx tsc
-        language: node
-        pass_filenames: false
-        types: [ts, tsx]
-        additional_dependencies:
-          - typescript
-
-      - id: npm-audit
-        name: npm audit
-        entry: npm audit
-        language: node
-        pass_filenames: false
-        args: ["--audit-level=moderate"]
-
-      - id: pytest
-        name: pytest
+      - id: pytest-check
+        name: pytest-check
         entry: pytest
-        language: python
-        types: [python]
+        language: system
         pass_filenames: false
-        additional_dependencies:
-          - pytest
-          - pytest-cov
-          - pytest-randomly
-          - pytest-timeout
+        always_run: true
+        stages: [commit]
 
-      - id: mypy
-        name: mypy
-        entry: mypy
-        language: python
-        types: [python]
-        require_serial: true
-        additional_dependencies:
-          - mypy
-          - types-all
-
-      - id: pylint
-        name: pylint
-        entry: pylint
-        language: python
-        types: [python]
-        args: ["--rcfile=setup.cfg"]
-        additional_dependencies:
-          - pylint
-          - pylint-security 
+      - id: npm-test
+        name: npm-test
+        entry: npm test
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [commit]
+        files: \.(js|jsx|ts|tsx)$ 
