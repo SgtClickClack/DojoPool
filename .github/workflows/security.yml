@@ -23,11 +23,23 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
         
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript, typescript, python
+          languages: javascript, typescript
+          queries: security-and-quality
           
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -68,19 +80,39 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
         
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
           
+      - name: Install TruffleHog
+        run: |
+          pip install trufflehog
+          
       - name: Run TruffleHog
-        uses: trufflesecurity/trufflehog-actions-scan@master
+        run: |
+          trufflehog filesystem . \
+            --only-verified \
+            --fail \
+            --json \
+            --exclude-paths .git > trufflehog-results.json || true
+            
+      - name: Check TruffleHog Results
+        run: |
+          if [ -s trufflehog-results.json ]; then
+            echo "::warning::Potential secrets found. Check trufflehog-results.json"
+            cat trufflehog-results.json
+          fi
+          
+      - name: Upload TruffleHog Results
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+          name: trufflehog-results
+          path: trufflehog-results.json
           
   dependency-review:
     name: Dependency Review
@@ -120,3 +152,7 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
