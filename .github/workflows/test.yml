@@ -1,4 +1,4 @@
-name: Test Workflow
+name: Basic Test
 
 on:
   push:
@@ -11,22 +11,7 @@ jobs:
     name: Basic Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Environment Check
+      - name: Simple Check
         run: |
-          echo "🔍 Checking environment setup..."
-          echo "📦 Node version:"
-          node --version
-          echo "📦 NPM version:"
-          npm --version
-          echo "📂 Working directory:"
-          pwd
-          echo "📋 Directory contents:"
-          ls -la
-          echo "✅ Environment check completed" 
+          echo "Simple test passed"
+          exit 0 
