@@ -72,5 +72,5 @@ jobs:
         run: |
           echo "Sending notification to Slack..."
           curl -X POST -H 'Content-type: application/json' \
-          --data "{\"text\": \"DOJOPOOL CI failed. Please check the details on GitHub Actions.\", \"channel\": \"${SLACK_CHANNEL}\"}" \
-          https://slack.com/api/chat.postMessage?token=${SLACK_BOT_TOKEN} 
+               --data "{\"text\": \"DOJOPOOL CI failed. Please check the details on GitHub Actions.\", \"channel\": \"${SLACK_CHANNEL}\"}" \
+               https://slack.com/api/chat.postMessage?token=${SLACK_BOT_TOKEN} 
