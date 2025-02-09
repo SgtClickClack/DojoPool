@@ -51,6 +51,11 @@ jobs:
             npm ci && break || sleep ${{ env.RETRY_INTERVAL }}
           done
 
+      - name: Run Database Migrations
+        run: npm run migrate
+        # Ensure your package.json has a "migrate" script
+        # If you use a different tool (like knex, sequelize, etc.), adjust this command accordingly.
+
       - name: Run Tests
         run: npm test
 
