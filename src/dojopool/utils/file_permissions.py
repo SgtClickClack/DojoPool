@@ -1,107 +1,92 @@
-"""Secure file permission handling utilities."""
+"""Secure file permission utilities."""
 
 import os
 import stat
 from pathlib import Path
 from typing import Union
 
-# Secure default permissions
-DEFAULT_FILE_MODE = 0o644  # rw-r--r--
-DEFAULT_DIR_MODE = 0o755   # rwxr-xr-x
-SECURE_DIR_MODE = 0o750    # rwxr-x---
-SECURE_FILE_MODE = 0o640   # rw-r-----
+# Default secure permission modes
+SECURE_DIR_MODE = 0o755  # rwxr-xr-x
+SECURE_FILE_MODE = 0o644  # rw-r--r--
 PRIVATE_FILE_MODE = 0o600  # rw-------
 
-def secure_path(path: Union[str, Path], mode: int) -> None:
+def set_secure_permissions(path: Union[str, Path], mode: int) -> None:
     """Set secure permissions on a file or directory.
     
     Args:
-        path: Path to file or directory
-        mode: Permission mode to set
-        
-    Raises:
-        OSError: If permission change fails
+        path: Path to the file or directory
+        mode: Permission mode to set (octal)
     """
+    path = Path(path)
     try:
         os.chmod(path, mode)
     except OSError as e:
         raise OSError(f"Failed to set permissions on {path}: {e}")
 
-def create_secure_directory(path: Union[str, Path], mode: int = DEFAULT_DIR_MODE) -> None:
+def create_secure_directory(path: Union[str, Path], mode: int = SECURE_DIR_MODE) -> None:
     """Create a directory with secure permissions.
     
     Args:
-        path: Directory path
-        mode: Permission mode (defaults to 0o755)
-        
-    Raises:
-        OSError: If directory creation fails
+        path: Path to create
+        mode: Permission mode to set (default: 0o755)
     """
+    path = Path(path)
     try:
-        os.makedirs(path, mode=mode, exist_ok=True)
-        # Ensure permissions are set even if directory existed
-        secure_path(path, mode)
+        path.mkdir(parents=True, exist_ok=True)
+        set_secure_permissions(path, mode)
     except OSError as e:
         raise OSError(f"Failed to create secure directory {path}: {e}")
 
-def create_secure_file(path: Union[str, Path], mode: int = DEFAULT_FILE_MODE) -> None:
+def create_secure_file(path: Union[str, Path], mode: int = SECURE_FILE_MODE) -> None:
     """Create a file with secure permissions.
     
     Args:
-        path: File path
-        mode: Permission mode (defaults to 0o644)
-        
-    Raises:
-        OSError: If file creation fails
+        path: Path to create
+        mode: Permission mode to set (default: 0o644)
     """
+    path = Path(path)
     try:
         # Create parent directories if they don't exist
-        parent = Path(path).parent
-        if not parent.exists():
-            create_secure_directory(parent)
-            
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
         # Create file if it doesn't exist
-        Path(path).touch(mode=mode, exist_ok=True)
-        # Ensure permissions are set even if file existed
-        secure_path(path, mode)
+        if not path.exists():
+            path.touch()
+            
+        set_secure_permissions(path, mode)
     except OSError as e:
         raise OSError(f"Failed to create secure file {path}: {e}")
 
-def secure_directory_tree(root: Union[str, Path], 
-                         dir_mode: int = DEFAULT_DIR_MODE,
-                         file_mode: int = DEFAULT_FILE_MODE) -> None:
+def secure_directory_tree(root_path: Union[str, Path], dir_mode: int = SECURE_DIR_MODE, 
+                        file_mode: int = SECURE_FILE_MODE) -> None:
     """Recursively set secure permissions on a directory tree.
     
     Args:
-        root: Root directory path
-        dir_mode: Directory permission mode
-        file_mode: File permission mode
-        
-    Raises:
-        OSError: If permission changes fail
+        root_path: Root directory to start from
+        dir_mode: Permission mode for directories (default: 0o755)
+        file_mode: Permission mode for files (default: 0o644)
     """
+    root_path = Path(root_path)
     try:
-        root_path = Path(root)
-        
-        # Set root directory permissions
-        secure_path(root_path, dir_mode)
+        # Set permissions on root directory
+        set_secure_permissions(root_path, dir_mode)
         
         # Walk directory tree
         for dirpath, dirnames, filenames in os.walk(root_path):
             # Set directory permissions
             for dirname in dirnames:
                 path = Path(dirpath) / dirname
-                secure_path(path, dir_mode)
+                set_secure_permissions(path, dir_mode)
                 
             # Set file permissions
             for filename in filenames:
                 path = Path(dirpath) / filename
-                secure_path(path, file_mode)
+                set_secure_permissions(path, file_mode)
     except OSError as e:
-        raise OSError(f"Failed to secure directory tree {root}: {e}")
+        raise OSError(f"Failed to secure directory tree {root_path}: {e}")
 
-def is_secure_path(path: Union[str, Path], expected_mode: int) -> bool:
-    """Check if a path has secure permissions.
+def verify_secure_permissions(path: Union[str, Path], expected_mode: int) -> bool:
+    """Verify that a path has the expected secure permissions.
     
     Args:
         path: Path to check
@@ -110,32 +95,9 @@ def is_secure_path(path: Union[str, Path], expected_mode: int) -> bool:
     Returns:
         bool: True if permissions match expected mode
     """
+    path = Path(path)
     try:
-        stat_info = os.stat(path)
-        actual_mode = stat.S_IMODE(stat_info.st_mode)
-        return actual_mode == expected_mode
-    except OSError:
-        return False
-
-def verify_secure_permissions(path: Union[str, Path]) -> bool:
-    """Verify that a path has appropriately secure permissions.
-    
-    Args:
-        path: Path to verify
-        
-    Returns:
-        bool: True if permissions are secure
-    """
-    try:
-        path_obj = Path(path)
-        stat_info = path_obj.stat()
-        mode = stat.S_IMODE(stat_info.st_mode)
-        
-        if path_obj.is_dir():
-            # Directory should not be world-writable
-            return not bool(mode & stat.S_IWOTH)
-        else:
-            # File should not be world-writable or executable
-            return not bool(mode & (stat.S_IWOTH | stat.S_IXOTH))
-    except OSError:
-        return False 
+        current_mode = stat.S_IMODE(os.stat(path).st_mode)
+        return current_mode == expected_mode
+    except OSError as e:
+        raise OSError(f"Failed to check permissions on {path}: {e}") 
