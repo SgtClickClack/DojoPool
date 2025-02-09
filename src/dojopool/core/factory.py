@@ -1,6 +1,7 @@
 """Application factory with enhanced security configuration."""
 
 import os
+from pathlib import Path
 from typing import Optional
 
 import redis
@@ -20,6 +21,13 @@ from middleware.session import SessionSecurityMiddleware
 from middleware.rate_limit import RateLimitMiddleware
 from services.token_service import TokenService
 from core.errors import setup_error_handlers
+from utils.file_permissions import (
+    PRIVATE_FILE_MODE,
+    SECURE_DIR_MODE,
+    create_secure_directory,
+    create_secure_file,
+    secure_directory_tree
+)
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -72,6 +80,28 @@ def create_app(config: Optional[dict] = None) -> Flask:
         Configured Flask application
     """
     app = Flask(__name__)
+    
+    # Secure instance directory
+    instance_path = Path(app.instance_path)
+    create_secure_directory(instance_path, mode=SECURE_DIR_MODE)
+    
+    # Secure sensitive directories
+    sensitive_dirs = [
+        instance_path / 'keys',
+        instance_path / 'logs',
+        instance_path / 'uploads'
+    ]
+    for directory in sensitive_dirs:
+        create_secure_directory(directory, mode=SECURE_DIR_MODE)
+    
+    # Secure sensitive files
+    if not app.config.get('SECRET_KEY'):
+        secret_key_file = instance_path / 'secret_key'
+        if not secret_key_file.exists():
+            create_secure_file(secret_key_file, mode=PRIVATE_FILE_MODE)
+            with open(secret_key_file, 'wb') as f:
+                f.write(os.urandom(32))
+        app.config['SECRET_KEY'] = secret_key_file.read_bytes()
     
     # Load configuration
     app.config.from_object('dojopool.config.default')
