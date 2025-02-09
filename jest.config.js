@@ -18,11 +18,11 @@ const customJestConfig = {
         '^@/components/(.*)$': '<rootDir>/src/components/$1',
         '^@/pages/(.*)$': '<rootDir>/src/pages/$1',
         '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+        '^@/styles/(.*)$': '<rootDir>/src/styles/$1',
     },
     testPathIgnorePatterns: [
-        '<rootDir>/node_modules/',
-        '<rootDir>/.next/',
-        '<rootDir>/cypress/',
+        '/node_modules/',
+        '/.next/',
     ],
     transform: {
         // Use babel-jest to transpile tests with the next/babel preset
@@ -40,7 +40,17 @@ const customJestConfig = {
         '!src/**/*.stories.{js,jsx,ts,tsx}',
         '!src/**/*.test.{js,jsx,ts,tsx}',
         '!src/**/index.{js,jsx,ts,tsx}',
+        '!src/pages/_app.tsx',
+        '!src/pages/_document.tsx',
     ],
+    coverageThreshold: {
+        global: {
+            branches: 70,
+            functions: 70,
+            lines: 70,
+            statements: 70,
+        },
+    },
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

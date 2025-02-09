@@ -9,6 +9,5 @@
   "arrowParens": "avoid",
   "endOfLine": "lf",
   "bracketSameLine": false,
-  "quoteProps": "as-needed",
   "jsxSingleQuote": false
 } 
