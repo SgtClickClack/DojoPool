@@ -9,9 +9,13 @@ from typing import Any, Callable, Optional
 
 from flask import current_app, g, jsonify, request
 from flask_login import current_user
-from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
+from jwt import ExpiredSignatureError, InvalidTokenError
 from models.user import User
 
+from services.token_service import TokenService
+
+# Initialize token service
+token_service = TokenService()
 
 def generate_token(user_id: int, expiration: int = 3600) -> str:
     """Generate JWT token for user.
@@ -23,12 +27,10 @@ def generate_token(user_id: int, expiration: int = 3600) -> str:
     Returns:
         str: Generated JWT token
     """
-    payload = {
-        "user_id": user_id,
-        "exp": datetime.utcnow() + timedelta(seconds=expiration),
-        "iat": datetime.utcnow(),
-    }
-    return encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+    user = User.query.get(user_id)
+    if not user:
+        raise ValueError("User not found")
+    return token_service.generate_access_token(user)
 
 
 def verify_token(token: str) -> Optional[dict]:
@@ -40,11 +42,7 @@ def verify_token(token: str) -> Optional[dict]:
     Returns:
         dict: Token payload if valid, None otherwise
     """
-    try:
-        payload = decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-        return payload
-    except (ExpiredSignatureError, InvalidTokenError):
-        return None
+    return token_service.verify_token(token)
 
 
 def get_token_from_header() -> Optional[str]:
@@ -71,17 +69,16 @@ def get_current_user() -> Optional[User]:
         User: Current user if authenticated, None otherwise
     """
     if not current_user or not current_user.is_authenticated:
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
+        token = get_token_from_header()
+        if not token:
             return None
 
         try:
-            token = auth_header.split(" ")[1]
             payload = verify_token(token)
             if not payload:
                 return None
 
-            user_id = payload.get("user_id")
+            user_id = payload.get("uid")  # Updated to use new payload format
             if not user_id:
                 return None
 
