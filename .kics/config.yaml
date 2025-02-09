@@ -1,0 +1,74 @@
+exclude-categories:
+  - 'Documentation'
+  - 'Best Practices'
+
+exclude-paths:
+  - '**/node_modules/**'
+  - '**/.git/**'
+  - '**/tests/**'
+  - '**/docs/**'
+  - '**/*.md'
+  - '**/package-lock.json'
+  - '**/yarn.lock'
+  - '**/*.pyc'
+  - '**/__pycache__/**'
+
+exclude-queries:
+  - 'a227ec01-f97a-4084-91a4-47b350c1db54'  # Ignore "Passwords And Secrets" for test files
+  - '6e7c6764-9478-4e8a-9a59-9b5a3987a9cf'  # Ignore "TLS Disabled" for local development
+
+type:
+  - 'Dockerfile'
+  - 'Docker Compose'
+  - 'Kubernetes'
+  - 'CloudFormation'
+  - 'Terraform'
+  - 'Ansible'
+  - 'OpenAPI'
+  - 'GitHub Actions'
+
+output-formats:
+  - 'json'
+  - 'sarif'
+
+fail-on:
+  - high
+  - medium
+
+secrets:
+  disable: false
+  exclude-paths: []
+  exclude-regexes: []
+
+scan-timeout: 30
+
+ci: true
+
+verbose: true
+
+profiling: false
+
+minimal-ui: false
+
+no-progress: true
+
+no-color: true
+
+log-file: kics-scan.log
+
+report-formats:
+  - 'json'
+  - 'sarif'
+  - 'html'
+
+preview-lines: 3
+
+include-queries:
+  - 'common'
+  - 'ansible'
+  - 'cloudformation'
+  - 'dockerfile'
+  - 'github-actions'
+  - 'kubernetes'
+  - 'openapi'
+  - 'terraform' 

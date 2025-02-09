@@ -209,10 +209,19 @@ jobs:
           framework: all
           
       - name: Run KICS
-        uses: checkmarx/kics-action@v1.7.0
+        uses: Checkmarx/kics-github-action@v1.7.0
         with:
-          path: .
+          path: '.'
+          config_path: '.kics/config.yaml'
+          exclude_paths: docs,*.md
+          output_formats: json,sarif
+          output_path: kics-results
+          platform_type: terraform,docker,kubernetes
           fail_on: high
+          disable_secrets: false
+          exclude_categories: ''
+          exclude_results: ''
+          profiling: false
           
       - name: Run Docker security scan
         uses: azure/container-scan@v0

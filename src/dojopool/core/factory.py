@@ -20,8 +20,43 @@ from services.token_service import TokenService
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
-limiter = Limiter(key_func=get_remote_address)
 
+# Configure rate limiting with Redis storage
+def get_redis_storage_url():
+    """Get Redis URL for rate limiting storage."""
+    return os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri=get_redis_storage_url(),
+    strategy="fixed-window-elastic-expiry",
+    default_limits=["200 per day", "50 per hour"]
+)
+
+# Define rate limits for different endpoint types
+RATE_LIMITS = {
+    "STRICT": "5 per minute",
+    "NORMAL": "30 per minute",
+    "LENIENT": "100 per minute"
+}
+
+def configure_rate_limits(app: Flask) -> None:
+    """Configure rate limits for specific endpoints."""
+    
+    # Authentication endpoints (strict limits)
+    limiter.limit(RATE_LIMITS["STRICT"])(app.view_functions.get("auth.login"))
+    limiter.limit(RATE_LIMITS["STRICT"])(app.view_functions.get("auth.register"))
+    limiter.limit(RATE_LIMITS["STRICT"])(app.view_functions.get("auth.reset_password"))
+    
+    # API endpoints (normal limits)
+    for endpoint in ["game.create", "tournament.create", "venue.create"]:
+        if endpoint in app.view_functions:
+            limiter.limit(RATE_LIMITS["NORMAL"])(app.view_functions[endpoint])
+    
+    # Public endpoints (lenient limits)
+    for endpoint in app.config.get("PUBLIC_ENDPOINTS", []):
+        if endpoint in app.view_functions:
+            limiter.limit(RATE_LIMITS["LENIENT"])(app.view_functions[endpoint])
 
 def create_app(config_name: Optional[str] = None) -> Flask:
     """Create Flask application.
@@ -53,6 +88,9 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     migrate.init_app(app, db)
     login_manager.init_app(app)
     limiter.init_app(app)
+    
+    # Configure rate limits for specific endpoints
+    configure_rate_limits(app)
     
     # Configure CORS
     CORS(
