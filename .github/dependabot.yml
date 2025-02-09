@@ -1,0 +1,110 @@
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      python-packages:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "flask*"  # Handle Flask packages separately
+    reviewers:
+      - "SgtClickClack"
+    
+  # Node.js dependencies (Frontend)
+  - package-ecosystem: "npm"
+    directory: "/src/dojopool/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      react-packages:
+        patterns:
+          - "@types/react*"
+          - "react*"
+      next-packages:
+        patterns:
+          - "next*"
+          - "@next*"
+    reviewers:
+      - "SgtClickClack"
+    
+  # Node.js dependencies (Mobile)
+  - package-ecosystem: "npm"
+    directory: "/src/dojopool/mobile"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      react-native-packages:
+        patterns:
+          - "react-native*"
+          - "@react-native*"
+    reviewers:
+      - "SgtClickClack"
+    
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      actions:
+        patterns:
+          - "*"
+    reviewers:
+      - "SgtClickClack" 

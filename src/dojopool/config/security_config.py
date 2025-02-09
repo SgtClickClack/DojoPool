@@ -47,30 +47,81 @@ class SecurityConfig(BaseModel):
     # Security Headers
     SECURE_HEADERS: Dict[str, str] = Field(
         {
+            # Frame protection
             "X-Frame-Options": "DENY",
+            
+            # XSS protection
             "X-XSS-Protection": "1; mode=block",
             "X-Content-Type-Options": "nosniff",
-            "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+            
+            # HTTPS enforcement
+            "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+            
+            # Content Security Policy
             "Content-Security-Policy": (
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-                "style-src 'self' 'unsafe-inline'; "
-                "img-src 'self' data: https:; "
-                "font-src 'self'; "
-                "connect-src 'self' https:; "
-                "frame-ancestors 'none'"
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "img-src 'self' data: https: blob:; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "connect-src 'self' https: wss:; "
+                "frame-ancestors 'none'; "
+                "base-uri 'self'; "
+                "form-action 'self'; "
+                "frame-src 'self'; "
+                "media-src 'self'; "
+                "object-src 'none'; "
+                "require-trusted-types-for 'script'; "
+                "upgrade-insecure-requests;"
             ),
+            
+            # Referrer Policy
             "Referrer-Policy": "strict-origin-when-cross-origin",
+            
+            # Permissions Policy
             "Permissions-Policy": (
                 "accelerometer=(), "
+                "ambient-light-sensor=(), "
+                "autoplay=(), "
+                "battery=(), "
                 "camera=(), "
+                "clipboard-read=(), "
+                "clipboard-write=(), "
+                "cross-origin-isolated=(), "
+                "display-capture=(), "
+                "document-domain=(), "
+                "encrypted-media=(), "
+                "execution-while-not-rendered=(), "
+                "execution-while-out-of-viewport=(), "
+                "fullscreen=(), "
                 "geolocation=(), "
                 "gyroscope=(), "
+                "keyboard-map=(), "
                 "magnetometer=(), "
                 "microphone=(), "
+                "midi=(), "
+                "navigation-override=(), "
                 "payment=(), "
-                "usb=()"
-            )
+                "picture-in-picture=(), "
+                "publickey-credentials-get=(), "
+                "screen-wake-lock=(), "
+                "sync-xhr=(), "
+                "usb=(), "
+                "web-share=(), "
+                "xr-spatial-tracking=()"
+            ),
+            
+            # Cross-Origin headers
+            "Cross-Origin-Embedder-Policy": "require-corp",
+            "Cross-Origin-Opener-Policy": "same-origin",
+            "Cross-Origin-Resource-Policy": "same-origin",
+            
+            # Additional security headers
+            "X-Permitted-Cross-Domain-Policies": "none",
+            "X-Download-Options": "noopen",
+            "X-DNS-Prefetch-Control": "off",
+            "Server": "DojoPool",  # Hide server details
+            "Access-Control-Allow-Credentials": "true"
         },
         description="Security headers for HTTP responses"
     )
