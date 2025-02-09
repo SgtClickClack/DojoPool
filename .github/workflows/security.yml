@@ -29,62 +29,148 @@ env:
 
 jobs:
   security-checks:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest  # Changed to ubuntu for better security tool support
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better vulnerability scanning
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
           
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
       
       - name: Install dependencies
         run: |
           npm ci
           pip install -r requirements/security.txt
-        shell: pwsh
       
-      - name: Run Security Checks
+      - name: Run Bandit Security Check
         run: |
-          # NPM security audit
-          npm audit --audit-level=moderate
+          bandit -r src/ -f json -o bandit-results.json
           
-          # Python dependency check
-          pip list --outdated
-          pip check
+      - name: Run Safety Check
+        run: |
+          safety check
           
-          # Run custom security script
-          python scripts/bulk_fix_workflows.py
-        shell: pwsh
-        continue-on-error: true
-
+      - name: Run detect-secrets
+        run: |
+          detect-secrets scan > secrets-results.txt
+          
+      - name: Run NPM Security Audit
+        run: |
+          npm audit --audit-level=moderate --json > npm-audit.json
+          
+      - name: Run KICS Security Scan
+        uses: checkmarx/kics-github-action@v1.7.0
+        with:
+          path: '.'
+          config_path: '.kics/config.yaml'
+          output_formats: 'json,sarif'
+          
+      - name: Run Snyk Security Scan
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          
       - name: Run ESLint Security Rules
+        run: npm run lint
+        
+      - name: Run pip-audit
         run: |
-          npm run lint
-        shell: pwsh
-        continue-on-error: true
+          pip-audit
+          
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'DojoPool'
+          path: '.'
+          format: 'HTML'
+          
+      - name: Upload Security Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-results
+          path: |
+            bandit-results.json
+            secrets-results.txt
+            npm-audit.json
+            reports/
+            
+      - name: Check for Critical Vulnerabilities
+        id: check_vulns
+        run: |
+          if [ -s bandit-results.json ] || [ -s npm-audit.json ]; then
+            echo "critical_vulns=true" >> $GITHUB_OUTPUT
+          else
+            echo "critical_vulns=false" >> $GITHUB_OUTPUT
+          fi
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: moderate
+          
+  codeql-analysis:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python, javascript
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 
   notify:
-    needs: [security-checks]
-    runs-on: windows-latest
+    needs: [security-checks, dependency-review, codeql-analysis]
+    runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check workflow status
         id: check
         run: |
-          if ("${{ needs.security-checks.result }}" -eq "success") {
-            echo "status=success" >> $env:GITHUB_OUTPUT
-            echo "severity=low" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "status=failure" >> $env:GITHUB_OUTPUT
-            echo "severity=high" >> $env:GITHUB_OUTPUT
-          }
-        shell: pwsh
+          if [[ "${{ needs.security-checks.result }}" == "success" && \
+                "${{ needs.dependency-review.result }}" == "success" && \
+                "${{ needs.codeql-analysis.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "severity=low" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "severity=high" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Issue for Failed Checks
+        if: steps.check.outputs.status == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Security Vulnerabilities Detected',
+              body: `Security scan failed on ${context.sha}.\n\nPlease review the security scan results.`,
+              labels: ['security', 'high-priority']
+            })
 
       - name: Send Notification
         if: env.SLACK_BOT_TOKEN != ''
