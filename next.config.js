@@ -1,11 +1,12 @@
 const { cdnConfig } = require('./src/config/cdn');
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        loader: 'custom',
-        loaderFile: './src/config/cdn.ts',
         domains: [
             'cdn.dojopool.com',
             'assets.dojopool.com',
@@ -100,7 +101,7 @@ const nextConfig = {
                                     /node_modules[/\\]/.test(module.identifier());
                             },
                             name(module) {
-                                const hash = crypto.createHash('sha1');
+                                const hash = require('crypto').createHash('sha1');
                                 hash.update(module.identifier());
                                 return hash.digest('hex').substring(0, 8);
                             },
@@ -115,7 +116,7 @@ const nextConfig = {
                         },
                         shared: {
                             name(module, chunks) {
-                                return crypto
+                                return require('crypto')
                                     .createHash('sha1')
                                     .update(chunks.reduce((acc, chunk) => acc + chunk.name, ''))
                                     .digest('hex') + '-shared';
@@ -129,6 +130,17 @@ const nextConfig = {
             };
         }
 
+        // Enable tree shaking
+        config.optimization = {
+            ...config.optimization,
+            usedExports: true,
+        };
+
+        // Add source maps in development
+        if (dev) {
+            config.devtool = 'eval-source-map';
+        }
+
         return config;
     },
 
@@ -140,7 +152,7 @@ const nextConfig = {
                 headers: [
                     {
                         key: 'Cache-Control',
-                        value: cdnConfig.assetTypes.images.maxAge.toString(),
+                        value: 'public, max-age=31536000, immutable',
                     },
                 ],
             },
@@ -149,7 +161,7 @@ const nextConfig = {
                 headers: [
                     {
                         key: 'Cache-Control',
-                        value: cdnConfig.assetTypes.static.maxAge.toString(),
+                        value: 'public, max-age=31536000, immutable',
                     },
                 ],
             },
@@ -158,7 +170,44 @@ const nextConfig = {
                 headers: [
                     {
                         key: 'Cache-Control',
-                        value: cdnConfig.assetTypes.fonts.maxAge.toString(),
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-DNS-Prefetch-Control',
+                        value: 'on',
+                    },
+                    {
+                        key: 'Strict-Transport-Security',
+                        value: 'max-age=63072000; includeSubDomains; preload',
+                    },
+                    {
+                        key: 'X-XSS-Protection',
+                        value: '1; mode=block',
+                    },
+                    {
+                        key: 'X-Frame-Options',
+                        value: 'SAMEORIGIN',
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff',
+                    },
+                    {
+                        key: 'Referrer-Policy',
+                        value: 'origin-when-cross-origin',
+                    },
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+                    },
+                    {
+                        key: 'Content-Security-Policy',
+                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.dojopool.com wss://*.dojopool.com;",
                     },
                 ],
             },
@@ -179,6 +228,14 @@ const nextConfig = {
             sizeLimit: '10mb',
         },
     },
+
+    // Environment variables validation
+    serverRuntimeConfig: {
+        // Add server-only env vars here
+    },
+    publicRuntimeConfig: {
+        // Add public env vars here
+    },
 };
 
-module.exports = nextConfig; 
+module.exports = withBundleAnalyzer(nextConfig); 
