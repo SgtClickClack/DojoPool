@@ -1,156 +1,155 @@
 name: Type Check
-
 on:
   push:
     paths:
-      - 'src/**'
-      - '.github/workflows/type-check.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - 'types/**'
+    - src/**
+    - .github/workflows/type-check.yml
+    - package.json
+    - package-lock.json
+    - tsconfig.json
+    - types/**
     paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**/*.txt'
+    - '**/*.md'
+    - docs/**
+    - .gitignore
+    - LICENSE
+    - "**/*.txt"
     branches:
-      - main
-      - develop
+    - main
+    - develop
   pull_request:
     paths:
-      - 'src/**'
-      - '.github/workflows/type-check.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - 'types/**'
+    - src/**
+    - .github/workflows/type-check.yml
+    - package.json
+    - package-lock.json
+    - tsconfig.json
+    - types/**
     paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**/*.txt'
+    - '**/*.md'
+    - docs/**
+    - .gitignore
+    - LICENSE
+    - "**/*.txt"
     branches:
-      - main
-      - develop
-
+    - main
+    - develop
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   type-check:
-    name: Type Check (Node ${{ matrix.node-version }}, TS ${{ matrix.typescript-version }})
+    name: Type Check (Node ${{ matrix.node-version }}, TS ${{ matrix.typescript-version
+      }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     strategy:
       matrix:
-        node-version: [20.x]
-        typescript-version: [5.1.x]
+        node-version:
+        - 20.x
+        typescript-version:
+        - 5.1.x
         include:
-          # Additional combinations only on main branch
-          - node-version: 18.x
-            typescript-version: 5.1.x
-            if: github.ref == 'refs/heads/main'
-          - node-version: 20.x
-            typescript-version: 4.9.x
-            if: github.ref == 'refs/heads/main'
+        - node-version: 18.x
+          typescript-version: 5.1.x
+          if: github.ref == 'refs/heads/main'
+        - node-version: 20.x
+          typescript-version: 4.9.x
+          if: github.ref == 'refs/heads/main'
       fail-fast: false
-
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: npm
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: npm-types-${{ runner.os }}-node-${{ matrix.node-version }}-ts-${{ matrix.typescript-version
+          }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: 'npm-types-${{ runner.os }}-node-${{ matrix.node-version }}-ts-${{
+          matrix.typescript-version }}-
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
+          npm-types-${{ runner.os }}-node-${{ matrix.node-version }}-
 
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-types-${{ runner.os }}-node-${{ matrix.node-version }}-ts-${{ matrix.typescript-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            npm-types-${{ runner.os }}-node-${{ matrix.node-version }}-ts-${{ matrix.typescript-version }}-
-            npm-types-${{ runner.os }}-node-${{ matrix.node-version }}-
-            npm-types-${{ runner.os }}-
+          npm-types-${{ runner.os }}-
 
-      - name: Install dependencies
-        run: npm ci
+          '
+    - name: Install dependencies
+      run: npm ci
+    - name: Install TypeScript
+      run: npm install typescript@${{ matrix.typescript-version }}
+    - name: Generate type definitions
+      run: npm run types:generate || echo "No type generation script found"
+    - name: Run type check
+      id: typecheck
+      run: "npm run type-check | tee type-check-output.txt\nif [ ${{PIPESTATUS[0]}}\
+        \ -ne 0 ]; then\n  echo \"Type check failed\"\n  exit 1\nfi\n"
+    - name: Process type check results
+      if: always()
+      run: "if [ -f type-check-output.txt ]; then\n  echo \"::group::Type Check Results\"\
+        \n  cat type-check-output.txt\n  echo \"::endgroup::\"\n  \n  # Generate error\
+        \ report in GitHub annotations format\n  while IFS= read -r line; do\n   \
+        \ if [[ $line =~ ^.*\\(([0-9]+,[0-9]+)\\):\\ (.*)$ ]]; then\n      file=$(echo\
+        \ \"$line\" | cut -d'(' -f1)\n      position=\"${{BASH_REMATCH[1]}}\"\n    \
+        \  message=\"${{BASH_REMATCH[2]}}\"\n      echo \"::error file=$file,line=${{position%%,*}},col=${{position##*,}}::$message\"\
+        \n    fi\n  done < type-check-output.txt\nfi\n"
+    - name: Generate type documentation
+      if: success()
+      run: 'npm install -g typedoc
 
-      - name: Install TypeScript
-        run: npm install typescript@${{ matrix.typescript-version }}
+        typedoc --out type-docs src/
 
-      - name: Generate type definitions
-        run: npm run types:generate || echo "No type generation script found"
+        '
+    - name: Upload type check results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: type-check-results-node-${{ matrix.node-version }}-ts-${{ matrix.typescript-version
+          }}
+        path: 'type-check-output.txt
 
-      - name: Run type check
-        id: typecheck
-        run: |
-          npm run type-check | tee type-check-output.txt
-          if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "Type check failed"
-            exit 1
-          fi
+          tsconfig.tsbuildinfo
 
-      - name: Process type check results
-        if: always()
-        run: |
-          if [ -f type-check-output.txt ]; then
-            echo "::group::Type Check Results"
-            cat type-check-output.txt
-            echo "::endgroup::"
-            
-            # Generate error report in GitHub annotations format
-            while IFS= read -r line; do
-              if [[ $line =~ ^.*\(([0-9]+,[0-9]+)\):\ (.*)$ ]]; then
-                file=$(echo "$line" | cut -d'(' -f1)
-                position="${BASH_REMATCH[1]}"
-                message="${BASH_REMATCH[2]}"
-                echo "::error file=$file,line=${position%%,*},col=${position##*,}::$message"
-              fi
-            done < type-check-output.txt
-          fi
+          type-docs/
 
-      - name: Generate type documentation
-        if: success()
-        run: |
-          npm install -g typedoc
-          typedoc --out type-docs src/
-
-      - name: Upload type check results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: type-check-results-node-${{ matrix.node-version }}-ts-${{ matrix.typescript-version }}
-          path: |
-            type-check-output.txt
-            tsconfig.tsbuildinfo
-            type-docs/
-          retention-days: 30
-
+          '
+        retention-days: 30
   notify:
     name: Notify Results
     needs: type-check
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 60
     steps:
-      - name: Notify Slack
-        uses: rtCamp/action-slack-notify@v2.2.0
-        env:
-          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
-          SLACK_CHANNEL: typescript
-          SLACK_COLOR: ${{ needs.type-check.result == 'success' && 'good' || 'danger' }}
-          SLACK_TITLE: Type Check ${{ needs.type-check.result == 'success' && 'Passed ✅' || 'Failed ❌' }}
-          SLACK_MESSAGE: |
-            *Branch:* ${{ github.ref_name }}
-            *Commit:* ${{ github.sha }}
-            *Type Check Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            *Status:* ${{ needs.type-check.result }}
+    - name: Notify Slack
+      uses: rtCamp/action-slack-notify@v2.2.0
+      env:
+        SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+        SLACK_CHANNEL: typescript
+        SLACK_COLOR: ${{ needs.type-check.result == 'success' && 'good' || 'danger'
+          }}
+        SLACK_TITLE: Type Check ${{ needs.type-check.result == 'success' && 'Passed
+          ✅' || 'Failed ❌' }}
+        SLACK_MESSAGE: '*Branch:* ${{ github.ref_name }}
+
+          *Commit:* ${{ github.sha }}
+
+          *Type Check Report:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+          github.run_id }}
+
+          *Status:* ${{ needs.type-check.result }}
+
+          '
+permissions:
+  contents: read
+  actions: write
+  checks: write
+  pull-requests: write
+  security-events: write
+  issues: write

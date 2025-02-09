@@ -1,47 +1,44 @@
 name: Tests
-
 on:
   push:
     paths:
-      - 'src/**'
-      - 'tests/**'
-      - '.github/workflows/tests.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'jest.config.js'
-      - 'coverage/**'
+    - src/**
+    - tests/**
+    - .github/workflows/tests.yml
+    - package.json
+    - package-lock.json
+    - jest.config.js
+    - coverage/**
     paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**/*.txt'
+    - '**/*.md'
+    - docs/**
+    - .gitignore
+    - LICENSE
+    - "**/*.txt"
     branches:
-      - main
-      - develop
+    - main
+    - develop
   pull_request:
     paths:
-      - 'src/**'
-      - 'tests/**'
-      - '.github/workflows/tests.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'jest.config.js'
-      - 'coverage/**'
+    - src/**
+    - tests/**
+    - .github/workflows/tests.yml
+    - package.json
+    - package-lock.json
+    - jest.config.js
+    - coverage/**
     paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**/*.txt'
+    - '**/*.md'
+    - docs/**
+    - .gitignore
+    - LICENSE
+    - "**/*.txt"
     branches:
-      - main
-      - develop
-
+    - main
+    - develop
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: ${{ github.workflow }}-tests-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   test:
     name: Run Tests (${{ matrix.os }}, Node ${{ matrix.node-version }})
@@ -49,115 +46,139 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node-version: [20.x]
+        os:
+        - ubuntu-latest
+        node-version:
+        - 20.x
         include:
-          # Full matrix only on main branch
-          - os: windows-latest
-            node-version: 20.x
-            if: github.ref == 'refs/heads/main'
-          - os: macos-latest
-            node-version: 20.x
-            if: github.ref == 'refs/heads/main'
-          - os: ubuntu-latest
-            node-version: 18.x
-            if: github.ref == 'refs/heads/main'
+        - os: windows-latest
+          node-version: 20.x
+          if: github.ref == 'refs/heads/main'
+        - os: macos-latest
+          node-version: 20.x
+          if: github.ref == 'refs/heads/main'
+        - os: ubuntu-latest
+          node-version: 18.x
+          if: github.ref == 'refs/heads/main'
       fail-fast: false
-
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: npm
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: npm-${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json')
+          }}
+        restore-keys: 'npm-${{ matrix.os }}-${{ matrix.node-version }}-
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
+          npm-${{ matrix.os }}-
 
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            npm-${{ matrix.os }}-${{ matrix.node-version }}-
-            npm-${{ matrix.os }}-
+          '
+    - name: Install dependencies
+      run: npm ci
+    - name: Run tests with coverage
+      id: test
+      run: 'npm test -- --coverage --coverageThreshold=''{"global":{"branches":"80","functions":"80","lines":"80","statements":"80"}}''
 
-      - name: Install dependencies
-        run: npm ci
+        '
+      continue-on-error: true
+    - name: Check test status
+      if: steps.test.outcome == 'failure'
+      run: 'echo "Tests failed or coverage thresholds not met"
 
-      - name: Run tests with coverage
-        id: test
-        run: |
-          npm test -- --coverage --coverageThreshold='{"global":{"branches":"80","functions":"80","lines":"80","statements":"80"}}'
-        continue-on-error: true
+        exit 1
 
-      - name: Check test status
-        if: steps.test.outcome == 'failure'
-        run: |
-          echo "Tests failed or coverage thresholds not met"
-          exit 1
+        '
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}-node-${{ matrix.node-version }}
+        path: 'coverage/
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results-${{ matrix.os }}-node-${{ matrix.node-version }}
-          path: |
-            coverage/
-            junit.xml
-          retention-days: 30
+          junit.xml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{secrets.CODECOV_TOKEN}}
-          files: ./coverage/lcov.info
-          flags: unittests,${{ matrix.os }},node-${{ matrix.node-version }}
-          name: codecov-${{ matrix.os }}-node-${{ matrix.node-version }}
-          fail_ci_if_error: true
-          verbose: true
+          '
+        retention-days: 30
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        files: ./coverage/lcov.info
+        flags: unittests,${{ matrix.os }},node-${{ matrix.node-version }}
+        name: codecov-${{ matrix.os }}-node-${{ matrix.node-version }}
+        fail_ci_if_error: true
+        verbose: true
+    - name: Generate coverage report
+      if: always()
+      run: 'npm install -g jest-html-reporter
 
-      - name: Generate coverage report
-        if: always()
-        run: |
-          npm install -g jest-html-reporter
-          jest --coverage --reporters=jest-html-reporter
+        jest --coverage --reporters=jest-html-reporter
 
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report-${{ matrix.os }}-node-${{ matrix.node-version }}
-          path: test-report.html
-          retention-days: 30
-
+        '
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report-${{ matrix.os }}-node-${{ matrix.node-version }}
+        path: test-report.html
+        retention-days: 30
+    retry-strategy:
+      max-attempts: 2
+      retry-on:
+      - error
+      - timeout
   notify:
     name: Notify Results
     needs: test
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 60
     steps:
-      - name: Notify Slack
-        uses: rtCamp/action-slack-notify@v2.2.0
-        env:
-          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
-          SLACK_CHANNEL: testing
-          SLACK_COLOR: ${{ needs.test.result == 'success' && 'good' || 'danger' }}
-          SLACK_TITLE: Test Results ${{ needs.test.result == 'success' && 'Passed ✅' || 'Failed ❌' }}
-          SLACK_MESSAGE: |
-            *Branch:* ${{ github.ref_name }}
-            *Commit:* ${{ github.sha }}
-            *Coverage Reports:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            *Status:* ${{ needs.test.result }}
-            
-            *Matrix Results:*
-            - Ubuntu + Node 18: ${{ needs.test.result }}
-            - Ubuntu + Node 20: ${{ needs.test.result }}
-            - Windows + Node 18: ${{ needs.test.result }}
-            - Windows + Node 20: ${{ needs.test.result }}
-            - macOS + Node 18: ${{ needs.test.result }}
-            - macOS + Node 20: ${{ needs.test.result }}
+    - name: Notify Slack
+      uses: rtCamp/action-slack-notify@v2.2.0
+      env:
+        SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
+        SLACK_CHANNEL: testing
+        SLACK_COLOR: ${{ needs.test.result == 'success' && 'good' || 'danger' }}
+        SLACK_TITLE: Test Results ${{ needs.test.result == 'success' && 'Passed ✅'
+          || 'Failed ❌' }}
+        SLACK_MESSAGE: '*Branch:* ${{ github.ref_name }}
+
+          *Commit:* ${{ github.sha }}
+
+          *Coverage Reports:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+          github.run_id }}
+
+          *Status:* ${{ needs.test.result }}
+
+
+          *Matrix Results:*
+
+          - Ubuntu + Node 18: ${{ needs.test.result }}
+
+          - Ubuntu + Node 20: ${{ needs.test.result }}
+
+          - Windows + Node 18: ${{ needs.test.result }}
+
+          - Windows + Node 20: ${{ needs.test.result }}
+
+          - macOS + Node 18: ${{ needs.test.result }}
+
+          - macOS + Node 20: ${{ needs.test.result }}
+
+          '
+permissions:
+  contents: read
+  actions: write
+  checks: write
+  pull-requests: write
+  security-events: write
+  issues: write

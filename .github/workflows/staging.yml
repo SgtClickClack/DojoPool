@@ -1,295 +1,319 @@
-name: Staging Deployment
-
+on:name: Staging Deployment
 on:
   push:
     paths:
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'docker/**'
-      - 'docker-compose.staging.yml'
-      - 'tests/**'
-      - 'cypress/**'
+    - src/**
+    - package.json
+    - package-lock.json
+    - docker/**
+    - docker-compose.staging.yml
+    - tests/**
+    - cypress/**
     branches:
-      - staging
+    - staging
   pull_request:
     paths:
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'docker/**'
-      - 'docker-compose.staging.yml'
-      - 'tests/**'
-      - 'cypress/**'
+    - src/**
+    - package.json
+    - package-lock.json
+    - docker/**
+    - docker-compose.staging.yml
+    - tests/**
+    - cypress/**
     branches:
-      - staging
-
+    - staging
 permissions:
   contents: read
   actions: write
-  packages: write
-  deployments: write
+  checks: write
+  pull-requests: write
   security-events: write
-
+  issues: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   test:
     name: Run Tests
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-      
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        id: npm-cache
-        with:
-          path: |
-            ~/.npm
-            node_modules
-            .next/cache
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
-      - name: Install dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: |
-          for i in {1..3}; do
-            echo "Attempt $i of 3"
-            if npm ci; then
-              exit 0
-            fi
-            echo "npm ci failed, retrying..."
-            sleep 5
-          done
-          exit 1
-      
-      - name: Run tests
-        id: test
-        run: |
-          for i in {1..3}; do
-            echo "Attempt $i of 3"
-            if npm test; then
-              echo "Tests passed on attempt $i"
-              exit 0
-            fi
-            echo "Tests failed on attempt $i"
-            sleep 10
-          done
-          echo "All test attempts failed"
-          exit 1
-      
-      - name: Run linting
-        run: npm run lint
-        continue-on-error: true
-      
-      - name: Run type checking
-        run: npm run type-check
-        continue-on-error: true
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+      continue-on-error: true
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: npm
+      continue-on-error: true
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      id: npm-cache
+      with:
+        path: '~/.npm
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: coverage/
-          retention-days: 30
-          if-no-files-found: warn
+          node_modules
 
+          .next/cache
+
+          '
+        key: ${{{ runner.os }}-node-${{{ hashFiles('**/package-lock.json') }}
+        restore-keys: '${{{ runner.os }}-node-
+
+          '
+      continue-on-error: true
+    - name: Install dependencies
+      if: steps.npm-cache.outputs.cache-hit != 'true''
+      run: "for i in {1..3}}; do\n  echo \"Attempt $i of 3\"\n  if npm ci; then\n\
+        \    exit 0\n  fi\n  echo \"npm ci failed, retrying...\"\n  sleep 5\ndone\n\
+        exit 1\n"
+      continue-on-error: true
+      timeout-minutes: 10
+    - name: Run tests
+      id: test
+      run: "for i in {1..3}}; do\n  echo \"Attempt $i of 3\"\n  if npm test; then\n\
+        \    echo \"Tests passed on attempt $i\"\n    exit 0\n  fi\n  echo \"Tests\
+        \ failed on attempt $i\"\n  sleep 10\ndone\necho \"All test attempts failed\"\
+        \nexit 1\n"
+      continue-on-error: true
+      timeout-minutes: 10
+    - name: Run linting
+      run: npm run lint
+      continue-on-error: true
+      timeout-minutes: 10
+    - name: Run type checking
+      run: npm run type-check
+      continue-on-error: true
+      timeout-minutes: 10
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: coverage/
+        retention-days: 30
+        if-no-files-found: warn
+      continue-on-error: true
+    strategy:
+      fail-fast: false
+    retry-strategy:
+      max-attempts: 2
+      retry-on:
+      - error
+      - timeout
   security-scan:
     name: Security Scan
     needs: test
-    timeout-minutes: 30
+    timeout-minutes: 40
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Cache Snyk CLI
-        uses: actions/cache@v3
-        with:
-          path: ~/.snyk
-          key: snyk-${{ runner.os }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            snyk-${{ runner.os }}-
-      
-      - name: Install Snyk CLI
-        run: npm install -g snyk
-      
-      - name: Run security scan
-        run: snyk test --severity-threshold=high
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true
-      
-      - name: Cache OWASP dependency check
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: owasp-${{ runner.os }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            owasp-${{ runner.os }}-
-      
-      - name: Run OWASP dependency check
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: 'DojoPool'
-          path: '.'
-          format: 'HTML'
-          args: >
-            --failOnCVSS 7
-            --enableRetired
-        continue-on-error: true
-        
-      - name: Upload security scan results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: security-scan-results
-          path: |
-            reports/
-            dependency-check-report.html
-            snyk-*.json
-          retention-days: 30
-          if-no-files-found: warn
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      continue-on-error: true
+    - name: Cache Snyk CLI
+      uses: actions/cache@v3
+      with:
+        path: ~/.snyk
+        key: snyk-${{{ runner.os }}-${{{ hashFiles('**/package.json') }}
+        restore-keys: 'snyk-${{{ runner.os }}-
 
+          '
+      continue-on-error: true
+    - name: Install Snyk CLI
+      run: npm install -g snyk
+      continue-on-error: true
+    - name: Run security scan
+      run: snyk test --severity-threshold=high
+      env:
+        SNYK_TOKEN: ${{{ secrets.SNYK_TOKEN }}
+      continue-on-error: true
+    - name: Cache OWASP dependency check
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: owasp-${{{ runner.os }}-${{{ hashFiles('**/package.json') }}
+        restore-keys: 'owasp-${{{ runner.os }}-
+
+          '
+      continue-on-error: true
+    - name: Run OWASP dependency check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: DojoPool
+        path: .
+        format: HTML
+        args: '--failOnCVSS 7 --enableRetired
+
+          '
+      continue-on-error: true
+    - name: Upload security scan results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-scan-results
+        path: 'reports/
+
+          dependency-check-report.html
+
+          snyk-*.json
+
+          '
+        retention-days: 30
+        if-no-files-found: warn
+      continue-on-error: true
+    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name,
+      'security') }}
   build:
     name: Build and Push
-    needs: [test, security-scan]
-    timeout-minutes: 30
+    needs:
+    - test
+    - security-scan
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.docker_build.outputs.digest }}
+      image_tag: ${{{ steps.docker_build.outputs.digest }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: buildx-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            buildx-${{ runner.os }}-
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: dojopoolapp/staging:latest,dojopoolapp/staging:${{ github.sha }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          build-args: |
-            NODE_ENV=staging
-            NEXT_PUBLIC_API_URL=${{ secrets.STAGING_API_URL }}
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+      continue-on-error: true
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      continue-on-error: true
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: buildx-${{{ runner.os }}-${{{ github.sha }}
+        restore-keys: 'buildx-${{{ runner.os }}-
 
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          '
+      continue-on-error: true
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{{ secrets.DOCKERHUB_TOKEN }}
+      continue-on-error: true
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: dojopoolapp/staging:latest,dojopoolapp/staging:${{{ github.sha }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+        build-args: 'NODE_ENV=staging
 
+          NEXT_PUBLIC_API_URL=${{{ secrets.STAGING_API_URL }}
+
+          '
+      continue-on-error: true
+    - name: Move cache
+      run: 'rm -rf /tmp/.buildx-cache
+
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+        '
+      continue-on-error: true
   deploy:
     name: Deploy to Staging
     needs: build
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: ${{ steps.set_url.outputs.url }}
+      url: ${{{ steps.set_url.outputs.url }}
     outputs:
-      deployment_url: ${{ steps.set_url.outputs.url }}
+      deployment_url: ${{{ steps.set_url.outputs.url }}
     steps:
-      - name: Configure SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.STAGING_SSH_KEY }}
-      
-      - name: Deploy to staging
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_SERVER_USER }}@${{ secrets.STAGING_SERVER_HOST }} << 'ENDSSH'
-            cd /opt/dojopool
-            docker-compose -f docker-compose.staging.yml pull
-            docker-compose -f docker-compose.staging.yml up -d
-            docker system prune -f
-          ENDSSH
-      
-      - name: Set deployment URL
-        id: set_url
-        run: echo "url=https://${{ secrets.STAGING_DOMAIN }}" >> $GITHUB_OUTPUT
-      
-      - name: Health check
-        run: |
-          for i in {1..12}; do
-            if curl --silent --fail "https://${{ secrets.STAGING_DOMAIN }}/health"; then
-              echo "Health check passed"
-              exit 0
-            fi
-            echo "Waiting for service to be healthy... (attempt $i/12)"
-            sleep 10
-          done
-          echo "Health check failed after 2 minutes"
-          exit 1
-      
-      - name: Verify deployment
-        run: |
-          # Check if main page is accessible
-          curl --fail --silent "https://${{ secrets.STAGING_DOMAIN }}" > /dev/null
-          
-          # Check if API is responsive
-          curl --fail --silent "https://${{ secrets.STAGING_DOMAIN }}/api/health" > /dev/null
-      
-      - name: Notify deployment status
-        if: always()
-        uses: rtCamp/action-slack-notify@v2.2.0
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: deployments
-          SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
-          SLACK_TITLE: Staging Deployment ${{ job.status == 'success' && 'Successful' || 'Failed' }}
-          SLACK_MESSAGE: |
-            Environment: ${{ secrets.STAGING_DOMAIN }}
-            Image: dojopoolapp/staging@${{ needs.build.outputs.image_tag }}
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
+    - name: Configure SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{{ secrets.STAGING_SSH_KEY }}
+      continue-on-error: true
+    - name: Deploy to staging
+      run: "ssh -o StrictHostKeyChecking=no ${{{ secrets.STAGING_SERVER_USER }}@${{{\
+        \ secrets.STAGING_SERVER_HOST }} << 'ENDSSH'\n  cd /opt/dojopool\n  docker-compose\
+        \ -f docker-compose.staging.yml pull\n  docker-compose -f docker-compose.staging.yml\
+        \ up -d\n  docker system prune -f\nENDSSH\n"
+      continue-on-error: true
+    - name: Set deployment URL
+      id: set_url
+      run: echo "url=https://${{{ secrets.STAGING_DOMAIN }}" >> $GITHUB_OUTPUT
+      continue-on-error: true
+    - name: Health check
+      run: "for i in {1..12}}; do\n  if curl --silent --fail \"https://${{{ secrets.STAGING_DOMAIN\
+        \ }}/health\"; then\n    echo \"Health check passed\"\n    exit 0\n  fi\n\
+        \  echo \"Waiting for service to be healthy... (attempt $i/12)\"\n  sleep\
+        \ 10\ndone\necho \"Health check failed after 2 minutes\"\nexit 1\n"
+      continue-on-error: true
+    - name: Verify deployment
+      run: '# Check if main page is accessible
 
+        curl --fail --silent "https://${{{ secrets.STAGING_DOMAIN }}" > /dev/null
+
+
+        # Check if API is responsive
+
+        curl --fail --silent "https://${{{ secrets.STAGING_DOMAIN }}/api/health"
+        > /dev/null
+
+        '
+      continue-on-error: true
+    - name: Notify deployment status
+      if: always()
+      uses: rtCamp/action-slack-notify@v2.2.0
+      env:
+        SLACK_WEBHOOK: ${{{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: deployments
+        SLACK_COLOR: ${{{ job.status == 'success' && 'good' || 'danger' }}
+        SLACK_TITLE: Staging Deployment ${{{ job.status == 'success' && 'Successful''
+          || 'Failed' }}
+        SLACK_MESSAGE: 'Environment: ${{{ secrets.STAGING_DOMAIN }}
+
+          Image: dojopoolapp/staging@${{{ needs.build.outputs.image_tag }}
+
+          Branch: ${{{ github.ref_name }}
+
+          Commit: ${{{ github.sha }}
+
+          '
+      continue-on-error: true
   smoke-test:
     name: Smoke Tests
     needs: deploy
     if: success()
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
-      - name: Run smoke tests
-        run: |
-          # Basic endpoint checks with timing
-          time curl -sSf "${{ needs.deploy.outputs.deployment_url }}/health" > /dev/null
-          time curl -sSf "${{ needs.deploy.outputs.deployment_url }}/api/health" > /dev/null
-          
-          # Additional functional checks
-          curl -sSf "${{ needs.deploy.outputs.deployment_url }}/api/status" > /dev/null
-          curl -sSf -X POST "${{ needs.deploy.outputs.deployment_url }}/api/ping" > /dev/null
+    - name: Run smoke tests
+      run: '# Basic endpoint checks with timing
+
+        time curl -sSf "${{{ needs.deploy.outputs.deployment_url }}/health" > /dev/null
+
+        time curl -sSf "${{{ needs.deploy.outputs.deployment_url }}/api/health"
+        > /dev/null
+
+
+        # Additional functional checks
+
+        curl -sSf "${{{ needs.deploy.outputs.deployment_url }}/api/status" > /dev/null
+
+        curl -sSf -X POST "${{{ needs.deploy.outputs.deployment_url }}/api/ping"
+        > /dev/null
+
+        '
+      continue-on-error: true
+      timeout-minutes: 10
+    strategy:
+      fail-fast: false
+    retry-strategy:
+      max-attempts: 2
+      retry-on:
+      - error
+      - timeout

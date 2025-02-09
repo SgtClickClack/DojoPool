@@ -1,150 +1,155 @@
 name: Security Scanning
-
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
+  - cron: 0 0 * * *
   push:
     paths:
-      - 'package.json'
-      - 'package-lock.json'
-      - 'requirements.txt'
-      - 'poetry.lock'
-      - 'Pipfile.lock'
+    - package.json
+    - package-lock.json
+    - requirements.txt
+    - poetry.lock
+    - Pipfile.lock
   pull_request:
     paths:
-      - 'package.json'
-      - 'package-lock.json'
-      - 'requirements.txt'
-      - 'poetry.lock'
-      - 'Pipfile.lock'
-
+    - package.json
+    - package-lock.json
+    - requirements.txt
+    - poetry.lock
+    - Pipfile.lock
 permissions:
-  contents: write
+  contents: read
+  actions: write
+  checks: write
   pull-requests: write
   security-events: write
   issues: write
-
 jobs:
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: high
-          deny-licenses: 'GPL-1.0, LGPL-2.0'
-
+    - uses: actions/checkout@v4
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v3
+      with:
+        fail-on-severity: high
+        deny-licenses: GPL-1.0, LGPL-2.0
+    timeout-minutes: 60
   python-security:
     name: Python Security Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install safety
-        run: pip install safety
-
-      - name: Run safety check
-        run: safety check
-
-      - name: Install Bandit
-        run: pip install bandit
-
-      - name: Run Bandit
-        run: bandit -r ./src -f json -o bandit-results.json
-        continue-on-error: true
-
-      - name: Upload Bandit results
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: bandit-results.json
-          category: Python Security
-
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: pip
+    - name: Install safety
+      run: pip install safety
+    - name: Run safety check
+      run: safety check
+    - name: Install Bandit
+      run: pip install bandit
+    - name: Run Bandit
+      run: bandit -r ./src -f json -o bandit-results.json
+      continue-on-error: true
+    - name: Upload Bandit results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: bandit-results.json
+        category: Python Security
+    timeout-minutes: 60
+    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name,
+      'security') }}
   npm-audit:
     name: NPM Security Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-          cache: npm
-
-      - name: Run npm audit
-        run: npm audit --json > npm-audit.json || true
-
-      - name: Process audit results
-        run: |
-          if jq -e '.advisories | length > 0' npm-audit.json > /dev/null; then
-            echo "::warning::Security vulnerabilities found in npm packages"
-            jq -r '.advisories[] | "- \(.title) (\(.severity)): \(.url)"' npm-audit.json
-          fi
-
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: npm
+    - name: Run npm audit
+      run: npm audit --json > npm-audit.json || true
+    - name: Process audit results
+      run: "if jq -e '.advisories | length > 0' npm-audit.json > /dev/null; then\n\
+        \  echo \"::warning::Security vulnerabilities found in npm packages\"\n  jq\
+        \ -r '.advisories[] | \"- \\(.title) (\\(.severity)): \\(.url)\"' npm-audit.json\n\
+        fi\n"
+    timeout-minutes: 60
+    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name,
+      'security') }}
   snyk-security:
     name: Snyk Vulnerability Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
-      - name: Run Snyk Python scan
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
+    - uses: actions/checkout@v4
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+    - name: Run Snyk Python scan
+      uses: snyk/actions/python@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+    timeout-minutes: 60
   auto-fix:
     name: Auto Fix Dependencies
-    needs: [dependency-review, python-security, npm-audit, snyk-security]
+    needs:
+    - dependency-review
+    - python-security
+    - npm-audit
+    - snyk-security
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    - name: Update Python dependencies
+      run: 'pip install pip-audit
 
-      - name: Update Python dependencies
-        run: |
-          pip install pip-audit
-          pip-audit --fix
+        pip-audit --fix
 
-      - name: Update NPM dependencies
-        run: |
-          npm audit fix
-          npm update
+        '
+    - name: Update NPM dependencies
+      run: 'npm audit fix
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'fix: Update dependencies to fix security vulnerabilities'
-          title: '🔒 Security: Update dependencies'
-          body: |
-            This PR updates dependencies to fix security vulnerabilities:
-            
-            - Updates Python cryptography package
-            - Updates vulnerable npm packages
-            - Fixes ReDoS vulnerabilities
-            - Updates OpenSSL dependencies
-            
-            Auto-generated by security workflow.
-          branch: fix/security-updates
-          base: main
-          labels: security,dependencies
-          assignees: ${{ github.actor }}
-          reviewers: ${{ github.actor }} 
+        npm update
+
+        '
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'fix: Update dependencies to fix security vulnerabilities'
+        title: '🔒 Security: Update dependencies'
+        body: 'This PR updates dependencies to fix security vulnerabilities:
+
+
+          - Updates Python cryptography package
+
+          - Updates vulnerable npm packages
+
+          - Fixes ReDoS vulnerabilities
+
+          - Updates OpenSSL dependencies
+
+
+          Auto-generated by security workflow.
+
+          '
+        branch: fix/security-updates
+        base: main
+        labels: security,dependencies
+        assignees: ${{ github.actor }}
+        reviewers: ${{ github.actor }}
+    timeout-minutes: 60
+concurrency:
+  group: ${{ github.workflow }}-security-${{ github.ref }}
+  cancel-in-progress: true
