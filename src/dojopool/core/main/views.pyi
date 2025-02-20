@@ -1,0 +1,19 @@
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
+from flask import Request, Response, current_app
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+from dojopool.models.tournament import Tournament
+from dojopool.models.venue import Venue
+
+from ..auth import current_user, login_required
+from ..models import User, db
+
+def index() -> ResponseReturnValue: ...
+def dashboard() -> str: ...
+def profile() -> str: ...
+def settings() -> str: ...
+def about() -> str: ...
+def contact() -> str: ...

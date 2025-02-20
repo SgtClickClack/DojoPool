@@ -1,0 +1,9 @@
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import Blueprint, Request, Response, current_app
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+def generate_narrative() -> ResponseReturnValue: ...
+def update_narrative() -> ResponseReturnValue: ...
+def get_narrative(session_id: ...): ...

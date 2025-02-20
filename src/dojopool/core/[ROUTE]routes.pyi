@@ -1,0 +1,6 @@
+from flask import Blueprint, jsonify
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response
+
+def index() -> ResponseReturnValue: ...
+def health_check() -> ResponseReturnValue: ...

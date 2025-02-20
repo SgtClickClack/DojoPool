@@ -1,0 +1,19 @@
+import base64
+import io
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+from flask import Blueprint, Response, current_app, jsonify, request, send_file
+from flask_login import current_user, login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+from ..models import User, db
+from .animation import AvatarAnimator
+from .generator import AvatarGenerator
+
+def generate_avatar() -> Union[Response, Tuple[Response, int]]: ...
+def get_user_avatar(user_id: ...): ...
+def update_avatar() -> Union[Response, Tuple[Response, int]]: ...
+def animate_avatar() -> Union[Response, Tuple[Response, int]]: ...
+def get_avatar_styles() -> Response: ...
+def get_available_animations() -> Response: ...

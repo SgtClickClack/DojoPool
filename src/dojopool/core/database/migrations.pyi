@@ -1,0 +1,13 @@
+import logging
+from typing import Optional
+
+from alembic import context
+from flask import current_app
+from flask_migrate import Migrate
+
+from dojopool.core.extensions import db
+
+def run_migrations() -> None: ...
+def init_migrations(app: ...): ...
+def create_tables() -> None: ...
+def drop_tables() -> None: ...
