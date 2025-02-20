@@ -1,52 +1,51 @@
-"""Database migrations module.
+"""Database migration utilities."""
 
-This module provides database migration functionality using Alembic.
-"""
+import logging
+from typing import Optional
 
 from alembic import context
 from flask import current_app
 from flask_migrate import Migrate
 
-from src.core.database import db, metadata
+from dojopool.core.extensions import db
+
+logger = logging.getLogger(__name__)
 
 
-def run_migrations():
+def run_migrations() -> None:
     """Run database migrations."""
-    # Get database URL from app config
-    url = current_app.config["SQLALCHEMY_DATABASE_URI"]
+    # Get database URL
+    url = current_app.config.get("SQLALCHEMY_DATABASE_URI")
+    if not url:
+        raise RuntimeError("SQLALCHEMY_DATABASE_URI not set")
 
     # Configure migration context
-    context.configure(
-        url=url,
-        target_metadata=metadata,
-        compare_type=True,
-        compare_server_default=True,
-        include_schemas=True,
-        version_table="alembic_version",
-        transaction_per_migration=True,
-        user_module_prefix=None,
-    )
+    config = context.config
+    config.set_main_option("sqlalchemy.url", url)
 
-    # Run migration
+    # Configure target metadata
+    target_metadata = db.metadata
+
+    # Run migrations
     with context.begin_transaction():
         context.run_migrations()
 
 
-def init_migrations(app):
+def init_migrations(app: Optional[Migrate] = None):
     """Initialize database migrations.
 
     Args:
-        app: Flask application instance
+        app: Optional Flask-Migrate instance
     """
-    migrate = Migrate(app, db)
-    migrate.init_app(app, db)
-
-    # Configure Alembic context
+    # Configure migration context
     if context.is_offline_mode():
         run_migrations()
+    else:
+        with app.app_context():
+            run_migrations()
 
 
-def create_tables():
+def create_tables() -> None:
     """Create all database tables."""
     db.create_all()
 

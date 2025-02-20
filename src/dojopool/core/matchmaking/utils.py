@@ -1,3 +1,5 @@
+import gc
+import gc
 """Matchmaking utilities module.
 
 This module provides helper functions for matchmaking operations.
@@ -11,7 +13,9 @@ from ...models.venue import Venue
 from ..config.matchmaking import LOCATION_SETTINGS, TIME_SETTINGS
 
 
-def calculate_time_overlap(times1: List[datetime], times2: List[datetime]) -> List[datetime]:
+def calculate_time_overlap(
+    times1: List[datetime], times2: List[datetime]
+) -> List[datetime]:
     """Calculate overlapping time slots between two lists of times.
 
     Args:
@@ -28,9 +32,7 @@ def calculate_time_overlap(times1: List[datetime], times2: List[datetime]) -> Li
     return overlapping
 
 
-def find_common_venues(
-    user1: User, user2: User, max_distance: Optional[float] = None
-) -> List[Venue]:
+def find_common_venues(user1: User, user2: User, max_distance: Optional[float] = None):
     """Find venues that are accessible to both players.
 
     Args:
@@ -62,7 +64,7 @@ def find_common_venues(
     return list(common)
 
 
-def calculate_distance(point1: Tuple[float, float], point2: Tuple[float, float]) -> float:
+def calculate_distance(point1: Tuple[float, float], point2: Tuple[float, float]):
     """Calculate distance between two geographical points.
 
     Args:
@@ -102,7 +104,7 @@ def get_mutual_friends(user1: User, user2: User) -> Set[int]:
     return set(user1.friends) & set(user2.friends)
 
 
-def check_scheduling_conflicts(user1: User, user2: User, start_time: datetime) -> bool:
+def check_scheduling_conflicts(user1: User, user2: User, start_time: datetime):
     """Check for scheduling conflicts between two users.
 
     Args:
@@ -158,7 +160,7 @@ def validate_preferences(preferences: Dict) -> bool:
     return True
 
 
-def format_wait_time(seconds: int) -> str:
+def format_wait_time(seconds: int):
     """Format wait time into a human-readable string.
 
     Args:

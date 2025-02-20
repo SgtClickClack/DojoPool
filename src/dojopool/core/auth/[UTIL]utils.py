@@ -1,3 +1,5 @@
+import gc
+import gc
 """Authentication utilities for DojoPool."""
 
 import base64
@@ -68,7 +70,9 @@ def validate_password_strength(password: str) -> Dict[str, Any]:
     }
 
     # Calculate score (0-5)
-    results["score"] = sum(1 for key, value in results.items() if key != "score" and value)
+    results["score"] = sum(
+        1 for key, value in results.items() if key != "score" and value
+    )
 
     return results
 
@@ -82,7 +86,7 @@ def generate_totp_secret() -> str:
     return pyotp.random_base32()
 
 
-def generate_totp_uri(secret: str, username: str, issuer: str = "DojoPool") -> str:
+def generate_totp_uri(secret: str, username: str, issuer: str = "DojoPool"):
     """Generate TOTP URI for QR code.
 
     Args:
@@ -97,7 +101,7 @@ def generate_totp_uri(secret: str, username: str, issuer: str = "DojoPool") -> s
     return totp.provisioning_uri(username, issuer_name=issuer)
 
 
-def generate_qr_code(data: str) -> str:
+def generate_qr_code(data: str):
     """Generate QR code as base64 string.
 
     Args:
@@ -122,7 +126,7 @@ def generate_qr_code(data: str) -> str:
     return base64.b64encode(buffer.getvalue()).decode()
 
 
-def verify_totp(secret: str, token: str) -> bool:
+def verify_totp(secret: str, token: str):
     """Verify TOTP token.
 
     Args:
@@ -148,7 +152,9 @@ def generate_backup_codes(count: int = 10) -> list:
     codes = []
     for _ in range(count):
         # Generate 8 character code
-        code = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+        code = "".join(
+            secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8)
+        )
         # Insert hyphen for readability
         code = f"{code[:4]}-{code[4:]}"
         codes.append(code)
@@ -178,7 +184,7 @@ def generate_session_id() -> str:
     return secrets.token_urlsafe(32)
 
 
-def parse_auth_header(header: str) -> Optional[str]:
+def parse_auth_header(header: str):
     """Parse Authorization header.
 
     Args:
@@ -197,7 +203,7 @@ def parse_auth_header(header: str) -> Optional[str]:
     return parts[1]
 
 
-def calculate_token_expiry(duration: timedelta) -> datetime:
+def calculate_token_expiry(duration: timedelta):
     """Calculate token expiry time.
 
     Args:
@@ -209,7 +215,7 @@ def calculate_token_expiry(duration: timedelta) -> datetime:
     return datetime.utcnow() + duration
 
 
-def is_token_expired(expiry: datetime) -> bool:
+def is_token_expired(expiry: datetime):
     """Check if token is expired.
 
     Args:

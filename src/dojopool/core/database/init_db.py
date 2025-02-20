@@ -5,8 +5,9 @@ This module provides functions to initialize the database with default data.
 
 from werkzeug.security import generate_password_hash
 
-from src.core.database import db
-from src.core.models import GameMode, GameType, PricingPlan, RewardTier, Role, User, UserRole
+from ..auth.models import Role, User, UserRole
+from ..database import db
+from ..models import GameMode, GameType, PricingPlan, RewardTier
 
 
 def create_default_roles():
@@ -15,7 +16,12 @@ def create_default_roles():
         {
             "name": "admin",
             "description": "Administrator role with full access",
-            "permissions": ["admin", "manage_users", "manage_venues", "manage_tournaments"],
+            "permissions": [
+                "admin",
+                "manage_users",
+                "manage_venues",
+                "manage_tournaments",
+            ],
         },
         {
             "name": "moderator",
@@ -95,7 +101,12 @@ def create_game_types():
 def create_game_modes():
     """Create default game modes."""
     game_modes = [
-        {"name": "singles", "description": "One-on-one match", "min_players": 2, "max_players": 2},
+        {
+            "name": "singles",
+            "description": "One-on-one match",
+            "min_players": 2,
+            "max_players": 2,
+        },
         {
             "name": "doubles",
             "description": "Two-on-two team match",
@@ -132,7 +143,11 @@ def create_reward_tiers():
             "name": "Silver",
             "description": "Intermediate rewards",
             "points_required": 1000,
-            "benefits": ["premium_achievements", "tournament_priority", "venue_discounts"],
+            "benefits": [
+                "premium_achievements",
+                "tournament_priority",
+                "venue_discounts",
+            ],
         },
         {
             "name": "Gold",

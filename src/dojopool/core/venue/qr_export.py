@@ -1,3 +1,5 @@
+import gc
+import gc
 """Export system for QR code statistics."""
 
 import csv
@@ -53,7 +55,9 @@ class QRExportManager:
             writer.writerow(["Successful Scans", stats["successful_scans"]])
             writer.writerow(["Failed Scans", stats["failed_scans"]])
             writer.writerow(["Success Rate", f"{stats['success_rate']*100:.1f}%"])
-            writer.writerow(["Average Scan Duration", f"{stats['avg_scan_duration']:.2f}s"])
+            writer.writerow(
+                ["Average Scan Duration", f"{stats['avg_scan_duration']:.2f}s"]
+            )
             writer.writerow([])
 
             # Write daily stats
@@ -84,7 +88,9 @@ class QRExportManager:
                 if error_report["total_errors"] > 0:
                     writer.writerow([])
                     writer.writerow(["Detailed Error Report"])
-                    writer.writerow(["Timestamp", "Error Type", "Table ID", "Venue ID", "User ID"])
+                    writer.writerow(
+                        ["Timestamp", "Error Type", "Table ID", "Venue ID", "User ID"]
+                    )
                     for error in error_report["errors"]:
                         writer.writerow(
                             [
@@ -152,28 +158,36 @@ class QRExportManager:
                     f"{stats['avg_scan_duration']:.2f}s",
                 ],
             }
-            pd.DataFrame(summary_data).to_excel(writer, sheet_name="Summary", index=False)
+            pd.DataFrame(summary_data).to_excel(
+                writer, sheet_name="Summary", index=False
+            )
 
             # Create daily stats sheet
             daily_data = {
                 "Date": list(stats["daily_stats"].keys()),
                 "Scans": list(stats["daily_stats"].values()),
             }
-            pd.DataFrame(daily_data).to_excel(writer, sheet_name="Daily Stats", index=False)
+            pd.DataFrame(daily_data).to_excel(
+                writer, sheet_name="Daily Stats", index=False
+            )
 
             # Create hourly stats sheet
             hourly_data = {
                 "Hour": [f"{hour}:00" for hour in stats["hourly_stats"].keys()],
                 "Scans": list(stats["hourly_stats"].values()),
             }
-            pd.DataFrame(hourly_data).to_excel(writer, sheet_name="Hourly Stats", index=False)
+            pd.DataFrame(hourly_data).to_excel(
+                writer, sheet_name="Hourly Stats", index=False
+            )
 
             # Create error types sheet
             error_data = {
                 "Error Type": list(stats["error_types"].keys()),
                 "Count": list(stats["error_types"].values()),
             }
-            pd.DataFrame(error_data).to_excel(writer, sheet_name="Error Types", index=False)
+            pd.DataFrame(error_data).to_excel(
+                writer, sheet_name="Error Types", index=False
+            )
 
             # Include detailed error report if requested
             if include_errors:
@@ -222,7 +236,10 @@ class QRExportManager:
                 return None
 
             # Create export data
-            export_data = {"generated_at": datetime.utcnow().isoformat(), "stats": stats}
+            export_data = {
+                "generated_at": datetime.utcnow().isoformat(),
+                "stats": stats,
+            }
 
             # Include error report if requested
             if include_errors:

@@ -23,7 +23,9 @@ class StoryGenerator:
             if self.api_service is None:
                 raise RuntimeError("AI service not initialized")
 
-    def generate_game_story(self, game_data: Dict[str, Any], style: str = "dramatic") -> str:
+    def generate_game_story(
+        self, game_data: Dict[str, Any], style: str = "dramatic"
+    ) -> str:
         """Generate a story for a game.
 
         Args:
@@ -43,7 +45,9 @@ class StoryGenerator:
             prompt = STORY_PROMPTS.get(style, STORY_PROMPTS["dramatic"])
 
             # Generate story
-            story = self.api_service.generate_text(prompt=prompt.format(**context), temperature=0.8)
+            story = self.api_service.generate_text(
+                prompt=prompt.format(**context), temperature=0.8
+            )
 
             return story or "Unable to generate story at this time."
 
@@ -51,7 +55,9 @@ class StoryGenerator:
             logger.error(f"Story generation error: {e}")
             return "Unable to generate story at this time."
 
-    def generate_match_story(self, match_data: Dict[str, Any], style: str = "dramatic") -> str:
+    def generate_match_story(
+        self, match_data: Dict[str, Any], style: str = "dramatic"
+    ) -> str:
         """Generate a story for a match.
 
         Args:
@@ -68,10 +74,14 @@ class StoryGenerator:
             context = self._build_match_context(match_data)
 
             # Get style-specific prompt
-            prompt = STORY_PROMPTS.get(f"match_{style}", STORY_PROMPTS["match_dramatic"])
+            prompt = STORY_PROMPTS.get(
+                f"match_{style}", STORY_PROMPTS["match_dramatic"]
+            )
 
             # Generate story
-            story = self.api_service.generate_text(prompt=prompt.format(**context), temperature=0.8)
+            story = self.api_service.generate_text(
+                prompt=prompt.format(**context), temperature=0.8
+            )
 
             return story or "Unable to generate match story at this time."
 
@@ -98,10 +108,14 @@ class StoryGenerator:
             context = self._build_tournament_context(tournament_data)
 
             # Get style-specific prompt
-            prompt = STORY_PROMPTS.get(f"tournament_{style}", STORY_PROMPTS["tournament_dramatic"])
+            prompt = STORY_PROMPTS.get(
+                f"tournament_{style}", STORY_PROMPTS["tournament_dramatic"]
+            )
 
             # Generate story
-            story = self.api_service.generate_text(prompt=prompt.format(**context), temperature=0.8)
+            story = self.api_service.generate_text(
+                prompt=prompt.format(**context), temperature=0.8
+            )
 
             return story or "Unable to generate tournament story at this time."
 
@@ -137,7 +151,9 @@ class StoryGenerator:
             "highlights": match_data.get("highlights", []),
         }
 
-    def _build_tournament_context(self, tournament_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_tournament_context(
+        self, tournament_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Build context for tournament story generation."""
         return {
             "name": tournament_data.get("name", "the tournament"),

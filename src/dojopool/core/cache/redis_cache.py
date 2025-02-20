@@ -1,51 +1,67 @@
 """Redis cache configuration for API optimization."""
 
-from functools import wraps
 import json
-from typing import Any, Callable, Optional, Union
 import os
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from redis import Redis
 import fakeredis
-from flask import current_app, request
+from flask import Response, current_app, request
+from flask.typing import ResponseReturnValue
+from redis import Redis
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 # Use fakeredis for development if REDIS_USE_FAKE is set
-REDIS_USE_FAKE = os.environ.get("REDIS_USE_FAKE", "true").lower() == "true"
+REDIS_USE_FAKE: bool = os.environ.get("REDIS_USE_FAKE", "true").lower() == "true"
 
 if REDIS_USE_FAKE:
-    redis_client = fakeredis.FakeStrictRedis(decode_responses=True)
+    redis_client = fakeredis.FakeStrictRedis()
 else:
     redis_client = Redis(
-        host=current_app.config.get("REDIS_HOST", "localhost"),
-        port=current_app.config.get("REDIS_PORT", 6379),
-        db=current_app.config.get("REDIS_DB", 0),
-        decode_responses=True,
+        host=os.environ.get("REDIS_HOST", "localhost"),
+        port=int(os.environ.get("REDIS_PORT", 6379)),
+        db=int(os.environ.get("REDIS_DB", 0)),
+        password=os.environ.get("REDIS_PASSWORD", None),
     )
 
 
 def cache_key_prefix() -> str:
-    """Get cache key prefix from config."""
-    return current_app.config.get("CACHE_KEY_PREFIX", "dojopool:")
+    """Get the cache key prefix for the current environment."""
+    return current_app.config.get("CACHE_KEY_PREFIX", "dojopool")
 
 
-def generate_cache_key(function_name: str, args: tuple, kwargs: dict) -> str:
-    """Generate a unique cache key."""
-    key_parts = [cache_key_prefix(), function_name, str(hash(str(args))), str(hash(str(kwargs)))]
+def generate_cache_key(function_name: str, args: tuple, kwargs: dict):
+    """Generate a cache key for the given function and arguments."""
+    key_parts = [cache_key_prefix(), function_name]
+
+    # Add positional args to key
+    if args:
+        key_parts.extend(str(arg) for arg in args)
+
+    # Add keyword args to key
+    if kwargs:
+        key_parts.extend(f"{k}:{v}" for k, v in sorted(kwargs.items()))
+
     return ":".join(key_parts)
 
 
 def cache_response(
-    timeout: int = 300, key_prefix: Optional[str] = None, unless: Optional[Callable] = None
-) -> Callable:
+    timeout: int = 300,
+    key_prefix: Optional[str] = None,
+    unless: Optional[Callable[..., bool]] = None,
+):
     """Cache decorator for API responses.
 
     Args:
-        timeout: Cache timeout in seconds (default: 300)
+        timeout: Cache timeout in seconds
         key_prefix: Optional prefix for cache key
         unless: Optional function to determine if caching should be skipped
+
+    Returns:
+        Decorated function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @wraps(f)
         def wrapped(*args: Any, **kwargs: Any) -> Any:
             # Skip cache if condition is met
@@ -53,10 +69,10 @@ def cache_response(
                 return f(*args, **kwargs)
 
             # Generate cache key
-            cache_key = generate_cache_key(key_prefix or f.__name__, args, kwargs)
+            cache_key: str = generate_cache_key(key_prefix or f.__name__, args, kwargs)
 
             # Try to get from cache
-            cached_response = redis_client.get(cache_key)
+            cached_response: Any = redis_client.get(cache_key)
             if cached_response:
                 try:
                     return json.loads(cached_response)
@@ -65,13 +81,15 @@ def cache_response(
                     pass
 
             # Get fresh response
-            response = f(*args, **kwargs)
+            response: Any = f(*args, **kwargs)
 
             # Cache the response
             try:
                 redis_client.setex(cache_key, timeout, json.dumps(response))
             except (TypeError, ValueError) as e:
-                current_app.logger.warning(f"Could not cache response for {cache_key}: {str(e)}")
+                current_app.logger.warning(
+                    f"Could not cache response for {cache_key}: {str(e)}"
+                )
 
             return response
 
@@ -80,7 +98,7 @@ def cache_response(
     return decorator
 
 
-def invalidate_cache(pattern: str = "*") -> None:
+def invalidate_cache(pattern: str = "*"):
     """Invalidate cache entries matching pattern."""
     try:
         keys = redis_client.keys(f"{cache_key_prefix()}{pattern}")
@@ -90,7 +108,7 @@ def invalidate_cache(pattern: str = "*") -> None:
         current_app.logger.error(f"Cache invalidation failed: {str(e)}")
 
 
-def get_cached_value(key: str, default: Any = None) -> Union[str, None]:
+def get_cached_value(key: str, default: Any = None):
     """Get value from cache."""
     try:
         return redis_client.get(f"{cache_key_prefix()}{key}")
@@ -98,7 +116,7 @@ def get_cached_value(key: str, default: Any = None) -> Union[str, None]:
         return default
 
 
-def set_cached_value(key: str, value: str, timeout: int = 300) -> bool:
+def set_cached_value(key: str, value: str, timeout: int = 300):
     """Set value in cache with timeout."""
     try:
         return redis_client.setex(f"{cache_key_prefix()}{key}", timeout, value)
@@ -112,9 +130,13 @@ def get_cache_stats() -> dict:
     try:
         if REDIS_USE_FAKE:
             # Limited stats for fakeredis
-            return {"type": "fakeredis", "keys": len(redis_client.keys("*")), "status": "connected"}
+            return {
+                "type": "fakeredis",
+                "keys": len(redis_client.keys("*")),
+                "status": "connected",
+            }
         else:
-            info = redis_client.info()
+            info: Any = redis_client.info()
             return {
                 "type": "redis",
                 "status": "connected",

@@ -1,3 +1,5 @@
+import gc
+import gc
 """Visualization tools for A/B testing analysis results."""
 
 from typing import Any, Literal, Optional
@@ -20,7 +22,10 @@ class ExperimentVisualizer:
         sns.set_style(style)
 
     def plot_confidence_interval(
-        self, result: AnalysisResult, save_path: Optional[str] = None, interactive: bool = True
+        self,
+        result: AnalysisResult,
+        save_path: Optional[str] = None,
+        interactive: bool = True,
     ) -> Any:
         """Plot confidence interval for the difference between variants."""
         if interactive:
@@ -30,7 +35,7 @@ class ExperimentVisualizer:
 
     def _plot_confidence_interval_interactive(
         self, result: AnalysisResult, save_path: Optional[str] = None
-    ) -> go.Figure:
+    ):
         """Create interactive confidence interval plot."""
         fig = go.Figure()
 
@@ -84,7 +89,9 @@ class ExperimentVisualizer:
         diff = result.difference
         ci_lower, ci_upper = result.confidence_interval
 
-        plt.errorbar(diff, 1, xerr=[[diff - ci_lower], [ci_upper - diff]], fmt="o", capsize=5)
+        plt.errorbar(
+            diff, 1, xerr=[[diff - ci_lower], [ci_upper - diff]], fmt="o", capsize=5
+        )
 
         plt.axvline(x=0, color="gray", linestyle="--")
 
@@ -100,7 +107,10 @@ class ExperimentVisualizer:
         return plt.gcf()
 
     def plot_effect_size(
-        self, result: AnalysisResult, save_path: Optional[str] = None, interactive: bool = True
+        self,
+        result: AnalysisResult,
+        save_path: Optional[str] = None,
+        interactive: bool = True,
     ) -> Any:
         """Plot effect size visualization."""
         if interactive:
@@ -110,13 +120,17 @@ class ExperimentVisualizer:
 
     def _plot_effect_size_interactive(
         self, result: AnalysisResult, save_path: Optional[str] = None
-    ) -> go.Figure:
+    ):
         """Create interactive effect size visualization."""
         fig = go.Figure()
 
         thresholds = {"Small": 0.2, "Medium": 0.5, "Large": 0.8}
 
-        colors = ["rgba(255,200,200,0.2)", "rgba(255,150,150,0.2)", "rgba(255,100,100,0.2)"]
+        colors = [
+            "rgba(255,200,200,0.2)",
+            "rgba(255,150,150,0.2)",
+            "rgba(255,100,100,0.2)",
+        ]
         for i, (label, value) in enumerate(thresholds.items()):
             fig.add_vrect(
                 x0=0 if i == 0 else list(thresholds.values())[i - 1],

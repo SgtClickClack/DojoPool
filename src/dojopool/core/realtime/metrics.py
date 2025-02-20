@@ -8,11 +8,14 @@ from datetime import datetime
 from typing import Dict
 
 from prometheus_client import Counter, Gauge, Histogram
+
 from ...utils.monitoring import REGISTRY
 
 # Metrics for connections
 ws_connections = Gauge(
-    "websocket_connections_current", "Number of current WebSocket connections", registry=REGISTRY
+    "websocket_connections_current",
+    "Number of current WebSocket connections",
+    registry=REGISTRY,
 )
 
 ws_connections_total = Counter(
@@ -64,7 +67,10 @@ ws_event_duration = Histogram(
 
 # Metrics for rate limiting
 ws_rate_limits = Counter(
-    "websocket_rate_limits_total", "Total number of rate limit hits", ["event"], registry=REGISTRY
+    "websocket_rate_limits_total",
+    "Total number of rate limit hits",
+    ["event"],
+    registry=REGISTRY,
 )
 
 
@@ -91,7 +97,7 @@ class MetricsCollector:
         ws_connections.inc()
         ws_connections_total.labels(status="connected").inc()
 
-    def track_disconnection(self, user_id: str) -> None:
+    def track_disconnection(self, user_id: str):
         """Track WebSocket disconnection.
 
         Args:
@@ -110,7 +116,7 @@ class MetricsCollector:
         """
         self._event_starts[event_id] = datetime.now()
 
-    def end_event(self, event_id: str, event_name: str, success: bool = True) -> None:
+    def end_event(self, event_id: str, event_name: str, success: bool = True):
         """End tracking event timing.
 
         Args:
@@ -121,7 +127,9 @@ class MetricsCollector:
         if event_id in self._event_starts:
             duration = datetime.now() - self._event_starts[event_id]
             ws_event_duration.labels(event=event_name).observe(duration.total_seconds())
-            ws_events.labels(event=event_name, status="success" if success else "error").inc()
+            ws_events.labels(
+                event=event_name, status="success" if success else "error"
+            ).inc()
             del self._event_starts[event_id]
 
     def track_room_change(self, room_type: str, count_change: int) -> None:
@@ -134,7 +142,7 @@ class MetricsCollector:
         self._room_counts[room_type] += count_change
         ws_rooms.labels(type=room_type).set(self._room_counts[room_type])
 
-    def track_member_change(self, room_type: str, count_change: int) -> None:
+    def track_member_change(self, room_type: str, count_change: int):
         """Track change in room member count.
 
         Args:
@@ -144,7 +152,7 @@ class MetricsCollector:
         self._member_counts[room_type] += count_change
         ws_room_members.labels(type=room_type).set(self._member_counts[room_type])
 
-    def track_error(self, error_type: str) -> None:
+    def track_error(self, error_type: str):
         """Track WebSocket error.
 
         Args:
@@ -152,7 +160,7 @@ class MetricsCollector:
         """
         ws_errors.labels(type=error_type).inc()
 
-    def track_rate_limit(self, event_name: str) -> None:
+    def track_rate_limit(self, event_name: str):
         """Track rate limit hit.
 
         Args:
@@ -174,7 +182,7 @@ def track_connection(user_id: str) -> None:
     metrics_collector.track_connection(user_id)
 
 
-def track_disconnection(user_id: str) -> None:
+def track_disconnection(user_id: str):
     """Track WebSocket disconnection.
 
     Args:
@@ -183,7 +191,7 @@ def track_disconnection(user_id: str) -> None:
     metrics_collector.track_disconnection(user_id)
 
 
-def start_event(event_id: str) -> None:
+def start_event(event_id: str):
     """Start tracking event timing.
 
     Args:
@@ -192,7 +200,7 @@ def start_event(event_id: str) -> None:
     metrics_collector.start_event(event_id)
 
 
-def end_event(event_id: str, event_name: str, success: bool = True) -> None:
+def end_event(event_id: str, event_name: str, success: bool = True):
     """End tracking event timing.
 
     Args:
@@ -213,7 +221,7 @@ def track_room_change(room_type: str, count_change: int) -> None:
     metrics_collector.track_room_change(room_type, count_change)
 
 
-def track_member_change(room_type: str, count_change: int) -> None:
+def track_member_change(room_type: str, count_change: int):
     """Track change in room member count.
 
     Args:
@@ -223,7 +231,7 @@ def track_member_change(room_type: str, count_change: int) -> None:
     metrics_collector.track_member_change(room_type, count_change)
 
 
-def track_error(error_type: str) -> None:
+def track_error(error_type: str):
     """Track WebSocket error.
 
     Args:
@@ -232,7 +240,7 @@ def track_error(error_type: str) -> None:
     metrics_collector.track_error(error_type)
 
 
-def track_rate_limit(event_name: str) -> None:
+def track_rate_limit(event_name: str):
     """Track rate limit hit.
 
     Args:

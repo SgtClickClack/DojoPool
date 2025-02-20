@@ -12,7 +12,9 @@ class Review(TimestampMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    target_type = db.Column(db.String(50), nullable=False)  # venue, tournament, player, etc.
+    target_type = db.Column(
+        db.String(50), nullable=False
+    )  # venue, tournament, player, etc.
     target_id = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Integer, nullable=False)  # 1-5 stars
     title = db.Column(db.String(200))
@@ -52,7 +54,9 @@ class ReviewReport(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     review_id = db.Column(db.Integer, db.ForeignKey("reviews.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    reason = db.Column(db.String(50), nullable=False)  # spam, inappropriate, misleading, etc.
+    reason = db.Column(
+        db.String(50), nullable=False
+    )  # spam, inappropriate, misleading, etc.
     details = db.Column(db.Text)
     status = db.Column(db.String(20), default="pending")  # pending, resolved, dismissed
 

@@ -1,13 +1,16 @@
-"""Authentication routes."""
+"""Authentication routes module."""
+
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from flask import (
     Blueprint,
+    Response,
     current_app,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required, login_user, logout_user
@@ -17,10 +20,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from wtforms import BooleanField, PasswordField, StringField
 from wtforms.validators import DataRequired, Email, Length
 
-from ..core.auth.models import User, db
+from ..core.extensions import db
+from ..models.user import User
 from .oauth import GoogleOAuth
 
-auth_bp = Blueprint("auth", __name__)
+auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 class LoginForm(FlaskForm):
@@ -34,47 +38,35 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     """Registration form."""
 
-    username = StringField("Username", validators=[DataRequired(), Length(min=3, max=80)])
+    username = StringField(
+        "Username", validators=[DataRequired(), Length(min=3, max=64)]
+    )
     email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
+    confirm_password = PasswordField(
+        "Confirm Password", validators=[DataRequired(), Length(min=8)]
+    )
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
-def register():
-    """Register a new user."""
+def register() -> Union[str, Response]:
+    """Handle registration requests."""
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
-
-    if request.is_json:
-        data = request.get_json()
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
-
-        if not all([username, email, password]):
-            return jsonify({"status": "error", "message": "Missing required fields"}), 400
-
-        if User.query.filter_by(username=username).first():
-            return jsonify({"status": "error", "message": "Username already taken"}), 400
-
-        if User.query.filter_by(email=email).first():
-            return jsonify({"status": "error", "message": "Email already registered"}), 400
-
-        user = User(username=username, email=email, password_hash=generate_password_hash(password))
-        db.session.add(user)
-        db.session.commit()
-
-        return jsonify({"status": "success", "message": "Registration successful"}), 201
+        return redirect(url_for("main.index"))
 
     form = RegisterForm()
     if form.validate_on_submit():
-        if User.query.filter_by(username=form.username.data).first():
-            flash("Username already taken")
-            return redirect(url_for("auth.register"))
+        if form.password.data != form.confirm_password.data:
+            flash("Passwords do not match", "error")
+            return render_template("auth/register.html", form=form)
 
         if User.query.filter_by(email=form.email.data).first():
-            flash("Email already registered")
-            return redirect(url_for("auth.register"))
+            flash("Email already registered", "error")
+            return render_template("auth/register.html", form=form)
+
+        if User.query.filter_by(username=form.username.data).first():
+            flash("Username already taken", "error")
+            return render_template("auth/register.html", form=form)
 
         user = User(
             username=form.username.data,
@@ -83,7 +75,8 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
-        flash("Registration successful! Please log in.")
+
+        flash("Registration successful. Please log in.", "success")
         return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form=form)
@@ -91,19 +84,18 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    """Log in a user."""
+    """Handle login requests."""
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("main.index"))
 
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password_hash, form.password.data):
+        if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             next_page = request.args.get("next")
-            return redirect(next_page if next_page else url_for("dashboard"))
-        flash("Invalid email or password")
-        return redirect(url_for("auth.login"))
+            return redirect(next_page or url_for("main.index"))
+        flash("Invalid email or password", "error")
 
     return render_template("auth/login.html", form=form)
 
@@ -111,92 +103,83 @@ def login():
 @auth_bp.route("/logout")
 @login_required
 def logout():
-    """Log out the current user."""
+    """Handle logout requests."""
     logout_user()
-    flash("You have been logged out.")
-    return redirect(url_for("index"))
+    flash("You have been logged out", "info")
+    return redirect(url_for("main.index"))
 
 
-@auth_bp.route("/google-login")
+@auth_bp.route("/google/login")
 def google_login():
-    """Initiate Google OAuth login."""
+    """Handle Google login requests."""
     google = GoogleOAuth()
     auth_url = google.get_auth_url()
     if not auth_url:
-        flash("Failed to get Google authorization URL. Please try again later.", "error")
+        flash("Failed to get Google authorization URL", "error")
         return redirect(url_for("auth.login"))
     return redirect(auth_url)
 
 
-@auth_bp.route("/google-callback")
-def google_callback():
-    """Google OAuth callback route."""
+@auth_bp.route("/google/callback")
+def google_callback() -> Response:
+    """Handle Google OAuth callback."""
     google = GoogleOAuth()
-
-    # Get authorization code from Google
     code = request.args.get("code")
     if not code:
-        flash("Authentication failed. Please try again.", "error")
+        flash("Failed to get authorization code from Google", "error")
         return redirect(url_for("auth.login"))
 
     try:
-        # Create OAuth2 session
-        oauth = OAuth2Session(
-            google.client_id,
-            redirect_uri=url_for("auth.google_callback", _external=True),
-            scope=["openid", "email", "profile"],
-        )
-
-        # Get token using authorization code
         token_url = google.get_token_url()
         if not token_url:
-            raise Exception("Failed to get token URL")
+            raise ValueError("Failed to get token URL")
 
-        oauth.fetch_token(
-            token_url, client_secret=google.client_secret, authorization_response=request.url
+        token_response = google.prepare_token_request(
+            request.url, redirect_url=url_for("auth.google_callback", _external=True)
         )
+        google.parse_token_response(token_response)
 
-        # Get user info URL
-        userinfo_url = google.get_userinfo_url()
-        if not userinfo_url:
-            raise Exception("Failed to get user info URL")
+        userinfo_response = google.prepare_userinfo_request()
+        if not userinfo_response:
+            raise ValueError("Failed to get user info")
 
-        # Get user info from Google
-        userinfo = oauth.get(userinfo_url).json()
-
-        if not userinfo.get("email_verified"):
-            flash("Google account email is not verified.", "error")
-            return redirect(url_for("auth.login"))
-
-        # Get user info
-        email = userinfo["email"]
-        userinfo.get("given_name", "")
-
-        # Find or create user
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=userinfo_response["email"]).first()
         if not user:
             user = User(
-                username=email.split("@")[0],
-                email=email,
-                password_hash="",  # No password for Google users
-                is_active=True,
+                email=userinfo_response["email"],
+                username=userinfo_response.get("name", "").replace(" ", "_").lower(),
+                password_hash=generate_password_hash(os.urandom(24).hex()),
             )
             db.session.add(user)
             db.session.commit()
 
-        # Log in user
-        login_user(user, remember=True)
-        return redirect(url_for("dashboard"))
+        login_user(user)
+        return redirect(url_for("main.index"))
 
     except Exception as e:
         current_app.logger.error(f"Google OAuth error: {str(e)}")
-        flash("Authentication failed. Please try again.", "error")
+        flash("Failed to authenticate with Google", "error")
         return redirect(url_for("auth.login"))
 
 
-@auth_bp.route("/forgot-password")
-def forgot_password():
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password() -> Union[str, Response]:
     """Handle forgot password requests."""
-    # TODO: Implement forgot password functionality
-    flash("Password reset functionality is not yet implemented.")
-    return redirect(url_for("auth.login"))
+    if current_user.is_authenticated:
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        email = request.form.get("email")
+        if not email:
+            flash("Please enter your email address", "error")
+            return render_template("auth/forgot_password.html")
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            # TODO: Implement password reset email
+            flash("Password reset instructions sent to your email", "info")
+            return redirect(url_for("auth.login"))
+        else:
+            flash("Email address not found", "error")
+
+    return render_template("auth/forgot_password.html")

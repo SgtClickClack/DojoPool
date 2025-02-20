@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 Analysis tools for A/B testing results.
 Provides statistical analysis and visualization of test data.
@@ -69,7 +71,7 @@ class TestAnalyzer:
 
     def analyze_experiment(
         self, experiment: Experiment, metric_name: str, confidence_level: float = 0.95
-    ) -> AnalysisResult:
+    ):
         """
         Analyze the results of an experiment.
 
@@ -90,7 +92,8 @@ class TestAnalyzer:
             for variant in experiment.variants:
                 # Get metric values for this variant
                 values = self.metrics.get_metric_values(
-                    metric_name, tags={f"experiment_{experiment.id}", f"variant_{variant.id}"}
+                    metric_name,
+                    tags={f"experiment_{experiment.id}", f"variant_{variant.id}"},
                 )
 
                 if not values:
@@ -131,7 +134,10 @@ class TestAnalyzer:
                 variant_failures = len(variant_data) - variant_successes
 
                 contingency = np.array(
-                    [[control_successes, control_failures], [variant_successes, variant_failures]]
+                    [
+                        [control_successes, control_failures],
+                        [variant_successes, variant_failures],
+                    ]
                 )
 
                 chi2, p_value = stats.chi2_contingency(contingency)[:2]
@@ -203,7 +209,7 @@ class TestAnalyzer:
         }
         return insights
 
-    def _save_result(self, result: AnalysisResult) -> None:
+    def _save_result(self, result: AnalysisResult):
         """Save analysis result to disk."""
         try:
             # Create results directory if it doesn't exist
@@ -217,7 +223,9 @@ class TestAnalyzer:
             # Convert result to dict for serialization
             result_dict = {
                 "experiment_id": result.experiment_id,
-                "start_date": result.start_date.isoformat() if result.start_date else None,
+                "start_date": (
+                    result.start_date.isoformat() if result.start_date else None
+                ),
                 "end_date": result.end_date.isoformat() if result.end_date else None,
                 "significant": result.significant,
                 "improvement": result.improvement,
@@ -232,7 +240,7 @@ class TestAnalyzer:
         except Exception as e:
             logger.error(f"Error saving analysis result: {str(e)}")
 
-    def _load_latest_result(self, experiment_id: str) -> Optional[AnalysisResult]:
+    def _load_latest_result(self, experiment_id: str):
         """Load the latest analysis result for an experiment."""
         try:
             # Find all result files for this experiment
@@ -242,7 +250,8 @@ class TestAnalyzer:
 
             # Get latest file by extracting timestamp from filename
             latest_file = max(
-                result_files, key=lambda p: int("".join(filter(str.isdigit, p.stem.split("_")[1])))
+                result_files,
+                key=lambda p: int("".join(filter(str.isdigit, p.stem.split("_")[1]))),
             )
 
             # Load and parse result
@@ -266,7 +275,9 @@ class TestAnalyzer:
             logger.error(f"Error loading analysis result: {str(e)}")
             return None
 
-    def _generate_plots(self, result: AnalysisResult, variant_data: Dict[str, List[float]]) -> None:
+    def _generate_plots(
+        self, result: AnalysisResult, variant_data: Dict[str, List[float]]
+    ):
         """Generate visualization plots for the analysis result."""
         try:
             # Create figure with subplots
@@ -274,7 +285,9 @@ class TestAnalyzer:
 
             # Plot 1: Bar chart of conversion rates by variant
             variants = list(result.variant_results.keys())
-            conversion_rates = [result.variant_results[v]["conversion_rate"] for v in variants]
+            conversion_rates = [
+                result.variant_results[v]["conversion_rate"] for v in variants
+            ]
 
             ax1.bar(variants, conversion_rates)
             ax1.set_title("Conversion Rate by Variant")
@@ -305,9 +318,15 @@ class TestAnalyzer:
             return AnalysisResult(
                 experiment_id=data["experiment_id"],
                 start_date=(
-                    datetime.fromisoformat(data["start_date"]) if data.get("start_date") else None
+                    datetime.fromisoformat(data["start_date"])
+                    if data.get("start_date")
+                    else None
                 ),
-                end_date=datetime.fromisoformat(data["end_date"]) if data.get("end_date") else None,
+                end_date=(
+                    datetime.fromisoformat(data["end_date"])
+                    if data.get("end_date")
+                    else None
+                ),
                 significant=data["significant"],
                 improvement=data["improvement"],
                 p_value=data["p_value"],

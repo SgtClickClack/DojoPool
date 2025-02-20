@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 from typing import Dict, List, Optional
 
 from geopy.distance import geodesic
@@ -38,7 +40,7 @@ class GeoService:
 
         return sorted(nearby_venues, key=lambda x: x["distance"])
 
-    def is_area_unlocked(self, venue_id: int) -> bool:
+    def is_area_unlocked(self, venue_id: int):
         """Check if a venue's area is unlocked based on visit history."""
         visit_count = self.get_visit_count(venue_id)
         return visit_count >= self.area_unlock_threshold
@@ -56,7 +58,7 @@ class GeoService:
         # TODO: Implement regional leaderboard
         return []
 
-    def generate_area_challenge(self, venue_id: int) -> Dict:
+    def generate_area_challenge(self, venue_id: int):
         """Generate a location-based challenge for a specific venue."""
         venue = Venue.query.get(venue_id)
         if not venue:

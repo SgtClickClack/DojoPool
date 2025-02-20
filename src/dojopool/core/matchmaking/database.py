@@ -1,413 +1,430 @@
-"""Database module for matchmaking persistence.
+import gc
+import gc
+"""Matchmaking database module.
 
-This module handles all database operations for the matchmaking system,
-including storing match history, queue state, and user preferences.
+This module provides database operations for matchmaking functionality.
 """
 
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime
-import asyncpg
-from ..config.database import DATABASE_CONFIG
-from ..models.user import User
+import logging
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
+from uuid import UUID
+
+from sqlalchemy import ForeignKey, text
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+
+from ..database import db_session
 from ..models.game import Game
+from ..models.user import User
 from ..models.venue import Venue
-from .exceptions import DatabaseError
+
+logger: Any = logging.getLogger(__name__)
+
 
 class MatchmakingDB:
-    """Database handler for matchmaking operations."""
-    
-    def __init__(self):
-        """Initialize database connection pool."""
-        self.pool = None
-        
-    async def initialize(self):
-        """Initialize the connection pool."""
-        try:
-            self.pool = await asyncpg.create_pool(
-                user=DATABASE_CONFIG['user'],
-                os.getenv("PASSWORD_40")],
-                database=DATABASE_CONFIG['database'],
-                host=DATABASE_CONFIG['host'],
-                port=DATABASE_CONFIG['port'],
-                min_size=DATABASE_CONFIG['min_connections'],
-                max_size=DATABASE_CONFIG['max_connections']
-            )
-        except Exception as e:
-            raise DatabaseError(f"Failed to initialize database pool: {str(e)}")
+    """Handles database operations for matchmaking."""
 
-    async def close(self):
-        """Close the database connection pool."""
-        if self.pool:
-            await self.pool.close()
-            
-    async def store_match_history(self, match: Dict) -> int:
-        """Store a completed match in the database.
-        
-        Args:
-            match: Match data to store
-            
-        Returns:
-            int: ID of stored match record
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
+    def __init__(self) -> None:
+        """Initialize matchmaking database."""
+        self.initialize()
+
+    def initialize(self):
+        """Initialize database tables and indexes."""
+        with db_session() as session:
             try:
-                query = """
-                    INSERT INTO match_history (
-                        player1_id, player2_id, venue_id,
-                        start_time, end_time, score,
-                        winner_id, game_type, status
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                # Create tables if they don't exist
+                session.execute(
+                    text(
+                        """
+                    CREATE TABLE IF NOT EXISTS matchmaking_queue (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        skill_level INTEGER NOT NULL,
+                        game_type VARCHAR(50) NOT NULL,
+                        venue_id INTEGER,
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        status VARCHAR(20) NOT NULL DEFAULT 'waiting',
+                        FOREIGN KEY (user_id) REFERENCES users(id),
+                        FOREIGN KEY (venue_id) REFERENCES venues(id)
+                    )
+                """
+                    )
+                )
+
+                session.execute(
+                    text(
+                        """
+                    CREATE TABLE IF NOT EXISTS match_history (
+                        id SERIAL PRIMARY KEY,
+                        game_id INTEGER NOT NULL,
+                        player1_id INTEGER NOT NULL,
+                        player2_id INTEGER NOT NULL,
+                        winner_id INTEGER NOT NULL,
+                        loser_id INTEGER NOT NULL,
+                        venue_id INTEGER,
+                        played_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        game_type VARCHAR(50) NOT NULL,
+                        score VARCHAR(50),
+                        FOREIGN KEY (game_id) REFERENCES games(id),
+                        FOREIGN KEY (player1_id) REFERENCES users(id),
+                        FOREIGN KEY (player2_id) REFERENCES users(id),
+                        FOREIGN KEY (winner_id) REFERENCES users(id),
+                        FOREIGN KEY (loser_id) REFERENCES users(id),
+                        FOREIGN KEY (venue_id) REFERENCES venues(id)
+                    )
+                """
+                    )
+                )
+
+                session.execute(
+                    text(
+                        """
+                    CREATE TABLE IF NOT EXISTS blocked_pairs (
+                        id SERIAL PRIMARY KEY,
+                        user1_id INTEGER NOT NULL,
+                        user2_id INTEGER NOT NULL,
+                        reason VARCHAR(200),
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user1_id) REFERENCES users(id),
+                        FOREIGN KEY (user2_id) REFERENCES users(id),
+                        UNIQUE (user1_id, user2_id)
+                    )
+                """
+                    )
+                )
+
+                session.commit()
+                logger.info("Matchmaking tables initialized successfully")
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Error initializing matchmaking tables: {str(e)}")
+                raise
+
+    def store_match_history(
+        self,
+        game_id: int,
+        player1_id: int,
+        player2_id: int,
+        winner_id: int,
+        game_type: str,
+        venue_id: Optional[int] = None,
+        score: Optional[str] = None,
+    ):
+        """Store a completed match in the history.
+
+        Args:
+            game_id: Unique identifier for the game
+            player1_id: ID of first player
+            player2_id: ID of second player
+            winner_id: ID of winning player
+            game_type: Type of game played
+            venue_id: Optional venue where game was played
+            score: Optional final score
+
+        Returns:
+            int: ID of the created match history entry
+        """
+        try:
+            with Session() as session:
+                match: Dict[Any, Any] = {
+                    "game_id": game_id,
+                    "player1_id": player1_id,
+                    "player2_id": player2_id,
+                    "winner_id": winner_id,
+                    "game_type": game_type,
+                    "venue_id": venue_id,
+                    "score": score,
+                }
+
+                result: Any = session.execute(
+                    text(
+                        """
+                    INSERT INTO match_history 
+                    (game_id, player1_id, player2_id, winner_id, game_type, venue_id, score)
+                    VALUES (:game_id, :player1_id, :player2_id, :winner_id, :game_type, :venue_id, :score)
                     RETURNING id
                 """
-                match_id = await conn.fetchval(
-                    query,
-                    match['player1_id'],
-                    match['player2_id'],
-                    match['venue_id'],
-                    match['start_time'],
-                    match['end_time'],
-                    match['score'],
-                    match['winner_id'],
-                    match['game_type'],
-                    match['status']
+                    ),
+                    match,
                 )
-                return match_id
-            except Exception as e:
-                raise DatabaseError(f"Failed to store match history: {str(e)}")
 
-    async def get_user_match_history(
-        self,
-        user_id: int,
-        limit: int = 10,
-        offset: int = 0
-    ) -> List[Dict]:
-        """Get match history for a user.
-        
+                match_id: Any = result.scalar_one()
+                session.commit()
+                return match_id
+
+        except Exception as e:
+            logger.error(f"Error storing match history: {str(e)}")
+            raise
+
+    def get_user_match_history(self, user_id: int, limit: int = 10, offset: int = 0):
+        """Get match history for user.
+
         Args:
-            user_id: ID of user to get history for
+            user_id: User ID
             limit: Maximum number of matches to return
             offset: Number of matches to skip
-            
-        Returns:
-            List[Dict]: List of match records
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    SELECT *
-                    FROM match_history
-                    WHERE player1_id = $1 OR player2_id = $1
-                    ORDER BY start_time DESC
-                    LIMIT $2 OFFSET $3
-                """
-                records = await conn.fetch(query, user_id, limit, offset)
-                return [dict(record) for record in records]
-            except Exception as e:
-                raise DatabaseError(f"Failed to get user match history: {str(e)}")
 
-    async def store_queue_entry(self, entry: Dict) -> int:
-        """Store a queue entry in the database.
-        
-        Args:
-            entry: Queue entry data to store
-            
         Returns:
-            int: ID of stored queue entry
-            
-        Raises:
-            DatabaseError: If database operation fails
+            List[Dict[str, Any]]: Match history entries
         """
-        async with self.pool.acquire() as conn:
+        with db_session() as session:
             try:
-                query = """
-                    INSERT INTO matchmaking_queue (
-                        user_id, preferences, join_time,
-                        priority, last_check, status
-                    ) VALUES ($1, $2, $3, $4, $5, $6)
-                    RETURNING id
+                result: Any = session.execute(
+                    text(
+                        """
+                    SELECT 
+                        mh.*,
+                        g.name as game_name,
+                        v.name as venue_name,
+                        p1.username as player1_name,
+                        p2.username as player2_name,
+                        w.username as winner_name,
+                        l.username as loser_name
+                    FROM match_history mh
+                    JOIN games g ON mh.game_id = g.id
+                    LEFT JOIN venues v ON mh.venue_id = v.id
+                    JOIN users p1 ON mh.player1_id = p1.id
+                    JOIN users p2 ON mh.player2_id = p2.id
+                    JOIN users w ON mh.winner_id = w.id
+                    JOIN users l ON mh.loser_id = l.id
+                    WHERE mh.player1_id = :user_id OR mh.player2_id = :user_id
+                    ORDER BY mh.played_at DESC
+                    LIMIT :limit OFFSET :offset
                 """
-                entry_id = await conn.fetchval(
-                    query,
-                    entry['user_id'],
-                    entry['preferences'],
-                    entry['join_time'],
-                    entry['priority'],
-                    entry['last_check'],
-                    'active'
+                    ),
+                    {"user_id": user_id, "limit": limit, "offset": offset},
                 )
-                return entry_id
-            except Exception as e:
-                raise DatabaseError(f"Failed to store queue entry: {str(e)}")
 
-    async def update_queue_entry(self, entry_id: int, updates: Dict) -> bool:
-        """Update a queue entry in the database.
-        
-        Args:
-            entry_id: ID of queue entry to update
-            updates: Fields to update
-            
-        Returns:
-            bool: True if successful
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                set_clauses = []
-                values = []
-                for i, (key, value) in enumerate(updates.items(), start=1):
-                    set_clauses.append(f"{key} = ${i}")
-                    values.append(value)
-                    
-                query = f"""
-                    UPDATE matchmaking_queue
-                    SET {', '.join(set_clauses)}
-                    WHERE id = ${len(values) + 1}
-                """
-                values.append(entry_id)
-                
-                result = await conn.execute(query, *values)
-                return 'UPDATE 1' in result
-            except Exception as e:
-                raise DatabaseError(f"Failed to update queue entry: {str(e)}")
+                return [dict(row) for row in result]
 
-    async def get_active_queue_entries(self) -> List[Dict]:
-        """Get all active queue entries.
-        
-        Returns:
-            List[Dict]: List of active queue entries
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    SELECT *
-                    FROM matchmaking_queue
-                    WHERE status = 'active'
-                    ORDER BY priority DESC, join_time ASC
-                """
-                records = await conn.fetch(query)
-                return [dict(record) for record in records]
             except Exception as e:
-                raise DatabaseError(f"Failed to get active queue entries: {str(e)}")
+                logger.error(f"Error getting match history: {str(e)}")
+                return []
 
-    async def store_user_preferences(self, user_id: int, preferences: Dict) -> bool:
-        """Store user matchmaking preferences.
-        
-        Args:
-            user_id: ID of user
-            preferences: Matchmaking preferences
-            
-        Returns:
-            bool: True if successful
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    INSERT INTO user_preferences (user_id, preferences)
-                    VALUES ($1, $2)
-                    ON CONFLICT (user_id)
-                    DO UPDATE SET preferences = $2
-                """
-                await conn.execute(query, user_id, preferences)
-                return True
-            except Exception as e:
-                raise DatabaseError(f"Failed to store user preferences: {str(e)}")
-
-    async def get_user_preferences(self, user_id: int) -> Optional[Dict]:
-        """Get user matchmaking preferences.
-        
-        Args:
-            user_id: ID of user
-            
-        Returns:
-            Optional[Dict]: User preferences if found
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    SELECT preferences
-                    FROM user_preferences
-                    WHERE user_id = $1
-                """
-                record = await conn.fetchrow(query, user_id)
-                return dict(record['preferences']) if record else None
-            except Exception as e:
-                raise DatabaseError(f"Failed to get user preferences: {str(e)}")
-
-    async def store_blocked_pair(self, blocker_id: int, blocked_id: int) -> bool:
-        """Store a blocked player pair.
-        
-        Args:
-            blocker_id: ID of user initiating block
-            blocked_id: ID of blocked user
-            
-        Returns:
-            bool: True if successful
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    INSERT INTO blocked_pairs (blocker_id, blocked_id)
-                    VALUES ($1, $2)
-                    ON CONFLICT DO NOTHING
-                """
-                await conn.execute(query, blocker_id, blocked_id)
-                return True
-            except Exception as e:
-                raise DatabaseError(f"Failed to store blocked pair: {str(e)}")
-
-    async def remove_blocked_pair(self, blocker_id: int, blocked_id: int) -> bool:
-        """Remove a blocked player pair.
-        
-        Args:
-            blocker_id: ID of user who initiated block
-            blocked_id: ID of blocked user
-            
-        Returns:
-            bool: True if successful
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    DELETE FROM blocked_pairs
-                    WHERE blocker_id = $1 AND blocked_id = $2
-                """
-                result = await conn.execute(query, blocker_id, blocked_id)
-                return 'DELETE 1' in result
-            except Exception as e:
-                raise DatabaseError(f"Failed to remove blocked pair: {str(e)}")
-
-    async def get_blocked_pairs(self, user_id: int) -> List[Tuple[int, int]]:
-        """Get all blocked pairs involving a user.
-        
-        Args:
-            user_id: ID of user
-            
-        Returns:
-            List[Tuple[int, int]]: List of (blocker_id, blocked_id) pairs
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    SELECT blocker_id, blocked_id
-                    FROM blocked_pairs
-                    WHERE blocker_id = $1 OR blocked_id = $1
-                """
-                records = await conn.fetch(query, user_id)
-                return [(r['blocker_id'], r['blocked_id']) for r in records]
-            except Exception as e:
-                raise DatabaseError(f"Failed to get blocked pairs: {str(e)}")
-
-    async def store_event(self, event: Dict) -> int:
-        """Store a matchmaking event.
-        
-        Args:
-            event: Event data to store
-            
-        Returns:
-            int: ID of stored event
-            
-        Raises:
-            DatabaseError: If database operation fails
-        """
-        async with self.pool.acquire() as conn:
-            try:
-                query = """
-                    INSERT INTO matchmaking_events (
-                        event_type, user_id, timestamp, data
-                    ) VALUES ($1, $2, $3, $4)
-                    RETURNING id
-                """
-                event_id = await conn.fetchval(
-                    query,
-                    event['event_type'],
-                    event['user_id'],
-                    event['timestamp'],
-                    event['data']
-                )
-                return event_id
-            except Exception as e:
-                raise DatabaseError(f"Failed to store event: {str(e)}")
-
-    async def get_user_events(
+    def store_queue_entry(
         self,
         user_id: int,
-        event_type: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        limit: int = 50
-    ) -> List[Dict]:
-        """Get events for a user.
-        
+        skill_level: int,
+        game_type: str,
+        venue_id: Optional[int] = None,
+    ) -> int:
+        """Store matchmaking queue entry.
+
         Args:
-            user_id: ID of user
-            event_type: Optional type of events to filter by
-            start_time: Optional start of time range
-            end_time: Optional end of time range
-            limit: Maximum number of events to return
-            
+            user_id: User ID
+            skill_level: Player skill level
+            game_type: Type of game
+            venue_id: Optional venue ID
+
         Returns:
-            List[Dict]: List of events
-            
-        Raises:
-            DatabaseError: If database operation fails
+            int: Queue entry ID
         """
-        async with self.pool.acquire() as conn:
+        with db_session() as session:
             try:
-                conditions = ['user_id = $1']
-                values = [user_id]
-                param_count = 1
-                
-                if event_type:
-                    param_count += 1
-                    conditions.append(f'event_type = ${param_count}')
-                    values.append(event_type)
-                    
-                if start_time:
-                    param_count += 1
-                    conditions.append(f'timestamp >= ${param_count}')
-                    values.append(start_time)
-                    
-                if end_time:
-                    param_count += 1
-                    conditions.append(f'timestamp <= ${param_count}')
-                    values.append(end_time)
-                    
-                query = f"""
-                    SELECT *
-                    FROM matchmaking_events
-                    WHERE {' AND '.join(conditions)}
-                    ORDER BY timestamp DESC
-                    LIMIT ${param_count + 1}
+                result: Any = session.execute(
+                    text(
+                        """
+                    INSERT INTO matchmaking_queue (
+                        user_id, skill_level, game_type, venue_id
+                    ) VALUES (
+                        :user_id, :skill_level, :game_type, :venue_id
+                    ) RETURNING id
                 """
-                values.append(limit)
-                
-                records = await conn.fetch(query, *values)
-                return [dict(record) for record in records]
+                    ),
+                    {
+                        "user_id": user_id,
+                        "skill_level": skill_level,
+                        "game_type": game_type,
+                        "venue_id": venue_id,
+                    },
+                )
+
+                session.commit()
+                return cast(int, result.scalar())
+
             except Exception as e:
-                raise DatabaseError(f"Failed to get user events: {str(e)}")
+                session.rollback()
+                logger.error(f"Error storing queue entry: {str(e)}")
+                raise
+
+    def update_queue_entry(self, entry_id: int, status: str, **kwargs: Any):
+        """Update matchmaking queue entry.
+
+        Args:
+            entry_id: Queue entry ID
+            status: New status
+            **kwargs: Additional fields to update
+
+        Returns:
+            bool: True if successful
+        """
+        valid_fields: Set[Any] = {"skill_level", "game_type", "venue_id"}
+        update_fields: Any = {k: v for k, v in kwargs.items() if k in valid_fields}
+        update_fields["status"] = status
+
+        with db_session() as session:
+            try:
+                session.execute(
+                    text(
+                        """
+                    UPDATE matchmaking_queue
+                    SET status = :status
+                    WHERE id = :entry_id
+                """
+                    ),
+                    {"entry_id": entry_id, "status": status},
+                )
+
+                session.commit()
+                return True
+
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Error updating queue entry: {str(e)}")
+                return False
+
+    def get_active_queue_entries(
+        self, game_type: Optional[str] = None, venue_id: Optional[int] = None
+    ):
+        """Get active queue entries.
+
+        Args:
+            game_type: Optional game type filter
+            venue_id: Optional venue filter
+
+        Returns:
+            List[Dict[str, Any]]: Active queue entries
+        """
+        with db_session() as session:
+            try:
+                query: str = """
+                    SELECT 
+                        q.*,
+                        u.username,
+                        v.name as venue_name
+                    FROM matchmaking_queue q
+                    JOIN users u ON q.user_id = u.id
+                    LEFT JOIN venues v ON q.venue_id = v.id
+                    WHERE q.status = 'waiting'
+                """
+                params: Dict[str, Any] = {}
+
+                if game_type:
+                    query += " AND q.game_type = :game_type"
+                    params["game_type"] = game_type
+
+                if venue_id:
+                    query += " AND q.venue_id = :venue_id"
+                    params["venue_id"] = venue_id
+
+                query += " ORDER BY q.created_at ASC"
+
+                result: Any = session.execute(text(query), params)
+                return [dict(row) for row in result]
+
+            except Exception as e:
+                logger.error(f"Error getting queue entries: {str(e)}")
+                return []
+
+    def store_blocked_pair(
+        self, user1_id: int, user2_id: int, reason: Optional[str] = None
+    ):
+        """Store blocked player pair.
+
+        Args:
+            user1_id: First user ID
+            user2_id: Second user ID
+            reason: Optional reason for blocking
+
+        Returns:
+            bool: True if successful
+        """
+        if user1_id == user2_id:
+            raise ValueError("Cannot block self")
+
+        with db_session() as session:
+            try:
+                session.execute(
+                    text(
+                        """
+                    INSERT INTO blocked_pairs (user1_id, user2_id, reason)
+                    VALUES (:user1_id, :user2_id, :reason)
+                    ON CONFLICT (user1_id, user2_id) DO UPDATE
+                    SET reason = :reason
+                """
+                    ),
+                    {"user1_id": user1_id, "user2_id": user2_id, "reason": reason},
+                )
+
+                session.commit()
+                return True
+
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Error storing blocked pair: {str(e)}")
+                return False
+
+    def remove_blocked_pair(self, user1_id: int, user2_id: int) -> bool:
+        """Remove blocked player pair.
+
+        Args:
+            user1_id: First user ID
+            user2_id: Second user ID
+
+        Returns:
+            bool: True if successful
+        """
+        with db_session() as session:
+            try:
+                session.execute(
+                    text(
+                        """
+                    DELETE FROM blocked_pairs
+                    WHERE (user1_id = :user1_id AND user2_id = :user2_id)
+                    OR (user1_id = :user2_id AND user2_id = :user1_id)
+                """
+                    ),
+                    {"user1_id": user1_id, "user2_id": user2_id},
+                )
+
+                session.commit()
+                return True
+
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Error removing blocked pair: {str(e)}")
+                return False
+
+    def get_blocked_pairs(self, user_id: int):
+        """Get blocked pairs for user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            List[Dict[str, Any]]: Blocked pair entries
+        """
+        with db_session() as session:
+            try:
+                result: Any = session.execute(
+                    text(
+                        """
+                    SELECT 
+                        bp.*,
+                        u1.username as user1_name,
+                        u2.username as user2_name
+                    FROM blocked_pairs bp
+                    JOIN users u1 ON bp.user1_id = u1.id
+                    JOIN users u2 ON bp.user2_id = u2.id
+                    WHERE bp.user1_id = :user_id OR bp.user2_id = :user_id
+                """
+                    ),
+                    {"user_id": user_id},
+                )
+
+                return [dict(row) for row in result]
+
+            except Exception as e:
+                logger.error(f"Error getting blocked pairs: {str(e)}")
+                return []

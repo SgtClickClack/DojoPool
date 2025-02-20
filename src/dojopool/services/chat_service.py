@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Chat service for handling messaging between users."""
 
 from typing import List, Optional
@@ -41,10 +43,14 @@ class ChatService:
         db.session.add(room)
 
         # Add participants
-        participants = [creator_id] + [pid for pid in participant_ids if pid != creator_id]
+        participants = [creator_id] + [
+            pid for pid in participant_ids if pid != creator_id
+        ]
         for user_id in participants:
             participant = ChatParticipant(
-                room=room, user_id=user_id, role="admin" if user_id == creator_id else "member"
+                room=room,
+                user_id=user_id,
+                role="admin" if user_id == creator_id else "member",
             )
             db.session.add(participant)
 

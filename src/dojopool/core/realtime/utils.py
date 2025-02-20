@@ -61,7 +61,7 @@ def get_room_config(room_type: str) -> Dict[str, Any]:
     return configs.get(room_type, default_config)
 
 
-def validate_event_data(event_type: str, data: Dict[str, Any]) -> bool:
+def validate_event_data(event_type: str, data: Dict[str, Any]):
     """Validate event data against schema.
 
     Args:
@@ -77,7 +77,7 @@ def validate_event_data(event_type: str, data: Dict[str, Any]) -> bool:
 
 def format_error_response(
     code: ErrorCodes, message: str, details: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+):
     """Format error response.
 
     Args:
@@ -96,7 +96,7 @@ def format_error_response(
     return response
 
 
-def generate_room_id(prefix: str = "") -> str:
+def generate_room_id(prefix: str = ""):
     """Generate unique room ID.
 
     Args:
@@ -109,7 +109,9 @@ def generate_room_id(prefix: str = "") -> str:
     return f"{prefix}_{random_id}" if prefix else random_id
 
 
-def generate_token(user_id: str, secret_key: str, expiry: Optional[datetime] = None) -> str:
+def generate_token(
+    user_id: str, secret_key: str, expiry: Optional[datetime] = None
+) -> str:
     """Generate authentication token.
 
     Args:
@@ -135,13 +137,15 @@ def generate_token(user_id: str, secret_key: str, expiry: Optional[datetime] = N
     payload_b64 = base64.b64encode(payload_str.encode()).decode()
 
     # Generate signature
-    signature = hmac.new(secret_key.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()
+    signature = hmac.new(
+        secret_key.encode(), payload_b64.encode(), hashlib.sha256
+    ).hexdigest()
 
     # Combine payload and signature
     return f"{payload_b64}.{signature}"
 
 
-def verify_token(token: str, secret_key: str) -> Optional[Dict[str, Any]]:
+def verify_token(token: str, secret_key: str):
     """Verify authentication token.
 
     Args:
@@ -200,7 +204,7 @@ def parse_query_string(query_string: str) -> Dict[str, str]:
     return params
 
 
-def validate_origin(origin: str, allowed_origins: Union[str, List[str]]) -> bool:
+def validate_origin(origin: str, allowed_origins: Union[str, List[str]]):
     """Validate request origin.
 
     Args:
@@ -226,7 +230,7 @@ def validate_origin(origin: str, allowed_origins: Union[str, List[str]]) -> bool
         return False
 
 
-def format_timestamp(dt: Optional[datetime] = None) -> str:
+def format_timestamp(dt: Optional[datetime] = None):
     """Format timestamp in ISO format.
 
     Args:
@@ -243,7 +247,7 @@ def format_timestamp(dt: Optional[datetime] = None) -> str:
 
 def calculate_rate(
     events: List[datetime], window: int, current_time: Optional[datetime] = None
-) -> float:
+):
     """Calculate event rate within time window.
 
     Args:
@@ -294,7 +298,9 @@ def format_bytes(size: int) -> str:
     return f"{size:.2f} {units[unit_index]}"
 
 
-def mask_sensitive_data(data: Dict[str, Any], sensitive_fields: List[str]) -> Dict[str, Any]:
+def mask_sensitive_data(
+    data: Dict[str, Any], sensitive_fields: List[str]
+) -> Dict[str, Any]:
     """Mask sensitive data in dictionary.
 
     Args:
@@ -343,7 +349,7 @@ def merge_dicts(
     return result
 
 
-def validate_json(data: str) -> Optional[Dict[str, Any]]:
+def validate_json(data: str):
     """Validate and parse JSON string.
 
     Args:
@@ -358,7 +364,7 @@ def validate_json(data: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def generate_nonce(length: int = 16) -> str:
+def generate_nonce(length: int = 16):
     """Generate random nonce.
 
     Args:

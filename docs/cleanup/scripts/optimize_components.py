@@ -30,18 +30,27 @@ class ComponentOptimizer:
         self.components: Dict[str, ComponentAnalysis] = {}
         self.common_patterns: Dict[str, List[str]] = {}
         self.optimization_suggestions: Dict[str, List[str]] = {}
-        self.ignored_dirs = {".git", "__pycache__", "node_modules", "venv", "build", "dist"}
+        self.ignored_dirs = {
+            ".git",
+            "__pycache__",
+            "node_modules",
+            "venv",
+            "build",
+            "dist",
+        }
 
     def find_component_files(self) -> List[Path]:
         """Find all React component files."""
         component_files = []
         for ext in [".tsx", ".jsx"]:
             for path in self.root_dir.rglob(f"*{ext}"):
-                if not any(ignored in str(path).split(os.sep) for ignored in self.ignored_dirs):
+                if not any(
+                    ignored in str(path).split(os.sep) for ignored in self.ignored_dirs
+                ):
                     component_files.append(path)
         return component_files
 
-    def analyze_component(self, file_path: Path) -> ComponentAnalysis:
+    def analyze_component(self, file_path: Path) :
         """Analyze a single React component."""
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -87,7 +96,9 @@ class ComponentOptimizer:
         if render_complexity > 20:
             suggestions.append("Consider splitting into smaller components")
         if "props-spreading" in patterns:
-            suggestions.append("Consider explicit prop passing for better maintainability")
+            suggestions.append(
+                "Consider explicit prop passing for better maintainability"
+            )
 
         return ComponentAnalysis(
             name=name,
@@ -113,7 +124,7 @@ class ComponentOptimizer:
 
         self.common_patterns = pattern_components
 
-    def generate_optimization_suggestions(self) -> None:
+    def generate_optimization_suggestions(self) :
         """Generate optimization suggestions based on analysis."""
         # Group similar components
         similar_components: Dict[str, List[str]] = {}
@@ -177,7 +188,9 @@ class ComponentOptimizer:
                 f.write("\n")
 
         # Optimization suggestions report
-        with open(report_dir / "optimization_suggestions.md", "w", encoding="utf-8") as f:
+        with open(
+            report_dir / "optimization_suggestions.md", "w", encoding="utf-8"
+        ) as f:
             f.write("# Component Optimization Suggestions\n\n")
 
             for key, suggestions in self.optimization_suggestions.items():

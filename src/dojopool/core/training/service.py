@@ -1,7 +1,12 @@
-from datetime import datetime
-from typing import Dict, List, Optional
+from flask_caching import Cache
+from flask_caching import Cache
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
-from sqlalchemy import desc
+from sqlalchemy import ForeignKey, desc
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..ai.service import AIService
 from ..models import db
@@ -15,27 +20,29 @@ class TrainingService:
     def recommend_program(self, user_id: int) -> Dict:
         """Recommend a training program based on user's skill level and performance."""
         # Get user's performance predictions
-        predictions = self.ai_service.predict_performance(user_id)
+        predictions: Any = self.ai_service.predict_performance(user_id)
 
         # Get user's current skill level and areas for improvement
         current_level = predictions["potential_peak"]["current_level"]
-        improvement_areas = predictions["areas_for_improvement"]
+        improvement_areas: Any = predictions["areas_for_improvement"]
 
         # Map skill level to program difficulty
-        difficulty = self._map_skill_to_difficulty(current_level)
+        difficulty: Any = self._map_skill_to_difficulty(current_level)
 
         # Find suitable programs
-        programs = TrainingProgram.query.filter_by(difficulty=difficulty).all()
+        programs: Any = TrainingProgram.query.filter_by(difficulty=difficulty).all()
 
         # Score programs based on improvement areas
-        scored_programs = []
+        scored_programs: Any = []
         for program in programs:
             score = self._calculate_program_match(program, improvement_areas)
             scored_programs.append(
                 {
                     "program": program,
                     "match_score": score,
-                    "reasons": self._get_recommendation_reasons(program, improvement_areas),
+                    "reasons": self._get_recommendation_reasons(
+                        program, improvement_areas
+                    ),
                 }
             )
 
@@ -43,26 +50,27 @@ class TrainingService:
         scored_programs.sort(key=lambda x: x["match_score"], reverse=True)
         return scored_programs[0] if scored_programs else None
 
-    def generate_exercise(self, program_id: int, user_id: int) -> Exercise:
+    def generate_exercise(self, program_id: int, user_id: int):
         """Generate a personalized exercise based on program and user progress."""
         program = TrainingProgram.query.get(program_id)
         if not program:
             raise ValueError("Program not found")
 
         # Get user's recent performance
-        recent_progress = (
+        recent_progress: Any = (
             UserProgress.query.filter_by(user_id=user_id, program_id=program_id)
             .order_by(desc(UserProgress.completion_date))
             .first()
         )
 
         # Generate exercise parameters based on performance
-        exercise_params = self._generate_exercise_params(
-            program.difficulty, recent_progress.performance_metrics if recent_progress else None
+        exercise_params: Any = self._generate_exercise_params(
+            program.difficulty,
+            recent_progress.performance_metrics if recent_progress else None,
         )
 
         # Create new exercise
-        exercise = Exercise(
+        exercise: Exercise = Exercise(
             program_id=program_id,
             name=exercise_params["name"],
             description=exercise_params["description"],
@@ -75,13 +83,13 @@ class TrainingService:
         db.session.commit()
         return exercise
 
-    def track_progress(self, user_id: int, exercise_id: int, metrics: Dict) -> UserProgress:
+    def track_progress(self, user_id: int, exercise_id: int, metrics: Dict):
         """Track user's progress for an exercise."""
-        exercise = Exercise.query.get(exercise_id)
+        exercise: Exercise = Exercise.query.get(exercise_id)
         if not exercise:
             raise ValueError("Exercise not found")
 
-        progress = UserProgress(
+        progress: UserProgress = UserProgress(
             user_id=user_id,
             program_id=exercise.program_id,
             exercise_id=exercise_id,
@@ -93,13 +101,13 @@ class TrainingService:
         db.session.commit()
         return progress
 
-    def get_user_progress(self, user_id: int, program_id: Optional[int] = None) -> List[Dict]:
+    def get_user_progress(self, user_id: int, program_id: Optional[int] = None):
         """Get user's training progress."""
-        query = UserProgress.query.filter_by(user_id=user_id)
+        query: Any = UserProgress.query.filter_by(user_id=user_id)
         if program_id:
-            query = query.filter_by(program_id=program_id)
+            query: Any = query.filter_by(program_id=program_id)
 
-        progress_entries = query.order_by(desc(UserProgress.completion_date)).all()
+        progress_entries: Any = query.order_by(desc(UserProgress.completion_date)).all()
 
         return [
             {
@@ -125,12 +133,12 @@ class TrainingService:
 
     def _calculate_program_match(
         self, program: TrainingProgram, improvement_areas: List[Dict]
-    ) -> float:
+    ):
         """Calculate how well a program matches user's improvement areas."""
-        match_score = 0
+        match_score: int = 0
         for area in improvement_areas:
             # Check if program exercises target the improvement area
-            relevant_exercises = [
+            relevant_exercises: Any = [
                 e for e in program.exercises if area["aspect"] in e.description.lower()
             ]
             if relevant_exercises:
@@ -143,11 +151,11 @@ class TrainingService:
 
     def _get_recommendation_reasons(
         self, program: TrainingProgram, improvement_areas: List[Dict]
-    ) -> List[str]:
+    ):
         """Generate reasons for program recommendation."""
-        reasons = []
+        reasons: List[Any] = []
         for area in improvement_areas:
-            relevant_exercises = [
+            relevant_exercises: Any = [
                 e for e in program.exercises if area["aspect"] in e.description.lower()
             ]
             if relevant_exercises:
@@ -158,7 +166,7 @@ class TrainingService:
 
     def _generate_exercise_params(
         self, program_difficulty: str, recent_metrics: Optional[Dict]
-    ) -> Dict:
+    ):
         """Generate parameters for a new exercise based on difficulty and recent performance."""
         # This would contain logic to generate exercise parameters
         # For now, return a template

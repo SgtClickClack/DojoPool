@@ -1,9 +1,10 @@
 """Pool ball tracking and detection module."""
 
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple, cast
+
 import cv2
 import numpy as np
-from typing import List, Tuple, Optional, Dict, cast, Any
-from dataclasses import dataclass
 from numpy.typing import NDArray
 
 
@@ -94,7 +95,9 @@ class BallTracker:
                 # Extract color from circle region
                 mask = np.zeros(frame.shape[:2], dtype=np.uint8)
                 cv2.circle(mask, (x, y), int(radius * 0.8), (255,), -1)
-                mean_color = cast(Tuple[float, float, float], cv2.mean(frame, mask=mask)[:3])
+                mean_color = cast(
+                    Tuple[float, float, float], cv2.mean(frame, mask=mask)[:3]
+                )
 
                 # Find closest matching ball color
                 ball_id, confidence = self._identify_ball(mean_color)

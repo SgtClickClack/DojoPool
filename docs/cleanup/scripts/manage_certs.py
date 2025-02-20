@@ -1,6 +1,8 @@
 def add_security_headers(response):
     """Add security headers to response."""
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["Strict-Transport-Security"] = (
+        "max-age=31536000; includeSubDomains; preload"
+    )
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
@@ -42,13 +44,27 @@ class CertificateManager:
 
     def setup_directories(self):
         """Create necessary directory structure."""
-        for directory in [self.cert_dir, self.dev_cert_dir, self.prod_cert_dir, self.backup_dir]:
+        for directory in [
+            self.cert_dir,
+            self.dev_cert_dir,
+            self.prod_cert_dir,
+            self.backup_dir,
+        ]:
             directory.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {directory}")
 
     def find_certificates(self):
         """Find all certificate files in the project."""
-        cert_extensions = {".key", ".pem", ".crt", ".cert", ".p12", ".jks", ".keystore", ".pub"}
+        cert_extensions = {
+            ".key",
+            ".pem",
+            ".crt",
+            ".cert",
+            ".p12",
+            ".jks",
+            ".keystore",
+            ".pub",
+        }
 
         for path in self.root_dir.rglob("*"):
             if path.suffix in cert_extensions:
@@ -173,7 +189,9 @@ Total Files: {len(self.cert_files)}
         report += f"Backup location: {self.backup_dir}\n"
 
         # Save report
-        report_path = self.root_dir / "docs" / "cleanup" / "certificate_management_report.md"
+        report_path = (
+            self.root_dir / "docs" / "cleanup" / "certificate_management_report.md"
+        )
         report_path.write_text(report, encoding="utf-8")
         print(f"Report generated: {report_path}")
 

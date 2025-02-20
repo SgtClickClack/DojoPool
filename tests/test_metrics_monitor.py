@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.dojopool.core.monitoring.metrics_monitor import (
+from dojopool.core.monitoring.metrics_monitor import (
     AlertSeverity,
     GameMetricsMonitor,
 )
@@ -99,7 +99,9 @@ def test_record_error(monitor):
     game_id = "game123"
 
     # Record error
-    monitor.record_error(game_id, "test_error", "Test error message", {"detail": "test"})
+    monitor.record_error(
+        game_id, "test_error", "Test error message", {"detail": "test"}
+    )
 
     # Verify metrics
     metrics = monitor.get_metrics(game_id)

@@ -1,9 +1,15 @@
 """Notifications API routes."""
 
-from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-notifications_bp = Blueprint("notifications", __name__, url_prefix="/notifications")
+from flask import Blueprint, Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
+from flask_login import login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+notifications_bp: Blueprint = Blueprint(
+    "notifications", __name__, url_prefix="/notifications"
+)
 
 
 @notifications_bp.route("/", methods=["GET"])

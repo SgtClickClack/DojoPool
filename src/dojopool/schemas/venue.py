@@ -90,11 +90,19 @@ class VenueEventSchema(Schema):
     @validates("end_time")
     def validate_end_time(self, value):
         """Validate end time is after start time."""
-        if value and self.context.get("start_time") and value <= self.context["start_time"]:
+        if (
+            value
+            and self.context.get("start_time")
+            and value <= self.context["start_time"]
+        ):
             raise ValidationError("End time must be after start time")
 
     @validates("registration_deadline")
     def validate_registration_deadline(self, value):
         """Validate registration deadline is before start time."""
-        if value and self.context.get("start_time") and value >= self.context["start_time"]:
+        if (
+            value
+            and self.context.get("start_time")
+            and value >= self.context["start_time"]
+        ):
             raise ValidationError("Registration deadline must be before start time")

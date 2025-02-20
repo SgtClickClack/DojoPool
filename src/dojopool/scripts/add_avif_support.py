@@ -21,12 +21,17 @@ def check_node() -> bool:
         subprocess.run(["node", "--version"], capture_output=True)
         return True
     except FileNotFoundError:
-        logger.error("Node.js not found. Please install Node.js from https://nodejs.org/")
+        logger.error(
+            "Node.js not found. Please install Node.js from https://nodejs.org/"
+        )
         return False
 
 
 def convert_to_avif(
-    input_path: Path, output_path: Path, quality: str = "high", fallback_formats: List[str] = None
+    input_path: Path,
+    output_path: Path,
+    quality: str = "high",
+    fallback_formats: List[str] = None,
 ) -> Dict[str, Path]:
     """Convert image to AVIF format with fallbacks."""
     if fallback_formats is None:
@@ -97,15 +102,17 @@ def update_html_for_avif(html_file: Path) -> None:
                 continue
 
             # Check if AVIF version exists
-            avif_path = Path("src/dojopool/static") / src.replace(Path(src).suffix, ".avif").lstrip(
-                "/"
-            )
+            avif_path = Path("src/dojopool/static") / src.replace(
+                Path(src).suffix, ".avif"
+            ).lstrip("/")
 
             if avif_path.exists() and not picture.find("source", type="image/avif"):
                 # Add AVIF source as first option
                 avif_source = soup.new_tag("source")
                 avif_source["type"] = "image/avif"
-                avif_source["srcset"] = str(avif_path).replace("src/dojopool/static/", "")
+                avif_source["srcset"] = str(avif_path).replace(
+                    "src/dojopool/static/", ""
+                )
 
                 # Insert AVIF source before other sources
                 first_source = picture.find("source")
@@ -125,7 +132,9 @@ def update_html_for_avif(html_file: Path) -> None:
         logger.error(f"Error updating {html_file} for AVIF: {str(e)}")
 
 
-def process_images(image_dir: str = "src/dojopool/static/images", quality: str = "high") -> None:
+def process_images(
+    image_dir: str = "src/dojopool/static/images", quality: str = "high"
+) -> None:
     """Process all images in directory to add AVIF support."""
     if not check_node():
         return
@@ -137,7 +146,10 @@ def process_images(image_dir: str = "src/dojopool/static/images", quality: str =
         if img_file.suffix.lower() in (".jpg", ".jpeg", ".png"):
             # Skip if AVIF version exists and is newer
             avif_path = img_file.with_suffix(".avif")
-            if avif_path.exists() and avif_path.stat().st_mtime > img_file.stat().st_mtime:
+            if (
+                avif_path.exists()
+                and avif_path.stat().st_mtime > img_file.stat().st_mtime
+            ):
                 continue
 
             logger.info(f"Converting {img_file} to AVIF")
@@ -151,7 +163,9 @@ def process_images(image_dir: str = "src/dojopool/static/images", quality: str =
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Process images
     process_images()

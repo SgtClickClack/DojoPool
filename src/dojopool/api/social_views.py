@@ -1,12 +1,26 @@
-from rest_framework import viewsets, status, permissions, filters
+from flask_caching import Cache
+from multiprocessing import Pool
+import gc
+from flask_caching import Cache
+from multiprocessing import Pool
+import gc
+from datetime import timedelta
+
+from django.contrib.auth.models import User
+from django.db.models import Count, F, Q
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.db.models import Q, Count, F
-from django.utils import timezone
-from datetime import timedelta
-from ..models.social import UserProfile, Friendship, Message, Achievement, UserAchievement
-from django.contrib.auth.models import User
+
+from ..models.social import (
+    Achievement,
+    Friendship,
+    Message,
+    UserAchievement,
+    UserProfile,
+)
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -16,7 +30,9 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Message.objects.filter(Q(sender=user) | Q(receiver=user)).order_by("-created_at")
+        return Message.objects.filter(Q(sender=user) | Q(receiver=user)).order_by(
+            "-created_at"
+        )
 
     @action(detail=False, methods=["GET"])
     def search(self, request):
@@ -35,7 +51,9 @@ class MessageViewSet(viewsets.ModelViewSet):
         if date_to:
             queryset = queryset.filter(created_at__lte=date_to)
         if user:
-            queryset = queryset.filter(Q(sender__username=user) | Q(receiver__username=user))
+            queryset = queryset.filter(
+                Q(sender__username=user) | Q(receiver__username=user)
+            )
 
         return Response(
             {
@@ -72,12 +90,16 @@ class FriendshipViewSet(viewsets.ModelViewSet):
                 Q(
                     friendship_requests_sent__receiver__in=user.friendship_requests_received.filter(
                         status="accepted"
-                    ).values("sender")
+                    ).values(
+                        "sender"
+                    )
                 )
                 | Q(
                     friendship_requests_received__sender__in=user.friendship_requests_sent.filter(
                         status="accepted"
-                    ).values("receiver")
+                    ).values(
+                        "receiver"
+                    )
                 )
             )
             .exclude(id=user.id)
@@ -89,7 +111,9 @@ class FriendshipViewSet(viewsets.ModelViewSet):
             User.objects.filter(
                 userprofile__userachievement__achievement__in=UserAchievement.objects.filter(
                     user__user=user
-                ).values("achievement")
+                ).values(
+                    "achievement"
+                )
             )
             .exclude(id=user.id)
             .annotate(achievement_count=Count("id"))

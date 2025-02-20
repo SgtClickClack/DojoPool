@@ -72,7 +72,9 @@ class Shot:
 class ShotValidator:
     """Validates pool shots."""
 
-    def __init__(self, game_type: str, table_dimensions: Tuple[float, float] = (254, 127)):
+    def __init__(
+        self, game_type: str, table_dimensions: Tuple[float, float] = (254, 127)
+    ):
         """Initialize shot validator.
 
         Args:
@@ -83,7 +85,9 @@ class ShotValidator:
         self.table_length, self.table_width = table_dimensions
         self.pocket_positions = self._initialize_pocket_positions()
 
-    def validate_eight_ball_shot(self, game_state: Dict, shot: Shot) -> Tuple[bool, str]:
+    def validate_eight_ball_shot(
+        self, game_state: Dict, shot: Shot
+    ) -> Tuple[bool, str]:
         """Validate an 8-ball shot.
 
         Args:
@@ -94,7 +98,9 @@ class ShotValidator:
             Tuple of (is_valid, message)
         """
         # Check if player's group is assigned
-        player_group = game_state.get("player_groups", {}).get(str(game_state["current_player"]))
+        player_group = game_state.get("player_groups", {}).get(
+            str(game_state["current_player"])
+        )
         if not player_group and not game_state.get("is_open_table", False):
             return False, "Player group not assigned"
 
@@ -121,7 +127,11 @@ class ShotValidator:
                 b
                 for b in game_state["balls"]
                 if not b["is_pocketed"]
-                and (b["number"] <= 7 if player_group == "solids" else 8 <= b["number"] <= 15)
+                and (
+                    b["number"] <= 7
+                    if player_group == "solids"
+                    else 8 <= b["number"] <= 15
+                )
             ]
             if len(remaining_balls) > 0:
                 return False, "Cannot shoot at 8-ball with group balls remaining"
@@ -132,7 +142,7 @@ class ShotValidator:
 
         return True, "Valid shot"
 
-    def validate_nine_ball_shot(self, game_state: Dict, shot: Shot) -> Tuple[bool, str]:
+    def validate_nine_ball_shot(self, game_state: Dict, shot: Shot):
         """Validate a 9-ball shot.
 
         Args:
@@ -147,7 +157,9 @@ class ShotValidator:
 
         # Must hit lowest numbered ball first
         lowest_ball = min(
-            b["number"] for b in game_state["balls"] if not b["is_pocketed"] and b["number"] > 0
+            b["number"]
+            for b in game_state["balls"]
+            if not b["is_pocketed"] and b["number"] > 0
         )
         if shot.target_ball.number != lowest_ball:
             return False, f"Must hit {lowest_ball} ball first"
@@ -200,7 +212,7 @@ class ShotValidator:
 
         return True, "Valid rail contact"
 
-    def _initialize_pocket_positions(self) -> Dict[int, Point]:
+    def _initialize_pocket_positions(self):
         """Initialize pocket positions based on table dimensions."""
         return {
             1: Point(0, 0),  # Top left
@@ -211,7 +223,7 @@ class ShotValidator:
             6: Point(self.table_length, self.table_width),  # Bottom right
         }
 
-    def is_path_clear(self, start: Point, end: Point, balls: List[Ball]) -> bool:
+    def is_path_clear(self, start: Point, end: Point, balls: List[Ball]):
         """Check if path between two points is clear of obstacles.
 
         Args:
@@ -247,7 +259,8 @@ class ShotValidator:
 
             # Find closest point on path to ball
             closest = Point(
-                start.x + unit_vector.x * projection, start.y + unit_vector.y * projection
+                start.x + unit_vector.x * projection,
+                start.y + unit_vector.y * projection,
             )
 
             # If distance from closest point to ball is less than ball diameter, path is blocked

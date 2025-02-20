@@ -27,12 +27,18 @@ GAME_SCHEMA = {
     "required": ["id", "status", "players"],
     "properties": {
         "id": {"type": "string"},
-        "status": {"type": "string", "enum": ["waiting", "active", "completed", "cancelled"]},
+        "status": {
+            "type": "string",
+            "enum": ["waiting", "active", "completed", "cancelled"],
+        },
         "players": {"type": "array", "items": PLAYER_SCHEMA, "maxItems": 2},
         "scores": {
             "type": "object",
             "optional": True,
-            "properties": {"player1": {"type": "number"}, "player2": {"type": "number"}},
+            "properties": {
+                "player1": {"type": "number"},
+                "player2": {"type": "number"},
+            },
         },
         "created_at": {"type": "string", "format": "datetime"},
         "started_at": {"type": "string", "format": "datetime", "optional": True},
@@ -46,7 +52,10 @@ TOURNAMENT_SCHEMA = {
     "properties": {
         "id": {"type": "string"},
         "name": {"type": "string", "minLength": 1, "maxLength": 100},
-        "status": {"type": "string", "enum": ["registration", "active", "completed", "cancelled"]},
+        "status": {
+            "type": "string",
+            "enum": ["registration", "active", "completed", "cancelled"],
+        },
         "participants": {"type": "array", "items": PLAYER_SCHEMA},
         "max_participants": {"type": "number", "minimum": 2, "maximum": 128},
         "rounds": {
@@ -73,7 +82,11 @@ CHAT_MESSAGE_SCHEMA = {
         "room_id": {"type": "string"},
         "message": {"type": "string", "minLength": 1, "maxLength": 1000},
         "sender_id": {"type": "string"},
-        "message_type": {"type": "string", "enum": list(MessageTypes), "default": "chat"},
+        "message_type": {
+            "type": "string",
+            "enum": list(MessageTypes),
+            "default": "chat",
+        },
         "timestamp": {"type": "string", "format": "datetime"},
         "mentions": {"type": "array", "items": {"type": "string"}, "optional": True},
         "attachments": {"type": "array", "items": {"type": "string"}, "optional": True},
@@ -149,7 +162,7 @@ def validate_event(event_type: str, data: Dict[str, Any]) -> Optional[Dict[str, 
         raise ValidationError(f"Event validation failed: {str(e)}")
 
 
-def validate_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> Dict[str, Any]:
+def validate_schema(data: Dict[str, Any], schema: Dict[str, Any]):
     """Validate data against schema.
 
     Args:
@@ -270,7 +283,9 @@ def sanitize_event(event_type: str, data: Dict[str, Any]) -> Dict[str, Any]:
         # Sanitize chat message
         if "message" in data:
             # Remove control characters
-            data["message"] = "".join(char for char in data["message"] if ord(char) >= 32)
+            data["message"] = "".join(
+                char for char in data["message"] if ord(char) >= 32
+            )
 
             # Remove potentially dangerous Unicode characters
             data["message"] = re.sub(

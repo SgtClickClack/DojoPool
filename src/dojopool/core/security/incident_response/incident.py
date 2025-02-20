@@ -9,10 +9,10 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from ....core.extensions import db
 from ..monitoring import MetricsSnapshot
 from ..threat_detection.finding import ThreatFinding
 from ..vulnerability_scanner.base import VulnerabilityFinding
-from ....core.extensions import db
 
 
 class IncidentType(str, Enum):
@@ -111,7 +111,7 @@ class SecurityIncident:
             details={"comment": comment},
         )
 
-    def add_action(self, action_type: str, description: str, details: Dict[str, Any]) -> None:
+    def add_action(self, action_type: str, description: str, details: Dict[str, Any]):
         """Add response action to incident."""
         action = {
             "timestamp": datetime.now(),
@@ -122,7 +122,7 @@ class SecurityIncident:
         self.actions_taken.append(action)
         self.updated_at = datetime.now()
 
-    def add_evidence(self, evidence_type: str, content: Any, metadata: Dict[str, Any]) -> None:
+    def add_evidence(self, evidence_type: str, content: Any, metadata: Dict[str, Any]):
         """Add evidence to incident."""
         evidence = {
             "timestamp": datetime.now(),
@@ -133,7 +133,7 @@ class SecurityIncident:
         self.evidence.append(evidence)
         self.updated_at = datetime.now()
 
-    def add_metrics_snapshot(self, snapshot: MetricsSnapshot) -> None:
+    def add_metrics_snapshot(self, snapshot: MetricsSnapshot):
         """Add system metrics snapshot."""
         self.metrics_snapshots.append(snapshot)
 
@@ -142,18 +142,18 @@ class SecurityIncident:
         self.threat_findings.append(finding)
         self.updated_at = datetime.now()
 
-    def add_vulnerability_finding(self, finding: VulnerabilityFinding) -> None:
+    def add_vulnerability_finding(self, finding: VulnerabilityFinding):
         """Add related vulnerability finding."""
         self.vulnerability_findings.append(finding)
         self.updated_at = datetime.now()
 
-    def link_incident(self, incident_id: str) -> None:
+    def link_incident(self, incident_id: str):
         """Link related incident."""
         if incident_id not in self.related_incidents:
             self.related_incidents.append(incident_id)
             self.updated_at = datetime.now()
 
-    def assign_to(self, user_id: str) -> None:
+    def assign_to(self, user_id: str):
         """Assign incident to user."""
         self.assigned_to = user_id
         self.updated_at = datetime.now()
@@ -183,7 +183,9 @@ class SecurityIncident:
             "actions_taken": self.actions_taken,
             "evidence": self.evidence,
             "related_incidents": self.related_incidents,
-            "metrics_snapshots": [snapshot.to_dict() for snapshot in self.metrics_snapshots],
+            "metrics_snapshots": [
+                snapshot.to_dict() for snapshot in self.metrics_snapshots
+            ],
             "threat_findings": [finding.to_dict() for finding in self.threat_findings],
             "vulnerability_findings": [
                 finding.to_dict() for finding in self.vulnerability_findings
@@ -191,7 +193,7 @@ class SecurityIncident:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SecurityIncident":
+    def from_dict(cls, data: Dict[str, Any]):
         """Create incident from dictionary."""
         incident = cls(
             title=data["title"],
@@ -219,7 +221,9 @@ class SecurityIncident:
         for finding_data in data["threat_findings"]:
             incident.threat_findings.append(ThreatFinding.from_dict(finding_data))
         for finding_data in data["vulnerability_findings"]:
-            incident.vulnerability_findings.append(VulnerabilityFinding.from_dict(finding_data))
+            incident.vulnerability_findings.append(
+                VulnerabilityFinding.from_dict(finding_data)
+            )
 
         return incident
 
@@ -235,7 +239,9 @@ class Incident(db.Model):
     description = db.Column(db.Text)
     incident_type = db.Column(db.Enum(IncidentType), nullable=False)
     severity = db.Column(db.Enum(IncidentSeverity), nullable=False)
-    status = db.Column(db.Enum(IncidentStatus), nullable=False, default=IncidentStatus.NEW)
+    status = db.Column(
+        db.Enum(IncidentStatus), nullable=False, default=IncidentStatus.NEW
+    )
     source_ip = db.Column(db.String(45))  # IPv6 compatible
     affected_systems = db.Column(db.JSON)  # List of affected systems
     indicators = db.Column(db.JSON)  # List of indicators
@@ -283,7 +289,7 @@ class Incident(db.Model):
         self.indicators = indicators or []
         self.evidence = []
 
-    def add_evidence(self, evidence_data: Dict) -> None:
+    def add_evidence(self, evidence_data: Dict):
         """Add evidence to incident.
 
         Args:
@@ -292,10 +298,12 @@ class Incident(db.Model):
         if not self.evidence:
             self.evidence = []
 
-        self.evidence.append({"timestamp": datetime.utcnow().isoformat(), "data": evidence_data})
+        self.evidence.append(
+            {"timestamp": datetime.utcnow().isoformat(), "data": evidence_data}
+        )
         self.updated_at = datetime.utcnow()
 
-    def update_status(self, status: IncidentStatus, notes: Optional[str] = None) -> None:
+    def update_status(self, status: IncidentStatus, notes: Optional[str] = None):
         """Update incident status.
 
         Args:
@@ -307,7 +315,11 @@ class Incident(db.Model):
             if not hasattr(self, "status_history"):
                 self.status_history = []
             self.status_history.append(
-                {"timestamp": datetime.utcnow().isoformat(), "status": status.value, "notes": notes}
+                {
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "status": status.value,
+                    "notes": notes,
+                }
             )
 
         if status == IncidentStatus.RESOLVED:
@@ -332,7 +344,7 @@ class Incident(db.Model):
         self.findings.append(finding)
         self.updated_at = datetime.utcnow()
 
-    def to_dict(self) -> Dict:
+    def to_dict(self):
         """Convert incident to dictionary.
 
         Returns:
@@ -366,7 +378,9 @@ class Finding(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     incident_id = db.Column(db.Integer, db.ForeignKey("incidents.id"), nullable=False)
-    finding_type = db.Column(db.String(50), nullable=False)  # 'threat' or 'vulnerability'
+    finding_type = db.Column(
+        db.String(50), nullable=False
+    )  # 'threat' or 'vulnerability'
     description = db.Column(db.Text, nullable=False)
     severity = db.Column(db.Enum(IncidentSeverity), nullable=False)
     data = db.Column(db.JSON)  # Additional finding data

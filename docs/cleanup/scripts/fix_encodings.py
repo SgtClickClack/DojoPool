@@ -40,7 +40,8 @@ class EncodingFixer:
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.FileHandler(
-                    log_dir / f'encoding_fix_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+                    log_dir
+                    / f'encoding_fix_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
                 ),
                 logging.StreamHandler(),
             ],
@@ -53,7 +54,7 @@ class EncodingFixer:
             return False
         return file_path.suffix.lower() in self.target_extensions
 
-    def detect_encoding(self, file_path: Path) -> str:
+    def detect_encoding(self, file_path: Path) :
         """Detect the encoding of a file using chardet."""
         try:
             with open(file_path, "rb") as f:
@@ -67,7 +68,10 @@ class EncodingFixer:
     def create_backup(self, file_path: Path) -> Path:
         """Create a backup of the file before modifying it."""
         backup_dir = (
-            self.root_dir / "backups" / "encoding_fixes" / datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.root_dir
+            / "backups"
+            / "encoding_fixes"
+            / datetime.now().strftime("%Y%m%d_%H%M%S")
         )
         backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -78,7 +82,7 @@ class EncodingFixer:
         shutil.copy2(file_path, backup_path)
         return backup_path
 
-    def fix_file_encoding(self, file_path: Path) -> bool:
+    def fix_file_encoding(self, file_path: Path) :
         """Fix the encoding of a single file by converting it to UTF-8."""
         if not self.should_process_file(file_path):
             return True
@@ -98,7 +102,9 @@ class EncodingFixer:
             with open(file_path, "w", encoding="utf-8", newline="") as f:
                 f.write(content)
 
-            self.logger.info(f"Successfully converted {file_path} from {current_encoding} to UTF-8")
+            self.logger.info(
+                f"Successfully converted {file_path} from {current_encoding} to UTF-8"
+            )
             self.fixed_files.append(file_path)
             return True
 

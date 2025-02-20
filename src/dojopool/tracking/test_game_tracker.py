@@ -1,17 +1,21 @@
+import gc
+import gc
 """Tests for game tracking system."""
 
-import pytest
-import numpy as np
+from collections import deque
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
-from collections import deque
+
+import numpy as np
+import pytest
+
 from .game_tracker import (
     BallPosition,
-    Shot,
-    TableCalibration,
     BallTracker,
-    ShotDetector,
     GameTracker,
+    Shot,
+    ShotDetector,
+    TableCalibration,
 )
 
 
@@ -38,11 +42,13 @@ def mock_frame() -> np.ndarray:
 
 
 @pytest.fixture
-def sample_ball_positions() -> list[BallPosition]:
+def sample_ball_positions():
     """Create sample ball positions."""
     now = datetime.now()
     return [
-        BallPosition(ball_id=0, x=0.5, y=0.5, confidence=0.95, timestamp=now),  # Cue ball
+        BallPosition(
+            ball_id=0, x=0.5, y=0.5, confidence=0.95, timestamp=now
+        ),  # Cue ball
         BallPosition(ball_id=1, x=1.0, y=0.5, confidence=0.90, timestamp=now),
     ]
 
@@ -50,7 +56,7 @@ def sample_ball_positions() -> list[BallPosition]:
 class TestTableCalibration:
     """Test cases for TableCalibration."""
 
-    def test_image_to_table_conversion(self, table_calibration: TableCalibration) -> None:
+    def test_image_to_table_conversion(self, table_calibration: TableCalibration):
         """Test coordinate conversion."""
         # Test point in image space
         image_point = np.array([300, 200])
@@ -68,8 +74,11 @@ class TestBallTracker:
 
     @patch("cv2.dnn.readNet")
     def test_ball_detection(
-        self, mock_readnet: Mock, table_calibration: TableCalibration, mock_frame: np.ndarray
-    ) -> None:
+        self,
+        mock_readnet: Mock,
+        table_calibration: TableCalibration,
+        mock_frame: np.ndarray,
+    ):
         """Test ball detection."""
         # Mock detection output
         mock_net = Mock()
@@ -94,7 +103,9 @@ class TestBallTracker:
         with tracker._lock:
             if ball.ball_id not in tracker._position_history:
                 tracker._position_history[ball.ball_id] = deque(maxlen=100)
-            tracker._position_history[ball.ball_id].append((ball.x, ball.y, ball.timestamp))
+            tracker._position_history[ball.ball_id].append(
+                (ball.x, ball.y, ball.timestamp)
+            )
 
         assert len(tracker._position_history[0]) == 1
 
@@ -103,8 +114,10 @@ class TestShotDetector:
     """Test cases for ShotDetector."""
 
     def test_shot_detection(
-        self, table_calibration: TableCalibration, sample_ball_positions: list[BallPosition]
-    ) -> None:
+        self,
+        table_calibration: TableCalibration,
+        sample_ball_positions: list[BallPosition],
+    ):
         """Test shot detection."""
         detector = ShotDetector(table_calibration)
 
@@ -129,7 +142,9 @@ class TestShotDetector:
         assert len(shot.ball_positions) > 0
 
     def test_no_shot_detection(
-        self, table_calibration: TableCalibration, sample_ball_positions: list[BallPosition]
+        self,
+        table_calibration: TableCalibration,
+        sample_ball_positions: list[BallPosition],
     ) -> None:
         """Test when no shot is detected."""
         detector = ShotDetector(table_calibration)
@@ -146,7 +161,7 @@ class TestGameTracker:
     @patch("cv2.VideoCapture")
     def test_game_tracker_initialization(
         self, mock_capture: Mock, table_calibration: TableCalibration
-    ) -> None:
+    ):
         """Test game tracker initialization."""
         mock_capture.return_value = Mock()
         corners = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32)
@@ -159,7 +174,7 @@ class TestGameTracker:
         assert isinstance(tracker.shot_detector, ShotDetector)
 
     @patch("cv2.VideoCapture")
-    def test_start_stop(self, mock_capture: Mock, table_calibration: TableCalibration) -> None:
+    def test_start_stop(self, mock_capture: Mock, table_calibration: TableCalibration):
         """Test starting and stopping tracking."""
         mock_capture.return_value = Mock()
         corners = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32)
@@ -181,7 +196,7 @@ class TestGameTracker:
         mock_capture: Mock,
         table_calibration: TableCalibration,
         sample_ball_positions: list[BallPosition],
-    ) -> None:
+    ):
         """Test shot recording."""
         mock_capture.return_value = Mock()
         corners = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32)

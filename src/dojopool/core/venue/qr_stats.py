@@ -1,3 +1,5 @@
+import gc
+import gc
 """QR code statistics tracking system."""
 
 import threading
@@ -104,7 +106,7 @@ class QRStatsManager:
             # Invalidate relevant caches
             self._invalidate_cache(venue_id=venue_id, table_id=table_id)
 
-    def get_venue_stats(self, venue_id: str, days: Optional[int] = None) -> Optional[Dict]:
+    def get_venue_stats(self, venue_id: str, days: Optional[int] = None):
         """Get statistics for a venue.
 
         Args:
@@ -126,7 +128,7 @@ class QRStatsManager:
 
             return self._format_stats(stats, venue_id, days)
 
-    def get_table_stats(self, table_id: str, days: Optional[int] = None) -> Optional[Dict]:
+    def get_table_stats(self, table_id: str, days: Optional[int] = None):
         """Get statistics for a table.
 
         Args:
@@ -153,7 +155,7 @@ class QRStatsManager:
         venue_id: Optional[str] = None,
         table_id: Optional[str] = None,
         days: Optional[int] = None,
-    ) -> Dict:
+    ):
         """Get error report for venue or table.
 
         Args:
@@ -233,7 +235,9 @@ class QRStatsManager:
         day = event.timestamp.date().isoformat()
         stats.daily_stats[day] += 1
 
-    def _format_stats(self, stats: QRStats, id: str, days: Optional[int] = None) -> Dict:
+    def _format_stats(
+        self, stats: QRStats, id: str, days: Optional[int] = None
+    ) -> Dict:
         """Format statistics for output.
 
         Args:
@@ -261,7 +265,9 @@ class QRStatsManager:
             "successful_scans": stats.successful_scans,
             "failed_scans": stats.failed_scans,
             "success_rate": (
-                stats.successful_scans / stats.total_scans if stats.total_scans > 0 else 0
+                stats.successful_scans / stats.total_scans
+                if stats.total_scans > 0
+                else 0
             ),
             "avg_scan_duration": stats.avg_scan_duration,
             "error_types": dict(stats.error_types),
@@ -275,7 +281,9 @@ class QRStatsManager:
             return
 
         cutoff = datetime.utcnow() - timedelta(days=self.retention_days)
-        self.scan_history = [event for event in self.scan_history if event.timestamp >= cutoff]
+        self.scan_history = [
+            event for event in self.scan_history if event.timestamp >= cutoff
+        ]
 
     def _get_cached_stats(self, key: str) -> Optional[Any]:
         """Get cached statistics if valid.
@@ -289,7 +297,11 @@ class QRStatsManager:
         with self._lock:
             if key in self._cache:
                 timestamp = self._cache_timestamps.get(key)
-                if timestamp and (datetime.utcnow() - timestamp).total_seconds() < self._cache_ttl:
+                if (
+                    timestamp
+                    and (datetime.utcnow() - timestamp).total_seconds()
+                    < self._cache_ttl
+                ):
                     return self._cache[key]
                 else:
                     # Cache expired
@@ -310,7 +322,7 @@ class QRStatsManager:
 
     def _invalidate_cache(
         self, venue_id: Optional[str] = None, table_id: Optional[str] = None
-    ) -> None:
+    ):
         """Invalidate cached statistics.
 
         Args:
@@ -332,7 +344,7 @@ class QRStatsManager:
                 del self._cache[key]
                 del self._cache_timestamps[key]
 
-    def _cleanup_loop(self) -> None:
+    def _cleanup_loop(self):
         """Background thread for cleaning up old events and cache entries."""
         while not self._stop_cleanup:
             try:
@@ -342,7 +354,7 @@ class QRStatsManager:
 
             time.sleep(3600)  # Run every hour
 
-    def _cleanup_old_data(self, max_age_days: int = 90) -> None:
+    def _cleanup_old_data(self, max_age_days: int = 90):
         """Clean up old events and cache entries.
 
         Args:

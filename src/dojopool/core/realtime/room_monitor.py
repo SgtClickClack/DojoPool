@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room monitor module.
 
 This module provides functionality for monitoring rooms and collecting statistics.
@@ -37,9 +39,11 @@ class RoomMonitor:
             update_interval: Update interval in seconds
         """
         if self._cleanup_task is None:
-            self._cleanup_task = asyncio.create_task(self._monitor_loop(update_interval))
+            self._cleanup_task = asyncio.create_task(
+                self._monitor_loop(update_interval)
+            )
 
-    async def stop_monitoring(self) -> None:
+    async def stop_monitoring(self):
         """Stop monitoring task."""
         if self._cleanup_task is not None:
             self._cleanup_task.cancel()
@@ -49,7 +53,7 @@ class RoomMonitor:
                 pass
             self._cleanup_task = None
 
-    async def _monitor_loop(self, interval: int) -> None:
+    async def _monitor_loop(self, interval: int):
         """Monitor loop to update statistics.
 
         Args:
@@ -62,9 +66,11 @@ class RoomMonitor:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error("Error in monitor loop", exc_info=True, extra={"error": str(e)})
+                logger.error(
+                    "Error in monitor loop", exc_info=True, extra={"error": str(e)}
+                )
 
-    async def update_stats(self) -> None:
+    async def update_stats(self):
         """Update room statistics."""
         try:
             current_time = datetime.utcnow()
@@ -126,7 +132,9 @@ class RoomMonitor:
             logger.info("Room statistics updated", extra={"stats": self._stats})
 
         except Exception as e:
-            logger.error("Error updating room statistics", exc_info=True, extra={"error": str(e)})
+            logger.error(
+                "Error updating room statistics", exc_info=True, extra={"error": str(e)}
+            )
 
     def _update_history(self, current_time: datetime) -> None:
         """Update monitoring history.
@@ -156,7 +164,9 @@ class RoomMonitor:
             if user_id not in self._user_history:
                 self._user_history[user_id] = []
 
-            user_rooms = [r.room_id for r in room_manager._rooms.values() if user_id in r.members]
+            user_rooms = [
+                r.room_id for r in room_manager._rooms.values() if user_id in r.members
+            ]
 
             self._user_history[user_id].append(
                 {
@@ -169,7 +179,7 @@ class RoomMonitor:
         # Clean up old history entries
         self._cleanup_history(current_time)
 
-    def _cleanup_history(self, current_time: datetime) -> None:
+    def _cleanup_history(self, current_time: datetime):
         """Clean up old history entries.
 
         Args:
@@ -223,7 +233,7 @@ class RoomMonitor:
         room_id: str,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-    ) -> List[Dict[str, Any]]:
+    ):
         """Get room history.
 
         Args:
@@ -292,7 +302,7 @@ class RoomMonitor:
                 active_users.update(room.members)
         return list(active_users)
 
-    def get_user_room_count(self, user_id: str) -> int:
+    def get_user_room_count(self, user_id: str):
         """Get number of rooms user is in.
 
         Args:
@@ -301,9 +311,11 @@ class RoomMonitor:
         Returns:
             int: Number of rooms
         """
-        return sum(1 for room in room_manager._rooms.values() if user_id in room.members)
+        return sum(
+            1 for room in room_manager._rooms.values() if user_id in room.members
+        )
 
-    def get_room_stats(self, room_id: str) -> Optional[Dict[str, Any]]:
+    def get_room_stats(self, room_id: str):
         """Get detailed stats for room.
 
         Args:
@@ -356,6 +368,6 @@ async def start_room_monitor(update_interval: int = 60) -> None:
     await room_monitor.start_monitoring(update_interval)
 
 
-async def stop_room_monitor() -> None:
+async def stop_room_monitor():
     """Stop room monitoring."""
     await room_monitor.stop_monitoring()

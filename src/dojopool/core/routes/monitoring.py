@@ -3,16 +3,17 @@
 from typing import Any, Dict
 
 from flask import Blueprint, jsonify, request
+from flask.typing import ResponseReturnValue
 
 from ..auth.utils import login_required
-from ..monitoring.metrics_monitor import AlertSeverity, metrics_monitor
+from ..monitoring.metrics import AlertSeverity, metrics_monitor
 
 bp = Blueprint("monitoring", __name__, url_prefix="/api/monitoring")
 
 
 @bp.route("/metrics/<game_id>", methods=["GET"])
 @login_required
-def get_game_metrics(game_id: str):
+def get_game_metrics(game_id: str) -> ResponseReturnValue:
     """Get metrics for a specific game.
 
     Args:
@@ -43,7 +44,9 @@ def get_game_metrics(game_id: str):
         )
     except Exception as e:
         metrics_monitor.add_alert(
-            AlertSeverity.ERROR, f"Failed to fetch metrics for game {game_id}", {"error": str(e)}
+            AlertSeverity.ERROR,
+            f"Failed to fetch metrics for game {game_id}",
+            {"error": str(e)},
         )
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -57,8 +60,10 @@ def get_alerts():
         JSON response with alerts
     """
     try:
-        severity = request.args.get("severity")
-        alerts = metrics_monitor.get_alerts(AlertSeverity[severity.upper()] if severity else None)
+        severity = request.args.get("severity", type=str)
+        alerts = metrics_monitor.get_alerts(
+            AlertSeverity[severity.upper()] if severity else None
+        )
         return jsonify(
             {
                 "success": True,
@@ -71,7 +76,9 @@ def get_alerts():
                         "acknowledged": alert.acknowledged,
                         "acknowledged_by": alert.acknowledged_by,
                         "acknowledged_at": (
-                            alert.acknowledged_at.isoformat() if alert.acknowledged_at else None
+                            alert.acknowledged_at.isoformat()
+                            if alert.acknowledged_at
+                            else None
                         ),
                         "details": alert.details,
                     }
@@ -85,7 +92,7 @@ def get_alerts():
 
 @bp.route("/alerts/<alert_id>/acknowledge", methods=["POST"])
 @login_required
-def acknowledge_alert(alert_id: str):
+def acknowledge_alert(alert_id: str) -> ResponseReturnValue:
     """Acknowledge an alert.
 
     Args:
@@ -101,7 +108,10 @@ def acknowledge_alert(alert_id: str):
 
         success = metrics_monitor.acknowledge_alert(alert_id, user_id)
         return jsonify(
-            {"success": success, "message": "Alert acknowledged" if success else "Alert not found"}
+            {
+                "success": success,
+                "message": "Alert acknowledged" if success else "Alert not found",
+            }
         )
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -109,7 +119,7 @@ def acknowledge_alert(alert_id: str):
 
 @bp.route("/metrics/<game_id>/record-completion", methods=["POST"])
 @login_required
-def record_game_completion(game_id: str):
+def record_game_completion(game_id: str) -> ResponseReturnValue:
     """Record a game completion.
 
     Args:
@@ -121,9 +131,14 @@ def record_game_completion(game_id: str):
     try:
         data: Dict[str, Any] = request.json
         if not all(k in data for k in ("score", "time")):
-            return jsonify({"success": False, "error": "score and time are required"}), 400
+            return (
+                jsonify({"success": False, "error": "score and time are required"}),
+                400,
+            )
 
-        metrics_monitor.record_game_completion(game_id, float(data["score"]), float(data["time"]))
+        metrics_monitor.record_game_completion(
+            game_id, float(data["score"]), float(data["time"])
+        )
         return jsonify({"success": True, "message": "Game completion recorded"})
     except Exception as e:
         metrics_monitor.add_alert(
@@ -136,7 +151,7 @@ def record_game_completion(game_id: str):
 
 @bp.route("/metrics/<game_id>/record-error", methods=["POST"])
 @login_required
-def record_error(game_id: str):
+def record_error(game_id: str) -> ResponseReturnValue:
     """Record an error occurrence.
 
     Args:
@@ -148,9 +163,14 @@ def record_error(game_id: str):
     try:
         data: Dict[str, Any] = request.json
         if not all(k in data for k in ("type", "message")):
-            return jsonify({"success": False, "error": "type and message are required"}), 400
+            return (
+                jsonify({"success": False, "error": "type and message are required"}),
+                400,
+            )
 
-        metrics_monitor.record_error(game_id, data["type"], data["message"], data.get("details"))
+        metrics_monitor.record_error(
+            game_id, data["type"], data["message"], data.get("details")
+        )
         return jsonify({"success": True, "message": "Error recorded"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

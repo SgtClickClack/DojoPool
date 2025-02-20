@@ -40,7 +40,7 @@ class RoomEventHandler:
 
     async def handle_event(
         self, event_type: str, data: Dict[str, Any], user_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    ):
         """Handle room event.
 
         Args:
@@ -54,7 +54,9 @@ class RoomEventHandler:
         handler = self._event_handlers.get(event_type)
         if not handler:
             return format_error_response(
-                ErrorCodes.INVALID_EVENT, "Invalid event type", {"event_type": event_type}
+                ErrorCodes.INVALID_EVENT,
+                "Invalid event type",
+                {"event_type": event_type},
             )
 
         try:
@@ -66,12 +68,12 @@ class RoomEventHandler:
                 extra={"event_type": event_type, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error handling room event", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error handling room event",
+                {"error": str(e)},
             )
 
-    async def handle_create_room(
-        self, data: Dict[str, Any], user_id: Optional[str]
-    ) -> Dict[str, Any]:
+    async def handle_create_room(self, data: Dict[str, Any], user_id: Optional[str]):
         """Handle room creation event.
 
         Args:
@@ -92,13 +94,17 @@ class RoomEventHandler:
         try:
             # Create room
             room_config = get_room_config(room_type)
-            room = await room_manager.create_room(room_type, room_config["max_members"], metadata)
+            room = await room_manager.create_room(
+                room_type, room_config["max_members"], metadata
+            )
 
             # Add creator to room
             if user_id:
                 await room_manager.add_user_to_room(user_id, room.room_id)
 
-            return format_success_response("Room created successfully", {"room": room.to_dict()})
+            return format_success_response(
+                "Room created successfully", {"room": room.to_dict()}
+            )
 
         except Exception as e:
             logger.error(
@@ -107,12 +113,12 @@ class RoomEventHandler:
                 extra={"room_type": room_type, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error creating room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error creating room",
+                {"error": str(e)},
             )
 
-    async def handle_join_room(
-        self, data: Dict[str, Any], user_id: Optional[str]
-    ) -> Dict[str, Any]:
+    async def handle_join_room(self, data: Dict[str, Any], user_id: Optional[str]):
         """Handle room join event.
 
         Args:
@@ -133,7 +139,9 @@ class RoomEventHandler:
             )
 
         # Validate room join
-        error = validate_room_join(room.room_type, user_id, len(room.members), is_spectator)
+        error = validate_room_join(
+            room.room_type, user_id, len(room.members), is_spectator
+        )
         if error:
             return error
 
@@ -148,7 +156,9 @@ class RoomEventHandler:
             if error:
                 return error
 
-            return format_success_response("Joined room successfully", {"room": room.to_dict()})
+            return format_success_response(
+                "Joined room successfully", {"room": room.to_dict()}
+            )
 
         except Exception as e:
             logger.error(
@@ -157,7 +167,9 @@ class RoomEventHandler:
                 extra={"room_id": room_id, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error joining room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error joining room",
+                {"error": str(e)},
             )
 
     async def handle_leave_room(
@@ -187,7 +199,9 @@ class RoomEventHandler:
             if error:
                 return error
 
-            return format_success_response("Left room successfully", {"room_id": room_id})
+            return format_success_response(
+                "Left room successfully", {"room_id": room_id}
+            )
 
         except Exception as e:
             logger.error(
@@ -196,12 +210,12 @@ class RoomEventHandler:
                 extra={"room_id": room_id, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error leaving room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error leaving room",
+                {"error": str(e)},
             )
 
-    async def handle_send_chat(
-        self, data: Dict[str, Any], user_id: Optional[str]
-    ) -> Dict[str, Any]:
+    async def handle_send_chat(self, data: Dict[str, Any], user_id: Optional[str]):
         """Handle room chat event.
 
         Args:
@@ -243,7 +257,9 @@ class RoomEventHandler:
             # Note: In a real implementation, you would broadcast this
             # message to all room members using your WebSocket framework
 
-            return format_success_response("Chat message sent successfully", {"chat": chat_data})
+            return format_success_response(
+                "Chat message sent successfully", {"chat": chat_data}
+            )
 
         except Exception as e:
             logger.error(
@@ -252,12 +268,12 @@ class RoomEventHandler:
                 extra={"room_id": room_id, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error sending chat message", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error sending chat message",
+                {"error": str(e)},
             )
 
-    async def handle_update_room(
-        self, data: Dict[str, Any], user_id: Optional[str]
-    ) -> Dict[str, Any]:
+    async def handle_update_room(self, data: Dict[str, Any], user_id: Optional[str]):
         """Handle room update event.
 
         Args:
@@ -286,7 +302,9 @@ class RoomEventHandler:
             # Update room metadata
             room.update_metadata(metadata)
 
-            return format_success_response("Room updated successfully", {"room": room.to_dict()})
+            return format_success_response(
+                "Room updated successfully", {"room": room.to_dict()}
+            )
 
         except Exception as e:
             logger.error(
@@ -295,12 +313,12 @@ class RoomEventHandler:
                 extra={"room_id": room_id, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error updating room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error updating room",
+                {"error": str(e)},
             )
 
-    async def handle_delete_room(
-        self, data: Dict[str, Any], user_id: Optional[str]
-    ) -> Dict[str, Any]:
+    async def handle_delete_room(self, data: Dict[str, Any], user_id: Optional[str]):
         """Handle room deletion event.
 
         Args:
@@ -330,7 +348,9 @@ class RoomEventHandler:
             if error:
                 return error
 
-            return format_success_response("Room deleted successfully", {"room_id": room_id})
+            return format_success_response(
+                "Room deleted successfully", {"room_id": room_id}
+            )
 
         except Exception as e:
             logger.error(
@@ -339,7 +359,9 @@ class RoomEventHandler:
                 extra={"room_id": room_id, "user_id": user_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error deleting room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error deleting room",
+                {"error": str(e)},
             )
 
 

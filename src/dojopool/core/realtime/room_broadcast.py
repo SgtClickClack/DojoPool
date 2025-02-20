@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room broadcast module.
 
 This module provides functionality for broadcasting messages to room members.
@@ -38,8 +40,12 @@ class RoomBroadcaster:
         self._socket = socket
 
     async def broadcast_to_room(
-        self, room_id: str, event: str, data: Dict[str, Any], exclude_sid: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        self,
+        room_id: str,
+        event: str,
+        data: Dict[str, Any],
+        exclude_sid: Optional[str] = None,
+    ):
         """Broadcast message to all room members.
 
         Args:
@@ -62,14 +68,18 @@ class RoomBroadcaster:
                 room_state = room_state_manager.get_room_state(room_id)
                 if not room_state:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
 
                 # Get room
                 room = room_manager.get_room(room_id)
                 if not room:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
 
                 # Prepare broadcast data
@@ -91,7 +101,10 @@ class RoomBroadcaster:
                     # Update stats
                     self._broadcast_stats.update(
                         {
-                            "total_broadcasts": self._broadcast_stats["total_broadcasts"] + 1,
+                            "total_broadcasts": self._broadcast_stats[
+                                "total_broadcasts"
+                            ]
+                            + 1,
                             "successful_broadcasts": (
                                 self._broadcast_stats["successful_broadcasts"] + 1
                             ),
@@ -128,12 +141,12 @@ class RoomBroadcaster:
                 extra={"room_id": room_id, "event": event, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error broadcasting to room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error broadcasting to room",
+                {"error": str(e)},
             )
 
-    async def broadcast_to_user(
-        self, user_id: str, event: str, data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    async def broadcast_to_user(self, user_id: str, event: str, data: Dict[str, Any]):
         """Broadcast message to specific user.
 
         Args:
@@ -165,7 +178,10 @@ class RoomBroadcaster:
                     # Update stats
                     self._broadcast_stats.update(
                         {
-                            "total_broadcasts": self._broadcast_stats["total_broadcasts"] + 1,
+                            "total_broadcasts": self._broadcast_stats[
+                                "total_broadcasts"
+                            ]
+                            + 1,
                             "successful_broadcasts": (
                                 self._broadcast_stats["successful_broadcasts"] + 1
                             ),
@@ -190,12 +206,14 @@ class RoomBroadcaster:
                 extra={"user_id": user_id, "event": event, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error broadcasting to user", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error broadcasting to user",
+                {"error": str(e)},
             )
 
     async def broadcast_system_message(
         self, room_id: str, message: str, level: str = "info"
-    ) -> Optional[Dict[str, Any]]:
+    ):
         """Broadcast system message to room.
 
         Args:
@@ -224,7 +242,7 @@ class RoomBroadcaster:
         """
         return await self.broadcast_to_room(room_id, "error", error)
 
-    def get_broadcast_stats(self) -> Dict[str, Any]:
+    def get_broadcast_stats(self):
         """Get broadcast statistics.
 
         Returns:

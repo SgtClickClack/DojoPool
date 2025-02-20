@@ -12,12 +12,16 @@ import {
   CardActions,
   LinearProgress,
   Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { FitnessCenter, Timeline, CheckCircle, ArrowForward } from '@mui/icons-material';
 import { api } from '../../services/api';
-import { ProgressChart } from './ProgressChart';
-import { ExerciseList } from './ExerciseList';
+import { ProgressChart } from './[TRAIN]ProgressChart';
+import { ExerciseList } from './[TRAIN]ExerciseList';
 
 const DashboardContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),

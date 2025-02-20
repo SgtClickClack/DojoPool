@@ -1,3 +1,7 @@
+from flask_caching import Cache
+import gc
+from flask_caching import Cache
+import gc
 """Matchmaking service.
 
 This module provides matchmaking functionality to find suitable opponents.
@@ -6,7 +10,6 @@ This module provides matchmaking functionality to find suitable opponents.
 from datetime import datetime, timedelta
 
 import numpy as np
-
 from src.core.database import cache, db
 from src.core.models import Game, User
 from src.core.services.ai_recommendations import RecommendationEngine
@@ -160,7 +163,8 @@ class MatchmakingService:
         """
         return (
             Game.query.filter(
-                Game.players.any(user_id=user_id), Game.status.in_(["pending", "active"])
+                Game.players.any(user_id=user_id),
+                Game.status.in_(["pending", "active"]),
             )
             .order_by(Game.created_at.desc())
             .all()
@@ -257,7 +261,9 @@ class MatchmakingService:
         }
 
         # Calculate weighted score
-        total_score = sum(scores[factor] * weight for factor, weight in self.weights.items())
+        total_score = sum(
+            scores[factor] * weight for factor, weight in self.weights.items()
+        )
 
         return total_score
 
@@ -320,7 +326,9 @@ class MatchmakingService:
 
         # Check last active times
         user_active = user.last_active >= datetime.utcnow() - timedelta(minutes=15)
-        opponent_active = opponent.last_active >= datetime.utcnow() - timedelta(minutes=15)
+        opponent_active = opponent.last_active >= datetime.utcnow() - timedelta(
+            minutes=15
+        )
 
         if user_active and opponent_active:
             return 1.0
@@ -417,7 +425,8 @@ class MatchmakingService:
             "location": {
                 "score": self._calculate_location_compatibility(user, opponent),
                 "common_venues": list(
-                    set(user.preferred_venues or []) & set(opponent.preferred_venues or [])
+                    set(user.preferred_venues or [])
+                    & set(opponent.preferred_venues or [])
                 ),
             },
             "social": {

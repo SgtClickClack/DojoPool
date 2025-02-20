@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 Cache management system for optimizing image delivery and enabling offline support.
 Implements browser caching strategies and service worker integration.
@@ -40,7 +42,7 @@ class CacheConfig:
         ttl_seconds: int = 86400,  # 24 hours
         cleanup_interval: int = 3600,  # 1 hour
         eviction_policy: str = "lru",  # 'lru', 'lfu', or 'fifo'
-    ) -> None:
+    ):
         self.max_size_bytes: int = max_size_mb * 1024 * 1024
         self.max_items: int = max_items
         self.ttl: timedelta = timedelta(seconds=ttl_seconds)
@@ -51,7 +53,7 @@ class CacheConfig:
 class CacheManager:
     """Manages caching of processed images with various eviction policies."""
 
-    def __init__(self, config: Optional[CacheConfig] = None) -> None:
+    def __init__(self, config: Optional[CacheConfig] = None):
         """Initialize cache manager with configuration."""
         self.config = config or CacheConfig()
         self._cache: Dict[str, CacheEntry] = {}
@@ -111,7 +113,9 @@ class CacheManager:
             logger.error(f"Error retrieving from cache: {str(e)}")
             return None
 
-    def put(self, key: str, data: bytes, mime_type: str, tags: Optional[Set[str]] = None) -> bool:
+    def put(
+        self, key: str, data: bytes, mime_type: str, tags: Optional[Set[str]] = None
+    ):
         """Add an item to cache."""
         try:
             # Check if cleanup is needed
@@ -199,7 +203,9 @@ class CacheManager:
             invalidated = 0
 
             # Find all keys with the tag in memory cache
-            memory_keys = {key for key, entry in self._cache.items() if tag in entry.tags}
+            memory_keys = {
+                key for key, entry in self._cache.items() if tag in entry.tags
+            }
 
             # Find all keys with the tag in disk cache
             disk_keys = set()
@@ -227,7 +233,7 @@ class CacheManager:
             logger.error(f"Error invalidating by tag: {str(e)}")
             return 0
 
-    def clear(self) -> bool:
+    def clear(self):
         """Clear all cache entries."""
         try:
             # Clear memory cache
@@ -244,13 +250,13 @@ class CacheManager:
             logger.error(f"Error clearing cache: {str(e)}")
             return False
 
-    def _get_cache_path(self, key: str) -> Path:
+    def _get_cache_path(self, key: str):
         """Get the file path for a cache key."""
         # Use hash of key as filename to avoid filesystem issues
         filename = hashlib.sha256(key.encode()).hexdigest()
         return self._cache_dir / filename
 
-    def _can_add_to_memory(self, size: int) -> bool:
+    def _can_add_to_memory(self, size: int):
         """Check if an item can be added to memory cache."""
         return (
             len(self._cache) < self.config.max_items
@@ -306,20 +312,26 @@ class CacheManager:
 
             if self.config.eviction_policy == "lru":
                 # Remove least recently used
-                key_to_remove = min(self._cache.items(), key=lambda x: x[1].last_accessed)[0]
+                key_to_remove = min(
+                    self._cache.items(), key=lambda x: x[1].last_accessed
+                )[0]
             elif self.config.eviction_policy == "lfu":
                 # Remove least frequently used
-                key_to_remove = min(self._cache.items(), key=lambda x: x[1].access_count)[0]
+                key_to_remove = min(
+                    self._cache.items(), key=lambda x: x[1].access_count
+                )[0]
             else:  # 'fifo'
                 # Remove oldest entry
-                key_to_remove = min(self._cache.items(), key=lambda x: x[1].created_at)[0]
+                key_to_remove = min(self._cache.items(), key=lambda x: x[1].created_at)[
+                    0
+                ]
 
             self.invalidate(key_to_remove)
 
         except Exception as e:
             logger.error(f"Error applying eviction policy: {str(e)}")
 
-    def _load_cache(self) -> None:
+    def _load_cache(self):
         """Load existing cache entries from disk."""
         try:
             # Load metadata files

@@ -1,9 +1,12 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 import numpy as np
 from models.shot import Shot
-
 from services.shot_analysis import ShotAnalysis
 from utils.analysis import analyze_shot_pattern
 
@@ -51,7 +54,7 @@ class PerformanceTrackingService:
             "progression": progression,
         }
 
-    def get_performance_summary(self, player_id: str, period: str = "week") -> Dict[str, Any]:
+    def get_performance_summary(self, player_id: str, period: str = "week"):
         """
         Get a summary of player performance for a specific period
         """
@@ -110,9 +113,13 @@ class PerformanceTrackingService:
         # Calculate rankings for each metric
         rankings = self._calculate_player_rankings(comparisons, metrics)
 
-        return {"comparisons": comparisons, "rankings": rankings, "timestamp": datetime.utcnow()}
+        return {
+            "comparisons": comparisons,
+            "rankings": rankings,
+            "timestamp": datetime.utcnow(),
+        }
 
-    def _calculate_performance_metrics(self, shots: List[Shot]) -> Dict[str, float]:
+    def _calculate_performance_metrics(self, shots: List[Shot]):
         """
         Calculate comprehensive performance metrics
         """
@@ -127,7 +134,9 @@ class PerformanceTrackingService:
         # Calculate versatility based on shot types used
         shot_types_used = len(
             {
-                self.shot_analysis._determine_shot_type(shot.power, shot.spin, shot.result)
+                self.shot_analysis._determine_shot_type(
+                    shot.power, shot.spin, shot.result
+                )
                 for shot in shots
             }
         )
@@ -149,7 +158,7 @@ class PerformanceTrackingService:
             "difficulty": float(avg_difficulty),
         }
 
-    def _analyze_performance_trends(self, shots: List[Shot]) -> Dict[str, List[Dict[str, Any]]]:
+    def _analyze_performance_trends(self, shots: List[Shot]):
         """
         Analyze trends in performance metrics over time
         """
@@ -179,14 +188,23 @@ class PerformanceTrackingService:
         """
         Generate insights based on performance metrics and trends
         """
-        insights = {"strengths": [], "weaknesses": [], "improvements": [], "areas_for_focus": []}
+        insights = {
+            "strengths": [],
+            "weaknesses": [],
+            "improvements": [],
+            "areas_for_focus": [],
+        }
 
         # Analyze metrics against thresholds
         for metric, data in self.performance_metrics.items():
             if metrics[metric] >= data["threshold"]:
-                insights["strengths"].append(f"Strong {metric} rating at {metrics[metric]:.2f}")
+                insights["strengths"].append(
+                    f"Strong {metric} rating at {metrics[metric]:.2f}"
+                )
             else:
-                insights["weaknesses"].append(f"Below average {metric} at {metrics[metric]:.2f}")
+                insights["weaknesses"].append(
+                    f"Below average {metric} at {metrics[metric]:.2f}"
+                )
 
         # Analyze trends
         for metric, trend_data in trends.items():
@@ -196,9 +214,13 @@ class PerformanceTrackingService:
                 change = end_value - start_value
 
                 if change > 0.1:
-                    insights["improvements"].append(f"Improving {metric} trend (+{change:.2f})")
+                    insights["improvements"].append(
+                        f"Improving {metric} trend (+{change:.2f})"
+                    )
                 elif change < -0.1:
-                    insights["areas_for_focus"].append(f"Declining {metric} trend ({change:.2f})")
+                    insights["areas_for_focus"].append(
+                        f"Declining {metric} trend ({change:.2f})"
+                    )
 
         return insights
 
@@ -221,17 +243,23 @@ class PerformanceTrackingService:
             # Calculate initial rating
             initial_window = sorted_shots[:10]
             initial_metrics = self._calculate_performance_metrics(initial_window)
-            progression["start_rating"] = self._calculate_overall_rating(initial_metrics)
+            progression["start_rating"] = self._calculate_overall_rating(
+                initial_metrics
+            )
 
             # Calculate current rating
             current_window = sorted_shots[-10:]
             current_metrics = self._calculate_performance_metrics(current_window)
-            progression["current_rating"] = self._calculate_overall_rating(current_metrics)
+            progression["current_rating"] = self._calculate_overall_rating(
+                current_metrics
+            )
 
             # Calculate improvement rate
             time_diff = (sorted_shots[-1].timestamp - sorted_shots[0].timestamp).days
             if time_diff > 0:
-                rating_diff = progression["current_rating"] - progression["start_rating"]
+                rating_diff = (
+                    progression["current_rating"] - progression["start_rating"]
+                )
                 progression["improvement_rate"] = rating_diff / time_diff
 
             # Identify milestones
@@ -249,7 +277,7 @@ class PerformanceTrackingService:
                 rating += value * self.performance_metrics[metric]["weight"]
         return rating * 100
 
-    def _identify_milestones(self, shots: List[Shot]) -> List[Dict[str, Any]]:
+    def _identify_milestones(self, shots: List[Shot]):
         """
         Identify significant milestones in player's progression
         """
@@ -299,7 +327,7 @@ class PerformanceTrackingService:
 
         return rankings
 
-    def _generate_performance_summary(self, performance: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_performance_summary(self, performance: Dict[str, Any]):
         """
         Generate a concise performance summary
         """
@@ -371,7 +399,9 @@ class PerformanceTrackingService:
         # Add recommendations based on insights
         for weakness in insights["weaknesses"]:
             if "accuracy" in weakness.lower():
-                recommendations.append("Dedicate practice time to basic shot repetition")
+                recommendations.append(
+                    "Dedicate practice time to basic shot repetition"
+                )
             elif "consistency" in weakness.lower():
                 recommendations.append(
                     "Focus on developing muscle memory through repetitive drills"

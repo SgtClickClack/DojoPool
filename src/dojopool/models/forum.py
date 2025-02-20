@@ -15,7 +15,9 @@ class ForumCategory(db.Model):
     order = db.Column(db.Integer, default=0)
     is_private = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     topics = db.relationship("ForumTopic", backref="category", lazy="dynamic")
@@ -43,13 +45,17 @@ class ForumTopic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(200), unique=True, nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey("forum_categories.id"), nullable=False)
+    category_id = db.Column(
+        db.Integer, db.ForeignKey("forum_categories.id"), nullable=False
+    )
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     is_pinned = db.Column(db.Boolean, default=False)
     is_locked = db.Column(db.Boolean, default=False)
     view_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     last_post_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_post_user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
@@ -58,7 +64,7 @@ class ForumTopic(db.Model):
     user = db.relationship("User", foreign_keys=[user_id], backref="forum_topics")
     last_post_user = db.relationship("User", foreign_keys=[last_post_user_id])
 
-    def to_dict(self) -> dict:
+    def to_dict(self):
         """Convert topic to dictionary."""
         return {
             "id": self.id,
@@ -102,14 +108,16 @@ class ForumPost(db.Model):
     edited_at = db.Column(db.DateTime)
     edited_by_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     user = db.relationship("User", foreign_keys=[user_id], backref="forum_posts")
     edited_by = db.relationship("User", foreign_keys=[edited_by_id])
     reactions = db.relationship("ForumPostReaction", backref="post", lazy="dynamic")
 
-    def to_dict(self) -> dict:
+    def to_dict(self):
         """Convert post to dictionary."""
         return {
             "id": self.id,
@@ -141,13 +149,15 @@ class ForumPostReaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("forum_posts.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    reaction_type = db.Column(db.String(20), nullable=False)  # like, helpful, funny, etc.
+    reaction_type = db.Column(
+        db.String(20), nullable=False
+    )  # like, helpful, funny, etc.
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
     user = db.relationship("User", backref="forum_reactions")
 
-    def to_dict(self) -> dict:
+    def to_dict(self):
         """Convert reaction to dictionary."""
         return {
             "id": self.id,

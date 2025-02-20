@@ -2,14 +2,14 @@
 Professional player profile service.
 """
 
-from typing import Dict, List, Optional, Set
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import Dict, List, Optional, Set
 
 from .pro_tournament_config import ProTournamentTier
-from .statistics_service import PlayerStats
 from .ranking_service import PlayerRanking
+from .statistics_service import PlayerStats
 
 
 class PlayerStatus(Enum):
@@ -170,7 +170,7 @@ class PlayerProfileService:
         self.profiles[player_id] = profile
         return profile
 
-    def update_profile(self, player_id: str, updates: Dict) -> PlayerProfile:
+    def update_profile(self, player_id: str, updates: Dict) :
         """Update an existing player profile."""
         if player_id not in self.profiles:
             raise ValueError(f"Profile not found for player {player_id}")
@@ -184,7 +184,7 @@ class PlayerProfileService:
         profile.last_updated = datetime.now()
         return profile
 
-    def add_achievement(self, player_id: str, achievement: Achievement) -> bool:
+    def add_achievement(self, player_id: str, achievement: Achievement) :
         """Add a new achievement to player's profile."""
         if player_id not in self.profiles:
             raise ValueError(f"Profile not found for player {player_id}")
@@ -193,7 +193,7 @@ class PlayerProfileService:
         self.profiles[player_id].last_updated = datetime.now()
         return True
 
-    def add_certification(self, player_id: str, certification: Certification) -> bool:
+    def add_certification(self, player_id: str, certification: Certification) :
         """Add a new certification to player's profile."""
         if player_id not in self.profiles:
             raise ValueError(f"Profile not found for player {player_id}")
@@ -208,11 +208,13 @@ class PlayerProfileService:
             raise ValueError(f"Profile not found for player {player_id}")
 
         self.profiles[player_id].career_highlights.append(highlight)
-        self.profiles[player_id].career_highlights.sort(key=lambda x: x.date, reverse=True)
+        self.profiles[player_id].career_highlights.sort(
+            key=lambda x: x.date, reverse=True
+        )
         self.profiles[player_id].last_updated = datetime.now()
         return True
 
-    def add_sponsorship(self, player_id: str, sponsorship: Sponsorship) -> bool:
+    def add_sponsorship(self, player_id: str, sponsorship: Sponsorship) :
         """Add a new sponsorship to player's profile."""
         if player_id not in self.profiles:
             raise ValueError(f"Profile not found for player {player_id}")
@@ -221,7 +223,7 @@ class PlayerProfileService:
         self.profiles[player_id].last_updated = datetime.now()
         return True
 
-    def update_status(self, player_id: str, status: PlayerStatus) -> bool:
+    def update_status(self, player_id: str, status: PlayerStatus) :
         """Update player's professional status."""
         if player_id not in self.profiles:
             raise ValueError(f"Profile not found for player {player_id}")
@@ -230,7 +232,7 @@ class PlayerProfileService:
         self.profiles[player_id].last_updated = datetime.now()
         return True
 
-    def verify_player(self, player_id: str, verification_proof: Dict) -> bool:
+    def verify_player(self, player_id: str, verification_proof: Dict) :
         """Verify a professional player's profile."""
         if player_id not in self.profiles:
             raise ValueError(f"Profile not found for player {player_id}")
@@ -259,7 +261,7 @@ class PlayerProfileService:
 
         return result
 
-    def search_profiles(self, criteria: Dict) -> List[PlayerProfile]:
+    def search_profiles(self, criteria: Dict) :
         """Search player profiles based on criteria."""
         results = []
 
@@ -281,12 +283,14 @@ class PlayerProfileService:
 
         return results
 
-    def get_active_players(self) -> List[PlayerProfile]:
+    def get_active_players(self) :
         """Get all active professional players."""
         return [
-            profile for profile in self.profiles.values() if profile.status == PlayerStatus.ACTIVE
+            profile
+            for profile in self.profiles.values()
+            if profile.status == PlayerStatus.ACTIVE
         ]
 
-    def get_verified_players(self) -> List[PlayerProfile]:
+    def get_verified_players(self) :
         """Get all verified professional players."""
         return [profile for profile in self.profiles.values() if profile.verified]

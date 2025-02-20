@@ -1,9 +1,15 @@
 """Event management API routes."""
 
-from flask import Blueprint, jsonify
-from flask_login import login_required
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-event_management_bp = Blueprint("event_management", __name__, url_prefix="/event-management")
+from flask import Blueprint, Request, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from flask_login import login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+event_management_bp: Blueprint = Blueprint(
+    "event_management", __name__, url_prefix="/event-management"
+)
 
 
 @event_management_bp.route("/events", methods=["GET"])

@@ -1,44 +1,71 @@
-"""Venue operating hours model module."""
+"""
+VenueOperatingHours Model Module
 
-from datetime import datetime, time, timedelta
-from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey, Time
+This module defines the VenueOperatingHours model for tracking venue operating hours.
+"""
+
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Time,
+)
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..extensions import db
+from ..core.extensions import db
 from ..validation import VenueValidator
 
+if TYPE_CHECKING:
+    from .venue import Venue
 
-class VenueOperatingHours(db.Model):
-    """Venue operating hours model."""
 
-    __tablename__ = "venue_operating_hours"
+class VenueOperatingHours(Base):
+    """Represents operating hours for a venue."""
+
+    __tablename__: str = "venue_operating_hours"
     __table_args__ = {"extend_existing": True}
 
-    id = Column(Integer, primary_key=True)
-    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
-    day_of_week = Column(Integer, nullable=False)  # 0=Monday, 6=Sunday
-    open_time = Column(Time, nullable=False)
-    close_time = Column(Time, nullable=False)
-    is_closed = Column(Boolean, default=False)
-    special_hours = Column(Boolean, default=False)  # For holidays, events, etc.
-    notes = Column(Text)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    venue_id: Mapped[int] = mapped_column(ForeignKey("venues.id"), nullable=False)
+    day_of_week: Mapped[str] = mapped_column(String(15), nullable=False)
+    open_time: Mapped[time] = mapped_column(Time, nullable=False)
+    close_time: Mapped[time] = mapped_column(Time, nullable=False)
+    is_closed: Mapped[bool] = mapped_column(default=False)
+    special_hours: Mapped[bool] = mapped_column(
+        default=False
+    )  # For holidays, events, etc.
+    notes: Mapped[Optional[str]] = mapped_column(nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
-    venue = relationship("Venue", back_populates="operating_hours")
+    venue: Mapped["Venue"] = relationship(
+        "Venue", back_populates="operating_hours", lazy="joined"
+    )
 
     # Validation
-    validator_class = VenueValidator
+    validator_class: Any = VenueValidator
 
-    def __repr__(self):
-        return f"<VenueOperatingHours {self.venue_id}:{self.day_of_week}>"
+    def __repr__(self) -> str:
+        """Return string representation of the operating hours."""
+        return f"<VenueOperatingHours {self.venue_id} {self.day_of_week}>"
 
     @hybrid_property
-    def is_24h(self):
+    def is_24h(self) -> bool:
         """Check if venue is open 24 hours."""
         return self.open_time == time(0, 0) and self.close_time == time(23, 59)
 
@@ -56,29 +83,21 @@ class VenueOperatingHours(db.Model):
 
         return (close_dt - open_dt).total_seconds() / 3600
 
-    def is_open(self, current_time=None):
-        """Check if venue is open at given time.
-
-        Args:
-            current_time: Time to check (defaults to current time)
-
-        Returns:
-            bool: True if venue is open
-        """
+    @property
+    def is_open(self) -> bool:
+        """Check if venue is open at current time."""
         if self.is_closed:
             return False
 
-        current_time = current_time or datetime.now().time()
-
-        if self.is_24h:
-            return True
-
+        now = datetime.now().time()
         if self.open_time <= self.close_time:
-            return self.open_time <= current_time <= self.close_time
-        else:  # Handles case where venue is open past midnight
-            return current_time >= self.open_time or current_time <= self.close_time
+            return self.open_time <= now <= self.close_time
+        else:  # Handles cases where venue closes after midnight
+            return now >= self.open_time or now <= self.close_time
 
-    def set_hours(self, open_time, close_time, notes=None):
+    def set_hours(
+        self, open_time: time, close_time: time, notes: Optional[str] = None
+    ) -> None:
         """Set operating hours.
 
         Args:
@@ -92,7 +111,7 @@ class VenueOperatingHours(db.Model):
             self.notes = notes
         db.session.commit()
 
-    def close(self, reason=None):
+    def close(self, reason: Optional[str] = None):
         """Mark venue as closed for the day.
 
         Args:
@@ -108,7 +127,7 @@ class VenueOperatingHours(db.Model):
         self.is_closed = False
         db.session.commit()
 
-    def set_special_hours(self, is_special=True, notes=None):
+    def set_special_hours(self, is_special: bool = True, notes: Optional[str] = None):
         """Set special hours status.
 
         Args:
@@ -121,7 +140,7 @@ class VenueOperatingHours(db.Model):
         db.session.commit()
 
     @classmethod
-    def get_current_status(cls, venue_id):
+    def get_current_status(cls, venue_id: int) -> Dict[str, Any]:
         """Get current operating status for venue.
 
         Args:
@@ -131,12 +150,14 @@ class VenueOperatingHours(db.Model):
             dict: Operating status
         """
         current_time = datetime.now()
-        hours = cls.query.filter_by(venue_id=venue_id, day_of_week=current_time.weekday()).first()
+        hours = cls.query.filter_by(
+            venue_id=venue_id, day_of_week=current_time.weekday()
+        ).first()
 
         if not hours:
             return {"status": "unknown"}
 
-        is_open = hours.is_open(current_time.time())
+        is_open = hours.is_open
         next_change = None
 
         if is_open:
@@ -154,3 +175,10 @@ class VenueOperatingHours(db.Model):
             "special_hours": hours.special_hours,
             "notes": hours.notes,
         }
+
+    def is_open_at(self, check_time: time):
+        return self.open_time <= check_time <= self.close_time
+
+    def update_hours(self, new_open: time, new_close: time):
+        self.open_time = new_open
+        self.close_time = new_close

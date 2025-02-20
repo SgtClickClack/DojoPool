@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket module."""
 
 from datetime import datetime
@@ -31,7 +33,7 @@ class WebSocketService:
             self.connected_users[user_id] = set()
         self.connected_users[user_id].add(session_id)
 
-    def disconnect_user(self, user_id: int, session_id: str) -> None:
+    def disconnect_user(self, user_id: int, session_id: str):
         """Disconnect user from WebSocket.
 
         Args:
@@ -43,7 +45,7 @@ class WebSocketService:
             if not self.connected_users[user_id]:
                 del self.connected_users[user_id]
 
-    def join_room(self, user_id: int, room_id: str) -> None:
+    def join_room(self, user_id: int, room_id: str):
         """Join room.
 
         Args:
@@ -64,7 +66,7 @@ class WebSocketService:
             for session_id in self.connected_users[user_id]:
                 join_room(room_id, sid=session_id)
 
-    def leave_room(self, user_id: int, room_id: str) -> None:
+    def leave_room(self, user_id: int, room_id: str):
         """Leave room.
 
         Args:
@@ -99,7 +101,7 @@ class WebSocketService:
             for session_id in self.connected_users[user_id]:
                 emit(event, data, room=session_id)
 
-    def emit_to_room(self, room_id: str, event: str, data: Dict[str, Any]) -> None:
+    def emit_to_room(self, room_id: str, event: str, data: Dict[str, Any]):
         """Emit event to room.
 
         Args:
@@ -109,7 +111,7 @@ class WebSocketService:
         """
         emit(event, data, room=room_id)
 
-    def broadcast(self, event: str, data: Dict[str, Any]) -> None:
+    def broadcast(self, event: str, data: Dict[str, Any]):
         """Broadcast event to all connected users.
 
         Args:
@@ -118,7 +120,7 @@ class WebSocketService:
         """
         emit(event, data, broadcast=True)
 
-    def get_user_rooms(self, user_id: int) -> Set[str]:
+    def get_user_rooms(self, user_id: int):
         """Get rooms user is in.
 
         Args:
@@ -140,7 +142,7 @@ class WebSocketService:
         """
         return self.room_users.get(room_id, set())
 
-    def is_user_connected(self, user_id: int) -> bool:
+    def is_user_connected(self, user_id: int):
         """Check if user is connected.
 
         Args:
@@ -151,7 +153,7 @@ class WebSocketService:
         """
         return user_id in self.connected_users
 
-    def is_user_in_room(self, user_id: int, room_id: str) -> bool:
+    def is_user_in_room(self, user_id: int, room_id: str):
         """Check if user is in room.
 
         Args:

@@ -1,15 +1,17 @@
 """Email service module."""
 
 import time
-from typing import Optional
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import current_app
+from flask import Request, Response, current_app
+from flask.typing import ResponseReturnValue
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 # Constants
-MAX_RETRIES = 3
-RETRY_DELAY = 1  # seconds
+MAX_RETRIES: int = 3
+RETRY_DELAY: int = 1  # seconds
 
 
 class EmailError(Exception):
@@ -23,11 +25,11 @@ class EmailTemplate:
 
     VERIFICATION = "verification"
     PASSWORD_RESET = "password_reset"
-    WELCOME = "welcome"
-    MATCH_CONFIRMATION = "match_confirmation"
+    WELCOME: str = "welcome"
+    MATCH_CONFIRMATION: str = "match_confirmation"
     MATCH_REMINDER = "match_reminder"
-    MATCH_CANCELLATION = "match_cancellation"
-    CUSTOM = "custom"
+    MATCH_CANCELLATION: str = "match_cancellation"
+    CUSTOM: str = "custom"
 
     @staticmethod
     def render(template_type: str, **context) -> str:
@@ -36,7 +38,7 @@ class EmailTemplate:
             template_html = context.get("template_html", "")
             return template_html.format(**context)
 
-        templates = {
+        templates: Dict[Any, Any] = {
             EmailTemplate.VERIFICATION: """
                 <h1>Welcome to DojoPool!</h1>
                 <p>Hi {username},</p>
@@ -74,7 +76,7 @@ class EmailTemplate:
             """,
         }
 
-        template = templates.get(template_type)
+        template: Any = templates.get(template_type)
         if not template:
             raise ValueError(f"Invalid template type: {template_type}")
 
@@ -84,24 +86,30 @@ class EmailTemplate:
 class EmailService:
     """Email service using SendGrid."""
 
-    def __init__(self, api_key: Optional[str] = None, sender_email: Optional[str] = None):
+    def __init__(
+        self, api_key: Optional[str] = None, sender_email: Optional[str] = None
+    ):
         """Initialize email service."""
         self.api_key = api_key
         self.sender_email = sender_email
         self.client = None
 
-    def init_app(self, app):
+    def init_app(self, app) -> None:
         """Initialize with Flask application."""
-        self.api_key = self.api_key or app.config.get("SENDGRID_API_KEY")
-        self.sender_email = self.sender_email or app.config.get("MAIL_DEFAULT_SENDER")
+        self.api_key = self.api_key or app.configetattr(g, "get", None)(
+            "SENDGRID_API_KEY"
+        )
+        self.sender_email = self.sender_email or app.configetattr(g, "get", None)(
+            "MAIL_DEFAULT_SENDER"
+        )
         if self.api_key:
             self.client = SendGridAPIClient(self.api_key)
 
-    def is_configured(self) -> bool:
+    def is_configured(self):
         """Check if email service is properly configured."""
         return bool(self.api_key and self.sender_email and self.client)
 
-    def _validate_email(self, email: str) -> None:
+    def _validate_email(self, email: str):
         """Validate email address format."""
         import re
 
@@ -109,15 +117,20 @@ class EmailService:
         if not re.match(pattern, email):
             raise ValueError(f"Invalid email address: {email}")
 
-    def _send(self, to_email: str, subject: str, content: str, retries: int = MAX_RETRIES) -> bool:
+    def _send(
+        self, to_email: str, subject: str, content: str, retries: int = MAX_RETRIES
+    ) -> bool:
         """Send email with retry mechanism."""
         if not self.is_configured():
             raise EmailError("Email service not properly configured")
 
         self._validate_email(to_email)
 
-        message = Mail(
-            from_email=self.sender_email, to_emails=to_email, subject=subject, html_content=content
+        message: Mail = Mail(
+            from_email=self.sender_email,
+            to_emails=to_email,
+            subject=subject,
+            html_content=content,
         )
 
         for attempt in range(retries):
@@ -126,7 +139,9 @@ class EmailService:
                 return True
             except Exception as e:
                 if attempt == retries - 1:
-                    raise EmailError(f"Failed to send email after {retries} attempts: {str(e)}")
+                    raise EmailError(
+                        f"Failed to send email after {retries} attempts: {str(e)}"
+                    )
                 time.sleep(RETRY_DELAY)
 
         return False
@@ -134,7 +149,7 @@ class EmailService:
     def send_verification_email(self, user) -> bool:
         """Send email verification link."""
         try:
-            content = EmailTemplate.render(
+            content: Any = EmailTemplate.render(
                 EmailTemplate.VERIFICATION,
                 username=user.username,
                 verification_link=f"http://localhost:5000/auth/verify/{user.get_verification_token()}",
@@ -146,7 +161,7 @@ class EmailService:
     def send_password_reset_email(self, user, token: str) -> bool:
         """Send password reset link."""
         try:
-            content = EmailTemplate.render(
+            content: Any = EmailTemplate.render(
                 EmailTemplate.PASSWORD_RESET,
                 username=user.username,
                 reset_link=f"http://localhost:5000/auth/reset-password/{token}",
@@ -158,15 +173,17 @@ class EmailService:
     def send_welcome_email(self, user) -> bool:
         """Send welcome email to new user."""
         try:
-            content = EmailTemplate.render(EmailTemplate.WELCOME, username=user.username)
+            content: Any = EmailTemplate.render(
+                EmailTemplate.WELCOME, username=user.username
+            )
             return self._send(user.email, "Welcome to DojoPool!", content)
         except Exception as e:
             raise EmailError(f"Failed to send welcome email: {str(e)}")
 
-    def send_match_confirmation_email(self, match) -> bool:
+    def send_match_confirmation_email(self, match):
         """Send match confirmation email to both players."""
         try:
-            content = EmailTemplate.render(
+            content: Any = EmailTemplate.render(
                 EmailTemplate.MATCH_CONFIRMATION,
                 location_name=match.location.name,
                 match_date=match.scheduled_time.strftime("%Y-%m-%d"),
@@ -174,10 +191,14 @@ class EmailService:
             )
 
             # Send to both players
-            success = all(
+            success: all = all(
                 [
-                    self._send(match.player1.email, "Match Confirmation - DojoPool", content),
-                    self._send(match.player2.email, "Match Confirmation - DojoPool", content),
+                    self._send(
+                        match.player1.email, "Match Confirmation - DojoPool", content
+                    ),
+                    self._send(
+                        match.player2.email, "Match Confirmation - DojoPool", content
+                    ),
                 ]
             )
             return success
@@ -187,7 +208,7 @@ class EmailService:
     def send_match_reminder_email(self, match) -> bool:
         """Send match reminder email to both players."""
         try:
-            content = EmailTemplate.render(
+            content: Any = EmailTemplate.render(
                 EmailTemplate.MATCH_REMINDER,
                 location_name=match.location.name,
                 match_date=match.scheduled_time.strftime("%Y-%m-%d"),
@@ -195,10 +216,14 @@ class EmailService:
             )
 
             # Send to both players
-            success = all(
+            success: all = all(
                 [
-                    self._send(match.player1.email, "Match Reminder - DojoPool", content),
-                    self._send(match.player2.email, "Match Reminder - DojoPool", content),
+                    self._send(
+                        match.player1.email, "Match Reminder - DojoPool", content
+                    ),
+                    self._send(
+                        match.player2.email, "Match Reminder - DojoPool", content
+                    ),
                 ]
             )
             return success
@@ -208,13 +233,19 @@ class EmailService:
     def send_match_cancellation_email(self, match, reason: str) -> bool:
         """Send match cancellation email to both players."""
         try:
-            content = EmailTemplate.render(EmailTemplate.MATCH_CANCELLATION, reason=reason)
+            content: Any = EmailTemplate.render(
+                EmailTemplate.MATCH_CANCELLATION, reason=reason
+            )
 
             # Send to both players
-            success = all(
+            success: all = all(
                 [
-                    self._send(match.player1.email, "Match Cancelled - DojoPool", content),
-                    self._send(match.player2.email, "Match Cancelled - DojoPool", content),
+                    self._send(
+                        match.player1.email, "Match Cancelled - DojoPool", content
+                    ),
+                    self._send(
+                        match.player2.email, "Match Cancelled - DojoPool", content
+                    ),
                 ]
             )
             return success
@@ -234,14 +265,16 @@ def send_email(to_email, subject, html_content):
         bool: True if email was sent successfully, False otherwise
     """
     try:
-        sg = SendGridAPIClient(current_app.config["SENDGRID_API_KEY"])
-        message = Mail(
-            from_email=current_app.config["MAIL_DEFAULT_SENDER"],
+        sg = SendGridAPIClient(
+            current_app.configetattr(g, "get", None)("SENDGRID_API_KEY")
+        )
+        message: Mail = Mail(
+            from_email=current_app.configetattr(g, "get", None)("MAIL_DEFAULT_SENDER"),
             to_emails=to_email,
             subject=subject,
             html_content=html_content,
         )
-        response = sg.send(message)
+        response: Any = sgetattr(g, "send", None)(message)
         return response.status_code == 202
     except Exception as e:
         current_app.logger.error(f"Failed to send email: {str(e)}")
@@ -258,8 +291,10 @@ def send_verification_email(user, token):
     Returns:
         bool: True if email was sent successfully, False otherwise
     """
-    verification_url = f"{current_app.config['SITE_URL']}/verify/{token}"
-    html_content = f"""
+    verification_url: Any = (
+        f"{current_app.configetattr(g, "get", None)('SITE_URL')}/verify/{token}"
+    )
+    html_content: Any = f"""
     <h1>Welcome to DojoPool!</h1>
     <p>Please click the link below to verify your email address:</p>
     <p><a href="{verification_url}">{verification_url}</a></p>
@@ -268,7 +303,7 @@ def send_verification_email(user, token):
     return send_email(user.email, "Verify your DojoPool email", html_content)
 
 
-def send_password_reset_email(user, token):
+def send_password_reset_email(user, token) -> Any:
     """Send password reset link to user.
 
     Args:
@@ -278,8 +313,10 @@ def send_password_reset_email(user, token):
     Returns:
         bool: True if email was sent successfully, False otherwise
     """
-    reset_url = f"{current_app.config['SITE_URL']}/reset-password/{token}"
-    html_content = f"""
+    reset_url: Any = (
+        f"{current_app.configetattr(g, "get", None)('SITE_URL')}/reset-password/{token}"
+    )
+    html_content: Any = f"""
     <h1>Reset Your Password</h1>
     <p>Click the link below to reset your password:</p>
     <p><a href="{reset_url}">{reset_url}</a></p>

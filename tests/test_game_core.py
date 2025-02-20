@@ -2,14 +2,18 @@
 
 import pytest
 
-from src.dojopool.core.exceptions import GameStateError, RuleViolationError
-from src.dojopool.models.game import Game, GameStatus as GameState, Shot
+from dojopool.core.exceptions import GameStateError, RuleViolationError
+from dojopool.models.game import Game
+from dojopool.models.game import GameStatus as GameState
+from dojopool.models.game import Shot
 
 
 @pytest.fixture
 def game():
     """Create a test game instance."""
-    return Game(player1_id="p1", player2_id="p2", game_type="8ball", handicap_enabled=False)
+    return Game(
+        player1_id="p1", player2_id="p2", game_type="8ball", handicap_enabled=False
+    )
 
 
 def test_game_initialization(game):
@@ -85,7 +89,12 @@ def test_game_completion(game):
 
     # Simulate winning scenario
     game.process_shot(
-        Shot(player_id="p1", ball_numbers=[1, 2, 3, 4, 5, 6, 7], pocketed=True, foul=False)
+        Shot(
+            player_id="p1",
+            ball_numbers=[1, 2, 3, 4, 5, 6, 7],
+            pocketed=True,
+            foul=False,
+        )
     )
     game.process_shot(Shot(player_id="p1", ball_numbers=[8], pocketed=True, foul=False))
 
@@ -129,7 +138,9 @@ def test_invalid_operations(game):
     """Test invalid game operations."""
     # Can't process shot before game starts
     with pytest.raises(GameStateError):
-        game.process_shot(Shot(player_id="p1", ball_numbers=[1], pocketed=True, foul=False))
+        game.process_shot(
+            Shot(player_id="p1", ball_numbers=[1], pocketed=True, foul=False)
+        )
 
     # Can't end game before it starts
     with pytest.raises(GameStateError):
@@ -140,4 +151,6 @@ def test_invalid_operations(game):
 
     # Can't process shot after game ends
     with pytest.raises(GameStateError):
-        game.process_shot(Shot(player_id="p1", ball_numbers=[1], pocketed=True, foul=False))
+        game.process_shot(
+            Shot(player_id="p1", ball_numbers=[1], pocketed=True, foul=False)
+        )

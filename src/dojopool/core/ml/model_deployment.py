@@ -132,7 +132,10 @@ class ModelDeployer:
                 deployment["rollback_info"] = rollback_info
             except Exception as rollback_error:
                 self.logger.error(f"Rollback failed: {str(rollback_error)}")
-                deployment["rollback_info"] = {"status": "failed", "error": str(rollback_error)}
+                deployment["rollback_info"] = {
+                    "status": "failed",
+                    "error": str(rollback_error),
+                }
 
             raise
 
@@ -143,7 +146,7 @@ class ModelDeployer:
         self.logger.info(f"Completed deployment to {environment}")
         return deployment
 
-    def get_deployment_status(self, environment: str) -> Dict[str, Any]:
+    def get_deployment_status(self, environment: str):
         """Get current deployment status for an environment.
 
         Args:
@@ -174,7 +177,10 @@ class ModelDeployer:
         }
 
     def list_deployments(
-        self, environment: Optional[str] = None, model_type: Optional[str] = None, limit: int = 10
+        self,
+        environment: Optional[str] = None,
+        model_type: Optional[str] = None,
+        limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """List deployment history.
 
@@ -196,9 +202,7 @@ class ModelDeployer:
 
         return sorted(deployments, key=lambda d: d["timestamp"], reverse=True)[:limit]
 
-    def validate_environment(
-        self, environment: str, validation_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def validate_environment(self, environment: str, validation_data: Dict[str, Any]):
         """Validate all models in an environment.
 
         Args:
@@ -214,7 +218,9 @@ class ModelDeployer:
         results = {}
         for model_type in ["shot", "success", "position"]:
             try:
-                model_results = self._validate_deployment(model_type, environment, validation_data)
+                model_results = self._validate_deployment(
+                    model_type, environment, validation_data
+                )
                 results[model_type] = model_results
             except Exception as e:
                 self.logger.error(f"Validation failed for {model_type}: {str(e)}")
@@ -252,14 +258,16 @@ class ModelDeployer:
                 json.dump(version_info, f, indent=2)
 
             # Move to environment (atomic operation)
-            target_path = self.environments[environment] / version_info["metadata"]["model_type"]
+            target_path = (
+                self.environments[environment] / version_info["metadata"]["model_type"]
+            )
             if target_path.exists():
                 shutil.rmtree(target_path)
             shutil.copytree(temp_path, target_path)
 
     def _validate_deployment(
         self, model_type: str, environment: str, validation_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    ):
         """Validate deployed model."""
         # Load deployed model
         model_path = self.environments[environment] / model_type / "model.joblib"
@@ -284,7 +292,12 @@ class ModelDeployer:
             "load_time": self._measure_load_time(model_path),
             "memory_usage": self._measure_memory_usage(model),
             "prediction_latency": self._measure_prediction_latency(
-                model, validation_data["testing"][:100] if validation_data.get("testing") else []
+                model,
+                (
+                    validation_data["testing"][:100]
+                    if validation_data.get("testing")
+                    else []
+                ),
             ),
         }
 
@@ -335,7 +348,7 @@ class ModelDeployer:
 
         return {"status": "successful", "timestamp": datetime.utcnow().isoformat()}
 
-    def _check_deployment_health(self, model_type: str, environment: str) -> Dict[str, Any]:
+    def _check_deployment_health(self, model_type: str, environment: str):
         """Check health of deployed model."""
         model_path = self.environments[environment] / model_type / "model.joblib"
         if not model_path.exists():
@@ -353,21 +366,34 @@ class ModelDeployer:
             status = "healthy"
             issues = []
 
-            if metrics.get("error_rate", 0) > self.config["health_thresholds"]["error_rate"]:
+            if (
+                metrics.get("error_rate", 0)
+                > self.config["health_thresholds"]["error_rate"]
+            ):
                 status = "degraded"
                 issues.append("High error rate")
 
-            if metrics.get("avg_latency", 0) > self.config["health_thresholds"]["latency"]:
+            if (
+                metrics.get("avg_latency", 0)
+                > self.config["health_thresholds"]["latency"]
+            ):
                 status = "degraded"
                 issues.append("High latency")
 
             # Check age
-            age = (datetime.utcnow() - datetime.fromisoformat(metadata["created_at"])).days
+            age = (
+                datetime.utcnow() - datetime.fromisoformat(metadata["created_at"])
+            ).days
             if age > self.config["health_thresholds"]["max_age_days"]:
                 status = "degraded"
                 issues.append(f"Model age: {age} days")
 
-            return {"status": status, "issues": issues, "metrics": metrics, "metadata": metadata}
+            return {
+                "status": status,
+                "issues": issues,
+                "metrics": metrics,
+                "metadata": metadata,
+            }
 
         except Exception as e:
             return {"status": "error", "error": str(e)}
@@ -388,7 +414,7 @@ class ModelDeployer:
 
         return sys.getsizeof(model)
 
-    def _measure_prediction_latency(self, model: Any, samples: List[Dict]) -> float:
+    def _measure_prediction_latency(self, model: Any, samples: List[Dict]):
         """Measure average prediction latency."""
         if not samples:
             return 0.0
@@ -429,7 +455,7 @@ class ModelDeployer:
         with open(self.config_file, "r") as f:
             return json.load(f)
 
-    def _load_history(self) -> List[Dict[str, Any]]:
+    def _load_history(self):
         """Load deployment history."""
         if not self.history_file.exists():
             return []

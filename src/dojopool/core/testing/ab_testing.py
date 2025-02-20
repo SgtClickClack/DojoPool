@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 A/B Testing framework for managing experiments, variants, and user allocation.
 Supports multiple concurrent experiments, user segmentation, and metrics tracking.
@@ -106,7 +108,7 @@ class Experiment:
 
         return True
 
-    def is_scheduled_active(self, current_time: datetime) -> bool:
+    def is_scheduled_active(self, current_time: datetime):
         """Check if experiment is active based on schedule."""
         if not self.schedule:
             return True
@@ -135,24 +137,26 @@ class ABTestManager:
         """Initialize the A/B test manager."""
         self._experiments: Dict[str, Experiment] = {}
         self._user_allocations: Dict[str, str] = {}  # assignment_key -> variant_id
-        self._user_attributes_cache: Dict[str, Dict[str, Any]] = {}  # Cache for user attributes
+        self._user_attributes_cache: Dict[str, Dict[str, Any]] = (
+            {}
+        )  # Cache for user attributes
 
     def set_user_attributes(self, user_id: str, attributes: Dict[str, Any]) -> None:
         """Set or update user attributes for targeting."""
         self._user_attributes_cache[user_id] = attributes
 
-    def get_user_attributes(self, user_id: str) -> Dict[str, Any]:
+    def get_user_attributes(self, user_id: str):
         """Get cached user attributes."""
         return self._user_attributes_cache.get(user_id, {})
 
-    def _is_user_in_experiment_traffic(self, user_id: str, experiment: Experiment) -> bool:
+    def _is_user_in_experiment_traffic(self, user_id: str, experiment: Experiment):
         """Determine if user should be included in experiment traffic."""
         hash_input = f"{experiment.id}:traffic:{user_id}".encode()
         hash_value = int(hashlib.sha256(hash_input).hexdigest(), 16)
         normalized_hash = (hash_value % 100) / 100.0
         return normalized_hash <= (experiment.traffic_percentage / 100.0)
 
-    def _is_user_in_variant_traffic(self, user_id: str, variant: Variant) -> bool:
+    def _is_user_in_variant_traffic(self, user_id: str, variant: Variant):
         """Determine if user should be included in variant traffic."""
         hash_input = f"{variant.id}:traffic:{user_id}".encode()
         hash_value = int(hashlib.sha256(hash_input).hexdigest(), 16)
@@ -188,7 +192,9 @@ class ABTestManager:
 
         # Assign new variant
         eligible_variants = [
-            v for v in experiment.variants if self._is_user_in_variant_traffic(user_id, v)
+            v
+            for v in experiment.variants
+            if self._is_user_in_variant_traffic(user_id, v)
         ]
         if not eligible_variants:
             return None
@@ -261,7 +267,7 @@ class ABTestManager:
         is_active: Optional[bool] = None,
         end_date: Optional[datetime] = None,
         metadata: Optional[Dict[str, Any]] = None,
-    ) -> bool:
+    ):
         """Update an existing experiment."""
         try:
             experiment = self._experiments.get(experiment_id)
@@ -283,11 +289,11 @@ class ABTestManager:
             logger.error(f"Error updating experiment: {str(e)}")
             return False
 
-    def get_experiment(self, experiment_id: str) -> Optional[Experiment]:
+    def get_experiment(self, experiment_id: str):
         """Get experiment details."""
         return self._experiments.get(experiment_id)
 
-    def get_active_experiments(self) -> List[Experiment]:
+    def get_active_experiments(self):
         """Get all active experiments."""
         return [
             exp
@@ -303,7 +309,9 @@ class ABTestManager:
         for exp_id, variant_id in user_allocations.items():
             experiment = self._experiments.get(exp_id)
             if experiment and experiment.is_active:
-                variant = next((v for v in experiment.variants if v.id == variant_id), None)
+                variant = next(
+                    (v for v in experiment.variants if v.id == variant_id), None
+                )
                 if variant:
                     result[exp_id] = variant
 

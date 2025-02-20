@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 import io
 import json
 import logging
@@ -73,11 +75,11 @@ class AvatarAnimator:
         required_fields = ["v", "fr", "ip", "op", "layers"]
         return all(field in data for field in required_fields)
 
-    def get_animation_config(self, name: str) -> Optional[AnimationConfig]:
+    def get_animation_config(self, name: str):
         """Get animation configuration by name."""
         return self.animations.get(name)
 
-    def list_animations(self) -> List[Dict[str, Any]]:
+    def list_animations(self):
         """Get list of available animations."""
         return [
             {
@@ -91,8 +93,11 @@ class AvatarAnimator:
         ]
 
     def apply_animation(
-        self, avatar_image: bytes, animation_name: str, frame_index: Optional[int] = None
-    ) -> Optional[bytes]:
+        self,
+        avatar_image: bytes,
+        animation_name: str,
+        frame_index: Optional[int] = None,
+    ):
         """Apply animation to avatar at specific frame."""
         try:
             # Get animation config
@@ -143,17 +148,24 @@ class AvatarAnimator:
         frame_data = self._extract_frame_data(config.lottie_data, frame_index)
         return frame_data
 
-    def _extract_frame_data(self, lottie_data: Dict[str, Any], frame_index: int) -> Dict[str, Any]:
+    def _extract_frame_data(
+        self, lottie_data: Dict[str, Any], frame_index: int
+    ) -> Dict[str, Any]:
         """Extract frame data from Lottie animation."""
         # This is a placeholder for actual Lottie frame extraction
         # In a real implementation, this would parse the Lottie JSON
         # and extract transform, shape, and effect data for the frame
         return {
-            "transform": {"position": [0, 0], "scale": [100, 100], "rotation": 0, "opacity": 100},
+            "transform": {
+                "position": [0, 0],
+                "scale": [100, 100],
+                "rotation": 0,
+                "opacity": 100,
+            },
             "effects": [],
         }
 
-    def _blend_frame(self, image: Image.Image, frame_data: Dict[str, Any]) -> Image.Image:
+    def _blend_frame(self, image: Image.Image, frame_data: Dict[str, Any]):
         """Blend animation frame with image."""
         try:
             # Convert image to numpy array for processing
@@ -174,7 +186,7 @@ class AvatarAnimator:
             logger.error(f"Frame blending failed: {str(e)}")
             return image
 
-    def _apply_transforms(self, img_array: np.ndarray, transform: Dict[str, Any]) -> np.ndarray:
+    def _apply_transforms(self, img_array: np.ndarray, transform: Dict[str, Any]):
         """Apply geometric transforms to image."""
         try:
             import cv2
@@ -206,7 +218,11 @@ class AvatarAnimator:
 
             # Apply affine transformation
             transformed = cv2.warpAffine(
-                img_array, M, (width, height), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT
+                img_array,
+                M,
+                (width, height),
+                flags=cv2.INTER_LINEAR,
+                borderMode=cv2.BORDER_REFLECT,
             )
 
             # Apply opacity
@@ -222,7 +238,9 @@ class AvatarAnimator:
             logger.error(f"Transform application failed: {str(e)}")
             return img_array
 
-    def _apply_effects(self, img_array: np.ndarray, effects: List[Dict[str, Any]]) -> np.ndarray:
+    def _apply_effects(
+        self, img_array: np.ndarray, effects: List[Dict[str, Any]]
+    ) -> np.ndarray:
         """Apply visual effects to image."""
         try:
             result = img_array.copy()
@@ -249,7 +267,7 @@ class AvatarAnimator:
             logger.error(f"Effect application failed: {str(e)}")
             return img_array
 
-    def _apply_glow(self, img_array: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
+    def _apply_glow(self, img_array: np.ndarray, params: Dict[str, Any]):
         """Apply glow effect to image."""
         try:
             import cv2
@@ -293,7 +311,7 @@ class AvatarAnimator:
             logger.error(f"Glow effect failed: {str(e)}")
             return img_array
 
-    def _apply_color_effect(self, img_array: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
+    def _apply_color_effect(self, img_array: np.ndarray, params: Dict[str, Any]):
         """Apply color modification effect to image."""
         try:
             import cv2
@@ -320,7 +338,9 @@ class AvatarAnimator:
             if tint_color is not None:
                 tint = np.zeros_like(result)
                 tint[:] = tint_color[:3]
-                result = cv2.addWeighted(result, 1 - tint_strength, tint, tint_strength, 0)
+                result = cv2.addWeighted(
+                    result, 1 - tint_strength, tint, tint_strength, 0
+                )
 
             # Preserve alpha channel if it exists
             if img_array.shape[2] == 4:
@@ -355,7 +375,9 @@ class AvatarAnimator:
             logger.error(f"Blur effect failed: {str(e)}")
             return img_array
 
-    def _apply_particles(self, img_array: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
+    def _apply_particles(
+        self, img_array: np.ndarray, params: Dict[str, Any]
+    ) -> np.ndarray:
         """Apply particle effect to image."""
         try:
             # Get particle parameters
@@ -382,7 +404,9 @@ class AvatarAnimator:
             logger.error(f"Particle effect failed: {str(e)}")
             return img_array
 
-    def _apply_wave_distortion(self, img_array: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
+    def _apply_wave_distortion(
+        self, img_array: np.ndarray, params: Dict[str, Any]
+    ) -> np.ndarray:
         """Apply wave distortion effect to image."""
         try:
             # Get wave parameters

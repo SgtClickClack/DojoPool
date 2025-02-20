@@ -1,9 +1,13 @@
 """Offline API routes."""
 
-from flask import Blueprint, jsonify
-from flask_login import login_required
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-offline_bp = Blueprint("offline", __name__, url_prefix="/offline")
+from flask import Blueprint, Request, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from flask_login import login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+offline_bp: Blueprint = Blueprint("offline", __name__, url_prefix="/offline")
 
 
 @offline_bp.route("/sync", methods=["POST"])

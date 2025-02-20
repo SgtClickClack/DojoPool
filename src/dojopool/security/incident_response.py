@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 Security Incident Response System for DojoPool.
 
@@ -109,7 +111,7 @@ class IncidentResponseCoordinator:
         description: str,
         affected_systems: Set[str],
         detected_by: str,
-    ) -> SecurityIncident:
+    ):
         """Create and register a new security incident."""
         incident = SecurityIncident(
             incident_type, severity, description, affected_systems, detected_by
@@ -119,7 +121,7 @@ class IncidentResponseCoordinator:
         self._initiate_response(incident)
         return incident
 
-    def _initiate_response(self, incident: SecurityIncident) -> None:
+    def _initiate_response(self, incident: SecurityIncident):
         """Initialize the response to an incident."""
         # Log the incident
         logger.critical(f"Security incident detected: {incident.id}")
@@ -136,7 +138,7 @@ class IncidentResponseCoordinator:
                     f"Error executing response action for incident {incident.id}: {str(e)}"
                 )
 
-    def _get_initial_response_actions(self, incident: SecurityIncident) -> List[callable]:
+    def _get_initial_response_actions(self, incident: SecurityIncident):
         """Get the initial response actions based on incident type."""
         actions = []
 
@@ -157,17 +159,17 @@ class IncidentResponseCoordinator:
         logger.info(f"Notifying security team about incident {incident.id}")
         # Implement notification logic (email, Slack, etc.)
 
-    def _initiate_containment(self, incident: SecurityIncident) -> None:
+    def _initiate_containment(self, incident: SecurityIncident):
         """Initiate containment procedures."""
         logger.info(f"Initiating containment for incident {incident.id}")
         incident.containment_steps.append("Initiated containment procedures")
 
-    def _lock_affected_accounts(self, incident: SecurityIncident) -> None:
+    def _lock_affected_accounts(self, incident: SecurityIncident):
         """Lock potentially compromised accounts."""
         logger.info(f"Locking affected accounts for incident {incident.id}")
         incident.containment_steps.append("Locked affected accounts")
 
-    def _isolate_affected_systems(self, incident: SecurityIncident) -> None:
+    def _isolate_affected_systems(self, incident: SecurityIncident):
         """Isolate affected systems to prevent further damage."""
         logger.info(f"Isolating affected systems for incident {incident.id}")
         incident.containment_steps.append("Isolated affected systems")
@@ -183,7 +185,7 @@ class IncidentResponseCoordinator:
         status: Optional[IncidentStatus] = None,
         resolution_steps: Optional[List[str]] = None,
         assigned_to: Optional[str] = None,
-    ) -> Optional[SecurityIncident]:
+    ):
         """Update an incident's status and details."""
         incident = self.active_incidents.get(incident_id)
         if not incident:
@@ -228,13 +230,13 @@ class IncidentResponseCoordinator:
 
         return incident
 
-    def get_incident(self, incident_id: str) -> Optional[SecurityIncident]:
+    def get_incident(self, incident_id: str):
         """Get an incident by ID from either active or resolved incidents."""
-        return self.active_incidents.get(incident_id) or self.resolved_incidents.get(incident_id)
+        return self.active_incidents.get(incident_id) or self.resolved_incidents.get(
+            incident_id
+        )
 
-    def get_active_incidents(
-        self, severity: Optional[IncidentSeverity] = None
-    ) -> List[SecurityIncident]:
+    def get_active_incidents(self, severity: Optional[IncidentSeverity] = None):
         """Get all active incidents, optionally filtered by severity."""
         incidents = list(self.active_incidents.values())
         if severity:
@@ -257,7 +259,9 @@ class IncidentResponseCoordinator:
             "detected_by": incident.detected_by,
             "detection_time": incident.detection_time.isoformat(),
             "resolution_time": (
-                incident.resolution_time.isoformat() if incident.resolution_time else None
+                incident.resolution_time.isoformat()
+                if incident.resolution_time
+                else None
             ),
             "assigned_to": incident.assigned_to,
             "timeline": incident.timeline,

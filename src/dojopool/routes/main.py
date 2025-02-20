@@ -2,6 +2,7 @@
 
 from flask import Blueprint, render_template
 from flask_login import current_user, login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 main_bp = Blueprint("main", __name__)
 
@@ -9,7 +10,7 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 def index():
     """Landing page."""
-    return render_template("landing.html")
+    return render_template("index.html")
 
 
 @main_bp.route("/dashboard")

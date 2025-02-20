@@ -1,28 +1,37 @@
 """Error handlers for DojoPool."""
 
-from typing import Any, Dict, Tuple
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from uuid import UUID
 
 from flask import current_app, jsonify
+from sqlalchemy import ForeignKey
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.exceptions import HTTPException
 
 from ..logging.utils import log_error
 from .exceptions import DojoPoolError
 
 
-def init_app(app):
+def init_app(app) -> Any:
     """Initialize error handlers for the application."""
 
     @app.errorhandler(DojoPoolError)
-    def handle_dojo_pool_error(error: DojoPoolError) -> Tuple[Dict[str, Any], int]:
+    def handle_dojo_pool_error(error: DojoPoolError):
         """Handle DojoPool custom errors."""
         log_error(error, level="warning" if error.status_code < 500 else "error")
         return jsonify(error.to_dict()), error.status_code
 
     @app.errorhandler(HTTPException)
-    def handle_http_error(error: HTTPException) -> Tuple[Dict[str, Any], int]:
+    def handle_http_error(error: HTTPException):
         """Handle Werkzeug HTTP errors."""
-        log_error(error, level="warning" if error.code < 500 else "error", http_code=error.code)
+        log_error(
+            error,
+            level="warning" if error.code < 500 else "error",
+            http_code=error.code,
+        )
         return (
             jsonify(
                 {
@@ -35,16 +44,19 @@ def init_app(app):
         )
 
     @app.errorhandler(SQLAlchemyError)
-    def handle_database_error(error: SQLAlchemyError) -> Tuple[Dict[str, Any], int]:
+    def handle_database_error(error: SQLAlchemyError):
         """Handle SQLAlchemy database errors."""
         log_error(error, "Database error occurred")
 
         if current_app.debug:
-            message = str(error)
+            message: str = str(error)
         else:
-            message = "A database error occurred"
+            message: str = "A database error occurred"
 
-        return jsonify({"error": "DatabaseError", "message": message, "status_code": 500}), 500
+        return (
+            jsonify({"error": "DatabaseError", "message": message, "status_code": 500}),
+            500,
+        )
 
     @app.errorhandler(Exception)
     def handle_generic_error(error: Exception) -> Tuple[Dict[str, Any], int]:
@@ -52,12 +64,14 @@ def init_app(app):
         log_error(error, "Unhandled exception occurred")
 
         if current_app.debug:
-            message = str(error)
+            message: str = str(error)
         else:
-            message = "An unexpected error occurred"
+            message: str = "An unexpected error occurred"
 
         return (
-            jsonify({"error": "InternalServerError", "message": message, "status_code": 500}),
+            jsonify(
+                {"error": "InternalServerError", "message": message, "status_code": 500}
+            ),
             500,
         )
 
@@ -66,7 +80,7 @@ def register_blueprint_error_handlers(blueprint):
     """Register error handlers for a blueprint."""
 
     @blueprint.errorhandler(DojoPoolError)
-    def handle_blueprint_error(error: DojoPoolError) -> Tuple[Dict[str, Any], int]:
+    def handle_blueprint_error(error: DojoPoolError):
         """Handle blueprint-specific errors."""
         log_error(
             error,
@@ -99,7 +113,9 @@ def register_blueprint_error_handlers(blueprint):
     @blueprint.errorhandler(500)
     def handle_500(error: Any) -> Tuple[Dict[str, Any], int]:
         """Handle blueprint-specific 500 errors."""
-        log_error(error, f"Internal error in {blueprint.name}", blueprint=blueprint.name)
+        log_error(
+            error, f"Internal error in {blueprint.name}", blueprint=blueprint.name
+        )
         return (
             jsonify(
                 {

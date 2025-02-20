@@ -1,14 +1,16 @@
 """Tests for AI shot recommendation system."""
 
-import pytest
-import numpy as np
 from datetime import datetime
+
+import numpy as np
+import pytest
+
 from .shot_recommendation import (
+    BallPosition,
+    ShotDifficulty,
+    ShotRecommendation,
     ShotRecommender,
     ShotType,
-    ShotDifficulty,
-    BallPosition,
-    ShotRecommendation,
 )
 
 
@@ -19,14 +21,14 @@ def shot_recommender() -> ShotRecommender:
 
 
 @pytest.fixture
-def sample_table_state() -> np.ndarray:
+def sample_table_state():
     """Create a sample table state image."""
     # Create a 1920x1080 RGB image
     return np.zeros((1080, 1920, 3), dtype=np.uint8)
 
 
 @pytest.fixture
-def sample_ball_positions() -> List[BallPosition]:
+def sample_ball_positions():
     """Create sample ball positions."""
     return [
         BallPosition(x=50.0, y=50.0, ball_number=0),  # Cue ball
@@ -37,7 +39,7 @@ def sample_ball_positions() -> List[BallPosition]:
 
 
 @pytest.fixture
-def sample_game_context() -> Dict:
+def sample_game_context():
     """Create sample game context."""
     return {
         "game_type": "8-ball",
@@ -70,10 +72,14 @@ class TestShotRecommender:
             assert 0 <= pos.ball_number <= 15
 
     def test_get_possible_shots(
-        self, shot_recommender: ShotRecommender, sample_ball_positions: List[BallPosition]
-    ) -> None:
+        self,
+        shot_recommender: ShotRecommender,
+        sample_ball_positions: List[BallPosition],
+    ):
         """Test getting possible shots."""
-        shots = shot_recommender.get_possible_shots(sample_ball_positions, player_skill_level=5)
+        shots = shot_recommender.get_possible_shots(
+            sample_ball_positions, player_skill_level=5
+        )
 
         assert isinstance(shots, list)
         assert all(isinstance(shot, ShotRecommendation) for shot in shots)
@@ -100,11 +106,15 @@ class TestShotRecommender:
                 assert all(-1 <= spin <= 1 for spin in shot.spin)
 
     def test_rank_shots(
-        self, shot_recommender: ShotRecommender, sample_ball_positions: List[BallPosition]
+        self,
+        shot_recommender: ShotRecommender,
+        sample_ball_positions: List[BallPosition],
     ) -> None:
         """Test shot ranking."""
         # Get some shots to rank
-        shots = shot_recommender.get_possible_shots(sample_ball_positions, player_skill_level=5)
+        shots = shot_recommender.get_possible_shots(
+            sample_ball_positions, player_skill_level=5
+        )
 
         # Define player style
         player_style = {"aggressive": 0.8, "defensive": 0.2, "technical": 0.7}
@@ -129,10 +139,12 @@ class TestShotRecommender:
         shot_recommender: ShotRecommender,
         sample_ball_positions: List[BallPosition],
         sample_game_context: Dict,
-    ) -> None:
+    ):
         """Test narrative generation."""
         # Get a shot to describe
-        shots = shot_recommender.get_possible_shots(sample_ball_positions, player_skill_level=5)
+        shots = shot_recommender.get_possible_shots(
+            sample_ball_positions, player_skill_level=5
+        )
         assert len(shots) > 0
 
         # Generate narrative
@@ -185,12 +197,16 @@ class TestShotRecommender:
         """Test adaptation to different player skill levels."""
         # Get recommendations for novice player
         novice_recs = shot_recommender.get_recommendations(
-            sample_table_state, player_id="novice_player", game_context=sample_game_context
+            sample_table_state,
+            player_id="novice_player",
+            game_context=sample_game_context,
         )
 
         # Get recommendations for expert player
         expert_recs = shot_recommender.get_recommendations(
-            sample_table_state, player_id="expert_player", game_context=sample_game_context
+            sample_table_state,
+            player_id="expert_player",
+            game_context=sample_game_context,
         )
 
         # Expert should have more recommended shots

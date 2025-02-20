@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel
-
 from services.ml_service import MLService
 from utils.auth import get_current_user
 from utils.rate_limit import rate_limiter
@@ -37,7 +36,9 @@ async def train_shot_prediction_model(
         )
 
         return MLResponse(
-            success=True, data=result, message="Shot prediction model trained successfully"
+            success=True,
+            data=result,
+            message="Shot prediction model trained successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -55,7 +56,9 @@ async def train_pattern_recognition_model(
         )
 
         return MLResponse(
-            success=True, data=result, message="Pattern recognition model trained successfully"
+            success=True,
+            data=result,
+            message="Pattern recognition model trained successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -69,7 +72,8 @@ async def train_performance_prediction_model(
     """Train a new performance prediction model."""
     if not request.target_metric:
         raise HTTPException(
-            status_code=400, detail="target_metric is required for performance prediction"
+            status_code=400,
+            detail="target_metric is required for performance prediction",
         )
 
     try:
@@ -78,7 +82,9 @@ async def train_performance_prediction_model(
         )
 
         return MLResponse(
-            success=True, data=result, message="Performance prediction model trained successfully"
+            success=True,
+            data=result,
+            message="Performance prediction model trained successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -94,7 +100,9 @@ async def predict_shot_success(
         prediction = await ml_service.predict_shot_success(model_id, shot_data)
 
         return MLResponse(
-            success=True, data=prediction, message="Shot success prediction generated successfully"
+            success=True,
+            data=prediction,
+            message="Shot success prediction generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -103,14 +111,18 @@ async def predict_shot_success(
 @router.post("/predict/next-pattern/{model_id}", response_model=MLResponse)
 @rate_limiter(max_requests=100, window_seconds=60)
 async def predict_next_pattern(
-    model_id: str, sequence_data: List[dict] = Body(...), current_user=Depends(get_current_user)
+    model_id: str,
+    sequence_data: List[dict] = Body(...),
+    current_user=Depends(get_current_user),
 ):
     """Predict the next likely pattern in a sequence."""
     try:
         prediction = await ml_service.predict_next_pattern(model_id, sequence_data)
 
         return MLResponse(
-            success=True, data=prediction, message="Pattern prediction generated successfully"
+            success=True,
+            data=prediction,
+            message="Pattern prediction generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -165,5 +177,7 @@ async def delete_model(model_id: str, current_user=Depends(get_current_user)):
     ml_service.model_metrics.pop(model_id, None)
 
     return MLResponse(
-        success=True, data={"model_id": model_id}, message=f"Model {model_id} deleted successfully"
+        success=True,
+        data={"model_id": model_id},
+        message=f"Model {model_id} deleted successfully",
     )

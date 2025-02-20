@@ -35,7 +35,9 @@ class DojoPool:
 
     def initiate_match(self, opponent):
 
-        narrative = self.ai_system.generate_pre_game_narrative(self.player, opponent, self.venue)
+        narrative = self.ai_system.generate_pre_game_narrative(
+            self.player, opponent, self.venue
+        )
 
         return Match(self.player, opponent, narrative)
 

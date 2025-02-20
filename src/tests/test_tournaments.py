@@ -1,15 +1,23 @@
+from flask_caching import cached
+from multiprocessing import Pool
+from sqlalchemy.orm import joinedload
+from flask_caching import cached
+from multiprocessing import Pool
+from sqlalchemy.orm import joinedload
+from datetime import timedelta
+
 import pytest
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
 from django.utils import timezone
+
+from ..models.social_groups import Clan, Team
 from ..models.tournaments import (
     Tournament,
-    TournamentParticipant,
     TournamentMatch,
+    TournamentParticipant,
     TournamentSpectator,
 )
-from ..models.social_groups import Team, Clan
-from datetime import timedelta
 
 
 class TestTournament(TestCase):
@@ -21,7 +29,9 @@ class TestTournament(TestCase):
             self.users.append(user)
 
         # Create test clan
-        self.clan = Clan.objects.create(name="Test Clan", tag="TST", leader=self.users[0])
+        self.clan = Clan.objects.create(
+            name="Test Clan", tag="TST", leader=self.users[0]
+        )
 
         # Create test teams
         self.team1 = Team.objects.create(name="Team Alpha", leader=self.users[0])
@@ -124,7 +134,9 @@ class TestTournament(TestCase):
         first_round_matches = self.tournament.matches.filter(round_number=1)
         for match in first_round_matches:
             match.start_match()
-            match.complete_match(winner=match.participant1, score="2-0")  # Higher seed wins
+            match.complete_match(
+                winner=match.participant1, score="2-0"
+            )  # Higher seed wins
 
         # Check second round
         self.assertEqual(self.tournament.current_round, 2)
@@ -159,7 +171,9 @@ class TestTournament(TestCase):
 
         # Test unique constraint
         with self.assertRaises(Exception):
-            TournamentSpectator.objects.create(user=self.users[2], match=match)  # Same user
+            TournamentSpectator.objects.create(
+                user=self.users[2], match=match
+            )  # Same user
 
     def test_tournament_completion(self):
         # Set up tournament with participants and initialize brackets
@@ -177,7 +191,9 @@ class TestTournament(TestCase):
             matches = self.tournament.matches.filter(round_number=round_num)
             for match in matches:
                 match.start_match()
-                match.complete_match(winner=match.participant1, score="2-0")  # Higher seed wins
+                match.complete_match(
+                    winner=match.participant1, score="2-0"
+                )  # Higher seed wins
 
         # Verify tournament completion
         final_match = self.tournament.matches.filter(

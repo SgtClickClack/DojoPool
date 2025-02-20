@@ -6,12 +6,11 @@ from typing import Dict, List
 import numpy as np
 import tensorflow as tf
 from scipy.stats import gaussian_kde
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.models import load_model
-
 from src.core.config import AI_CONFIG
 from src.core.services.shot_analysis import ShotAnalyzer
 from src.extensions import cache
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.models import load_model
 
 
 @dataclass
@@ -49,18 +48,24 @@ class GameAnalyzer:
         self.position_model = load_model(AI_CONFIG["POSITION_MODEL_PATH"])
 
         # Initialize feature extractors
-        self.feature_extractor = ResNet50(weights="imagenet", include_top=False, pooling="avg")
+        self.feature_extractor = ResNet50(
+            weights="imagenet", include_top=False, pooling="avg"
+        )
 
         # Initialize shot analyzer
         self.shot_analyzer = ShotAnalyzer()
 
         # Load calibration data
-        self.style_calibration = tf.keras.models.load_model(AI_CONFIG["STYLE_CALIBRATION_PATH"])
+        self.style_calibration = tf.keras.models.load_model(
+            AI_CONFIG["STYLE_CALIBRATION_PATH"]
+        )
         self.strategy_calibration = tf.keras.models.load_model(
             AI_CONFIG["STRATEGY_CALIBRATION_PATH"]
         )
 
-    def analyze_game(self, game_data: Dict, player_id: str, real_time: bool = False) -> Dict:
+    def analyze_game(
+        self, game_data: Dict, player_id: str, real_time: bool = False
+    ) -> Dict:
         """Analyze a game with advanced metrics and insights.
 
         Args:
@@ -97,7 +102,9 @@ class GameAnalyzer:
         position_heatmap = self._generate_position_heatmap(positions)
 
         # Generate strategic recommendations
-        strategy = self._generate_strategy(patterns, metrics, style, shot_heatmap, position_heatmap)
+        strategy = self._generate_strategy(
+            patterns, metrics, style, shot_heatmap, position_heatmap
+        )
 
         # Compile comprehensive results
         results = {
@@ -156,7 +163,7 @@ class GameAnalyzer:
             "strategies": strategy_patterns,
         }
 
-    def _extract_shot_patterns(self, shots: List[Dict]) -> List[Dict]:
+    def _extract_shot_patterns(self, shots: List[Dict]):
         """Extract recurring shot patterns."""
         patterns = []
 
@@ -171,16 +178,20 @@ class GameAnalyzer:
         # Analyze patterns for each shot type
         for shot_type, type_shots in shot_types.items():
             # Calculate success rate
-            success_rate = sum(1 for s in type_shots if s["outcome"] == "success") / len(type_shots)
+            success_rate = sum(
+                1 for s in type_shots if s["outcome"] == "success"
+            ) / len(type_shots)
 
             # Calculate average position
             avg_position = np.mean(
-                [[s["start_position"][0], s["start_position"][1]] for s in type_shots], axis=0
+                [[s["start_position"][0], s["start_position"][1]] for s in type_shots],
+                axis=0,
             )
 
             # Calculate position variance
             position_variance = np.var(
-                [[s["start_position"][0], s["start_position"][1]] for s in type_shots], axis=0
+                [[s["start_position"][0], s["start_position"][1]] for s in type_shots],
+                axis=0,
             )
 
             # Identify common sequences
@@ -199,7 +210,7 @@ class GameAnalyzer:
 
         return patterns
 
-    def _extract_position_patterns(self, positions: List[Dict]) -> List[Dict]:
+    def _extract_position_patterns(self, positions: List[Dict]):
         """Extract recurring position patterns."""
         patterns = []
 
@@ -215,7 +226,9 @@ class GameAnalyzer:
         # Combine patterns
         for key_position in key_positions:
             position_transitions = [
-                t for t in transitions if np.allclose(t["start"], key_position["position"])
+                t
+                for t in transitions
+                if np.allclose(t["start"], key_position["position"])
             ]
 
             patterns.append(
@@ -239,7 +252,7 @@ class GameAnalyzer:
 
     def _extract_strategy_patterns(
         self, shots: List[Dict], positions: List[Dict], outcomes: List[Dict]
-    ) -> List[Dict]:
+    ):
         """Extract recurring strategy patterns."""
         patterns = []
 
@@ -254,9 +267,13 @@ class GameAnalyzer:
 
         # Combine patterns
         for decision in decisions:
-            related_tactics = [t for t in tactics if t["context"] == decision["context"]]
+            related_tactics = [
+                t for t in tactics if t["context"] == decision["context"]
+            ]
 
-            related_risks = [r for r in risk_patterns if r["situation"] == decision["context"]]
+            related_risks = [
+                r for r in risk_patterns if r["situation"] == decision["context"]
+            ]
 
             patterns.append(
                 {
@@ -291,7 +308,11 @@ class GameAnalyzer:
 
         # Calculate overall strategy score
         overall_strategy = self._calculate_overall_strategy(
-            shot_selection, position_control, safety_play, break_building, defensive_skill
+            shot_selection,
+            position_control,
+            safety_play,
+            break_building,
+            defensive_skill,
         )
 
         return GameMetrics(
@@ -305,7 +326,7 @@ class GameAnalyzer:
 
     def _analyze_player_style(
         self, shots: List[Dict], positions: List[Dict], outcomes: List[Dict]
-    ) -> PlayerStyle:
+    ):
         """Analyze player's playing style characteristics."""
         # Calculate aggression score
         aggression = self._calculate_aggression(shots, outcomes)
@@ -334,7 +355,7 @@ class GameAnalyzer:
             adaptability=adaptability,
         )
 
-    def _generate_shot_heatmap(self, shots: List[Dict]) -> Dict:
+    def _generate_shot_heatmap(self, shots: List[Dict]):
         """Generate shot distribution heat map."""
         # Extract shot positions
         positions = np.array(
@@ -414,7 +435,7 @@ class GameAnalyzer:
 
     def _identify_strengths(
         self, patterns: Dict, metrics: GameMetrics, style: PlayerStyle
-    ) -> List[Dict]:
+    ):
         """Identify player's strengths."""
         strengths = []
 
@@ -520,7 +541,7 @@ class GameAnalyzer:
         patterns: Dict,
         metrics: GameMetrics,
         style: PlayerStyle,
-    ) -> List[Dict]:
+    ):
         """Generate strategic recommendations."""
         recommendations = []
 
@@ -607,7 +628,7 @@ class GameAnalyzer:
         style: PlayerStyle,
         shot_heatmap: Dict,
         position_heatmap: Dict,
-    ) -> List[Dict]:
+    ):
         """Generate situational adaptations."""
         adaptations = []
 
@@ -626,7 +647,9 @@ class GameAnalyzer:
                             "tactics": pattern["tactics"],
                             "success_rate": pattern["success_rate"],
                         },
-                        "suggested_adaptations": self._suggest_adaptations(pattern, metrics, style),
+                        "suggested_adaptations": self._suggest_adaptations(
+                            pattern, metrics, style
+                        ),
                     }
                 )
 
@@ -650,7 +673,7 @@ class GameAnalyzer:
 
     def _suggest_adaptations(
         self, pattern: Dict, metrics: GameMetrics, style: PlayerStyle
-    ) -> List[Dict]:
+    ):
         """Suggest specific adaptations for a pattern."""
         adaptations = []
 
@@ -686,7 +709,9 @@ class GameAnalyzer:
             )
 
         # Generate technical adaptations
-        technical_issues = [t for t in current_tactics if t.get("success_rate", 1) < 0.5]
+        technical_issues = [
+            t for t in current_tactics if t.get("success_rate", 1) < 0.5
+        ]
         for issue in technical_issues:
             adaptations.append(
                 {
@@ -742,7 +767,7 @@ class GameAnalyzer:
 
         return adaptations
 
-    def _identify_weak_positions(self, position_heatmap: Dict) -> List[Dict]:
+    def _identify_weak_positions(self, position_heatmap: Dict):
         """Identify positions with weak control."""
         weak_positions = []
 

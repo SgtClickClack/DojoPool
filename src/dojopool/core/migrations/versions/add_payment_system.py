@@ -6,17 +6,24 @@ Create Date: 2024-01-20 10:00:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic
-revision = "add_payment_system"
-down_revision = "add_venue_system"
-branch_labels = None
-depends_on = None
+revision: str = "add_payment_system"
+down_revision: str = "add_venue_system"
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create payments table
     op.create_table(
         "payments",
@@ -80,7 +87,9 @@ def upgrade():
     )
 
     # Add stripe_customer_id to users table
-    op.add_column("users", sa.Column("stripe_customer_id", sa.String(length=255), nullable=True))
+    op.add_column(
+        "users", sa.Column("stripe_customer_id", sa.String(length=255), nullable=True)
+    )
     op.create_unique_constraint(None, "users", ["stripe_customer_id"])
 
 

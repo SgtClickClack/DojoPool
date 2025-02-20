@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 from datetime import datetime
 from typing import Dict
 
@@ -25,12 +27,15 @@ class AchievementService:
             db.session.add(achievement)
             db.session.commit()
 
-            return {"message": "Achievement created successfully", "achievement_id": achievement.id}
+            return {
+                "message": "Achievement created successfully",
+                "achievement_id": achievement.id,
+            }
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}
 
-    def update_achievement(self, achievement_id: int, data: Dict) -> Dict:
+    def update_achievement(self, achievement_id: int, data: Dict):
         """Update achievement details"""
         try:
             achievement = Achievement.query.get(achievement_id)
@@ -61,7 +66,7 @@ class AchievementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def delete_achievement(self, achievement_id: int) -> Dict:
+    def delete_achievement(self, achievement_id: int):
         """Delete an achievement"""
         try:
             achievement = Achievement.query.get(achievement_id)
@@ -76,7 +81,7 @@ class AchievementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def get_achievement_details(self, achievement_id: int) -> Dict:
+    def get_achievement_details(self, achievement_id: int):
         """Get achievement details"""
         try:
             achievement = Achievement.query.get(achievement_id)
@@ -97,7 +102,7 @@ class AchievementService:
 
     def track_achievement_progress(
         self, user_id: int, achievement_id: int, progress_update: Dict
-    ) -> Dict:
+    ):
         """Track progress for an achievement"""
         try:
             user_achievement = UserAchievement.query.filter_by(
@@ -110,7 +115,9 @@ class AchievementService:
 
             # Create user achievement if it doesn't exist
             if not user_achievement:
-                user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id)
+                user_achievement = UserAchievement(
+                    user_id=user_id, achievement_id=achievement_id
+                )
                 db.session.add(user_achievement)
 
             # Update progress
@@ -144,7 +151,7 @@ class AchievementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def claim_achievement_reward(self, user_id: int, achievement_id: int) -> Dict:
+    def claim_achievement_reward(self, user_id: int, achievement_id: int):
         """Claim reward for a completed achievement"""
         try:
             user_achievement = UserAchievement.query.filter_by(
@@ -165,7 +172,10 @@ class AchievementService:
                 return {"error": "Achievement not found"}
 
             # Process reward
-            reward = {"type": achievement.reward_type, "value": achievement.reward_value}
+            reward = {
+                "type": achievement.reward_type,
+                "value": achievement.reward_value,
+            }
 
             user_achievement.reward_claimed = True
             user_achievement.reward_claimed_at = datetime.utcnow()
@@ -178,20 +188,24 @@ class AchievementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def get_achievement_stats(self, user_id: int) -> Dict:
+    def get_achievement_stats(self, user_id: int):
         """Get achievement statistics for a user"""
         try:
             total_achievements = Achievement.query.filter_by(is_active=True).count()
             user_achievements = UserAchievement.query.filter_by(user_id=user_id).all()
 
             completed = sum(1 for ua in user_achievements if ua.completed)
-            total_points = sum(ua.achievement.points for ua in user_achievements if ua.completed)
+            total_points = sum(
+                ua.achievement.points for ua in user_achievements if ua.completed
+            )
 
             stats = {
                 "total_achievements": total_achievements,
                 "completed_achievements": completed,
                 "completion_rate": (
-                    (completed / total_achievements * 100) if total_achievements > 0 else 0
+                    (completed / total_achievements * 100)
+                    if total_achievements > 0
+                    else 0
                 ),
                 "total_points": total_points,
             }
@@ -231,7 +245,7 @@ class AchievementService:
         except Exception as e:
             return {"error": str(e)}
 
-    def _check_achievement_completion(self, requirements: Dict, progress: Dict) -> bool:
+    def _check_achievement_completion(self, requirements: Dict, progress: Dict):
         """Check if achievement requirements are met"""
         try:
             for key, required_value in requirements.items():

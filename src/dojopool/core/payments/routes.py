@@ -1,140 +1,108 @@
-from flask import Blueprint, jsonify, request
+"""
+Payment routes for DojoPool.
+Handles payment-related HTTP endpoints.
+"""
 
-from ..auth.decorators import login_required
-from ..models import db
-from .models import Payment, PricingPlan, Subscription
-from .stripe_service import StripeService
+from typing import Any, Dict, List, Optional, Union
 
-payments_bp = Blueprint("payments", __name__)
-stripe_service = StripeService()
+from flask import Blueprint, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response
+
+from ..auth.decorators import require_auth
+from ..exceptions import PaymentError
+from ..models import Transaction, User
+from .service import payment_service
+
+payments_bp: Blueprint = Blueprint("payments", __name__, url_prefix="/payments")
 
 
-@payments_bp.route("/create-payment-intent", methods=["POST"])
-@login_required
+@payments_bp.route("/methods", methods=["GET"])
+@require_auth
+def get_payment_methods() -> ResponseReturnValue:
+    """Get user's payment methods."""
+    try:
+        methods = payment_service.get_payment_methods(request.user.id)
+        return jsonify({"payment_methods": methods})
+    except PaymentError as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@payments_bp.route("/methods", methods=["POST"])
+@require_auth
+def add_payment_method():
+    """Add a new payment method."""
+    try:
+        data = request.get_json()
+        if not data or "payment_method_id" not in data:
+            return jsonify({"error": "Missing payment_method_id"}), 400
+
+        method = payment_service.add_payment_method(
+            request.user.id, data["payment_method_id"]
+        )
+        return jsonify({"payment_method": method})
+    except PaymentError as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@payments_bp.route("/methods/<method_id>", methods=["DELETE"])
+@require_auth
+def remove_payment_method(method_id: str) -> ResponseReturnValue:
+    """Remove a payment method."""
+    try:
+        payment_service.remove_payment_method(request.user.id, method_id)
+        return jsonify({"message": "Payment method removed"})
+    except PaymentError as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@payments_bp.route("/intent", methods=["POST"])
+@require_auth
 def create_payment_intent():
-    """Create a payment intent for a one-time payment."""
+    """Create a payment intent."""
     try:
         data = request.get_json()
-        amount = data.get("amount")
-        currency = data.get("currency", "USD")
+        if not data or "amount" not in data:
+            return jsonify({"error": "Missing amount"}), 400
 
-        if not amount:
-            return jsonify({"error": "Amount is required"}), 400
-
-        result = stripe_service.create_payment_intent(amount, currency)
-
-        # Create payment record
-        payment = Payment(
-            user_id=request.user.id,
-            amount=amount,
-            currency=currency,
-            stripe_payment_id=result["id"],
-            status="pending",
-            payment_type="one_time",
+        intent = payment_service.create_payment_intent(
+            request.user.id,
+            data["amount"],
+            data.get("currency", "usd"),
+            data.get("payment_method_id"),
+            data.get("metadata"),
         )
-        db.session.add(payment)
-        db.session.commit()
-
-        return jsonify({"clientSecret": result["client_secret"]})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify(intent)
+    except PaymentError as e:
+        return jsonify({"error": str(e)}), 400
 
 
-@payments_bp.route("/create-subscription", methods=["POST"])
-@login_required
-def create_subscription():
-    """Create a subscription for the current user."""
+@payments_bp.route("/confirm", methods=["POST"])
+@require_auth
+def confirm_payment():
+    """Confirm a payment intent."""
     try:
         data = request.get_json()
-        price_id = data.get("priceId")
+        if not data or "payment_intent_id" not in data:
+            return jsonify({"error": "Missing payment_intent_id"}), 400
 
-        if not price_id:
-            return jsonify({"error": "Price ID is required"}), 400
-
-        # Get or create customer
-        if not request.user.stripe_customer_id:
-            customer = stripe_service.create_customer(
-                email=request.user.email, name=request.user.username
-            )
-            request.user.stripe_customer_id = customer["customer_id"]
-            db.session.commit()
-
-        result = stripe_service.create_subscription(request.user.stripe_customer_id, price_id)
-
-        # Create subscription record
-        subscription = Subscription(
-            user_id=request.user.id,
-            stripe_subscription_id=result["subscription_id"],
-            status=result["status"],
-            plan_type=price_id,  # You might want to map this to a friendly name
+        result = payment_service.confirm_payment(
+            data["payment_intent_id"], data.get("payment_method_id")
         )
-        db.session.add(subscription)
-        db.session.commit()
-
-        return jsonify(
-            {"clientSecret": result["client_secret"], "subscriptionId": result["subscription_id"]}
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@payments_bp.route("/cancel-subscription", methods=["POST"])
-@login_required
-def cancel_subscription():
-    """Cancel the user's subscription."""
-    try:
-        data = request.get_json()
-        subscription_id = data.get("subscriptionId")
-
-        if not subscription_id:
-            return jsonify({"error": "Subscription ID is required"}), 400
-
-        result = stripe_service.cancel_subscription(subscription_id)
-
         return jsonify(result)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@payments_bp.route("/pricing-plans", methods=["GET"])
-def get_pricing_plans():
-    """Get all active pricing plans."""
-    try:
-        plans = PricingPlan.query.filter_by(is_active=True).all()
-        return jsonify(
-            {
-                "plans": [
-                    {
-                        "id": plan.id,
-                        "name": plan.name,
-                        "amount": plan.amount,
-                        "currency": plan.currency,
-                        "interval": plan.interval,
-                        "features": plan.features,
-                        "stripe_price_id": plan.stripe_price_id,
-                    }
-                    for plan in plans
-                ]
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except PaymentError as e:
+        return jsonify({"error": str(e)}), 400
 
 
 @payments_bp.route("/webhook", methods=["POST"])
 def webhook():
-    """Handle Stripe webhooks."""
+    """Handle payment webhook events."""
     try:
-        payload = request.get_data()
-        sig_header = request.headers.get("Stripe-Signature")
+        event_data = request.get_json()
+        if not event_data:
+            return jsonify({"error": "No event data"}), 400
 
-        stripe_service.handle_webhook(payload, sig_header)
-
-        return jsonify({"status": "success"}), 200
-
-    except Exception as e:
+        payment_service.process_webhook(event_data)
+        return jsonify({"message": "Webhook processed"})
+    except PaymentError as e:
         return jsonify({"error": str(e)}), 400

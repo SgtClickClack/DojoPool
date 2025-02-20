@@ -9,7 +9,10 @@ def convert_svg_to_png(svg_path, png_path, size=None):
             svg_data = svg_file.read()
             if size:
                 svg2png(
-                    bytestring=svg_data, write_to=png_path, output_width=size, output_height=size
+                    bytestring=svg_data,
+                    write_to=png_path,
+                    output_width=size,
+                    output_height=size,
                 )
             else:
                 svg2png(bytestring=svg_data, write_to=png_path)

@@ -4,10 +4,12 @@ This module provides event registration and dispatching functionality for WebSoc
 """
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import session
+from flask import Request, Response, current_app, session
+from flask.typing import ResponseReturnValue
 from flask_socketio import emit, join_room, leave_room
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .auth import require_permissions
 from .constants import ErrorCodes, EventTypes, Permissions
@@ -16,7 +18,7 @@ from .log_config import logger
 from .utils import format_error_response
 
 
-def handle_connect():
+def handle_connect() -> None:
     """Handle client connection event."""
     try:
         # Generate client ID if not exists
@@ -25,12 +27,15 @@ def handle_connect():
 
         # Join user's personal room
         if "user_id" in session:
-            room = f'user_{session["user_id"]}'
+            room: Any = f'user_{session["user_id"]}'
             join_room(room)
 
         logger.info(
             f"Client connected: {session['client_id']}",
-            extra={"client_id": session["client_id"], "user_id": session.get("user_id")},
+            extra={
+                "client_id": session["client_id"],
+                "user_id": session.get("user_id"),
+            },
         )
 
         # Send welcome message
@@ -60,7 +65,7 @@ def handle_disconnect():
 
 
 @event_handler(EventTypes.JOIN_GAME, requires_auth=True)
-def handle_join_game(data: Dict[str, Any]) -> None:
+def handle_join_game(data: Dict[str, Any]):
     """Handle game join event.
 
     Args:
@@ -69,16 +74,22 @@ def handle_join_game(data: Dict[str, Any]) -> None:
     try:
         game_id = data.get("game_id")
         if not game_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing game_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing game_id"
+            )
             emit("error", error)
             return
 
         # Join game room
-        room = f"game_{game_id}"
+        room: Any = f"game_{game_id}"
         join_room(room)
 
         # Notify other players
-        emit("player_joined", {"game_id": game_id, "player_id": session.get("user_id")}, room=room)
+        emit(
+            "player_joined",
+            {"game_id": game_id, "player_id": session.get("user_id")},
+            room=room,
+        )
 
         logger.info(
             f"Player joined game: {game_id}",
@@ -87,12 +98,14 @@ def handle_join_game(data: Dict[str, Any]) -> None:
 
     except Exception:
         logger.error("Error handling join_game", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error joining game")
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error joining game"
+        )
         emit("error", error)
 
 
 @event_handler(EventTypes.LEAVE_GAME, requires_auth=True)
-def handle_leave_game(data: Dict[str, Any]) -> None:
+def handle_leave_game(data: Dict[str, Any]):
     """Handle game leave event.
 
     Args:
@@ -101,16 +114,22 @@ def handle_leave_game(data: Dict[str, Any]) -> None:
     try:
         game_id = data.get("game_id")
         if not game_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing game_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing game_id"
+            )
             emit("error", error)
             return
 
         # Leave game room
-        room = f"game_{game_id}"
+        room: Any = f"game_{game_id}"
         leave_room(room)
 
         # Notify other players
-        emit("player_left", {"game_id": game_id, "player_id": session.get("user_id")}, room=room)
+        emit(
+            "player_left",
+            {"game_id": game_id, "player_id": session.get("user_id")},
+            room=room,
+        )
 
         logger.info(
             f"Player left game: {game_id}",
@@ -119,23 +138,27 @@ def handle_leave_game(data: Dict[str, Any]) -> None:
 
     except Exception:
         logger.error("Error handling leave_game", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error leaving game")
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error leaving game"
+        )
         emit("error", error)
 
 
 @event_handler(EventTypes.CHAT_MESSAGE, requires_auth=True)
-def handle_chat_message(data: Dict[str, Any]) -> None:
+def handle_chat_message(data: Dict[str, Any]):
     """Handle chat message event.
 
     Args:
         data: Message data
     """
     try:
-        room = data.get("room")
-        message = data.get("message")
+        room: Any = data.get("room")
+        message: Any = data.get("message")
 
         if not room or not message:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing room or message")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing room or message"
+            )
             emit("error", error)
             return
 
@@ -152,12 +175,15 @@ def handle_chat_message(data: Dict[str, Any]) -> None:
         )
 
         logger.info(
-            f"Chat message sent: {room}", extra={"room": room, "sender_id": session.get("user_id")}
+            f"Chat message sent: {room}",
+            extra={"room": room, "sender_id": session.get("user_id")},
         )
 
     except Exception:
         logger.error("Error handling chat_message", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error sending chat message")
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error sending chat message"
+        )
         emit("error", error)
 
 
@@ -170,16 +196,18 @@ def handle_update_score(data: Dict[str, Any]) -> None:
     """
     try:
         game_id = data.get("game_id")
-        player1_score = data.get("player1_score")
-        player2_score = data.get("player2_score")
+        player1_score: Any = data.get("player1_score")
+        player2_score: Any = data.get("player2_score")
 
         if not all([game_id, player1_score is not None, player2_score is not None]):
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing required fields")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing required fields"
+            )
             emit("error", error)
             return
 
         # Emit score update to game room
-        room = f"game_{game_id}"
+        room: Any = f"game_{game_id}"
         emit(
             "score_update",
             {
@@ -202,12 +230,14 @@ def handle_update_score(data: Dict[str, Any]) -> None:
 
     except Exception:
         logger.error("Error handling update_score", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error updating score")
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error updating score"
+        )
         emit("error", error)
 
 
 @event_handler(EventTypes.END_GAME, requires_auth=True)
-def handle_end_game(data: Dict[str, Any]) -> None:
+def handle_end_game(data: Dict[str, Any]):
     """Handle game end event.
 
     Args:
@@ -215,31 +245,41 @@ def handle_end_game(data: Dict[str, Any]) -> None:
     """
     try:
         game_id = data.get("game_id")
-        reason = data.get("reason", "Game completed")
+        reason: Any = data.get("reason", "Game completed")
 
         if not game_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing game_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing game_id"
+            )
             emit("error", error)
             return
 
         # Emit game end to game room
-        room = f"game_{game_id}"
+        room: Any = f"game_{game_id}"
         emit(
             "game_end",
-            {"game_id": game_id, "reason": reason, "timestamp": datetime.now().isoformat()},
+            {
+                "game_id": game_id,
+                "reason": reason,
+                "timestamp": datetime.now().isoformat(),
+            },
             room=room,
         )
 
-        logger.info(f"Game ended: {game_id}", extra={"game_id": game_id, "reason": reason})
+        logger.info(
+            f"Game ended: {game_id}", extra={"game_id": game_id, "reason": reason}
+        )
 
     except Exception:
         logger.error("Error handling end_game", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error ending game")
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error ending game"
+        )
         emit("error", error)
 
 
 @event_handler(EventTypes.JOIN_TOURNAMENT, requires_auth=True)
-def handle_join_tournament(data: Dict[str, Any]) -> None:
+def handle_join_tournament(data: Dict[str, Any]):
     """Handle tournament join event.
 
     Args:
@@ -248,12 +288,14 @@ def handle_join_tournament(data: Dict[str, Any]) -> None:
     try:
         tournament_id = data.get("tournament_id")
         if not tournament_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing tournament_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing tournament_id"
+            )
             emit("error", error)
             return
 
         # Join tournament room
-        room = f"tournament_{tournament_id}"
+        room: Any = f"tournament_{tournament_id}"
         join_room(room)
 
         # Notify other players
@@ -269,13 +311,17 @@ def handle_join_tournament(data: Dict[str, Any]) -> None:
         )
 
     except Exception:
-        logger.error("Error handling join_tournament", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error joining tournament")
+        logger.error(
+            "Error handling join_tournament", exc_info=True, extra={"data": data}
+        )
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error joining tournament"
+        )
         emit("error", error)
 
 
 @event_handler(EventTypes.LEAVE_TOURNAMENT, requires_auth=True)
-def handle_leave_tournament(data: Dict[str, Any]) -> None:
+def handle_leave_tournament(data: Dict[str, Any]):
     """Handle tournament leave event.
 
     Args:
@@ -284,12 +330,14 @@ def handle_leave_tournament(data: Dict[str, Any]) -> None:
     try:
         tournament_id = data.get("tournament_id")
         if not tournament_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing tournament_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing tournament_id"
+            )
             emit("error", error)
             return
 
         # Leave tournament room
-        room = f"tournament_{tournament_id}"
+        room: Any = f"tournament_{tournament_id}"
         leave_room(room)
 
         # Notify other players
@@ -305,8 +353,12 @@ def handle_leave_tournament(data: Dict[str, Any]) -> None:
         )
 
     except Exception:
-        logger.error("Error handling leave_tournament", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error leaving tournament")
+        logger.error(
+            "Error handling leave_tournament", exc_info=True, extra={"data": data}
+        )
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error leaving tournament"
+        )
         emit("error", error)
 
 
@@ -320,15 +372,17 @@ def handle_start_tournament(data: Dict[str, Any]) -> None:
     """
     try:
         tournament_id = data.get("tournament_id")
-        settings = data.get("settings", {})
+        settings: Any = data.get("settings", {})
 
         if not tournament_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing tournament_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing tournament_id"
+            )
             emit("error", error)
             return
 
         # Emit tournament start to tournament room
-        room = f"tournament_{tournament_id}"
+        room: Any = f"tournament_{tournament_id}"
         emit(
             "tournament_start",
             {
@@ -345,14 +399,18 @@ def handle_start_tournament(data: Dict[str, Any]) -> None:
         )
 
     except Exception:
-        logger.error("Error handling start_tournament", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error starting tournament")
+        logger.error(
+            "Error handling start_tournament", exc_info=True, extra={"data": data}
+        )
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error starting tournament"
+        )
         emit("error", error)
 
 
 @event_handler(EventTypes.END_TOURNAMENT, requires_auth=True)
 @require_permissions(Permissions.END_TOURNAMENT)
-def handle_end_tournament(data: Dict[str, Any]) -> None:
+def handle_end_tournament(data: Dict[str, Any]):
     """Handle tournament end event.
 
     Args:
@@ -360,15 +418,17 @@ def handle_end_tournament(data: Dict[str, Any]) -> None:
     """
     try:
         tournament_id = data.get("tournament_id")
-        reason = data.get("reason", "Tournament completed")
+        reason: Any = data.get("reason", "Tournament completed")
 
         if not tournament_id:
-            error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Missing tournament_id")
+            error: format_error_response = format_error_response(
+                ErrorCodes.VALIDATION_ERROR, "Missing tournament_id"
+            )
             emit("error", error)
             return
 
         # Emit tournament end to tournament room
-        room = f"tournament_{tournament_id}"
+        room: Any = f"tournament_{tournament_id}"
         emit(
             "tournament_end",
             {
@@ -385,6 +445,10 @@ def handle_end_tournament(data: Dict[str, Any]) -> None:
         )
 
     except Exception:
-        logger.error("Error handling end_tournament", exc_info=True, extra={"data": data})
-        error = format_error_response(ErrorCodes.SERVER_ERROR, "Error ending tournament")
+        logger.error(
+            "Error handling end_tournament", exc_info=True, extra={"data": data}
+        )
+        error: format_error_response = format_error_response(
+            ErrorCodes.SERVER_ERROR, "Error ending tournament"
+        )
         emit("error", error)

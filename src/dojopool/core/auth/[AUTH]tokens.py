@@ -24,7 +24,9 @@ class TokenManager:
         self.secret_key = secret_key
         self.algorithm = algorithm
 
-    def generate_access_token(self, user_id: int, duration: timedelta = timedelta(hours=1)) -> str:
+    def generate_access_token(
+        self, user_id: int, duration: timedelta = timedelta(hours=1)
+    ) -> str:
         """Generate access token.
 
         Args:
@@ -38,7 +40,9 @@ class TokenManager:
         payload = {"user_id": user_id, "type": "access", "exp": expiry}
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def generate_refresh_token(self, user_id: int, duration: timedelta = timedelta(days=7)) -> str:
+    def generate_refresh_token(
+        self, user_id: int, duration: timedelta = timedelta(days=7)
+    ) -> str:
         """Generate refresh token.
 
         Args:
@@ -52,7 +56,9 @@ class TokenManager:
         payload = {"user_id": user_id, "type": "refresh", "exp": expiry}
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def generate_reset_token(self, user_id: int, duration: timedelta = timedelta(hours=24)) -> str:
+    def generate_reset_token(
+        self, user_id: int, duration: timedelta = timedelta(hours=24)
+    ) -> str:
         """Generate password reset token.
 
         Args:
@@ -80,7 +86,12 @@ class TokenManager:
             JWT verification token
         """
         expiry = calculate_token_expiry(duration)
-        payload = {"user_id": user_id, "email": email, "type": "verification", "exp": expiry}
+        payload = {
+            "user_id": user_id,
+            "email": email,
+            "type": "verification",
+            "exp": expiry,
+        }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
     def decode_token(self, token: str) -> Optional[Dict[str, Any]]:
@@ -110,7 +121,7 @@ class TokenManager:
             logger.warning(f"Invalid token: {str(e)}")
             return None
 
-    def refresh_access_token(self, refresh_token: str) -> Optional[str]:
+    def refresh_access_token(self, refresh_token: str):
         """Generate new access token from refresh token.
 
         Args:
@@ -129,7 +140,7 @@ class TokenManager:
 
         return self.generate_access_token(payload["user_id"])
 
-    def verify_token_type(self, token: str, expected_type: str) -> bool:
+    def verify_token_type(self, token: str, expected_type: str):
         """Verify token is of expected type.
 
         Args:

@@ -17,9 +17,13 @@ from typing import Dict, Optional, Set
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
-from dojopool.venues.onboarding import VenueOnboardingManager, OnboardingStatus, EquipmentType
-from dojopool.core.models.venue import Venue, VenueEquipment
 from dojopool.core.models.staff import StaffMember
+from dojopool.core.models.venue import Venue, VenueEquipment
+from dojopool.venues.onboarding import (
+    EquipmentType,
+    OnboardingStatus,
+    VenueOnboardingManager,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -91,7 +95,7 @@ def verify_venue(args) -> None:
         sys.exit(1)
 
 
-def setup_equipment(args) -> None:
+def setup_equipment(args):
     """Set up venue equipment."""
     manager = VenueOnboardingManager()
 
@@ -112,7 +116,9 @@ def setup_equipment(args) -> None:
             )
             equipment_list.append(equipment)
 
-        success = manager.setup_equipment(venue_id=args.venue_id, equipment=equipment_list)
+        success = manager.setup_equipment(
+            venue_id=args.venue_id, equipment=equipment_list
+        )
 
         if success:
             print(f"Successfully set up equipment for venue: {args.venue_id}")
@@ -125,7 +131,7 @@ def setup_equipment(args) -> None:
         sys.exit(1)
 
 
-def train_staff(args) -> None:
+def train_staff(args):
     """Record staff training completion."""
     manager = VenueOnboardingManager()
 
@@ -161,7 +167,7 @@ def train_staff(args) -> None:
         sys.exit(1)
 
 
-def run_integration_test(args) -> None:
+def run_integration_test(args):
     """Run integration tests for venue."""
     manager = VenueOnboardingManager()
 
@@ -197,7 +203,7 @@ def activate_venue(args) -> None:
         sys.exit(1)
 
 
-def print_venue_details(venue: Venue) -> None:
+def print_venue_details(venue: Venue):
     """Print formatted venue details."""
     print(
         f"""
@@ -227,7 +233,9 @@ def main():
     register_parser.add_argument("--email", required=True)
     register_parser.add_argument("--phone", required=True)
     register_parser.add_argument(
-        "--business-hours", required=True, help="Format: day=HH:MM-HH:MM;day=HH:MM-HH:MM"
+        "--business-hours",
+        required=True,
+        help="Format: day=HH:MM-HH:MM;day=HH:MM-HH:MM",
     )
     register_parser.add_argument("--num-tables", type=int, required=True)
     register_parser.add_argument(
@@ -238,12 +246,16 @@ def main():
     verify_parser = subparsers.add_parser("verify", help="Verify a venue")
     verify_parser.add_argument("venue_id")
     verify_parser.add_argument(
-        "--documents", required=True, help="JSON string mapping document types to file paths"
+        "--documents",
+        required=True,
+        help="JSON string mapping document types to file paths",
     )
     verify_parser.add_argument("--notes")
 
     # Setup equipment command
-    equipment_parser = subparsers.add_parser("setup-equipment", help="Set up venue equipment")
+    equipment_parser = subparsers.add_parser(
+        "setup-equipment", help="Set up venue equipment"
+    )
     equipment_parser.add_argument("venue_id")
     equipment_parser.add_argument(
         "--equipment", required=True, help="JSON string with equipment details"
@@ -252,7 +264,9 @@ def main():
     # Train staff command
     staff_parser = subparsers.add_parser("train-staff", help="Record staff training")
     staff_parser.add_argument("venue_id")
-    staff_parser.add_argument("--staff", required=True, help="JSON string with staff details")
+    staff_parser.add_argument(
+        "--staff", required=True, help="JSON string with staff details"
+    )
 
     # Integration test command
     test_parser = subparsers.add_parser("test", help="Run integration tests")

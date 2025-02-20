@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.dojopool.core.monitoring.metrics_monitor import (
+from dojopool.core.monitoring.metrics_monitor import (
     Alert,
     AlertSeverity,
     GameMetrics,
@@ -17,7 +17,7 @@ from src.dojopool.core.monitoring.metrics_monitor import (
 @pytest.fixture
 def app():
     """Create test app."""
-    from src.dojopool.app import create_app
+    from dojopool.app import create_app
 
     app = create_app("testing")
     return app
@@ -82,7 +82,9 @@ def test_get_game_metrics(client, auth_headers, mock_metrics):
 
 def test_get_game_metrics_error(client, auth_headers):
     """Test error handling when getting metrics."""
-    with patch.object(GameMetricsMonitor, "get_metrics", side_effect=Exception("Test error")):
+    with patch.object(
+        GameMetricsMonitor, "get_metrics", side_effect=Exception("Test error")
+    ):
         response = client.get("/api/monitoring/metrics/game123", headers=auth_headers)
 
         assert response.status_code == 500
@@ -109,7 +111,9 @@ def test_get_alerts(client, auth_headers, mock_alert):
 def test_get_alerts_with_severity(client, auth_headers, mock_alert):
     """Test getting alerts filtered by severity."""
     with patch.object(GameMetricsMonitor, "get_alerts", return_value=[mock_alert]):
-        response = client.get("/api/monitoring/alerts?severity=warning", headers=auth_headers)
+        response = client.get(
+            "/api/monitoring/alerts?severity=warning", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = json.loads(response.data)

@@ -1,3 +1,5 @@
+import gc
+import gc
 """Game visualization module.
 
 This module provides real-time visualization capabilities for game analytics.
@@ -68,11 +70,13 @@ class GameVisualizer:
             )
         )
 
-        table_fig.update_layout(title="Shot Distribution", showlegend=True, width=800, height=400)
+        table_fig.update_layout(
+            title="Shot Distribution", showlegend=True, width=800, height=400
+        )
 
         return {"figure": table_fig, "timestamp": datetime.utcnow().isoformat()}
 
-    def create_performance_trends_plot(self) -> Dict[str, Any]:
+    def create_performance_trends_plot(self):
         """Create performance trends visualization."""
         # Create subplots for different metrics
         fig = make_subplots(
@@ -89,7 +93,9 @@ class GameVisualizer:
         # Success rate trend
         success_rates = self._calculate_rolling_success_rate()
         fig.add_trace(
-            go.Scatter(x=list(range(len(success_rates))), y=success_rates, name="Success Rate"),
+            go.Scatter(
+                x=list(range(len(success_rates))), y=success_rates, name="Success Rate"
+            ),
             row=1,
             col=1,
         )
@@ -97,7 +103,9 @@ class GameVisualizer:
         # Shot difficulty
         difficulties = [shot.get("difficulty", 0) for shot in self.shot_history]
         fig.add_trace(
-            go.Scatter(x=list(range(len(difficulties))), y=difficulties, name="Difficulty"),
+            go.Scatter(
+                x=list(range(len(difficulties))), y=difficulties, name="Difficulty"
+            ),
             row=1,
             col=2,
         )
@@ -105,7 +113,9 @@ class GameVisualizer:
         # Position accuracy
         accuracies = self._calculate_position_accuracies()
         fig.add_trace(
-            go.Scatter(x=list(range(len(accuracies))), y=accuracies, name="Position Accuracy"),
+            go.Scatter(
+                x=list(range(len(accuracies))), y=accuracies, name="Position Accuracy"
+            ),
             row=2,
             col=1,
         )
@@ -113,7 +123,11 @@ class GameVisualizer:
         # Shot types distribution
         shot_types = self._count_shot_types()
         fig.add_trace(
-            go.Bar(x=list(shot_types.keys()), y=list(shot_types.values()), name="Shot Types"),
+            go.Bar(
+                x=list(shot_types.keys()),
+                y=list(shot_types.values()),
+                name="Shot Types",
+            ),
             row=2,
             col=2,
         )
@@ -122,7 +136,7 @@ class GameVisualizer:
 
         return {"figure": fig, "timestamp": datetime.utcnow().isoformat()}
 
-    def create_position_heatmap(self) -> Dict[str, Any]:
+    def create_position_heatmap(self):
         """Create position play heatmap."""
         # Create 9x9 grid for more detailed heatmap
         grid_size = 9
@@ -169,7 +183,11 @@ class GameVisualizer:
         # Success by shot type
         type_success = self._calculate_type_success()
         fig.add_trace(
-            go.Bar(x=list(type_success.keys()), y=list(type_success.values()), name="Type Success"),
+            go.Bar(
+                x=list(type_success.keys()),
+                y=list(type_success.values()),
+                name="Type Success",
+            ),
             row=1,
             col=2,
         )
@@ -190,17 +208,21 @@ class GameVisualizer:
         phase_success = self._calculate_phase_success()
         fig.add_trace(
             go.Bar(
-                x=list(phase_success.keys()), y=list(phase_success.values()), name="Phase Success"
+                x=list(phase_success.keys()),
+                y=list(phase_success.values()),
+                name="Phase Success",
             ),
             row=2,
             col=2,
         )
 
-        fig.update_layout(height=800, width=1000, title_text="Success Patterns Analysis")
+        fig.update_layout(
+            height=800, width=1000, title_text="Success Patterns Analysis"
+        )
 
         return {"figure": fig, "timestamp": datetime.utcnow().isoformat()}
 
-    def _calculate_rolling_success_rate(self, window_size: int = 5) -> List[float]:
+    def _calculate_rolling_success_rate(self, window_size: int = 5):
         """Calculate rolling success rate."""
         success_rates = []
         for i in range(len(self.shot_history)):
@@ -216,7 +238,9 @@ class GameVisualizer:
             if "intended_position" in shot and "actual_position" in shot:
                 intended = shot["intended_position"]
                 actual = shot["actual_position"]
-                distance = ((intended[0] - actual[0]) ** 2 + (intended[1] - actual[1]) ** 2) ** 0.5
+                distance = (
+                    (intended[0] - actual[0]) ** 2 + (intended[1] - actual[1]) ** 2
+                ) ** 0.5
                 accuracies.append(1 - min(1, distance))
             else:
                 accuracies.append(0)
@@ -230,9 +254,13 @@ class GameVisualizer:
             shot_types[shot_type] = shot_types.get(shot_type, 0) + 1
         return shot_types
 
-    def _calculate_position_success(self) -> Dict[str, float]:
+    def _calculate_position_success(self):
         """Calculate success rate by position zone."""
-        zones = {f"zone_{i}_{j}": {"attempts": 0, "success": 0} for i in range(3) for j in range(3)}
+        zones = {
+            f"zone_{i}_{j}": {"attempts": 0, "success": 0}
+            for i in range(3)
+            for j in range(3)
+        }
 
         for shot in self.shot_history:
             if "position" in shot:
@@ -246,7 +274,11 @@ class GameVisualizer:
                     zones[zone_key]["success"] += 1
 
         return {
-            zone: (stats["success"] / stats["attempts"] * 100 if stats["attempts"] > 0 else 0)
+            zone: (
+                stats["success"] / stats["attempts"] * 100
+                if stats["attempts"] > 0
+                else 0
+            )
             for zone, stats in zones.items()
         }
 
@@ -263,7 +295,11 @@ class GameVisualizer:
                 types[shot_type]["success"] += 1
 
         return {
-            shot_type: (stats["success"] / stats["attempts"] * 100 if stats["attempts"] > 0 else 0)
+            shot_type: (
+                stats["success"] / stats["attempts"] * 100
+                if stats["attempts"] > 0
+                else 0
+            )
             for shot_type, stats in types.items()
         }
 
@@ -289,7 +325,11 @@ class GameVisualizer:
                 difficulties[level]["success"] += 1
 
         return {
-            level: (stats["success"] / stats["attempts"] * 100 if stats["attempts"] > 0 else 0)
+            level: (
+                stats["success"] / stats["attempts"] * 100
+                if stats["attempts"] > 0
+                else 0
+            )
             for level, stats in difficulties.items()
         }
 
@@ -302,12 +342,19 @@ class GameVisualizer:
         phase_size = total_shots // 3
         phases = {
             "early": {"shots": self.shot_history[:phase_size], "success": 0},
-            "mid": {"shots": self.shot_history[phase_size : 2 * phase_size], "success": 0},
+            "mid": {
+                "shots": self.shot_history[phase_size : 2 * phase_size],
+                "success": 0,
+            },
             "late": {"shots": self.shot_history[2 * phase_size :], "success": 0},
         }
 
         for _phase, data in phases.items():
-            success_count = sum(1 for s in data["shots"] if s.get("result") == "success")
-            data["success"] = success_count / len(data["shots"]) * 100 if data["shots"] else 0
+            success_count = sum(
+                1 for s in data["shots"] if s.get("result") == "success"
+            )
+            data["success"] = (
+                success_count / len(data["shots"]) * 100 if data["shots"] else 0
+            )
 
         return {phase: data["success"] for phase, data in phases.items()}

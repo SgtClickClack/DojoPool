@@ -55,7 +55,9 @@ def update_env_file(template_path, env_path):
 def main():
     parser = argparse.ArgumentParser(description="Security update utility")
     parser.add_argument("--env", help="Path to .env file", default=".env")
-    parser.add_argument("--template", help="Path to template file", default=".env.template")
+    parser.add_argument(
+        "--template", help="Path to template file", default=".env.template"
+    )
     args = parser.parse_args()
 
     env_path = Path(args.env)

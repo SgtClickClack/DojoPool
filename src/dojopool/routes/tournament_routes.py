@@ -1,25 +1,27 @@
 """Tournament routes module."""
 
 from datetime import datetime
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
 from flask_login import current_user, login_required
-
 from src.models.tournament import Tournament
 from src.services.tournament_service import TournamentService
 from src.utils.validators import validate_tournament_data
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-bp = Blueprint("tournaments", __name__, url_prefix="/api/tournaments")
+bp: Blueprint = Blueprint("tournaments", __name__, url_prefix="/api/tournaments")
 
 
 @bp.route("/", methods=["POST"])
 @login_required
-def create_tournament():
+def create_tournament() -> Response:
     """Create a new tournament."""
     data = request.get_json()
 
     # Validate tournament data
-    errors = validate_tournament_data(data)
+    errors: validate_tournament_data = validate_tournament_data(data)
     if errors:
         return jsonify({"errors": errors}), 400
 
@@ -28,7 +30,7 @@ def create_tournament():
         data["start_date"] = datetime.fromisoformat(data["start_date"])
         data["end_date"] = datetime.fromisoformat(data["end_date"])
 
-        tournament = TournamentService.create_tournament(data)
+        tournament: Any = TournamentService.create_tournament(data)
         return jsonify(tournament.to_dict()), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
@@ -37,31 +39,31 @@ def create_tournament():
 @bp.route("/", methods=["GET"])
 def get_tournaments():
     """Get list of tournaments."""
-    status = request.args.get("status")
+    status = request.args.get("status", type=str)
     if status == "active":
-        tournaments = TournamentService.get_active_tournaments()
+        tournaments: Any = TournamentService.get_active_tournaments()
     else:
-        tournaments = Tournament.get_all()
+        tournaments: Any = Tournament.get_all()
 
     return jsonify([t.to_dict() for t in tournaments])
 
 
-@bp.route("/<int:tournament_id>", methods=["GET"])
+@bp.route("/<int -> Response -> Any:tournament_id>", methods=["GET"])
 def get_tournament(tournament_id):
     """Get tournament details."""
-    tournament = TournamentService.get_tournament(tournament_id)
+    tournament: Any = TournamentService.get_tournament(tournament_id)
     if not tournament:
         return jsonify({"error": "Tournament not found"}), 404
 
     return jsonify(tournament.to_dict())
 
 
-@bp.route("/<int:tournament_id>/register", methods=["POST"])
+@bp.route("/<int -> Response -> Any:tournament_id>/register", methods=["POST"])
 @login_required
 def register_player(tournament_id):
     """Register current player for tournament."""
     try:
-        success = TournamentService.register_player(tournament_id, current_user.id)
+        success: Any = TournamentService.register_player(tournament_id, current_user.id)
         if success:
             return jsonify({"message": "Successfully registered for tournament"})
         return jsonify({"error": "Failed to register for tournament"}), 400
@@ -74,7 +76,7 @@ def register_player(tournament_id):
 def start_tournament(tournament_id):
     """Start the tournament."""
     try:
-        success = TournamentService.start_tournament(tournament_id)
+        success: Any = TournamentService.start_tournament(tournament_id)
         if success:
             return jsonify({"message": "Tournament started successfully"})
         return jsonify({"error": "Failed to start tournament"}), 400
@@ -87,13 +89,15 @@ def start_tournament(tournament_id):
 def record_match_result(tournament_id, match_id):
     """Record match result."""
     data = request.get_json()
-    winner_id = data.get("winner_id")
+    winner_id: Any = data.get("winner_id")
 
     if not winner_id:
         return jsonify({"error": "Winner ID is required"}), 400
 
     try:
-        success = TournamentService.record_match_result(tournament_id, match_id, winner_id)
+        success: Any = TournamentService.record_match_result(
+            tournament_id, match_id, winner_id
+        )
         if success:
             return jsonify({"message": "Match result recorded successfully"})
         return jsonify({"error": "Failed to record match result"}), 400
@@ -111,18 +115,18 @@ def get_standings(tournament_id):
 @bp.route("/player/<int:player_id>", methods=["GET"])
 def get_player_tournaments(player_id):
     """Get tournaments for a specific player."""
-    tournaments = TournamentService.get_player_tournaments(player_id)
+    tournaments: Any = TournamentService.get_player_tournaments(player_id)
     return jsonify([t.to_dict() for t in tournaments])
 
 
-@bp.route("/<int:tournament_id>", methods=["PUT"])
+@bp.route("/<int -> Response -> Any:tournament_id>", methods=["PUT"])
 @login_required
 def update_tournament(tournament_id):
     """Update tournament details."""
     data = request.get_json()
 
     # Validate tournament data
-    errors = validate_tournament_data(data, update=True)
+    errors: validate_tournament_data = validate_tournament_data(data, update=True)
     if errors:
         return jsonify({"errors": errors}), 400
 
@@ -133,7 +137,7 @@ def update_tournament(tournament_id):
         if "end_date" in data:
             data["end_date"] = datetime.fromisoformat(data["end_date"])
 
-        success = TournamentService.update_tournament(tournament_id, data)
+        success: Any = TournamentService.update_tournament(tournament_id, data)
         if success:
             return jsonify({"message": "Tournament updated successfully"})
         return jsonify({"error": "Failed to update tournament"}), 400
@@ -146,7 +150,7 @@ def update_tournament(tournament_id):
 def cancel_tournament(tournament_id):
     """Cancel the tournament."""
     try:
-        success = TournamentService.cancel_tournament(tournament_id)
+        success: Any = TournamentService.cancel_tournament(tournament_id)
         if success:
             return jsonify({"message": "Tournament cancelled successfully"})
         return jsonify({"error": "Failed to cancel tournament"}), 400

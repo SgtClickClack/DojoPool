@@ -82,7 +82,7 @@ export const PlayerRecommender: React.FC = () => {
 
   useEffect(() => {
     fetchRecommendations();
-  }, [filter]);
+  }, [filter, fetchRecommendations]);
 
   const getCompatibilityLabel = (score: number) => {
     if (score >= 0.9) return 'Excellent Match';

@@ -93,7 +93,7 @@ class MobileOptimizer:
 
     async def optimize_performance(
         self, response_time: float, battery_drain: float, memory_usage: float
-    ) -> Dict[str, Union[float, List[str]]]:
+    ):
         """Optimize performance based on current metrics."""
         optimization_result = {
             "target_response_time": self.target_metrics["response_time"],
@@ -109,7 +109,9 @@ class MobileOptimizer:
 
         # Optimize battery usage
         if battery_drain > self.target_metrics["battery_drain"]:
-            optimization_result["recommendations"].append("Reduce background processing")
+            optimization_result["recommendations"].append(
+                "Reduce background processing"
+            )
             optimization_result["recommendations"].append("Optimize location updates")
 
         # Optimize memory usage
@@ -137,7 +139,9 @@ class MobileOptimizer:
         # Optimize data size
         if data_size > self.target_metrics["app_size"]:
             optimization_result["recommendations"].append("Enable data compression")
-            optimization_result["recommendations"].append("Implement incremental updates")
+            optimization_result["recommendations"].append(
+                "Implement incremental updates"
+            )
 
         return optimization_result
 
@@ -178,7 +182,9 @@ class MobileOptimizer:
         size_reduction: float,
     ):
         """Update optimization statistics."""
-        self.optimization_stats["response_time_improvements"].append(response_time_improvement)
+        self.optimization_stats["response_time_improvements"].append(
+            response_time_improvement
+        )
         self.optimization_stats["battery_savings"].append(battery_saving)
         self.optimization_stats["memory_reductions"].append(memory_reduction)
         self.optimization_stats["network_optimizations"].append(network_optimization)
@@ -216,7 +222,7 @@ class MobileOptimizer:
 
         return summary
 
-    def _calculate_stat_summary(self, values: List[float]) -> Dict[str, float]:
+    def _calculate_stat_summary(self, values: List[float]):
         """Calculate statistical summary for a list of values."""
         if not values:
             return {"average": 0.0, "min": 0.0, "max": 0.0}
@@ -227,7 +233,7 @@ class MobileOptimizer:
             "max": max(values),
         }
 
-    def get_recommendations(self) -> List[str]:
+    def get_recommendations(self):
         """Get optimization recommendations based on current state."""
         if not self.device_profile:
             return []

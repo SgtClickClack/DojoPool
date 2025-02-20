@@ -6,7 +6,7 @@ from typing import Any, Dict
 
 import redis
 
-from src.dojopool.core.exceptions import RateLimitError
+from dojopool.core.exceptions import RateLimitError
 
 
 class RateLimitStrategy:
@@ -30,7 +30,7 @@ class RateLimitStrategy:
 class FixedWindowStrategy(RateLimitStrategy):
     """Fixed window rate limiting strategy."""
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
+    def should_allow(self, current_count: int, elapsed_time: float):
         """Check if request should be allowed based on fixed window."""
         return current_count < self.max_requests
 
@@ -38,7 +38,7 @@ class FixedWindowStrategy(RateLimitStrategy):
 class SlidingWindowStrategy(RateLimitStrategy):
     """Sliding window rate limiting strategy."""
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
+    def should_allow(self, current_count: int, elapsed_time: float):
         """Check if request should be allowed based on sliding window."""
         rate = current_count / max(elapsed_time, 1)
         return rate <= (self.max_requests / self.time_window)
@@ -58,9 +58,11 @@ class TokenBucketStrategy(RateLimitStrategy):
         super().__init__(max_requests, time_window)
         self.refill_rate = refill_rate
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
+    def should_allow(self, current_count: int, elapsed_time: float):
         """Check if request should be allowed based on token bucket."""
-        tokens = min(self.max_requests, current_count + (elapsed_time * self.refill_rate))
+        tokens = min(
+            self.max_requests, current_count + (elapsed_time * self.refill_rate)
+        )
         return tokens >= 1
 
 
@@ -68,7 +70,10 @@ class RateLimiter:
     """Rate limiter with Redis backend."""
 
     def __init__(
-        self, redis_client: redis.Redis, strategy: RateLimitStrategy, namespace: str = "rate_limit"
+        self,
+        redis_client: redis.Redis,
+        strategy: RateLimitStrategy,
+        namespace: str = "rate_limit",
     ):
         """Initialize rate limiter.
 
@@ -85,7 +90,7 @@ class RateLimiter:
         """Get Redis key for identifier."""
         return f"{self.namespace}:{identifier}"
 
-    def is_allowed(self, identifier: str, cost: int = 1, raise_on_limit: bool = True) -> bool:
+    def is_allowed(self, identifier: str, cost: int = 1, raise_on_limit: bool = True):
         """Check if request is allowed.
 
         Args:
@@ -126,7 +131,9 @@ class RateLimiter:
         )
 
         if not is_allowed and raise_on_limit:
-            reset_time = datetime.fromtimestamp(window_start + self.strategy.time_window)
+            reset_time = datetime.fromtimestamp(
+                window_start + self.strategy.time_window
+            )
             raise RateLimitError(
                 message="Rate limit exceeded",
                 details={

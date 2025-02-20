@@ -31,7 +31,10 @@ class MatchmakingExperiment:
         # Define variants
         variants = [
             Variant(
-                id="control", name="Current Matchmaking", type=VariantType.STRING, value="current"
+                id="control",
+                name="Current Matchmaking",
+                type=VariantType.STRING,
+                value="current",
             ),
             Variant(
                 id="skill_based",
@@ -121,7 +124,7 @@ class MatchmakingExperiment:
                 value=consecutive_matches,
             )
 
-    def get_matchmaking_algorithm(self, match_id: str) -> str:
+    def get_matchmaking_algorithm(self, match_id: str):
         """
         Get the matchmaking algorithm to use for a match.
 

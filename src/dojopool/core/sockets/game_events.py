@@ -84,7 +84,11 @@ def handle_ball_pocketed(data):
         if game.is_game_over():
             emit(
                 "game_completed",
-                {"winner": game.winner_id, "final_score": game.score, "stats": game.stats},
+                {
+                    "winner": game.winner_id,
+                    "final_score": game.score,
+                    "stats": game.stats,
+                },
                 room=room,
             )
 

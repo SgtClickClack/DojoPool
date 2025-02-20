@@ -1,24 +1,27 @@
-from flask import Blueprint, jsonify, request
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
+from flask import Blueprint, Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
 from src.models.device import Device
 from src.models.notification_settings import NotificationSettings
 from src.services.push_notification_service import PushNotificationService
 from src.utils.auth import get_current_user, login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-notifications_bp = Blueprint("notifications", __name__)
-notification_service = PushNotificationService()
+notifications_bp: Blueprint = Blueprint("notifications", __name__)
+notification_service: PushNotificationService = PushNotificationService()
 
 
 @notifications_bp.route("/register", methods=["POST"])
 @login_required
-def register_device():
+def register_device() -> Response :
     """Register a device for push notifications."""
     try:
-        data = request.get_json()
+        data: Any = request.get_json()
         validate_request_data(data, ["device_token", "platform"])
 
-        user = get_current_user()
-        device = Device(
+        user: get_current_user: get_current_user: get_current_user: get_current_user: get_current_user = get_current_user()
+        device: Device = Device(
             user_id=user.id,
             token=data["device_token"],
             platform=data["platform"],
@@ -29,7 +32,9 @@ def register_device():
         db.session.add(device)
         db.session.commit()
 
-        return jsonify({"status": "success", "message": "Device registered successfully"})
+        return jsonify(
+            {"status": "success", "message": "Device registered successfully"}
+        )
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "error": str(e)}), 400
@@ -40,11 +45,11 @@ def register_device():
 def get_notification_settings():
     """Get user's notification settings."""
     try:
-        user = get_current_user()
-        settings = NotificationSettings.query.filter_by(user_id=user.id).first()
+        user: get_current_user: get_current_user: get_current_user: get_current_user: get_current_user = get_current_user()
+        settings: Any = NotificationSettings.query.filter_by(user_id=user.id).first()
 
         if not settings:
-            settings = NotificationSettings(user_id=user.id)
+            settings: Any = NotificationSettings(user_id=user.id)
             db.session.add(settings)
             db.session.commit()
 
@@ -58,12 +63,12 @@ def get_notification_settings():
 def update_notification_settings():
     """Update user's notification settings."""
     try:
-        data = request.get_json()
-        user = get_current_user()
-        settings = NotificationSettings.query.filter_by(user_id=user.id).first()
+        data: Any = request.get_json()
+        user: get_current_user: get_current_user: get_current_user: get_current_user: get_current_user = get_current_user()
+        settings: Any = NotificationSettings.query.filter_by(user_id=user.id).first()
 
         if not settings:
-            settings = NotificationSettings(user_id=user.id)
+            settings: Any = NotificationSettings(user_id=user.id)
             db.session.add(settings)
 
         # Update settings
@@ -97,17 +102,21 @@ def update_notification_settings():
 def unregister_device():
     """Unregister a device from push notifications."""
     try:
-        data = request.get_json()
+        data: Any = request.get_json()
         validate_request_data(data, ["device_token"])
 
-        user = get_current_user()
-        device = Device.query.filter_by(user_id=user.id, token=data["device_token"]).first()
+        user: get_current_user: get_current_user: get_current_user: get_current_user: get_current_user = get_current_user()
+        device: Device = Device.query.filter_by(
+            user_id=user.id, token=data["device_token"]
+        ).first()
 
         if device:
             db.session.delete(device)
             db.session.commit()
 
-        return jsonify({"status": "success", "message": "Device unregistered successfully"})
+        return jsonify(
+            {"status": "success", "message": "Device unregistered successfully"}
+        )
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "error": str(e)}), 400
@@ -118,9 +127,11 @@ def unregister_device():
 def send_test_notification():
     """Send a test notification to the user's devices."""
     try:
-        user = get_current_user()
+        user: get_current_user: get_current_user: get_current_user: get_current_user: get_current_user = get_current_user()
         notification_service.send_test_notification(user.id)
 
-        return jsonify({"status": "success", "message": "Test notification sent successfully"})
+        return jsonify(
+            {"status": "success", "message": "Test notification sent successfully"}
+        )
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 400

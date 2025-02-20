@@ -82,12 +82,14 @@ class ContextManager:
         with open(self.updates_file, "w") as f:
             yaml.dump(data, f, default_flow_style=False)
 
-    def get_code_changes(self) -> List[CodeChange]:
+    def get_code_changes(self):
         """Get list of code changes since last commit."""
         changes = []
         try:
             # Get staged files
-            staged = subprocess.check_output(["git", "diff", "--cached", "--numstat"]).decode()
+            staged = subprocess.check_output(
+                ["git", "diff", "--cached", "--numstat"]
+            ).decode()
             for line in staged.splitlines():
                 if line.strip():
                     added, removed, file_path = line.split("\t")
@@ -122,7 +124,9 @@ class ContextManager:
         """Analyze code changes and create appropriate context updates."""
         for change in changes:
             # Skip certain files
-            if any(skip in change.file_path for skip in [".git", "__pycache__", ".pyc"]):
+            if any(
+                skip in change.file_path for skip in [".git", "__pycache__", ".pyc"]
+            ):
                 continue
 
             # Determine the type of update needed

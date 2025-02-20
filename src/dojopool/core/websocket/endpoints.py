@@ -22,7 +22,9 @@ async def get_current_user(token: str) -> Optional[User]:
 
 
 @router.websocket("/ws/game/{game_id}")
-async def websocket_endpoint(websocket: WebSocket, game_id: str, token: Optional[str] = None):
+async def websocket_endpoint(
+    websocket: WebSocket, game_id: str, token: Optional[str] = None
+):
     try:
         # Authenticate user
         if not token:
@@ -36,7 +38,9 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, token: Optional
 
         # Verify game access
         game = await Game.get(game_id)
-        if not game or (str(user.id) not in [str(game.player1_id), str(game.player2_id)]):
+        if not game or (
+            str(user.id) not in [str(game.player1_id), str(game.player2_id)]
+        ):
             await websocket.close(code=1003)  # Unsupported Data
             return
 
@@ -50,7 +54,9 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, token: Optional
 
                 # Validate message format
                 try:
-                    action = PlayerAction(game_id=game_id, player_id=str(user.id), **data)
+                    action = PlayerAction(
+                        game_id=game_id, player_id=str(user.id), **data
+                    )
                 except ValueError:
                     await websocket_manager.send_error(
                         game_id, str(user.id), "Invalid message format"
@@ -72,7 +78,9 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, token: Optional
 
 
 @router.websocket("/ws/spectate/{game_id}")
-async def spectate_endpoint(websocket: WebSocket, game_id: str, token: Optional[str] = None):
+async def spectate_endpoint(
+    websocket: WebSocket, game_id: str, token: Optional[str] = None
+):
     try:
         # Optional authentication for spectators
         user_id = None
@@ -89,7 +97,9 @@ async def spectate_endpoint(websocket: WebSocket, game_id: str, token: Optional[
 
         # Connect as spectator
         spectator_id = user_id or f"spectator_{id(websocket)}"
-        await websocket_manager.connect(websocket, game_id, spectator_id, is_spectator=True)
+        await websocket_manager.connect(
+            websocket, game_id, spectator_id, is_spectator=True
+        )
 
         try:
             while True:

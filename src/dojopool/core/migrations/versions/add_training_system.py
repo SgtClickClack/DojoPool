@@ -6,18 +6,25 @@ Create Date: 2024-01-20 10:00:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic.
-revision = "add_training_system"
-down_revision = "add_tournament_system"
-branch_labels = None
-depends_on = None
+revision: str = "add_training_system"
+down_revision: str = "add_tournament_system"
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create training_programs table
     op.create_table(
         "training_programs",
@@ -72,7 +79,9 @@ def upgrade():
     )
 
     # Create indexes
-    op.create_index("ix_training_programs_difficulty", "training_programs", ["difficulty"])
+    op.create_index(
+        "ix_training_programs_difficulty", "training_programs", ["difficulty"]
+    )
     op.create_index("ix_exercises_program_id", "exercises", ["program_id"])
     op.create_index("ix_user_progress_user_id", "user_progress", ["user_id"])
     op.create_index("ix_user_progress_program_id", "user_progress", ["program_id"])

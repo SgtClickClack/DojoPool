@@ -1,34 +1,41 @@
 """Flask-specific caching utilities."""
 
-from functools import wraps
-from typing import Any, Callable, Optional
 import json
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from flask import make_response, request
+from flask import Response, current_app, make_response, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .redis_cache import (
-    redis_client,
     cache_key_prefix,
     generate_cache_key,
     get_cached_value,
+    redis_client,
     set_cached_value,
 )
 
 
-def cache_response_flask(
-    timeout: int = 300, key_prefix: Optional[str] = None, unless: Optional[Callable] = None
-):
-    """Cache decorator for Flask endpoints.
+def cached_response(
+    timeout: int = 300,
+    key_prefix: str = "",
+    unless: Optional[Callable[..., bool]] = None,
+) -> Callable:
+    """Cache a Flask view response.
 
     Args:
-        timeout: Cache timeout in seconds (default: 300)
-        key_prefix: Optional prefix for cache key
-        unless: Optional function to determine if caching should be skipped
+        timeout: Cache timeout in seconds
+        key_prefix: Cache key prefix
+        unless: Function to determine if caching should be skipped
+
+    Returns:
+        Decorated function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @wraps(f)
-        def wrapped(*args: Any, **kwargs: Any) -> Any:
+        def wrapped(*args: Any, **kwargs: Any):
             # Skip cache if condition is met
             if unless and unless():
                 return f(*args, **kwargs)
@@ -38,7 +45,7 @@ def cache_response_flask(
                 return f(*args, **kwargs)
 
             # Generate cache key
-            cache_key = generate_cache_key(key_prefix or f.__name__, args, kwargs)
+            cache_key: str = generate_cache_key(key_prefix or f.__name__, args, kwargs)
 
             # Add query parameters to cache key
             if request.args:
@@ -52,8 +59,7 @@ def cache_response_flask(
                     response = make_response(data)
                     response.headers["X-Cache"] = "HIT"
                     return response
-                except json.JSONDecodeError:
-                    # If cached data is corrupted, return fresh response
+                except (TypeError, ValueError):
                     pass
 
             # Get fresh response
@@ -65,8 +71,8 @@ def cache_response_flask(
                     data = response.get_json()
                     if data:
                         set_cached_value(cache_key, json.dumps(data), timeout)
-                except (TypeError, ValueError) as e:
-                    print(f"Could not cache response for {cache_key}: {str(e)}")
+                except (TypeError, ValueError):
+                    pass
 
             response.headers["X-Cache"] = "MISS"
             return response
@@ -86,10 +92,14 @@ def invalidate_endpoint_cache(pattern: str = "*") -> None:
         print(f"Failed to invalidate cache: {str(e)}")
 
 
-def get_endpoint_cache_stats(pattern: str = "*") -> dict:
+def get_endpoint_cache_stats(pattern: str = "*"):
     """Get cache statistics for specific endpoint pattern."""
     try:
         keys = redis_client.keys(f"{cache_key_prefix()}{pattern}")
-        return {"cached_keys": len(keys), "pattern": pattern, "prefix": cache_key_prefix()}
+        return {
+            "cached_keys": len(keys),
+            "pattern": pattern,
+            "prefix": cache_key_prefix(),
+        }
     except Exception as e:
         return {"error": str(e), "pattern": pattern, "prefix": cache_key_prefix()}

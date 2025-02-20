@@ -2,18 +2,19 @@
 FastAPI endpoints for tournament statistics and analytics.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import Dict, List, Optional
-from pydantic import BaseModel
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
-from ..services.tournaments.statistics_service import (
-    StatisticsService,
-    PlayerStats,
-    TournamentStats,
-)
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+
 from ..auth.dependencies import get_current_user
 from ..models.user import User
+from ..services.tournaments.statistics_service import (
+    PlayerStats,
+    StatisticsService,
+    TournamentStats,
+)
 
 router = APIRouter(prefix="/api/statistics", tags=["statistics"])
 
@@ -109,7 +110,9 @@ async def get_venue_statistics(
     return statistics_service.get_venue_stats(venue_id)
 
 
-@router.get("/head-to-head/{player1_id}/{player2_id}", response_model=HeadToHeadResponse)
+@router.get(
+    "/head-to-head/{player1_id}/{player2_id}", response_model=HeadToHeadResponse
+)
 async def get_head_to_head_statistics(
     player1_id: str, player2_id: str, current_user: User = Depends(get_current_user)
 ) -> Dict:
@@ -117,7 +120,8 @@ async def get_head_to_head_statistics(
     stats = statistics_service.get_head_to_head_stats(player1_id, player2_id)
     if not stats:
         raise HTTPException(
-            status_code=404, detail="Head-to-head statistics not found for these players"
+            status_code=404,
+            detail="Head-to-head statistics not found for these players",
         )
     return stats
 

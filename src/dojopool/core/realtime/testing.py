@@ -32,13 +32,13 @@ class MockWebSocketClient:
         self.connected = True
         self.user_id = user_id
 
-    def disconnect(self) -> None:
+    def disconnect(self):
         """Disconnect mock client."""
         self.connected = False
         self.rooms = []
         self.user_id = None
 
-    def emit(self, event: str, data: Optional[Dict[str, Any]] = None) -> None:
+    def emit(self, event: str, data: Optional[Dict[str, Any]] = None):
         """Emit event to server.
 
         Args:
@@ -50,7 +50,7 @@ class MockWebSocketClient:
 
         self.socket.emit(event, data or {})
 
-    def on(self, event: str, handler: Callable) -> None:
+    def on(self, event: str, handler: Callable):
         """Register event handler.
 
         Args:
@@ -74,7 +74,7 @@ class MockWebSocketClient:
             for handler in self.handlers[event]:
                 handler(data)
 
-    def join_room(self, room: str) -> None:
+    def join_room(self, room: str):
         """Join room.
 
         Args:
@@ -87,7 +87,7 @@ class MockWebSocketClient:
             self.rooms.append(room)
             self.emit("join_room", {"room": room})
 
-    def leave_room(self, room: str) -> None:
+    def leave_room(self, room: str):
         """Leave room.
 
         Args:
@@ -100,7 +100,7 @@ class MockWebSocketClient:
             self.rooms.remove(room)
             self.emit("leave_room", {"room": room})
 
-    def get_received_events(self) -> List[Dict[str, Any]]:
+    def get_received_events(self):
         """Get list of received events.
 
         Returns:
@@ -146,17 +146,17 @@ class GameTestClient(MockWebSocketClient):
         super().__init__(socket)
         self.game_id = game_id
 
-    def join_game(self) -> None:
+    def join_game(self):
         """Join game room."""
         self.join_room(f"game_{self.game_id}")
         self.emit("join_game", {"game_id": self.game_id})
 
-    def leave_game(self) -> None:
+    def leave_game(self):
         """Leave game room."""
         self.leave_room(f"game_{self.game_id}")
         self.emit("leave_game", {"game_id": self.game_id})
 
-    def update_score(self, player1_score: int, player2_score: int) -> None:
+    def update_score(self, player1_score: int, player2_score: int):
         """Update game scores.
 
         Args:
@@ -184,12 +184,12 @@ class TournamentTestClient(MockWebSocketClient):
         super().__init__(socket)
         self.tournament_id = tournament_id
 
-    def join_tournament(self) -> None:
+    def join_tournament(self):
         """Join tournament room."""
         self.join_room(f"tournament_{self.tournament_id}")
         self.emit("join_tournament", {"tournament_id": self.tournament_id})
 
-    def leave_tournament(self) -> None:
+    def leave_tournament(self):
         """Leave tournament room."""
         self.leave_room(f"tournament_{self.tournament_id}")
         self.emit("leave_tournament", {"tournament_id": self.tournament_id})
@@ -216,7 +216,9 @@ def mock_game_client(socket: SocketIO, game_id: str, user_id: Optional[str] = No
 
 
 @contextmanager
-def mock_tournament_client(socket: SocketIO, tournament_id: str, user_id: Optional[str] = None):
+def mock_tournament_client(
+    socket: SocketIO, tournament_id: str, user_id: Optional[str] = None
+):
     """Context manager for creating mock tournament client.
 
     Args:

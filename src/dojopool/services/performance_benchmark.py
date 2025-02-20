@@ -21,7 +21,9 @@ class BenchmarkConfig:
 
 class PerformanceBenchmark:
     def __init__(
-        self, system_integrator: SystemIntegrator, config: Optional[BenchmarkConfig] = None
+        self,
+        system_integrator: SystemIntegrator,
+        config: Optional[BenchmarkConfig] = None,
     ):
         self.logger = logging.getLogger(__name__)
         self.system_integrator = system_integrator
@@ -54,13 +56,13 @@ class PerformanceBenchmark:
             await self.stop()
             raise
 
-    async def stop(self) -> None:
+    async def stop(self):
         """Stop performance benchmark."""
         self.logger.info("Stopping performance benchmark...")
         self.is_running = False
         self.end_time = datetime.now()
 
-    async def _collect_metrics_loop(self) -> None:
+    async def _collect_metrics_loop(self):
         """Continuously collect metrics at specified intervals."""
         while self.is_running:
             try:
@@ -69,7 +71,9 @@ class PerformanceBenchmark:
                 await asyncio.sleep(self.config.collect_interval)
 
                 # Check if benchmark duration has elapsed
-                if (datetime.now() - self.start_time) > timedelta(seconds=self.config.duration):
+                if (datetime.now() - self.start_time) > timedelta(
+                    seconds=self.config.duration
+                ):
                     await self.stop()
                     break
             except Exception as e:
@@ -88,7 +92,7 @@ class PerformanceBenchmark:
             "ai_metrics": self.system_integrator.ai_service.get_metrics(),
         }
 
-    async def analyze_results(self) -> Dict:
+    async def analyze_results(self):
         """Analyze benchmark results."""
         if not self.metrics_history:
             return {
@@ -98,7 +102,11 @@ class PerformanceBenchmark:
             }
 
         results = {
-            "duration": (self.end_time - self.start_time).total_seconds() if self.end_time else 0,
+            "duration": (
+                (self.end_time - self.start_time).total_seconds()
+                if self.end_time
+                else 0
+            ),
             "samples": len(self.metrics_history),
             "error_count": len(self.errors),
             "errors": self.errors,
@@ -119,20 +127,26 @@ class PerformanceBenchmark:
         """Analyze worker pool performance metrics."""
         worker_metrics = [m["worker_metrics"] for m in self.metrics_history]
         return {
-            "average_queue_length": statistics.mean(m["queue_length"] for m in worker_metrics),
+            "average_queue_length": statistics.mean(
+                m["queue_length"] for m in worker_metrics
+            ),
             "max_queue_length": max(m["queue_length"] for m in worker_metrics),
-            "average_active_workers": statistics.mean(m["active_workers"] for m in worker_metrics),
+            "average_active_workers": statistics.mean(
+                m["active_workers"] for m in worker_metrics
+            ),
             "tasks_completed": sum(m["tasks_completed"] for m in worker_metrics),
             "idle_worker_ratio": statistics.mean(
                 m["idle_workers"] / m["active_workers"] for m in worker_metrics
             ),
         }
 
-    def _analyze_game_performance(self) -> Dict:
+    def _analyze_game_performance(self):
         """Analyze game analytics performance metrics."""
         game_metrics = [m["game_metrics"] for m in self.metrics_history]
         return {
-            "average_response_time": statistics.mean(m["response_time"] for m in game_metrics),
+            "average_response_time": statistics.mean(
+                m["response_time"] for m in game_metrics
+            ),
             "max_response_time": max(m["response_time"] for m in game_metrics),
             "total_shots_analyzed": sum(m["shots_analyzed"] for m in game_metrics),
             "average_game_duration": statistics.mean(
@@ -141,33 +155,45 @@ class PerformanceBenchmark:
             "shot_accuracy": statistics.mean(m["shot_accuracy"] for m in game_metrics),
         }
 
-    def _analyze_tournament_performance(self) -> Dict:
+    def _analyze_tournament_performance(self):
         """Analyze tournament system performance metrics."""
         tournament_metrics = [m["tournament_metrics"] for m in self.metrics_history]
         return {
-            "average_system_load": statistics.mean(m["system_load"] for m in tournament_metrics),
+            "average_system_load": statistics.mean(
+                m["system_load"] for m in tournament_metrics
+            ),
             "peak_system_load": max(m["system_load"] for m in tournament_metrics),
-            "total_registered_players": max(m["registered_players"] for m in tournament_metrics),
+            "total_registered_players": max(
+                m["registered_players"] for m in tournament_metrics
+            ),
             "match_completion_rate": statistics.mean(
                 m["match_completion_rate"] for m in tournament_metrics
             ),
         }
 
-    def _analyze_venue_performance(self) -> Dict:
+    def _analyze_venue_performance(self):
         """Analyze venue management performance metrics."""
         venue_metrics = [m["venue_metrics"] for m in self.metrics_history]
         return {
-            "average_capacity_usage": statistics.mean(m["capacity_usage"] for m in venue_metrics),
+            "average_capacity_usage": statistics.mean(
+                m["capacity_usage"] for m in venue_metrics
+            ),
             "peak_capacity_usage": max(m["capacity_usage"] for m in venue_metrics),
-            "average_active_players": statistics.mean(m["active_players"] for m in venue_metrics),
-            "table_utilization": statistics.mean(m["table_utilization"] for m in venue_metrics),
+            "average_active_players": statistics.mean(
+                m["active_players"] for m in venue_metrics
+            ),
+            "table_utilization": statistics.mean(
+                m["table_utilization"] for m in venue_metrics
+            ),
         }
 
     def _analyze_ai_performance(self) -> Dict:
         """Analyze AI service performance metrics."""
         ai_metrics = [m["ai_metrics"] for m in self.metrics_history]
         return {
-            "average_analysis_time": statistics.mean(m["analysis_time"] for m in ai_metrics),
+            "average_analysis_time": statistics.mean(
+                m["analysis_time"] for m in ai_metrics
+            ),
             "max_analysis_time": max(m["analysis_time"] for m in ai_metrics),
             "total_requests": sum(m["analysis_requests"] for m in ai_metrics),
             "accuracy_rate": statistics.mean(m["accuracy_rate"] for m in ai_metrics),
@@ -176,7 +202,7 @@ class PerformanceBenchmark:
             ),
         }
 
-    def _calculate_resource_utilization(self) -> Dict[str, float]:
+    def _calculate_resource_utilization(self):
         """Calculate resource utilization for each component."""
         latest_metrics = self.metrics_history[-1]
         return {
@@ -187,9 +213,14 @@ class PerformanceBenchmark:
             ),
             "game_server_utilization": latest_metrics["game_metrics"]["response_time"]
             / 200,  # 200ms threshold
-            "tournament_system_utilization": latest_metrics["tournament_metrics"]["system_load"]
+            "tournament_system_utilization": latest_metrics["tournament_metrics"][
+                "system_load"
+            ]
             / 100,
-            "venue_resource_utilization": latest_metrics["venue_metrics"]["capacity_usage"] / 100,
+            "venue_resource_utilization": latest_metrics["venue_metrics"][
+                "capacity_usage"
+            ]
+            / 100,
             "ai_system_utilization": latest_metrics["ai_metrics"]["analysis_time"]
             / 500,  # 500ms threshold
         }
@@ -201,8 +232,10 @@ class PerformanceBenchmark:
             "high_worker_load": latest_metrics["worker_metrics"]["queue_length"]
             > latest_metrics["worker_metrics"]["optimal_queue_length"],
             "high_game_latency": latest_metrics["game_metrics"]["response_time"] > 200,
-            "high_tournament_load": latest_metrics["tournament_metrics"]["system_load"] > 75,
-            "high_venue_capacity": latest_metrics["venue_metrics"]["capacity_usage"] > 85,
+            "high_tournament_load": latest_metrics["tournament_metrics"]["system_load"]
+            > 75,
+            "high_venue_capacity": latest_metrics["venue_metrics"]["capacity_usage"]
+            > 85,
             "high_ai_latency": latest_metrics["ai_metrics"]["analysis_time"] > 500,
         }
 

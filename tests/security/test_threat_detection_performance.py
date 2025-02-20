@@ -23,7 +23,9 @@ from tests.security.test_threat_detection_integration import MockRequest
 def redis_client():
     """Create Redis client for testing."""
     return redis.Redis(
-        host=config.REDIS_HOST, port=config.REDIS_PORT, db=15  # Use separate DB for testing
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        db=15,  # Use separate DB for testing
     )
 
 
@@ -196,8 +198,12 @@ def test_redis_performance(threat_detector, redis_client):
     print(f"95th Percentile Redis Latency: {p95_redis_latency:.4f}s")
 
     # Assert Redis performance requirements
-    assert avg_redis_latency < 0.005, f"Average Redis latency too high: {avg_redis_latency:.4f}s"
-    assert p95_redis_latency < 0.01, f"P95 Redis latency too high: {p95_redis_latency:.4f}s"
+    assert (
+        avg_redis_latency < 0.005
+    ), f"Average Redis latency too high: {avg_redis_latency:.4f}s"
+    assert (
+        p95_redis_latency < 0.01
+    ), f"P95 Redis latency too high: {p95_redis_latency:.4f}s"
 
 
 def test_cleanup_after_performance_tests(redis_client):

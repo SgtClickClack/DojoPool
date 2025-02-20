@@ -3,10 +3,13 @@
 This module contains the models for the marketplace feature.
 """
 
-from datetime import datetime
-from typing import Any, Dict
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
-from sqlalchemy import JSON
+from sqlalchemy import JSON, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from dojopool.core.database import reference_col
 from dojopool.core.extensions import db
@@ -17,24 +20,26 @@ from .base import TimestampedModel
 class MarketplaceItem(TimestampedModel):
     """Marketplace item model."""
 
-    __tablename__ = "marketplace_items"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "marketplace_items"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
+    name: Any = db.Column(db.String(100), nullable=False)
+    description: Any = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
-    image_url = db.Column(db.String(255))
-    category = db.Column(db.String(50))
+    image_url: Any = db.Column(db.String(255))
+    category: Any = db.Column(db.String(50))
     rarity = db.Column(db.String(20))
-    stock = db.Column(db.Integer, default=0)
-    effects = db.Column(JSON, default=[])
-    preview_url = db.Column(db.String(255))
-    purchase_count = db.Column(db.Integer, default=0)
+    stock: Any = db.Column(db.Integer, default=0)
+    effects: Any = db.Column(JSON, default=[])
+    preview_url: Any = db.Column(db.String(255))
+    purchase_count: Any = db.Column(db.Integer, default=0)
 
     # Relationships
-    transactions = db.relationship("Transaction", backref="item", lazy="dynamic")
-    inventory_items = db.relationship("UserInventory", backref="item", lazy="dynamic")
+    transactions: Any = db.relationship("Transaction", backref="item", lazy="dynamic")
+    inventory_items: Any = db.relationship(
+        "UserInventory", backref="item", lazy="dynamic"
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert item to dictionary."""
@@ -58,21 +63,21 @@ class MarketplaceItem(TimestampedModel):
 class Transaction(TimestampedModel):
     """Transaction model."""
 
-    __tablename__ = "marketplace_transactions"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "marketplace_transactions"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = reference_col("users", nullable=False)
-    item_id = reference_col("marketplace_items", nullable=False)
+    user_id: reference_col = reference_col("users", nullable=False)
+    item_id: reference_col = reference_col("marketplace_items", nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
-    price_at_purchase = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="pending")
+    price_at_purchase: Any = db.Column(db.Float, nullable=False)
+    status: Any = db.Column(db.String(20), nullable=False, default="pending")
     payment_method = db.Column(db.String(50))
 
     # Relationships
-    user = db.relationship("User", backref="marketplace_transactions")
+    user: Any = db.relationship("User", backref="marketplace_transactions")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert transaction to dictionary."""
         return {
             "id": self.id,
@@ -90,19 +95,19 @@ class Transaction(TimestampedModel):
 class Wallet(TimestampedModel):
     """Wallet model."""
 
-    __tablename__ = "user_wallets"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "user_wallets"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = reference_col("users", nullable=False, unique=True)
-    balance = db.Column(db.Float, nullable=False, default=0)
+    user_id: reference_col = reference_col("users", nullable=False, unique=True)
+    balance: Any = db.Column(db.Float, nullable=False, default=0)
     currency = db.Column(db.String(10), nullable=False, default="DP")
-    transactions = db.Column(JSON, default=[])
+    transactions: Any = db.Column(JSON, default=[])
 
     # Relationships
-    user = db.relationship("User", backref=db.backref("wallet", uselist=False))
+    user: Any = db.relationship("User", backref=db.backref("wallet", uselist=False))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert wallet to dictionary."""
         return {
             "id": self.id,
@@ -114,16 +119,16 @@ class Wallet(TimestampedModel):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-    def add_transaction(self, amount: float, type: str, description: str) -> None:
+    def add_transaction(self, amount: float, type: str, description: str):
         """Add a transaction to the wallet."""
-        transaction = {
+        transaction: Dict[Any, Any] = {
             "amount": amount,
             "type": type,
             "description": description,
             "timestamp": datetime.utcnow().isoformat(),
         }
         if not self.transactions:
-            self.transactions = []
+            self.transactions: Any = []
         self.transactions.append(transaction)
 
         if type == "credit":
@@ -136,18 +141,18 @@ class Wallet(TimestampedModel):
 class UserInventory(TimestampedModel):
     """User inventory model."""
 
-    __tablename__ = "user_inventory"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "user_inventory"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = reference_col("users", nullable=False)
-    item_id = reference_col("marketplace_items", nullable=False)
+    user_id: reference_col = reference_col("users", nullable=False)
+    item_id: reference_col = reference_col("marketplace_items", nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=0)
-    expires_at = db.Column(db.DateTime)
-    is_active = db.Column(db.Boolean, default=True)
+    expires_at: Any = db.Column(db.DateTime)
+    is_active: Any = db.Column(db.Boolean, default=True)
 
     # Relationships
-    user = db.relationship("User", backref="inventory_items")
+    user: Any = db.relationship("User", backref="inventory_items")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert inventory item to dictionary."""
@@ -163,18 +168,20 @@ class UserInventory(TimestampedModel):
         }
 
     @classmethod
-    def add_to_inventory(cls, user_id: int, item_id: int, quantity: int = 1) -> None:
+    def add_to_inventory(cls, user_id: int, item_id: int, quantity: int = 1):
         """Add an item to user's inventory."""
-        inventory_item = cls.query.filter_by(
+        inventory_item: Any = cls.query.filter_by(
             user_id=user_id, item_id=item_id, is_active=True
         ).first()
 
         if inventory_item:
             inventory_item.quantity += quantity
         else:
-            inventory_item = cls(user_id=user_id, item_id=item_id, quantity=quantity)
+            inventory_item: Any = cls(
+                user_id=user_id, item_id=item_id, quantity=quantity
+            )
             db.session.add(inventory_item)
         db.session.commit()
 
 
-__all__ = ["MarketplaceItem", "Transaction", "Wallet", "UserInventory"]
+__all__: List[Any] = ["MarketplaceItem", "Transaction", "Wallet", "UserInventory"]

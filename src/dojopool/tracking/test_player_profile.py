@@ -1,13 +1,15 @@
 """Tests for player profile management system."""
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 from .player_profile import (
-    PlayerProfileManager,
-    PlayerProfile,
-    PlayerRank,
-    AchievementType,
     Achievement,
+    AchievementType,
+    PlayerProfile,
+    PlayerProfileManager,
+    PlayerRank,
     PlayerStats,
 )
 
@@ -19,7 +21,7 @@ def profile_manager() -> PlayerProfileManager:
 
 
 @pytest.fixture
-def sample_profile(profile_manager: PlayerProfileManager) -> PlayerProfile:
+def sample_profile(profile_manager: PlayerProfileManager):
     """Create a sample player profile."""
     return profile_manager.create_profile(
         username="test_player", display_name="Test Player", email="test@example.com"
@@ -29,7 +31,7 @@ def sample_profile(profile_manager: PlayerProfileManager) -> PlayerProfile:
 class TestPlayerProfile:
     """Test player profile functionality."""
 
-    def test_create_profile(self, profile_manager: PlayerProfileManager) -> None:
+    def test_create_profile(self, profile_manager: PlayerProfileManager):
         """Test creating a new player profile."""
         profile = profile_manager.create_profile(
             username="test_user", display_name="Test User", email="test@example.com"
@@ -49,7 +51,7 @@ class TestPlayerProfile:
 
     def test_update_stats(
         self, profile_manager: PlayerProfileManager, sample_profile: PlayerProfile
-    ) -> None:
+    ):
         """Test updating player statistics."""
         # Test winning match
         profile_manager.update_stats(
@@ -73,7 +75,10 @@ class TestPlayerProfile:
 
         # Test losing match
         profile_manager.update_stats(
-            player_id=sample_profile.player_id, match_won=False, playtime=25, venue_id="venue2"
+            player_id=sample_profile.player_id,
+            match_won=False,
+            playtime=25,
+            venue_id="venue2",
         )
 
         assert sample_profile.stats.total_matches == 2
@@ -90,7 +95,10 @@ class TestPlayerProfile:
         # Test winning streak achievement
         for _ in range(5):
             profile_manager.update_stats(
-                player_id=sample_profile.player_id, match_won=True, playtime=30, venue_id="venue1"
+                player_id=sample_profile.player_id,
+                match_won=True,
+                playtime=30,
+                venue_id="venue1",
             )
 
         assert "winning_streak_5" in sample_profile.achievements
@@ -115,16 +123,22 @@ class TestPlayerProfile:
         """Test social features."""
         # Create another profile
         other_profile = profile_manager.create_profile(
-            username="other_player", display_name="Other Player", email="other@example.com"
+            username="other_player",
+            display_name="Other Player",
+            email="other@example.com",
         )
 
         # Test adding friend
-        assert profile_manager.add_friend(sample_profile.player_id, other_profile.player_id)
+        assert profile_manager.add_friend(
+            sample_profile.player_id, other_profile.player_id
+        )
         assert other_profile.player_id in sample_profile.friends
         assert sample_profile.player_id in other_profile.friends
 
         # Test adding rival
-        assert profile_manager.add_rival(sample_profile.player_id, other_profile.player_id)
+        assert profile_manager.add_rival(
+            sample_profile.player_id, other_profile.player_id
+        )
         assert other_profile.player_id in sample_profile.rivals
         assert sample_profile.player_id in other_profile.rivals
 
@@ -134,7 +148,7 @@ class TestPlayerProfile:
 
     def test_rank_progression(
         self, profile_manager: PlayerProfileManager, sample_profile: PlayerProfile
-    ) -> None:
+    ):
         """Test player rank progression."""
         # Set up profile for rank testing
         sample_profile.level = 20
@@ -142,7 +156,10 @@ class TestPlayerProfile:
         # Add some achievements
         for _ in range(5):
             profile_manager.update_stats(
-                player_id=sample_profile.player_id, match_won=True, playtime=30, venue_id="venue1"
+                player_id=sample_profile.player_id,
+                match_won=True,
+                playtime=30,
+                venue_id="venue1",
             )
 
         profile_manager.update_rank(sample_profile.player_id)
@@ -164,7 +181,7 @@ class TestPlayerProfile:
 
     def test_favorite_venues(
         self, profile_manager: PlayerProfileManager, sample_profile: PlayerProfile
-    ) -> None:
+    ):
         """Test favorite venues management."""
         # Add more than 5 venues
         for i in range(6):
@@ -180,7 +197,7 @@ class TestPlayerProfile:
         assert "venue0" not in sample_profile.favorite_venues
         assert "venue5" in sample_profile.favorite_venues
 
-    def test_nonexistent_profile(self, profile_manager: PlayerProfileManager) -> None:
+    def test_nonexistent_profile(self, profile_manager: PlayerProfileManager):
         """Test operations with nonexistent profile."""
         assert profile_manager.get_profile("nonexistent") is None
 

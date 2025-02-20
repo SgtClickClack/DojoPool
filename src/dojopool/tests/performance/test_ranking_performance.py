@@ -1,17 +1,22 @@
-import pytest
+from flask_caching import Cache
+from sqlalchemy.orm import joinedload
+from flask_caching import Cache
+from sqlalchemy.orm import joinedload
+import asyncio
+import json
+import statistics
 import time
 from datetime import datetime, timedelta
 from typing import List
-import statistics
-import asyncio
+
 import aiohttp
-import json
+import pytest
 
 from dojopool.core.ranking.global_ranking import GlobalRankingService
-from dojopool.models.user import User
+from dojopool.database import db
 from dojopool.models.game import Game
 from dojopool.models.tournament import Tournament
-from dojopool.database import db
+from dojopool.models.user import User
 
 
 @pytest.fixture
@@ -20,7 +25,9 @@ def large_dataset():
     users = []
     for i in range(1000):  # 1000 users
         user = User(
-            username=f"perf_test_player_{i}", email=f"perf_player{i}@test.com", is_active=True
+            username=f"perf_test_player_{i}",
+            email=f"perf_player{i}@test.com",
+            is_active=True,
         )
         users.append(user)
         db.session.add(user)
@@ -147,7 +154,9 @@ class TestRankingPerformance:
         ranking_service.update_global_rankings()
 
         async def make_request(session, endpoint):
-            async with session.get(f"http://localhost:8000/api/rankings/{endpoint}") as response:
+            async with session.get(
+                f"http://localhost:8000/api/rankings/{endpoint}"
+            ) as response:
                 return await response.json()
 
         async def run_concurrent_requests():
@@ -156,9 +165,13 @@ class TestRankingPerformance:
                 tasks = []
                 for i in range(50):
                     if i % 2 == 0:
-                        tasks.append(make_request(session, f"player/{large_dataset[i].id}"))
+                        tasks.append(
+                            make_request(session, f"player/{large_dataset[i].id}")
+                        )
                     else:
-                        tasks.append(make_request(session, "global?start_rank=1&end_rank=10"))
+                        tasks.append(
+                            make_request(session, "global?start_rank=1&end_rank=10")
+                        )
 
                 start_time = time.perf_counter()
                 await asyncio.gather(*tasks)
@@ -186,8 +199,9 @@ class TestRankingPerformance:
 
     def test_memory_usage(self, large_dataset):
         """Test memory usage during ranking operations."""
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         ranking_service = GlobalRankingService()
@@ -203,7 +217,9 @@ class TestRankingPerformance:
         memory_increase = memory_after - memory_before
 
         # Memory usage assertions
-        assert memory_increase < 500 * 1024 * 1024  # Should not increase by more than 500MB
+        assert (
+            memory_increase < 500 * 1024 * 1024
+        )  # Should not increase by more than 500MB
 
     def test_database_query_performance(self, large_dataset):
         """Test database query performance."""

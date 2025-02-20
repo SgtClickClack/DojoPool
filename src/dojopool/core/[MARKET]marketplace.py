@@ -176,7 +176,7 @@ class Marketplace:
             logger.error(f"Error creating marketplace item: {str(e)}", exc_info=True)
             raise
 
-    async def _store_item(self, item: MarketplaceItem) -> None:
+    async def _store_item(self, item: MarketplaceItem):
         """Store item in Redis."""
         key = f"marketplace:item:{item.id}"
         self._redis.set(
@@ -199,7 +199,7 @@ class Marketplace:
             ),
         )
 
-    async def get_item(self, item_id: str) -> Optional[MarketplaceItem]:
+    async def get_item(self, item_id: str):
         """Get item by ID."""
         try:
             key = f"marketplace:item:{item_id}"
@@ -235,7 +235,7 @@ class Marketplace:
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
         active_only: bool = True,
-    ) -> List[MarketplaceItem]:
+    ):
         """List marketplace items with optional filters."""
         try:
             items = []
@@ -268,7 +268,9 @@ class Marketplace:
                                 rarity=ItemRarity(item_data["rarity"]),
                                 price=item_data["price"],
                                 creator_id=item_data["creator_id"],
-                                created_at=datetime.fromisoformat(item_data["created_at"]),
+                                created_at=datetime.fromisoformat(
+                                    item_data["created_at"]
+                                ),
                                 metadata=item_data["metadata"],
                                 available_quantity=item_data["available_quantity"],
                                 total_sold=item_data["total_sold"],
@@ -357,14 +359,16 @@ class Marketplace:
                     "status": transaction.status.value,
                     "created_at": transaction.created_at.isoformat(),
                     "completed_at": (
-                        transaction.completed_at.isoformat() if transaction.completed_at else None
+                        transaction.completed_at.isoformat()
+                        if transaction.completed_at
+                        else None
                     ),
                     "metadata": transaction.metadata,
                 }
             ),
         )
 
-    async def complete_transaction(self, transaction_id: str) -> Optional[Transaction]:
+    async def complete_transaction(self, transaction_id: str):
         """Complete a pending transaction."""
         try:
             async with self._transaction_lock:
@@ -384,7 +388,7 @@ class Marketplace:
             logger.error(f"Error completing transaction: {str(e)}", exc_info=True)
             return None
 
-    async def get_transaction(self, transaction_id: str) -> Optional[Transaction]:
+    async def get_transaction(self, transaction_id: str):
         """Get transaction by ID."""
         try:
             key = f"marketplace:transaction:{transaction_id}"
@@ -415,8 +419,11 @@ class Marketplace:
             return None
 
     async def get_user_transactions(
-        self, user_id: str, as_buyer: bool = True, status: Optional[TransactionStatus] = None
-    ) -> List[Transaction]:
+        self,
+        user_id: str,
+        as_buyer: bool = True,
+        status: Optional[TransactionStatus] = None,
+    ):
         """Get transactions for a user."""
         try:
             transactions = []
@@ -443,9 +450,13 @@ class Marketplace:
                                 price=transaction_data["price"],
                                 quantity=transaction_data["quantity"],
                                 status=TransactionStatus(transaction_data["status"]),
-                                created_at=datetime.fromisoformat(transaction_data["created_at"]),
+                                created_at=datetime.fromisoformat(
+                                    transaction_data["created_at"]
+                                ),
                                 completed_at=(
-                                    datetime.fromisoformat(transaction_data["completed_at"])
+                                    datetime.fromisoformat(
+                                        transaction_data["completed_at"]
+                                    )
                                     if transaction_data["completed_at"]
                                     else None
                                 ),
@@ -491,7 +502,7 @@ class Marketplace:
             logger.error(f"Error searching marketplace items: {str(e)}", exc_info=True)
             return []
 
-    async def get_featured_items(self, limit: int = 10) -> List[MarketplaceItem]:
+    async def get_featured_items(self, limit: int = 10):
         """Get featured marketplace items based on popularity and rarity."""
         try:
             items = await self.list_items(active_only=True)
@@ -505,7 +516,9 @@ class Marketplace:
                 ItemRarity.LEGENDARY: 5,
             }
 
-            scored_items = [(item, rarity_weights[item.rarity] * item.total_sold) for item in items]
+            scored_items = [
+                (item, rarity_weights[item.rarity] * item.total_sold) for item in items
+            ]
             scored_items.sort(key=lambda x: x[1], reverse=True)
 
             return [item for item, _ in scored_items[:limit]]
@@ -516,7 +529,7 @@ class Marketplace:
 
     async def refund_transaction(
         self, transaction_id: str, reason: Optional[str] = None
-    ) -> Optional[Transaction]:
+    ):
         """Refund a completed transaction."""
         try:
             async with self._transaction_lock:
@@ -585,12 +598,16 @@ class Marketplace:
                                     seller_id=transaction_data["seller_id"],
                                     price=transaction_data["price"],
                                     quantity=transaction_data["quantity"],
-                                    status=TransactionStatus(transaction_data["status"]),
+                                    status=TransactionStatus(
+                                        transaction_data["status"]
+                                    ),
                                     created_at=datetime.fromisoformat(
                                         transaction_data["created_at"]
                                     ),
                                     completed_at=(
-                                        datetime.fromisoformat(transaction_data["completed_at"])
+                                        datetime.fromisoformat(
+                                            transaction_data["completed_at"]
+                                        )
                                         if transaction_data["completed_at"]
                                         else None
                                     ),
@@ -609,7 +626,11 @@ class Marketplace:
             ]
 
             total_revenue = sum(t.price for t in completed_transactions)
-            avg_price = total_revenue / len(completed_transactions) if completed_transactions else 0
+            avg_price = (
+                total_revenue / len(completed_transactions)
+                if completed_transactions
+                else 0
+            )
 
             return {
                 "total_sold": item.total_sold,
@@ -639,7 +660,7 @@ class Marketplace:
         duration_hours: float,
         start_delay_hours: float = 0,
         metadata: Optional[Dict[str, Any]] = None,
-    ) -> Optional[Auction]:
+    ):
         """Create a new auction."""
         try:
             async with self._auction_lock:
@@ -658,7 +679,11 @@ class Marketplace:
                     min_increment=min_increment,
                     start_time=now + timedelta(hours=start_delay_hours),
                     end_time=now + timedelta(hours=start_delay_hours + duration_hours),
-                    status=AuctionStatus.PENDING if start_delay_hours > 0 else AuctionStatus.ACTIVE,
+                    status=(
+                        AuctionStatus.PENDING
+                        if start_delay_hours > 0
+                        else AuctionStatus.ACTIVE
+                    ),
                     created_at=now,
                     metadata=metadata or {},
                 )
@@ -740,7 +765,7 @@ class Marketplace:
             logger.error(f"Error placing bid: {str(e)}", exc_info=True)
             return None
 
-    async def get_auction(self, auction_id: str) -> Optional[Auction]:
+    async def get_auction(self, auction_id: str):
         """Get auction by ID."""
         try:
             key = f"marketplace:auction:{auction_id}"
@@ -768,7 +793,7 @@ class Marketplace:
             logger.error(f"Error getting auction: {str(e)}", exc_info=True)
             return None
 
-    async def _store_auction(self, auction: Auction) -> None:
+    async def _store_auction(self, auction: Auction):
         """Store auction in Redis."""
         key = f"marketplace:auction:{auction.id}"
         self._redis.set(
@@ -791,7 +816,7 @@ class Marketplace:
             ),
         )
 
-    async def _store_bid(self, bid: Bid) -> None:
+    async def _store_bid(self, bid: Bid):
         """Store bid in Redis."""
         key = f"marketplace:bid:{bid.id}"
         self._redis.set(
@@ -808,7 +833,9 @@ class Marketplace:
             ),
         )
 
-    async def get_auction_bids(self, auction_id: str, limit: Optional[int] = None) -> List[Bid]:
+    async def get_auction_bids(
+        self, auction_id: str, limit: Optional[int] = None
+    ) -> List[Bid]:
         """Get bids for an auction."""
         try:
             bids = []
@@ -824,7 +851,9 @@ class Marketplace:
                                     auction_id=bid_data["auction_id"],
                                     bidder_id=bid_data["bidder_id"],
                                     amount=bid_data["amount"],
-                                    created_at=datetime.fromisoformat(bid_data["created_at"]),
+                                    created_at=datetime.fromisoformat(
+                                        bid_data["created_at"]
+                                    ),
                                     metadata=bid_data.get("metadata", {}),
                                 )
                             )
@@ -845,7 +874,7 @@ class Marketplace:
         item_type: Optional[ItemType] = None,
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
-    ) -> List[Auction]:
+    ):
         """Get active auctions with optional filters."""
         try:
             auctions = []
@@ -863,7 +892,9 @@ class Marketplace:
                             if not item or item.type != item_type:
                                 continue
 
-                        current_price = auction_data.get("current_bid", auction_data["start_price"])
+                        current_price = auction_data.get(
+                            "current_bid", auction_data["start_price"]
+                        )
                         if min_price is not None and current_price < min_price:
                             continue
                         if max_price is not None and current_price > max_price:
@@ -876,12 +907,18 @@ class Marketplace:
                                 seller_id=auction_data["seller_id"],
                                 start_price=auction_data["start_price"],
                                 min_increment=auction_data["min_increment"],
-                                start_time=datetime.fromisoformat(auction_data["start_time"]),
-                                end_time=datetime.fromisoformat(auction_data["end_time"]),
+                                start_time=datetime.fromisoformat(
+                                    auction_data["start_time"]
+                                ),
+                                end_time=datetime.fromisoformat(
+                                    auction_data["end_time"]
+                                ),
                                 status=AuctionStatus(auction_data["status"]),
                                 current_bid=auction_data.get("current_bid"),
                                 current_winner=auction_data.get("current_winner"),
-                                created_at=datetime.fromisoformat(auction_data["created_at"]),
+                                created_at=datetime.fromisoformat(
+                                    auction_data["created_at"]
+                                ),
                                 metadata=auction_data.get("metadata", {}),
                             )
                         )
@@ -912,12 +949,18 @@ class Marketplace:
                                 seller_id=auction_data["seller_id"],
                                 start_price=auction_data["start_price"],
                                 min_increment=auction_data["min_increment"],
-                                start_time=datetime.fromisoformat(auction_data["start_time"]),
-                                end_time=datetime.fromisoformat(auction_data["end_time"]),
+                                start_time=datetime.fromisoformat(
+                                    auction_data["start_time"]
+                                ),
+                                end_time=datetime.fromisoformat(
+                                    auction_data["end_time"]
+                                ),
                                 status=AuctionStatus(auction_data["status"]),
                                 current_bid=auction_data.get("current_bid"),
                                 current_winner=auction_data.get("current_winner"),
-                                created_at=datetime.fromisoformat(auction_data["created_at"]),
+                                created_at=datetime.fromisoformat(
+                                    auction_data["created_at"]
+                                ),
                                 metadata=auction_data.get("metadata", {}),
                             )
 
@@ -930,7 +973,10 @@ class Marketplace:
                                 await self._store_auction(auction)
 
                             # End active auctions
-                            elif auction.status == AuctionStatus.ACTIVE and now >= auction.end_time:
+                            elif (
+                                auction.status == AuctionStatus.ACTIVE
+                                and now >= auction.end_time
+                            ):
                                 auction.status = AuctionStatus.ENDED
                                 await self._store_auction(auction)
 

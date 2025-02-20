@@ -4,9 +4,9 @@ Database Module
 This module provides a unified database connection and query interface.
 """
 
-from typing import Any, Optional, Tuple
 import logging
 import sqlite3
+from typing import Any, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class Database:
         self.db_path = db_path
         self.conn: Optional[sqlite3.Connection] = None
 
-    def connect(self) -> None:
+    def connect(self):
         """
         Establishes a connection to the database.
         """
@@ -26,7 +26,7 @@ class Database:
         except sqlite3.Error as e:
             logger.error("Connection error: %s", e)
 
-    def query(self, query_str: str, params: Tuple = ()) -> Any:
+    def query(self, query_str: str, params: Tuple = ()):
         """
         Executes a database query.
 

@@ -1,17 +1,23 @@
+import gc
+import gc
 """Database manager for DojoPool."""
 
 import os
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Union
 
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, text
+from sqlalchemy import ForeignKey, create_engine, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class DatabaseManager:
     """Database management utilities."""
 
-    def __init__(self, db: SQLAlchemy):
+    def __init__(self, db: SQLAlchemy) -> None:
         """Initialize database manager.
 
         Args:
@@ -21,76 +27,97 @@ class DatabaseManager:
 
     def init_db(self):
         """Initialize the database."""
-        with current_app.app_context():
-            self.db.create_all()
-            current_app.logger.info(
-                f"Database initialized at: {current_app.config['SQLALCHEMY_DATABASE_URI']}"
-            )
+        self.db.create_all()
 
-    def reset_db(self):
-        """Reset the database by dropping all tables and recreating them."""
-        with current_app.app_context():
-            self.db.drop_all()
-            self.db.create_all()
-            current_app.logger.info("Database reset completed")
+    def drop_db(self):
+        """Drop all database tables."""
+        self.db.drop_all()
 
-    def backup_db(self, backup_dir: str = None):
-        """Backup the database.
+    def backup_db(self, backup_path: Optional[str] = None):
+        """Backup database to file.
 
         Args:
-            backup_dir: Directory to store backup (default: instance/backups)
-        """
-        if backup_dir is None:
-            backup_dir = Path(current_app.instance_path) / "backups"
-
-        os.makedirs(backup_dir, exist_ok=True)
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_file = Path(backup_dir) / f"backup_{timestamp}.sql"
-
-        engine = create_engine(current_app.config["SQLALCHEMY_DATABASE_URI"])
-        with engine.connect() as conn:
-            with backup_file.open("w") as f:
-                for table in self.db.metadata.sorted_tables:
-                    result = conn.execute(text(f"SELECT * FROM {table.name}"))
-                    for row in result:
-                        f.write(f"INSERT INTO {table.name} VALUES {tuple(row)};\n")
-
-        current_app.logger.info(f"Database backed up to: {backup_file}")
-        return backup_file
-
-    def restore_db(self, backup_file: str):
-        """Restore database from backup.
-
-        Args:
-            backup_file: Path to backup file
-        """
-        if not os.path.exists(backup_file):
-            raise FileNotFoundError(f"Backup file not found: {backup_file}")
-
-        with current_app.app_context():
-            self.reset_db()
-            engine = create_engine(current_app.config["SQLALCHEMY_DATABASE_URI"])
-
-            with engine.connect() as conn:
-                with open(backup_file) as f:
-                    for line in f:
-                        if line.strip():
-                            conn.execute(text(line.strip()))
-                    conn.commit()
-
-        current_app.logger.info(f"Database restored from: {backup_file}")
-
-    def get_table_sizes(self):
-        """Get sizes of all tables in the database.
+            backup_path: Optional path to backup file
 
         Returns:
-            dict: Table names and their sizes
+            Path to backup file
+
+        Raises:
+            Exception: If backup fails
         """
-        sizes = {}
-        engine = create_engine(current_app.config["SQLALCHEMY_DATABASE_URI"])
-        with engine.connect() as conn:
-            for table in self.db.metadata.sorted_tables:
-                result = conn.execute(text(f"SELECT COUNT(*) FROM {table.name}"))
-                sizes[table.name] = result.scalar()
-        return sizes
+        if not backup_path:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_path = os.path.join(
+                current_app.config["BACKUP_DIR"], f"backup_{timestamp}.sql"
+            )
+
+        os.makedirs(os.path.dirname(backup_path), exist_ok=True)
+
+        try:
+            # Get database URL from config
+            db_url = current_app.config["SQLALCHEMY_DATABASE_URI"]
+
+            # Execute pg_dump command
+            os.system(f"pg_dump {db_url} > {backup_path}")
+
+            return backup_path
+        except Exception as e:
+            current_app.logger.error(f"Database backup failed: {str(e)}")
+            raise
+
+    def restore_db(self, backup_path: str) -> None:
+        """Restore database from backup file.
+
+        Args:
+            backup_path: Path to backup file
+
+        Raises:
+            FileNotFoundError: If backup file doesn't exist
+            Exception: If restore fails
+        """
+        if not os.path.exists(backup_path):
+            raise FileNotFoundError(f"Backup file not found: {backup_path}")
+
+        try:
+            # Get database URL from config
+            db_url = current_app.config["SQLALCHEMY_DATABASE_URI"]
+
+            # Drop all tables
+            self.drop_db()
+
+            # Execute psql command to restore
+            os.system(f"psql {db_url} < {backup_path}")
+        except Exception as e:
+            current_app.logger.error(f"Database restore failed: {str(e)}")
+            raise
+
+    def check_connection(self):
+        """Check database connection.
+
+        Returns:
+            True if connection is successful, False otherwise
+        """
+        try:
+            self.db.session.execute(text("SELECT 1"))
+            return True
+        except Exception as e:
+            current_app.logger.error(f"Database connection check failed: {str(e)}")
+            return False
+
+    def get_table_sizes(self):
+        """Get sizes of all database tables.
+
+        Returns:
+            List of dictionaries containing table names and sizes
+        """
+        sql = """
+            SELECT
+                table_name,
+                pg_size_pretty(pg_total_relation_size(quote_ident(table_name))) as size
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+            ORDER BY pg_total_relation_size(quote_ident(table_name)) DESC;
+        """
+
+        result = self.db.session.execute(text(sql))
+        return [dict(row) for row in result]

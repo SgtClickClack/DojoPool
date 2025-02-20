@@ -1,12 +1,15 @@
-import pytest
-from playwright.sync_api import Page, expect
+from flask_caching import Cache
+from flask_caching import Cache
 from datetime import datetime, timedelta
 
+import pytest
+from playwright.sync_api import Page, expect
+
 from dojopool.core.ranking.config import GLOBAL_RANKING_CONFIG
-from dojopool.models.user import User
+from dojopool.database import db
 from dojopool.models.game import Game
 from dojopool.models.tournament import Tournament
-from dojopool.database import db
+from dojopool.models.user import User
 
 
 @pytest.fixture(autouse=True)
@@ -15,7 +18,9 @@ def setup_test_data(test_app):
     # Create test users
     users = []
     for i in range(1, 6):
-        user = User(username=f"test_player_{i}", email=f"player{i}@test.com", is_active=True)
+        user = User(
+            username=f"test_player_{i}", email=f"player{i}@test.com", is_active=True
+        )
         users.append(user)
         db.session.add(user)
 
@@ -58,7 +63,16 @@ def test_global_rankings_page_load(page: Page):
     expect(page.locator("h4")).to_have_text("Global Rankings")
 
     # Check table headers
-    headers = ["Rank", "Player", "Rating", "Tier", "Win Rate", "Games", "Activity", "Stats"]
+    headers = [
+        "Rank",
+        "Player",
+        "Rating",
+        "Tier",
+        "Win Rate",
+        "Games",
+        "Activity",
+        "Stats",
+    ]
     for header in headers:
         expect(page.get_by_text(header, exact=True)).to_be_visible()
 
@@ -140,7 +154,10 @@ def test_ranking_updates(page: Page, test_app):
     users = User.query.all()
     for i in range(5):
         game = Game(
-            winner_id=users[0].id, loser_id=users[1].id, completed_at=datetime.now(), type="8_BALL"
+            winner_id=users[0].id,
+            loser_id=users[1].id,
+            completed_at=datetime.now(),
+            type="8_BALL",
         )
         db.session.add(game)
     db.session.commit()
@@ -240,5 +257,14 @@ def test_responsive_design(page: Page):
     page.reload()
 
     # Check that all columns are visible
-    for header in ["Rank", "Player", "Rating", "Tier", "Win Rate", "Games", "Activity", "Stats"]:
+    for header in [
+        "Rank",
+        "Player",
+        "Rating",
+        "Tier",
+        "Win Rate",
+        "Games",
+        "Activity",
+        "Stats",
+    ]:
         expect(page.get_by_text(header)).to_be_visible()

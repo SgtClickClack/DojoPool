@@ -1,3 +1,5 @@
+import gc
+import gc
 """Matchmaker module for handling player matchmaking.
 
 This module provides the core matchmaking functionality for pairing players
@@ -117,7 +119,7 @@ class Matchmaker:
                 return True
         raise PlayerNotFoundError(user.id)
 
-    def find_match(self, user: User, preferences: Dict) -> Optional[User]:
+    def find_match(self, user: User, preferences: Dict):
         """Find a suitable match for a player.
 
         Args:
@@ -166,13 +168,17 @@ class Matchmaker:
 
                     # Check scheduling
                     times = calculate_time_overlap(
-                        preferences["available_times"], entry.preferences["available_times"]
+                        preferences["available_times"],
+                        entry.preferences["available_times"],
                     )
                     if not times:
                         continue
 
                     # Check for conflicts
-                    if any(check_scheduling_conflicts(user, entry.user, time) for time in times):
+                    if any(
+                        check_scheduling_conflicts(user, entry.user, time)
+                        for time in times
+                    ):
                         continue
 
                     best_score = match_score
@@ -185,7 +191,9 @@ class Matchmaker:
 
         return best_match if best_score >= QUEUE_SETTINGS["min_match_score"] else None
 
-    def _calculate_match_score(self, user1: User, user2: User, prefs1: Dict, prefs2: Dict) -> float:
+    def _calculate_match_score(
+        self, user1: User, user2: User, prefs1: Dict, prefs2: Dict
+    ) -> float:
         """Calculate a match score between two players.
 
         Args:
@@ -210,7 +218,9 @@ class Matchmaker:
         # Calculate play style compatibility
         style_score = self._calculate_style_compatibility(user1, user2)
         if style_score < 0.3:  # Minimum style compatibility
-            raise IncompatiblePlayersError(user1.id, user2.id, "Incompatible play styles")
+            raise IncompatiblePlayersError(
+                user1.id, user2.id, "Incompatible play styles"
+            )
 
         # Calculate time availability
         time_score = self._calculate_time_compatibility(prefs1, prefs2)
@@ -234,7 +244,10 @@ class Matchmaker:
             "social_factors": social_score,
         }
 
-        return sum(scores[factor] * MATCHMAKING_WEIGHTS[factor] for factor in MATCHMAKING_WEIGHTS)
+        return sum(
+            scores[factor] * MATCHMAKING_WEIGHTS[factor]
+            for factor in MATCHMAKING_WEIGHTS
+        )
 
     def _calculate_skill_compatibility(self, user1: User, user2: User) -> float:
         """Calculate skill level compatibility between two players.
@@ -279,7 +292,7 @@ class Matchmaker:
 
         return PLAY_STYLES[style1]["compatibility"][style2]
 
-    def _calculate_time_compatibility(self, prefs1: Dict, prefs2: Dict) -> float:
+    def _calculate_time_compatibility(self, prefs1: Dict, prefs2: Dict):
         """Calculate time availability compatibility between preferences.
 
         Args:
@@ -303,7 +316,7 @@ class Matchmaker:
 
         return len(overlapping_slots) / len(total_slots)
 
-    def _calculate_location_compatibility(self, user1: User, user2: User) -> float:
+    def _calculate_location_compatibility(self, user1: User, user2: User):
         """Calculate venue location compatibility between two players.
 
         Args:
@@ -314,7 +327,9 @@ class Matchmaker:
             float: Compatibility score between 0 and 1
         """
         # Get shared venues
-        venues = find_common_venues(user1, user2, max_distance=LOCATION_SETTINGS["max_distance"])
+        venues = find_common_venues(
+            user1, user2, max_distance=LOCATION_SETTINGS["max_distance"]
+        )
 
         if not venues:
             return 0
@@ -353,7 +368,7 @@ class Matchmaker:
 
         return min(score, 1.0)  # Cap at 1.0
 
-    def process_queue(self) -> List[Tuple[User, User]]:
+    def process_queue(self):
         """Process the matchmaking queue to create matches.
 
         Returns:
@@ -370,7 +385,8 @@ class Matchmaker:
 
         # Sort queue by priority and wait time
         self.queue.sort(
-            key=lambda x: (x.priority, (datetime.now() - x.join_time).total_seconds()), reverse=True
+            key=lambda x: (x.priority, (datetime.now() - x.join_time).total_seconds()),
+            reverse=True,
         )
 
         # Process queue in batches
@@ -385,7 +401,9 @@ class Matchmaker:
                         self.remove_from_queue(match)
                 except Exception as e:
                     # Log error but continue processing
-                    print(f"Error processing queue entry for user {entry.user.id}: {str(e)}")
+                    print(
+                        f"Error processing queue entry for user {entry.user.id}: {str(e)}"
+                    )
                     continue
 
         return matches
@@ -416,7 +434,7 @@ class Matchmaker:
                 return i + 1
         raise PlayerNotFoundError(user.id)
 
-    def get_estimated_wait_time(self, position: int) -> int:
+    def get_estimated_wait_time(self, position: int):
         """Estimate wait time for a queue position.
 
         Args:
@@ -443,7 +461,7 @@ class Matchmaker:
         except PlayerNotFoundError:
             pass
 
-    def unblock_player(self, blocker: User, blocked: User) -> None:
+    def unblock_player(self, blocker: User, blocked: User):
         """Unblock a previously blocked player.
 
         Args:
@@ -452,7 +470,7 @@ class Matchmaker:
         """
         self.blocked_pairs.discard((blocker.id, blocked.id))
 
-    def _is_blocked(self, user1_id: int, user2_id: int) -> bool:
+    def _is_blocked(self, user1_id: int, user2_id: int):
         """Check if either user has blocked the other.
 
         Args:

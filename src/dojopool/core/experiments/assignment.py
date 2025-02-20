@@ -36,7 +36,7 @@ class AssignmentRule:
     variant_id: str  # Target variant
     weight: float = 1.0  # Rule weight
 
-    def matches(self, user_attributes: Dict[str, Any]) -> bool:
+    def matches(self, user_attributes: Dict[str, Any]):
         """Check if user matches the targeting condition."""
         for key, value in self.condition.items():
             if key not in user_attributes:
@@ -56,17 +56,22 @@ class AssignmentManager:
         """Initialize the assignment manager."""
         self._assignments: Dict[str, Dict[str, str]] = (
             {}
-        )  # user_id -> {experiment_id -> variant_id}
-        self._user_attributes: Dict[str, Dict[str, Any]] = {}  # user_id -> attributes
-        self._assignment_rules: Dict[str, List[AssignmentRule]] = {}  # experiment_id -> rules
+        )  # user_id : Dict[str, Dict[str, Any]] = {}  # user_id -> attributes
+        self._assignment_rules: Dict[str, List[AssignmentRule]] = (
+            {}
+        )  # experiment_id -> rules
 
     def set_user_attributes(self, user_id: str, attributes: Dict[str, Any]) -> None:
         """Set or update user attributes."""
         self._user_attributes[user_id] = attributes
 
     def add_assignment_rule(
-        self, experiment_id: str, condition: Dict[str, Any], variant_id: str, weight: float = 1.0
-    ) -> None:
+        self,
+        experiment_id: str,
+        condition: Dict[str, Any],
+        variant_id: str,
+        weight: float = 1.0,
+    ):
         """Add a new assignment rule."""
         if experiment_id not in self._assignment_rules:
             self._assignment_rules[experiment_id] = []
@@ -74,7 +79,7 @@ class AssignmentManager:
         rule = AssignmentRule(condition, variant_id, weight)
         self._assignment_rules[experiment_id].append(rule)
 
-    def _get_assignment_hash(self, user_id: str, experiment_id: str) -> int:
+    def _get_assignment_hash(self, user_id: str, experiment_id: str):
         """Generate a consistent hash for user-experiment pair."""
         hash_input = f"{user_id}:{experiment_id}".encode("utf-8")
         return int(hashlib.sha256(hash_input).hexdigest(), 16)
@@ -98,7 +103,9 @@ class AssignmentManager:
             return None
 
         matching_rules = [
-            rule for rule in self._assignment_rules[experiment_id] if rule.matches(user_attributes)
+            rule
+            for rule in self._assignment_rules[experiment_id]
+            if rule.matches(user_attributes)
         ]
 
         if not matching_rules:
@@ -106,7 +113,9 @@ class AssignmentManager:
 
         # Use rule weights to select variant
         total_weight = sum(rule.weight for rule in matching_rules)
-        hash_value = self._get_assignment_hash(user_attributes.get("user_id", ""), experiment_id)
+        hash_value = self._get_assignment_hash(
+            user_attributes.get("user_id", ""), experiment_id
+        )
         normalized_hash = (hash_value % 1000) / 1000.0  # More precision
 
         cumulative_weight = 0
@@ -140,11 +149,16 @@ class AssignmentManager:
         """
         try:
             # Check existing assignment
-            if user_id in self._assignments and experiment_id in self._assignments[user_id]:
+            if (
+                user_id in self._assignments
+                and experiment_id in self._assignments[user_id]
+            ):
                 return self._assignments[user_id][experiment_id]
 
             # Check traffic allocation
-            if not self._is_in_experiment_traffic(user_id, experiment_id, traffic_percentage):
+            if not self._is_in_experiment_traffic(
+                user_id, experiment_id, traffic_percentage
+            ):
                 return None
 
             # Get user attributes
@@ -207,7 +221,7 @@ class AssignmentManager:
         """Get all experiment assignments for a user."""
         return self._assignments.get(user_id, {})
 
-    def clear_user_assignment(self, user_id: str, experiment_id: str) -> None:
+    def clear_user_assignment(self, user_id: str, experiment_id: str):
         """Clear a specific user-experiment assignment."""
         if user_id in self._assignments and experiment_id in self._assignments[user_id]:
             del self._assignments[user_id][experiment_id]

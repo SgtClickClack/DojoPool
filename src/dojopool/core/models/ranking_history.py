@@ -1,31 +1,39 @@
 """Model for tracking player ranking history."""
 
-from datetime import datetime
-from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..extensions import db
 
 
-class RankingHistory(db.Model):
+class RankingHistory(Base):
     """Model for tracking player ranking history."""
 
-    __tablename__ = "ranking_history"
+    __tablename__: str = "ranking_history"
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    rating = Column(Float, nullable=False)
-    rank = Column(Integer, nullable=False)
-    games_played = Column(Integer, nullable=False)
-    wins = Column(Integer, nullable=False)
-    losses = Column(Integer, nullable=False)
-    streak = Column(Integer, nullable=False)
-    timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    rating: Mapped[float] = mapped_column(Float, nullable=False)
+    rank: Mapped[int] = mapped_column(Integer, nullable=False)
+    games_played: Mapped[int] = mapped_column(Integer, nullable=False)
+    wins: Mapped[int] = mapped_column(Integer, nullable=False)
+    losses: Mapped[int] = mapped_column(Integer, nullable=False)
+    streak: Mapped[int] = mapped_column(Integer, nullable=False)
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=datetime.utcnow
+    )
 
     # Relationships
-    user = relationship("User", backref="ranking_history")
+    user: relationship = relationship("User", backref="ranking_history")
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Convert ranking history to dictionary."""
         return {
             "id": self.id,

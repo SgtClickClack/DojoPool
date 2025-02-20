@@ -1,3 +1,9 @@
+from flask_caching import Cache
+from multiprocessing import Pool
+from sqlalchemy.orm import joinedload
+from flask_caching import Cache
+from multiprocessing import Pool
+from sqlalchemy.orm import joinedload
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
@@ -31,7 +37,8 @@ def create_cyber_background(width=1920, height=1080):
             for r in range(radius, 0, -1):
                 opacity = int((r / radius) * 3)  # Much lower opacity
                 glow_draw.ellipse(
-                    [radius - r, radius - r, radius + r, radius + r], fill=(0, 255, 157, opacity)
+                    [radius - r, radius - r, radius + r, radius + r],
+                    fill=(0, 255, 157, opacity),
                 )
 
             glow = glow.filter(ImageFilter.GaussianBlur(1))  # Less blur

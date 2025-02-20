@@ -149,7 +149,7 @@ class StoryManager:
         except Exception as e:
             logger.error(f"Failed to load story data: {str(e)}")
 
-    def generate_quest(self, player_skill: SkillLevel) -> Optional[Quest]:
+    def generate_quest(self, player_skill: SkillLevel):
         """Generate a new quest based on player's skill level."""
         try:
             # Load quest templates
@@ -163,7 +163,9 @@ class StoryManager:
 
             # Filter templates by skill level
             suitable_templates = [
-                t for t in templates if SkillLevel(t["required_skill_level"]) == player_skill
+                t
+                for t in templates
+                if SkillLevel(t["required_skill_level"]) == player_skill
             ]
 
             if not suitable_templates:
@@ -174,7 +176,9 @@ class StoryManager:
 
             # Generate quest objectives
             objectives = [
-                QuestObjective(description=obj["description"], target_value=obj["target_value"])
+                QuestObjective(
+                    description=obj["description"], target_value=obj["target_value"]
+                )
                 for obj in template["objectives"]
             ]
 
@@ -194,7 +198,7 @@ class StoryManager:
             logger.error(f"Failed to generate quest: {str(e)}")
             return None
 
-    def get_available_quests(self, player_skill: SkillLevel, max_quests: int = 3) -> List[Quest]:
+    def get_available_quests(self, player_skill: SkillLevel, max_quests: int = 3):
         """Get available quests for the player."""
         available = []
         while len(available) < max_quests:
@@ -203,7 +207,7 @@ class StoryManager:
                 available.append(quest)
         return available
 
-    def activate_quest(self, quest: Quest) -> bool:
+    def activate_quest(self, quest: Quest):
         """Activate a quest for tracking."""
         if len(self.active_quests) >= 3:
             return False
@@ -226,7 +230,7 @@ class StoryManager:
 
     def get_next_story_nodes(
         self, current_node_id: str, player_achievements: List[str]
-    ) -> List[StoryNode]:
+    ):
         """Get available next story nodes based on current progress."""
         if current_node_id not in self.story_nodes:
             return []
@@ -237,14 +241,16 @@ class StoryManager:
         for next_node_id in current_node.next_nodes:
             if next_node_id in self.story_nodes:
                 next_node = self.story_nodes[next_node_id]
-                if self._check_requirements(next_node.requirements, player_achievements):
+                if self._check_requirements(
+                    next_node.requirements, player_achievements
+                ):
                     available_nodes.append(next_node)
 
         return available_nodes
 
     def _check_requirements(
         self, requirements: Dict[str, Any], player_achievements: List[str]
-    ) -> bool:
+    ):
         """Check if player meets node requirements."""
         for req_type, req_value in requirements.items():
             if req_type == "achievements":
@@ -253,10 +259,14 @@ class StoryManager:
             # Add more requirement types as needed
         return True
 
-    def get_story_progress(self, player_id: str) -> Dict[str, Any]:
+    def get_story_progress(self, player_id: str):
         """Get player's story progress summary."""
         return {
             "active_quests": [quest.to_dict() for quest in self.active_quests.values()],
-            "completed_quests": [quest.to_dict() for quest in self.completed_quests.values()],
-            "total_exp_earned": sum(quest.reward_exp for quest in self.completed_quests.values()),
+            "completed_quests": [
+                quest.to_dict() for quest in self.completed_quests.values()
+            ],
+            "total_exp_earned": sum(
+                quest.reward_exp for quest in self.completed_quests.values()
+            ),
         }

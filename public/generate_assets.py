@@ -28,7 +28,12 @@ def create_logo(size, output_path):
     for i in range(3):
         offset = i * 2
         draw.ellipse(
-            [margin - offset, margin - offset, size - margin + offset, size - margin + offset],
+            [
+                margin - offset,
+                margin - offset,
+                size - margin + offset,
+                size - margin + offset,
+            ],
             outline="#4a90e2",
             width=size // 32,
         )
@@ -46,16 +51,20 @@ def create_logo(size, output_path):
     # Add table cushions
     cushion_width = size // 32
     draw.rectangle(
-        [table_rect[0], table_rect[1], table_rect[2], table_rect[1] + cushion_width], fill="#8b4513"
+        [table_rect[0], table_rect[1], table_rect[2], table_rect[1] + cushion_width],
+        fill="#8b4513",
     )  # Top cushion
     draw.rectangle(
-        [table_rect[0], table_rect[3] - cushion_width, table_rect[2], table_rect[3]], fill="#8b4513"
+        [table_rect[0], table_rect[3] - cushion_width, table_rect[2], table_rect[3]],
+        fill="#8b4513",
     )  # Bottom cushion
     draw.rectangle(
-        [table_rect[0], table_rect[1], table_rect[0] + cushion_width, table_rect[3]], fill="#8b4513"
+        [table_rect[0], table_rect[1], table_rect[0] + cushion_width, table_rect[3]],
+        fill="#8b4513",
     )  # Left cushion
     draw.rectangle(
-        [table_rect[2] - cushion_width, table_rect[1], table_rect[2], table_rect[3]], fill="#8b4513"
+        [table_rect[2] - cushion_width, table_rect[1], table_rect[2], table_rect[3]],
+        fill="#8b4513",
     )  # Right cushion
 
     # Draw pool balls with shadows
@@ -188,7 +197,10 @@ def main():
     create_logo(512, os.path.join(current_dir, "logo512.png"))
 
     # Generate favicon
-    generate_ico(os.path.join(current_dir, "logo512.png"), os.path.join(current_dir, "favicon.ico"))
+    generate_ico(
+        os.path.join(current_dir, "logo512.png"),
+        os.path.join(current_dir, "favicon.ico"),
+    )
 
     print("Generated all PWA assets successfully!")
 

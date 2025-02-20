@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """
 Incident response manager implementation.
 Manages security incidents and coordinates response actions.
@@ -15,17 +19,17 @@ from typing import Any, Dict, List, Optional, Union
 import aiohttp
 import aiosmtplib
 
-from ... import config
-from ..monitoring import MetricsCollector
-from ..threat_detection.detector import ThreatDetector
-from ..vulnerability_scanner.manager import ScannerManager
-from .incident import IncidentSeverity, IncidentStatus, IncidentType, SecurityIncident
-from .playbooks import PlaybookManager
 from ....core.extensions import db
 from ....core.monitoring import MetricsSnapshot, metrics
 from ....utils.notifications import NotificationManager
+from ... import config
+from ..monitoring import MetricsCollector
+from ..threat_detection.detector import ThreatDetector
 from ..threat_detection.finding import ThreatFinding
 from ..vulnerability_scanner.base import VulnerabilityFinding
+from ..vulnerability_scanner.manager import ScannerManager
+from .incident import IncidentSeverity, IncidentStatus, IncidentType, SecurityIncident
+from .playbooks import PlaybookManager
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +88,7 @@ class IncidentManager:
         severity: Union[str, IncidentSeverity],
         metrics_snapshot: Optional[MetricsSnapshot] = None,
         **kwargs,
-    ) -> SecurityIncident:
+    ):
         """Create a new security incident.
 
         Args:
@@ -130,7 +134,9 @@ class IncidentManager:
             await self._notify_incident_created(incident)
 
             # Track metrics
-            metrics.INCIDENTS_TOTAL.labels(type=incident_type.value, severity=severity.value).inc()
+            metrics.INCIDENTS_TOTAL.labels(
+                type=incident_type.value, severity=severity.value
+            ).inc()
 
             return incident
 
@@ -144,7 +150,7 @@ class IncidentManager:
         incident_id: int,
         status: Optional[IncidentStatus] = None,
         comment: Optional[str] = None,
-    ) -> SecurityIncident:
+    ):
         """Update incident status.
 
         Args:
@@ -182,7 +188,7 @@ class IncidentManager:
             metrics.INCIDENT_ERRORS.labels(operation="update_status").inc()
             raise
 
-    async def get_incident(self, incident_id: int) -> Optional[SecurityIncident]:
+    async def get_incident(self, incident_id: int):
         """Get incident by ID.
 
         Args:
@@ -213,11 +219,11 @@ class IncidentManager:
 
         return incidents
 
-    async def get_statistics(self) -> Dict[str, Any]:
+    async def get_statistics(self):
         """Get incident statistics."""
         return self.stats
 
-    async def _load_incidents(self) -> None:
+    async def _load_incidents(self):
         """Load incidents from storage."""
         try:
             for file in self.storage_path.glob("*.json"):
@@ -238,13 +244,14 @@ class IncidentManager:
                         self.stats["active_incidents"] += 1
                     self.stats["severity_counts"][incident.severity.value] += 1
                     self.stats["type_counts"][incident.incident_type.value] = (
-                        self.stats["type_counts"].get(incident.incident_type.value, 0) + 1
+                        self.stats["type_counts"].get(incident.incident_type.value, 0)
+                        + 1
                     )
 
         except Exception as e:
             self.logger.error(f"Error loading incidents: {str(e)}")
 
-    async def _save_incident(self, incident: SecurityIncident) -> None:
+    async def _save_incident(self, incident: SecurityIncident):
         """Save incident to storage."""
         try:
             file_path = self.storage_path / f"incident_{incident.id}.json"
@@ -277,7 +284,7 @@ class IncidentManager:
                 self.logger.error(f"Error monitoring incidents: {str(e)}")
                 await asyncio.sleep(60)
 
-    async def _cleanup_old_incidents(self) -> None:
+    async def _cleanup_old_incidents(self):
         """Clean up old resolved incidents."""
         while True:
             try:
@@ -312,7 +319,7 @@ class IncidentManager:
         except Exception as e:
             self.logger.error(f"Error archiving incident {incident.id}: {str(e)}")
 
-    def _is_threat_related(self, incident: SecurityIncident, threat: Any) -> bool:
+    def _is_threat_related(self, incident: SecurityIncident, threat: Any):
         """Check if threat is related to incident."""
         # Check source IP
         if incident.source_ip and incident.source_ip == threat.source_ip:
@@ -328,7 +335,7 @@ class IncidentManager:
 
         return False
 
-    async def _notify_incident_created(self, incident: SecurityIncident) -> None:
+    async def _notify_incident_created(self, incident: SecurityIncident):
         """Send notification for new incident.
 
         Args:
@@ -345,7 +352,7 @@ class IncidentManager:
             },
         )
 
-    async def _notify_status_updated(self, incident: SecurityIncident) -> None:
+    async def _notify_status_updated(self, incident: SecurityIncident):
         """Send notification for status update.
 
         Args:
@@ -374,7 +381,7 @@ class IncidentManager:
         task = asyncio.create_task(self._monitor_incident(incident_id))
         self._monitoring_tasks[incident_id] = task
 
-    async def stop_monitoring(self, incident_id: int) -> None:
+    async def stop_monitoring(self, incident_id: int):
         """Stop monitoring an incident.
 
         Args:
@@ -388,7 +395,7 @@ class IncidentManager:
             except asyncio.CancelledError:
                 pass
 
-    async def _monitor_incident(self, incident_id: int) -> None:
+    async def _monitor_incident(self, incident_id: int):
         """Monitor an incident for changes and updates.
 
         Args:
@@ -419,7 +426,7 @@ class IncidentManager:
         finally:
             metrics.ACTIVE_INCIDENTS.labels(severity=incident.severity.value).dec()
 
-    async def _check_related_threats(self, incident: SecurityIncident) -> List[ThreatFinding]:
+    async def _check_related_threats(self, incident: SecurityIncident):
         """Check for threats related to an incident.
 
         Args:
@@ -431,7 +438,9 @@ class IncidentManager:
         # TODO: Implement threat correlation logic
         return []
 
-    async def add_evidence(self, incident_id: int, evidence_data: Dict) -> SecurityIncident:
+    async def add_evidence(
+        self, incident_id: int, evidence_data: Dict
+    ) -> SecurityIncident:
         """Add evidence to an incident.
 
         Args:
@@ -458,7 +467,7 @@ class IncidentManager:
 
     async def add_finding(
         self, incident_id: int, finding: Union[ThreatFinding, VulnerabilityFinding]
-    ) -> SecurityIncident:
+    ):
         """Add a finding to an incident.
 
         Args:
@@ -474,7 +483,9 @@ class IncidentManager:
                 raise ValueError(f"Incident {incident_id} not found")
 
             finding_data = {
-                "type": "threat" if isinstance(finding, ThreatFinding) else "vulnerability",
+                "type": (
+                    "threat" if isinstance(finding, ThreatFinding) else "vulnerability"
+                ),
                 "description": finding.description,
                 "severity": finding.severity,
                 "data": finding.to_dict(),
@@ -488,3 +499,12 @@ class IncidentManager:
             logger.error(f"Failed to add finding: {str(e)}")
             metrics.INCIDENT_ERRORS.labels(operation="add_finding").inc()
             raise
+
+    def process_incident(self, maybe_path: Optional[Path]):
+        # Check and enforce that maybe_path is set.
+        if maybe_path is None:
+            raise ValueError("Base path is not set!")
+
+        # Now it's safe to perform operations with maybe_path
+        evidence_path = maybe_path / "evidence"
+        # ... rest of your logic ...

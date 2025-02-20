@@ -2,20 +2,21 @@
 FastAPI endpoints for the DojoPool AI coaching system.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, WebSocket
-from typing import List, Optional
-from pydantic import BaseModel
 from datetime import datetime
+from typing import List, Optional
 
-from ..services.ai_coaching.shot_analysis import ShotAnalyzer, ShotMetrics, ShotFeedback
-from ..services.ai_coaching.session_manager import (
-    CoachingSessionManager,
-    SessionMetrics,
-    PlayerProgress,
-)
-from ..services.ai_coaching.drill_recommender import DrillRecommender, Drill
+from fastapi import APIRouter, Depends, HTTPException, WebSocket
+from pydantic import BaseModel
+
 from ..auth.dependencies import get_current_user
 from ..models.user import User
+from ..services.ai_coaching.drill_recommender import Drill, DrillRecommender
+from ..services.ai_coaching.session_manager import (
+    CoachingSessionManager,
+    PlayerProgress,
+    SessionMetrics,
+)
+from ..services.ai_coaching.shot_analysis import ShotAnalyzer, ShotFeedback, ShotMetrics
 
 router = APIRouter(prefix="/api/coaching", tags=["coaching"])
 
@@ -146,7 +147,9 @@ async def coaching_session_websocket(websocket: WebSocket, player_id: str):
 
 
 @router.post("/sessions/{player_id}/end", response_model=SessionMetrics)
-async def end_coaching_session(player_id: str, current_user: User = Depends(get_current_user)):
+async def end_coaching_session(
+    player_id: str, current_user: User = Depends(get_current_user)
+):
     """End a coaching session."""
     try:
         session = session_manager.end_session(player_id)
@@ -183,7 +186,9 @@ async def get_drill(drill_id: str, current_user: User = Depends(get_current_user
 
 
 @router.get("/progress/{player_id}", response_model=PlayerProgressResponse)
-async def get_player_progress(player_id: str, current_user: User = Depends(get_current_user)):
+async def get_player_progress(
+    player_id: str, current_user: User = Depends(get_current_user)
+):
     """Get a player's progress history."""
     progress = session_manager.get_player_progress(player_id)
     if not progress:
@@ -208,7 +213,10 @@ async def generate_practice_routine(
     """Generate a complete practice routine."""
     try:
         routine = drill_recommender.generate_practice_routine(
-            request.skill_level, request.focus_areas, request.available_time, variety_preference
+            request.skill_level,
+            request.focus_areas,
+            request.available_time,
+            variety_preference,
         )
         return [DrillResponse(**drill.__dict__) for drill in routine]
     except Exception as e:

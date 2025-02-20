@@ -1,267 +1,115 @@
+from flask_caching import Cache
 """Game service module."""
 
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
-from ..core.extensions import cache, db
-from ..utils.adaptive_difficulty import AdaptiveDifficulty
-from ..utils.game_state import GameState
-from ..utils.matchmaking import MatchmakingSystem
+from ..core.extensions import db, cache
+from ..models.game import Game, GameSession, Shot
+from ..models.user import User
+from ..models.venue import Venue
 
 
 class GameService:
-    """Service for managing game operations"""
+    """Service for managing games."""
 
     def __init__(self):
-        self.adaptive_difficulty = AdaptiveDifficulty()
-        self.matchmaking = MatchmakingSystem()
+        """Initialize game service."""
+        pass
 
-    def create_game(self, player1_id: int, player2_id: int, venue_id: Optional[int] = None) -> Dict:
+    def create_game(
+        self,
+        venue_id: int,
+        player_ids: List[int],
+        game_type: str = "8ball",
+        is_ranked: bool = True,
+    ) -> Dict[str, Any]:
+        """Create a new game.
+
+        Args:
+            venue_id: ID of the venue
+            player_ids: List of player IDs
+            game_type: Type of game (8ball, 9ball, etc.)
+            is_ranked: Whether the game affects rankings
+
+        Returns:
+            Dict containing game information
         """
-        Create a new game
-        :param player1_id: First player's ID
-        :param player2_id: Second player's ID
-        :param venue_id: Optional venue ID
-        :return: Created game details
-        """
-        # Get difficulty settings for player1 (initiator)
-        settings = self.adaptive_difficulty.adjust_difficulty(player1_id)
+        # Validate venue exists
+        venue = Venue.query.get_or_404(venue_id)
 
-        # Create game in database
-        from ..core.models.game import Game
+        # Validate players exist
+        players = User.query.filter(User.id.in_(player_ids)).all()
+        if len(players) != len(player_ids):
+            raise ValueError("One or more players not found")
 
+        # Create new game
         game = Game(
-            player1_id=player1_id,
-            player2_id=player2_id,
+            player_id=player_ids[0],
+            opponent_id=player_ids[1] if len(player_ids) > 1 else None,
             venue_id=venue_id,
-            status="pending",
-            rules=settings["game_rules"],
-            challenges=settings["challenges"],
-            rewards=settings["rewards"],
+            game_type=game_type,
+            is_ranked=is_ranked,
         )
 
         db.session.add(game)
         db.session.commit()
 
-        # Initialize game state
-        game_state = GameState(game.id, settings["game_rules"])
-        self._cache_game_state(game.id, game_state)
+        return game.to_dict()
 
-        return {
-            "game_id": game.id,
-            "player1_id": player1_id,
-            "player2_id": player2_id,
-            "venue_id": venue_id,
-            "settings": settings,
-        }
+    def get_game(self, game_id: int) -> Optional[Dict[str, Any]]:
+        """Get game by ID.
 
-    def start_game(self, game_id: int) -> Dict:
+        Args:
+            game_id: ID of the game
+
+        Returns:
+            Game information if found, None otherwise
         """
-        Start a game
-        :param game_id: Game ID
-        :return: Updated game state
-        """
-        game_state = self._get_game_state(game_id)
-        if not game_state:
-            raise ValueError("Game not found")
-
-        from ..core.models.game import Game
-
         game = Game.query.get(game_id)
-        if not game:
-            raise ValueError("Game not found")
+        return game.to_dict() if game else None
 
-        # Start the game
-        game_state.start_game(game.player1_id, game.player2_id)
-        game.status = "active"
-        game.start_time = datetime.utcnow()
+    def update_score(self, game_id: int, player_id: int, points: int):
+        """Update game score.
 
-        # Save changes
+        Args:
+            game_id: Game ID
+            player_id: Player ID
+            points: Points to add
+
+        Returns:
+            Updated game information
+        """
+        game = Game.query.get_or_404(game_id)
+
+        if game.player_id == player_id:
+            game.player_score += points
+        elif game.opponent_id == player_id:
+            game.opponent_score += points
+        else:
+            raise ValueError("Player not in this game")
+
         db.session.commit()
-        self._cache_game_state(game_id, game_state)
+        return game.to_dict()
 
-        return game_state.get_state()
+    def end_game(self, game_id: int, winner_id: int):
+        """End a game.
 
-    def take_shot(self, game_id: int, player_id: int, shot_data: Dict) -> Dict:
+        Args:
+            game_id: Game ID
+            winner_id: Winner's user ID
+
+        Returns:
+            Final game information
         """
-        Process a shot in the game
-        :param game_id: Game ID
-        :param player_id: Player taking the shot
-        :param shot_data: Shot details
-        :return: Shot result and updated game state
-        """
-        game_state = self._get_game_state(game_id)
-        if not game_state:
-            raise ValueError("Game not found")
+        game = Game.query.get_or_404(game_id)
 
-        # Process the shot
-        result = game_state.take_shot(player_id, shot_data)
+        if winner_id not in [game.player_id, game.opponent_id]:
+            raise ValueError("Winner must be a player in the game")
 
-        # Update game in database if game is over
-        if result["game_over"]:
-            from ..core.models.game import Game
+        game.winner_id = winner_id
+        game.status = "completed"
+        game.ended_at = datetime.utcnow()
 
-            game = Game.query.get(game_id)
-            if game:
-                game.status = "completed"
-                game.end_time = datetime.utcnow()
-                game.winner_id = game_state.winner
-                db.session.commit()
-
-        # Cache updated state
-        self._cache_game_state(game_id, game_state)
-
-        return {"result": result, "state": game_state.get_state()}
-
-    def get_game_state(self, game_id: int) -> Dict:
-        """
-        Get current game state
-        :param game_id: Game ID
-        :return: Current game state
-        """
-        game_state = self._get_game_state(game_id)
-        if not game_state:
-            raise ValueError("Game not found")
-
-        return game_state.get_state()
-
-    def pause_game(self, game_id: int) -> Dict:
-        """
-        Pause a game
-        :param game_id: Game ID
-        :return: Updated game state
-        """
-        game_state = self._get_game_state(game_id)
-        if not game_state:
-            raise ValueError("Game not found")
-
-        game_state.pause_game()
-
-        from ..core.models.game import Game
-
-        game = Game.query.get(game_id)
-        if game:
-            game.status = "paused"
-            db.session.commit()
-
-        self._cache_game_state(game_id, game_state)
-
-        return game_state.get_state()
-
-    def resume_game(self, game_id: int) -> Dict:
-        """
-        Resume a paused game
-        :param game_id: Game ID
-        :return: Updated game state
-        """
-        game_state = self._get_game_state(game_id)
-        if not game_state:
-            raise ValueError("Game not found")
-
-        game_state.resume_game()
-
-        from ..core.models.game import Game
-
-        game = Game.query.get(game_id)
-        if game:
-            game.status = "active"
-            db.session.commit()
-
-        self._cache_game_state(game_id, game_state)
-
-        return game_state.get_state()
-
-    def cancel_game(self, game_id: int) -> Dict:
-        """
-        Cancel a game
-        :param game_id: Game ID
-        :return: Final game state
-        """
-        game_state = self._get_game_state(game_id)
-        if not game_state:
-            raise ValueError("Game not found")
-
-        game_state.cancel_game()
-
-        from ..core.models.game import Game
-
-        game = Game.query.get(game_id)
-        if game:
-            game.status = "cancelled"
-            game.end_time = datetime.utcnow()
-            db.session.commit()
-
-        self._cache_game_state(game_id, game_state)
-
-        return game_state.get_state()
-
-    def find_match(self, player_id: int, venue_id: Optional[int] = None) -> Optional[Dict]:
-        """
-        Find a match for a player
-        :param player_id: Player ID
-        :param venue_id: Optional venue ID
-        :return: Match details if found
-        """
-        return self.matchmaking.find_match(player_id, venue_id)
-
-    def start_matchmaking(self, player_id: int, venue_id: Optional[int] = None):
-        """
-        Start matchmaking for a player
-        :param player_id: Player ID
-        :param venue_id: Optional venue ID
-        """
-        self.matchmaking.start_matchmaking(player_id, venue_id)
-
-    def cancel_matchmaking(self, player_id: int):
-        """
-        Cancel matchmaking for a player
-        :param player_id: Player ID
-        """
-        self.matchmaking.cancel_matchmaking(player_id)
-
-    def _get_game_state(self, game_id: int) -> Optional[GameState]:
-        """Get game state from cache or create new one"""
-        # Try to get from cache
-        cache_key = f"game_state:{game_id}"
-        cached_state = cache.get(cache_key)
-
-        if cached_state:
-            game_state = GameState(game_id, cached_state["rules"])
-            game_state.load_state(cached_state)
-            return game_state
-
-        # If not in cache, create from database
-        from ..core.models.game import Game
-
-        game = Game.query.get(game_id)
-        if not game:
-            return None
-
-        # Create new game state
-        game_state = GameState(game_id, game.rules)
-        if game.status != "pending":
-            # Initialize with current game state
-            state = {
-                "status": game.status,
-                "current_player": game.current_player_id,
-                "winner": game.winner_id,
-                "start_time": game.start_time.isoformat() if game.start_time else None,
-                "end_time": game.end_time.isoformat() if game.end_time else None,
-                "shots": game.shots or {},
-                "fouls": game.fouls or {},
-                "ball_states": game.ball_states or {},
-                "player_types": game.player_types or {},
-                "eight_ball_allowed": game.eight_ball_allowed,
-                "rules": game.rules,
-            }
-            game_state.load_state(state)
-
-        # Cache the state
-        self._cache_game_state(game_id, game_state)
-
-        return game_state
-
-    def _cache_game_state(self, game_id: int, game_state: GameState):
-        """Cache game state"""
-        cache_key = f"game_state:{game_id}"
-        cache.set(cache_key, game_state.get_state(), timeout=3600)  # Cache for 1 hour
+        db.session.commit()
+        return game.to_dict()

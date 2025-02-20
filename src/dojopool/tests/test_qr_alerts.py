@@ -38,7 +38,10 @@ def mock_stats():
 def test_alert_creation(alert_manager):
     """Test basic alert creation."""
     alert_manager._create_alert(
-        AlertType.HIGH_ERROR_RATE, "Test alert", venue_id="test_venue", details={"error_rate": 0.3}
+        AlertType.HIGH_ERROR_RATE,
+        "Test alert",
+        venue_id="test_venue",
+        details={"error_rate": 0.3},
     )
 
     assert len(alert_manager.alerts) == 1
@@ -69,10 +72,16 @@ def test_alert_filtering(alert_manager):
     """Test alert filtering functionality."""
     # Create test alerts
     alert_manager._create_alert(
-        AlertType.HIGH_ERROR_RATE, "Error alert", venue_id="venue1", severity=AlertSeverity.ERROR
+        AlertType.HIGH_ERROR_RATE,
+        "Error alert",
+        venue_id="venue1",
+        severity=AlertSeverity.ERROR,
     )
     alert_manager._create_alert(
-        AlertType.SLOW_SCAN_TIME, "Warning alert", venue_id="venue2", severity=AlertSeverity.WARNING
+        AlertType.SLOW_SCAN_TIME,
+        "Warning alert",
+        venue_id="venue2",
+        severity=AlertSeverity.WARNING,
     )
 
     # Test venue filtering
@@ -97,7 +106,9 @@ def test_high_error_rate_detection(mock_qr_stats, alert_manager, mock_stats):
     """Test detection of high error rates."""
     # Configure mock
     mock_stats_with_high_errors = mock_stats.copy()
-    mock_stats_with_high_errors.update({"total_scans": 100, "failed_scans": 30})  # 30% error rate
+    mock_stats_with_high_errors.update(
+        {"total_scans": 100, "failed_scans": 30}
+    )  # 30% error rate
     mock_qr_stats.get_venue_stats.return_value = mock_stats_with_high_errors
     mock_qr_stats.venue_stats = {"test_venue": {}}
 
@@ -197,10 +208,14 @@ def test_alert_configuration(alert_manager):
 def test_alert_cooldown(alert_manager):
     """Test alert cooldown period."""
     # Create initial alert
-    alert_manager._create_alert(AlertType.HIGH_ERROR_RATE, "Test alert", venue_id="test_venue")
+    alert_manager._create_alert(
+        AlertType.HIGH_ERROR_RATE, "Test alert", venue_id="test_venue"
+    )
 
     # Attempt to create duplicate alert
-    alert_manager._create_alert(AlertType.HIGH_ERROR_RATE, "Test alert", venue_id="test_venue")
+    alert_manager._create_alert(
+        AlertType.HIGH_ERROR_RATE, "Test alert", venue_id="test_venue"
+    )
 
     # Verify only one alert was created
     assert len(alert_manager.alerts) == 1

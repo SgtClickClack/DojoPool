@@ -1,20 +1,21 @@
 """Demo script for the DojoPool AI Shot Recommendation System."""
 
+import argparse
+import time
+from pathlib import Path
+from typing import List, Tuple
+
 import cv2
 import numpy as np
-from pathlib import Path
-import argparse
-from typing import Tuple, List
-import time
 
+from dojopool.ai.computer_vision import TableStateAnalyzer
+from dojopool.ai.shot_physics import Ball, Vector2D
 from dojopool.ai.shot_recommendation import (
-    ShotRecommender,
-    ShotType,
     ShotDifficulty,
     ShotRecommendation,
+    ShotRecommender,
+    ShotType,
 )
-from dojopool.ai.computer_vision import TableStateAnalyzer
-from dojopool.ai.shot_physics import Vector2D, Ball
 
 
 def create_sample_image(width: int = 1920, height: int = 1080) -> np.ndarray:
@@ -102,7 +103,15 @@ def draw_shot_recommendation(image: np.ndarray, shot: ShotRecommendation) -> np.
     ]
 
     for i, text in enumerate(info_text):
-        cv2.putText(viz, text, (10, 30 + i * 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.putText(
+            viz,
+            text,
+            (10, 30 + i * 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (255, 255, 255),
+            2,
+        )
 
     return viz
 
@@ -111,13 +120,21 @@ def main():
     """Run the shot recommendation demo."""
     parser = argparse.ArgumentParser(description="DojoPool Shot Recommendation Demo")
     parser.add_argument(
-        "--input", type=str, help="Path to input image (uses sample image if not provided)"
+        "--input",
+        type=str,
+        help="Path to input image (uses sample image if not provided)",
     )
     parser.add_argument(
-        "--output", type=str, default="shot_recommendation.jpg", help="Path to output visualization"
+        "--output",
+        type=str,
+        default="shot_recommendation.jpg",
+        help="Path to output visualization",
     )
     parser.add_argument(
-        "--player-id", type=str, default="demo_player", help="Player ID for recommendations"
+        "--player-id",
+        type=str,
+        default="demo_player",
+        help="Player ID for recommendations",
     )
     args = parser.parse_args()
 

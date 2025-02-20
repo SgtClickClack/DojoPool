@@ -1,143 +1,184 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Model mixins for common functionality."""
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from uuid import UUID
 
-from sqlalchemy import Column, DateTime, Integer, inspect
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, inspect
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
-from .database import db
+from dojopool.core.extensions import db
 
-T = TypeVar("T", bound="Base")
+T = TypeVar("T", bound="BaseMixin")
 
 
 class CRUDMixin:
     """Mixin that adds convenience methods for CRUD operations."""
 
     @classmethod
-    def create(cls, **kwargs):
-        """Create a new record and save it to the database."""
+    def create(cls, **kwargs: Any) -> Any:
+        """Create a new record and save it to the database.
+
+        Args:
+            **kwargs: Model attributes
+
+        Returns:
+            Newly created model instance
+        """
         instance = cls(**kwargs)
         return instance.save()
 
-    def update(self, commit=True, **kwargs):
-        """Update specific fields of a record."""
-        for attr, value in kwargs.items():
-            if hasattr(self, attr):
-                setattr(self, attr, value)
-        if commit:
-            return self.save()
-        return self
+    def update(self, commit: bool = True, **kwargs: Any):
+        """Update specific fields of a record.
 
-    def save(self, commit=True):
-        """Save the record."""
+        Args:
+            commit: Whether to commit changes
+            **kwargs: Fields to update
+
+        Returns:
+            Updated model instance
+        """
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
+        return self.save() if commit else self
+
+    def save(self, commit: bool = True):
+        """Save the record.
+
+        Args:
+            commit: Whether to commit changes
+
+        Returns:
+            Saved model instance
+        """
         db.session.add(self)
         if commit:
-            db.session.commit()
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
         return self
 
-    def delete(self, soft=True, commit=True):
+    def delete(self, commit: bool = True):
         """Remove the record from the database.
 
         Args:
-            soft: If True, perform soft deletion by setting deleted_at.
-            commit: Whether to commit the changes.
+            commit: Whether to commit changes
         """
-        if soft and hasattr(self, "deleted_at"):
-            self.deleted_at = datetime.utcnow()
-            return self.save() if commit else self
         db.session.delete(self)
         if commit:
-            db.session.commit()
+            try:
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
+
+
+class SerializerMixin:
+    """Mixin that adds serialization methods."""
 
     def to_dict(
-        self, exclude: Optional[List[str]] = None, include: Optional[List[str]] = None
+        self,
+        exclude: Optional[List[str]] = None,
+        include: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Convert model to dictionary.
 
         Args:
-            exclude: List of fields to exclude.
-            include: List of additional fields to include.
+            exclude: Fields to exclude
+            include: Additional fields to include
 
         Returns:
-            Dict[str, Any]: Model attributes.
+            Model as dictionary
         """
         exclude = exclude or []
         data = {}
 
-        # Get all column properties
-        for column in inspect(self.__class__).attrs:
-            if column.key not in exclude:
-                value = getattr(self, column.key)
-                if isinstance(value, datetime):
-                    data[column.key] = value.isoformat()
-                else:
-                    data[column.key] = value
+        for field in [
+            x for x in dir(self) if not x.startswith("_") and x not in exclude
+        ]:
+            if hasattr(self, field):
+                value = getattr(self, field)
+                if not callable(value):
+                    data[field] = value
 
-        # Add additional fields
         if include:
             for field in include:
-                if hasattr(self, field) and field not in exclude:
+                if hasattr(self, field):
                     value = getattr(self, field)
-                    if isinstance(value, datetime):
-                        data[field] = value.isoformat()
-                    else:
+                    if not callable(value):
                         data[field] = value
 
         return data
 
     @classmethod
-    def from_dict(cls: Type[T], data: Dict[str, Any]) -> T:
-        """Create a new record from dictionary data.
+    def from_dict(cls: Type[T], data: Dict[str, Any]):
+        """Create model from dictionary.
 
         Args:
-            data: Dictionary containing record data.
+            data: Dictionary of model attributes
 
         Returns:
-            T: New record instance.
+            Model instance
         """
-        return cls(**{key: value for key, value in data.items() if hasattr(cls, key)})
+        return cls(**data)
+
+
+class BaseMixin(CRUDMixin, SerializerMixin):
+    """Base mixin that includes CRUD and serialization methods."""
+
+    __table_args__ = {"extend_existing": True}
+
+    @declared_attr
+    def __tablename__(cls):
+        """Get table name from class name."""
+        return cls.__name__.lower()
+
+    @classmethod
+    def get_by_id(cls: Type[T], id: int):
+        """Get record by ID.
+
+        Args:
+            id: Record ID
+
+        Returns:
+            Model instance if found, None otherwise
+        """
+        return cls.query.get(id)
+
+    @classmethod
+    def get_all(cls: Type[T]) -> List[T]:
+        """Get all records.
+
+        Returns:
+            List of model instances
+        """
+        return cls.query.all()
+
+    def __repr__(self):
+        """Get string representation of model."""
+        return f"<{self.__class__.__name__}({self.id})>"
 
 
 class TimestampMixin:
     """Mixin that adds timestamp fields."""
 
-    created_at = Column(DateTime, nullable=False, default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
-    deleted_at = Column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), onupdate=func.now()
+    )
+    deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
 
-class Base(db.Model, CRUDMixin):
-    """Base model class that includes CRUD convenience methods."""
-
-    __abstract__ = True
-
-    @declared_attr
-    def __tablename__(cls) -> str:
-        """Generate table name automatically."""
-        return cls.__name__.lower() + "s"
-
-    id = Column(Integer, primary_key=True)
-
-    @classmethod
-    def get_by_id(cls: Type[T], id: int) -> Optional[T]:
-        """Get a record by ID."""
-        return cls.query.get(id)
-
-    @classmethod
-    def get_all(cls: Type[T]) -> List[T]:
-        """Get all non-deleted records."""
-        if hasattr(cls, "deleted_at"):
-            return cls.query.filter_by(deleted_at=None).all()
-        return cls.query.all()
-
-    def __repr__(self) -> str:
-        """String representation of the record."""
-        return f"<{self.__class__.__name__}(id={self.id})>"
-
-
-class TimestampedModel(Base, TimestampMixin):
+class TimestampedModel(BaseMixin, TimestampMixin):
     """Base model class that includes CRUD convenience methods and timestamp fields."""
 
-    __abstract__ = True
+    __abstract__: bool = True

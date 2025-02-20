@@ -1,3 +1,5 @@
+import gc
+import gc
 """Performance monitoring system."""
 
 import threading
@@ -39,7 +41,11 @@ class PerformanceMonitor:
         self.running = False
         self.metrics_history: List[PerformanceMetrics] = []
         self.max_history_size = 1440  # 24 hours at 1-minute intervals
-        self.alert_thresholds = {"cpu_usage": 80.0, "memory_usage": 80.0, "disk_usage": 90.0}
+        self.alert_thresholds = {
+            "cpu_usage": 80.0,
+            "memory_usage": 80.0,
+            "disk_usage": 90.0,
+        }
         self.on_metrics_update: Optional[Callable[[PerformanceMetrics], None]] = None
 
     def start(self):
@@ -63,7 +69,9 @@ class PerformanceMonitor:
                 time.sleep(self.interval)
             except Exception as e:
                 metrics_monitor.add_alert(
-                    AlertSeverity.ERROR, "Performance monitoring error", {"error": str(e)}
+                    AlertSeverity.ERROR,
+                    "Performance monitoring error",
+                    {"error": str(e)},
                 )
 
     def _collect_metrics(self) -> PerformanceMetrics:

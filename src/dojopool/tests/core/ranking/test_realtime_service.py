@@ -1,8 +1,9 @@
-import pytest
 import asyncio
 from datetime import datetime
-from typing import AsyncGenerator, Set, Dict, Any, cast
-from unittest.mock import Mock, patch, AsyncMock
+from typing import Any, AsyncGenerator, Dict, Set, cast
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 from fastapi import WebSocket
 
 from dojopool.core.ranking.realtime_service import RealTimeRankingService
@@ -20,7 +21,7 @@ async def mock_websocket() -> AsyncGenerator[AsyncMock, None]:
 
 
 @pytest.fixture
-async def mock_cache_service() -> AsyncGenerator[AsyncMock, None]:
+async def mock_cache_service():
     cache = AsyncMock()
     cache.get = AsyncMock(return_value=None)
     cache.set = AsyncMock()
@@ -30,8 +31,10 @@ async def mock_cache_service() -> AsyncGenerator[AsyncMock, None]:
 @pytest.fixture
 async def realtime_service(
     mock_cache_service: AsyncMock,
-) -> AsyncGenerator[RealTimeRankingService, None]:
-    with patch("dojopool.core.ranking.realtime_service.cache_service", mock_cache_service):
+):
+    with patch(
+        "dojopool.core.ranking.realtime_service.cache_service", mock_cache_service
+    ):
         service = RealTimeRankingService()
         yield service
 
@@ -40,7 +43,7 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_connect(
         self, realtime_service: RealTimeRankingService, mock_websocket: AsyncMock
-    ) -> None:
+    ):
         """Test WebSocket connection."""
         user_id = 1
         await realtime_service.connect(mock_websocket, user_id)
@@ -70,7 +73,7 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_broadcast_ranking_update(
         self, realtime_service: RealTimeRankingService, mock_websocket: AsyncMock
-    ) -> None:
+    ):
         """Test broadcasting ranking updates."""
         user_id = 1
         ranking_data: Dict[str, Any] = {"rating": 2000, "rank": 1}
@@ -95,7 +98,7 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_broadcast_global_update(
         self, realtime_service: RealTimeRankingService, mock_websocket: AsyncMock
-    ) -> None:
+    ):
         """Test broadcasting global updates."""
         # Connect multiple clients
         await realtime_service.connect(mock_websocket, 1)
@@ -117,13 +120,15 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_notify_significant_changes(
         self, realtime_service: RealTimeRankingService, mock_websocket: AsyncMock
-    ) -> None:
+    ):
         """Test significant change notifications."""
         user_id = 1
         await realtime_service.connect(mock_websocket, user_id)
 
         # Test significant change
-        await realtime_service.notify_significant_changes(user_id, 10, 4)  # 6 rank improvement
+        await realtime_service.notify_significant_changes(
+            user_id, 10, 4
+        )  # 6 rank improvement
 
         # Verify notification was sent
         mock_websocket.send_json.assert_called_once()
@@ -133,7 +138,9 @@ class TestRealTimeRankingService:
 
         # Test insignificant change
         mock_websocket.send_json.reset_mock()
-        await realtime_service.notify_significant_changes(user_id, 10, 8)  # 2 rank improvement
+        await realtime_service.notify_significant_changes(
+            user_id, 10, 8
+        )  # 2 rank improvement
 
         # Verify no notification was sent
         assert not mock_websocket.send_json.called
@@ -157,7 +164,7 @@ class TestRealTimeRankingService:
         assert user_id not in realtime_service.active_connections
 
     @pytest.mark.asyncio
-    async def test_connection_limits(self, realtime_service: RealTimeRankingService) -> None:
+    async def test_connection_limits(self, realtime_service: RealTimeRankingService):
         """Test connection limits and peak tracking."""
         # Connect maximum allowed clients
         websockets: list[AsyncMock] = []
@@ -180,7 +187,7 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_stats_caching(
         self, realtime_service: RealTimeRankingService, mock_cache_service: AsyncMock
-    ) -> None:
+    ):
         """Test statistics caching."""
         # Connect a client
         await realtime_service.connect(AsyncMock(spec=WebSocket), 1)
@@ -195,10 +202,12 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_periodic_updates(
         self, realtime_service: RealTimeRankingService, mock_websocket: AsyncMock
-    ) -> None:
+    ):
         """Test periodic update functionality."""
         # Mock ranking service
-        realtime_service.ranking_service.update_global_rankings = Mock(return_value=True)
+        realtime_service.ranking_service.update_global_rankings = Mock(
+            return_value=True
+        )
 
         # Start periodic updates
         update_task = asyncio.create_task(realtime_service.start_periodic_updates())
@@ -238,7 +247,7 @@ class TestRealTimeRankingService:
     @pytest.mark.asyncio
     async def test_get_stats(
         self, realtime_service: RealTimeRankingService, mock_cache_service: AsyncMock
-    ) -> None:
+    ):
         """Test retrieving statistics."""
         # Set up mock stats
         mock_stats: Dict[str, Any] = {

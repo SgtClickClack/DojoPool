@@ -58,7 +58,9 @@ class ExperimentAnalyzer:
         self._confidence_level = confidence_level
         self._min_sample_size = min_sample_size
 
-    def analyze_experiment(self, experiment_id: str, metric_name: str) -> Optional[AnalysisResult]:
+    def analyze_experiment(
+        self, experiment_id: str, metric_name: str
+    ) -> Optional[AnalysisResult]:
         """
         Analyze results for a specific metric in an experiment.
 
@@ -83,14 +85,20 @@ class ExperimentAnalyzer:
                 return None
 
             # Get control and variant data
-            control_variant = next((v for v in experiment.variants if v.id == "control"), None)
-            test_variant = next((v for v in experiment.variants if v.id != "control"), None)
+            control_variant = next(
+                (v for v in experiment.variants if v.id == "control"), None
+            )
+            test_variant = next(
+                (v for v in experiment.variants if v.id != "control"), None
+            )
             if not control_variant or not test_variant:
                 logger.error("Control or test variant not found")
                 return None
 
             variants_data = export_data["variants"]
-            control_values = variants_data.get(control_variant.id, {}).get(metric_name, [])
+            control_values = variants_data.get(control_variant.id, {}).get(
+                metric_name, []
+            )
             variant_values = variants_data.get(test_variant.id, {}).get(metric_name, [])
 
             # Check sample size
@@ -98,7 +106,9 @@ class ExperimentAnalyzer:
                 len(control_values) < self._min_sample_size
                 or len(variant_values) < self._min_sample_size
             ):
-                logger.warning(f"Insufficient sample size for experiment {experiment_id}")
+                logger.warning(
+                    f"Insufficient sample size for experiment {experiment_id}"
+                )
                 return None
 
             # Calculate basic statistics
@@ -197,8 +207,12 @@ class ExperimentAnalyzer:
                 if not experiment:
                     return None
 
-                control_variant = next((v for v in experiment.variants if v.id == "control"), None)
-                test_variant = next((v for v in experiment.variants if v.id != "control"), None)
+                control_variant = next(
+                    (v for v in experiment.variants if v.id == "control"), None
+                )
+                test_variant = next(
+                    (v for v in experiment.variants if v.id != "control"), None
+                )
                 if not control_variant or not test_variant:
                     return None
 

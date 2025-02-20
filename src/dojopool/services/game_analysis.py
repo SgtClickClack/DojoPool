@@ -6,11 +6,10 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from models.game_state import GameState
 from models.player import Player
-from tensorflow.keras.models import load_model
-
 from services.game_strategy import GameStrategy
 from services.shot_analysis import ShotAnalysis
 from src.core.config import AI_CONFIG
+from tensorflow.keras.models import load_model
 
 
 @dataclass
@@ -97,7 +96,9 @@ class GameAnalysisService:
         weaknesses = self._identify_weaknesses(patterns, metrics)
 
         # Generate recommendations
-        recommendations = self._generate_recommendations(patterns, metrics, strengths, weaknesses)
+        recommendations = self._generate_recommendations(
+            patterns, metrics, strengths, weaknesses
+        )
 
         # Predict outcomes
         prediction = await self._predict_outcomes(game_states, player, opponent)
@@ -115,9 +116,7 @@ class GameAnalysisService:
             confidence=confidence,
         )
 
-    async def _detect_patterns(
-        self, game_states: List[GameState], player: Player
-    ) -> List[GamePattern]:
+    async def _detect_patterns(self, game_states: List[GameState], player: Player):
         """Detect patterns in gameplay."""
         patterns = []
 
@@ -179,7 +178,7 @@ class GameAnalysisService:
 
     def _identify_strengths(
         self, patterns: List[GamePattern], metrics: PerformanceMetrics
-    ) -> List[str]:
+    ):
         """Identify player strengths based on patterns and metrics."""
         strengths = []
 
@@ -199,7 +198,9 @@ class GameAnalysisService:
             strengths.append(f"Strong position play ({metrics.position_control:.0%})")
 
         if metrics.safety_effectiveness > 0.75:
-            strengths.append(f"Effective safety play ({metrics.safety_effectiveness:.0%})")
+            strengths.append(
+                f"Effective safety play ({metrics.safety_effectiveness:.0%})"
+            )
 
         if metrics.pressure_handling > 0.7:
             strengths.append(f"Good under pressure ({metrics.pressure_handling:.0%})")
@@ -231,10 +232,14 @@ class GameAnalysisService:
             weaknesses.append(f"Weak position play ({metrics.position_control:.0%})")
 
         if metrics.safety_effectiveness < 0.5:
-            weaknesses.append(f"Ineffective safety play ({metrics.safety_effectiveness:.0%})")
+            weaknesses.append(
+                f"Ineffective safety play ({metrics.safety_effectiveness:.0%})"
+            )
 
         if metrics.pressure_handling < 0.5:
-            weaknesses.append(f"Struggles under pressure ({metrics.pressure_handling:.0%})")
+            weaknesses.append(
+                f"Struggles under pressure ({metrics.pressure_handling:.0%})"
+            )
 
         if metrics.consistency < 0.6:
             weaknesses.append(f"Inconsistent play ({metrics.consistency:.0%})")
@@ -282,7 +287,9 @@ class GameAnalysisService:
             recommendations.append("Consider taking higher percentage shots")
 
         if metrics.strategic_rating < 0.6:
-            recommendations.append("Focus on game planning and strategic decision-making")
+            recommendations.append(
+                "Focus on game planning and strategic decision-making"
+            )
 
         return recommendations
 
@@ -303,8 +310,11 @@ class GameAnalysisService:
         }
 
     def _calculate_confidence(
-        self, patterns: List[GamePattern], metrics: PerformanceMetrics, prediction: Dict[str, float]
-    ) -> float:
+        self,
+        patterns: List[GamePattern],
+        metrics: PerformanceMetrics,
+        prediction: Dict[str, float],
+    ):
         """Calculate overall confidence in analysis."""
         # Pattern confidence
         pattern_confidence = np.mean([p.confidence for p in patterns])
@@ -317,12 +327,14 @@ class GameAnalysisService:
 
         # Weighted average
         confidence = (
-            0.4 * pattern_confidence + 0.4 * metrics_confidence + 0.2 * prediction_confidence
+            0.4 * pattern_confidence
+            + 0.4 * metrics_confidence
+            + 0.2 * prediction_confidence
         )
 
         return max(0.0, min(1.0, confidence))
 
-    def _extract_pattern_features(self, game_states: List[GameState]) -> np.ndarray:
+    def _extract_pattern_features(self, game_states: List[GameState]):
         """Extract features for pattern detection."""
         features = []
 
@@ -358,13 +370,21 @@ class GameAnalysisService:
 
         # Player features
         features.extend(
-            [player.skill_level / 100, player.consistency / 100, player.risk_tolerance / 100]
+            [
+                player.skill_level / 100,
+                player.consistency / 100,
+                player.risk_tolerance / 100,
+            ]
         )
 
         # Game features
         for state in game_states[-self.metric_window :]:
             features.extend(
-                [state.score_difference / 10, state.remaining_balls / 15, state.difficulty_rating]
+                [
+                    state.score_difference / 10,
+                    state.remaining_balls / 15,
+                    state.difficulty_rating,
+                ]
             )
 
         return np.array(features).reshape(1, -1)
@@ -388,12 +408,18 @@ class GameAnalysisService:
         recent_states = game_states[-self.prediction_horizon :]
         for state in recent_states:
             features.extend(
-                [state.score_difference / 10, state.remaining_balls / 15, state.difficulty_rating]
+                [
+                    state.score_difference / 10,
+                    state.remaining_balls / 15,
+                    state.difficulty_rating,
+                ]
             )
 
         return np.array(features).reshape(1, -1)
 
-    def _calculate_shot_accuracy(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_shot_accuracy(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate overall shot accuracy."""
         shots = [
             state.last_shot
@@ -406,7 +432,9 @@ class GameAnalysisService:
 
         return sum(1 for shot in shots if shot.success) / len(shots)
 
-    def _calculate_position_control(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_position_control(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate position play effectiveness."""
         shots = [
             state.last_shot
@@ -438,7 +466,9 @@ class GameAnalysisService:
 
         return np.mean([safety.defensive_success for safety in safeties])
 
-    def _calculate_break_success(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_break_success(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate success rate on break shots."""
         breaks = [
             state.last_shot
@@ -455,7 +485,9 @@ class GameAnalysisService:
 
         return sum(1 for brk in breaks if brk.success) / len(breaks)
 
-    def _calculate_average_difficulty(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_average_difficulty(
+        self, game_states: List[GameState], player: Player
+    ):
         """Calculate average difficulty of attempted shots."""
         shots = [
             state.last_shot
@@ -468,7 +500,9 @@ class GameAnalysisService:
 
         return np.mean([shot.difficulty for shot in shots])
 
-    def _calculate_completion_rate(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_completion_rate(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate frame completion rate."""
         frames = [state for state in game_states if state.frame_complete]
 
@@ -479,7 +513,9 @@ class GameAnalysisService:
 
         return player_wins / len(frames)
 
-    def _calculate_pressure_handling(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_pressure_handling(
+        self, game_states: List[GameState], player: Player
+    ):
         """Calculate performance under pressure."""
         pressure_shots = [
             state.last_shot
@@ -496,7 +532,9 @@ class GameAnalysisService:
 
         return sum(1 for shot in pressure_shots if shot.success) / len(pressure_shots)
 
-    def _calculate_consistency(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_consistency(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate consistency of play."""
         shots = [
             state.last_shot
@@ -522,7 +560,9 @@ class GameAnalysisService:
         std_dev = np.std(success_rates)
         return max(0.0, min(1.0, 1 - std_dev))
 
-    def _calculate_adaptability(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_adaptability(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate ability to adapt to different situations."""
         shots = [
             state.last_shot
@@ -553,7 +593,9 @@ class GameAnalysisService:
         # Adaptability is average success rate across different shot types
         return np.mean(type_rates)
 
-    def _calculate_strategic_rating(self, game_states: List[GameState], player: Player) -> float:
+    def _calculate_strategic_rating(
+        self, game_states: List[GameState], player: Player
+    ) -> float:
         """Calculate quality of strategic decisions."""
         shots = [
             state.last_shot
@@ -574,7 +616,9 @@ class GameAnalysisService:
         )
 
         # Combine factors
-        strategic_rating = 0.4 * position_quality + 0.3 * risk_reward + 0.3 * situation_handling
+        strategic_rating = (
+            0.4 * position_quality + 0.3 * risk_reward + 0.3 * situation_handling
+        )
 
         return max(0.0, min(1.0, strategic_rating))
 
@@ -593,7 +637,9 @@ class GameAnalysisService:
         frequency = self._calculate_pattern_frequency(pattern_type, game_states, player)
 
         # Analyze effectiveness
-        effectiveness = self._calculate_pattern_effectiveness(pattern_type, game_states, player)
+        effectiveness = self._calculate_pattern_effectiveness(
+            pattern_type, game_states, player
+        )
 
         # Get pattern context
         context = self._get_pattern_context(pattern_type, game_states, player)
@@ -602,7 +648,9 @@ class GameAnalysisService:
         impact = self._calculate_pattern_impact(pattern_type, game_states, player)
 
         # Adjust confidence based on sample size
-        confidence = self._adjust_confidence(base_confidence, frequency, len(game_states))
+        confidence = self._adjust_confidence(
+            base_confidence, frequency, len(game_states)
+        )
 
         return GamePattern(
             pattern_type=pattern_type,
@@ -613,21 +661,21 @@ class GameAnalysisService:
             confidence=confidence,
         )
 
-    def _get_pattern_type(self, prediction: np.ndarray) -> Optional[str]:
+    def _get_pattern_type(self, prediction: np.ndarray):
         """Get the type of pattern from prediction."""
         # Implementation would map prediction to pattern type
         pass
 
     def _calculate_pattern_frequency(
         self, pattern_type: str, game_states: List[GameState], player: Player
-    ) -> float:
+    ):
         """Calculate how often a pattern occurs."""
         # Implementation would calculate pattern frequency
         pass
 
     def _calculate_pattern_effectiveness(
         self, pattern_type: str, game_states: List[GameState], player: Player
-    ) -> float:
+    ):
         """Calculate how effective a pattern is."""
         # Implementation would calculate pattern effectiveness
         pass
@@ -641,14 +689,14 @@ class GameAnalysisService:
 
     def _calculate_pattern_impact(
         self, pattern_type: str, game_states: List[GameState], player: Player
-    ) -> float:
+    ):
         """Calculate the impact of a pattern on game outcome."""
         # Implementation would calculate pattern impact
         pass
 
     def _adjust_confidence(
         self, base_confidence: float, frequency: float, sample_size: int
-    ) -> float:
+    ):
         """Adjust confidence based on sample size."""
         # Implementation would adjust confidence
         pass

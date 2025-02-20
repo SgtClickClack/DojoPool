@@ -1,13 +1,16 @@
+import gc
+import gc
 """AI-powered pool game tracking system."""
 
-from typing import Dict, List, Tuple, Optional, Set
-import numpy as np
-import cv2
-from dataclasses import dataclass
 import logging
-from datetime import datetime
 import threading
 from collections import deque
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, List, Optional, Set, Tuple
+
+import cv2
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -41,14 +44,19 @@ class Shot:
 class TableCalibration:
     """Pool table calibration data."""
 
-    def __init__(self, corners: np.ndarray, dimensions: Tuple[float, float]) -> None:
+    def __init__(self, corners: np.ndarray, dimensions: Tuple[float, float]):
         """Initialize calibration."""
         self.corners = corners  # Table corner points in image space
         self.dimensions = dimensions  # Real-world table dimensions (width, height)
         # Convert corners to float32 before passing to getPerspectiveTransform
         corners_float32 = corners.astype(np.float32)
         target_corners = np.float32(
-            [[0, 0], [dimensions[0], 0], [dimensions[0], dimensions[1]], [0, dimensions[1]]]
+            [
+                [0, 0],
+                [dimensions[0], 0],
+                [dimensions[0], dimensions[1]],
+                [0, dimensions[1]],
+            ]
         )
         self.transform = cv2.getPerspectiveTransform(corners_float32, target_corners)
 
@@ -62,17 +70,19 @@ class TableCalibration:
 class BallTracker:
     """Track pool balls using computer vision."""
 
-    def __init__(self, calibration: TableCalibration) -> None:
+    def __init__(self, calibration: TableCalibration):
         """Initialize tracker."""
         self.calibration = calibration
         self._ball_detector = self._create_ball_detector()
         self._position_history: Dict[int, deque[Tuple[float, float, datetime]]] = {}
         self._lock = threading.Lock()
 
-    def _create_ball_detector(self) -> cv2.dnn.Net:
+    def _create_ball_detector(self):
         """Create ball detection model."""
         # Load YOLOv4 model trained on pool ball dataset
-        model = cv2.dnn.readNet("models/yolov4-pool-balls.weights", "models/yolov4-pool-balls.cfg")
+        model = cv2.dnn.readNet(
+            "models/yolov4-pool-balls.weights", "models/yolov4-pool-balls.cfg"
+        )
         model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
         return model
@@ -80,7 +90,9 @@ class BallTracker:
     def detect_balls(self, frame: np.ndarray) -> List[BallPosition]:
         """Detect and track balls in frame."""
         # Preprocess frame
-        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416), swapRB=True, crop=False)
+        blob = cv2.dnn.blobFromImage(
+            frame, 1 / 255.0, (416, 416), swapRB=True, crop=False
+        )
         self._ball_detector.setInput(blob)
 
         # Run detection
@@ -98,7 +110,9 @@ class BallTracker:
                 center_y = int(detection[1] * height)
 
                 # Convert to table coordinates
-                table_pos = self.calibration.image_to_table(np.array([center_x, center_y]))
+                table_pos = self.calibration.image_to_table(
+                    np.array([center_x, center_y])
+                )
 
                 # Get ball ID from class prediction
                 class_scores = detection[5:]
@@ -119,7 +133,9 @@ class BallTracker:
             for ball in balls:
                 if ball.ball_id not in self._position_history:
                     self._position_history[ball.ball_id] = deque(maxlen=100)
-                self._position_history[ball.ball_id].append((ball.x, ball.y, ball.timestamp))
+                self._position_history[ball.ball_id].append(
+                    (ball.x, ball.y, ball.timestamp)
+                )
 
         return balls
 
@@ -136,7 +152,9 @@ class ShotDetector:
         self._lock = threading.Lock()
 
     def process_frame(
-        self, balls: List[BallPosition], previous_balls: Optional[List[BallPosition]] = None
+        self,
+        balls: List[BallPosition],
+        previous_balls: Optional[List[BallPosition]] = None,
     ) -> Optional[Shot]:
         """Process frame and detect shots."""
         with self._lock:
@@ -146,7 +164,9 @@ class ShotDetector:
             # Calculate ball velocities
             max_velocity = 0.0
             for ball in balls:
-                prev_ball = next((b for b in previous_balls if b.ball_id == ball.ball_id), None)
+                prev_ball = next(
+                    (b for b in previous_balls if b.ball_id == ball.ball_id), None
+                )
                 if prev_ball:
                     dt = (ball.timestamp - prev_ball.timestamp).total_seconds()
                     if dt > 0:
@@ -188,7 +208,10 @@ class GameTracker:
     """Track pool game state and enforce rules."""
 
     def __init__(
-        self, camera_id: int, table_corners: np.ndarray, table_dimensions: Tuple[float, float]
+        self,
+        camera_id: int,
+        table_corners: np.ndarray,
+        table_dimensions: Tuple[float, float],
     ):
         """Initialize game tracker."""
         self.camera_id = camera_id
@@ -208,10 +231,12 @@ class GameTracker:
             if self._running:
                 return
             self._running = True
-            self._tracking_thread = threading.Thread(target=self._track_loop, daemon=True)
+            self._tracking_thread = threading.Thread(
+                target=self._track_loop, daemon=True
+            )
             self._tracking_thread.start()
 
-    def stop(self) -> None:
+    def stop(self):
         """Stop game tracking."""
         with self._lock:
             self._running = False
@@ -219,7 +244,7 @@ class GameTracker:
                 self._tracking_thread.join()
             self._capture.release()
 
-    def _track_loop(self) -> None:
+    def _track_loop(self):
         """Main tracking loop."""
         while self._running:
             try:
@@ -244,7 +269,7 @@ class GameTracker:
                 logger.error(f"Error in tracking loop: {e}")
                 continue
 
-    def get_shots(self) -> List[Shot]:
+    def get_shots(self):
         """Get list of detected shots."""
         with self._lock:
             return self._shots.copy()

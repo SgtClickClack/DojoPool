@@ -1,362 +1,309 @@
-"""Game model module.
+"""
+Game model for DojoPool
 
-This module contains game-related models.
+This module defines the game model for tracking pool matches between players.
+It includes fields for game state, scores, and relationships to players and venues.
 """
 
-from datetime import datetime
+from datetime import date, datetime, time, timedelta, timezone
+from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils import timezone
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..core.extensions import db
-from .achievements import Achievement, UserAchievement
-from .social import UserProfile
+from ..core.models.base import BaseModel
+from ..core.database.database import db
+
+if TYPE_CHECKING:
+    from .table import Table
+    from .tournament import Tournament
+    from .user import User
+    from .venue import Venue
 
 
-class GameType(Enum):
+class GameType(str, Enum):
     """Game type enumeration."""
 
-    EIGHT_BALL = "eight_ball"
-    NINE_BALL = "nine_ball"
-    TEN_BALL = "ten_ball"
-    STRAIGHT_POOL = "straight_pool"
-    ONE_POCKET = "one_pocket"
-    BANK_POOL = "bank_pool"
+    EIGHT_BALL: str = "8ball"
+    NINE_BALL = "9ball"
+    STRAIGHT = "straight"
+    ONE_POCKET: str = "one_pocket"
+    BANK_POOL: str = "bank_pool"
+    SNOOKER = "snooker"
+    ROTATION: str = "rotation"
 
 
-class GameMode(Enum):
+class GameMode(str, Enum):
     """Game mode enumeration."""
 
-    CASUAL = "casual"
+    CASUAL: str = "casual"
     RANKED = "ranked"
     TOURNAMENT = "tournament"
-    PRACTICE = "practice"
+    PRACTICE: str = "practice"
+    CHALLENGE: str = "challenge"
+    TRAINING = "training"
 
 
 class GameStatus(str, Enum):
     """Game status enumeration."""
 
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+    PENDING: str = "pending"
+    ACTIVE = "active"
+    PAUSED = "paused"
+    COMPLETED: str = "completed"
+    CANCELLED: str = "cancelled"
+    FORFEITED = "forfeited"
+    DISPUTED: str = "disputed"
 
 
-class Shot(db.Model):
-    """Shot model class."""
+class Shot(BaseModel):
+    """Shot model for tracking individual shots in a game."""
 
-    __tablename__ = "shots"
+    __tablename__: str = "shots"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    ball_numbers = db.Column(db.JSON, nullable=False)  # List of ball numbers involved
-    pocketed = db.Column(db.Boolean, nullable=False)  # Whether any balls were pocketed
-    foul = db.Column(db.Boolean, nullable=False, default=False)  # Whether a foul occurred
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"))
+    player_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    shot_type: Mapped[str] = mapped_column(String(50))
+    ball_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    pocket: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    success: Mapped[bool] = mapped_column(Boolean, default=False)
+    metrics: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
+    )
 
     # Relationships
-    game = db.relationship("Game", back_populates="shots")
-    player = db.relationship("User")
+    game: Mapped["Game"] = relationship("Game", back_populates="shots")
+    player: Mapped["User"] = relationship("User", back_populates="shots", lazy="select")
+
+    def __init__(
+        self,
+        game_id: int,
+        player_id: int,
+        shot_type: str,
+        ball_number: Optional[int] = None,
+        pocket: Optional[int] = None,
+        success: bool = False,
+        metrics: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Initialize a new shot."""
+        super().__init__()
+        self.game_id = game_id
+        self.player_id = player_id
+        self.shot_type = shot_type
+        self.ball_number = ball_number
+        self.pocket = pocket
+        self.success = success
+        self.metrics = metrics or {}
+        self.timestamp = datetime.now(timezone.utc)
+        self.created_at = datetime.now(timezone.utc)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert shot to dictionary."""
+        base_dict = super().to_dict()
+        shot_dict = {
+            "id": self.id,
+            "game_id": self.game_id,
+            "player_id": self.player_id,
+            "shot_type": self.shot_type,
+            "ball_number": self.ball_number,
+            "pocket": self.pocket,
+            "success": self.success,
+            "metrics": self.metrics,
+            "timestamp": self.timestamp.isoformat(),
+            "created_at": self.created_at.isoformat(),
+        }
+        return {**base_dict, **shot_dict}
 
 
-class Game(db.Model):
-    """Game model class."""
+class Game(BaseModel):
+    """Game model with complete type annotations."""
 
-    __tablename__ = "games"
+    __tablename__: str = "games"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    player1_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    player2_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    game_type = db.Column(db.Enum(GameType), nullable=False)
-    game_mode = db.Column(db.Enum(GameMode), nullable=False)
-    status = db.Column(db.Enum(GameStatus), nullable=False, default=GameStatus.PENDING)
-    winner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    score = db.Column(db.String(50))  # Format: "player1_score-player2_score"
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    # Primary fields
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    opponent_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
     )
-    started_at = db.Column(db.DateTime)
-    completed_at = db.Column(db.DateTime)
+    venue_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("venues.id"), nullable=True
+    )
+    table_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("tables.id"), nullable=True
+    )
+    game_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default=GameStatus.PENDING.value)
+    winner_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
+    player_score: Mapped[int] = mapped_column(Integer, default=0)
+    opponent_score: Mapped[int] = mapped_column(Integer, default=0)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
+    )
+    ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    game_data: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    is_ranked: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_tournament_game: Mapped[bool] = mapped_column(Boolean, default=False)
+    tournament_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("tournaments.id"), nullable=True
+    )
+    session_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("game_sessions.id"), nullable=True
+    )
 
     # Relationships
-    player1 = db.relationship("User", foreign_keys=[player1_id])
-    player2 = db.relationship("User", foreign_keys=[player2_id])
-    winner = db.relationship("User", foreign_keys=[winner_id])
-    shots = db.relationship("Shot", back_populates="game", lazy="dynamic")
-    tournament_games = db.relationship(
-        "TournamentGame", backref="game", cascade="all, delete-orphan"
+    player: Mapped["User"] = relationship(
+        "User", foreign_keys=[player_id], back_populates="games"
+    )
+    opponent: Mapped[Optional["User"]] = relationship(
+        "User", foreign_keys=[opponent_id], backref="opponent_games"
+    )
+    winner: Mapped[Optional["User"]] = relationship(
+        "User", foreign_keys=[winner_id], backref="won_games"
+    )
+    venue: Mapped["Venue"] = relationship("Venue", back_populates="games")
+    tournament: Mapped[Optional["Tournament"]] = relationship(
+        "Tournament", back_populates="games"
+    )
+    session: Mapped["GameSession"] = relationship("GameSession", back_populates="games")
+    table: Mapped[Optional["Table"]] = relationship("Table", back_populates="games")
+    shots: Mapped[List["Shot"]] = relationship(
+        "Shot", back_populates="game", lazy="select"
     )
 
-    def __init__(self, player1_id, player2_id, game_type, game_mode, status=GameStatus.PENDING):
+    def __init__(
+        self,
+        player_id: int,
+        game_type: str,
+        opponent_id: Optional[int] = None,
+        venue_id: Optional[int] = None,
+        is_ranked: bool = True,
+        is_tournament_game: bool = False,
+        tournament_id: Optional[int] = None,
+        session_id: Optional[int] = None,
+    ):
         """Initialize game."""
-        self.player1_id = player1_id
-        self.player2_id = player2_id
+        super().__init__()
+        self.player_id = player_id
+        self.opponent_id = opponent_id
+        self.venue_id = venue_id
         self.game_type = game_type
-        self.game_mode = game_mode
-        self.status = status
-
-    def start_game(self):
-        """Start the game."""
-        if self.status == GameStatus.PENDING:
-            self.status = GameStatus.IN_PROGRESS
-            self.started_at = datetime.utcnow()
-
-    def complete_game(self, winner_id, score):
-        """Complete the game and trigger achievements."""
-        if self.status == GameStatus.IN_PROGRESS:
-            self.status = GameStatus.COMPLETED
-            self.winner_id = winner_id
-            self.score = score
-            self.completed_at = datetime.utcnow()
-
-            if self.created_at:
-                self.duration = self.completed_at - self.created_at
-
-            self.save()
-
-            # Update player stats
-            self._update_player_stats()
-
-            # Check for achievements
-            self._check_achievements()
-
-    def _update_player_stats(self):
-        """Update player statistics."""
-        for player in [self.player1, self.player2]:
-            profile = UserProfile.objects.get(user=player)
-            profile.total_matches += 1
-
-            if player.id == self.winner_id:
-                profile.wins += 1
-
-            profile.save()
-
-    def _check_achievements(self):
-        """Check and award achievements based on game results."""
-        winner_profile = UserProfile.objects.get(user=self.winner)
-        loser_profile = UserProfile.objects.get(
-            user=self.player2 if self.winner == self.player1 else self.player1
-        )
-
-        # Check win streak
-        self._check_win_streak(winner_profile)
-
-        # Check first win
-        self._check_first_win(winner_profile)
-
-        # Check perfect game
-        if self.player1 == self.winner and self.player2_score == 0:
-            self._award_achievement(winner_profile, "perfect_game")
-        elif self.player2 == self.winner and self.player1_score == 0:
-            self._award_achievement(winner_profile, "perfect_game")
-
-        # Check high difficulty win
-        if self.difficulty_rating >= 8:
-            self._award_achievement(winner_profile, "difficult_victory")
-
-    def _check_win_streak(self, profile):
-        """Check and award win streak achievements."""
-        recent_games = Game.objects.filter(
-            models.Q(player1=profile.user) | models.Q(player2=profile.user),
-            status="completed",
-            completed_at__lte=timezone.now(),
-        ).order_by("-completed_at")[:10]
-
-        streak = 0
-        for game in recent_games:
-            if game.winner == profile.user:
-                streak += 1
-            else:
-                break
-
-        if streak >= 3:
-            self._award_achievement(profile, "win_streak_3")
-        if streak >= 5:
-            self._award_achievement(profile, "win_streak_5")
-        if streak >= 10:
-            self._award_achievement(profile, "win_streak_10")
-
-    def _check_first_win(self, profile):
-        """Award first win achievement."""
-        if profile.wins == 1:
-            self._award_achievement(profile, "first_win")
-
-    def _award_achievement(self, profile, achievement_code):
-        """Award an achievement to a player."""
-        try:
-            achievement = Achievement.objects.get(code=achievement_code)
-            user_achievement, created = UserAchievement.objects.get_or_create(
-                user=profile, achievement=achievement
-            )
-
-            if not user_achievement.is_unlocked:
-                user_achievement.unlock()
-        except Achievement.DoesNotExist:
-            pass
-
-    def cancel_game(self):
-        """Cancel the game."""
-        if self.status != GameStatus.COMPLETED:
-            self.status = GameStatus.CANCELLED
+        self.is_ranked = is_ranked
+        self.is_tournament_game = is_tournament_game
+        self.tournament_id = tournament_id
+        self.session_id = session_id
+        self.started_at = datetime.now(timezone.utc)
 
     def __repr__(self):
-        """Represent game as string."""
-        return f"<Game {self.id}: {self.player1_id} vs {self.player2_id}>"
+        """Return string representation of the game."""
+        return f"<Game {self.id}: {self.game_type} - {self.status}>"
 
-    def __str__(self) -> str:
-        """
-        Returns the string representation of the Game.
-
-        Returns:
-            str: The game name.
-        """
-        return f"{self.player1_id} vs {self.player2_id}"
-
-    def add_player(self, player: User) -> None:
-        """
-        Adds a player to the game.
-
-        Args:
-            player (User): The user instance to add.
-        """
-        self.players.add(player)
-        self.save()
-
-    def remove_player(self, player: User) -> None:
-        """
-        Removes a player from the game.
-
-        Args:
-            player (User): The user instance to remove.
-        """
-        self.players.remove(player)
-        self.save()
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert game to dictionary."""
+        base_dict = super().to_dict()
+        game_dict = {
+            "id": self.id,
+            "player_id": self.player_id,
+            "opponent_id": self.opponent_id,
+            "venue_id": self.venue_id,
+            "game_type": self.game_type,
+            "status": self.status,
+            "winner_id": self.winner_id,
+            "player_score": self.player_score,
+            "opponent_score": self.opponent_score,
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "ended_at": self.ended_at.isoformat() if self.ended_at else None,
+            "is_ranked": self.is_ranked,
+            "is_tournament_game": self.is_tournament_game,
+            "tournament_id": self.tournament_id,
+            "session_id": self.session_id,
+        }
+        return {**base_dict, **game_dict}
 
 
-class GameSession(db.Model):
+class GameSession(BaseModel):
     """Game session model."""
 
-    __tablename__ = "game_sessions"
+    __tablename__: str = "game_sessions"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    start_time = db.Column(db.DateTime, default=datetime.utcnow)
-    end_time = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default="active")  # active, paused, ended
-    metrics = db.Column(db.JSON)  # Store session metrics
-    settings = db.Column(db.JSON)  # Store session settings
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String(50), default="active")
+    settings: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    metrics: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Relationships
-    game = db.relationship("Game", backref=db.backref("sessions", lazy="dynamic"))
-    user = db.relationship("User", backref=db.backref("game_sessions", lazy="dynamic"))
+    user: Mapped["User"] = relationship("User", back_populates="game_sessions")
+    games: Mapped[List["Game"]] = relationship("Game", back_populates="session")
 
-    def __init__(self, user_id: int, start_time: Optional[datetime] = None, status: str = "active"):
-        """Initialize a game session."""
+    def __init__(self, user_id: int, settings: Optional[Dict[str, Any]] = None):
+        """Initialize game session."""
+        super().__init__()
         self.user_id = user_id
-        self.start_time = start_time or datetime.utcnow()
-        self.status = status
+        self.settings = settings or {}
+        self.metrics = {}
+        self.created_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
 
-    def save(self):
-        """Save the session to the database."""
-        db.session.add(self)
-        db.session.commit()
-
-    def end(self, score: Optional[int] = None):
-        """End the game session."""
-        self.end_time = datetime.utcnow()
-        self.status = "completed"
-        if score is not None:
-            self.score = score
+    def end(self):
+        """End game session."""
+        self.status = "ended"
+        self.updated_at = datetime.now(timezone.utc)
         db.session.commit()
 
     def cancel(self):
-        """Cancel the game session."""
-        self.end_time = datetime.utcnow()
+        """Cancel game session."""
         self.status = "cancelled"
+        self.updated_at = datetime.now(timezone.utc)
         db.session.commit()
 
-    def to_dict(self):
-        """Convert the session to a dictionary."""
-        return {
+    def update_settings(self, settings: Dict[str, Any]) -> None:
+        """Update session settings."""
+        self.settings.update(settings)
+        self.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+
+    def add_metric(self, key: str, value: float):
+        """Add metric to session."""
+        if key not in self.metrics:
+            self.metrics[key] = []
+        self.metrics[key].append(
+            {"value": value, "timestamp": datetime.now(timezone.utc).isoformat()}
+        )
+        self.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert session to dictionary."""
+        base_dict = super().to_dict()
+        session_dict = {
             "id": self.id,
-            "game_id": self.game_id,
             "user_id": self.user_id,
-            "start_time": self.start_time.isoformat(),
-            "end_time": self.end_time.isoformat() if self.end_time else None,
             "status": self.status,
-            "metrics": self.metrics,
             "settings": self.settings,
+            "metrics": self.metrics,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
-
-
-class GameComment(db.Model):
-    """Game comment model."""
-
-    __tablename__ = "game_comments"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    likes = db.Column(db.Integer, default=0)
-
-    # Relationships
-    game = db.relationship("Game", backref="comments")
-    user = db.relationship("User", backref="comments")
-
-    def __repr__(self):
-        """Represent comment as string."""
-        return f"<GameComment {self.id}: {self.game_id} - {self.user_id}>"
-
-
-@receiver(post_save, sender=Game)
-def game_completed_notification(sender, instance, created, **kwargs):
-    """Send notifications when a game is completed."""
-    if not created and instance.status == "completed" and instance.completed_at == timezone.now():
-        # Send WebSocket notifications to both players
-        from asgiref.sync import async_to_sync
-        from channels.layers import get_channel_layer
-
-        channel_layer = get_channel_layer()
-
-        for player in [instance.player1, instance.player2]:
-            async_to_sync(channel_layer.group_send)(
-                f"notifications_group_{player.id}",
-                {
-                    "type": "game_completed",
-                    "game": {
-                        "id": instance.id,
-                        "opponent": (
-                            instance.player2.username
-                            if player == instance.player1
-                            else instance.player1.username
-                        ),
-                        "result": "victory" if player == instance.winner else "defeat",
-                        "score": f"{instance.player1_score}-{instance.player2_score}",
-                    },
-                },
-            )
-
-def get_game_details(game_id: int) -> Dict[str, Any]:
-    """
-    Retrieve game details (dummy implementation).
-
-    Args:
-        game_id (int): The game ID.
-    
-    Returns:
-        Dict[str, Any]: Game details.
-    """
-    return {"id": game_id, "title": "Dummy Game"}
+        return {**base_dict, **session_dict}

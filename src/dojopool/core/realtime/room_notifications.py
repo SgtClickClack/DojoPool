@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """WebSocket room notification module.
 
 This module provides functionality for handling user notifications and events.
@@ -57,7 +61,9 @@ class RoomNotifications:
         self._notification_lock = asyncio.Lock()
         self._event_subscribers: Dict[str, Set[str]] = {}
         self._user_notifications: Dict[str, List[Dict[str, Any]]] = {}
-        self._redis_pool = ConnectionPool(host="localhost", port=6379, db=0, max_connections=10)
+        self._redis_pool = ConnectionPool(
+            host="localhost", port=6379, db=0, max_connections=10
+        )
         self._redis = Redis(connection_pool=self._redis_pool)
         self._notification_batch: List[Dict[str, Any]] = []
         self._min_batch_size = 5
@@ -65,7 +71,9 @@ class RoomNotifications:
         self._batch_size_window = 60  # seconds
         self._batch_size_metrics = []
         self._last_batch_size_adjustment = datetime.utcnow()
-        self._cleanup_threshold = timedelta(days=30)  # Cleanup notifications older than 30 days
+        self._cleanup_threshold = timedelta(
+            days=30
+        )  # Cleanup notifications older than 30 days
         self._performance_metrics: Dict[str, List[Tuple[float, datetime]]] = {}
         self._metric_window = timedelta(minutes=5)  # Keep 5 minutes of metrics
         self._metric_alert_thresholds = {
@@ -99,7 +107,7 @@ class RoomNotifications:
         except Exception:
             logger.error(f"Error recording metric {metric_type}", exc_info=True)
 
-    def _clean_old_metrics(self, metric_type: str) -> None:
+    def _clean_old_metrics(self, metric_type: str):
         """Clean metrics older than the metric window."""
         if metric_type not in self._performance_metrics:
             return
@@ -111,7 +119,9 @@ class RoomNotifications:
             if timestamp > cutoff_time
         ]
 
-    async def _check_metric_alerts(self, metric_type: MetricTypes, value: float) -> None:
+    async def _check_metric_alerts(
+        self, metric_type: MetricTypes, value: float
+    ) -> None:
         """Check if metric should trigger an alert."""
         if metric_type.value not in self._metric_alert_thresholds:
             return
@@ -125,7 +135,10 @@ class RoomNotifications:
                 "timestamp": datetime.utcnow().isoformat(),
             }
             await self.notify_room_event(
-                "system", "performance_alert", alert_data, priority=NotificationPriority.HIGH
+                "system",
+                "performance_alert",
+                alert_data,
+                priority=NotificationPriority.HIGH,
             )
 
     async def _update_error_rate(self) -> None:
@@ -138,13 +151,17 @@ class RoomNotifications:
             return
 
         error_count = sum(
-            1 for value, _ in self._performance_metrics[MetricTypes.ERROR_RATE.value] if value > 0
+            1
+            for value, _ in self._performance_metrics[MetricTypes.ERROR_RATE.value]
+            if value > 0
         )
         error_rate = error_count / total_ops
 
         await self._record_metric(MetricTypes.ERROR_RATE, error_rate)
 
-    def get_performance_metrics(self, metric_type: Optional[MetricTypes] = None) -> Dict[str, Any]:
+    def get_performance_metrics(
+        self, metric_type: Optional[MetricTypes] = None
+    ) -> Dict[str, Any]:
         """Get performance metrics.
 
         Args:
@@ -199,14 +216,18 @@ class RoomNotifications:
                 room_state = room_state_manager.get_room_state(room_id)
                 if not room_state:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
 
                 # Get room
                 room = room_manager.get_room(room_id)
                 if not room:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
 
                 # Prepare notification data with priority
@@ -230,14 +251,21 @@ class RoomNotifications:
                         await self._process_notification_batch()
                 else:
                     # High priority notifications are sent immediately
-                    await self._process_single_notification(notification_data, exclude_user_id)
+                    await self._process_single_notification(
+                        notification_data, exclude_user_id
+                    )
 
                 # Store in Redis
-                notification_key = f"notification:{room_id}:{event}:{datetime.utcnow().timestamp()}"
+                notification_key = (
+                    f"notification:{room_id}:{event}:{datetime.utcnow().timestamp()}"
+                )
                 self._redis.set(
                     notification_key,
                     json.dumps(
-                        {**notification_data, "read_by": list(notification_data["read_by"])}
+                        {
+                            **notification_data,
+                            "read_by": list(notification_data["read_by"]),
+                        }
                     ),
                 )
 
@@ -250,12 +278,16 @@ class RoomNotifications:
     async def _adjust_batch_size(self) -> None:
         """Dynamically adjust batch size based on performance metrics."""
         now = datetime.utcnow()
-        if (now - self._last_batch_size_adjustment).total_seconds() < self._batch_size_window:
+        if (
+            now - self._last_batch_size_adjustment
+        ).total_seconds() < self._batch_size_window:
             return
 
         try:
             # Get recent latency metrics
-            latency_metrics = self._performance_metrics.get(MetricTypes.LATENCY.value, [])
+            latency_metrics = self._performance_metrics.get(
+                MetricTypes.LATENCY.value, []
+            )
             if not latency_metrics:
                 return
 
@@ -272,16 +304,22 @@ class RoomNotifications:
 
             # Adjust batch size based on latency
             if avg_latency > 0.1:  # If latency > 100ms, decrease batch size
-                self._batch_size = max(self._min_batch_size, int(self._batch_size * 0.8))
+                self._batch_size = max(
+                    self._min_batch_size, int(self._batch_size * 0.8)
+                )
             elif avg_latency < 0.05:  # If latency < 50ms, increase batch size
-                self._batch_size = min(self._max_batch_size, int(self._batch_size * 1.2))
+                self._batch_size = min(
+                    self._max_batch_size, int(self._batch_size * 1.2)
+                )
 
             self._last_batch_size_adjustment = now
 
         except Exception:
             logger.error("Error adjusting batch size", exc_info=True)
 
-    async def _store_notifications_batch(self, notifications: List[Dict[str, Any]]) -> None:
+    async def _store_notifications_batch(
+        self, notifications: List[Dict[str, Any]]
+    ) -> None:
         """Store multiple notifications using Redis pipeline."""
         try:
             with self._redis.pipeline() as pipe:
@@ -290,7 +328,10 @@ class RoomNotifications:
                     pipe.set(
                         key,
                         json.dumps(
-                            {**notification, "read_by": list(notification.get("read_by", set()))}
+                            {
+                                **notification,
+                                "read_by": list(notification.get("read_by", set())),
+                            }
                         ),
                     )
                 pipe.execute()
@@ -298,14 +339,16 @@ class RoomNotifications:
             logger.error("Error storing notifications batch", exc_info=True)
 
     @measure_performance(MetricTypes.LATENCY)
-    async def _process_notification_batch(self) -> None:
+    async def _process_notification_batch(self):
         """Process batched notifications with optimizations."""
         if not self._notification_batch:
             return
 
         try:
             # Sort notifications by priority
-            sorted_notifications = sorted(self._notification_batch, key=lambda x: x["priority"])
+            sorted_notifications = sorted(
+                self._notification_batch, key=lambda x: x["priority"]
+            )
 
             # Group notifications by room for efficient broadcasting
             room_notifications: Dict[str, List[Dict[str, Any]]] = {}
@@ -322,7 +365,9 @@ class RoomNotifications:
             for room_id, notifications in room_notifications.items():
                 subscribers = set()
                 for notification in notifications:
-                    room_subscribers = self._event_subscribers.get(notification["event"], set())
+                    room_subscribers = self._event_subscribers.get(
+                        notification["event"], set()
+                    )
                     room = room_manager.get_room(room_id)
                     if room:
                         room_subscribers.update(room.members)
@@ -352,7 +397,7 @@ class RoomNotifications:
 
     async def _process_single_notification(
         self, notification: Dict[str, Any], exclude_user_id: Optional[str] = None
-    ) -> None:
+    ):
         """Process a single notification."""
         room_id = notification["room_id"]
         event = notification["event"]
@@ -372,10 +417,12 @@ class RoomNotifications:
                 self._user_notifications[user_id] = []
             self._user_notifications[user_id].append(notification)
 
-        await room_broadcaster.broadcast_to_room(room_id, event, notification, exclude_user_id)
+        await room_broadcaster.broadcast_to_room(
+            room_id, event, notification, exclude_user_id
+        )
 
     @measure_performance(MetricTypes.LATENCY)
-    async def mark_notification_read(self, notification_id: str, user_id: str) -> None:
+    async def mark_notification_read(self, notification_id: str, user_id: str):
         """Mark notification as read by user."""
         try:
             notification_data = self._redis.get(f"notification:{notification_id}")
@@ -384,7 +431,9 @@ class RoomNotifications:
                 read_by = set(notification["read_by"])
                 read_by.add(user_id)
                 notification["read_by"] = list(read_by)
-                self._redis.set(f"notification:{notification_id}", json.dumps(notification))
+                self._redis.set(
+                    f"notification:{notification_id}", json.dumps(notification)
+                )
 
                 # Broadcast read receipt
                 await room_broadcaster.broadcast_to_room(
@@ -415,9 +464,7 @@ class RoomNotifications:
         notifications.sort(key=lambda x: x["timestamp"], reverse=True)
         return notifications[:limit] if limit else notifications
 
-    async def notify_user(
-        self, user_id: str, event: str, data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    async def notify_user(self, user_id: str, event: str, data: Dict[str, Any]):
         """Notify specific user.
 
         Args:
@@ -444,7 +491,9 @@ class RoomNotifications:
                 self._user_notifications[user_id].append(notification_data)
 
                 # Broadcast notification
-                error = await room_broadcaster.broadcast_to_user(user_id, event, notification_data)
+                error = await room_broadcaster.broadcast_to_user(
+                    user_id, event, notification_data
+                )
 
                 if error:
                     self._notification_stats["failed_notifications"] += 1
@@ -453,7 +502,10 @@ class RoomNotifications:
                 # Update stats
                 self._notification_stats.update(
                     {
-                        "total_notifications": self._notification_stats["total_notifications"] + 1,
+                        "total_notifications": self._notification_stats[
+                            "total_notifications"
+                        ]
+                        + 1,
                         "successful_notifications": (
                             self._notification_stats["successful_notifications"] + 1
                         ),
@@ -470,10 +522,12 @@ class RoomNotifications:
                 extra={"user_id": user_id, "event": event, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error notifying user", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error notifying user",
+                {"error": str(e)},
             )
 
-    def subscribe_to_event(self, event: str, user_id: str) -> None:
+    def subscribe_to_event(self, event: str, user_id: str):
         """Subscribe user to event.
 
         Args:
@@ -484,7 +538,7 @@ class RoomNotifications:
             self._event_subscribers[event] = set()
         self._event_subscribers[event].add(user_id)
 
-    def unsubscribe_from_event(self, event: str, user_id: str) -> None:
+    def unsubscribe_from_event(self, event: str, user_id: str):
         """Unsubscribe user from event.
 
         Args:
@@ -522,7 +576,7 @@ class RoomNotifications:
         if user_id in self._user_notifications:
             del self._user_notifications[user_id]
 
-    def get_notification_stats(self) -> Dict[str, Any]:
+    def get_notification_stats(self):
         """Get notification statistics.
 
         Returns:
@@ -530,7 +584,7 @@ class RoomNotifications:
         """
         return dict(self._notification_stats)
 
-    def get_event_subscribers(self, event: str) -> Set[str]:
+    def get_event_subscribers(self, event: str):
         """Get subscribers for event.
 
         Args:
@@ -541,7 +595,7 @@ class RoomNotifications:
         """
         return self._event_subscribers.get(event, set()).copy()
 
-    async def cleanup_old_notifications(self) -> None:
+    async def cleanup_old_notifications(self):
         """Clean up old notifications using Redis pipeline."""
         try:
             cutoff_time = datetime.utcnow() - self._cleanup_threshold
@@ -550,7 +604,9 @@ class RoomNotifications:
             # Scan for old notifications in batches
             cursor = 0
             while True:
-                cursor, keys = self._redis.scan(cursor, match="notification:*", count=1000)
+                cursor, keys = self._redis.scan(
+                    cursor, match="notification:*", count=1000
+                )
 
                 if keys:
                     # Get all notifications in one batch
@@ -636,7 +692,10 @@ class RoomNotifications:
         """Check if notification matches filters."""
         try:
             # Priority filter
-            if "priority" in filters and notification["priority"] != filters["priority"].value:
+            if (
+                "priority" in filters
+                and notification["priority"] != filters["priority"].value
+            ):
                 return False
 
             # Time range filter
@@ -647,7 +706,10 @@ class RoomNotifications:
                 return False
 
             # Event type filter
-            if "event_types" in filters and notification["event"] not in filters["event_types"]:
+            if (
+                "event_types" in filters
+                and notification["event"] not in filters["event_types"]
+            ):
                 return False
 
             # Read status filter

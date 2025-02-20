@@ -1,10 +1,12 @@
 """Shot difficulty scoring system for pool game tracking."""
 
-from typing import List, Optional, Tuple, Dict
 from dataclasses import dataclass
-import numpy as np
 from datetime import datetime
-from .game_tracker import Shot, BallPosition
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+
+from .game_tracker import BallPosition, Shot
 
 
 @dataclass
@@ -74,12 +76,16 @@ class ShotDifficultyCalculator:
             return None
 
         # Get initial target ball
-        target_pos = next((p for p in shot.ball_positions if p.ball_id == target_balls[0]), None)
+        target_pos = next(
+            (p for p in shot.ball_positions if p.ball_id == target_balls[0]), None
+        )
         if not target_pos:
             return None
 
         # Calculate base metrics
-        distance = np.sqrt((target_pos.x - cue_pos.x) ** 2 + (target_pos.y - cue_pos.y) ** 2)
+        distance = np.sqrt(
+            (target_pos.x - cue_pos.x) ** 2 + (target_pos.y - cue_pos.y) ** 2
+        )
 
         # Calculate angle (relative to table)
         dx = target_pos.x - cue_pos.x
@@ -106,7 +112,9 @@ class ShotDifficultyCalculator:
         if pocket_pos:
             dx_pocket = pocket_pos[0] - target_pos.x
             dy_pocket = pocket_pos[1] - target_pos.y
-            pocket_angle = abs(np.degrees(np.arctan2(dy_pocket, dx_pocket) - np.arctan2(dy, dx)))
+            pocket_angle = abs(
+                np.degrees(np.arctan2(dy_pocket, dx_pocket) - np.arctan2(dy, dx))
+            )
         else:
             pocket_angle = 45  # Default to medium difficulty
 
@@ -130,7 +138,10 @@ class ShotDifficultyCalculator:
         )
 
     def _point_to_line_distance(
-        self, start: Tuple[float, float], end: Tuple[float, float], point: Tuple[float, float]
+        self,
+        start: Tuple[float, float],
+        end: Tuple[float, float],
+        point: Tuple[float, float],
     ) -> float:
         """Calculate distance from point to line segment."""
         x1, y1 = start
@@ -143,7 +154,9 @@ class ShotDifficultyCalculator:
 
         return num / den if den > 0 else 0.0
 
-    def _estimate_target_pocket(self, ball_pos: BallPosition) -> Optional[Tuple[float, float]]:
+    def _estimate_target_pocket(
+        self, ball_pos: BallPosition
+    ) -> Optional[Tuple[float, float]]:
         """Estimate which pocket was being targeted."""
         # Standard pocket positions
         pockets = [
@@ -160,7 +173,9 @@ class ShotDifficultyCalculator:
         closest_pocket = None
 
         for pocket in pockets:
-            dist = np.sqrt((pocket[0] - ball_pos.x) ** 2 + (pocket[1] - ball_pos.y) ** 2)
+            dist = np.sqrt(
+                (pocket[0] - ball_pos.x) ** 2 + (pocket[1] - ball_pos.y) ** 2
+            )
             if dist < min_dist:
                 min_dist = dist
                 closest_pocket = pocket
@@ -200,8 +215,13 @@ class ShotDifficultyCalculator:
         )
 
         # Calculate confidence based on shot detection confidence
-        confidence = shot.confidence * 0.8  # Slightly lower confidence in difficulty scoring
+        confidence = (
+            shot.confidence * 0.8
+        )  # Slightly lower confidence in difficulty scoring
 
         return DifficultyScore(
-            total_score=total_score, metrics=metrics, components=components, confidence=confidence
+            total_score=total_score,
+            metrics=metrics,
+            components=components,
+            confidence=confidence,
         )

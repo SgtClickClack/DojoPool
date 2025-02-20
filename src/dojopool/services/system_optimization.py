@@ -1,3 +1,5 @@
+import gc
+import gc
 import logging
 from collections import deque
 from datetime import datetime
@@ -34,7 +36,9 @@ class SystemOptimizationService:
                 "cpu": {
                     "percent": cpu_percent,
                     "count": psutil.cpu_count(),
-                    "frequency": psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None,
+                    "frequency": (
+                        psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None
+                    ),
                 },
                 "memory": {
                     "total": memory.total,
@@ -64,7 +68,7 @@ class SystemOptimizationService:
             self.logger.error(f"Error collecting system metrics: {str(e)}")
             return {}
 
-    def analyze_performance(self) -> Dict:
+    def analyze_performance(self):
         """Analyze system performance and identify issues."""
         if not self.metrics_buffer:
             return {"status": "error", "message": "No metrics available for analysis"}
@@ -147,7 +151,7 @@ class SystemOptimizationService:
 
         return recommendations
 
-    def _calculate_trend(self, values: List[float]) -> str:
+    def _calculate_trend(self, values: List[float]):
         """Calculate trend direction for a metric."""
         if len(values) < 2:
             return "stable"

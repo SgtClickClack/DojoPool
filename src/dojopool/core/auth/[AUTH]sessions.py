@@ -21,7 +21,9 @@ class SessionManager:
         self.sessions: Dict[str, Dict[str, Any]] = {}
         self.session_duration = session_duration
 
-    def create_session(self, user_id: int, device_info: Optional[Dict[str, str]] = None) -> str:
+    def create_session(
+        self, user_id: int, device_info: Optional[Dict[str, str]] = None
+    ) -> str:
         """Create new session.
 
         Args:
@@ -47,7 +49,7 @@ class SessionManager:
 
         return session_id
 
-    def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+    def get_session(self, session_id: str):
         """Get session data.
 
         Args:
@@ -71,7 +73,7 @@ class SessionManager:
 
         return session
 
-    def extend_session(self, session_id: str, duration: Optional[timedelta] = None) -> bool:
+    def extend_session(self, session_id: str, duration: Optional[timedelta] = None):
         """Extend session duration.
 
         Args:
@@ -91,7 +93,7 @@ class SessionManager:
         logger.info(f"Extended session {session_id} to {new_expiry}")
         return True
 
-    def invalidate_session(self, session_id: str) -> bool:
+    def invalidate_session(self, session_id: str):
         """Invalidate session.
 
         Args:
@@ -130,7 +132,7 @@ class SessionManager:
 
         return user_sessions
 
-    def invalidate_user_sessions(self, user_id: int) -> int:
+    def invalidate_user_sessions(self, user_id: int):
         """Invalidate all sessions for user.
 
         Args:

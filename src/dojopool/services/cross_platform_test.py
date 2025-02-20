@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -93,7 +95,9 @@ class CrossPlatformTest:
             ),
         }
 
-    async def _validate_platform_config(self, platform_key: str) -> Optional[PlatformConfig]:
+    async def _validate_platform_config(
+        self, platform_key: str
+    ) -> Optional[PlatformConfig]:
         """Validate platform configuration."""
         config = self.platform_configs.get(platform_key)
         if not config:
@@ -101,7 +105,7 @@ class CrossPlatformTest:
             return None
         return config
 
-    async def _run_platform_checks(self, config: PlatformConfig) -> List[Dict]:
+    async def _run_platform_checks(self, config: PlatformConfig):
         """Run platform-specific checks."""
         results = []
         for check in config.checks:
@@ -110,7 +114,9 @@ class CrossPlatformTest:
                 results.append(result)
             except Exception as e:
                 logging.error(f"Check failed: {str(e)}")
-                results.append({"name": check["name"], "status": "failed", "error": str(e)})
+                results.append(
+                    {"name": check["name"], "status": "failed", "error": str(e)}
+                )
         return results
 
     async def _run_single_check(self, check: Dict) -> Dict:
@@ -125,17 +131,17 @@ class CrossPlatformTest:
         else:
             raise ValueError(f"Unknown check type: {check_type}")
 
-    async def _run_api_check(self, check: Dict) -> Dict:
+    async def _run_api_check(self, check: Dict):
         """Run API check."""
         # Implementation details
         return {"name": check["name"], "type": "api", "status": "passed"}
 
-    async def _run_db_check(self, check: Dict) -> Dict:
+    async def _run_db_check(self, check: Dict):
         """Run database check."""
         # Implementation details
         return {"name": check["name"], "type": "database", "status": "passed"}
 
-    async def _run_service_check(self, check: Dict) -> Dict:
+    async def _run_service_check(self, check: Dict):
         """Run service check."""
         # Implementation details
         return {"name": check["name"], "type": "service", "status": "passed"}
@@ -145,7 +151,9 @@ class CrossPlatformTest:
         config = await self._validate_platform_config(platform_key)
         if not config:
             return TestResult(
-                platform=platform_key, status="failed", error="Invalid platform configuration"
+                platform=platform_key,
+                status="failed",
+                error="Invalid platform configuration",
             )
 
         try:
@@ -179,13 +187,15 @@ class CrossPlatformTest:
             results[platform_key] = await self.run_platform_test(platform_key)
         return results
 
-    def get_test_summary(self) -> Dict:
+    def get_test_summary(self):
         """Get summary of all test results."""
         if not self.test_history:
             return {}
 
         total_tests = len(self.test_history)
-        passed_tests = sum(1 for result in self.test_history if result.status == "passed")
+        passed_tests = sum(
+            1 for result in self.test_history if result.status == "passed"
+        )
 
         return {
             "total_tests": total_tests,
@@ -199,11 +209,13 @@ class CrossPlatformTest:
                     "summary": result.summary,
                     "error": result.error,
                 }
-                for result in sorted(self.test_history, key=lambda x: x.timestamp, reverse=True)[:5]
+                for result in sorted(
+                    self.test_history, key=lambda x: x.timestamp, reverse=True
+                )[:5]
             ],
         }
 
-    def get_platform_metrics(self) -> Dict:
+    def get_platform_metrics(self):
         """Get metrics for all platforms."""
         platform_metrics = {}
         for result in self.test_history:
@@ -216,7 +228,7 @@ class CrossPlatformTest:
 
         return {"platforms": platform_metrics, "timestamp": datetime.now().isoformat()}
 
-    def get_test_history(self, platform_key: Optional[str] = None) -> List[TestResult]:
+    def get_test_history(self, platform_key: Optional[str] = None):
         """Get test history for a platform."""
         if platform_key:
             return [r for r in self.test_history if r.platform == platform_key]

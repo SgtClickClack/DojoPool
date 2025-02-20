@@ -32,8 +32,16 @@ ACHIEVEMENT_CONFIG = {
         "icon": "comeback",
         "description": "Win after being behind by a significant margin",
     },
-    "QUICK_VICTORY": {"points": 800, "icon": "quick", "description": "Win a game in record time"},
-    "TOURNAMENT_WIN": {"points": 2000, "icon": "tournament", "description": "Win a tournament"},
+    "QUICK_VICTORY": {
+        "points": 800,
+        "icon": "quick",
+        "description": "Win a game in record time",
+    },
+    "TOURNAMENT_WIN": {
+        "points": 2000,
+        "icon": "tournament",
+        "description": "Win a tournament",
+    },
     "LEAGUE_PROMOTION": {
         "points": 1500,
         "icon": "promotion",
@@ -85,15 +93,30 @@ ACHIEVEMENT_SETTINGS = {
 
 # Achievement levels
 ACHIEVEMENT_LEVELS = {
-    "NOVICE": {"min_points": 0, "max_points": 1000, "title": "Novice", "color": "#A0A0A0"},
+    "NOVICE": {
+        "min_points": 0,
+        "max_points": 1000,
+        "title": "Novice",
+        "color": "#A0A0A0",
+    },
     "INTERMEDIATE": {
         "min_points": 1001,
         "max_points": 5000,
         "title": "Intermediate",
         "color": "#50C878",
     },
-    "ADVANCED": {"min_points": 5001, "max_points": 15000, "title": "Advanced", "color": "#4169E1"},
-    "EXPERT": {"min_points": 15001, "max_points": 50000, "title": "Expert", "color": "#9932CC"},
+    "ADVANCED": {
+        "min_points": 5001,
+        "max_points": 15000,
+        "title": "Advanced",
+        "color": "#4169E1",
+    },
+    "EXPERT": {
+        "min_points": 15001,
+        "max_points": 50000,
+        "title": "Expert",
+        "color": "#9932CC",
+    },
     "MASTER": {
         "min_points": 50001,
         "max_points": float("inf"),
@@ -124,7 +147,10 @@ ACHIEVEMENT_REWARDS = {
     "SPECIAL_REWARDS": {
         "PERFECT_GAME": {"title": "Perfect Game Badge", "icon": "badge_perfect"},
         "WIN_STREAK_10": {"title": "Streak Master Badge", "icon": "badge_streak"},
-        "TOURNAMENT_WIN": {"title": "Tournament Champion Badge", "icon": "badge_tournament"},
+        "TOURNAMENT_WIN": {
+            "title": "Tournament Champion Badge",
+            "icon": "badge_tournament",
+        },
     },
 }
 

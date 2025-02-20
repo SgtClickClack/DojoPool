@@ -1,182 +1,175 @@
 """Analytics models for tracking metrics and statistics."""
 
-from datetime import datetime
-from typing import Any, Dict
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from dojopool.core.extensions import db
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..core.extensions import db
+from ..core.models.base import BaseModel
+
+if TYPE_CHECKING:
+    from .game import Game
+    from .user import User
+    from .venue import Venue
 
 
-class UserMetrics(db.Model):
+class UserMetrics(BaseModel):
     """User activity and performance metrics."""
 
     __tablename__ = "user_metrics"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    metric_type = db.Column(
-        db.String(50), nullable=False
-    )  # e.g., 'games_played', 'win_rate', 'avg_score'
-    value = db.Column(db.Float, nullable=False)
-    period = db.Column(db.String(20), nullable=False)  # 'daily', 'weekly', 'monthly', 'all_time'
-    date = db.Column(db.Date, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    metric_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
+    period: Mapped[str] = mapped_column(String(20), nullable=False)
+    date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     # Relationships
-    user = db.relationship("User", backref="metrics")
+    user: Mapped["User"] = relationship("User", back_populates="metrics")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert metric to dictionary."""
-        return {
-            "id": self.id,
+        base_dict = super().to_dict()
+        metric_dict = {
             "user_id": self.user_id,
             "metric_type": self.metric_type,
             "value": self.value,
             "period": self.period,
             "date": self.date.isoformat(),
-            "created_at": self.created_at.isoformat(),
         }
+        return {**base_dict, **metric_dict}
 
 
-class GameMetrics(db.Model):
+class GameMetrics(BaseModel):
     """Game-related metrics and statistics."""
 
     __tablename__ = "game_metrics"
+    __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    metric_type = db.Column(
-        db.String(50), nullable=False
-    )  # e.g., 'duration', 'shots_taken', 'accuracy'
-    value = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), nullable=False)
+    metric_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
 
     # Relationships
-    game = db.relationship("Game", backref="metrics")
+    game: Mapped["Game"] = relationship("Game", back_populates="metrics")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert metric to dictionary."""
-        return {
-            "id": self.id,
+        base_dict = super().to_dict()
+        metric_dict = {
             "game_id": self.game_id,
             "metric_type": self.metric_type,
             "value": self.value,
-            "created_at": self.created_at.isoformat(),
         }
+        return {**base_dict, **metric_dict}
 
 
-class VenueMetrics(db.Model):
+class VenueMetrics(BaseModel):
     """Venue usage and performance metrics."""
 
     __tablename__ = "venue_metrics"
+    __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"), nullable=False)
-    metric_type = db.Column(
-        db.String(50), nullable=False
-    )  # e.g., 'occupancy_rate', 'revenue', 'games_played'
-    value = db.Column(db.Float, nullable=False)
-    period = db.Column(db.String(20), nullable=False)  # 'hourly', 'daily', 'weekly', 'monthly'
-    date = db.Column(db.Date, nullable=False)
-    hour = db.Column(db.Integer, nullable=True)  # For hourly metrics
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    venue_id: Mapped[int] = mapped_column(ForeignKey("venues.id"), nullable=False)
+    metric_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
+    period: Mapped[str] = mapped_column(String(20), nullable=False)
+    date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    hour: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     # Relationships
-    venue = db.relationship("Venue", backref="metrics")
+    venue: Mapped["Venue"] = relationship("Venue", back_populates="metrics")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert metric to dictionary."""
-        return {
-            "id": self.id,
+        base_dict = super().to_dict()
+        metric_dict = {
             "venue_id": self.venue_id,
             "metric_type": self.metric_type,
             "value": self.value,
             "period": self.period,
             "date": self.date.isoformat(),
             "hour": self.hour,
-            "created_at": self.created_at.isoformat(),
         }
+        return {**base_dict, **metric_dict}
 
 
-class FeatureUsageMetrics(db.Model):
+class FeatureUsageMetrics(BaseModel):
     """Feature usage and engagement metrics."""
 
     __tablename__ = "feature_usage_metrics"
+    __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    feature_name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    action = db.Column(db.String(50), nullable=False)  # e.g., 'view', 'click', 'complete'
-    context = db.Column(db.JSON, nullable=True)  # Additional context about the action
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    feature_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    action: Mapped[str] = mapped_column(String(50), nullable=False)
+    context: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
 
     # Relationships
-    user = db.relationship("User", backref="feature_usage")
+    user: Mapped["User"] = relationship("User", back_populates="feature_usage")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert metric to dictionary."""
-        return {
-            "id": self.id,
+        base_dict = super().to_dict()
+        metric_dict = {
             "feature_name": self.feature_name,
             "user_id": self.user_id,
             "action": self.action,
             "context": self.context,
-            "created_at": self.created_at.isoformat(),
         }
+        return {**base_dict, **metric_dict}
 
 
-class PerformanceMetrics(db.Model):
+class PerformanceMetrics(BaseModel):
     """System performance and technical metrics."""
 
     __tablename__ = "performance_metrics"
+    __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    metric_type = db.Column(
-        db.String(50), nullable=False
-    )  # e.g., 'response_time', 'error_rate', 'cpu_usage'
-    value = db.Column(db.Float, nullable=False)
-    endpoint = db.Column(db.String(200), nullable=True)  # For API metrics
-    component = db.Column(db.String(100), nullable=True)  # For system component metrics
-    context = db.Column(db.JSON, nullable=True)  # Additional context
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    metric_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
+    endpoint: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    component: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    context: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert metric to dictionary."""
-        return {
-            "id": self.id,
+        base_dict = super().to_dict()
+        metric_dict = {
             "metric_type": self.metric_type,
             "value": self.value,
             "endpoint": self.endpoint,
             "component": self.component,
             "context": self.context,
-            "created_at": self.created_at.isoformat(),
         }
+        return {**base_dict, **metric_dict}
 
 
-class AggregatedMetrics(db.Model):
+class AggregatedMetrics(BaseModel):
     """Pre-aggregated metrics for faster dashboard loading."""
 
     __tablename__ = "aggregated_metrics"
+    __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    metric_type = db.Column(db.String(50), nullable=False)
-    dimension = db.Column(db.String(50), nullable=False)  # e.g., 'user', 'venue', 'game'
-    dimension_id = db.Column(db.Integer, nullable=True)
-    period = db.Column(db.String(20), nullable=False)  # 'daily', 'weekly', 'monthly'
-    date = db.Column(db.Date, nullable=False)
-    count = db.Column(db.Integer, nullable=False, default=0)
-    sum = db.Column(db.Float, nullable=False, default=0)
-    avg = db.Column(db.Float, nullable=False, default=0)
-    min = db.Column(db.Float, nullable=True)
-    max = db.Column(db.Float, nullable=True)
-    percentile_90 = db.Column(db.Float, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    metric_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    dimension: Mapped[str] = mapped_column(String(50), nullable=False)
+    dimension_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    period: Mapped[str] = mapped_column(String(20), nullable=False)
+    date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sum: Mapped[float] = mapped_column(Float, nullable=False, default=0)
+    avg: Mapped[float] = mapped_column(Float, nullable=False, default=0)
+    min: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    max: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    percentile_90: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert aggregated metric to dictionary."""
-        return {
-            "id": self.id,
+        base_dict = super().to_dict()
+        metric_dict = {
             "metric_type": self.metric_type,
             "dimension": self.dimension,
             "dimension_id": self.dimension_id,
@@ -188,9 +181,8 @@ class AggregatedMetrics(db.Model):
             "min": self.min,
             "max": self.max,
             "percentile_90": self.percentile_90,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
         }
+        return {**base_dict, **metric_dict}
 
 
 __all__ = [

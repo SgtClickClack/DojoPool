@@ -1,3 +1,9 @@
+from flask_caching import Cache
+from multiprocessing import Pool
+import gc
+from flask_caching import Cache
+from multiprocessing import Pool
+import gc
 """AI recommendations service.
 
 This module provides AI-powered recommendations for games and opponents.
@@ -6,7 +12,6 @@ This module provides AI-powered recommendations for games and opponents.
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
-
 from src.core.database import cache
 from src.core.models import Game, GameResult, GameType, User
 
@@ -69,7 +74,9 @@ class RecommendationEngine:
             return []
 
         # Get all active players
-        active_players = User.query.filter(User.id != user_id, User.is_active is True).all()
+        active_players = User.query.filter(
+            User.id != user_id, User.is_active is True
+        ).all()
 
         # Calculate similarity scores
         scores = []
@@ -257,7 +264,10 @@ class RecommendationEngine:
 
         # Calculate standard deviation of positions
         positions = [
-            result.position for game in games for result in game.results if result.position
+            result.position
+            for game in games
+            for result in game.results
+            if result.position
         ]
 
         if not positions:

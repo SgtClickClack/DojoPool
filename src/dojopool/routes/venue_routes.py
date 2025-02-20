@@ -1,8 +1,13 @@
+from flask_caching import Cache
+from flask_caching import Cache
 import os
 from datetime import datetime
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
 from flask import (
     Blueprint,
+    Request,
+    Response,
     current_app,
     flash,
     jsonify,
@@ -11,53 +16,60 @@ from flask import (
     request,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 from flask_login import current_user, login_required
-from werkzeug.utils import secure_filename
+from werkzeug.wrappers import Response as WerkzeugResponse
+from werkzeug.wrappers import secure_filename
 
 from ..core.database import db
 from ..core.forms.venue_forms import VenueForm, VenueSearchForm
-from ..core.models.venue import Venue, VenueCheckin
+from ..core.models.venue import VenueCheckIn  # Import from core models
+from ..models.venue import Venue  # Import from models directory
 
-venue_bp = Blueprint("venue", __name__)
+venue_bp: Blueprint = Blueprint("venue", __name__)
 
 
 @venue_bp.route("/venues")
-def list_venues():
+def list_venues() -> str:
     """List all venues with optional filtering."""
-    form = VenueSearchForm(request.args)
-    query = Venue.query.filter_by(is_active=True)
+    form: VenueForm = VenueSearchForm(request.args)
+    query: Any = Venue.query.filter_by(is_active=True)
 
     if form.city.data:
-        query = query.filter(Venue.city.ilike(f"%{form.city.data}%"))
+        query: Any = query.filter(Venue.city.ilike(f"%{form.city.data}%"))
     if form.state.data:
-        query = query.filter(Venue.state.ilike(f"%{form.state.data}%"))
+        query: Any = query.filter(Venue.state.ilike(f"%{form.state.data}%"))
     if form.features.data:
-        query = query.filter(Venue.features.contains(form.features.data))
+        query: Any = query.filter(Venue.features.contains(form.features.data))
     if form.min_tables.data:
-        query = query.filter(Venue.tables >= form.min_tables.data)
-    if form.min_rating.data:
-        query = query.filter(Venue.rating >= form.min_rating.data)
+        query: Any = query.filter(Venue.tables >= form.min_tables.data)
+    if form.min_ratingetattr(g, "data", None):
+        query: Any = query.filter(
+            Venue.rating >= form.min_ratingetattr(g, "data", None)
+        )
 
-    venues = query.order_by(Venue.rating.desc()).all()
+    venues: Any = query.order_by(Venue.ratingetattr(g, "desc", None)()).all()
     return render_template("venue_list.html", venues=venues, form=form)
 
 
 @venue_bp.route("/venues/new", methods=["GET", "POST"])
 @login_required
-def create_venue():
+def create_venue() -> str:
     """Create a new venue."""
-    form = VenueForm()
+    form: VenueForm = VenueForm()
 
     if form.validate_on_submit():
         try:
             # Create venue object
-            venue = Venue()
+            venue: Venue = Venue()
             form.populate_obj(venue)
 
             # Handle image upload
             if form.image.data:
-                filename = secure_filename(form.image.data.filename)
-                filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+                filename: secure_filename = secure_filename(form.image.data.filename)
+                filepath: Any = os.path.join(
+                    current_app.configetattr(g, "get", None)("UPLOAD_FOLDER"), filename
+                )
                 form.image.data.save(filepath)
                 venue.image_url = url_for("static", filename=f"uploads/{filename}")
 
@@ -94,7 +106,10 @@ def create_venue():
             }
 
             # Format pricing
-            venue.pricing = {"per_hour": form.per_hour.data, "per_game": form.per_game.data}
+            venue.pricing = {
+                "per_hour": form.per_hour.data,
+                "per_game": form.per_game.data,
+            }
 
             # Update location if coordinates provided
             if form.latitude.data and form.longitude.data:
@@ -113,13 +128,13 @@ def create_venue():
     return render_template("venue_form.html", form=form)
 
 
-@venue_bp.route("/venues/<int:venue_id>")
+@venue_bp.route("/venues/<int :venue_id>")
 def get_venue(venue_id):
     """Get venue details."""
-    venue = Venue.query.get_or_404(venue_id)
+    venue: Venue = Venue.query.get_or_404(venue_id)
 
     # Get current occupancy information
-    occupancy = {
+    occupancy: Dict[Any, Any] = {
         "active_games": len(venue.get_current_games()),
         "available_tables": venue.tables - len(venue.get_current_games()),
         "checked_in_players": len(venue.get_checked_in_players()),
@@ -129,16 +144,16 @@ def get_venue(venue_id):
         "venue_detail.html",
         venue=venue,
         occupancy=occupancy,
-        maps_api_key=current_app.config["GOOGLE_MAPS_API_KEY"],
+        maps_api_key=current_app.configetattr(g, "get", None)("GOOGLE_MAPS_API_KEY"),
     )
 
 
-@venue_bp.route("/venues/<int:venue_id>/edit", methods=["GET", "POST"])
+@venue_bp.route("/venues/<int -> str -> Any:venue_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_venue(venue_id):
     """Edit venue details."""
-    venue = Venue.query.get_or_404(venue_id)
-    form = VenueForm(obj=venue)
+    venue: Venue = Venue.query.get_or_404(venue_id)
+    form: VenueForm = VenueForm(obj=venue)
 
     if form.validate_on_submit():
         try:
@@ -146,8 +161,10 @@ def edit_venue(venue_id):
 
             # Handle image upload
             if form.image.data:
-                filename = secure_filename(form.image.data.filename)
-                filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+                filename: secure_filename = secure_filename(form.image.data.filename)
+                filepath: Any = os.path.join(
+                    current_app.configetattr(g, "get", None)("UPLOAD_FOLDER"), filename
+                )
                 form.image.data.save(filepath)
                 venue.image_url = url_for("static", filename=f"uploads/{filename}")
 
@@ -184,7 +201,10 @@ def edit_venue(venue_id):
             }
 
             # Format pricing
-            venue.pricing = {"per_hour": form.per_hour.data, "per_game": form.per_game.data}
+            venue.pricing = {
+                "per_hour": form.per_hour.data,
+                "per_game": form.per_game.data,
+            }
 
             # Update location if coordinates provided
             if form.latitude.data and form.longitude.data:
@@ -201,14 +221,14 @@ def edit_venue(venue_id):
     return render_template("venue_form.html", form=form, venue=venue)
 
 
-@venue_bp.route("/venues/<int:venue_id>/check-in", methods=["POST"])
+@venue_bp.route("/venues/<int -> Response -> Any:venue_id>/check-in", methods=["POST"])
 @login_required
 def check_in(venue_id):
     """Check in at a venue."""
     Venue.query.get_or_404(venue_id)
 
     # Check if user is already checked in
-    existing_checkin = VenueCheckin.query.filter_by(
+    existing_checkin: Any = VenueCheckIn.query.filter_by(
         venue_id=venue_id, player_id=current_user.id
     ).first()
 
@@ -216,8 +236,10 @@ def check_in(venue_id):
         return jsonify({"error": "You are already checked in at this venue"}), 400
 
     try:
-        checkin = VenueCheckin(
-            venue_id=venue_id, player_id=current_user.id, check_in_time=datetime.utcnow()
+        checkin: VenueCheckIn = VenueCheckIn(
+            venue_id=venue_id,
+            player_id=current_user.id,
+            check_in_time=datetime.utcnow(),
         )
         db.session.add(checkin)
         db.session.commit()
@@ -232,8 +254,8 @@ def check_in(venue_id):
 @login_required
 def rate_venue(venue_id):
     """Rate a venue."""
-    venue = Venue.query.get_or_404(venue_id)
-    data = request.get_json()
+    venue: Venue = Venue.query.get_or_404(venue_id)
+    data: Any = request.get_json()
 
     if not data or "rating" not in data:
         return jsonify({"error": "Rating is required"}), 400
@@ -244,7 +266,7 @@ def rate_venue(venue_id):
             return jsonify({"error": "Rating must be between 0 and 5"}), 400
 
         # Update venue rating
-        total = venue.rating * venue.total_ratings
+        total: Any = venue.rating * venue.total_ratings
         venue.total_ratings += 1
         venue.rating = (total + rating) / venue.total_ratings
 
@@ -268,7 +290,7 @@ def rate_venue(venue_id):
 @login_required
 def delete_venue(venue_id):
     """Delete (deactivate) a venue."""
-    venue = Venue.query.get_or_404(venue_id)
+    venue: Venue = Venue.query.get_or_404(venue_id)
 
     try:
         venue.is_active = False

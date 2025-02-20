@@ -59,7 +59,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         return user
     except Exception:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
         )
 
 
@@ -174,7 +175,9 @@ class MatchmakingError(Exception):
 class QueueFullError(MatchmakingError):
     """Raised when the queue is full."""
 
-    def __init__(self, message: str = "Queue is currently full. Please try again later."):
+    def __init__(
+        self, message: str = "Queue is currently full. Please try again later."
+    ):
         super().__init__(message, status_code=503)
 
 
@@ -365,7 +368,9 @@ def handle_leave_game(data):
 
     # Notify other players
     emit_to_game(
-        game_id, "player_left", {"game_id": game_id, "user_id": user.id, "username": user.username}
+        game_id,
+        "player_left",
+        {"game_id": game_id, "user_id": user.id, "username": user.username},
     )
 
 
@@ -450,7 +455,9 @@ def emit_to_user(user_id, event, data):
 
 def emit_to_game(game_id, event, data, skip_sid=False):
     """Emit event to all users in game."""
-    socketio.emit(event, data, room=f"game_{game_id}", skip_sid=skip_sid if skip_sid else None)
+    socketio.emit(
+        event, data, room=f"game_{game_id}", skip_sid=skip_sid if skip_sid else None
+    )
 
 
 def broadcast_event(event, data):

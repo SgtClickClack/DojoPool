@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 import logging
 from typing import Dict
 
@@ -40,8 +42,7 @@ def add_responsive_images(
 
     Args:
         html: HTML content containing img tags
-        variants: Dictionary of image variants (size name -> path or format dict)
-        breakpoints: Dictionary of size names to width descriptors
+        variants: Dictionary of image variants (size name : Dictionary of size names to width descriptors
         include_webp: Whether to include WebP sources
 
     Returns:

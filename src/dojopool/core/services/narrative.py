@@ -3,7 +3,6 @@ Narrative generation service for creating game commentary and stories.
 """
 
 import openai
-
 from src.core.config import AI_CONFIG
 from src.extensions import cache
 
@@ -112,7 +111,9 @@ class NarrativeGenerator:
 
         # Combine elements into full narrative
         narrative = self._combine_player_elements(
-            story, tone="analytical", max_length=NARRATIVE_CONFIG["length_options"]["long"]
+            story,
+            tone="analytical",
+            max_length=NARRATIVE_CONFIG["length_options"]["long"],
         )
 
         # Add metadata

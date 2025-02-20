@@ -3,6 +3,6 @@
 This package provides authentication functionality.
 """
 
-from .models import Role, User, UserRole
+from flask_login import login_required
 
-__all__ = ["User", "Role", "UserRole"]
+__all__ = ["login_required"]

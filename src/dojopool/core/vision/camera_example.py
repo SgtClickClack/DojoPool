@@ -1,13 +1,14 @@
 """Example of real-time ball tracking using a webcam."""
 
+import time
+from typing import List, Tuple, cast
+
 import cv2
 import numpy as np
-import time
-from typing import Tuple, List, cast
 from numpy.typing import NDArray
 
 from .ball_tracker import BallTracker
-from .trajectory import TrajectoryTracker, BallTrajectory
+from .trajectory import BallTrajectory, TrajectoryTracker
 
 
 def draw_ball(
@@ -27,7 +28,9 @@ def draw_ball(
     text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
     text_x = center[0] - text_size[0] // 2
     text_y = center[1] + text_size[1] // 2
-    cv2.putText(frame, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    cv2.putText(
+        frame, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1
+    )
 
 
 def draw_trajectory(
@@ -60,7 +63,13 @@ def draw_collision_warning(
     mid_x = (ball_pos1[0] + ball_pos2[0]) // 2
     mid_y = (ball_pos1[1] + ball_pos2[1]) // 2
     cv2.putText(
-        frame, "COLLISION", (mid_x - 30, mid_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2
+        frame,
+        "COLLISION",
+        (mid_x - 30, mid_y - 10),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.5,
+        (0, 0, 255),
+        2,
     )
 
 
@@ -107,7 +116,9 @@ def main():
             trajectories = trajectory_tracker.update(balls, current_time)
 
             # Detect potential collisions
-            collisions = trajectory_tracker.detect_collisions(trajectories, ball_radius=20.0)
+            collisions = trajectory_tracker.detect_collisions(
+                trajectories, ball_radius=20.0
+            )
 
             # Draw visualizations
             for ball in balls:
@@ -129,7 +140,9 @@ def main():
                     # Get ball color
                     ball = next((b for b in balls if b.id == trajectory.ball_id), None)
                     if ball:
-                        bgr_color = cast(Tuple[int, int, int], tuple(reversed(ball.color)))
+                        bgr_color = cast(
+                            Tuple[int, int, int], tuple(reversed(ball.color))
+                        )
                         draw_trajectory(frame_uint8, trajectory, bgr_color)
 
             # Draw collision warnings

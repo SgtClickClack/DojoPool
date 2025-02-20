@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Version cleanup system.
 
 This module provides functionality for automated cleanup of old or unused model versions.
@@ -116,7 +120,9 @@ class VersionCleanup:
 
             except Exception as e:
                 self.logger.error(f"Error processing {model_type}: {str(e)}")
-                cleanup_results["errors"].append({"model_type": model_type, "error": str(e)})
+                cleanup_results["errors"].append(
+                    {"model_type": model_type, "error": str(e)}
+                )
 
         # Record cleanup
         if not dry_run:
@@ -150,7 +156,7 @@ class VersionCleanup:
 
         return candidates
 
-    def get_cleanup_history(self) -> List[Dict[str, Any]]:
+    def get_cleanup_history(self):
         """Get cleanup history.
 
         Returns:
@@ -168,7 +174,7 @@ class VersionCleanup:
 
     def _identify_versions_to_clean(
         self, model_type: str, versions: List[Dict[str, Any]]
-    ) -> Set[str]:
+    ):
         """Identify versions that should be cleaned up."""
         if not versions:
             return set()
@@ -203,7 +209,9 @@ class VersionCleanup:
 
         return to_delete
 
-    def _get_cleanup_reason(self, version_id: str, version_info: Dict[str, Any]) -> Optional[str]:
+    def _get_cleanup_reason(
+        self, version_id: str, version_info: Dict[str, Any]
+    ) -> Optional[str]:
         """Get reason for cleaning up a version."""
         current_time = datetime.utcnow()
         created_time = datetime.fromisoformat(version_info["created_at"])
@@ -262,7 +270,7 @@ class VersionCleanup:
         self.history.append(results)
         self._save_history()
 
-    def _load_history(self) -> List[Dict[str, Any]]:
+    def _load_history(self):
         """Load cleanup history."""
         if not self.history_file.exists():
             return []

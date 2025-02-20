@@ -1,9 +1,10 @@
 """Load testing script for DojoPool API and frontend."""
 
-from locust import HttpUser, task, between
-from typing import Dict, Optional, Any, NoReturn
 import json
 import random
+from typing import Any, Dict, NoReturn, Optional
+
+from locust import HttpUser, between, task
 
 
 class DojoPoolUser(HttpUser):
@@ -16,24 +17,27 @@ class DojoPoolUser(HttpUser):
         """Log in before starting tasks."""
         response = self.client.post(
             "/api/auth/login",
-            json={"username": f"test_user_{random.randint(1, 1000)}", "password": "test_password"},
+            json={
+                "username": f"test_user_{random.randint(1, 1000)}",
+                "password": "test_password",
+            },
         )
         if response.status_code == 200:
             self.token = response.json().get("token")
             self.client.headers = {"Authorization": f"Bearer {self.token}"}
 
     @task(3)
-    def view_rankings(self) -> None:
+    def view_rankings(self):
         """View global rankings."""
         self.client.get("/api/rankings/global")
 
     @task(2)
-    def view_game_stats(self) -> None:
+    def view_game_stats(self):
         """View game statistics."""
         self.client.get("/api/v1/games/stats")
 
     @task(2)
-    def view_player_profile(self) -> None:
+    def view_player_profile(self):
         """View player profile."""
         player_id = random.randint(1, 100)
         self.client.get(f"/api/rankings/player/{player_id}")
@@ -49,7 +53,7 @@ class DojoPoolUser(HttpUser):
         self.client.post("/api/v1/games", json=game_data)
 
     @task(1)
-    def update_game(self) -> None:
+    def update_game(self):
         """Update game score."""
         game_id = random.randint(1, 100)
         update_data = {
@@ -66,13 +70,13 @@ class DojoPoolMobileUser(DojoPoolUser):
     wait_time = between(5, 15)  # Mobile users tend to take longer between actions
 
     @task(5)
-    def view_personal_stats(self) -> None:
+    def view_personal_stats(self):
         """View personal statistics (more common on mobile)."""
         if self.token:
             self.client.get("/api/v1/games/stats?personal=true")
 
     @task(3)
-    def check_notifications(self) -> None:
+    def check_notifications(self):
         """Check notifications (mobile-specific)."""
         if self.token:
             self.client.get("/api/notifications")
@@ -93,25 +97,26 @@ class DojoPoolAdminUser(DojoPoolUser):
             self.client.headers = {"Authorization": f"Bearer {self.token}"}
 
     @task(1)
-    def update_rankings(self) -> None:
+    def update_rankings(self):
         """Trigger rankings update."""
         self.client.post("/api/rankings/update")
 
     @task(2)
-    def view_system_stats(self) -> None:
+    def view_system_stats(self):
         """View system statistics."""
         self.client.get("/api/admin/stats")
 
 
-def run() -> NoReturn:
+def run():
     """Run load test with command line interface."""
+    import logging
     import os
     import time
+
     import gevent
     from locust.env import Environment
-    from locust.stats import stats_printer, stats_history
     from locust.log import setup_logging
-    import logging
+    from locust.stats import stats_history, stats_printer
 
     # Setup logging
     setup_logging("INFO", None)

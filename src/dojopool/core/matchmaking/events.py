@@ -97,7 +97,9 @@ class MatchStartedEvent(MatchEvent):
 class MatchCompletedEvent(MatchEvent):
     """Event for when a match is completed."""
 
-    def __init__(self, match_id: int, winner_id: int, loser_id: int, score: str, duration: int):
+    def __init__(
+        self, match_id: int, winner_id: int, loser_id: int, score: str, duration: int
+    ):
         super().__init__(
             timestamp=datetime.now(),
             event_type="match_completed",
@@ -130,7 +132,7 @@ class EventManager:
             self.subscribers[event_type] = []
         self.subscribers[event_type].append(callback)
 
-    def unsubscribe(self, event_type: str, callback) -> None:
+    def unsubscribe(self, event_type: str, callback):
         """Unsubscribe from an event type.
 
         Args:
@@ -140,7 +142,7 @@ class EventManager:
         if event_type in self.subscribers:
             self.subscribers[event_type].remove(callback)
 
-    def publish(self, event: MatchEvent) -> None:
+    def publish(self, event: MatchEvent):
         """Publish an event to all subscribers.
 
         Args:
@@ -164,7 +166,7 @@ class EventManager:
         event_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-    ) -> List[MatchEvent]:
+    ):
         """Get events for a specific user.
 
         Args:

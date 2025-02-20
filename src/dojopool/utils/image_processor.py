@@ -1,3 +1,5 @@
+import gc
+import gc
 import io
 import logging
 from pathlib import Path
@@ -25,7 +27,7 @@ def is_webp_supported() -> bool:
         return False
 
 
-def optimize_webp_settings(img: Image.Image) -> Dict[str, Union[int, bool]]:
+def optimize_webp_settings(img: Image.Image):
     """Determine optimal WebP conversion settings based on image content.
 
     Args:
@@ -41,7 +43,9 @@ def optimize_webp_settings(img: Image.Image) -> Dict[str, Union[int, bool]]:
         img.mode == "P" and "transparency" in img.info
     )
     if has_transparency:
-        settings["lossless"] = True  # Use lossless compression for images with transparency
+        settings["lossless"] = (
+            True  # Use lossless compression for images with transparency
+        )
 
     # Analyze image complexity
     try:
@@ -71,7 +75,7 @@ def convert_to_webp(
     quality: int = 80,
     preserve_metadata: bool = True,
     optimize: bool = True,
-) -> bool:
+):
     """Convert an image to WebP format.
 
     Args:
@@ -89,7 +93,9 @@ def convert_to_webp(
         IOError: If there are issues reading/writing files
     """
     if not is_webp_supported():
-        raise RuntimeError("WebP format is not supported by the current Pillow installation")
+        raise RuntimeError(
+            "WebP format is not supported by the current Pillow installation"
+        )
 
     if source is None or destination is None:
         raise ValueError("Source and destination must be provided")
@@ -121,7 +127,9 @@ def convert_to_webp(
                 k = str(k)
                 # Handle special metadata cases
                 if k == "dpi":
-                    metadata["resolution"] = v  # WebP uses 'resolution' instead of 'dpi'
+                    metadata["resolution"] = (
+                        v  # WebP uses 'resolution' instead of 'dpi'
+                    )
                 elif k in ["icc_profile", "exif"]:
                     metadata[k] = v  # These are supported directly
                 else:
@@ -193,7 +201,9 @@ def create_size_variants(
     try:
         with Image.open(source_path) as img:
             for name, (width, height) in sizes.items():
-                variant_path = output_path / f"{source_path.stem}_{name}{source_path.suffix}"
+                variant_path = (
+                    output_path / f"{source_path.stem}_{name}{source_path.suffix}"
+                )
                 resized = img.resize((width, height), Image.Resampling.LANCZOS)
 
                 if format.upper() == "WEBP":

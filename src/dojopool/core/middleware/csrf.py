@@ -6,13 +6,15 @@ This module provides CSRF protection for forms and API endpoints.
 import hmac
 import secrets
 from functools import wraps
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import abort, request, session
-
+from flask import Request, Response, abort, current_app, request, session
+from flask.typing import ResponseReturnValue
 from src.core.exceptions import CSRFError
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 
-def generate_csrf_token():
+def generate_csrf_token() -> str:
     """Generate a new CSRF token.
 
     Returns:
@@ -23,7 +25,7 @@ def generate_csrf_token():
     return session["csrf_token"]
 
 
-def verify_csrf_token(token):
+def verify_csrf_token(token: Optional[str]):
     """Verify a CSRF token.
 
     Args:
@@ -37,20 +39,23 @@ def verify_csrf_token(token):
     return hmac.compare_digest(token, session["csrf_token"])
 
 
-def csrf_protect(exempt_methods=None):
+def csrf_protect(exempt_methods: Optional[List[str]] = None):
     """CSRF protection decorator.
 
     Args:
         exempt_methods: List of HTTP methods exempt from CSRF protection
+
+    Returns:
+        Callable: Decorated function
     """
     if exempt_methods is None:
         exempt_methods = ["GET", "HEAD", "OPTIONS", "TRACE"]
 
-    def decorator(f):
+    def decorator(f: Callable):
         @wraps(f)
-        def wrapped(*args, **kwargs):
+        def wrapped(*args: Any, **kwargs: Any) -> Any:
             if request.method not in exempt_methods:
-                token = request.form.get("csrf_token")
+                token = request.form.get("csrf_token", type=str)
                 if not token:
                     token = request.headers.get("X-CSRF-Token")
 
@@ -64,18 +69,22 @@ def csrf_protect(exempt_methods=None):
     return decorator
 
 
-def csrf_exempt(f):
+def csrf_exempt(f: Callable) -> Callable:
     """Mark a view as exempt from CSRF protection."""
-    f.csrf_exempt = True
+    setattr(f, "csrf_exempt", True)
     return f
 
 
 def api_csrf_protect():
-    """CSRF protection specifically for API endpoints."""
+    """CSRF protection specifically for API endpoints.
 
-    def decorator(f):
+    Returns:
+        Callable: Decorator function for CSRF protection
+    """
+
+    def decorator(f: Callable):
         @wraps(f)
-        def wrapped(*args, **kwargs):
+        def wrapped(*args: Any, **kwargs: Any):
             # Skip CSRF for exempt views
             if getattr(f, "csrf_exempt", False):
                 return f(*args, **kwargs)
@@ -83,7 +92,7 @@ def api_csrf_protect():
             # Verify Origin header
             origin = request.headers.get("Origin")
             if origin:
-                if origin not in request.application.config["ALLOWED_ORIGINS"]:
+                if origin not in current_app.config["ALLOWED_ORIGINS"]:
                     abort(403, "Invalid Origin")
 
             # Verify CSRF token for unsafe methods

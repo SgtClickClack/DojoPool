@@ -72,7 +72,7 @@ class AdvancedMetrics:
 
     def analyze_prediction_stability(
         self, predictions: List[Dict[str, Any]], model_type: str
-    ) -> Dict[str, Any]:
+    ):
         """Analyze prediction stability over time.
 
         Args:
@@ -99,7 +99,7 @@ class AdvancedMetrics:
 
     def evaluate_calibration(
         self, y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10
-    ) -> Dict[str, Any]:
+    ):
         """Evaluate model calibration.
 
         Args:
@@ -125,7 +125,10 @@ class AdvancedMetrics:
         return calibration
 
     def analyze_error_patterns(
-        self, y_true: np.ndarray, y_pred: np.ndarray, features: Optional[np.ndarray] = None
+        self,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
+        features: Optional[np.ndarray] = None,
     ) -> Dict[str, Any]:
         """Analyze error patterns in predictions.
 
@@ -141,14 +144,16 @@ class AdvancedMetrics:
 
         patterns = {
             "error_distribution": self._analyze_error_distribution(errors),
-            "error_autocorrelation": float(self._calculate_error_autocorrelation(errors)),
+            "error_autocorrelation": float(
+                self._calculate_error_autocorrelation(errors)
+            ),
             "systematic_bias": float(np.mean(errors)),
             "error_variance": float(np.var(errors)),
         }
 
         if features is not None:
-            patterns["feature_error_correlation"] = self._analyze_feature_error_correlation(
-                features, errors
+            patterns["feature_error_correlation"] = (
+                self._analyze_feature_error_correlation(features, errors)
             )
 
         return patterns
@@ -190,9 +195,7 @@ class AdvancedMetrics:
             "fowlkes_mallows": float(fowlkes_mallows_score(y_true, y_pred)),
         }
 
-    def _calculate_regression_metrics(
-        self, y_true: np.ndarray, y_pred: np.ndarray
-    ) -> Dict[str, float]:
+    def _calculate_regression_metrics(self, y_true: np.ndarray, y_pred: np.ndarray):
         """Calculate advanced regression metrics."""
         metrics = {
             "mape": float(mean_absolute_percentage_error(y_true, y_pred)),
@@ -213,7 +216,9 @@ class AdvancedMetrics:
 
         return metrics
 
-    def _calculate_common_metrics(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    def _calculate_common_metrics(
+        self, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> Dict[str, float]:
         """Calculate metrics common to all model types."""
         return {
             "residual_normality": float(self._test_residual_normality(y_true - y_pred)),
@@ -229,7 +234,9 @@ class AdvancedMetrics:
         second_half = df.iloc[mid_point:]
 
         return {
-            "mean_drift": float(second_half["prediction"].mean() - first_half["prediction"].mean()),
+            "mean_drift": float(
+                second_half["prediction"].mean() - first_half["prediction"].mean()
+            ),
             "variance_drift": float(
                 second_half["prediction"].var() - first_half["prediction"].var()
             ),
@@ -249,15 +256,21 @@ class AdvancedMetrics:
         return {
             "confidence_mean": float(df["confidence"].mean()),
             "confidence_std": float(df["confidence"].std()),
-            "confidence_trend": float(np.polyfit(range(len(df)), df["confidence"], 1)[0]),
+            "confidence_trend": float(
+                np.polyfit(range(len(df)), df["confidence"], 1)[0]
+            ),
         }
 
-    def _analyze_temporal_consistency(self, df: pd.DataFrame) -> Dict[str, float]:
+    def _analyze_temporal_consistency(self, df: pd.DataFrame):
         """Analyze temporal consistency of predictions."""
         predictions = df["prediction"].values
         return {
-            "autocorrelation": float(np.corrcoef(predictions[:-1], predictions[1:])[0, 1]),
-            "trend_strength": float(np.polyfit(range(len(predictions)), predictions, 1)[0]),
+            "autocorrelation": float(
+                np.corrcoef(predictions[:-1], predictions[1:])[0, 1]
+            ),
+            "trend_strength": float(
+                np.polyfit(range(len(predictions)), predictions, 1)[0]
+            ),
         }
 
     def _analyze_error_stability(self, df: pd.DataFrame) -> Dict[str, float]:
@@ -271,7 +284,9 @@ class AdvancedMetrics:
             "error_trend": float(np.polyfit(range(len(errors)), errors, 1)[0]),
         }
 
-    def _analyze_confidence_distribution(self, probabilities: np.ndarray) -> Dict[str, float]:
+    def _analyze_confidence_distribution(
+        self, probabilities: np.ndarray
+    ) -> Dict[str, float]:
         """Analyze distribution of prediction confidences."""
         return {
             "mean_confidence": float(np.mean(probabilities)),
@@ -280,7 +295,7 @@ class AdvancedMetrics:
             "confidence_kurtosis": float(pd.Series(probabilities).kurtosis()),
         }
 
-    def _analyze_error_distribution(self, errors: np.ndarray) -> Dict[str, float]:
+    def _analyze_error_distribution(self, errors: np.ndarray):
         """Analyze distribution of prediction errors."""
         return {
             "error_mean": float(np.mean(errors)),
@@ -290,7 +305,7 @@ class AdvancedMetrics:
             "error_range": float(np.ptp(errors)),
         }
 
-    def _calculate_error_autocorrelation(self, errors: np.ndarray) -> float:
+    def _calculate_error_autocorrelation(self, errors: np.ndarray):
         """Calculate autocorrelation of errors."""
         return np.corrcoef(errors[:-1], errors[1:])[0, 1]
 
@@ -304,7 +319,7 @@ class AdvancedMetrics:
             correlations[f"feature_{i}"] = float(corr)
         return correlations
 
-    def _test_residual_normality(self, residuals: np.ndarray) -> float:
+    def _test_residual_normality(self, residuals: np.ndarray):
         """Test normality of residuals using skewness and kurtosis."""
         from scipy import stats
 

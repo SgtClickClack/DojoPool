@@ -1,10 +1,15 @@
-from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional
+from flask_caching import Cache
+from flask_caching import Cache
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
-from sqlalchemy import desc, func
+from sqlalchemy import ForeignKey, desc, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..core.extensions import cache, db
-from ..core.models.analytics import (
+from ..core.extensions import db
+from ..models.analytics import (
     AggregatedMetrics,
     FeatureUsageMetrics,
     GameMetrics,
@@ -12,9 +17,6 @@ from ..core.models.analytics import (
     UserMetrics,
     VenueMetrics,
 )
-
-CACHE_TTL = 300  # 5 minutes
-CACHE_PREFIX = "analytics:"
 
 
 class AnalyticsService:
@@ -30,29 +32,24 @@ class AnalyticsService:
         metric_date = metric_date or date.today()
 
         metric = UserMetrics(
-            user_id=user_id, metric_type=metric_type, value=value, period=period, date=metric_date
+            user_id=user_id,
+            metric_type=metric_type,
+            value=value,
+            period=period,
+            date=metric_date,
         )
         db.session.add(metric)
         db.session.commit()
 
-        # Invalidate relevant caches
-        cache.delete_many(
-            [
-                f"{CACHE_PREFIX}user:{user_id}:{metric_type}:{period}",
-                f"{CACHE_PREFIX}user:{user_id}:all",
-            ]
-        )
-
         return metric.to_dict()
 
-    def track_game_metric(self, game_id: int, metric_type: str, value: float) -> Dict[str, Any]:
+    def track_game_metric(
+        self, game_id: int, metric_type: str, value: float
+    ) -> Dict[str, Any]:
         """Track a game-related metric."""
         metric = GameMetrics(game_id=game_id, metric_type=metric_type, value=value)
         db.session.add(metric)
         db.session.commit()
-
-        # Invalidate relevant caches
-        cache.delete(f"{CACHE_PREFIX}game:{game_id}:metrics")
 
         return metric.to_dict()
 
@@ -79,18 +76,14 @@ class AnalyticsService:
         db.session.add(metric)
         db.session.commit()
 
-        # Invalidate relevant caches
-        cache.delete_many(
-            [
-                f"{CACHE_PREFIX}venue:{venue_id}:{metric_type}:{period}",
-                f"{CACHE_PREFIX}venue:{venue_id}:all",
-            ]
-        )
-
         return metric.to_dict()
 
     def track_feature_usage(
-        self, feature_name: str, user_id: int, action: str, context: Optional[Dict[str, Any]] = None
+        self,
+        feature_name: str,
+        user_id: int,
+        action: str,
+        context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Track feature usage metrics."""
         metric = FeatureUsageMetrics(
@@ -98,14 +91,6 @@ class AnalyticsService:
         )
         db.session.add(metric)
         db.session.commit()
-
-        # Invalidate relevant caches
-        cache.delete_many(
-            [
-                f"{CACHE_PREFIX}feature:{feature_name}:usage",
-                f"{CACHE_PREFIX}user:{user_id}:feature_usage",
-            ]
-        )
 
         return metric.to_dict()
 
@@ -116,7 +101,7 @@ class AnalyticsService:
         endpoint: Optional[str] = None,
         component: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+    ):
         """Track system performance metrics."""
         metric = PerformanceMetrics(
             metric_type=metric_type,
@@ -128,14 +113,6 @@ class AnalyticsService:
         db.session.add(metric)
         db.session.commit()
 
-        # Invalidate relevant caches
-        cache_keys = [f"{CACHE_PREFIX}performance:{metric_type}"]
-        if endpoint:
-            cache_keys.append(f"{CACHE_PREFIX}performance:endpoint:{endpoint}")
-        if component:
-            cache_keys.append(f"{CACHE_PREFIX}performance:component:{component}")
-        cache.delete_many(cache_keys)
-
         return metric.to_dict()
 
     def aggregate_metrics(
@@ -146,7 +123,7 @@ class AnalyticsService:
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
         dimension_id: Optional[int] = None,
-    ) -> None:
+    ):
         """Aggregate metrics for faster dashboard loading."""
         if not start_date:
             start_date = date.today() - timedelta(days=30)
@@ -226,24 +203,17 @@ class AnalyticsService:
         if not end_date:
             end_date = date.today()
 
-        cache_key = f"{CACHE_PREFIX}user:{user_id}:{metric_type or 'all'}:{period}"
-        result = cache.get(cache_key)
+        query = UserMetrics.query.filter(
+            UserMetrics.user_id == user_id,
+            UserMetrics.date.between(start_date, end_date),
+            UserMetrics.period == period,
+        )
 
-        if result is None:
-            query = UserMetrics.query.filter(
-                UserMetrics.user_id == user_id,
-                UserMetrics.date.between(start_date, end_date),
-                UserMetrics.period == period,
-            )
+        if metric_type:
+            query = query.filter(UserMetrics.metric_type == metric_type)
 
-            if metric_type:
-                query = query.filter(UserMetrics.metric_type == metric_type)
-
-            metrics = query.order_by(UserMetrics.date).all()
-            result = [metric.to_dict() for metric in metrics]
-            cache.set(cache_key, result, timeout=CACHE_TTL)
-
-        return result
+        metrics = query.order_by(UserMetrics.date).all()
+        return [metric.to_dict() for metric in metrics]
 
     def get_venue_metrics(
         self,
@@ -259,24 +229,17 @@ class AnalyticsService:
         if not end_date:
             end_date = date.today()
 
-        cache_key = f"{CACHE_PREFIX}venue:{venue_id}:{metric_type or 'all'}:{period}"
-        result = cache.get(cache_key)
+        query = VenueMetrics.query.filter(
+            VenueMetrics.venue_id == venue_id,
+            VenueMetrics.date.between(start_date, end_date),
+            VenueMetrics.period == period,
+        )
 
-        if result is None:
-            query = VenueMetrics.query.filter(
-                VenueMetrics.venue_id == venue_id,
-                VenueMetrics.date.between(start_date, end_date),
-                VenueMetrics.period == period,
-            )
+        if metric_type:
+            query = query.filter(VenueMetrics.metric_type == metric_type)
 
-            if metric_type:
-                query = query.filter(VenueMetrics.metric_type == metric_type)
-
-            metrics = query.order_by(VenueMetrics.date, VenueMetrics.hour).all()
-            result = [metric.to_dict() for metric in metrics]
-            cache.set(cache_key, result, timeout=CACHE_TTL)
-
-        return result
+        metrics = query.order_by(VenueMetrics.date, VenueMetrics.hour).all()
+        return [metric.to_dict() for metric in metrics]
 
     def get_feature_usage_stats(
         self,
@@ -291,24 +254,17 @@ class AnalyticsService:
         if not end_date:
             end_date = datetime.utcnow()
 
-        cache_key = f"{CACHE_PREFIX}feature_usage:{feature_name or 'all'}:{user_id or 'all'}"
-        result = cache.get(cache_key)
+        query = FeatureUsageMetrics.query.filter(
+            FeatureUsageMetrics.created_at.between(start_date, end_date)
+        )
 
-        if result is None:
-            query = FeatureUsageMetrics.query.filter(
-                FeatureUsageMetrics.created_at.between(start_date, end_date)
-            )
+        if feature_name:
+            query = query.filter(FeatureUsageMetrics.feature_name == feature_name)
+        if user_id:
+            query = query.filter(FeatureUsageMetrics.user_id == user_id)
 
-            if feature_name:
-                query = query.filter(FeatureUsageMetrics.feature_name == feature_name)
-            if user_id:
-                query = query.filter(FeatureUsageMetrics.user_id == user_id)
-
-            metrics = query.order_by(desc(FeatureUsageMetrics.created_at)).all()
-            result = [metric.to_dict() for metric in metrics]
-            cache.set(cache_key, result, timeout=CACHE_TTL)
-
-        return result
+        metrics = query.order_by(desc(FeatureUsageMetrics.created_at)).all()
+        return [metric.to_dict() for metric in metrics]
 
     def get_performance_metrics(
         self,
@@ -324,26 +280,19 @@ class AnalyticsService:
         if not end_date:
             end_date = datetime.utcnow()
 
-        cache_key = f"{CACHE_PREFIX}performance:{metric_type or 'all'}:{endpoint or 'all'}:{component or 'all'}"
-        result = cache.get(cache_key)
+        query = PerformanceMetrics.query.filter(
+            PerformanceMetrics.created_at.between(start_date, end_date)
+        )
 
-        if result is None:
-            query = PerformanceMetrics.query.filter(
-                PerformanceMetrics.created_at.between(start_date, end_date)
-            )
+        if metric_type:
+            query = query.filter(PerformanceMetrics.metric_type == metric_type)
+        if endpoint:
+            query = query.filter(PerformanceMetrics.endpoint == endpoint)
+        if component:
+            query = query.filter(PerformanceMetrics.component == component)
 
-            if metric_type:
-                query = query.filter(PerformanceMetrics.metric_type == metric_type)
-            if endpoint:
-                query = query.filter(PerformanceMetrics.endpoint == endpoint)
-            if component:
-                query = query.filter(PerformanceMetrics.component == component)
-
-            metrics = query.order_by(desc(PerformanceMetrics.created_at)).all()
-            result = [metric.to_dict() for metric in metrics]
-            cache.set(cache_key, result, timeout=CACHE_TTL)
-
-        return result
+        metrics = query.order_by(desc(PerformanceMetrics.created_at)).all()
+        return [metric.to_dict() for metric in metrics]
 
     def get_aggregated_metrics(
         self,
@@ -360,24 +309,15 @@ class AnalyticsService:
         if not end_date:
             end_date = date.today()
 
-        cache_key = (
-            f"{CACHE_PREFIX}aggregated:{metric_type}:{dimension}:{period}:{dimension_id or 'all'}"
+        query = AggregatedMetrics.query.filter(
+            AggregatedMetrics.metric_type == metric_type,
+            AggregatedMetrics.dimension == dimension,
+            AggregatedMetrics.period == period,
+            AggregatedMetrics.date.between(start_date, end_date),
         )
-        result = cache.get(cache_key)
 
-        if result is None:
-            query = AggregatedMetrics.query.filter(
-                AggregatedMetrics.metric_type == metric_type,
-                AggregatedMetrics.dimension == dimension,
-                AggregatedMetrics.period == period,
-                AggregatedMetrics.date.between(start_date, end_date),
-            )
+        if dimension_id:
+            query = query.filter(AggregatedMetrics.dimension_id == dimension_id)
 
-            if dimension_id:
-                query = query.filter(AggregatedMetrics.dimension_id == dimension_id)
-
-            metrics = query.order_by(AggregatedMetrics.date).all()
-            result = [metric.to_dict() for metric in metrics]
-            cache.set(cache_key, result, timeout=CACHE_TTL)
-
-        return result
+        metrics = query.order_by(AggregatedMetrics.date).all()
+        return [metric.to_dict() for metric in metrics]

@@ -109,7 +109,10 @@ def matchmaker(mock_cache):
 def populated_matchmaker(matchmaker, mock_user1, mock_user2):
     """Create a matchmaker instance with users in queue."""
     entry1 = QueueEntry(
-        user=mock_user1, preferences=TEST_PREFERENCES["pref1"], join_time=datetime.now(), priority=1
+        user=mock_user1,
+        preferences=TEST_PREFERENCES["pref1"],
+        join_time=datetime.now(),
+        priority=1,
     )
     entry2 = QueueEntry(
         user=mock_user2,

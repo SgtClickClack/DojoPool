@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket security module.
 
 This module provides security-related functionality for WebSocket operations.
@@ -103,11 +105,13 @@ class SecurityManager:
         """
         self._blacklisted_tokens.add(token)
 
-    def clear_expired_blacklist(self) -> None:
+    def clear_expired_blacklist(self):
         """Clear expired tokens from blacklist."""
         time.time()
         self._blacklisted_tokens = {
-            token for token in self._blacklisted_tokens if self.validate_token(token) is not None
+            token
+            for token in self._blacklisted_tokens
+            if self.validate_token(token) is not None
         }
 
 
@@ -125,7 +129,7 @@ class RateLimiter:
         self.time_window = time_window
         self._request_history: Dict[str, list] = {}
 
-    def is_rate_limited(self, client_id: str) -> bool:
+    def is_rate_limited(self, client_id: str):
         """Check if a client is rate limited.
 
         Args:
@@ -159,7 +163,7 @@ class RateLimiter:
             self._request_history[client_id] = []
         self._request_history[client_id].append(time.time())
 
-    def get_retry_after(self, client_id: str) -> float:
+    def get_retry_after(self, client_id: str):
         """Get the time until rate limit reset.
 
         Args:
@@ -178,7 +182,9 @@ class RateLimiter:
 class IPBlocker:
     """IP blocking for WebSocket security."""
 
-    def __init__(self, max_failures: int = 5, block_duration: timedelta = timedelta(minutes=15)):
+    def __init__(
+        self, max_failures: int = 5, block_duration: timedelta = timedelta(minutes=15)
+    ):
         """Initialize IPBlocker.
 
         Args:
@@ -252,7 +258,7 @@ def validate_origin(origin: str, allowed_origins: list[str]) -> bool:
     return origin in allowed_origins
 
 
-def sanitize_data(data: Dict[str, Any], max_depth: int = 10) -> Dict[str, Any]:
+def sanitize_data(data: Dict[str, Any], max_depth: int = 10):
     """Sanitize WebSocket data for security.
 
     Args:
@@ -263,12 +269,16 @@ def sanitize_data(data: Dict[str, Any], max_depth: int = 10) -> Dict[str, Any]:
         Dict[str, Any]: Sanitized data
     """
 
-    def _sanitize(value: Any, depth: int) -> Any:
+    def _sanitize(value: Any, depth: int):
         if depth > max_depth:
             return None
 
         if isinstance(value, dict):
-            return {k: _sanitize(v, depth + 1) for k, v in value.items() if isinstance(k, str)}
+            return {
+                k: _sanitize(v, depth + 1)
+                for k, v in value.items()
+                if isinstance(k, str)
+            }
         elif isinstance(value, list):
             return [_sanitize(item, depth + 1) for item in value]
         elif isinstance(value, (str, int, float, bool, type(None))):

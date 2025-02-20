@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Audit logging system for QR code operations."""
 
 import json
@@ -44,7 +46,10 @@ class AuditLogger:
     """Manager for audit logging."""
 
     def __init__(
-        self, log_dir: str = "logs/audit", retention_days: int = 90, max_file_size_mb: int = 100
+        self,
+        log_dir: str = "logs/audit",
+        retention_days: int = 90,
+        max_file_size_mb: int = 100,
     ):
         """Initialize audit logger.
 
@@ -142,7 +147,7 @@ class AuditLogger:
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
         status: Optional[str] = None,
-    ) -> List[Dict]:
+    ):
         """Get audit events matching criteria.
 
         Args:
@@ -161,7 +166,11 @@ class AuditLogger:
 
         # Get list of log files to search
         log_files = sorted(
-            [f for f in os.listdir(self.log_dir) if f.startswith("audit_") and f.endswith(".log")]
+            [
+                f
+                for f in os.listdir(self.log_dir)
+                if f.startswith("audit_") and f.endswith(".log")
+            ]
         )
 
         for log_file in log_files:
@@ -222,7 +231,8 @@ class AuditLogger:
 
         if format == "json":
             return json.dumps(
-                {"generated_at": datetime.utcnow().isoformat(), "events": events}, indent=2
+                {"generated_at": datetime.utcnow().isoformat(), "events": events},
+                indent=2,
             ).encode()
 
         elif format == "csv":
@@ -269,7 +279,7 @@ class AuditLogger:
 
         return None
 
-    def _setup_file_handler(self) -> None:
+    def _setup_file_handler(self):
         """Set up logging file handler."""
         current_date = datetime.utcnow().date()
         log_file = os.path.join(self.log_dir, f"audit_{current_date.isoformat()}.log")
@@ -281,7 +291,7 @@ class AuditLogger:
         self._current_handler = handler
         self._current_log_file = log_file
 
-    def _check_rotation(self) -> None:
+    def _check_rotation(self):
         """Check if log file rotation is needed."""
         # Check date rotation
         current_date = datetime.utcnow().date()
@@ -324,7 +334,7 @@ class AuditLogger:
 
             time.sleep(86400)
 
-    def _cleanup_old_logs(self) -> None:
+    def _cleanup_old_logs(self):
         """Clean up old log files."""
         if not self.retention_days:
             return

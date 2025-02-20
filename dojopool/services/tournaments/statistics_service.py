@@ -2,11 +2,11 @@
 Professional tournament statistics and analytics service.
 """
 
-from typing import Dict, List, Optional, Tuple
+import statistics
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from collections import defaultdict
-import statistics
+from typing import Dict, List, Optional, Tuple
 
 from .pro_tournament_config import ProTournamentTier
 
@@ -26,7 +26,9 @@ class PlayerStats:
     tournament_wins: int = 0
     tournament_finals: int = 0
     head_to_head: Dict[str, Dict[str, int]] = None  # opponent_id -> {wins, losses}
-    performance_by_tier: Dict[ProTournamentTier, Dict[str, float]] = None  # tier -> stats
+    performance_by_tier: Dict[ProTournamentTier, Dict[str, float]] = (
+        None  # tier -> stats
+    )
 
 
 @dataclass
@@ -79,7 +81,9 @@ class StatisticsService:
         # Update tournament stats
         tournament.total_matches += 1
         tournament.total_games += sum(score)
-        tournament.average_games_per_match = tournament.total_games / tournament.total_matches
+        tournament.average_games_per_match = (
+            tournament.total_games / tournament.total_matches
+        )
 
         # Update match duration stats
         if not tournament.longest_match or duration > tournament.longest_match:
@@ -89,7 +93,8 @@ class StatisticsService:
 
         # Calculate running average for match duration
         tournament.average_match_duration = (
-            tournament.average_match_duration * (tournament.total_matches - 1) + duration
+            tournament.average_match_duration * (tournament.total_matches - 1)
+            + duration
         ) / tournament.total_matches
 
         # Update player stats
@@ -111,7 +116,9 @@ class StatisticsService:
                 player.games_won += min(score)
 
             player.win_percentage = (
-                player.matches_won / player.matches_played if player.matches_played > 0 else 0.0
+                player.matches_won / player.matches_played
+                if player.matches_played > 0
+                else 0.0
             )
 
             # Update head-to-head record
@@ -151,7 +158,9 @@ class StatisticsService:
 
         # Update venue stats
         self.venue_stats[venue_id]["tournaments_hosted"] += 1
-        self.venue_stats[venue_id]["total_prize_money"] += sum(prize_distribution.values())
+        self.venue_stats[venue_id]["total_prize_money"] += sum(
+            prize_distribution.values()
+        )
         self.venue_stats[venue_id]["total_matches"] += tournament.total_matches
         self.venue_stats[venue_id]["total_games"] += tournament.total_games
 
@@ -164,15 +173,15 @@ class StatisticsService:
         """Get player statistics for a specific period."""
         return self.player_stats.get(player_id)
 
-    def get_tournament_stats(self, tournament_id: str) -> Optional[TournamentStats]:
+    def get_tournament_stats(self, tournament_id: str) :
         """Get tournament statistics."""
         return self.tournament_stats.get(tournament_id)
 
-    def get_venue_stats(self, venue_id: str) -> Dict:
+    def get_venue_stats(self, venue_id: str) :
         """Get venue statistics."""
         return dict(self.venue_stats[venue_id])
 
-    def get_head_to_head_stats(self, player1_id: str, player2_id: str) -> Dict:
+    def get_head_to_head_stats(self, player1_id: str, player2_id: str) :
         """Get head-to-head statistics between two players."""
         player1 = self.player_stats.get(player1_id)
         player2 = self.player_stats.get(player2_id)
@@ -214,7 +223,7 @@ class StatisticsService:
             performance_by_tier=defaultdict(lambda: defaultdict(float)),
         )
 
-    def _process_additional_stats(self, tournament_id: str, stats: Dict) -> None:
+    def _process_additional_stats(self, tournament_id: str, stats: Dict) :
         """Process additional match statistics."""
         tournament = self.tournament_stats[tournament_id]
 

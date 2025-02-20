@@ -30,7 +30,10 @@ class AIService:
             response = await openai.ChatCompletion.acreate(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "You are a pool game analysis expert."},
+                    {
+                        "role": "system",
+                        "content": "You are a pool game analysis expert.",
+                    },
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.7,

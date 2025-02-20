@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.dojopool.core.venue.models import PoolTable
-from src.dojopool.core.venue.qr import QRCodeManager
+from dojopool.core.venue.models import PoolTable
+from dojopool.core.venue.qr import QRCodeManager
 
 
 @pytest.fixture
@@ -120,7 +120,9 @@ def test_verify_expired_code(qr_manager, sample_qr_data):
     data = json.loads(sample_qr_data)
     expired_time = datetime.utcnow() - timedelta(hours=25)
     data["timestamp"] = expired_time.isoformat()
-    data["signature"] = qr_manager._generate_signature(data["table_id"], data["venue_id"])
+    data["signature"] = qr_manager._generate_signature(
+        data["table_id"], data["venue_id"]
+    )
     result = qr_manager.verify_qr_code(json.dumps(data))
     assert result["valid"] is False
     assert "QR code expired" in result["error"]

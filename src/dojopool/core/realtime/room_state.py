@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room state management module.
 
 This module provides functionality for managing room states and transitions.
@@ -50,7 +52,7 @@ class RoomStateManager:
 
     async def initialize_room(
         self, room_id: str, room_type: str, metadata: Optional[Dict[str, Any]] = None
-    ) -> Optional[Dict[str, Any]]:
+    ):
         """Initialize room state.
 
         Args:
@@ -65,7 +67,9 @@ class RoomStateManager:
             async with self._get_lock(room_id):
                 if room_id in self._room_states:
                     return format_error_response(
-                        ErrorCodes.ROOM_EXISTS, "Room already exists", {"room_id": room_id}
+                        ErrorCodes.ROOM_EXISTS,
+                        "Room already exists",
+                        {"room_id": room_id},
                     )
 
                 # Set initial state
@@ -83,7 +87,9 @@ class RoomStateManager:
                 }
 
                 # Persist initial state
-                await room_persistence.save_room_data(room_id, self._state_data[room_id])
+                await room_persistence.save_room_data(
+                    room_id, self._state_data[room_id]
+                )
 
                 # Notify listeners
                 await self._notify_state_change(room_id, RoomState.INITIALIZING)
@@ -103,8 +109,11 @@ class RoomStateManager:
             )
 
     async def transition_state(
-        self, room_id: str, new_state: RoomState, metadata: Optional[Dict[str, Any]] = None
-    ) -> Optional[Dict[str, Any]]:
+        self,
+        room_id: str,
+        new_state: RoomState,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         """Transition room state.
 
         Args:
@@ -119,7 +128,9 @@ class RoomStateManager:
             async with self._get_lock(room_id):
                 if room_id not in self._room_states:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
 
                 current_state = self._room_states[room_id]
@@ -140,7 +151,9 @@ class RoomStateManager:
                 )
 
                 # Persist updated state
-                await room_persistence.save_room_data(room_id, self._state_data[room_id])
+                await room_persistence.save_room_data(
+                    room_id, self._state_data[room_id]
+                )
 
                 # Notify listeners
                 await self._notify_state_change(room_id, new_state, metadata)
@@ -159,9 +172,7 @@ class RoomStateManager:
                 {"error": str(e)},
             )
 
-    def _validate_transition(
-        self, current_state: RoomState, new_state: RoomState
-    ) -> Optional[Dict[str, Any]]:
+    def _validate_transition(self, current_state: RoomState, new_state: RoomState):
         """Validate state transition.
 
         Args:
@@ -195,7 +206,10 @@ class RoomStateManager:
         return None
 
     async def _notify_state_change(
-        self, room_id: str, new_state: RoomState, metadata: Optional[Dict[str, Any]] = None
+        self,
+        room_id: str,
+        new_state: RoomState,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Notify state change listeners.
 
@@ -249,7 +263,7 @@ class RoomStateManager:
 
         return queue
 
-    def unsubscribe_from_state(self, room_id: str, queue: asyncio.Queue) -> None:
+    def unsubscribe_from_state(self, room_id: str, queue: asyncio.Queue):
         """Unsubscribe from room state changes.
 
         Args:
@@ -261,7 +275,7 @@ class RoomStateManager:
             if not self._state_listeners[room_id]:
                 del self._state_listeners[room_id]
 
-    def get_room_state(self, room_id: str) -> Optional[Dict[str, Any]]:
+    def get_room_state(self, room_id: str):
         """Get current room state.
 
         Args:
@@ -282,7 +296,7 @@ class RoomStateManager:
             "created_at": self._state_data[room_id]["created_at"],
         }
 
-    def get_rooms_in_state(self, state: RoomState) -> List[str]:
+    def get_rooms_in_state(self, state: RoomState):
         """Get rooms in specific state.
 
         Args:
@@ -291,7 +305,11 @@ class RoomStateManager:
         Returns:
             List[str]: List of room IDs
         """
-        return [room_id for room_id, room_state in self._room_states.items() if room_state == state]
+        return [
+            room_id
+            for room_id, room_state in self._room_states.items()
+            if room_state == state
+        ]
 
     async def load_persisted_states(self) -> None:
         """Load persisted room states."""
@@ -325,7 +343,9 @@ class RoomStateManager:
                     )
 
         except Exception as e:
-            logger.error("Error loading persisted states", exc_info=True, extra={"error": str(e)})
+            logger.error(
+                "Error loading persisted states", exc_info=True, extra={"error": str(e)}
+            )
 
 
 # Global room state manager instance

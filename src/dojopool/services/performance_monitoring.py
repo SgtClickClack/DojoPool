@@ -94,7 +94,9 @@ class PerformanceMonitor:
             return
 
         self.is_monitoring = True
-        self._monitor_task = asyncio.create_task(self._collect_metrics_loop(interval_seconds))
+        self._monitor_task = asyncio.create_task(
+            self._collect_metrics_loop(interval_seconds)
+        )
         self.logger.info("Started performance monitoring")
 
     async def stop_monitoring(self):
@@ -140,7 +142,9 @@ class PerformanceMonitor:
             if self.game_analytics:
                 metrics["game_metrics"] = await self.game_analytics.get_metrics()
             if self.tournament_manager:
-                metrics["tournament_metrics"] = await self.tournament_manager.get_metrics()
+                metrics["tournament_metrics"] = (
+                    await self.tournament_manager.get_metrics()
+                )
             if self.venue_manager:
                 metrics["venue_metrics"] = await self.venue_manager.get_metrics()
             if self.ai_service:
@@ -230,7 +234,9 @@ class PerformanceMonitor:
             for alert in alerts:
                 self.logger.warning(f"Performance alert: {alert['message']}")
 
-    def get_metrics(self, time_range: Optional[timedelta] = None) -> List[Dict[str, Any]]:
+    def get_metrics(
+        self, time_range: Optional[timedelta] = None
+    ) -> List[Dict[str, Any]]:
         """Get collected metrics within the specified time range."""
         if not time_range:
             return self.metrics_history
@@ -242,7 +248,9 @@ class PerformanceMonitor:
             if datetime.fromisoformat(metrics["timestamp"]) > cutoff_time
         ]
 
-    def get_alerts(self, time_range: Optional[timedelta] = None) -> List[Dict[str, Any]]:
+    def get_alerts(
+        self, time_range: Optional[timedelta] = None
+    ) -> List[Dict[str, Any]]:
         """Get alerts within the specified time range."""
         if not time_range:
             return self.alerts_history
@@ -284,9 +292,12 @@ class PerformanceMonitor:
             recommendations.append("Optimize game action processing")
 
         # Tournament system recommendations
-        tournament_loads = [m.get("tournament_metrics", {}).get("load", 0) for m in recent_metrics]
+        tournament_loads = [
+            m.get("tournament_metrics", {}).get("load", 0) for m in recent_metrics
+        ]
         if any(
-            l > self.metrics_config["tournament_load"].warning_threshold for l in tournament_loads
+            l > self.metrics_config["tournament_load"].warning_threshold
+            for l in tournament_loads
         ):
             recommendations.append("Review tournament system resource allocation")
 
@@ -295,13 +306,19 @@ class PerformanceMonitor:
             m.get("venue_metrics", {}).get("capacity_usage", 0) for m in recent_metrics
         ]
         if any(
-            c > self.metrics_config["venue_capacity"].warning_threshold for c in venue_capacities
+            c > self.metrics_config["venue_capacity"].warning_threshold
+            for c in venue_capacities
         ):
             recommendations.append("Consider venue capacity optimization")
 
         # AI service recommendations
-        ai_times = [m.get("ai_metrics", {}).get("analysis_time", 0) for m in recent_metrics]
-        if any(t > self.metrics_config["ai_analysis_time"].warning_threshold for t in ai_times):
+        ai_times = [
+            m.get("ai_metrics", {}).get("analysis_time", 0) for m in recent_metrics
+        ]
+        if any(
+            t > self.metrics_config["ai_analysis_time"].warning_threshold
+            for t in ai_times
+        ):
             recommendations.append("Optimize AI analysis pipeline")
 
         return recommendations

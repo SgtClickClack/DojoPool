@@ -1,52 +1,86 @@
-from datetime import datetime
+from flask_caching import Cache
+from flask_caching import Cache
+"""Achievement models module."""
 
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
+
+from sqlalchemy import mapped_column
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.sql import func
 
-from src.core.auth.models import User
-from src.core.database import db
-from src.core.validation import AchievementValidator
+from ...core.extensions import db
+from ...core.models.base import Base
+from ...core.validation.validators import AchievementValidator
+from ...models.user import User
 
 
-class Achievement(db.Model):
+class Achievement(Base):
     """Achievement model."""
 
     __tablename__ = "achievements"
     __table_args__ = {"extend_existing": True}
 
     # Basic fields
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    icon = db.Column(db.String(255))  # URL or identifier for achievement icon
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(db.String(100), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(db.Text)
+    icon: Mapped[Optional[str]] = mapped_column(
+        db.String(255)
+    )  # URL or identifier for achievement icon
 
     # Requirements
-    category = db.Column(db.String(50))  # e.g., tournament, game, social
-    requirement_type = db.Column(db.String(50))  # e.g., win_count, score_threshold
-    requirement_value = db.Column(db.Float)  # Value needed to earn achievement
-    requirement_details = db.Column(db.JSON)  # Additional requirements
+    category: Mapped[Optional[str]] = mapped_column(
+        db.String(50)
+    )  # e.g., tournament, game, social
+    requirement_type: Mapped[Optional[str]] = mapped_column(
+        db.String(50)
+    )  # e.g., win_count, score_threshold
+    requirement_value: Mapped[Optional[float]] = mapped_column(
+        db.Float
+    )  # Value needed to earn achievement
+    requirement_details: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        db.JSON
+    )  # Additional requirements
 
     # Rewards
-    points = db.Column(db.Integer, default=0)  # Points awarded for earning
-    reward_type = db.Column(db.String(50))  # e.g., badge, title, bonus
-    reward_details = db.Column(db.JSON)  # Additional reward details
+    points: Mapped[int] = mapped_column(
+        db.Integer, default=0
+    )  # Points awarded for earning
+    reward_type: Mapped[Optional[str]] = mapped_column(
+        db.String(50)
+    )  # e.g., badge, title, bonus
+    reward_details: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        db.JSON
+    )  # Additional reward details
 
     # Status and metadata
-    is_active = db.Column(db.Boolean, default=True)
-    is_hidden = db.Column(db.Boolean, default=False)  # Hidden achievements
-    is_rare = db.Column(db.Boolean, default=False)  # Rare/special achievements
-    rarity = db.Column(db.Float)  # Percentage of users who have earned it
-    priority = db.Column(db.Integer, default=0)  # Display priority
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active: Mapped[bool] = mapped_column(db.Boolean, default=True)
+    is_hidden: Mapped[bool] = mapped_column(
+        db.Boolean, default=False
+    )  # Hidden achievements
+    is_rare: Mapped[bool] = mapped_column(
+        db.Boolean, default=False
+    )  # Rare/special achievements
+    rarity: Mapped[Optional[float]] = mapped_column(
+        db.Float
+    )  # Percentage of users who have earned it
+    priority: Mapped[int] = mapped_column(db.Integer, default=0)  # Display priority
+    created_at: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Validation
     validator_class = AchievementValidator
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Get string representation."""
         return f"<Achievement {self.name}>"
 
     @hybrid_property
-    def total_earned(self):
+    def total_earned(self) -> int:
         """Get total number of users who earned this achievement."""
         return self.user_achievements.filter_by(completed=True).count()
 
@@ -57,115 +91,121 @@ class Achievement(db.Model):
             self.rarity = (self.total_earned / total_users) * 100
             db.session.commit()
 
-    def check_requirement(self, value, details=None):
-        """Check if a value meets the achievement requirement.
-
-        Args:
-            value: Value to check
-            details: Additional details to check
-
-        Returns:
-            bool: True if requirement is met
-        """
-        if not self.requirement_type or not self.requirement_value:
-            return False
-
-        if self.requirement_type == "threshold":
-            return value >= self.requirement_value
-        elif self.requirement_type == "exact":
+    def check_requirement(
+        self, value: Union[int, float], details: Optional[Dict[str, Any]] = None
+    ) -> bool:
+        """Check if the requirement is met."""
+        if self.requirement_type == "exact":
             return value == self.requirement_value
         elif self.requirement_type == "count":
             return value >= self.requirement_value
         elif self.requirement_type == "custom":
             # Custom logic based on requirement_details
             return False
-
         return False
 
-    def get_progress(self, value):
+    def get_progress(self, value: Union[int, float]) -> float:
         """Calculate progress towards achievement.
 
         Args:
-            value: Current value
+            value: Current value to check progress against
 
         Returns:
-            float: Progress percentage (0-100)
+            float: Progress percentage (0.0 to 1.0)
         """
         if not self.requirement_type or not self.requirement_value:
             return 0.0
 
-        if self.requirement_type in ["threshold", "count"]:
-            progress = (value / self.requirement_value) * 100
-            return min(progress, 100.0)
+        if self.requirement_type == "threshold":
+            return min(1.0, value / self.requirement_value)
         elif self.requirement_type == "exact":
-            return 100.0 if value == self.requirement_value else 0.0
+            return 1.0 if value == self.requirement_value else 0.0
+        elif self.requirement_type == "count":
+            return min(1.0, value / self.requirement_value)
+        elif self.requirement_type == "custom":
+            # Custom progress calculation
+            return 0.0
 
         return 0.0
 
     @classmethod
-    def get_available(cls, category=None, hidden=False):
+    def get_available(cls, category: Optional[str] = None, hidden: bool = False):
         """Get available achievements.
 
         Args:
-            category: Category filter
-            hidden: Include hidden achievements
+            category: Optional category to filter by
+            hidden: Whether to include hidden achievements
 
         Returns:
-            list: Available achievements
+            List of achievements
         """
         query = cls.query.filter_by(is_active=True)
-
-        if not hidden:
-            query = query.filter_by(is_hidden=False)
 
         if category:
             query = query.filter_by(category=category)
 
+        if not hidden:
+            query = query.filter_by(is_hidden=False)
+
         return query.order_by(cls.priority.desc()).all()
 
     @classmethod
-    def get_by_requirement(cls, requirement_type):
+    def get_by_requirement(cls, requirement_type: str):
         """Get achievements by requirement type.
 
         Args:
-            requirement_type: Type of requirement
+            requirement_type: Type of requirement to filter by
 
         Returns:
-            list: Matching achievements
+            List of achievements
         """
-        return cls.query.filter_by(is_active=True, requirement_type=requirement_type).all()
+        return cls.query.filter_by(
+            requirement_type=requirement_type, is_active=True
+        ).all()
 
 
-class UserAchievement(db.Model):
+class UserAchievement(Base):
     """User achievement model."""
 
     __tablename__ = "user_achievements"
     __table_args__ = {"extend_existing": True}
 
     # Basic fields
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    achievement_id = db.Column(db.Integer, db.ForeignKey("achievements.id"), nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(db.ForeignKey("users.id"), nullable=False)
+    achievement_id: Mapped[int] = mapped_column(
+        db.ForeignKey("achievements.id"), nullable=False
+    )
 
     # Progress tracking
-    progress = db.Column(db.Float, default=0.0)
-    current_value = db.Column(db.Float, default=0.0)
-    completed = db.Column(db.Boolean, default=False)
-    completion_details = db.Column(db.JSON)  # Details about how it was earned
+    progress: Mapped[float] = mapped_column(db.Float, default=0.0)
+    current_value: Mapped[float] = mapped_column(db.Float, default=0.0)
+    completed: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    completion_details: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        db.JSON
+    )  # Details about how it was earned
 
     # Timestamps
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
-    earned_at = db.Column(db.DateTime)
-    notified_at = db.Column(db.DateTime)  # When user was notified
+    started_at: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow)
+    earned_at: Mapped[Optional[datetime]] = mapped_column(db.DateTime)
+    notified_at: Mapped[Optional[datetime]] = mapped_column(
+        db.DateTime
+    )  # When user was notified
 
     # Status
-    is_hidden = db.Column(db.Boolean, default=False)  # Hidden from user's profile
-    is_featured = db.Column(db.Boolean, default=False)  # Featured on user's profile
-    notes = db.Column(db.Text)
+    is_hidden: Mapped[bool] = mapped_column(
+        db.Boolean, default=False
+    )  # Hidden from user's profile
+    is_featured: Mapped[bool] = mapped_column(
+        db.Boolean, default=False
+    )  # Featured on user's profile
+    notes: Mapped[Optional[str]] = mapped_column(db.Text)
 
     # Relationships
-    user = db.relationship("User", backref=db.backref("achievements", lazy="dynamic"))
-    achievement = db.relationship(
+    user: Mapped["User"] = relationship(
+        "User", backref=db.backref("achievements", lazy="dynamic")
+    )
+    achievement: Mapped["Achievement"] = relationship(
         "Achievement", backref=db.backref("user_achievements", lazy="dynamic")
     )
 
@@ -173,53 +213,38 @@ class UserAchievement(db.Model):
     validator_class = AchievementValidator
 
     def __repr__(self):
+        """Get string representation."""
         return f"<UserAchievement {self.user_id}:{self.achievement_id}>"
 
     @hybrid_property
-    def days_to_earn(self):
+    def days_to_earn(self) -> Optional[int]:
         """Get number of days taken to earn achievement."""
         if not self.earned_at:
             return None
         return (self.earned_at - self.started_at).days
 
-    def update_progress(self, value, details=None):
-        """Update achievement progress.
-
-        Args:
-            value: New value
-            details: Progress details
-
-        Returns:
-            bool: True if achievement was completed
-        """
+    def update_progress(
+        self, value: Union[int, float], details: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Update achievement progress."""
         if self.completed:
-            return False
+            return
 
         self.current_value = value
         self.progress = self.achievement.get_progress(value)
 
         if self.achievement.check_requirement(value, details):
             self.complete(details)
-            return True
 
-        db.session.commit()
-        return False
-
-    def complete(self, details=None):
-        """Complete achievement.
-
-        Args:
-            details: Completion details
-        """
+    def complete(self, details: Optional[Dict[str, Any]] = None):
+        """Complete achievement."""
         if self.completed:
             return
 
         self.completed = True
-        self.progress = 100.0
         self.earned_at = datetime.utcnow()
-
-        if details:
-            self.completion_details = details
+        self.progress = 1.0
+        self.completion_details = details or {}
 
         # Update achievement rarity
         self.achievement.update_rarity()
@@ -236,8 +261,8 @@ class UserAchievement(db.Model):
         self.is_hidden = True
         db.session.commit()
 
-    def unhide(self):
-        """Unhide achievement on user's profile."""
+    def unhide(self) -> None:
+        """Unhide achievement from user's profile."""
         self.is_hidden = False
         db.session.commit()
 
@@ -252,11 +277,7 @@ class UserAchievement(db.Model):
         db.session.commit()
 
     def to_dict(self):
-        """Convert the model instance to a dictionary.
-
-        Returns:
-            dict: Model data
-        """
+        """Convert to dictionary."""
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -278,88 +299,76 @@ class UserAchievement(db.Model):
             "days_to_earn": self.days_to_earn,
             "is_hidden": self.is_hidden,
             "is_featured": self.is_featured,
+            "notes": self.notes,
         }
 
     @classmethod
-    def get_user_achievements(cls, user_id, category=None, completed=None, hidden=None):
-        """Get achievements for user.
+    def get_user_achievements(
+        cls,
+        user_id: int,
+        category: Optional[str] = None,
+        completed: Optional[bool] = None,
+        hidden: Optional[bool] = None,
+    ) -> List["UserAchievement"]:
+        """Get user's achievements.
 
         Args:
-            user_id: User ID
-            category: Achievement category filter
-            completed: Completion status filter
-            hidden: Hidden status filter
+            user_id: ID of the user
+            category: Optional category to filter by
+            completed: Optional completion status to filter by
+            hidden: Optional hidden status to filter by
 
         Returns:
-            list: User achievements
+            List of user achievements
         """
-        query = cls.query.join(Achievement).filter(cls.user_id == user_id)
+        query = cls.query.filter_by(user_id=user_id)
 
         if category:
-            query = query.filter(Achievement.category == category)
+            query = query.join(Achievement).filter(Achievement.category == category)
 
         if completed is not None:
-            query = query.filter(cls.completed == completed)
+            query = query.filter_by(completed=completed)
 
         if hidden is not None:
-            query = query.filter(cls.is_hidden == hidden)
+            query = query.filter_by(is_hidden=hidden)
 
-        return query.order_by(Achievement.priority.desc()).all()
-
-    @classmethod
-    def get_featured(cls, user_id, limit=5):
-        """Get featured achievements for user.
-
-        Args:
-            user_id: User ID
-            limit: Maximum number to return
-
-        Returns:
-            list: Featured achievements
-        """
-        return (
-            cls.query.filter_by(user_id=user_id, is_featured=True, completed=True)
-            .join(Achievement)
-            .order_by(Achievement.priority.desc())
-            .limit(limit)
-            .all()
-        )
+        return query.all()
 
     @classmethod
-    def get_recent(cls, user_id, days=30, limit=10):
-        """Get recently earned achievements.
-
-        Args:
-            user_id: User ID
-            days: Number of days to look back
-            limit: Maximum number to return
-
-        Returns:
-            list: Recent achievements
-        """
-        since = datetime.utcnow() - timedelta(days=days)
+    def get_featured(cls, user_id: int, limit: int = 5):
+        """Get user's featured achievements."""
         return (
-            cls.query.filter(cls.user_id == user_id, cls.completed is True, cls.earned_at >= since)
+            cls.query.filter_by(user_id=user_id, is_featured=True)
             .order_by(cls.earned_at.desc())
             .limit(limit)
             .all()
         )
 
     @classmethod
-    def get_progress_summary(cls, user_id):
-        """Get achievement progress summary.
+    def get_recent(cls, user_id: int, days: int = 30, limit: int = 10):
+        """Get user's recent achievements."""
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        return (
+            cls.query.filter_by(user_id=user_id, completed=True)
+            .filter(cls.earned_at >= cutoff)
+            .order_by(cls.earned_at.desc())
+            .limit(limit)
+            .all()
+        )
 
-        Args:
-            user_id: User ID
-
-        Returns:
-            dict: Progress summary
-        """
+    @classmethod
+    def get_progress_summary(cls, user_id: int) -> Dict[str, Any]:
+        """Get user's achievement progress summary."""
         total = Achievement.query.filter_by(is_active=True).count()
         earned = cls.query.filter_by(user_id=user_id, completed=True).count()
 
         return {
             "total": total,
             "earned": earned,
-            "progress": (earned / total * 100) if total > 0 else 0,
+            "percent": (earned / total * 100) if total > 0 else 0,
+            "points": db.session.query(func.sum(Achievement.points))
+            .join(cls)
+            .filter(cls.user_id == user_id, cls.completed == True)  # noqa
+            .scalar()
+            or 0,
         }

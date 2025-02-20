@@ -32,7 +32,9 @@ class NotificationSettings(TimestampedModel):
     timezone = db.Column(db.String(50))
 
     # Relationships
-    user = db.relationship("User", backref=db.backref("notification_settings", uselist=False))
+    user = db.relationship(
+        "User", backref=db.backref("notification_settings", uselist=False)
+    )
 
     def __init__(self, **kwargs):
         """Initialize notification settings."""
@@ -52,7 +54,9 @@ class NotificationSettings(TimestampedModel):
             "system_notifications": self.system_notifications,
             "marketing_notifications": self.marketing_notifications,
             "quiet_hours_start": (
-                self.quiet_hours_start.strftime("%H:%M") if self.quiet_hours_start else None
+                self.quiet_hours_start.strftime("%H:%M")
+                if self.quiet_hours_start
+                else None
             ),
             "quiet_hours_end": (
                 self.quiet_hours_end.strftime("%H:%M") if self.quiet_hours_end else None

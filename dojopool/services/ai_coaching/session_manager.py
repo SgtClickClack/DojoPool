@@ -3,10 +3,11 @@ Session manager for the DojoPool AI coaching system.
 Handles coaching sessions and tracks player progress.
 """
 
-from typing import Dict, List, Optional
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from .shot_analysis import ShotMetrics, ShotFeedback
+from typing import Dict, List, Optional
+
+from .shot_analysis import ShotFeedback, ShotMetrics
 
 
 @dataclass
@@ -62,7 +63,7 @@ class CoachingSessionManager:
         self.active_sessions[player_id] = session
         return session
 
-    def record_shot(self, player_id: str, feedback: ShotFeedback) -> None:
+    def record_shot(self, player_id: str, feedback: ShotFeedback) :
         """Record shot feedback in the current session."""
         if player_id not in self.active_sessions:
             raise ValueError(f"No active session for player {player_id}")
@@ -76,7 +77,8 @@ class CoachingSessionManager:
 
         # Update running averages
         session.average_accuracy = (
-            session.average_accuracy * (session.total_shots - 1) + feedback.metrics.accuracy
+            session.average_accuracy * (session.total_shots - 1)
+            + feedback.metrics.accuracy
         ) / session.total_shots
         session.average_power = (
             session.average_power * (session.total_shots - 1) + feedback.metrics.power
@@ -124,7 +126,9 @@ class CoachingSessionManager:
             avg_success_rate = sum(
                 s.successful_shots / max(s.total_shots, 1) for s in recent_sessions
             ) / len(recent_sessions)
-            avg_accuracy = sum(s.average_accuracy for s in recent_sessions) / len(recent_sessions)
+            avg_accuracy = sum(s.average_accuracy for s in recent_sessions) / len(
+                recent_sessions
+            )
 
             # Weighted skill level calculation
             progress.skill_level = avg_success_rate * 0.6 + avg_accuracy * 0.4
@@ -139,7 +143,7 @@ class CoachingSessionManager:
         """Get a player's progress history."""
         return self.player_progress.get(player_id)
 
-    def _update_player_attributes(self, progress: PlayerProgress) -> None:
+    def _update_player_attributes(self, progress: PlayerProgress) :
         """Update player's strengths, weaknesses, and preferred drills."""
         # Analyze recent sessions
         recent_sessions = [s for s in progress.sessions[-5:]]

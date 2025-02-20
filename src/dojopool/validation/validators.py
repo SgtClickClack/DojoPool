@@ -1,22 +1,24 @@
+import gc
+import gc
 """Validation module."""
 
-from typing import (
-    Any,
-    Dict,
-    Optional,
-    List,
-    NoReturn,
-    Callable,
-    Union,
-    TypeVar,
-    Protocol,
-    overload,
-    cast,
-)
-from datetime import datetime
+import re
 import threading
 from collections import defaultdict
-import re
+from datetime import datetime
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 T = TypeVar("T")
 ValidatorValue = Union[str, int, float, list, dict, None]
@@ -32,14 +34,14 @@ class ValidatorProtocol(Protocol):
 class ValidationMetrics:
     """Tracks validation metrics."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._lock = threading.Lock()
         self._validation_counts: Dict[str, int] = defaultdict(int)
         self._failure_counts: Dict[str, int] = defaultdict(int)
         self._validation_times: Dict[str, List[float]] = defaultdict(list)
         self._last_reset = datetime.now()
 
-    def record_validation(self, field: str, success: bool, duration_ms: float) -> None:
+    def record_validation(self, field: str, success: bool, duration_ms: float):
         """Record a validation attempt."""
         with self._lock:
             self._validation_counts[field] += 1
@@ -47,7 +49,7 @@ class ValidationMetrics:
                 self._failure_counts[field] += 1
             self._validation_times[field].append(duration_ms)
 
-    def get_metrics(self) -> MetricsDict:
+    def get_metrics(self):
         """Get current metrics."""
         with self._lock:
             metrics: MetricsDict = {}
@@ -59,7 +61,9 @@ class ValidationMetrics:
                 metrics[field] = {
                     "total_validations": total,
                     "failure_count": failures,
-                    "success_rate": ((total - failures) / total * 100) if total > 0 else 100,
+                    "success_rate": (
+                        ((total - failures) / total * 100) if total > 0 else 100
+                    ),
                     "avg_duration_ms": sum(times) / len(times) if times else 0,
                     "max_duration_ms": max(times) if times else 0,
                 }
@@ -108,7 +112,15 @@ class VenueValidator:
         "spectator_area",
         "private_rooms",
     }
-    ALLOWED_DAYS = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+    ALLOWED_DAYS = {
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    }
 
     @classmethod
     def get_metrics(cls) -> MetricsDict:
@@ -116,12 +128,12 @@ class VenueValidator:
         return cls._metrics.get_metrics()
 
     @classmethod
-    def reset_metrics(cls) -> None:
+    def reset_metrics(cls):
         """Reset validation metrics."""
         cls._metrics.reset()
 
     @staticmethod
-    def _track_validation(field: str, success: bool, start_time: float) -> None:
+    def _track_validation(field: str, success: bool, start_time: float):
         """Track validation metrics for a field."""
         duration = (datetime.now().timestamp() - start_time) * 1000
         VenueValidator._metrics.record_validation(field, success, duration)
@@ -135,7 +147,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_address(cls, address: str) -> bool:
+    def validate_address(cls, address: str):
         """Validate venue address."""
         start_time = datetime.now().timestamp()
         result = bool(address and len(address) <= 255)
@@ -143,7 +155,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_city(cls, city: str) -> bool:
+    def validate_city(cls, city: str):
         """Validate venue city."""
         start_time = datetime.now().timestamp()
         result = bool(city and len(city) <= 100)
@@ -151,7 +163,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_state(cls, state: str) -> bool:
+    def validate_state(cls, state: str):
         """Validate venue state."""
         start_time = datetime.now().timestamp()
         result = bool(state and len(state) <= 50)
@@ -167,7 +179,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_postal_code(cls, postal_code: str) -> bool:
+    def validate_postal_code(cls, postal_code: str):
         """Validate venue postal code."""
         start_time = datetime.now().timestamp()
         result = bool(postal_code and cls.POSTAL_CODE_PATTERN.match(postal_code))
@@ -175,7 +187,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_phone(cls, phone: Optional[str]) -> bool:
+    def validate_phone(cls, phone: Optional[str]):
         """Validate venue phone number."""
         start_time = datetime.now().timestamp()
         result = not phone or bool(cls.PHONE_PATTERN.match(phone))
@@ -183,7 +195,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_email(cls, email: Optional[str]) -> bool:
+    def validate_email(cls, email: Optional[str]):
         """Validate venue email."""
         start_time = datetime.now().timestamp()
         result = not email or bool(cls.EMAIL_PATTERN.match(email))
@@ -199,7 +211,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_capacity(cls, capacity: Optional[int]) -> bool:
+    def validate_capacity(cls, capacity: Optional[int]):
         """Validate venue capacity."""
         start_time = datetime.now().timestamp()
         result = capacity is None or capacity > 0
@@ -231,7 +243,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_status(cls, status: str) -> bool:
+    def validate_status(cls, status: str):
         """Validate venue status."""
         start_time = datetime.now().timestamp()
         result = status in ["active", "maintenance", "closed"]
@@ -239,7 +251,9 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_coordinates(cls, latitude: Optional[float], longitude: Optional[float]) -> bool:
+    def validate_coordinates(
+        cls, latitude: Optional[float], longitude: Optional[float]
+    ):
         """Validate venue coordinates."""
         start_time = datetime.now().timestamp()
 
@@ -264,12 +278,14 @@ class VenueValidator:
     def validate_photos(cls, photos: Optional[list]) -> bool:
         """Validate venue photos."""
         start_time = datetime.now().timestamp()
-        result = not photos or all(isinstance(url, str) and len(url) <= 255 for url in photos)
+        result = not photos or all(
+            isinstance(url, str) and len(url) <= 255 for url in photos
+        )
         cls._track_validation("photos", result, start_time)
         return result
 
     @classmethod
-    def validate_social_links(cls, social_links: Optional[Dict[str, str]]) -> bool:
+    def validate_social_links(cls, social_links: Optional[Dict[str, str]]):
         """Validate venue social media links."""
         start_time = datetime.now().timestamp()
         result = not social_links or all(
@@ -280,7 +296,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_featured_image(cls, featured_image: Optional[str]) -> bool:
+    def validate_featured_image(cls, featured_image: Optional[str]):
         """Validate venue featured image."""
         start_time = datetime.now().timestamp()
         result = not featured_image or len(featured_image) <= 255
@@ -288,7 +304,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_virtual_tour(cls, virtual_tour: Optional[str]) -> bool:
+    def validate_virtual_tour(cls, virtual_tour: Optional[str]):
         """Validate venue virtual tour URL."""
         start_time = datetime.now().timestamp()
         result = not virtual_tour or len(virtual_tour) <= 255
@@ -321,7 +337,7 @@ class VenueValidator:
             return False
 
     @classmethod
-    def validate_amenities_summary(cls, amenities_summary: Optional[Dict[str, bool]]) -> bool:
+    def validate_amenities_summary(cls, amenities_summary: Optional[Dict[str, bool]]):
         """Validate venue amenities summary."""
         start_time = datetime.now().timestamp()
 
@@ -339,7 +355,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_rules(cls, rules: Optional[str]) -> bool:
+    def validate_rules(cls, rules: Optional[str]):
         """Validate venue rules."""
         start_time = datetime.now().timestamp()
         result = not rules or len(rules) <= 1000
@@ -347,7 +363,7 @@ class VenueValidator:
         return result
 
     @classmethod
-    def validate_notes(cls, notes: Optional[str]) -> bool:
+    def validate_notes(cls, notes: Optional[str]):
         """Validate venue notes."""
         start_time = datetime.now().timestamp()
         result = not notes or len(notes) <= 1000
@@ -360,7 +376,15 @@ class VenueValidator:
         start_time = datetime.now().timestamp()
 
         # Required fields validation
-        required_fields = {"name", "address", "city", "state", "country", "postal_code", "tables"}
+        required_fields = {
+            "name",
+            "address",
+            "city",
+            "state",
+            "country",
+            "postal_code",
+            "tables",
+        }
         missing_fields = required_fields - set(data.keys())
         if missing_fields:
             cls._track_validation("complete_validation", False, start_time)
@@ -387,7 +411,9 @@ class VenueValidator:
             "featured_image": cast(ValidatorProtocol, cls.validate_featured_image),
             "virtual_tour": cast(ValidatorProtocol, cls.validate_virtual_tour),
             "hours_data": cast(ValidatorProtocol, cls.validate_hours_data),
-            "amenities_summary": cast(ValidatorProtocol, cls.validate_amenities_summary),
+            "amenities_summary": cast(
+                ValidatorProtocol, cls.validate_amenities_summary
+            ),
             "rules": cast(ValidatorProtocol, cls.validate_rules),
             "notes": cast(ValidatorProtocol, cls.validate_notes),
         }
@@ -400,7 +426,9 @@ class VenueValidator:
 
         # Special handling for coordinates
         if "latitude" in data or "longitude" in data:
-            if not cls.validate_coordinates(data.get("latitude"), data.get("longitude")):
+            if not cls.validate_coordinates(
+                data.get("latitude"), data.get("longitude")
+            ):
                 cls._track_validation("complete_validation", False, start_time)
                 return False
 

@@ -157,7 +157,9 @@ def send_alert_email(alerts: List[str]) -> None:
 
 def main():
     # Set up logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Get metrics comparison
     metrics = get_metrics_comparison()

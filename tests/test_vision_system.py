@@ -6,10 +6,10 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
-from src.dojopool.core.vision.bridge import VisionGameBridge
-from src.dojopool.core.vision.ball_tracker import BallTracker
-from src.dojopool.core.vision.game_tracker import GameTracker
-from src.dojopool.core.vision.monitor import GameMonitor
+from dojopool.core.vision.ball_tracker import BallTracker
+from dojopool.core.vision.bridge import VisionGameBridge
+from dojopool.core.vision.game_tracker import GameTracker
+from dojopool.core.vision.monitor import GameMonitor
 
 
 @pytest.fixture
@@ -175,7 +175,9 @@ class TestGameMonitor:
         with patch("src.dojopool.core.vision.monitor.PoolCamera") as mock_camera:
             mock_camera.return_value.get_frame.return_value = mock_frame
             with patch("src.dojopool.core.vision.monitor.BallTracker") as mock_tracker:
-                mock_tracker.return_value.detect_balls.return_value = mock_ball_positions
+                mock_tracker.return_value.detect_balls.return_value = (
+                    mock_ball_positions
+                )
 
                 monitor._process_frames()
 

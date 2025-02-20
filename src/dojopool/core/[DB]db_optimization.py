@@ -86,10 +86,13 @@ class QueryProfiler:
 
         # Log query statistics
         db_logger.info(
-            "Query statistics updated", query=query, execution_time=execution_time, stats=stats
+            "Query statistics updated",
+            query=query,
+            execution_time=execution_time,
+            stats=stats,
         )
 
-    def get_slow_queries(self, threshold: float = 1.0) -> List[Dict[str, Any]]:
+    def get_slow_queries(self, threshold: float = 1.0):
         """Get list of slow queries.
 
         Args:
@@ -167,7 +170,7 @@ class DatabaseManager:
         params: Optional[Tuple] = None,
         use_cache: bool = False,
         cache_ttl: int = 300,
-    ) -> Any:
+    ):
         """Execute a query with optional caching.
 
         Args:
@@ -203,7 +206,7 @@ class DatabaseManager:
             self.return_connection(conn)
 
     @with_profiling
-    def analyze_table(self, table_name: str) -> Dict[str, Any]:
+    def analyze_table(self, table_name: str):
         """Analyze a table and provide optimization recommendations.
 
         Args:
@@ -292,12 +295,14 @@ class DatabaseManager:
                 )
 
         db_logger.info(
-            "Generated index recommendations", table=table_name, recommendations=recommendations
+            "Generated index recommendations",
+            table=table_name,
+            recommendations=recommendations,
         )
         return recommendations
 
     @with_profiling
-    def vacuum_analyze(self, table_name: str) -> None:
+    def vacuum_analyze(self, table_name: str):
         """Perform VACUUM ANALYZE on a table.
 
         Args:
@@ -312,7 +317,7 @@ class DatabaseManager:
         finally:
             self.return_connection(conn)
 
-    def close(self) -> None:
+    def close(self):
         """Close the connection pool."""
         if self.pool:
             self.pool.closeall()

@@ -98,7 +98,9 @@ class CrossValidation:
         aggregate_metrics = self._aggregate_metrics(fold_metrics)
 
         # Generate learning curves
-        learning_curves = self._generate_learning_curves(model_type, X, y, n_splits=n_splits)
+        learning_curves = self._generate_learning_curves(
+            model_type, X, y, n_splits=n_splits
+        )
 
         # Save results
         results = {
@@ -128,13 +130,17 @@ class CrossValidation:
             "model_type": results["model_type"],
             "timestamp": datetime.utcnow().isoformat(),
             "metrics_summary": self._analyze_metrics(results["fold_metrics"]),
-            "learning_curve_analysis": self._analyze_learning_curves(results["learning_curves"]),
+            "learning_curve_analysis": self._analyze_learning_curves(
+                results["learning_curves"]
+            ),
             "recommendations": self._generate_recommendations(results),
         }
 
         return analysis
 
-    def get_latest_results(self, model_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_latest_results(
+        self, model_type: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """Get latest cross-validation results.
 
         Args:
@@ -152,7 +158,9 @@ class CrossValidation:
 
         return sorted(results, key=lambda x: x["timestamp"], reverse=True)
 
-    def _prepare_data(self, model_type: str, data: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+    def _prepare_data(
+        self, model_type: str, data: List[Dict]
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Prepare data for cross-validation."""
         return self.predictor._prepare_training_data(model_type, data)
 
@@ -170,7 +178,7 @@ class CrossValidation:
 
     def _calculate_metrics(
         self, model_type: str, y_true: np.ndarray, y_pred: np.ndarray
-    ) -> Dict[str, float]:
+    ):
         """Calculate metrics for a fold."""
         if model_type == "shot":
             return {
@@ -183,9 +191,7 @@ class CrossValidation:
             mse = mean_squared_error(y_true, y_pred)
             return {"mse": float(mse), "rmse": float(np.sqrt(mse))}
 
-    def _aggregate_metrics(
-        self, fold_metrics: List[Dict[str, float]]
-    ) -> Dict[str, Dict[str, float]]:
+    def _aggregate_metrics(self, fold_metrics: List[Dict[str, float]]):
         """Aggregate metrics across folds."""
         metrics = {}
         for metric in fold_metrics[0].keys():
@@ -200,7 +206,7 @@ class CrossValidation:
 
     def _generate_learning_curves(
         self, model_type: str, X: np.ndarray, y: np.ndarray, n_splits: int
-    ) -> Dict[str, Any]:
+    ):
         """Generate learning curves."""
         # Define train sizes
         train_sizes = np.linspace(0.1, 1.0, 10)
@@ -219,7 +225,13 @@ class CrossValidation:
 
         # Generate learning curves
         train_sizes, train_scores, val_scores = learning_curve(
-            model, X, y, train_sizes=train_sizes, cv=n_splits, scoring=scoring, n_jobs=-1
+            model,
+            X,
+            y,
+            train_sizes=train_sizes,
+            cv=n_splits,
+            scoring=scoring,
+            n_jobs=-1,
         )
 
         return {
@@ -239,14 +251,18 @@ class CrossValidation:
                     "mean": float(np.mean(values)),
                     "std": float(np.std(values)),
                     "cv": float(np.std(values) / np.mean(values)),
-                    "quartiles": [float(np.percentile(values, p)) for p in [25, 50, 75]],
+                    "quartiles": [
+                        float(np.percentile(values, p)) for p in [25, 50, 75]
+                    ],
                 },
-                "stability": "stable" if np.std(values) / np.mean(values) < 0.1 else "unstable",
+                "stability": (
+                    "stable" if np.std(values) / np.mean(values) < 0.1 else "unstable"
+                ),
             }
 
         return analysis
 
-    def _analyze_learning_curves(self, curves: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_learning_curves(self, curves: Dict[str, Any]):
         """Analyze learning curves."""
         train_scores = np.array(curves["train_scores"])
         val_scores = np.array(curves["validation_scores"])
@@ -334,7 +350,8 @@ class CrossValidation:
         """Save cross-validation results."""
         timestamp = datetime.fromisoformat(results["timestamp"])
         filename = (
-            f"cv_results_{results['model_type']}_" f"{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            f"cv_results_{results['model_type']}_"
+            f"{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
         )
 
         with open(self.results_dir / filename, "w") as f:

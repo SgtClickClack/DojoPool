@@ -1,19 +1,24 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Game management routes for DojoPool."""
 
-from flask import jsonify, request
-from flask_login import current_user, login_required
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
+from flask import Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
+from flask_login import current_user, login_required
 from src.core.database import db
 from src.core.models.game import Game
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from . import game_bp
 
 
 @game_bp.route("/")
 @login_required
-def list_games():
+def list_games() -> ResponseReturnValue:
     """List all games for the current user."""
-    games = Game.query.filter(
+    games: Any = Game.query.filter(
         (Game.player1_id == current_user.id) | (Game.player2_id == current_user.id)
     ).all()
     return jsonify([game.to_dict() for game in games])
@@ -21,9 +26,9 @@ def list_games():
 
 @game_bp.route("/<int:game_id>")
 @login_required
-def get_game(game_id):
+def get_game(game_id: int) -> ResponseReturnValue:
     """Get a specific game."""
-    game = Game.query.get_or_404(game_id)
+    game: Game = Game.query.get_or_404(game_id)
     return jsonify(game.to_dict())
 
 
@@ -31,12 +36,12 @@ def get_game(game_id):
 @login_required
 def create_game():
     """Create a new game."""
-    data = request.get_json()
+    data: Any = request.get_json()
 
     if not data or "opponent_id" not in data:
         return jsonify({"error": "Missing opponent_id"}), 400
 
-    game = Game(
+    game: Game = Game(
         player1_id=current_user.id,
         player2_id=data["opponent_id"],
         game_type=data.get("game_type", "8ball"),
@@ -51,14 +56,14 @@ def create_game():
 
 @game_bp.route("/<int:game_id>", methods=["PUT"])
 @login_required
-def update_game(game_id):
+def update_game(game_id: int) -> ResponseReturnValue:
     """Update a game's status."""
-    game = Game.query.get_or_404(game_id)
+    game: Game = Game.query.get_or_404(game_id)
 
     if game.player1_id != current_user.id and game.player2_id != current_user.id:
         return jsonify({"error": "Not authorized"}), 403
 
-    data = request.get_json()
+    data: Any = request.get_json()
 
     if "status" in data:
         game.status = data["status"]
@@ -76,9 +81,9 @@ def update_game(game_id):
 
 @game_bp.route("/<int:game_id>", methods=["DELETE"])
 @login_required
-def delete_game(game_id):
+def delete_game(game_id: int) -> ResponseReturnValue:
     """Delete a game."""
-    game = Game.query.get_or_404(game_id)
+    game: Game = Game.query.get_or_404(game_id)
 
     if game.player1_id != current_user.id and game.player2_id != current_user.id:
         return jsonify({"error": "Not authorized"}), 403

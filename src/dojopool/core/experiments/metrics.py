@@ -94,13 +94,17 @@ class MetricsCollector:
         self._metrics[definition.name] = definition
         logger.info(f"Registered metric: {definition.name} ({definition.type.value})")
 
-    def validate_value(self, metric: MetricDefinition, value: Any) -> Union[int, float, bool]:
+    def validate_value(self, metric: MetricDefinition, value: Any):
         """Validate and convert a metric value."""
         if metric.validation:
             if "min" in metric.validation and value < metric.validation["min"]:
-                raise ValueError(f"Value {value} below minimum {metric.validation['min']}")
+                raise ValueError(
+                    f"Value {value} below minimum {metric.validation['min']}"
+                )
             if "max" in metric.validation and value > metric.validation["max"]:
-                raise ValueError(f"Value {value} above maximum {metric.validation['max']}")
+                raise ValueError(
+                    f"Value {value} above maximum {metric.validation['max']}"
+                )
 
         if metric.type == MetricType.CONVERSION:
             return bool(value)
@@ -144,30 +148,36 @@ class MetricsCollector:
 
     def get_user_metrics(
         self, experiment_id: str, user_id: str, metric_names: Optional[Set[str]] = None
-    ) -> Dict[str, List[MetricEvent]]:
+    ):
         """Get all metric events for a user in an experiment."""
         events = self._user_events[experiment_id][user_id]
         if not metric_names:
             return {
-                metric: [e for e in events if e.metric_name == metric] for metric in self._metrics
+                metric: [e for e in events if e.metric_name == metric]
+                for metric in self._metrics
             }
-        return {metric: [e for e in events if e.metric_name == metric] for metric in metric_names}
+        return {
+            metric: [e for e in events if e.metric_name == metric]
+            for metric in metric_names
+        }
 
     def get_experiment_metrics(
         self, experiment_id: str, metric_names: Optional[Set[str]] = None
-    ) -> Dict[str, Dict[str, List[MetricEvent]]]:
+    ):
         """Get all metric events for an experiment grouped by variant."""
         events = [e for e in self._events if e.experiment_id == experiment_id]
         metrics = metric_names or self._metrics.keys()
 
-        result: Dict[str, Dict[str, List[MetricEvent]]] = defaultdict(lambda: defaultdict(list))
+        result: Dict[str, Dict[str, List[MetricEvent]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
         for event in events:
             if event.metric_name in metrics:
                 result[event.variant_id][event.metric_name].append(event)
 
         return result
 
-    def compute_metric_stats(self, events: List[MetricEvent]) -> Dict[str, Any]:
+    def compute_metric_stats(self, events: List[MetricEvent]):
         """Compute statistics for a list of metric events."""
         if not events:
             return {}

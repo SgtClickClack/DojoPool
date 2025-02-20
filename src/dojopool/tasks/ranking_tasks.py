@@ -1,10 +1,12 @@
+from flask_caching import Cache
+from flask_caching import Cache
 from celery import shared_task
 from celery.schedules import crontab
 from celery.utils.log import get_task_logger
 
 from ..core.ranking.global_ranking import GlobalRankingService
-from ..models.user import User
 from ..extensions import db
+from ..models.user import User
 
 logger = get_task_logger(__name__)
 ranking_service = GlobalRankingService()

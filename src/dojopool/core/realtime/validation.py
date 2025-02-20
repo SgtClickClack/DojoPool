@@ -66,7 +66,9 @@ EVENT_SCHEMAS = {
 }
 
 
-def validate_event_data(event_type: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def validate_event_data(
+    event_type: str, data: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
     """Validate event data against schema.
 
     Args:
@@ -78,7 +80,9 @@ def validate_event_data(event_type: str, data: Dict[str, Any]) -> Optional[Dict[
     """
     # Check if event type exists
     if event_type not in EVENT_SCHEMAS:
-        return format_error_response(ErrorCodes.INVALID_EVENT, f"Invalid event type: {event_type}")
+        return format_error_response(
+            ErrorCodes.INVALID_EVENT, f"Invalid event type: {event_type}"
+        )
 
     schema = EVENT_SCHEMAS[event_type]
 
@@ -86,7 +90,9 @@ def validate_event_data(event_type: str, data: Dict[str, Any]) -> Optional[Dict[
     for field in schema.get("required", []):
         if field not in data:
             return format_error_response(
-                ErrorCodes.MISSING_PARAMETERS, f"Missing required field: {field}", {"field": field}
+                ErrorCodes.MISSING_PARAMETERS,
+                f"Missing required field: {field}",
+                {"field": field},
             )
 
     # Check field types
@@ -126,7 +132,11 @@ def validate_event_data(event_type: str, data: Dict[str, Any]) -> Optional[Dict[
                 return format_error_response(
                     ErrorCodes.INVALID_PARAMETERS,
                     f"Field {field} exceeds maximum length of {max_length}",
-                    {"field": field, "max_length": max_length, "actual_length": len(str(value))},
+                    {
+                        "field": field,
+                        "max_length": max_length,
+                        "actual_length": len(str(value)),
+                    },
                 )
 
     return None
@@ -175,7 +185,7 @@ def validate_range(
     min_value: Optional[Union[int, float]] = None,
     max_value: Optional[Union[int, float]] = None,
     field_name: str = "",
-) -> Optional[Dict[str, Any]]:
+):
     """Validate numeric range.
 
     Args:

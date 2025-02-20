@@ -4,16 +4,20 @@ This module provides the application factory function.
 """
 
 import os
+from typing import Optional
 
 from flask import Flask
 
-from src.core.cli import init_app as init_cli
-from src.core.config import config
-from src.core.database import db
-from src.core.database.migrations import init_migrations
+from dojopool.core.admin import bp as admin_bp
+from dojopool.core.api import bp as api_bp
+from dojopool.core.auth import bp as auth_bp
+from dojopool.core.cli import init_app as init_cli
+from dojopool.core.config import config
+from dojopool.core.database import db
+from dojopool.core.database.migrations import init_migrations
 
 
-def create_app(config_name=None):
+def create_app(config_name: Optional[str] = None) -> Flask:
     """Create Flask application.
 
     Args:
@@ -40,16 +44,8 @@ def create_app(config_name=None):
     init_cli(app)
 
     # Register blueprints
-    from src.core.auth import bp as auth_bp
-
     app.register_blueprint(auth_bp, url_prefix="/auth")
-
-    from src.core.api import bp as api_bp
-
     app.register_blueprint(api_bp, url_prefix="/api")
-
-    from src.core.admin import bp as admin_bp
-
     app.register_blueprint(admin_bp, url_prefix="/admin")
 
     # Create database tables

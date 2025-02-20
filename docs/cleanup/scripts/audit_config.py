@@ -105,7 +105,9 @@ class ConfigAuditor:
             for key, value in flat_settings.items():
                 if key not in self.settings_map:
                     self.settings_map[key] = []
-                self.settings_map[key].append({"file": file_info["relative_path"], "value": value})
+                self.settings_map[key].append(
+                    {"file": file_info["relative_path"], "value": value}
+                )
 
         # Find duplicates
         for key, occurrences in self.settings_map.items():
@@ -152,11 +154,16 @@ class ConfigAuditor:
                     for other_file in self.config_files:
                         if other_file["path"] != file_info["path"]:
                             if os.path.basename(other_file["path"]) in content:
-                                if file_info["relative_path"] not in self.config_relationships:
-                                    self.config_relationships[file_info["relative_path"]] = []
-                                self.config_relationships[file_info["relative_path"]].append(
-                                    other_file["relative_path"]
-                                )
+                                if (
+                                    file_info["relative_path"]
+                                    not in self.config_relationships
+                                ):
+                                    self.config_relationships[
+                                        file_info["relative_path"]
+                                    ] = []
+                                self.config_relationships[
+                                    file_info["relative_path"]
+                                ].append(other_file["relative_path"])
             except Exception as e:
                 print(f"Error analyzing relationships in {file_info['path']}: {e}")
 
@@ -179,7 +186,9 @@ Total Configuration Files: {len(self.config_files)}
         for file_type, files in files_by_type.items():
             report += f"\n### {file_type}\n"
             for file_info in files:
-                report += f"- {file_info['relative_path']} ({file_info['size']} bytes)\n"
+                report += (
+                    f"- {file_info['relative_path']} ({file_info['size']} bytes)\n"
+                )
 
         # Add security issues
         report += "\n## Security Issues\n"

@@ -1,11 +1,13 @@
 """Computer vision module for DojoPool."""
 
-import numpy as np
-import cv2
-from typing import List, Tuple, Optional
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
+
+import cv2
+import numpy as np
 import torch
 import torch.nn as nn
+
 from .shot_recommendation import BallPosition
 
 
@@ -65,7 +67,7 @@ class TableStateAnalyzer:
         self._load_models()
         self._initialize_tracking()
 
-    def _load_models(self) -> None:
+    def _load_models(self):
         """Load trained models and weights."""
         # TODO: Load pre-trained weights
         model_path = "models/ball_detector.pth"
@@ -83,7 +85,7 @@ class TableStateAnalyzer:
         self.tracking_initialized = False
         self.tracked_balls = {}
 
-    def preprocess_image(self, image: np.ndarray) -> torch.Tensor:
+    def preprocess_image(self, image: np.ndarray):
         """Preprocess image for neural network."""
         # Convert to RGB if needed
         if len(image.shape) == 2:
@@ -104,7 +106,7 @@ class TableStateAnalyzer:
 
         return tensor
 
-    def detect_balls(self, image: np.ndarray) -> List[DetectedBall]:
+    def detect_balls(self, image: np.ndarray):
         """Detect balls and their numbers in the image."""
         # Preprocess image
         tensor = self.preprocess_image(image)
@@ -166,7 +168,10 @@ class TableStateAnalyzer:
                 y = (bbox[1] + bbox[3]) / 2
                 tracked_balls.append(
                     DetectedBall(
-                        position=(x, y), ball_number=ball_number, confidence=1.0, bounding_box=bbox
+                        position=(x, y),
+                        ball_number=ball_number,
+                        confidence=1.0,
+                        bounding_box=bbox,
                     )
                 )
                 data["position"] = (x, y)
@@ -199,7 +204,9 @@ class TableStateAnalyzer:
             norm_x = (x / image_width) * table_width
             norm_y = (y / image_height) * table_height
 
-            ball_positions.append(BallPosition(x=norm_x, y=norm_y, ball_number=ball.ball_number))
+            ball_positions.append(
+                BallPosition(x=norm_x, y=norm_y, ball_number=ball.ball_number)
+            )
 
         return ball_positions
 

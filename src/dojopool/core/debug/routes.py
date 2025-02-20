@@ -5,21 +5,33 @@ Debug API routes for system monitoring and diagnostics.
 import logging
 from datetime import datetime
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import psutil
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from ..auth import is_admin, require_auth
 
-bp = Blueprint("debug", __name__, url_prefix="/api/debug")
-logger = logging.getLogger(__name__)
+bp: Blueprint = Blueprint("debug", __name__, url_prefix="/api/debug")
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-def admin_required(f):
-    """Decorator to require admin access."""
+def admin_required(
+    f: Callable[..., ResponseReturnValue],
+) -> Callable[..., ResponseReturnValue]:
+    """Decorator to require admin access.
+
+    Args:
+        f: Function to wrap
+
+    Returns:
+        Wrapped function requiring admin access
+    """
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(*args: Any, **kwargs: Any):
         if not is_admin():
             return jsonify({"error": "Admin access required"}), 403
         return f(*args, **kwargs)
@@ -31,7 +43,11 @@ def admin_required(f):
 @require_auth
 @admin_required
 def get_metrics():
-    """Get system performance metrics."""
+    """Get system performance metrics.
+
+    Returns:
+        JSON response with system metrics
+    """
     try:
         # Get memory usage
         process = psutil.Process()
@@ -41,7 +57,7 @@ def get_metrics():
         psutil.net_io_counters()
 
         # Get application metrics
-        metrics = {
+        metrics: Dict[str, Any] = {
             "loadTime": current_app.config.get("average_load_time", 0),
             "memoryUsage": memory_info.rss,  # Resident Set Size in bytes
             "networkLatency": current_app.config.get("average_latency", 0),
@@ -59,7 +75,11 @@ def get_metrics():
 @require_auth
 @admin_required
 def get_status():
-    """Get system status information."""
+    """Get system status information.
+
+    Returns:
+        JSON response with system status
+    """
     try:
         # Get CPU usage
         cpu_percent = psutil.cpu_percent(interval=0.1)
@@ -71,7 +91,7 @@ def get_status():
         # Get network status
         network_status = _get_network_status()
 
-        status = {
+        status: Dict[str, Any] = {
             "cpu": cpu_percent,
             "memory": memory_percent,
             "network": network_status,
@@ -84,12 +104,16 @@ def get_status():
         return jsonify({"error": "Failed to get status"}), 500
 
 
-def _get_recent_errors() -> list:
-    """Get recent error messages from the log."""
+def _get_recent_errors() -> List[str]:
+    """Get recent error messages from the log.
+
+    Returns:
+        List of recent error messages
+    """
     try:
-        with open(current_app.config["ERROR_LOG_PATH"], "r") as f:
+        with open(current_app.config.get("ERROR_LOG_PATH", ""), "r") as f:
             # Get last 10 error messages
-            errors = []
+            errors: List[str] = []
             for line in f.readlines()[-100:]:  # Read last 100 lines
                 if "ERROR" in line:
                     errors.append(line.strip())
@@ -101,12 +125,16 @@ def _get_recent_errors() -> list:
         return []
 
 
-def _get_recent_warnings() -> list:
-    """Get recent warning messages from the log."""
+def _get_recent_warnings() -> List[str]:
+    """Get recent warning messages from the log.
+
+    Returns:
+        List of recent warning messages
+    """
     try:
-        with open(current_app.config["ERROR_LOG_PATH"], "r") as f:
+        with open(current_app.config.get("ERROR_LOG_PATH", ""), "r") as f:
             # Get last 10 warning messages
-            warnings = []
+            warnings: List[str] = []
             for line in f.readlines()[-100:]:  # Read last 100 lines
                 if "WARNING" in line:
                     warnings.append(line.strip())
@@ -119,7 +147,11 @@ def _get_recent_warnings() -> list:
 
 
 def _get_network_status() -> str:
-    """Determine network status based on latency and packet loss."""
+    """Determine network status based on latency and packet loss.
+
+    Returns:
+        Network status string ('good', 'fair', or 'poor')
+    """
     try:
         # Get network counters
         counters = psutil.net_io_counters()

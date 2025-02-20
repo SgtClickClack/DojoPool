@@ -64,7 +64,7 @@ class DatabaseLogger(BaseLogger):
         params: Optional[Dict[str, Any]] = None,
         threshold: float = 1.0,
         **kwargs,
-    ) -> None:
+    ):
         """Log slow database query.
 
         Args:
@@ -83,7 +83,7 @@ class DatabaseLogger(BaseLogger):
         }
         self.warning("Slow database query detected", **context)
 
-    def log_connection_error(self, error: Exception, retries: int = 0, **kwargs) -> None:
+    def log_connection_error(self, error: Exception, retries: int = 0, **kwargs):
         """Log database connection error.
 
         Args:
@@ -96,7 +96,7 @@ class DatabaseLogger(BaseLogger):
 
     def log_transaction_begin(
         self, transaction_id: str, isolation_level: Optional[str] = None, **kwargs
-    ) -> None:
+    ):
         """Log transaction begin.
 
         Args:
@@ -104,7 +104,11 @@ class DatabaseLogger(BaseLogger):
             isolation_level: Transaction isolation level
             **kwargs: Additional context
         """
-        context = {"transaction_id": transaction_id, "isolation_level": isolation_level, **kwargs}
+        context = {
+            "transaction_id": transaction_id,
+            "isolation_level": isolation_level,
+            **kwargs,
+        }
         self.info("Database transaction started", **context)
 
     def log_transaction_commit(
@@ -121,8 +125,12 @@ class DatabaseLogger(BaseLogger):
         self.info("Database transaction committed", **context)
 
     def log_transaction_rollback(
-        self, transaction_id: str, reason: str, error: Optional[Exception] = None, **kwargs
-    ) -> None:
+        self,
+        transaction_id: str,
+        reason: str,
+        error: Optional[Exception] = None,
+        **kwargs,
+    ):
         """Log transaction rollback.
 
         Args:
@@ -136,7 +144,7 @@ class DatabaseLogger(BaseLogger):
 
     def log_schema_change(
         self, operation: str, table: str, details: Dict[str, Any], **kwargs
-    ) -> None:
+    ):
         """Log schema change.
 
         Args:
@@ -150,7 +158,7 @@ class DatabaseLogger(BaseLogger):
 
     def log_index_operation(
         self, operation: str, table: str, index_name: str, columns: list[str], **kwargs
-    ) -> None:
+    ):
         """Log index operation.
 
         Args:
@@ -170,7 +178,11 @@ class DatabaseLogger(BaseLogger):
         self.info("Database index operation performed", **context)
 
     def log_connection_pool_status(
-        self, total_connections: int, active_connections: int, idle_connections: int, **kwargs
+        self,
+        total_connections: int,
+        active_connections: int,
+        idle_connections: int,
+        **kwargs,
     ) -> None:
         """Log connection pool status.
 

@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Dict, Any
+from typing import Any, Dict
 
 GLOBAL_RANKING_CONFIG: Dict[str, Any] = {
     # Ranking update frequency

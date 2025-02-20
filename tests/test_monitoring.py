@@ -1,10 +1,11 @@
 """Tests for the monitoring system."""
 
-import pytest
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from dojopool.core.monitoring import MetricsSnapshot, MetricsCollector
+import pytest
+
+from dojopool.core.monitoring import MetricsCollector, MetricsSnapshot
 
 
 @pytest.fixture

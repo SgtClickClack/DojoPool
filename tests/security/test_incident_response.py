@@ -85,7 +85,9 @@ def mock_vulnerability_finding():
 @pytest.fixture
 async def incident_manager(tmp_path):
     """Test incident manager."""
-    with patch("dojopool.core.security.incident_response.manager.config") as mock_config:
+    with patch(
+        "dojopool.core.security.incident_response.manager.config"
+    ) as mock_config:
         mock_config.INCIDENT_STORAGE_DIR = tmp_path / "incidents"
         manager = IncidentManager()
         await manager.start()
@@ -95,7 +97,9 @@ async def incident_manager(tmp_path):
 @pytest.mark.asyncio
 async def test_incident_creation(incident_manager, incident_data, mock_metrics):
     """Test incident creation."""
-    with patch.object(incident_manager.metrics_collector, "get_metrics", return_value=mock_metrics):
+    with patch.object(
+        incident_manager.metrics_collector, "get_metrics", return_value=mock_metrics
+    ):
         incident = await incident_manager.create_incident(**incident_data)
 
         assert incident.id is not None
@@ -113,7 +117,9 @@ async def test_incident_status_update(incident_manager, incident_data):
 
     # Update status
     updated = await incident_manager.update_incident(
-        incident.id, status=IncidentStatus.INVESTIGATING, comment="Started investigation"
+        incident.id,
+        status=IncidentStatus.INVESTIGATING,
+        comment="Started investigation",
     )
 
     assert updated.status == IncidentStatus.INVESTIGATING
@@ -171,9 +177,13 @@ async def test_incident_monitoring(
 ):
     """Test incident monitoring."""
     with (
-        patch.object(incident_manager.metrics_collector, "get_metrics", return_value=mock_metrics),
         patch.object(
-            incident_manager.threat_detector, "detect_threats", return_value=[mock_threat_finding]
+            incident_manager.metrics_collector, "get_metrics", return_value=mock_metrics
+        ),
+        patch.object(
+            incident_manager.threat_detector,
+            "detect_threats",
+            return_value=[mock_threat_finding],
         ),
     ):
 
@@ -208,7 +218,9 @@ async def test_incident_archiving(incident_manager, incident_data):
     # Create and resolve incident
     incident = await incident_manager.create_incident(**incident_data)
     await incident_manager.update_incident(
-        incident.id, status=IncidentStatus.RESOLVED, comment="Resolved for archiving test"
+        incident.id,
+        status=IncidentStatus.RESOLVED,
+        comment="Resolved for archiving test",
     )
 
     # Modify resolved_at to be old enough for archiving
@@ -265,7 +277,9 @@ async def test_automated_response_actions(
 ):
     """Test automated response actions."""
     with patch.object(
-        incident_manager.scanner_manager, "scan_targets", return_value=[mock_vulnerability_finding]
+        incident_manager.scanner_manager,
+        "scan_targets",
+        return_value=[mock_vulnerability_finding],
     ):
 
         incident = await incident_manager.create_incident(**incident_data)
@@ -273,7 +287,9 @@ async def test_automated_response_actions(
         # Check automated actions were taken
         assert len(incident.vulnerability_findings) == 1
         assert len(incident.actions_taken) >= 1
-        assert any(action["type"] == "automated_response" for action in incident.actions_taken)
+        assert any(
+            action["type"] == "automated_response" for action in incident.actions_taken
+        )
 
 
 @pytest.mark.asyncio
@@ -294,5 +310,7 @@ async def test_incident_filtering(incident_manager, incident_data):
     assert intrusion_incidents[0].incident_type == IncidentType.INTRUSION
 
     # Test filtering by severity
-    high_incidents = await incident_manager.get_active_incidents(severity=IncidentSeverity.HIGH)
+    high_incidents = await incident_manager.get_active_incidents(
+        severity=IncidentSeverity.HIGH
+    )
     assert len(high_incidents) == 2  # Both incidents are HIGH severity

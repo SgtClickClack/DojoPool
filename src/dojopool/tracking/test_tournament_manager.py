@@ -1,17 +1,23 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Tests for tournament management system."""
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
+from .game_tracker import BallPosition, Shot
+from .player_rankings import MatchResult, PlayerRankingSystem
 from .tournament_manager import (
-    TournamentManager,
+    PrizeStructure,
     Tournament,
     TournamentFormat,
-    TournamentStatus,
-    PrizeStructure,
+    TournamentManager,
     TournamentMatch,
+    TournamentStatus,
 )
-from .player_rankings import PlayerRankingSystem, MatchResult
-from .game_tracker import Shot, BallPosition
 
 
 @pytest.fixture
@@ -21,13 +27,13 @@ def ranking_system() -> PlayerRankingSystem:
 
 
 @pytest.fixture
-def tournament_manager(ranking_system: PlayerRankingSystem) -> TournamentManager:
+def tournament_manager(ranking_system: PlayerRankingSystem):
     """Create a tournament manager instance."""
     return TournamentManager(ranking_system)
 
 
 @pytest.fixture
-def sample_tournament(tournament_manager: TournamentManager) -> Tournament:
+def sample_tournament(tournament_manager: TournamentManager):
     """Create a sample tournament."""
     start_date = datetime.now() + timedelta(days=1)
     end_date = start_date + timedelta(days=1)
@@ -104,11 +110,15 @@ class TestTournamentManager:
 
     def test_register_player(
         self, tournament_manager: TournamentManager, sample_tournament: Tournament
-    ) -> None:
+    ):
         """Test player registration."""
         # Register players
-        assert tournament_manager.register_player(sample_tournament.tournament_id, "player1")
-        assert tournament_manager.register_player(sample_tournament.tournament_id, "player2")
+        assert tournament_manager.register_player(
+            sample_tournament.tournament_id, "player1"
+        )
+        assert tournament_manager.register_player(
+            sample_tournament.tournament_id, "player2"
+        )
 
         assert len(sample_tournament.registered_players) == 2
         assert "player1" in sample_tournament.registered_players
@@ -116,7 +126,9 @@ class TestTournamentManager:
 
         # Test registration limits
         for i in range(sample_tournament.max_players):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"extra_player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"extra_player_{i}"
+            )
 
         # Should not allow registration when full
         assert not tournament_manager.register_player(
@@ -125,14 +137,16 @@ class TestTournamentManager:
 
     def test_start_tournament(
         self, tournament_manager: TournamentManager, sample_tournament: Tournament
-    ) -> None:
+    ):
         """Test tournament start."""
         # Try to start with insufficient players
         assert not tournament_manager.start_tournament(sample_tournament.tournament_id)
 
         # Register minimum required players
         for i in range(sample_tournament.min_players):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         # Start tournament
         assert tournament_manager.start_tournament(sample_tournament.tournament_id)
@@ -148,12 +162,16 @@ class TestTournamentManager:
         """Test single elimination bracket generation."""
         # Register 8 players
         for i in range(8):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         tournament_manager.start_tournament(sample_tournament.tournament_id)
 
         # Should have 4 first round matches
-        first_round_matches = [m for m in sample_tournament.matches if m.round_number == 1]
+        first_round_matches = [
+            m for m in sample_tournament.matches if m.round_number == 1
+        ]
         assert len(first_round_matches) == 4
 
         # All matches should have two players
@@ -166,7 +184,7 @@ class TestTournamentManager:
         tournament_manager: TournamentManager,
         sample_tournament: Tournament,
         sample_match_result: MatchResult,
-    ) -> None:
+    ):
         """Test recording match results."""
         # Register and start tournament
         tournament_manager.register_player(
@@ -187,7 +205,11 @@ class TestTournamentManager:
 
         # Verify match was updated
         match = next(
-            (m for m in sample_tournament.matches if m.winner_id == sample_match_result.winner_id),
+            (
+                m
+                for m in sample_tournament.matches
+                if m.winner_id == sample_match_result.winner_id
+            ),
             None,
         )
         assert match is not None
@@ -196,7 +218,7 @@ class TestTournamentManager:
 
     def test_tournament_completion(
         self, tournament_manager: TournamentManager, sample_tournament: Tournament
-    ) -> None:
+    ):
         """Test tournament completion and prize distribution."""
         # Register 4 players
         players = ["player1", "player2", "player3", "player4"]
@@ -219,7 +241,9 @@ class TestTournamentManager:
                     shots=[],
                     duration=timedelta(minutes=30),
                 )
-                tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+                tournament_manager.record_match_result(
+                    sample_tournament.tournament_id, result
+                )
 
         assert sample_tournament.status == TournamentStatus.COMPLETED
         assert "completed" in sample_tournament.timestamps
@@ -248,9 +272,11 @@ class TestTournamentManager:
 
     def test_get_venue_tournaments(
         self, tournament_manager: TournamentManager, sample_tournament: Tournament
-    ) -> None:
+    ):
         """Test retrieving venue tournaments."""
-        tournaments = tournament_manager.get_venue_tournaments(sample_tournament.venue_id)
+        tournaments = tournament_manager.get_venue_tournaments(
+            sample_tournament.venue_id
+        )
         assert len(tournaments) == 1
         assert tournaments[0].tournament_id == sample_tournament.tournament_id
 
@@ -267,14 +293,16 @@ class TestTournamentManager:
 
     def test_round_robin_tournament(
         self, tournament_manager: TournamentManager, sample_tournament: Tournament
-    ) -> None:
+    ):
         """Test round robin tournament format."""
         # Set tournament format to round robin
         sample_tournament.format = TournamentFormat.ROUND_ROBIN
 
         # Register 5 players (odd number to test bye handling)
         for i in range(5):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         tournament_manager.start_tournament(sample_tournament.tournament_id)
 
@@ -297,7 +325,9 @@ class TestTournamentManager:
                     shots=[],
                     duration=timedelta(minutes=30),
                 )
-                tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+                tournament_manager.record_match_result(
+                    sample_tournament.tournament_id, result
+                )
 
         # Tournament should be completed
         assert sample_tournament.status == TournamentStatus.COMPLETED
@@ -320,12 +350,16 @@ class TestTournamentManager:
 
         # Register 8 players
         for i in range(8):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         tournament_manager.start_tournament(sample_tournament.tournament_id)
 
         # Should have 4 first round matches
-        first_round_matches = [m for m in sample_tournament.matches if m.round_number == 1]
+        first_round_matches = [
+            m for m in sample_tournament.matches if m.round_number == 1
+        ]
         assert len(first_round_matches) == 4
 
         # Complete matches round by round
@@ -333,7 +367,8 @@ class TestTournamentManager:
             current_matches = [
                 m
                 for m in sample_tournament.matches
-                if m.round_number == sample_tournament.current_round and not m.completed_time
+                if m.round_number == sample_tournament.current_round
+                and not m.completed_time
             ]
 
             for match in current_matches:
@@ -348,7 +383,9 @@ class TestTournamentManager:
                     shots=[],
                     duration=timedelta(minutes=30),
                 )
-                tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+                tournament_manager.record_match_result(
+                    sample_tournament.tournament_id, result
+                )
 
         # Tournament should be completed
         assert sample_tournament.status == TournamentStatus.COMPLETED
@@ -366,7 +403,9 @@ class TestTournamentManager:
         player_scores = {}
         for match in sample_tournament.matches:
             if match.winner_id:
-                player_scores[match.winner_id] = player_scores.get(match.winner_id, 0) + 1
+                player_scores[match.winner_id] = (
+                    player_scores.get(match.winner_id, 0) + 1
+                )
 
         # Higher scores should correspond to better (lower) ranks
         for player1_id, score1 in player_scores.items():
@@ -386,7 +425,9 @@ class TestTournamentManager:
 
         # Register 8 players
         for i in range(8):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         tournament_manager.start_tournament(sample_tournament.tournament_id)
 
@@ -407,7 +448,9 @@ class TestTournamentManager:
                 shots=[],
                 duration=timedelta(minutes=30),
             )
-            tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+            tournament_manager.record_match_result(
+                sample_tournament.tournament_id, result
+            )
 
         # Should generate losers bracket matches
         losers_matches = [
@@ -415,7 +458,8 @@ class TestTournamentManager:
             for m in sample_tournament.matches
             if m.round_number == 2
             and not any(
-                prev_m.winner_id in (m.player1_id, m.player2_id) for prev_m in winners_matches
+                prev_m.winner_id in (m.player1_id, m.player2_id)
+                for prev_m in winners_matches
             )
         ]
         assert len(losers_matches) == 2
@@ -425,7 +469,8 @@ class TestTournamentManager:
             current_matches = [
                 m
                 for m in sample_tournament.matches
-                if m.round_number == sample_tournament.current_round and not m.completed_time
+                if m.round_number == sample_tournament.current_round
+                and not m.completed_time
             ]
 
             for match in current_matches:
@@ -440,7 +485,9 @@ class TestTournamentManager:
                     shots=[],
                     duration=timedelta(minutes=30),
                 )
-                tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+                tournament_manager.record_match_result(
+                    sample_tournament.tournament_id, result
+                )
 
         # Tournament should be completed
         assert sample_tournament.status == TournamentStatus.COMPLETED
@@ -464,14 +511,16 @@ class TestTournamentManager:
 
     def test_round_robin_tournament_odd_players(
         self, tournament_manager: TournamentManager, sample_tournament: Tournament
-    ) -> None:
+    ):
         """Test round robin tournament with odd number of players."""
         # Set tournament format to round robin
         sample_tournament.format = TournamentFormat.ROUND_ROBIN
 
         # Register 5 players (odd number to test bye handling)
         for i in range(5):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         tournament_manager.start_tournament(sample_tournament.tournament_id)
 
@@ -494,7 +543,9 @@ class TestTournamentManager:
                     shots=[],
                     duration=timedelta(minutes=30),
                 )
-                tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+                tournament_manager.record_match_result(
+                    sample_tournament.tournament_id, result
+                )
 
         # Tournament should be completed
         assert sample_tournament.status == TournamentStatus.COMPLETED
@@ -527,12 +578,16 @@ class TestTournamentManager:
 
         # Register 8 players
         for i in range(8):
-            tournament_manager.register_player(sample_tournament.tournament_id, f"player_{i}")
+            tournament_manager.register_player(
+                sample_tournament.tournament_id, f"player_{i}"
+            )
 
         tournament_manager.start_tournament(sample_tournament.tournament_id)
 
         # Should have 4 first round matches
-        first_round_matches = [m for m in sample_tournament.matches if m.round_number == 1]
+        first_round_matches = [
+            m for m in sample_tournament.matches if m.round_number == 1
+        ]
         assert len(first_round_matches) == 4
 
         # Complete matches with specific results to test tiebreaks
@@ -543,7 +598,8 @@ class TestTournamentManager:
             current_matches = [
                 m
                 for m in sample_tournament.matches
-                if m.round_number == sample_tournament.current_round and not m.completed_time
+                if m.round_number == sample_tournament.current_round
+                and not m.completed_time
             ]
 
             for match in current_matches:
@@ -554,13 +610,19 @@ class TestTournamentManager:
                 elif match.player2_id in ["player_0", "player_1"]:
                     winner_id = match.player2_id
                     loser_id = match.player1_id
-                elif match.player1_id in ["player_2", "player_3"] and match.player2_id not in [
+                elif match.player1_id in [
+                    "player_2",
+                    "player_3",
+                ] and match.player2_id not in [
                     "player_0",
                     "player_1",
                 ]:
                     winner_id = match.player1_id
                     loser_id = match.player2_id
-                elif match.player2_id in ["player_2", "player_3"] and match.player1_id not in [
+                elif match.player2_id in [
+                    "player_2",
+                    "player_3",
+                ] and match.player1_id not in [
                     "player_0",
                     "player_1",
                 ]:
@@ -581,7 +643,9 @@ class TestTournamentManager:
                     shots=[],
                     duration=timedelta(minutes=30),
                 )
-                tournament_manager.record_match_result(sample_tournament.tournament_id, result)
+                tournament_manager.record_match_result(
+                    sample_tournament.tournament_id, result
+                )
 
         # Tournament should be completed
         assert sample_tournament.status == TournamentStatus.COMPLETED
@@ -600,9 +664,11 @@ class TestTournamentManager:
         for player1_id in ["player_0", "player_1"]:
             for player2_id in ["player_2", "player_3"]:
                 assert (
-                    sample_tournament.rankings[player1_id] < sample_tournament.rankings[player2_id]
+                    sample_tournament.rankings[player1_id]
+                    < sample_tournament.rankings[player2_id]
                 )
             for player2_id in ["player_4", "player_5", "player_6", "player_7"]:
                 assert (
-                    sample_tournament.rankings[player1_id] < sample_tournament.rankings[player2_id]
+                    sample_tournament.rankings[player1_id]
+                    < sample_tournament.rankings[player2_id]
                 )

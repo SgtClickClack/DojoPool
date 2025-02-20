@@ -3,18 +3,25 @@
 This module provides API resources for authentication operations.
 """
 
-from flask import current_app
-from flask_login import login_user, logout_user, current_user
-from marshmallow import Schema, fields, validate
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
+from flask import Request, Response, current_app, request
+from flask.typing import ResponseReturnValue
+from flask_login import current_user, login_user, logout_user
+from marshmallow import Schema, fields, validate
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+from dojopool.core.exceptions import AuthenticationError, ValidationError
 from dojopool.core.security import (
     generate_password_hash_with_method,
-    check_password,
     generate_reset_token,
+    verify_password_hash,
     verify_reset_token,
 )
-from dojopool.core.exceptions import AuthenticationError, ValidationError
-from dojopool.core.auth.models import User
+from dojopool.core.security.tokens import generate_confirmation_token
+from dojopool.database import db
+from dojopool.models.user import User
+
 from .base import BaseResource
 
 
@@ -64,11 +71,11 @@ class LoginResource(BaseResource):
 
     def post(self):
         """Handle login request."""
-        data = self.get_json_data()
+        data: Any = self.get_json_data()
 
-        user = User.query.filter_by(email=data["email"]).first()
+        user: User = User.query.filter_by(email=data["email"]).first()
 
-        if not user or not check_password(data["password"], user.password):
+        if not user or not verify_password_hash(data["password"], user.password):
             raise AuthenticationError("Invalid email or password")
 
         if not user.is_active:
@@ -99,7 +106,7 @@ class RegisterResource(BaseResource):
 
     def post(self):
         """Handle registration request."""
-        data = self.get_json_data()
+        data: Any = self.get_json_data()
 
         if data["password"] != data["confirm_password"]:
             raise ValidationError("Passwords do not match")
@@ -110,7 +117,7 @@ class RegisterResource(BaseResource):
         if User.query.filter_by(username=data["username"]).first():
             raise ValidationError("Username already taken")
 
-        user = User(
+        user: User = User(
             email=data["email"],
             username=data["username"],
             first_name=data["first_name"],
@@ -120,7 +127,7 @@ class RegisterResource(BaseResource):
         user.save()
 
         # Send confirmation email
-        token = generate_reset_token(user.id)
+        token: str = generate_reset_token(user.id)
         # TODO: Implement email sending
 
         return self.success_response(
@@ -137,12 +144,12 @@ class PasswordResetResource(BaseResource):
 
     def post(self):
         """Handle password reset request."""
-        data = self.get_json_data()
+        data: Any = self.get_json_data()
 
-        user = User.query.filter_by(email=data["email"]).first()
+        user: User = User.query.filter_by(email=data["email"]).first()
 
         if user:
-            token = generate_reset_token(user.id)
+            token: str = generate_reset_token(user.id)
             # TODO: Implement email sending
 
         # Always return success to prevent email enumeration
@@ -158,21 +165,60 @@ class PasswordResetConfirmResource(BaseResource):
 
     def post(self):
         """Handle password reset confirmation."""
-        data = self.get_json_data()
+        data: Any = self.get_json_data()
 
         if data["password"] != data["confirm_password"]:
             raise ValidationError("Passwords do not match")
 
         try:
-            user_id = verify_reset_token(data["token"])
+            user_id: int = verify_reset_token(data["token"])
         except AuthenticationError:
             raise ValidationError("Invalid or expired reset token")
 
-        user = User.query.get(user_id)
+        user: User = User.query.get(user_id)
         if not user:
             raise ValidationError("User not found")
 
-        user.password = generate_password_hash_with_method(data["password"])
+        user.password: Any = generate_password_hash_with_method(data["password"])
         user.save()
 
         return self.success_response(message="Password reset successful")
+
+
+def login() -> Dict[str, Any]:
+    data: Any = request.get_json()
+    # Implement authentication logic here
+    return {"status": "logged in"}
+
+
+def register():
+    data: Any = request.get_json()
+    # Remove unsupported keyword arguments (first_name, last_name) if User doesn't expect them
+    user: User = User(
+        username=data.get("username", ""),
+        email=data.get("email", ""),
+        password=data.get("password", ""),
+    )
+    db.session.add(user)
+    db.session.commit()
+    return {"status": "registered"}
+
+
+def forgot_password():
+    # Implement forgot password functionality as needed
+    return {"status": "forgot password endpoint"}
+
+
+def confirm_email():
+    token_str: str = request.args.get("token", "", type=str)
+    try:
+        user_id: int = int(token_str)
+    except ValueError:
+        user_id: int = 0
+    confirmation: str = generate_confirmation_token(user_id)
+    return {"confirmation": confirmation}
+
+
+def reset_password() -> Dict[str, Any]:
+    # Implement password reset functionality
+    return {"status": "password reset requested"}

@@ -73,9 +73,7 @@ class RateLimitExceededError(MatchmakingError):
     def __init__(self, user_id, retry_after):
         self.user_id = user_id
         self.retry_after = retry_after
-        self.message = (
-            f"Rate limit exceeded for player {user_id}. Try again in {retry_after} seconds"
-        )
+        self.message = f"Rate limit exceeded for player {user_id}. Try again in {retry_after} seconds"
         super().__init__(self.message)
 
 
@@ -94,9 +92,7 @@ class SkillMismatchError(MatchmakingError):
         self.user1_id = user1_id
         self.user2_id = user2_id
         self.rating_diff = rating_diff
-        self.message = (
-            f"Skill mismatch between players {user1_id} and {user2_id} (difference: {rating_diff})"
-        )
+        self.message = f"Skill mismatch between players {user1_id} and {user2_id} (difference: {rating_diff})"
         super().__init__(self.message)
 
 

@@ -2,9 +2,9 @@
 Professional tournament configuration and settings.
 """
 
-from typing import Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List, Optional
 
 
 class ProTournamentTier(Enum):
@@ -102,7 +102,13 @@ class ProTournamentConfig:
             },
             broadcast=BroadcastRequirements(
                 minimum_cameras=8,
-                required_angles=["overhead", "player-side", "end-to-end", "crowd", "close-up"],
+                required_angles=[
+                    "overhead",
+                    "player-side",
+                    "end-to-end",
+                    "crowd",
+                    "close-up",
+                ],
                 streaming_quality="4K60",
                 replay_system=True,
                 commentary_booth=True,
@@ -217,7 +223,11 @@ class ProTournamentConfig:
                 match_referee_level=RefereeLevel.REGIONAL,
                 minimum_referees=8,
                 backup_referees=2,
-                required_certifications=["pro_rules", "shot_clock", "dispute_resolution"],
+                required_certifications=[
+                    "pro_rules",
+                    "shot_clock",
+                    "dispute_resolution",
+                ],
             ),
             venue_requirements=VenueRequirements(
                 minimum_tables=6,

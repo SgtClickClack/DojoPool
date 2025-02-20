@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room cleanup module.
 
 This module provides functionality for cleaning up inactive and expired rooms.
@@ -46,10 +48,12 @@ class RoomCleanup:
         """
         if self._cleanup_task is None:
             self._cleanup_task = asyncio.create_task(
-                self._cleanup_loop(cleanup_interval, idle_timeout, error_timeout, max_age)
+                self._cleanup_loop(
+                    cleanup_interval, idle_timeout, error_timeout, max_age
+                )
             )
 
-    async def stop_cleanup(self) -> None:
+    async def stop_cleanup(self):
         """Stop cleanup task."""
         if self._cleanup_task is not None:
             self._cleanup_task.cancel()
@@ -61,7 +65,7 @@ class RoomCleanup:
 
     async def _cleanup_loop(
         self, interval: int, idle_timeout: int, error_timeout: int, max_age: int
-    ) -> None:
+    ):
         """Cleanup loop to remove inactive and expired rooms.
 
         Args:
@@ -77,9 +81,11 @@ class RoomCleanup:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error("Error in room cleanup loop", exc_info=True, extra={"error": str(e)})
+                logger.error(
+                    "Error in room cleanup loop", exc_info=True, extra={"error": str(e)}
+                )
 
-    async def cleanup_rooms(self, idle_timeout: int, error_timeout: int, max_age: int) -> None:
+    async def cleanup_rooms(self, idle_timeout: int, error_timeout: int, max_age: int):
         """Clean up inactive and expired rooms.
 
         Args:
@@ -135,7 +141,9 @@ class RoomCleanup:
                                 ).total_seconds()
 
                                 if idle_time > idle_timeout:
-                                    await self._close_room(room_id, "Room exceeded idle timeout")
+                                    await self._close_room(
+                                        room_id, "Room exceeded idle timeout"
+                                    )
                                     rooms_cleaned += 1
                                     continue
 
@@ -152,13 +160,16 @@ class RoomCleanup:
                     {
                         "last_cleanup": current_time.isoformat(),
                         "total_cleanups": self._cleanup_stats["total_cleanups"] + 1,
-                        "rooms_cleaned": self._cleanup_stats["rooms_cleaned"] + rooms_cleaned,
+                        "rooms_cleaned": self._cleanup_stats["rooms_cleaned"]
+                        + rooms_cleaned,
                         "errors": self._cleanup_stats["errors"] + errors,
                     }
                 )
 
         except Exception as e:
-            logger.error("Error performing room cleanup", exc_info=True, extra={"error": str(e)})
+            logger.error(
+                "Error performing room cleanup", exc_info=True, extra={"error": str(e)}
+            )
 
     async def _close_room(self, room_id: str, reason: str) -> None:
         """Close and clean up room.
@@ -177,9 +188,14 @@ class RoomCleanup:
             await room_manager.delete_room(room_id)
 
             # Transition to closed state
-            await room_state_manager.transition_state(room_id, RoomState.CLOSED, {"reason": reason})
+            await room_state_manager.transition_state(
+                room_id, RoomState.CLOSED, {"reason": reason}
+            )
 
-            logger.info("Room closed and cleaned up", extra={"room_id": room_id, "reason": reason})
+            logger.info(
+                "Room closed and cleaned up",
+                extra={"room_id": room_id, "reason": reason},
+            )
 
         except Exception as e:
             logger.error(
@@ -193,7 +209,7 @@ class RoomCleanup:
                 room_id, RoomState.ERROR, {"reason": reason, "error": str(e)}
             )
 
-    def get_cleanup_stats(self) -> Dict[str, Any]:
+    def get_cleanup_stats(self):
         """Get cleanup statistics.
 
         Returns:
@@ -201,7 +217,7 @@ class RoomCleanup:
         """
         return dict(self._cleanup_stats)
 
-    async def force_cleanup(self, room_id: str, reason: str) -> Optional[Dict[str, Any]]:
+    async def force_cleanup(self, room_id: str, reason: str):
         """Force cleanup of specific room.
 
         Args:
@@ -230,7 +246,9 @@ class RoomCleanup:
                 extra={"room_id": room_id, "reason": reason, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error force cleaning room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error force cleaning room",
+                {"error": str(e)},
             )
 
 
@@ -243,7 +261,7 @@ async def start_room_cleanup(
     idle_timeout: int = 1800,
     error_timeout: int = 300,
     max_age: int = 86400,
-) -> None:
+):
     """Start room cleanup.
 
     Args:
@@ -252,7 +270,9 @@ async def start_room_cleanup(
         error_timeout: Error state timeout in seconds
         max_age: Maximum room age in seconds
     """
-    await room_cleanup.start_cleanup(cleanup_interval, idle_timeout, error_timeout, max_age)
+    await room_cleanup.start_cleanup(
+        cleanup_interval, idle_timeout, error_timeout, max_age
+    )
 
 
 async def stop_room_cleanup() -> None:

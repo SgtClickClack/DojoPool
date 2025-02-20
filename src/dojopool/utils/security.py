@@ -11,7 +11,7 @@ import os
 import secrets
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple, TypeVar, Union, cast
 
 import jwt
 from cryptography.fernet import Fernet
@@ -19,10 +19,13 @@ from flask import abort, current_app, request, session
 from itsdangerous import URLSafeTimedSerializer
 from itsdangerous.exc import BadData, BadSignature, SignatureExpired
 
-from dojopool.config.base import BaseConfig
+from ..core.config import Config
 
+F = TypeVar("F", bound=Callable[..., Any])
 
-def generate_token(user_id: int, token_type: str, expires_in: int = 3600, **extra: Any) -> str:
+def generate_token(
+    user_id: int, token_type: str, expires_in: int = 3600, **extra: Any
+) -> str:
     """Generate a secure JWT token.
 
     Args:
@@ -42,107 +45,60 @@ def generate_token(user_id: int, token_type: str, expires_in: int = 3600, **extr
         "iat": now,
         **extra,
     }
-    return jwt.encode(payload, BaseConfig.SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
 
-
-def verify_token(token: str, expected_type: str) -> Optional[Union[int, Dict[str, Any]]]:
-    """Verify and decode a JWT token.
-
-    Args:
-        token: JWT token to verify.
-        expected_type: Expected token type.
-
-    Returns:
-        Optional[Union[int, Dict[str, Any]]]: User ID or token data if valid,
-            None otherwise.
-    """
+def verify_token(token: str, expected_type: str) -> Optional[Dict[str, Any]]:
+    """Verify and decode a JWT token."""
     try:
-        payload = jwt.decode(token, BaseConfig.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+        if payload.get("type") != expected_type:
+            return None
+        return payload
     except jwt.InvalidTokenError:
         return None
 
-    # Check token type
-    if payload.get("type") != expected_type:
-        return None
-
-    # Check expiration
-    if datetime.utcnow() > datetime.fromtimestamp(payload["exp"]):
-        return None
-
-    # Return user_id for simple tokens or full payload for complex ones
-    if len(payload) == 5:  # Basic token with standard claims
-        return payload["user_id"]
-    return payload
-
-
 def generate_csrf_token() -> str:
-    """
-    Generate a CSRF token.
-
-    Returns:
-        A secure CSRF token string
-    """
+    """Generate a CSRF token."""
     if "csrf_token" not in session:
-        session["csrf_token"] = generate_secure_token()
+        session["csrf_token"] = secrets.token_urlsafe()
     return session["csrf_token"]
 
-
 def validate_csrf_token(token: str) -> bool:
-    """
-    Validate a CSRF token.
-
-    Args:
-        token: The token to validate
-
-    Returns:
-        True if valid, False otherwise
-    """
+    """Validate a CSRF token."""
     return hmac.compare_digest(token, session.get("csrf_token", ""))
 
-
-def csrf_protect():
-    """CSRF protection decorator"""
-
-    def decorator(f):
+def csrf_protect() -> Callable[[F], F]:
+    """CSRF protection decorator."""
+    def decorator(f: F) -> F:
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
                 token = request.headers.get("X-CSRF-Token")
                 if not token or not validate_csrf_token(token):
                     abort(403)
             return f(*args, **kwargs)
-
-        return decorated_function
-
+        return cast(F, decorated_function)
     return decorator
 
+def generate_secure_token(length: int = 32) -> str:
+    """Generate a secure random token."""
+    return secrets.token_urlsafe(length)
 
-def generate_secure_token(data, expires_in=3600):
-    """
-    Generate a secure token for data
-    :param data: Data to encode in token
-    :param expires_in: Token expiration time in seconds
-    :return: Secure token
-    """
-    serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
-    return serializer.dumps(data, salt=current_app.config.get("SECURITY_SALT", "secure-salt"))
+def verify_secure_token(token: str, max_age: int = 3600) :
+    """Verify a secure token.
 
+    Args:
+        token: Token to verify.
+        max_age: Maximum age of token in seconds.
 
-def verify_secure_token(token, max_age=3600):
+    Returns:
+        Optional[str]: Decoded data if valid, None otherwise.
     """
-    Verify a secure token
-    :param token: Token to verify
-    :param max_age: Maximum age of token in seconds
-    :return: Decoded data if valid, None otherwise
-    """
-    try:
-        serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
-        return serializer.loads(
-            token, salt=current_app.config.get("SECURITY_SALT", "secure-salt"), max_age=max_age
-        )
-    except (SignatureExpired, BadSignature, BadData):
+    serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(str(Config.SECRET_KEY))
+    try :
+        return cast(str, serializer.loads(token, max_age=max_age))
+    except (BadSignature, SignatureExpired, BadData):
         return None
-
 
 def secure_headers():
     """
@@ -158,7 +114,6 @@ def secure_headers():
         "Referrer-Policy": "strict-origin-when-cross-origin",
     }
 
-
 def verify_signature(signature, data, secret):
     """
     Verify HMAC signature
@@ -167,61 +122,38 @@ def verify_signature(signature, data, secret):
     :param secret: Secret key
     :return: True if valid, False otherwise
     """
-    expected = hmac.new(secret.encode(), data.encode(), hashlib.sha256).hexdigest()
+    expected: Any = hmac.new(secret.encode(), data.encode(), hashlib.sha256).hexdigest()
     return hmac.compare_digest(signature, expected)
 
-
-def generate_secure_token(length: int = 32) -> str:
-    """
-    Generate a secure random token.
-
-    Args:
-        length: Length of the token to generate
-
-    Returns:
-        A secure random token string
-    """
-    return secrets.token_urlsafe(length)
-
-
-def hash_token(token: Optional[str]) -> str:
+def hash_token(token: str) -> str:
     """Hash a token using SHA-256."""
-    if token is None:
-        return ""
     return hashlib.sha256(token.encode()).hexdigest()
 
-
 def verify_token_hash(token: str, token_hash: str) -> bool:
-    """
-    Verify a token against its hash
-    """
+    """Verify a token against its hash."""
     return hmac.compare_digest(hash_token(token), token_hash)
 
-
 def encrypt_data(data: str) -> Tuple[str, str]:
-    """
-    Encrypt sensitive data using Fernet
-    """
+    """Encrypt sensitive data using Fernet."""
     key = Fernet.generate_key()
     f = Fernet(key)
     encrypted_data = f.encrypt(data.encode())
-    return base64.urlsafe_b64encode(encrypted_data).decode(), base64.urlsafe_b64encode(key).decode()
-
+    return (
+        base64.urlsafe_b64encode(encrypted_data).decode(),
+        base64.urlsafe_b64encode(key).decode(),
+    )
 
 def decrypt_data(encrypted_data: str, key: str) -> str:
-    """
-    Decrypt sensitive data using Fernet
-    """
+    """Decrypt sensitive data using Fernet."""
     f = Fernet(base64.urlsafe_b64decode(key.encode()))
     decrypted_data = f.decrypt(base64.urlsafe_b64decode(encrypted_data.encode()))
     return decrypted_data.decode()
 
-
-def generate_fingerprint(device_info: dict) -> str:
+def generate_fingerprint(device_info: dict) :
     """
     Generate a unique device fingerprint
     """
-    fingerprint_data = "|".join(
+    fingerprint_data: Any = "|".join(
         [
             str(device_info.get("device_id", "")),
             str(device_info.get("platform", "")),
@@ -230,7 +162,6 @@ def generate_fingerprint(device_info: dict) -> str:
         ]
     )
     return hashlib.sha256(fingerprint_data.encode()).hexdigest()
-
 
 def validate_password_strength(password: str) -> Tuple[bool, str]:
     """
@@ -253,44 +184,69 @@ def validate_password_strength(password: str) -> Tuple[bool, str]:
 
     return True, "Password meets strength requirements"
 
-
 def generate_totp_secret() -> str:
     """
     Generate a secret for TOTP-based 2FA
     """
     return base64.b32encode(os.urandom(20)).decode("utf-8")
 
+def hash_password(password: str, salt: Optional[str] = None) -> Tuple[str, str]:
+    """Hash a password using PBKDF2.
 
-def hash_password(password: str, salt: str = None) -> Tuple[str, str]:
+    Args:
+        password: Password to hash.
+        salt: Optional salt, generated if not provided.
+
+    Returns:
+        Tuple[str, str]: (password_hash, salt)
     """
-    Hash a password using PBKDF2
-    """
-    if not salt:
-        salt = os.urandom(16)
-
-    key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100000, dklen=32)
-
-    return base64.b64encode(key).decode(), base64.b64encode(salt).decode()
-
+    if salt is None:
+        salt = secrets.token_hex(16)
+    
+    password_bytes: Any = password.encode('utf-8')
+    salt_bytes: Any = salt.encode('utf-8')
+    
+    hash_bytes: Any = hashlib.pbkdf2_hmac(
+        'sha256',
+        password_bytes,
+        salt_bytes,
+        100000
+    )
+    
+    password_hash: Any = base64.b64encode(hash_bytes).decode('utf-8')
+    return password_hash, salt
 
 def verify_password(password: str, password_hash: str, salt: str) -> bool:
-    """
-    Verify a password against its hash
-    """
-    salt = base64.b64decode(salt.encode())
-    key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100000, dklen=32)
+    """Verify a password against its hash.
 
-    return hmac.compare_digest(base64.b64encode(key).decode(), password_hash)
+    Args:
+        password: Password to verify.
+        password_hash: Stored password hash.
+        salt: Salt used in hashing.
 
+    Returns:
+        bool: True if password matches, False otherwise.
+    """
+    password_bytes: Any = password.encode('utf-8')
+    salt_bytes: Any = salt.encode('utf-8')
+    
+    hash_bytes: Any = hashlib.pbkdf2_hmac(
+        'sha256',
+        password_bytes,
+        salt_bytes,
+        100000
+    )
+    
+    computed_hash: Any = base64.b64encode(hash_bytes).decode('utf-8')
+    return hmac.compare_digest(password_hash, computed_hash)
 
 def generate_api_key() -> Tuple[str, str]:
     """
     Generate an API key and its hash
     """
     api_key = f"dp_{base64.urlsafe_b64encode(os.urandom(32)).decode('utf-8')}"
-    api_key_hash = hash_token(api_key)
+    api_key_hash: hash_token = hash_token(api_key)
     return api_key, api_key_hash
-
 
 def sanitize_input(input_str: str) -> str:
     """
@@ -298,22 +254,21 @@ def sanitize_input(input_str: str) -> str:
     """
     return input_str.replace("<", "&lt;").replace(">", "&gt;")
 
-
 def verify_csrf_token(token: str, session_token: str) -> bool:
     """
     Verify a CSRF token
     """
     return hmac.compare_digest(token, session_token)
 
-
-def rate_limit_key(user_id: str, action: str) -> str:
+def rate_limit_key(user_id: str, action: str) :
     """
     Generate a rate limit key
     """
     return f"rate_limit:{user_id}:{action}"
 
-
-def is_rate_limited(user_id: str, action: str, max_attempts: int, window: timedelta) -> bool:
+def is_rate_limited(
+    user_id: str, action: str, max_attempts: int, window: timedelta
+) :
     """
     Check if an action is rate limited
     """
@@ -324,8 +279,7 @@ def is_rate_limited(user_id: str, action: str, max_attempts: int, window: timede
     # This is a placeholder for the logic
     return False
 
-
-def log_security_event(event_type: str, user_id: str, details: dict) -> None:
+def log_security_event(event_type: str, user_id: str, details: dict) :
     """
     Log a security event
     """
@@ -342,21 +296,42 @@ def log_security_event(event_type: str, user_id: str, details: dict) -> None:
     # This is a placeholder for the logic
     pass
 
-
 def encrypt_token(token: str, key: str) -> str:
-    """Encrypt a token using PBKDF2."""
-    salt = os.urandom(16)
-    key = hashlib.pbkdf2_hmac("sha256", key.encode(), salt, 100000)
-    encrypted = base64.b64encode(salt + key).decode("utf-8")
-    return encrypted
+    """Encrypt a token using Fernet.
 
+    Args:
+        token: Token to encrypt.
+        key: Encryption key.
+
+    Returns:
+        str: Encrypted token.
+    """
+    f: Fernet = Fernet(key.encode('utf-8'))
+    encrypted = f.encrypt(token.encode('utf-8'))
+    return base64.b64encode(encrypted).decode('utf-8')
 
 def decrypt_token(encrypted_token: str, key: str) -> str:
-    """Decrypt a token using PBKDF2."""
-    try:
-        decoded = base64.b64decode(encrypted_token.encode())
-        salt = decoded[:16]
-        key = hashlib.pbkdf2_hmac("sha256", key.encode(), salt, 100000)
-        return base64.b64encode(key).decode("utf-8")
-    except Exception:
-        return ""
+    """Decrypt a token using Fernet.
+
+    Args:
+        encrypted_token: Encrypted token.
+        key: Encryption key.
+
+    Returns:
+        str: Decrypted token.
+    """
+    f: Fernet = Fernet(key.encode('utf-8'))
+    encrypted_bytes = base64.b64decode(encrypted_token.encode('utf-8'))
+    decrypted: Any = f.decrypt(encrypted_bytes)
+    return decrypted.decode('utf-8')
+
+def create_session_token(
+    user_id: int,
+    device_info: Dict[str, Any],
+    ip_address: str,
+    duration: Optional[timedelta] = None,
+) -> Tuple[str, datetime]:
+    """Create a new session token."""
+    token = generate_secure_token()
+    expires_at = datetime.utcnow() + (duration or timedelta(days=7))
+    return token, expires_at

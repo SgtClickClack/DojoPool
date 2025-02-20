@@ -37,7 +37,7 @@ class RoomConfig:
     idle_timeout: timedelta
     cleanup_interval: timedelta
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert to dictionary.
 
         Returns:
@@ -58,7 +58,7 @@ class MetricsConfig:
     collection_interval: timedelta = timedelta(seconds=60)
     retention_days: int = 30
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert to dictionary.
 
         Returns:
@@ -80,7 +80,7 @@ class SecurityConfig:
     max_failed_attempts: int = 5
     lockout_duration: timedelta = timedelta(minutes=15)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert to dictionary.
 
         Returns:
@@ -143,7 +143,7 @@ class WebSocketConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "WebSocketConfig":
+    def from_dict(cls, data: Dict[str, Any]):
         """Create from dictionary.
 
         Args:
@@ -160,13 +160,21 @@ class WebSocketConfig:
         return cls(
             rate_limit=RateLimitConfig(
                 max_requests=rate_limit_data.get("max_requests", 100),
-                time_window=timedelta(seconds=rate_limit_data.get("time_window_seconds", 60)),
-                error_message=rate_limit_data.get("error_message", "Rate limit exceeded"),
+                time_window=timedelta(
+                    seconds=rate_limit_data.get("time_window_seconds", 60)
+                ),
+                error_message=rate_limit_data.get(
+                    "error_message", "Rate limit exceeded"
+                ),
             ),
             room=RoomConfig(
                 max_members=room_data.get("max_members", 100),
-                idle_timeout=timedelta(seconds=room_data.get("idle_timeout_seconds", 1800)),
-                cleanup_interval=timedelta(seconds=room_data.get("cleanup_interval_seconds", 300)),
+                idle_timeout=timedelta(
+                    seconds=room_data.get("idle_timeout_seconds", 1800)
+                ),
+                cleanup_interval=timedelta(
+                    seconds=room_data.get("cleanup_interval_seconds", 300)
+                ),
             ),
             metrics=MetricsConfig(
                 enabled=metrics_data.get("enabled", True),
@@ -176,8 +184,12 @@ class WebSocketConfig:
                 retention_days=metrics_data.get("retention_days", 30),
             ),
             security=SecurityConfig(
-                require_authentication=security_data.get("require_authentication", True),
-                token_expiry=timedelta(seconds=security_data.get("token_expiry_seconds", 86400)),
+                require_authentication=security_data.get(
+                    "require_authentication", True
+                ),
+                token_expiry=timedelta(
+                    seconds=security_data.get("token_expiry_seconds", 86400)
+                ),
                 max_failed_attempts=security_data.get("max_failed_attempts", 5),
                 lockout_duration=timedelta(
                     seconds=security_data.get("lockout_duration_seconds", 900)

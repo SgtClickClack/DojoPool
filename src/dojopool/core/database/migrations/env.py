@@ -1,17 +1,24 @@
 import os
 import sys
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
 from logging.config import fileConfig
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import ForeignKey, engine_from_config, pool
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # Add the parent directory to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config: Any = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -19,11 +26,11 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Create Base class for declarative models
-Base = declarative_base()
+Base: declarative_base = declarative_base()
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-target_metadata = Base.metadata
+target_metadata: Any = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -43,7 +50,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url: Any = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -55,14 +62,14 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
+def run_migrations_online():
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
+    connectable: engine_from_config = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,

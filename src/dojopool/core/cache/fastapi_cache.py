@@ -7,16 +7,18 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from .redis_cache import (
-    redis_client,
     cache_key_prefix,
     generate_cache_key,
     get_cached_value,
+    redis_client,
     set_cached_value,
 )
 
 
 def cache_response_fastapi(
-    timeout: int = 300, key_prefix: Optional[str] = None, unless: Optional[Callable] = None
+    timeout: int = 300,
+    key_prefix: Optional[str] = None,
+    unless: Optional[Callable] = None,
 ):
     """Cache decorator for FastAPI endpoints.
 
@@ -28,7 +30,7 @@ def cache_response_fastapi(
 
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        async def wrapped(*args: Any, **kwargs: Any) -> Any:
+        async def wrapped(*args: Any, **kwargs: Any):
             # Get request object from args
             request = next((arg for arg in args if isinstance(arg, Request)), None)
             if not request:
@@ -60,7 +62,7 @@ def cache_response_fastapi(
     return decorator
 
 
-def invalidate_endpoint_cache(pattern: str = "*") -> None:
+def invalidate_endpoint_cache(pattern: str = "*"):
     """Invalidate cache for specific endpoint pattern."""
     try:
         keys = redis_client.keys(f"{cache_key_prefix()}{pattern}")
@@ -71,10 +73,14 @@ def invalidate_endpoint_cache(pattern: str = "*") -> None:
         print(f"Failed to invalidate cache: {str(e)}")
 
 
-def get_endpoint_cache_stats(pattern: str = "*") -> dict:
+def get_endpoint_cache_stats(pattern: str = "*"):
     """Get cache statistics for specific endpoint pattern."""
     try:
         keys = redis_client.keys(f"{cache_key_prefix()}{pattern}")
-        return {"cached_keys": len(keys), "pattern": pattern, "prefix": cache_key_prefix()}
+        return {
+            "cached_keys": len(keys),
+            "pattern": pattern,
+            "prefix": cache_key_prefix(),
+        }
     except Exception as e:
         return {"error": str(e), "pattern": pattern, "prefix": cache_key_prefix()}

@@ -34,7 +34,7 @@ class PerformanceTracker:
             """
             )
 
-    def collect_metrics(self) -> Dict[str, Any]:
+    def collect_metrics(self):
         """Collect current performance metrics."""
         try:
             with open("performance_metrics.json", "r") as f:
@@ -58,7 +58,7 @@ class PerformanceTracker:
             logger.error(f"Error collecting metrics: {str(e)}")
             return {}
 
-    def store_metrics(self, metrics: Dict[str, Any]) -> None:
+    def store_metrics(self, metrics: Dict[str, Any]):
         """Store metrics in the database."""
         if not metrics:
             return
@@ -83,7 +83,7 @@ class PerformanceTracker:
                 metrics,
             )
 
-    def generate_report(self) -> Dict[str, Any]:
+    def generate_report(self):
         """Generate a performance report with trends."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -139,7 +139,9 @@ class PerformanceTracker:
 
 def main():
     # Set up logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Initialize tracker
     tracker = PerformanceTracker()

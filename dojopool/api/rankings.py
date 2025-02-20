@@ -2,14 +2,19 @@
 FastAPI endpoints for professional ranking system.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import Dict, List, Optional
-from pydantic import BaseModel
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
-from ..services.tournaments.ranking_service import RankingService, PlayerRanking, RankingPoints
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+
 from ..auth.dependencies import get_current_user
 from ..models.user import User
+from ..services.tournaments.ranking_service import (
+    PlayerRanking,
+    RankingPoints,
+    RankingService,
+)
 
 router = APIRouter(prefix="/api/rankings", tags=["rankings"])
 
@@ -72,7 +77,9 @@ async def get_rankings_range(
 ) -> List[Dict]:
     """Get rankings for a specific range."""
     if end_rank < start_rank:
-        raise HTTPException(status_code=400, detail="End rank must be greater than start rank")
+        raise HTTPException(
+            status_code=400, detail="End rank must be greater than start rank"
+        )
     return ranking_service.get_rankings_in_range(start_rank, end_rank)
 
 
@@ -105,7 +112,9 @@ async def get_ranking_movement(
 
 
 @router.post("/update")
-async def trigger_ranking_update(current_user: User = Depends(get_current_user)) -> Dict:
+async def trigger_ranking_update(
+    current_user: User = Depends(get_current_user),
+) -> Dict:
     """Trigger a global ranking update."""
     if not current_user.is_admin:
         raise HTTPException(
@@ -115,4 +124,7 @@ async def trigger_ranking_update(current_user: User = Depends(get_current_user))
     success = ranking_service.update_global_rankings()
     if success:
         return {"status": "success", "message": "Global rankings updated"}
-    return {"status": "skipped", "message": "Update skipped - too soon since last update"}
+    return {
+        "status": "skipped",
+        "message": "Update skipped - too soon since last update",
+    }

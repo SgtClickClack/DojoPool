@@ -100,7 +100,9 @@ class LoadTest:
         session = requests.Session()
         start_time = time.time()
 
-        while not self._stop_event.is_set() and time.time() - start_time < self.duration:
+        while (
+            not self._stop_event.is_set() and time.time() - start_time < self.duration
+        ):
             # Select random endpoint
             endpoint = random.choice(self.endpoints)
 
@@ -168,7 +170,14 @@ class LoadTest:
             "total_duration": self.duration,
             "total_users": self.users,
             "endpoints": {},
-            "response_times": {"min": 0, "max": 0, "avg": 0, "median": 0, "p95": 0, "p99": 0},
+            "response_times": {
+                "min": 0,
+                "max": 0,
+                "avg": 0,
+                "median": 0,
+                "p95": 0,
+                "p99": 0,
+            },
         }
 
         if not self.results:
@@ -253,7 +262,11 @@ class LoadTestRunner:
         )
         results = test.execute()
         self.results.append(
-            {"type": "smoke", "timestamp": datetime.utcnow().isoformat(), "results": results}
+            {
+                "type": "smoke",
+                "timestamp": datetime.utcnow().isoformat(),
+                "results": results,
+            }
         )
         return results
 
@@ -263,7 +276,7 @@ class LoadTestRunner:
         users: int = 10,
         duration: int = 300,
         ramp_up: int = 30,
-    ) -> Dict[str, Any]:
+    ):
         """Run load test with sustained load.
 
         Args:
@@ -284,7 +297,11 @@ class LoadTestRunner:
         )
         results = test.execute()
         self.results.append(
-            {"type": "load", "timestamp": datetime.utcnow().isoformat(), "results": results}
+            {
+                "type": "load",
+                "timestamp": datetime.utcnow().isoformat(),
+                "results": results,
+            }
         )
         return results
 
@@ -295,7 +312,7 @@ class LoadTestRunner:
         end_users: int = 100,
         step: int = 10,
         step_duration: int = 300,
-    ) -> List[Dict[str, Any]]:
+    ):
         """Run stress test with increasing load.
 
         Args:
@@ -322,14 +339,18 @@ class LoadTestRunner:
             step_results.append({"users": users, "results": results})
 
         self.results.append(
-            {"type": "stress", "timestamp": datetime.utcnow().isoformat(), "steps": step_results}
+            {
+                "type": "stress",
+                "timestamp": datetime.utcnow().isoformat(),
+                "steps": step_results,
+            }
         )
 
         return step_results
 
     def run_soak_test(
         self, endpoints: List[Dict[str, Any]], users: int = 10, duration: int = 3600
-    ) -> Dict[str, Any]:
+    ):
         """Run soak test with sustained load over long period.
 
         Args:
@@ -341,11 +362,19 @@ class LoadTestRunner:
             Test results
         """
         test = LoadTest(
-            base_url=self.base_url, endpoints=endpoints, users=users, duration=duration, ramp_up=60
+            base_url=self.base_url,
+            endpoints=endpoints,
+            users=users,
+            duration=duration,
+            ramp_up=60,
         )
         results = test.execute()
         self.results.append(
-            {"type": "soak", "timestamp": datetime.utcnow().isoformat(), "results": results}
+            {
+                "type": "soak",
+                "timestamp": datetime.utcnow().isoformat(),
+                "results": results,
+            }
         )
         return results
 

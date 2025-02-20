@@ -1,15 +1,18 @@
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import Blueprint, render_template
+from flask import Blueprint, Request, Response, current_app, render_template
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-bp = Blueprint("performance", __name__)
+bp: Blueprint = Blueprint("performance", __name__)
 
 
-def get_performance_data():
+def get_performance_data() -> Dict[Any, Any]:
     """Fetch performance metrics from the database."""
-    db_path = Path("performance_history.db")
+    db_path: Path = Path("performance_history.db")
     if not db_path.exists():
         return {
             "metrics": {"current": {}, "trends": {}},
@@ -21,7 +24,7 @@ def get_performance_data():
 
     with sqlite3.connect(db_path) as conn:
         # Get latest metrics
-        latest = conn.execute(
+        latest: Any = conn.execute(
             """
             SELECT * FROM performance_metrics
             ORDER BY timestamp DESC LIMIT 1
@@ -29,7 +32,7 @@ def get_performance_data():
         ).fetchone()
 
         # Get historical data for the past 30 days
-        history = conn.execute(
+        history: Any = conn.execute(
             """
             SELECT
                 timestamp,
@@ -42,10 +45,10 @@ def get_performance_data():
         """
         ).fetchall()
 
-        dates = []
-        size_trends = []
-        avif_trends = []
-        webp_trends = []
+        dates: List[Any] = []
+        size_trends: List[Any] = []
+        avif_trends: List[Any] = []
+        webp_trends: List[Any] = []
 
         for row in history:
             dates.append(datetime.fromisoformat(row[0]).strftime("%Y-%m-%d"))
@@ -53,9 +56,9 @@ def get_performance_data():
             avif_trends.append(row[2])
             webp_trends.append(row[3])
 
-        size_reduction = 0
+        size_reduction: int = 0
         if latest and latest[2] > 0:  # total_size_original
-            size_reduction = (latest[2] - latest[3]) / latest[2] * 100
+            size_reduction: int = (latest[2] - latest[3]) / latest[2] * 100
 
         return {
             "metrics": {

@@ -42,7 +42,9 @@ class SecretMigrator:
                     secrets = json.load(f)
                     # Extract relevant secrets
                     if "web" in secrets:
-                        self.env_vars["GOOGLE_CLIENT_ID"] = secrets["web"].get("client_id", "")
+                        self.env_vars["GOOGLE_CLIENT_ID"] = secrets["web"].get(
+                            "client_id", ""
+                        )
                         self.env_vars["GOOGLE_CLIENT_SECRET"] = secrets["web"].get(
                             "client_secret", ""
                         )
@@ -62,7 +64,9 @@ class SecretMigrator:
                     content = path.read_text(encoding="utf-8")
                     for pattern in self.secret_patterns.values():
                         if re.search(pattern, content):
-                            print(f"Found file with secrets: {path.relative_to(self.root_dir)}")
+                            print(
+                                f"Found file with secrets: {path.relative_to(self.root_dir)}"
+                            )
                             self.files_to_update.append(path)
                             break
                 except Exception as e:
@@ -125,7 +129,9 @@ class SecretMigrator:
                 for _secret_type, pattern in self.secret_patterns.items():
                     matches = list(re.finditer(pattern, content))
                     for match in reversed(matches):
-                        var_name = match.group(1).upper().replace("-", "_").replace(" ", "_")
+                        var_name = (
+                            match.group(1).upper().replace("-", "_").replace(" ", "_")
+                        )
                         if file_path.suffix == ".py":
                             replacement = f'os.getenv("{var_name}")'
                         elif file_path.suffix in {".js", ".jsx", ".ts", ".tsx"}:

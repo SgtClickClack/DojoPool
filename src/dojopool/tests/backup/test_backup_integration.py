@@ -1,3 +1,5 @@
+import gc
+import gc
 """Integration tests for backup system."""
 
 import os
@@ -5,16 +7,19 @@ import shutil
 import tempfile
 import time
 from pathlib import Path
-from unittest.mock import patch
+from typing import Any, Dict, Generator, List
+from unittest.mock import MagicMock, patch
 
-import pytest
+import boto3  # type: ignore
+import pytest  # type: ignore
+from botocore.client import BaseClient  # type: ignore
 
 from ...backup.backup_manager import BackupManager
 from ...config.backup_config import BackupSettings
 
 
-@pytest.fixture
-def test_env():
+@pytest.fixture  # type: ignore[misc]
+def test_env() -> Generator[Dict[str, Path], None, None]:
     """Set up test environment."""
     # Create temporary directories
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -40,8 +45,8 @@ def test_env():
         yield {"temp_dir": temp_path, "data_dir": data_dir, "backup_dir": backup_dir}
 
 
-@pytest.fixture
-def backup_settings(test_env):
+@pytest.fixture  # type: ignore[misc]
+def backup_settings(test_env: Dict[str, Path]):
     """Create test backup settings."""
     return BackupSettings(
         BACKUP_ROOT_DIR=test_env["backup_dir"],
@@ -54,14 +59,14 @@ def backup_settings(test_env):
     )
 
 
-@pytest.fixture
-def backup_manager(backup_settings):
+@pytest.fixture  # type: ignore[misc]
+def backup_manager(backup_settings: BackupSettings):
     """Create backup manager with test settings."""
     with patch("dojopool.backup.backup_manager.backup_settings", backup_settings):
         return BackupManager()
 
 
-def test_full_backup_cycle(backup_manager, test_env):
+def test_full_backup_cycle(backup_manager: BackupManager, test_env: Dict[str, Path]):
     """Test complete backup cycle including database and files."""
     # Run backup
     backup_manager.run_backup()
@@ -81,7 +86,9 @@ def test_full_backup_cycle(backup_manager, test_env):
     assert file_backups[0].stat().st_size > 0
 
 
-def test_backup_encryption(backup_manager, test_env):
+def test_backup_encryption(
+    backup_manager: BackupManager, test_env: Dict[str, Path]
+) -> None:
     """Test backup encryption and decryption."""
     # Run backup
     backup_manager.run_backup()
@@ -100,7 +107,9 @@ def test_backup_encryption(backup_manager, test_env):
     assert len(decrypted) > 0
 
 
-def test_backup_retention(backup_manager, test_env):
+def test_backup_retention(
+    backup_manager: BackupManager, test_env: Dict[str, Path]
+) -> None:
     """Test backup retention policy."""
     backup_dirs = backup_manager.settings.get_backup_dirs()
 
@@ -113,7 +122,9 @@ def test_backup_retention(backup_manager, test_env):
     new_backup.write_bytes(b"new backup")
 
     # Set old backup's mtime to past retention period
-    old_time = time.time() - (backup_manager.settings.DB_BACKUP_RETENTION_DAYS + 1) * 86400
+    old_time = (
+        time.time() - (backup_manager.settings.DB_BACKUP_RETENTION_DAYS + 1) * 86400
+    )
     os.utime(old_backup, (old_time, old_time))
 
     # Run cleanup
@@ -124,8 +135,10 @@ def test_backup_retention(backup_manager, test_env):
     assert new_backup.exists()
 
 
-@patch("boto3.client")
-def test_remote_backup_cycle(mock_boto3, backup_manager, test_env):
+@patch("boto3.client")  # type: ignore[misc]
+def test_remote_backup_cycle(
+    mock_boto3: MagicMock, backup_manager: BackupManager, test_env: Dict[str, Path]
+) -> None:
     """Test remote backup functionality."""
     # Configure remote backup
     backup_manager.settings.REMOTE_BACKUP_ENABLED = True
@@ -144,7 +157,9 @@ def test_remote_backup_cycle(mock_boto3, backup_manager, test_env):
         assert call[0][2].startswith("backups/")
 
 
-def test_recovery_scenario(backup_manager, test_env):
+def test_recovery_scenario(
+    backup_manager: BackupManager, test_env: Dict[str, Path]
+) -> None:
     """Test backup recovery scenario."""
     # Run initial backup
     backup_manager.run_backup()

@@ -6,19 +6,28 @@ Create Date: 2024-01-20 14:00:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic
-revision = "add_social_features"
-down_revision = "add_rewards_system"
-branch_labels = None
-depends_on = None
+revision: str = "add_social_features"
+down_revision: str = "add_rewards_system"
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create friendship_status enum type
-    op.execute("CREATE TYPE friendship_status AS ENUM ('pending', 'accepted', 'blocked')")
+    op.execute(
+        "CREATE TYPE friendship_status AS ENUM ('pending', 'accepted', 'blocked')"
+    )
 
     # Create challenge_status enum type
     op.execute(
@@ -99,7 +108,9 @@ def upgrade():
         sa.Column("completed_at", sa.DateTime(), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("joined", "in_progress", "completed", "failed", name="challenge_status"),
+            sa.Enum(
+                "joined", "in_progress", "completed", "failed", name="challenge_status"
+            ),
             nullable=False,
         ),
         sa.Column("progress_data", sa.Text(), nullable=True),

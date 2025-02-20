@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """
 Venue Analytics Module.
 
@@ -11,18 +13,18 @@ This module provides comprehensive analytics capabilities including:
 
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
 from statistics import mean, median, stdev
+from typing import Dict, List, Optional, Tuple
 
+from dojopool.core.models.staff import StaffMember
 from dojopool.core.models.venue import (
     Venue,
-    VenueEvent,
     VenueCheckIn,
-    VenueLeaderboard,
-    VenueEventType,
+    VenueEvent,
     VenueEventStatus,
+    VenueEventType,
+    VenueLeaderboard,
 )
-from dojopool.core.models.staff import StaffMember
 
 logger = logging.getLogger(__name__)
 
@@ -46,16 +48,18 @@ class VenueAnalytics:
             "comparisons": self._get_revenue_comparisons(start_date, end_date),
         }
 
-    def get_utilization_analytics(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_utilization_analytics(self, start_date: datetime, end_date: datetime):
         """Get detailed utilization analytics."""
         return {
             "summary": self._get_utilization_summary(start_date, end_date),
             "patterns": self._analyze_usage_patterns(start_date, end_date),
-            "optimization": self._get_optimization_recommendations(start_date, end_date),
+            "optimization": self._get_optimization_recommendations(
+                start_date, end_date
+            ),
             "forecasts": self._forecast_utilization(start_date, end_date),
         }
 
-    def get_customer_analytics(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_customer_analytics(self, start_date: datetime, end_date: datetime):
         """Get detailed customer analytics."""
         return {
             "summary": self._get_customer_summary(start_date, end_date),
@@ -65,7 +69,7 @@ class VenueAnalytics:
             "satisfaction": self._analyze_customer_satisfaction(start_date, end_date),
         }
 
-    def get_event_analytics(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_event_analytics(self, start_date: datetime, end_date: datetime):
         """Get comprehensive event analytics."""
         return {
             "summary": self._get_event_summary(start_date, end_date),
@@ -74,7 +78,9 @@ class VenueAnalytics:
             "recommendations": self._get_event_recommendations(start_date, end_date),
         }
 
-    def get_predictive_analytics(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_predictive_analytics(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict:
         """Get predictive analytics and forecasts."""
         return {
             "revenue_forecast": self._predict_revenue(start_date, end_date),
@@ -83,7 +89,7 @@ class VenueAnalytics:
             "event_forecast": self._predict_event_performance(start_date, end_date),
         }
 
-    def _get_revenue_summary(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_revenue_summary(self, start_date: datetime, end_date: datetime):
         """Get revenue summary metrics."""
         checkins = VenueCheckIn.query.filter(
             VenueCheckIn.venue_id == self.venue_id,
@@ -98,10 +104,14 @@ class VenueAnalytics:
         ).all()
 
         # Calculate revenue metrics
-        table_revenue = sum(self._calculate_table_revenue(checkin) for checkin in checkins)
+        table_revenue = sum(
+            self._calculate_table_revenue(checkin) for checkin in checkins
+        )
 
         event_revenue = sum(
-            event.entry_fee * len(event.participants) for event in events if event.entry_fee
+            event.entry_fee * len(event.participants)
+            for event in events
+            if event.entry_fee
         )
 
         total_revenue = table_revenue + event_revenue
@@ -166,7 +176,9 @@ class VenueAnalytics:
             logger.error(f"Error generating revenue forecast: {str(e)}")
             return {"error": str(e)}
 
-    def _get_revenue_comparisons(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_revenue_comparisons(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict:
         """Get revenue comparisons with previous periods."""
         current_period = self._get_revenue_summary(start_date, end_date)
 
@@ -189,7 +201,9 @@ class VenueAnalytics:
             "benchmarks": self._get_revenue_benchmarks(),
         }
 
-    def _get_utilization_summary(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_utilization_summary(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict:
         """Get utilization summary metrics."""
         checkins = VenueCheckIn.query.filter(
             VenueCheckIn.venue_id == self.venue_id,
@@ -204,10 +218,14 @@ class VenueAnalytics:
         )
 
         available_hours = (
-            self.venue.tables * self.venue.operating_hours.duration * (end_date - start_date).days
+            self.venue.tables
+            * self.venue.operating_hours.duration
+            * (end_date - start_date).days
         )
 
-        utilization_rate = (total_hours / available_hours) * 100 if available_hours else 0
+        utilization_rate = (
+            (total_hours / available_hours) * 100 if available_hours else 0
+        )
 
         return {
             "total_hours_used": total_hours,
@@ -245,7 +263,9 @@ class VenueAnalytics:
             logger.error(f"Error analyzing usage patterns: {str(e)}")
             return {"error": str(e)}
 
-    def _get_optimization_recommendations(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_optimization_recommendations(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict:
         """Get venue optimization recommendations."""
         utilization = self._get_utilization_summary(start_date, end_date)
         patterns = self._analyze_usage_patterns(start_date, end_date)
@@ -289,8 +309,12 @@ class VenueAnalytics:
 
             return {
                 "recommendations": recommendations,
-                "potential_impact": self._calculate_recommendation_impact(recommendations),
-                "implementation_priority": self._prioritize_recommendations(recommendations),
+                "potential_impact": self._calculate_recommendation_impact(
+                    recommendations
+                ),
+                "implementation_priority": self._prioritize_recommendations(
+                    recommendations
+                ),
             }
         except Exception as e:
             logger.error(f"Error generating optimization recommendations: {str(e)}")
@@ -298,7 +322,9 @@ class VenueAnalytics:
 
     def _forecast_utilization(self, start_date: datetime, end_date: datetime) -> Dict:
         """Generate utilization forecasts."""
-        historical_data = self._get_utilization_data(start_date - timedelta(days=90), end_date)
+        historical_data = self._get_utilization_data(
+            start_date - timedelta(days=90), end_date
+        )
 
         if not historical_data:
             return {"forecast": "insufficient_data"}
@@ -322,7 +348,9 @@ class VenueAnalytics:
         if not checkin.checked_out_at:
             return 0.0
 
-        duration = (checkin.checked_out_at - checkin.checked_in_at).total_seconds() / 3600
+        duration = (
+            checkin.checked_out_at - checkin.checked_in_at
+        ).total_seconds() / 3600
         return duration * self.venue.table_rate
 
     def _calculate_growth_rate(self, values: List[float]) -> float:
@@ -337,12 +365,12 @@ class VenueAnalytics:
         # Implement seasonality analysis
         return {}
 
-    def _identify_peak_days(self, data: List[Dict]) -> List[Dict]:
+    def _identify_peak_days(self, data: List[Dict]):
         """Identify peak revenue days."""
         # Implement peak day identification
         return []
 
-    def _generate_forecast(self, data: List[Dict]) -> Dict:
+    def _generate_forecast(self, data: List[Dict]):
         """Generate forecasts from historical data."""
         # Implement forecasting logic
         return {
@@ -353,7 +381,7 @@ class VenueAnalytics:
             "contributing_factors": [],
         }
 
-    def _calculate_percentage_change(self, old_value: float, new_value: float) -> float:
+    def _calculate_percentage_change(self, old_value: float, new_value: float):
         """Calculate percentage change between two values."""
         if old_value == 0:
             return 100.0 if new_value > 0 else 0.0
@@ -365,12 +393,12 @@ class VenueAnalytics:
         # Implement benchmark calculation
         return {}
 
-    def _calculate_peak_utilization(self, checkins: List[VenueCheckIn]) -> float:
+    def _calculate_peak_utilization(self, checkins: List[VenueCheckIn]):
         """Calculate peak utilization rate."""
         # Implement peak utilization calculation
         return 0.0
 
-    def _get_table_specific_metrics(self, checkins: List[VenueCheckIn]) -> List[Dict]:
+    def _get_table_specific_metrics(self, checkins: List[VenueCheckIn]):
         """Get metrics for individual tables."""
         # Implement table-specific metrics calculation
         return []
@@ -380,17 +408,17 @@ class VenueAnalytics:
         # Implement hourly pattern analysis
         return {}
 
-    def _analyze_daily_patterns(self, checkins: List[VenueCheckIn]) -> Dict:
+    def _analyze_daily_patterns(self, checkins: List[VenueCheckIn]):
         """Analyze daily usage patterns."""
         # Implement daily pattern analysis
         return {}
 
-    def _analyze_seasonal_patterns(self, checkins: List[VenueCheckIn]) -> Dict:
+    def _analyze_seasonal_patterns(self, checkins: List[VenueCheckIn]):
         """Analyze seasonal usage patterns."""
         # Implement seasonal pattern analysis
         return {}
 
-    def _analyze_pattern_correlations(self, hourly: Dict, daily: Dict, seasonal: Dict) -> Dict:
+    def _analyze_pattern_correlations(self, hourly: Dict, daily: Dict, seasonal: Dict):
         """Analyze correlations between different patterns."""
         # Implement pattern correlation analysis
         return {}
@@ -400,17 +428,17 @@ class VenueAnalytics:
         # Implement impact calculation
         return {}
 
-    def _prioritize_recommendations(self, recommendations: List[Dict]) -> List[Dict]:
+    def _prioritize_recommendations(self, recommendations: List[Dict]):
         """Prioritize optimization recommendations."""
         # Implement recommendation prioritization
         return []
 
-    def _get_utilization_data(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_utilization_data(self, start_date: datetime, end_date: datetime):
         """Get historical utilization data."""
         # Implement utilization data retrieval
         return []
 
-    def _generate_utilization_forecast(self, data: List[Dict]) -> Dict:
+    def _generate_utilization_forecast(self, data: List[Dict]):
         """Generate utilization forecasts."""
         # Implement utilization forecasting
         return {

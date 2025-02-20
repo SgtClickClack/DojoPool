@@ -1,7 +1,9 @@
 import urllib.parse
-from typing import Dict, Optional
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import url_for
+from flask import Request, Response, current_app, url_for
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 
 class SocialService:
@@ -14,19 +16,25 @@ class SocialService:
         }
 
     def generate_share_links(
-        self, content_type: str, content_id: str, title: str, description: Optional[str] = None
+        self,
+        content_type: str,
+        content_id: str,
+        title: str,
+        description: Optional[str] = None,
     ) -> Dict[str, str]:
         """Generate social sharing links for various platforms."""
-        base_url = url_for(f"{content_type}.details", id=content_id, _external=True)
+        base_url: url_for = url_for(
+            f"{content_type}.details", id=content_id, _external=True
+        )
 
-        share_text = f"{title}"
+        share_text: Any = f"{title}"
         if description:
             share_text += f" - {description}"
 
         encoded_text = urllib.parse.quote(share_text)
-        encoded_url = urllib.parse.quote(base_url)
+        encoded_url: Any = urllib.parse.quote(base_url)
 
-        share_links = {}
+        share_links: Dict[Any, Any] = {}
         for platform, template in self.share_templates.items():
             share_links[platform] = template.format(text=encoded_text, url=encoded_url)
 
@@ -45,11 +53,11 @@ class SocialService:
 
     def generate_tournament_share(
         self, tournament_id: str, name: str, position: Optional[str] = None
-    ) -> Dict[str, str]:
+    ):
         """Generate sharing links for a tournament result."""
-        title = f"Check out my tournament results in {name} on DojoPool!"
+        title: Any = f"Check out my tournament results in {name} on DojoPool!"
         if position:
-            title = f"I finished {position} in the {name} tournament on DojoPool!"
+            title: Any = f"I finished {position} in the {name} tournament on DojoPool!"
 
         return self.generate_share_links(
             content_type="tournaments", content_id=tournament_id, title=title
@@ -57,9 +65,13 @@ class SocialService:
 
     def generate_match_share(
         self, match_id: str, opponent_name: str, score: str, won: bool
-    ) -> Dict[str, str]:
+    ):
         """Generate sharing links for a match result."""
         result = "won" if won else "played"
-        title = f"I just {result} a match against {opponent_name} ({score}) on DojoPool!"
+        title: Any = (
+            f"I just {result} a match against {opponent_name} ({score}) on DojoPool!"
+        )
 
-        return self.generate_share_links(content_type="matches", content_id=match_id, title=title)
+        return self.generate_share_links(
+            content_type="matches", content_id=match_id, title=title
+        )

@@ -4,12 +4,14 @@ import hashlib
 import os
 import uuid
 from datetime import datetime
-from typing import Set
+from typing import Any, Dict, List, NoReturn, Optional, Set, Tuple, Union
 
 import magic
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
 from marshmallow import Schema, fields, validate
-from werkzeug.utils import secure_filename
+from werkzeug.wrappers import Response as WerkzeugResponse
+from werkzeug.wrappers import secure_filename
 
 from dojopool.core.auth import login_required
 from dojopool.core.extensions import db
@@ -19,7 +21,7 @@ from dojopool.core.security.virus_scan import scan_file
 from dojopool.core.storage import storage_client
 from dojopool.core.tasks import generate_thumbnails
 
-media_bp = Blueprint("media", __name__)
+media_bp: Blueprint = Blueprint("media", __name__)
 
 # Secure file configuration
 ALLOWED_EXTENSIONS: Set[str] = {
@@ -71,18 +73,18 @@ ALLOWED_MIMETYPES: Set[str] = {
     "video/x-msvideo",
 }
 
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-MAX_FILES_PER_REQUEST = 10
-THUMBNAIL_SIZES = [(200, 200), (400, 400)]
+MAX_FILE_SIZE: Any = 10 * 1024 * 1024  # 10MB
+MAX_FILES_PER_REQUEST: int = 10
+THUMBNAIL_SIZES: List[Any] = [(200, 200), (400, 400)]
 
 
 class MediaMetadataSchema(Schema):
-    title = fields.Str(validate=validate.Length(max=255))
-    description = fields.Str(validate=validate.Length(max=1000))
-    tags = fields.List(
+    title: Any = fields.Str(validate=validate.Length(max=255))
+    description: Any = fields.Str(validate=validate.Length(max=1000))
+    tags: Any = fields.List(
         fields.Str(validate=validate.Length(max=50)), validate=validate.Length(max=10)
     )
-    category = fields.Str(validate=validate.Length(max=50))
+    category: Any = fields.Str(validate=validate.Length(max=50))
 
 
 def is_valid_file(file, filename: str) -> bool:
@@ -92,13 +94,13 @@ def is_valid_file(file, filename: str) -> bool:
         return False
 
     # Check file extension
-    ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
+    ext: Any = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
     if ext not in ALLOWED_EXTENSIONS:
         return False
 
     # Check actual file type using python-magic
     try:
-        file_type = magic.from_buffer(file.read(2048), mime=True)
+        file_type: Any = magic.from_buffer(file.read(2048), mime=True)
         file.seek(0)  # Reset file pointer
         if file_type not in ALLOWED_MIMETYPES:
             return False
@@ -110,7 +112,7 @@ def is_valid_file(file, filename: str) -> bool:
 
 def generate_file_hash(file) -> str:
     """Generate SHA-256 hash of file content."""
-    sha256_hash = hashlib.sha256()
+    sha256_hash: Any = hashlib.sha256()
     for chunk in iter(lambda: file.read(4096), b""):
         sha256_hash.update(chunk)
     file.seek(0)
@@ -119,43 +121,53 @@ def generate_file_hash(file) -> str:
 
 @media_bp.route("/upload", methods=["POST"])
 @login_required
-def upload_file():
+def upload_file() -> Response :
     """Handle secure file upload."""
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
 
-    files = request.files.getlist("file")
+    files: Any = request.files.getlist("file")
     if len(files) > MAX_FILES_PER_REQUEST:
-        return jsonify({"error": f"Maximum {MAX_FILES_PER_REQUEST} files allowed per request"}), 400
+        return (
+            jsonify(
+                {"error": f"Maximum {MAX_FILES_PER_REQUEST} files allowed per request"}
+            ),
+            400,
+        )
 
     try:
-        metadata = MediaMetadataSchema().load(request.form.get("metadata", {}))
+        metadata: Any = MediaMetadataSchema().load(request.form.get("metadata", {}, type=str))
     except Exception as e:
         return jsonify({"error": f"Invalid metadata: {str(e)}"}), 400
 
-    uploaded_files = []
+    uploaded_files: Any = []
     for file in files:
         # Secure filename and validate
-        filename = secure_filename(sanitize_filename(file.filename))
+        filename: secure_filename = secure_filename(sanitize_filename(file.filename))
         if not is_valid_file(file, filename):
             return jsonify({"error": f"Invalid file: {filename}"}), 400
 
         # Generate unique filename
-        file_hash = generate_file_hash(file)
-        ext = filename.rsplit(".", 1)[1].lower()
-        unique_filename = f"{uuid.uuid4().hex}_{file_hash[:8]}.{ext}"
+        file_hash: generate_file_hash = generate_file_hash(file)
+        ext: Any = filename.rsplit(".", 1)[1].lower()
+        unique_filename: secure_filename = f"{uuid.uuid4().hex}_{file_hash[:8]}.{ext}"
 
         try:
             # Scan file for viruses
             if not scan_file(file):
-                return jsonify({"error": f"Security scan failed for file: {filename}"}), 400
+                return (
+                    jsonify({"error": f"Security scan failed for file: {filename}"}),
+                    400,
+                )
 
             # Store file securely
-            file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], unique_filename)
+            file_path: Any = os.path.join(
+                current_app.configetattr(g, "get", None)("UPLOAD_FOLDER"), unique_filename
+            )
             storage_client.save(file, file_path)
 
             # Create media file record
-            media_file = MediaFile(
+            media_file: MediaFile = MediaFile(
                 id=uuid.uuid4().hex,
                 user_id=request.user.id,
                 name=filename,
@@ -208,9 +220,9 @@ def upload_file():
 
 @media_bp.route("/<media_id>", methods=["DELETE"])
 @login_required
-def delete_file(media_id: str):
+def delete_file(media_id -> Response -> Any: str):
     """Delete a media file."""
-    media_file = MediaFile.query.get_or_404(media_id)
+    media_file: MediaFile = MediaFile.query.get_or_404(media_id)
 
     # Check ownership
     if media_file.user_id != request.user.id:
@@ -223,7 +235,7 @@ def delete_file(media_id: str):
         # Delete thumbnails if they exist
         if media_file.content_type.startswith("image/"):
             for size in THUMBNAIL_SIZES:
-                thumb_path = f"thumbnails/{size[0]}x{size[1]}/{media_file.id}.jpg"
+                thumb_path: Any = f"thumbnails/{size[0]}x{size[1]}/{media_file.id}.jpg"
                 try:
                     storage_client.delete(thumb_path)
                 except Exception:
@@ -243,9 +255,9 @@ def delete_file(media_id: str):
 
 @media_bp.route("/<media_id>", methods=["GET"])
 @login_required
-def get_file(media_id: str):
+def get_file(media_id -> Response -> Any: str):
     """Get media file details."""
-    media_file = MediaFile.query.get_or_404(media_id)
+    media_file: MediaFile = MediaFile.query.get_or_404(media_id)
 
     # Check access permission
     if media_file.user_id != request.user.id:

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Script to run validation metrics monitoring."""
 
-import time
 import argparse
 import logging
-from pathlib import Path
+import time
 from datetime import datetime
+from pathlib import Path
+
 from .validation_metrics import ValidationMetricsMonitor
 
 
@@ -15,7 +16,10 @@ def setup_logging(log_dir: Path) -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.FileHandler(log_dir / "monitoring.log"), logging.StreamHandler()],
+        handlers=[
+            logging.FileHandler(log_dir / "monitoring.log"),
+            logging.StreamHandler(),
+        ],
     )
 
 
@@ -91,7 +95,9 @@ def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Run validation metrics monitoring")
     parser.add_argument(
-        "--metrics-dir", default="metrics/validation", help="Directory to store metrics data"
+        "--metrics-dir",
+        default="metrics/validation",
+        help="Directory to store metrics data",
     )
     parser.add_argument(
         "--snapshot-interval",
@@ -106,7 +112,10 @@ def main() -> None:
         help="Interval between report generation in seconds",
     )
     parser.add_argument(
-        "--alert-interval", type=int, default=60, help="Interval between alert checks in seconds"
+        "--alert-interval",
+        type=int,
+        default=60,
+        help="Interval between alert checks in seconds",
     )
 
     args = parser.parse_args()

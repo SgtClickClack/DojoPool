@@ -39,7 +39,7 @@ class MapsConfig:
             self._api_key = self._load_api_key()
         return self._api_key
 
-    def _load_api_key(self) -> str:
+    def _load_api_key(self):
         """Load the API key from environment variables."""
         key = os.getenv("GOOGLE_MAPS_API_KEY")
         if not key:
@@ -50,7 +50,7 @@ class MapsConfig:
         return key
 
     @lru_cache(maxsize=1)
-    def validate_api_key(self) -> Tuple[bool, Optional[str]]:
+    def validate_api_key(self):
         """Validate the Google Maps API key.
 
         Returns:
@@ -76,7 +76,10 @@ class MapsConfig:
                 self._last_validation = datetime.now()
                 return True, None
 
-            return False, f"API key validation failed: {data.get('error_message', 'Unknown error')}"
+            return (
+                False,
+                f"API key validation failed: {data.get('error_message', 'Unknown error')}",
+            )
 
         except requests.exceptions.Timeout:
             return False, "API key validation timed out"
@@ -106,7 +109,7 @@ class MapsConfig:
             "options": self.map_options,
         }
 
-    def get_map_url(self, libraries: Optional[str] = None) -> str:
+    def get_map_url(self, libraries: Optional[str] = None):
         """Get the Google Maps API URL.
 
         Args:

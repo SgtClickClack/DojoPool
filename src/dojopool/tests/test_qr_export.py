@@ -82,13 +82,17 @@ def test_csv_export_basic(mock_qr_stats, export_manager, mock_stats):
 
 
 @patch("dojopool.core.venue.qr_stats.qr_stats")
-def test_csv_export_with_errors(mock_qr_stats, export_manager, mock_stats, mock_error_report):
+def test_csv_export_with_errors(
+    mock_qr_stats, export_manager, mock_stats, mock_error_report
+):
     """Test CSV export with error details."""
     mock_qr_stats.get_venue_stats.return_value = mock_stats
     mock_qr_stats.get_error_report.return_value = mock_error_report
 
     # Export to CSV with errors
-    csv_data = export_manager.export_stats_csv(venue_id="test_venue", include_errors=True)
+    csv_data = export_manager.export_stats_csv(
+        venue_id="test_venue", include_errors=True
+    )
     assert csv_data is not None
 
     # Verify error report section
@@ -122,13 +126,17 @@ def test_excel_export_basic(mock_qr_stats, export_manager, mock_stats):
 
 
 @patch("dojopool.core.venue.qr_stats.qr_stats")
-def test_excel_export_with_errors(mock_qr_stats, export_manager, mock_stats, mock_error_report):
+def test_excel_export_with_errors(
+    mock_qr_stats, export_manager, mock_stats, mock_error_report
+):
     """Test Excel export with error details."""
     mock_qr_stats.get_venue_stats.return_value = mock_stats
     mock_qr_stats.get_error_report.return_value = mock_error_report
 
     # Export to Excel with errors
-    excel_data = export_manager.export_stats_excel(venue_id="test_venue", include_errors=True)
+    excel_data = export_manager.export_stats_excel(
+        venue_id="test_venue", include_errors=True
+    )
     assert excel_data is not None
 
     # Read Excel file
@@ -164,13 +172,17 @@ def test_json_export_basic(mock_qr_stats, export_manager, mock_stats):
 
 
 @patch("dojopool.core.venue.qr_stats.qr_stats")
-def test_json_export_with_errors(mock_qr_stats, export_manager, mock_stats, mock_error_report):
+def test_json_export_with_errors(
+    mock_qr_stats, export_manager, mock_stats, mock_error_report
+):
     """Test JSON export with error details."""
     mock_qr_stats.get_venue_stats.return_value = mock_stats
     mock_qr_stats.get_error_report.return_value = mock_error_report
 
     # Export to JSON with errors
-    json_data = export_manager.export_stats_json(venue_id="test_venue", include_errors=True)
+    json_data = export_manager.export_stats_json(
+        venue_id="test_venue", include_errors=True
+    )
     assert json_data is not None
 
     # Parse JSON

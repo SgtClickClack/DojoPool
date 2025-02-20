@@ -1,3 +1,5 @@
+import gc
+import gc
 """Model versioning system for ML models.
 
 This module provides functionality for versioning and tracking ML models.
@@ -68,7 +70,7 @@ class ModelVersion:
         self.logger.info(f"Created model version {version_id}")
         return version_id
 
-    def load_version(self, version_id: str) -> Any:
+    def load_version(self, version_id: str):
         """Load model version.
 
         Args:
@@ -126,7 +128,9 @@ class ModelVersion:
         version["last_deployed"] = deployment["timestamp"]
 
         self._save_versions()
-        self.logger.info(f"Recorded deployment of version {version_id} to {environment}")
+        self.logger.info(
+            f"Recorded deployment of version {version_id} to {environment}"
+        )
 
     def deprecate_version(self, version_id: str, reason: str):
         """Deprecate model version.
@@ -146,7 +150,7 @@ class ModelVersion:
         self._save_versions()
         self.logger.info(f"Deprecated version {version_id}: {reason}")
 
-    def get_version_info(self, version_id: str) -> Dict[str, Any]:
+    def get_version_info(self, version_id: str):
         """Get version information.
 
         Args:
@@ -160,7 +164,7 @@ class ModelVersion:
 
         return self.versions[version_id]
 
-    def list_versions(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_versions(self, status: Optional[str] = None):
         """List model versions.
 
         Args:
@@ -199,15 +203,26 @@ class ModelVersion:
             m2 = v2["metrics"].get(metric, 0)
             metric_diffs[metric] = {
                 "difference": m2 - m1,
-                "percentage_change": ((m2 - m1) / m1 * 100) if m1 != 0 else float("inf"),
+                "percentage_change": (
+                    ((m2 - m1) / m1 * 100) if m1 != 0 else float("inf")
+                ),
             }
 
         return {
-            "version_1": {"id": v1["id"], "created_at": v1["created_at"], "metrics": v1["metrics"]},
-            "version_2": {"id": v2["id"], "created_at": v2["created_at"], "metrics": v2["metrics"]},
+            "version_1": {
+                "id": v1["id"],
+                "created_at": v1["created_at"],
+                "metrics": v1["metrics"],
+            },
+            "version_2": {
+                "id": v2["id"],
+                "created_at": v2["created_at"],
+                "metrics": v2["metrics"],
+            },
             "metric_differences": metric_diffs,
             "time_difference": (
-                datetime.fromisoformat(v2["created_at"]) - datetime.fromisoformat(v1["created_at"])
+                datetime.fromisoformat(v2["created_at"])
+                - datetime.fromisoformat(v1["created_at"])
             ).total_seconds(),
             "comparison_timestamp": datetime.utcnow().isoformat(),
         }

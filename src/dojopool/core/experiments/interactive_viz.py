@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Interactive visualization tools for A/B testing analysis results."""
 
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -70,7 +74,11 @@ class InteractiveVisualizer:
 
         thresholds = {"Small": 0.2, "Medium": 0.5, "Large": 0.8}
 
-        colors = ["rgba(255,200,200,0.2)", "rgba(255,150,150,0.2)", "rgba(255,100,100,0.2)"]
+        colors = [
+            "rgba(255,200,200,0.2)",
+            "rgba(255,150,150,0.2)",
+            "rgba(255,100,100,0.2)",
+        ]
         for i, (label, value) in enumerate(thresholds.items()):
             fig.add_vrect(
                 x0=0 if i == 0 else list(thresholds.values())[i - 1],
@@ -153,7 +161,10 @@ class InteractiveVisualizer:
             )
 
         fig.add_hline(
-            y=0.8, line_dash="dash", line_color="gray", annotation={"text": "0.8 Power Threshold"}
+            y=0.8,
+            line_dash="dash",
+            line_color="gray",
+            annotation={"text": "0.8 Power Threshold"},
         )
 
         fig.update_layout(
@@ -238,14 +249,22 @@ class InteractiveVisualizer:
         # Add histogram for control group
         fig.add_trace(
             go.Histogram(
-                x=control_values, name="Control", opacity=0.75, nbinsx=30, histnorm="probability"
+                x=control_values,
+                name="Control",
+                opacity=0.75,
+                nbinsx=30,
+                histnorm="probability",
             )
         )
 
         # Add histogram for variant group
         fig.add_trace(
             go.Histogram(
-                x=variant_values, name="Variant", opacity=0.75, nbinsx=30, histnorm="probability"
+                x=variant_values,
+                name="Variant",
+                opacity=0.75,
+                nbinsx=30,
+                histnorm="probability",
             )
         )
 
@@ -292,14 +311,23 @@ class InteractiveVisualizer:
         control_events: List[MetricEvent],
         variant_events: List[MetricEvent],
         save_path: Optional[str] = None,
-    ) -> go.Figure:
+    ):
         """Create interactive statistical summary visualization."""
         control_values = np.array([e.value for e in control_events])
         variant_values = np.array([e.value for e in variant_events])
 
         # Calculate statistics
         stats = {
-            "Metric": ["Count", "Mean", "Median", "Std Dev", "Min", "25%", "75%", "Max"],
+            "Metric": [
+                "Count",
+                "Mean",
+                "Median",
+                "Std Dev",
+                "Min",
+                "25%",
+                "75%",
+                "Max",
+            ],
             "Control": [
                 len(control_values),
                 np.mean(control_values),
@@ -360,8 +388,11 @@ class InteractiveVisualizer:
         return fig
 
     def create_dashboard(
-        self, result: AnalysisResult, analyzer: ExperimentAnalyzer, save_path: Optional[str] = None
-    ) -> go.Figure:
+        self,
+        result: AnalysisResult,
+        analyzer: ExperimentAnalyzer,
+        save_path: Optional[str] = None,
+    ):
         """Create an interactive dashboard combining all visualizations."""
         fig = make_subplots(
             rows=2,
@@ -395,7 +426,10 @@ class InteractiveVisualizer:
             fig.add_trace(trace, row=2, col=2)
 
         fig.update_layout(
-            title="A/B Test Analysis Dashboard", showlegend=True, height=1000, width=1200
+            title="A/B Test Analysis Dashboard",
+            showlegend=True,
+            height=1000,
+            width=1200,
         )
 
         if save_path:
@@ -409,7 +443,7 @@ class InteractiveVisualizer:
         variant_events: List[MetricEvent],
         window_size: str = "1D",
         save_path: Optional[str] = None,
-    ) -> go.Figure:
+    ):
         """Create interactive time series visualization.
 
         Args:
@@ -423,7 +457,11 @@ class InteractiveVisualizer:
         def events_to_df(events: List[MetricEvent]) -> pd.DataFrame:
             return pd.DataFrame(
                 [
-                    {"timestamp": e.timestamp, "value": float(e.value), "user_id": e.user_id}
+                    {
+                        "timestamp": e.timestamp,
+                        "value": float(e.value),
+                        "user_id": e.user_id,
+                    }
                     for e in events
                 ]
             )
@@ -432,7 +470,9 @@ class InteractiveVisualizer:
         variant_df = events_to_df(variant_events)
 
         # Calculate rolling metrics
-        def calculate_rolling_metrics(df: pd.DataFrame) -> Tuple[pd.Series, pd.Series, pd.Series]:
+        def calculate_rolling_metrics(
+            df: pd.DataFrame,
+        ):
             df = df.set_index("timestamp").sort_index()
             rolling = df["value"].rolling(window=window_size)
             mean = rolling.mean()
@@ -547,10 +587,14 @@ class InteractiveVisualizer:
         """
 
         # Convert events to dataframes
-        def events_to_df(events: List[MetricEvent]) -> pd.DataFrame:
+        def events_to_df(events: List[MetricEvent]):
             return pd.DataFrame(
                 [
-                    {"timestamp": e.timestamp, "value": float(e.value), "user_id": e.user_id}
+                    {
+                        "timestamp": e.timestamp,
+                        "value": float(e.value),
+                        "user_id": e.user_id,
+                    }
                     for e in events
                 ]
             ).sort_values("timestamp")
@@ -559,7 +603,9 @@ class InteractiveVisualizer:
         variant_df = events_to_df(variant_events)
 
         # Calculate cumulative metrics
-        def calculate_cumulative_metric(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        def calculate_cumulative_metric(
+            df: pd.DataFrame,
+        ):
             if metric_type == "mean":
                 cumulative = df["value"].expanding().mean().to_numpy()
             elif metric_type == "sum":
@@ -568,7 +614,9 @@ class InteractiveVisualizer:
                 cumulative = (df["value"] > 0).expanding().mean().to_numpy()
 
             # Calculate confidence intervals
-            std_err = df["value"].expanding().std().to_numpy() / np.sqrt(np.arange(1, len(df) + 1))
+            std_err = df["value"].expanding().std().to_numpy() / np.sqrt(
+                np.arange(1, len(df) + 1)
+            )
             ci = 1.96 * std_err  # 95% confidence interval
 
             return cumulative, ci
@@ -603,8 +651,10 @@ class InteractiveVisualizer:
         # Add confidence bands
         fig.add_trace(
             go.Scatter(
-                x=control_df["timestamp"].tolist() + control_df["timestamp"].tolist()[::-1],
-                y=(control_cum + control_ci).tolist() + (control_cum - control_ci).tolist()[::-1],
+                x=control_df["timestamp"].tolist()
+                + control_df["timestamp"].tolist()[::-1],
+                y=(control_cum + control_ci).tolist()
+                + (control_cum - control_ci).tolist()[::-1],
                 fill="toself",
                 fillcolor="rgba(0,0,255,0.1)",
                 line={"color": "rgba(0,0,255,0)"},
@@ -615,8 +665,10 @@ class InteractiveVisualizer:
 
         fig.add_trace(
             go.Scatter(
-                x=variant_df["timestamp"].tolist() + variant_df["timestamp"].tolist()[::-1],
-                y=(variant_cum + variant_ci).tolist() + (variant_cum - variant_ci).tolist()[::-1],
+                x=variant_df["timestamp"].tolist()
+                + variant_df["timestamp"].tolist()[::-1],
+                y=(variant_cum + variant_ci).tolist()
+                + (variant_cum - variant_ci).tolist()[::-1],
                 fill="toself",
                 fillcolor="rgba(255,0,0,0.1)",
                 line={"color": "rgba(255,0,0,0)"},
@@ -685,7 +737,9 @@ class InteractiveVisualizer:
 
         # Add daily pattern analysis
         def add_daily_pattern(events: List[MetricEvent], name: str, row: int, col: int):
-            df = pd.DataFrame([{"hour": e.timestamp.hour, "value": float(e.value)} for e in events])
+            df = pd.DataFrame(
+                [{"hour": e.timestamp.hour, "value": float(e.value)} for e in events]
+            )
             hourly_mean = df.groupby("hour")["value"].mean()
             hourly_std = df.groupby("hour")["value"].std()
 
@@ -707,7 +761,11 @@ class InteractiveVisualizer:
                     y=(hourly_mean + hourly_std).tolist()
                     + (hourly_mean - hourly_std).tolist()[::-1],
                     fill="toself",
-                    fillcolor="rgba(0,0,255,0.1)" if name == "Control" else "rgba(255,0,0,0.1)",
+                    fillcolor=(
+                        "rgba(0,0,255,0.1)"
+                        if name == "Control"
+                        else "rgba(255,0,0,0.1)"
+                    ),
                     line={"color": "rgba(0,0,0,0)"},
                     name=f"{name} ±1σ",
                     showlegend=True,
@@ -752,7 +810,7 @@ class InteractiveVisualizer:
             save_path: Optional path to save the plot
         """
 
-        def events_to_df(events: List[MetricEvent]) -> pd.DataFrame:
+        def events_to_df(events: List[MetricEvent]):
             return pd.DataFrame(
                 [
                     {
@@ -805,7 +863,11 @@ class InteractiveVisualizer:
                     x=segments,
                     y=segment_means[group],
                     name=f"{group} Mean",
-                    error_y={"type": "data", "array": segment_sems[group], "visible": True},
+                    error_y={
+                        "type": "data",
+                        "array": segment_sems[group],
+                        "visible": True,
+                    },
                 ),
                 row=1,
                 col=2,
@@ -814,8 +876,12 @@ class InteractiveVisualizer:
         # 3. Effect Size by Segment
         effect_sizes = []
         for segment in segments:
-            control_vals = df[(df["group"] == "Control") & (df["segment"] == segment)]["value"]
-            variant_vals = df[(df["group"] == "Variant") & (df["segment"] == segment)]["value"]
+            control_vals = df[(df["group"] == "Control") & (df["segment"] == segment)][
+                "value"
+            ]
+            variant_vals = df[(df["group"] == "Variant") & (df["segment"] == segment)][
+                "value"
+            ]
 
             if len(control_vals) > 0 and len(variant_vals) > 0:
                 effect_size = (variant_vals.mean() - control_vals.mean()) / np.sqrt(
@@ -851,14 +917,22 @@ class InteractiveVisualizer:
         # 4. Sample Size Requirements
         min_samples = []
         for segment in segments:
-            control_vals = df[(df["group"] == "Control") & (df["segment"] == segment)]["value"]
-            variant_vals = df[(df["group"] == "Variant") & (df["segment"] == segment)]["value"]
+            control_vals = df[(df["group"] == "Control") & (df["segment"] == segment)][
+                "value"
+            ]
+            variant_vals = df[(df["group"] == "Variant") & (df["segment"] == segment)][
+                "value"
+            ]
 
             if len(control_vals) > 0 and len(variant_vals) > 0:
                 pooled_std = np.sqrt((control_vals.var() + variant_vals.var()) / 2)
                 effect = abs(variant_vals.mean() - control_vals.mean()) / pooled_std
                 # Calculate minimum sample size for 80% power
-                min_n = int(16 * (1.96 + 0.84) ** 2 / (effect**2)) if effect > 0 else float("inf")
+                min_n = (
+                    int(16 * (1.96 + 0.84) ** 2 / (effect**2))
+                    if effect > 0
+                    else float("inf")
+                )
                 min_samples.append(min_n)
             else:
                 min_samples.append(0)
@@ -915,13 +989,17 @@ class InteractiveVisualizer:
         # Create tabs for each segmentation
         figures = []
         for segment_key in segment_keys:
-            fig = self.plot_segmentation_analysis(control_events, variant_events, segment_key)
+            fig = self.plot_segmentation_analysis(
+                control_events, variant_events, segment_key
+            )
             figures.append(fig)
 
         # Combine all figures into a single HTML file with tabs
         if save_path:
             with open(save_path, "w") as f:
-                f.write("<html><head><title>Segmentation Analysis Dashboard</title></head><body>")
+                f.write(
+                    "<html><head><title>Segmentation Analysis Dashboard</title></head><body>"
+                )
                 f.write('<div class="tab">')
                 for i, key in enumerate(segment_keys):
                     f.write(
@@ -999,12 +1077,18 @@ class InteractiveVisualizer:
             # Preserve important points (extremes, outliers)
             q1, q3 = df["value"].quantile([0.25, 0.75])
             iqr = q3 - q1
-            outliers = df[(df["value"] < (q1 - 1.5 * iqr)) | (df["value"] > (q3 + 1.5 * iqr))]
+            outliers = df[
+                (df["value"] < (q1 - 1.5 * iqr)) | (df["value"] > (q3 + 1.5 * iqr))
+            ]
 
             # Sample remaining points
-            non_outliers = df[(df["value"] >= (q1 - 1.5 * iqr)) & (df["value"] <= (q3 + 1.5 * iqr))]
+            non_outliers = df[
+                (df["value"] >= (q1 - 1.5 * iqr)) & (df["value"] <= (q3 + 1.5 * iqr))
+            ]
             sample_size = max(max_points - len(outliers), 0)
-            sampled = non_outliers.sample(n=min(sample_size, len(non_outliers)), random_state=42)
+            sampled = non_outliers.sample(
+                n=min(sample_size, len(non_outliers)), random_state=42
+            )
 
             # Combine outliers and sampled points
             df = pd.concat([outliers, sampled]).sort_index()
@@ -1055,7 +1139,10 @@ class InteractiveVisualizer:
         segment_combinations = segment_combinations.reset_index()
         segment_combinations = segment_combinations.rename(columns={0: "count"})
         pivot_counts = segment_combinations.pivot_table(
-            index=segment_keys[:-1], columns=segment_keys[-1], values="count", aggfunc="sum"
+            index=segment_keys[:-1],
+            columns=segment_keys[-1],
+            values="count",
+            aggfunc="sum",
         ).fillna(0)
 
         fig.add_trace(
@@ -1074,7 +1161,9 @@ class InteractiveVisualizer:
         )
 
         # 2. Mean Values Matrix
-        mean_by_segment = df.groupby(segment_keys + ["group"])["value"].mean().reset_index()
+        mean_by_segment = (
+            df.groupby(segment_keys + ["group"])["value"].mean().reset_index()
+        )
         pivot_means = mean_by_segment.pivot_table(
             index=segment_keys[:-1], columns=segment_keys[-1], values="value"
         )
@@ -1151,9 +1240,15 @@ class InteractiveVisualizer:
             variant_vals = row_data[row_data["group"] == "Variant"]["value"].to_numpy()
 
             if len(control_vals) > 0 and len(variant_vals) > 0:
-                pooled_std = np.sqrt((np.var(control_vals) + np.var(variant_vals)) / 2.0)
+                pooled_std = np.sqrt(
+                    (np.var(control_vals) + np.var(variant_vals)) / 2.0
+                )
                 effect = abs(np.mean(variant_vals) - np.mean(control_vals)) / pooled_std
-                min_n = int(16 * (1.96 + 0.84) ** 2 / (effect**2)) if effect > 0 else float("inf")
+                min_n = (
+                    int(16 * (1.96 + 0.84) ** 2 / (effect**2))
+                    if effect > 0
+                    else float("inf")
+                )
             else:
                 min_n = 0
 
@@ -1185,14 +1280,20 @@ class InteractiveVisualizer:
         fig.update_xaxes(title_text=f"Segments ({segment_keys[-1]})", row=1, col=2)
         fig.update_xaxes(title_text="Segment Combinations", row=2, col=1)
         fig.update_xaxes(title_text="Segment Combinations", row=2, col=2)
-        fig.update_yaxes(title_text=f"Segments ({', '.join(segment_keys[:-1])})", row=1, col=1)
-        fig.update_yaxes(title_text=f"Segments ({', '.join(segment_keys[:-1])})", row=1, col=2)
+        fig.update_yaxes(
+            title_text=f"Segments ({', '.join(segment_keys[:-1])})", row=1, col=1
+        )
+        fig.update_yaxes(
+            title_text=f"Segments ({', '.join(segment_keys[:-1])})", row=1, col=2
+        )
         fig.update_yaxes(title_text="Effect Size", row=2, col=1)
         fig.update_yaxes(title_text="Required Sample Size", row=2, col=2)
 
         if save_path:
             if export_formats:
-                self.export_analysis(fig, save_path.replace(".html", ""), export_formats)
+                self.export_analysis(
+                    fig, save_path.replace(".html", ""), export_formats
+                )
             else:
                 fig.write_html(str(save_path))
 
@@ -1210,7 +1311,7 @@ class InteractiveVisualizer:
     ) -> go.Figure:
         """Create interactive heatmap visualization for segment combinations."""
 
-        def events_to_df(events: List[MetricEvent]) -> pd.DataFrame:
+        def events_to_df(events: List[MetricEvent]):
             data: List[Dict[str, Union[float, str]]] = []
             for event in events:
                 row: Dict[str, Union[float, str]] = {"value": float(event.value)}
@@ -1258,7 +1359,10 @@ class InteractiveVisualizer:
                             v_var = float(np.var(v_values, ddof=1))
                             pooled_std = float(
                                 np.sqrt(
-                                    ((len(c_values) - 1) * c_var + (len(v_values) - 1) * v_var)
+                                    (
+                                        (len(c_values) - 1) * c_var
+                                        + (len(v_values) - 1) * v_var
+                                    )
                                     / (len(c_values) + len(v_values) - 2)
                                 )
                             )
@@ -1296,7 +1400,9 @@ class InteractiveVisualizer:
         for segment in segments:
             # Create heatmap for each segment combination
             z_matrix = np.array(segment["metrics"], dtype=np.float64)
-            z_matrix = z_matrix.reshape(len(segment["key1_vals"]), len(segment["key2_vals"]))
+            z_matrix = z_matrix.reshape(
+                len(segment["key1_vals"]), len(segment["key2_vals"])
+            )
 
             # Add heatmap trace
             heatmap = go.Heatmap(
@@ -1342,7 +1448,13 @@ class InteractiveVisualizer:
 
         fig.update_layout(
             updatemenus=[
-                {"buttons": buttons, "direction": "down", "showactive": True, "x": 0.1, "y": 1.15}
+                {
+                    "buttons": buttons,
+                    "direction": "down",
+                    "showactive": True,
+                    "x": 0.1,
+                    "y": 1.15,
+                }
             ],
             title=f"Segment Combination Analysis ({metric_type})",
             height=600,
@@ -1350,7 +1462,9 @@ class InteractiveVisualizer:
 
         if save_path:
             if export_formats:
-                self.export_analysis(fig, save_path.replace(".html", ""), export_formats)
+                self.export_analysis(
+                    fig, save_path.replace(".html", ""), export_formats
+                )
             else:
                 fig.write_html(str(save_path))
 
@@ -1399,7 +1513,7 @@ class InteractiveVisualizer:
         analyzer: ExperimentAnalyzer,
         metric_name: str,
         save_path: Optional[str] = None,
-    ) -> go.Figure:
+    ):
         """Create a comprehensive analysis dashboard combining multiple visualizations.
 
         Args:
@@ -1435,14 +1549,22 @@ class InteractiveVisualizer:
 
         fig.add_trace(
             go.Histogram(
-                x=control_values, name="Control", opacity=0.75, nbinsx=30, histnorm="probability"
+                x=control_values,
+                name="Control",
+                opacity=0.75,
+                nbinsx=30,
+                histnorm="probability",
             ),
             row=1,
             col=1,
         )
         fig.add_trace(
             go.Histogram(
-                x=variant_values, name="Variant", opacity=0.75, nbinsx=30, histnorm="probability"
+                x=variant_values,
+                name="Variant",
+                opacity=0.75,
+                nbinsx=30,
+                histnorm="probability",
             ),
             row=1,
             col=1,
@@ -1465,7 +1587,9 @@ class InteractiveVisualizer:
                 mode="markers",
                 marker={"color": "blue", "size": 10},
                 name="Difference",
-                text=[f"Difference: {diff:.2f}<br>CI: [{ci_lower:.2f}, {ci_upper:.2f}]"],
+                text=[
+                    f"Difference: {diff:.2f}<br>CI: [{ci_lower:.2f}, {ci_upper:.2f}]"
+                ],
                 hoverinfo="text",
             ),
             row=1,

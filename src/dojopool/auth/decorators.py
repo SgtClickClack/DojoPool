@@ -1,30 +1,39 @@
-"""Authentication and authorization decorators.
+"""Authentication decorators module."""
 
-This module provides decorators for securing routes with authentication
-and permission checks.
-"""
-
+import functools
 from functools import wraps
-from typing import Callable, List, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, cast
 
-from flask import flash, redirect, request, url_for
+from flask import (
+    Request,
+    Response,
+    current_app,
+    flash,
+    redirect,
+    request,
+    url_for,
+)
+from flask.typing import ResponseReturnValue
 from flask_login import current_user
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from dojopool.core.errors import AuthenticationError, AuthorizationError
 
+F = TypeVar("F", bound=Callable[..., Any])
 
-def login_required(f: Callable) -> Callable:
+
+def login_required(f: F) -> F:
     """Require user to be logged in.
 
     Args:
         f: Function to decorate.
 
-    Returns:
+    Returns :
         Callable: Decorated function.
     """
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(*args: Any, **kwargs: Any):
         if not current_user.is_authenticated:
             if request.is_json:
                 raise AuthenticationError("Authentication required")
@@ -41,10 +50,10 @@ def login_required(f: Callable) -> Callable:
 
         return f(*args, **kwargs)
 
-    return decorated
+    return cast(F, decorated)
 
 
-def roles_required(roles: Union[str, List[str]]) -> Callable:
+def roles_required(roles: Union[str, List[str]]):
     """Require user to have specific roles.
 
     Args:
@@ -56,9 +65,9 @@ def roles_required(roles: Union[str, List[str]]) -> Callable:
     if isinstance(roles, str):
         roles = [roles]
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: F) -> F:
         @wraps(f)
-        def decorated(*args, **kwargs):
+        def decorated(*args: Any, **kwargs: Any):
             if not current_user.is_authenticated:
                 if request.is_json:
                     raise AuthenticationError("Authentication required")
@@ -68,19 +77,19 @@ def roles_required(roles: Union[str, List[str]]) -> Callable:
 
             if not any(current_user.has_role(role) for role in roles):
                 if request.is_json:
-                    raise AuthorizationError("Insufficient roles")
+                    raise AuthorizationError(f"Required roles: {', '.join(roles)}")
 
                 flash("You do not have permission to access this page.", "error")
                 return redirect(url_for("main.index"))
 
             return f(*args, **kwargs)
 
-        return decorated
+        return cast(F, decorated)
 
     return decorator
 
 
-def permissions_required(permissions: Union[str, List[str]]) -> Callable:
+def permissions_required(permissions: Union[str, List[str]]):
     """Require user to have specific permissions.
 
     Args:
@@ -92,9 +101,9 @@ def permissions_required(permissions: Union[str, List[str]]) -> Callable:
     if isinstance(permissions, str):
         permissions = [permissions]
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: F):
         @wraps(f)
-        def decorated(*args, **kwargs):
+        def decorated(*args: Any, **kwargs: Any) -> Any:
             if not current_user.is_authenticated:
                 if request.is_json:
                     raise AuthenticationError("Authentication required")
@@ -102,32 +111,34 @@ def permissions_required(permissions: Union[str, List[str]]) -> Callable:
                 flash("Please log in to access this page.", "warning")
                 return redirect(url_for("auth.login", next=request.url))
 
-            if not any(current_user.has_permission(perm) for perm in permissions):
+            if not all(current_user.has_permission(perm) for perm in permissions):
                 if request.is_json:
-                    raise AuthorizationError("Insufficient permissions")
+                    raise AuthorizationError(
+                        f"Required permissions: {', '.join(permissions)}"
+                    )
 
                 flash("You do not have permission to access this page.", "error")
                 return redirect(url_for("main.index"))
 
             return f(*args, **kwargs)
 
-        return decorated
+        return cast(F, decorated)
 
     return decorator
 
 
-def verified_required(f: Callable) -> Callable:
+def verified_required(f: F):
     """Require user to have a verified email.
 
     Args:
         f: Function to decorate.
 
-    Returns:
+    Returns :
         Callable: Decorated function.
     """
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(*args: Any, **kwargs: Any) -> Any:
         if not current_user.is_authenticated:
             if request.is_json:
                 raise AuthenticationError("Authentication required")
@@ -144,21 +155,21 @@ def verified_required(f: Callable) -> Callable:
 
         return f(*args, **kwargs)
 
-    return decorated
+    return cast(F, decorated)
 
 
-def admin_required(f: Callable) -> Callable:
+def admin_required(f: F):
     """Require user to be an administrator.
 
     Args:
         f: Function to decorate.
 
-    Returns:
+    Returns :
         Callable: Decorated function.
     """
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(*args: Any, **kwargs: Any) -> Any:
         if not current_user.is_authenticated:
             if request.is_json:
                 raise AuthenticationError("Authentication required")
@@ -175,4 +186,4 @@ def admin_required(f: Callable) -> Callable:
 
         return f(*args, **kwargs)
 
-    return decorated
+    return cast(F, decorated)

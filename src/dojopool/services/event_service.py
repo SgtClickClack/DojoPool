@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Service for handling venue events and registrations."""
 
 from datetime import datetime
@@ -83,7 +85,11 @@ class EventService:
                 type="event_created",
                 title="New Event Created",
                 message=f'A new event "{name}" has been created at {venue.name}',
-                data={"event_id": event.id, "venue_id": venue_id, "event_type": event_type},
+                data={
+                    "event_id": event.id,
+                    "venue_id": venue_id,
+                    "event_type": event_type,
+                },
             )
 
         db.session.commit()
@@ -121,7 +127,9 @@ class EventService:
         db.session.commit()
         return event
 
-    def register_participant(self, event_id: int, user_id: int) -> VenueEventParticipant:
+    def register_participant(
+        self, event_id: int, user_id: int
+    ) -> VenueEventParticipant:
         """Register a user for an event.
 
         Args:
@@ -147,17 +155,23 @@ class EventService:
 
         # Check if event is full
         if event.max_participants:
-            participant_count = VenueEventParticipant.query.filter_by(event_id=event_id).count()
+            participant_count = VenueEventParticipant.query.filter_by(
+                event_id=event_id
+            ).count()
             if participant_count >= event.max_participants:
                 raise ValueError("Event is full")
 
         # Check if already registered
-        existing = VenueEventParticipant.query.filter_by(event_id=event_id, user_id=user_id).first()
+        existing = VenueEventParticipant.query.filter_by(
+            event_id=event_id, user_id=user_id
+        ).first()
         if existing:
             raise ValueError("Already registered for this event")
 
         # Create participant record
-        participant = VenueEventParticipant(event_id=event_id, user_id=user_id, registered_at=now)
+        participant = VenueEventParticipant(
+            event_id=event_id, user_id=user_id, registered_at=now
+        )
 
         db.session.add(participant)
 
@@ -207,7 +221,12 @@ class EventService:
         if not include_past:
             query = query.filter(VenueEvent.end_time > datetime.utcnow())
 
-        events = query.order_by(VenueEvent.start_time.asc()).offset(offset).limit(limit).all()
+        events = (
+            query.order_by(VenueEvent.start_time.asc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         return [
             {
@@ -220,7 +239,9 @@ class EventService:
                 "start_time": e.start_time.isoformat(),
                 "end_time": e.end_time.isoformat(),
                 "registration_deadline": (
-                    e.registration_deadline.isoformat() if e.registration_deadline else None
+                    e.registration_deadline.isoformat()
+                    if e.registration_deadline
+                    else None
                 ),
                 "max_participants": e.max_participants,
                 "entry_fee": e.entry_fee,
@@ -262,14 +283,16 @@ class EventService:
                 "avatar_url": p.user.avatar_url,
                 "registered_at": p.registered_at.isoformat(),
                 "checked_in": p.checked_in,
-                "checked_in_at": p.checked_in_at.isoformat() if p.checked_in_at else None,
+                "checked_in_at": (
+                    p.checked_in_at.isoformat() if p.checked_in_at else None
+                ),
                 "placement": p.placement,
                 "prize_amount": p.prize_amount,
             }
             for p in participants
         ]
 
-    def check_in_participant(self, event_id: int, user_id: int) -> VenueEventParticipant:
+    def check_in_participant(self, event_id: int, user_id: int):
         """Check in a participant for an event.
 
         Args:

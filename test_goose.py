@@ -1,4 +1,5 @@
 import os
+
 import requests
 from dotenv import load_dotenv
 
@@ -39,7 +40,10 @@ class PoolScorer:
         # Test the API key with a simple completion request
         response = requests.post(
             f"{base_url}/engines/gpt-neo-20b/completions",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
             json={
                 "prompt": prompt,
                 "max_tokens": 400,

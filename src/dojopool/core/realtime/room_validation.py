@@ -50,8 +50,16 @@ class RoomValidation:
             },
             RoomTypes.CHAT: {
                 "required_fields": [],
-                "optional_fields": ["message_history", "user_limit", "moderation_level"],
-                "field_types": {"message_history": int, "user_limit": int, "moderation_level": str},
+                "optional_fields": [
+                    "message_history",
+                    "user_limit",
+                    "moderation_level",
+                ],
+                "field_types": {
+                    "message_history": int,
+                    "user_limit": int,
+                    "moderation_level": str,
+                },
                 "field_validators": {
                     "message_history": self._validate_message_history,
                     "user_limit": self._validate_user_limit,
@@ -76,7 +84,9 @@ class RoomValidation:
             # Check room type
             if room_type not in self._validation_rules:
                 return format_error_response(
-                    ErrorCodes.INVALID_ROOM_TYPE, "Invalid room type", {"room_type": room_type}
+                    ErrorCodes.INVALID_ROOM_TYPE,
+                    "Invalid room type",
+                    {"room_type": room_type},
                 )
 
             # Get validation rules
@@ -98,7 +108,9 @@ class RoomValidation:
                     # Check if field is allowed
                     if field not in rules["required_fields"] + rules["optional_fields"]:
                         return format_error_response(
-                            ErrorCodes.INVALID_FIELD, f"Invalid field: {field}", {"field": field}
+                            ErrorCodes.INVALID_FIELD,
+                            f"Invalid field: {field}",
+                            {"field": field},
                         )
 
                     # Check field type
@@ -135,9 +147,7 @@ class RoomValidation:
                 {"error": str(e)},
             )
 
-    def validate_room_update(
-        self, room_type: str, metadata: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    def validate_room_update(self, room_type: str, metadata: Dict[str, Any]):
         """Validate room update parameters.
 
         Args:
@@ -151,7 +161,9 @@ class RoomValidation:
             # Check room type
             if room_type not in self._validation_rules:
                 return format_error_response(
-                    ErrorCodes.INVALID_ROOM_TYPE, "Invalid room type", {"room_type": room_type}
+                    ErrorCodes.INVALID_ROOM_TYPE,
+                    "Invalid room type",
+                    {"room_type": room_type},
                 )
 
             # Get validation rules
@@ -162,7 +174,9 @@ class RoomValidation:
                 # Check if field is allowed
                 if field not in rules["required_fields"] + rules["optional_fields"]:
                     return format_error_response(
-                        ErrorCodes.INVALID_FIELD, f"Invalid field: {field}", {"field": field}
+                        ErrorCodes.INVALID_FIELD,
+                        f"Invalid field: {field}",
+                        {"field": field},
                     )
 
                 # Check field type
@@ -199,7 +213,7 @@ class RoomValidation:
                 {"error": str(e)},
             )
 
-    def _validate_game_type(self, value: str) -> Optional[Dict[str, Any]]:
+    def _validate_game_type(self, value: str):
         """Validate game type.
 
         Args:
@@ -217,7 +231,7 @@ class RoomValidation:
             )
         return None
 
-    def _validate_time_limit(self, value: int) -> Optional[Dict[str, Any]]:
+    def _validate_time_limit(self, value: int):
         """Validate time limit.
 
         Args:
@@ -282,11 +296,15 @@ class RoomValidation:
             return format_error_response(
                 ErrorCodes.INVALID_VALUE,
                 "Invalid tournament type",
-                {"field": "tournament_type", "value": value, "valid_values": valid_types},
+                {
+                    "field": "tournament_type",
+                    "value": value,
+                    "valid_values": valid_types,
+                },
             )
         return None
 
-    def _validate_rounds(self, value: int) -> Optional[Dict[str, Any]]:
+    def _validate_rounds(self, value: int):
         """Validate tournament rounds.
 
         Args:
@@ -334,11 +352,15 @@ class RoomValidation:
             return format_error_response(
                 ErrorCodes.INVALID_VALUE,
                 "Invalid elimination type",
-                {"field": "elimination_type", "value": value, "valid_values": valid_types},
+                {
+                    "field": "elimination_type",
+                    "value": value,
+                    "valid_values": valid_types,
+                },
             )
         return None
 
-    def _validate_message_history(self, value: int) -> Optional[Dict[str, Any]]:
+    def _validate_message_history(self, value: int):
         """Validate message history limit.
 
         Args:
@@ -386,7 +408,11 @@ class RoomValidation:
             return format_error_response(
                 ErrorCodes.INVALID_VALUE,
                 "Invalid moderation level",
-                {"field": "moderation_level", "value": value, "valid_values": valid_levels},
+                {
+                    "field": "moderation_level",
+                    "value": value,
+                    "valid_values": valid_levels,
+                },
             )
         return None
 

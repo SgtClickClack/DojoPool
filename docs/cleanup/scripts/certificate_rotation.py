@@ -1,6 +1,8 @@
 def add_security_headers(response):
     """Add security headers to response."""
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["Strict-Transport-Security"] = (
+        "max-age=31536000; includeSubDomains; preload"
+    )
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
@@ -92,7 +94,7 @@ def backup_certificate(domain: str) -> bool:
         return False
 
 
-def renew_certificate(domain: str) -> bool:
+def renew_certificate(domain: str) :
     """Renew SSL certificate using Let's Encrypt."""
     try:
         # Stop Nginx
@@ -159,7 +161,12 @@ Status: {"Success" if success else "Failed"}
 
         # Send email notification
         subprocess.run(
-            ["mail", "-s", f"Certificate Rotation Report - {domain}", "security@dojopool.com.au"],
+            [
+                "mail",
+                "-s",
+                f"Certificate Rotation Report - {domain}",
+                "security@dojopool.com.au",
+            ],
             input=message.encode(),
         )
 

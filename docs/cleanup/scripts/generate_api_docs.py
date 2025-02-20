@@ -18,7 +18,7 @@ class APIDocGenerator:
         """Check if path should be ignored."""
         return any(ignored in path.parts for ignored in self.ignored_dirs)
 
-    def find_route_files(self) -> List[Path]:
+    def find_route_files(self) :
         """Find all Python files that might contain API routes."""
         route_files = []
         for path in self.root_dir.rglob("*.py"):
@@ -137,7 +137,9 @@ if __name__ == "__main__":
 
 @app.after_request
 def add_security_headers(response):
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["Strict-Transport-Security"] = (
+        "max-age=31536000; includeSubDomains; preload"
+    )
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Security-Policy"] = (

@@ -1,3 +1,7 @@
+from flask_caching import Cache
+from multiprocessing import Pool
+from flask_caching import Cache
+from multiprocessing import Pool
 """
 Venue Management Dashboard Module.
 
@@ -13,15 +17,15 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
+from dojopool.core.models.staff import StaffMember
 from dojopool.core.models.venue import (
     Venue,
-    VenueEvent,
     VenueEquipment,
-    VenueOperatingHours,
-    VenueEventType,
+    VenueEvent,
     VenueEventStatus,
+    VenueEventType,
+    VenueOperatingHours,
 )
-from dojopool.core.models.staff import StaffMember
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +51,7 @@ class VenueDashboard:
             "upcoming_events": self._get_upcoming_events(),
         }
 
-    def _get_basic_info(self) -> Dict:
+    def _get_basic_info(self):
         """Get basic venue information."""
         return {
             "id": self.venue.id,
@@ -60,7 +64,7 @@ class VenueDashboard:
             "review_count": len(self.venue.reviews),
         }
 
-    def _get_current_status(self) -> Dict:
+    def _get_current_status(self):
         """Get current venue status."""
         now = datetime.utcnow()
         operating_hours = VenueOperatingHours.get_current_status(self.venue_id)
@@ -75,7 +79,7 @@ class VenueDashboard:
             "notes": operating_hours.get("notes"),
         }
 
-    def _get_daily_metrics(self) -> Dict:
+    def _get_daily_metrics(self):
         """Get daily performance metrics."""
         today = datetime.utcnow().date()
         return {
@@ -97,7 +101,9 @@ class VenueDashboard:
 
             # Check maintenance schedule
             if equipment.last_maintenance:
-                days_since_maintenance = (datetime.utcnow() - equipment.last_maintenance).days
+                days_since_maintenance = (
+                    datetime.utcnow() - equipment.last_maintenance
+                ).days
                 if days_since_maintenance > 30:  # Maintenance needed after 30 days
                     maintenance_needed.append(
                         {
@@ -126,7 +132,7 @@ class VenueDashboard:
             "performance_metrics": self._get_staff_performance_metrics(staff_members),
         }
 
-    def _get_upcoming_events(self) -> List[Dict]:
+    def _get_upcoming_events(self):
         """Get upcoming venue events."""
         events = (
             VenueEvent.query.filter(
@@ -166,17 +172,17 @@ class VenueDashboard:
             )
         )
 
-    def _count_games(self, date: datetime.date) -> int:
+    def _count_games(self, date: datetime.date):
         """Count games played on a specific date."""
         # Implement game counting logic
         return 0
 
-    def _calculate_revenue(self, date: datetime.date) -> float:
+    def _calculate_revenue(self, date: datetime.date):
         """Calculate revenue for a specific date."""
         # Implement revenue calculation logic
         return 0.0
 
-    def _get_peak_hours(self, date: datetime.date) -> List[Dict]:
+    def _get_peak_hours(self, date: datetime.date):
         """Get peak hours for a specific date."""
         # Implement peak hours calculation logic
         return []
@@ -186,17 +192,17 @@ class VenueDashboard:
         # Implement utilization calculation logic
         return 0.0
 
-    def _count_customers(self, date: datetime.date) -> int:
+    def _count_customers(self, date: datetime.date):
         """Count unique customers for a specific date."""
         # Implement customer counting logic
         return 0
 
-    def _calculate_avg_game_duration(self, date: datetime.date) -> float:
+    def _calculate_avg_game_duration(self, date: datetime.date):
         """Calculate average game duration for a specific date."""
         # Implement duration calculation logic
         return 0.0
 
-    def _get_current_shift_info(self) -> Dict:
+    def _get_current_shift_info(self):
         """Get information about current staff shift."""
         current_time = datetime.utcnow()
         staff_on_duty = []
@@ -243,7 +249,9 @@ class VenueDashboard:
         if not total_staff:
             return {"completion_rate": 0, "pending_training": 0}
 
-        completed_training = sum(1 for staff in staff_members if staff.training_completed)
+        completed_training = sum(
+            1 for staff in staff_members if staff.training_completed
+        )
 
         return {
             "completion_rate": completed_training / total_staff * 100,
@@ -257,7 +265,9 @@ class VenueDashboard:
 
         total_games = sum(staff.games_overseen for staff in staff_members)
         total_tournaments = sum(staff.tournaments_managed for staff in staff_members)
-        avg_rating = sum(staff.customer_rating for staff in staff_members) / len(staff_members)
+        avg_rating = sum(staff.customer_rating for staff in staff_members) / len(
+            staff_members
+        )
 
         return {
             "total_games_overseen": total_games,
@@ -276,7 +286,7 @@ class VenueAnalytics:
         if not self.venue:
             raise ValueError(f"Venue not found: {venue_id}")
 
-    def get_revenue_report(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_revenue_report(self, start_date: datetime, end_date: datetime):
         """Generate revenue report for date range."""
         return {
             "total_revenue": self._calculate_total_revenue(start_date, end_date),
@@ -285,22 +295,28 @@ class VenueAnalytics:
             "comparison": self._get_revenue_comparison(start_date, end_date),
         }
 
-    def get_utilization_report(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_utilization_report(self, start_date: datetime, end_date: datetime):
         """Generate utilization report for date range."""
         return {
-            "average_utilization": self._calculate_avg_utilization(start_date, end_date),
+            "average_utilization": self._calculate_avg_utilization(
+                start_date, end_date
+            ),
             "utilization_by_day": self._get_daily_utilization(start_date, end_date),
             "peak_hours": self._get_peak_hours(start_date, end_date),
             "table_specific_metrics": self._get_table_metrics(start_date, end_date),
         }
 
-    def get_customer_report(self, start_date: datetime, end_date: datetime) -> Dict:
+    def get_customer_report(self, start_date: datetime, end_date: datetime):
         """Generate customer report for date range."""
         return {
             "total_customers": self._count_total_customers(start_date, end_date),
             "new_customers": self._count_new_customers(start_date, end_date),
-            "returning_customers": self._count_returning_customers(start_date, end_date),
-            "customer_demographics": self._get_customer_demographics(start_date, end_date),
+            "returning_customers": self._count_returning_customers(
+                start_date, end_date
+            ),
+            "customer_demographics": self._get_customer_demographics(
+                start_date, end_date
+            ),
             "customer_feedback": self._get_customer_feedback(start_date, end_date),
         }
 
@@ -313,17 +329,17 @@ class VenueAnalytics:
             "event_revenue": self._get_event_revenue(start_date, end_date),
         }
 
-    def _calculate_total_revenue(self, start_date: datetime, end_date: datetime) -> float:
+    def _calculate_total_revenue(self, start_date: datetime, end_date: datetime):
         """Calculate total revenue for date range."""
         # Implement revenue calculation logic
         return 0.0
 
-    def _get_daily_revenue(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_daily_revenue(self, start_date: datetime, end_date: datetime):
         """Get daily revenue breakdown."""
         # Implement daily revenue calculation logic
         return []
 
-    def _get_revenue_by_source(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_revenue_by_source(self, start_date: datetime, end_date: datetime):
         """Get revenue breakdown by source."""
         # Implement revenue source breakdown logic
         return {}
@@ -333,67 +349,73 @@ class VenueAnalytics:
         # Implement revenue comparison logic
         return {}
 
-    def _calculate_avg_utilization(self, start_date: datetime, end_date: datetime) -> float:
+    def _calculate_avg_utilization(self, start_date: datetime, end_date: datetime):
         """Calculate average utilization rate."""
         # Implement utilization calculation logic
         return 0.0
 
-    def _get_daily_utilization(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_daily_utilization(self, start_date: datetime, end_date: datetime):
         """Get daily utilization breakdown."""
         # Implement daily utilization calculation logic
         return []
 
-    def _get_peak_hours(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_peak_hours(self, start_date: datetime, end_date: datetime):
         """Get peak hours analysis."""
         # Implement peak hours analysis logic
         return []
 
-    def _get_table_metrics(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_table_metrics(
+        self, start_date: datetime, end_date: datetime
+    ) -> List[Dict]:
         """Get metrics for individual tables."""
         # Implement table metrics calculation logic
         return []
 
-    def _count_total_customers(self, start_date: datetime, end_date: datetime) -> int:
+    def _count_total_customers(self, start_date: datetime, end_date: datetime):
         """Count total customers in date range."""
         # Implement customer counting logic
         return 0
 
-    def _count_new_customers(self, start_date: datetime, end_date: datetime) -> int:
+    def _count_new_customers(self, start_date: datetime, end_date: datetime):
         """Count new customers in date range."""
         # Implement new customer counting logic
         return 0
 
-    def _count_returning_customers(self, start_date: datetime, end_date: datetime) -> int:
+    def _count_returning_customers(self, start_date: datetime, end_date: datetime):
         """Count returning customers in date range."""
         # Implement returning customer counting logic
         return 0
 
-    def _get_customer_demographics(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_customer_demographics(
+        self, start_date: datetime, end_date: datetime
+    ) -> Dict:
         """Get customer demographic breakdown."""
         # Implement demographics analysis logic
         return {}
 
-    def _get_customer_feedback(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_customer_feedback(self, start_date: datetime, end_date: datetime):
         """Get customer feedback summary."""
         # Implement feedback analysis logic
         return []
 
-    def _count_total_events(self, start_date: datetime, end_date: datetime) -> int:
+    def _count_total_events(self, start_date: datetime, end_date: datetime):
         """Count total events in date range."""
         # Implement event counting logic
         return 0
 
-    def _get_events_by_type(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_events_by_type(self, start_date: datetime, end_date: datetime):
         """Get event breakdown by type."""
         # Implement event type analysis logic
         return {}
 
-    def _get_event_attendance(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_event_attendance(
+        self, start_date: datetime, end_date: datetime
+    ) -> List[Dict]:
         """Get event attendance metrics."""
         # Implement attendance analysis logic
         return []
 
-    def _get_event_revenue(self, start_date: datetime, end_date: datetime) -> Dict:
+    def _get_event_revenue(self, start_date: datetime, end_date: datetime):
         """Get event revenue metrics."""
         # Implement event revenue analysis logic
         return {}

@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -45,7 +47,7 @@ class ResponsiveImageGenerator:
             return "PNG"
         return "JPEG"
 
-    def _has_transparency(self, img: PILImage.Image) -> bool:
+    def _has_transparency(self, img: PILImage.Image):
         """Check if image has transparency."""
         if img.info.get("transparency", None) is not None:
             return True
@@ -59,7 +61,7 @@ class ResponsiveImageGenerator:
         breakpoint: ImageBreakpoint,
         output_path: str,
         original_format: str,
-    ) -> Tuple[str, int]:
+    ):
         """Create a responsive version of the image for a specific breakpoint."""
         # Calculate new dimensions maintaining aspect ratio
         ratio = breakpoint.width / img.size[0]
@@ -76,7 +78,9 @@ class ResponsiveImageGenerator:
 
         # Save original format
         orig_path = f"{output_path}_{breakpoint.width}w.{original_format.lower()}"
-        resized.save(orig_path, format=original_format, quality=breakpoint.quality, optimize=True)
+        resized.save(
+            orig_path, format=original_format, quality=breakpoint.quality, optimize=True
+        )
         orig_size = os.path.getsize(orig_path)
 
         # Save WebP version
@@ -84,9 +88,11 @@ class ResponsiveImageGenerator:
         resized.save(webp_path, format="WEBP", quality=breakpoint.quality, method=6)
         webp_size = os.path.getsize(webp_path)
 
-        return webp_path if webp_size < orig_size else orig_path, min(orig_size, webp_size)
+        return webp_path if webp_size < orig_size else orig_path, min(
+            orig_size, webp_size
+        )
 
-    def create_responsive_images(self, input_path: str, output_dir: str) -> Dict[str, str]:
+    def create_responsive_images(self, input_path: str, output_dir: str):
         """Generate responsive versions of an image."""
         try:
             with PILImage.open(input_path) as img:
@@ -138,7 +144,9 @@ class ResponsiveImageGenerator:
             for filename in image_files:
                 input_path = os.path.join(input_dir, filename)
                 futures.append(
-                    executor.submit(self.create_responsive_images, input_path, output_dir)
+                    executor.submit(
+                        self.create_responsive_images, input_path, output_dir
+                    )
                 )
 
             for future in tqdm(futures, desc="Processing images"):
@@ -150,7 +158,7 @@ class ResponsiveImageGenerator:
             f"Bytes saved: {self.stats['bytes_saved']:,}"
         )
 
-    def add_responsive_loading(self, html_file: str) -> None:
+    def add_responsive_loading(self, html_file: str):
         """Enhance HTML with responsive image loading."""
         try:
             with open(html_file, "r") as f:
@@ -171,7 +179,9 @@ class ResponsiveImageGenerator:
 
                 # Determine if image is critical
                 is_critical = any(
-                    path in src.lower() for paths in CRITICAL_PATHS.values() for path in paths
+                    path in src.lower()
+                    for paths in CRITICAL_PATHS.values()
+                    for path in paths
                 )
 
                 # Generate picture element
@@ -181,17 +191,20 @@ class ResponsiveImageGenerator:
                 # Add source elements for each breakpoint
                 for breakpoint in reversed(BREAKPOINTS):
                     webp_src = f"{filename}_{breakpoint.width}w.webp"
-                    orig_src = f"{filename}_{breakpoint.width}w.{os.path.splitext(src)[1][1:]}"
+                    orig_src = (
+                        f"{filename}_{breakpoint.width}w.{os.path.splitext(src)[1][1:]}"
+                    )
 
                     media_query = f"(min-width: {breakpoint.width}px)"
+                    picture_tag += f'  <source media="{media_query}" srcset="{webp_src}" type="image/webp">\n'
                     picture_tag += (
-                        f'  <source media="{media_query}" srcset="{webp_src}" type="image/webp">\n'
+                        f'  <source media="{media_query}" srcset="{orig_src}">\n'
                     )
-                    picture_tag += f'  <source media="{media_query}" srcset="{orig_src}">\n'
 
                 # Add img tag with modifications
                 new_img_tag = img_tag.replace(
-                    "<img", '<img loading="eager"' if is_critical else '<img loading="lazy"'
+                    "<img",
+                    '<img loading="eager"' if is_critical else '<img loading="lazy"',
                 )
                 picture_tag += f"  {new_img_tag}\n</picture>"
 
@@ -209,12 +222,18 @@ class ResponsiveImageGenerator:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Generate responsive images and update HTML")
+    parser = argparse.ArgumentParser(
+        description="Generate responsive images and update HTML"
+    )
     parser.add_argument("input_dir", help="Input directory containing images")
     parser.add_argument("output_dir", help="Output directory for responsive images")
     parser.add_argument("--html-dir", help="Directory containing HTML files to update")
-    parser.add_argument("--quality", type=int, default=85, help="Base quality for compression")
-    parser.add_argument("--threads", type=int, default=4, help="Number of worker threads")
+    parser.add_argument(
+        "--quality", type=int, default=85, help="Base quality for compression"
+    )
+    parser.add_argument(
+        "--threads", type=int, default=4, help="Number of worker threads"
+    )
 
     args = parser.parse_args()
 

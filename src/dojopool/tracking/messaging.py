@@ -1,10 +1,10 @@
 """Messaging system for DojoPool."""
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Set
 from enum import Enum
-import uuid
+from typing import Dict, List, Optional, Set
 
 
 class MessageType(Enum):
@@ -28,7 +28,9 @@ class Message:
     content: str
     created_at: datetime
     read_at: Optional[datetime] = None
-    metadata: Dict[str, str] = field(default_factory=dict)  # For challenge/tournament details
+    metadata: Dict[str, str] = field(
+        default_factory=dict
+    )  # For challenge/tournament details
 
 
 @dataclass
@@ -53,9 +55,9 @@ class MessageManager:
     def __init__(self) -> None:
         """Initialize message manager."""
         self._messages: Dict[str, Message] = {}
-        self._player_messages: Dict[str, List[str]] = {}  # player_id -> [message_ids]
-        self._clan_messages: Dict[str, List[str]] = {}  # clan_id -> [message_ids]
-        self._challenges: Dict[str, Challenge] = {}
+        self._player_messages: Dict[str, List[str]] = (
+            {}
+        )  # player_id : Dict[str, List[str]] = {}  # clan_id : Dict[str, Challenge] = {}
 
     def send_message(
         self,
@@ -93,8 +95,11 @@ class MessageManager:
         return message
 
     def get_player_messages(
-        self, player_id: str, message_type: Optional[MessageType] = None, unread_only: bool = False
-    ) -> List[Message]:
+        self,
+        player_id: str,
+        message_type: Optional[MessageType] = None,
+        unread_only: bool = False,
+    ):
         """Get messages for a player."""
         message_ids = self._player_messages.get(player_id, [])
         messages = []
@@ -110,7 +115,7 @@ class MessageManager:
 
         return sorted(messages, key=lambda m: m.created_at, reverse=True)
 
-    def get_clan_messages(self, clan_id: str, unread_only: bool = False) -> List[Message]:
+    def get_clan_messages(self, clan_id: str, unread_only: bool = False):
         """Get messages for a clan."""
         message_ids = self._clan_messages.get(clan_id, [])
         messages = []
@@ -124,7 +129,7 @@ class MessageManager:
 
         return sorted(messages, key=lambda m: m.created_at, reverse=True)
 
-    def mark_as_read(self, message_id: str) -> bool:
+    def mark_as_read(self, message_id: str):
         """Mark a message as read."""
         message = self._messages.get(message_id)
         if not message:
@@ -160,7 +165,11 @@ class MessageManager:
         self._challenges[challenge_id] = challenge
 
         # Send challenge message
-        metadata = {"challenge_id": challenge_id, "game_type": game_type, "race_to": str(race_to)}
+        metadata = {
+            "challenge_id": challenge_id,
+            "game_type": game_type,
+            "race_to": str(race_to),
+        }
         if venue_id:
             metadata["venue_id"] = venue_id
         if scheduled_time:
@@ -178,7 +187,7 @@ class MessageManager:
 
         return challenge
 
-    def respond_to_challenge(self, challenge_id: str, accept: bool) -> bool:
+    def respond_to_challenge(self, challenge_id: str, accept: bool):
         """Accept or reject a challenge."""
         challenge = self._challenges.get(challenge_id)
         if not challenge or challenge.status != "pending":
@@ -192,12 +201,15 @@ class MessageManager:
             recipient_id=challenge.challenger_id,
             content=f"Challenge {'accepted' if accept else 'rejected'}",
             message_type=MessageType.CHALLENGE,
-            metadata={"challenge_id": challenge_id, "response": "accept" if accept else "reject"},
+            metadata={
+                "challenge_id": challenge_id,
+                "response": "accept" if accept else "reject",
+            },
         )
 
         return True
 
-    def complete_challenge(self, challenge_id: str, result_id: str) -> bool:
+    def complete_challenge(self, challenge_id: str, result_id: str):
         """Mark a challenge as completed with a result."""
         challenge = self._challenges.get(challenge_id)
         if not challenge or challenge.status != "accepted":

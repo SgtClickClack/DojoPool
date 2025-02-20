@@ -71,7 +71,7 @@ class PreferencesService:
 
         return preferences
 
-    def update_preferences(self, user_id: int, preferences: Dict[str, Any]) -> Dict[str, Any]:
+    def update_preferences(self, user_id: int, preferences: Dict[str, Any]):
         """Update user preferences.
 
         Args:
@@ -103,7 +103,7 @@ class PreferencesService:
 
         return current_preferences
 
-    def reset_preferences(self, user_id: int) -> Dict[str, Any]:
+    def reset_preferences(self, user_id: int):
         """Reset user preferences to defaults.
 
         Args:
@@ -125,7 +125,7 @@ class PreferencesService:
 
         return user.preferences
 
-    def get_preference(self, user_id: int, path: str, default: Any = None) -> Any:
+    def get_preference(self, user_id: int, path: str, default: Any = None):
         """Get specific preference value.
 
         Args:
@@ -192,7 +192,7 @@ class PreferencesService:
                     continue
             target[key] = value
 
-    def _validate_preferences(self, preferences: Dict[str, Any]) -> bool:
+    def _validate_preferences(self, preferences: Dict[str, Any]):
         """Validate preferences structure.
 
         Args:

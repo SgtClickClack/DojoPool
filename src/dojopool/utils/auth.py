@@ -5,17 +5,19 @@ This module provides authentication-related utilities.
 
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import current_app, g, jsonify, request
+from flask import Request, Response, current_app, g, jsonify, request
+from flask.typing import ResponseReturnValue
 from flask_login import current_user
 from jwt import ExpiredSignatureError, InvalidTokenError
 from models.user import User
-
 from services.token_service import TokenService
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 # Initialize token service
-token_service = TokenService()
+token_service: TokenService = TokenService()
+
 
 def generate_token(user_id: int, expiration: int = 3600) -> str:
     """Generate JWT token for user.
@@ -27,13 +29,13 @@ def generate_token(user_id: int, expiration: int = 3600) -> str:
     Returns:
         str: Generated JWT token
     """
-    user = User.query.get(user_id)
+    user: Any = User.query.get(user_id)
     if not user:
         raise ValueError("User not found")
     return token_service.generate_access_token(user)
 
 
-def verify_token(token: str) -> Optional[dict]:
+def verify_token(token: str) :
     """Verify JWT token.
 
     Args:
@@ -45,24 +47,24 @@ def verify_token(token: str) -> Optional[dict]:
     return token_service.verify_token(token)
 
 
-def get_token_from_header() -> Optional[str]:
+def get_token_from_header() :
     """Extract token from Authorization header.
 
     Returns:
         str: Token if found, None otherwise
     """
-    auth_header = request.headers.get("Authorization")
+    auth_header: Any = request.headers.get("Authorization")
     if not auth_header:
         return None
 
-    parts = auth_header.split()
+    parts: Any = auth_header.split()
     if len(parts) != 2 or parts[0].lower() != "bearer":
         return None
 
     return parts[1]
 
 
-def get_current_user() -> Optional[User]:
+def get_current_user() :
     """Get current authenticated user.
 
     Returns:
@@ -74,11 +76,11 @@ def get_current_user() -> Optional[User]:
             return None
 
         try:
-            payload = verify_token(token)
+            payload: verify_token = verify_token(token)
             if not payload:
                 return None
 
-            user_id = payload.get("uid")  # Updated to use new payload format
+            user_id: Any = payload.get("uid")  # Updated to use new payload format
             if not user_id:
                 return None
 
@@ -100,17 +102,17 @@ def login_required(f: Callable) -> Callable:
     """
 
     @wraps(f)
-    def decorated(*args: Any, **kwargs: Any) -> Any:
-        user = get_current_user()
+    def decorated(*args: Any, **kwargs: Any) :
+        user: Any = get_current_user()
         if not user:
             return jsonify({"status": "error", "error": "Authentication required"}), 401
-        g.current_user = user
+        getattr(g, "current_user", None) = user
         return f(*args, **kwargs)
 
     return decorated
 
 
-def require_roles(*roles: str) -> Callable:
+def require_roles(*roles: str) :
     """Decorator to require specific roles.
 
     Args:
@@ -120,10 +122,10 @@ def require_roles(*roles: str) -> Callable:
         Callable: Decorated function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable) :
         @wraps(f)
         def decorated(*args: Any, **kwargs: Any) -> Any:
-            user = get_current_user()
+            user: Any = get_current_user()
             if not user:
                 return (
                     jsonify(
@@ -135,11 +137,14 @@ def require_roles(*roles: str) -> Callable:
                     401,
                 )
 
-            user_roles = {role.name for role in user.roles}
+            user_roles: Any = {role.name for role in user.roles}
             if not any(role in user_roles for role in roles):
                 return (
                     jsonify(
-                        {"error": "Authorization failed", "message": "Insufficient permissions"}
+                        {
+                            "error": "Authorization failed",
+                            "message": "Insufficient permissions",
+                        }
                     ),
                     403,
                 )
@@ -151,23 +156,26 @@ def require_roles(*roles: str) -> Callable:
     return decorator
 
 
-def admin_required(f: Callable) -> Callable:
+def admin_required(f: Callable) :
     """Decorator to require admin privileges."""
 
     @wraps(f)
-    def decorated(*args: Any, **kwargs: Any) -> Any:
-        user = get_current_user()
+    def decorated(*args: Any, **kwargs: Any) :
+        user: Any = get_current_user()
         if not user:
             return jsonify({"status": "error", "error": "Authentication required"}), 401
         if not user.has_role("admin"):
-            return jsonify({"status": "error", "error": "Admin privileges required"}), 403
-        g.current_user = user
+            return (
+                jsonify({"status": "error", "error": "Admin privileges required"}),
+                403,
+            )
+        getattr(g, "current_user", None) = user
         return f(*args, **kwargs)
 
     return decorated
 
 
-__all__ = [
+__all__: List[Any] = [
     "generate_token",
     "verify_token",
     "get_current_user",

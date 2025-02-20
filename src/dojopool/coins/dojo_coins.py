@@ -1,11 +1,13 @@
+import gc
+import gc
 """Dojo Coins cryptocurrency and reward system for DojoPool."""
 
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from typing import Dict, List, Optional
-import uuid
-from decimal import Decimal
 
 
 class RewardType(Enum):
@@ -95,7 +97,7 @@ class DojoCoinsManager:
             RewardType.VENUE_BONUS: Decimal("5.0"),
         }
 
-    def create_wallet(self, player_id: str) -> Wallet:
+    def create_wallet(self, player_id: str):
         """Create a new wallet for a player."""
         wallet_id = str(uuid.uuid4())
         wallet = Wallet(
@@ -108,11 +110,11 @@ class DojoCoinsManager:
         self._wallets[wallet_id] = wallet
         return wallet
 
-    def get_wallet(self, wallet_id: str) -> Optional[Wallet]:
+    def get_wallet(self, wallet_id: str):
         """Get wallet by ID."""
         return self._wallets.get(wallet_id)
 
-    def get_player_wallet(self, player_id: str) -> Optional[Wallet]:
+    def get_player_wallet(self, player_id: str):
         """Get wallet by player ID."""
         for wallet in self._wallets.values():
             if wallet.player_id == player_id:
@@ -166,7 +168,7 @@ class DojoCoinsManager:
         recipient_wallet_id: str,
         amount: Decimal,
         description: str = "",
-    ) -> Optional[Transaction]:
+    ):
         """Transfer coins between wallets."""
         sender = self.get_wallet(sender_wallet_id)
         recipient = self.get_wallet(recipient_wallet_id)
@@ -222,28 +224,32 @@ class DojoCoinsManager:
         else:
             wallet.stats.total_spent += transaction.amount
 
-    def _submit_to_blockchain(self, transaction: Transaction) -> None:
+    def _submit_to_blockchain(self, transaction: Transaction):
         """Submit transaction to blockchain."""
         # TODO: Implement blockchain integration
         # This will vary based on the chosen blockchain (Solana/ERC-20)
         pass
 
-    def get_transaction_history(self, wallet_id: str, limit: int = 50) -> List[Transaction]:
+    def get_transaction_history(
+        self, wallet_id: str, limit: int = 50
+    ) -> List[Transaction]:
         """Get transaction history for a wallet."""
         wallet = self.get_wallet(wallet_id)
         if not wallet:
             return []
 
-        return sorted(wallet.transactions, key=lambda t: t.timestamp, reverse=True)[:limit]
+        return sorted(wallet.transactions, key=lambda t: t.timestamp, reverse=True)[
+            :limit
+        ]
 
-    def get_wallet_stats(self, wallet_id: str) -> Optional[WalletStats]:
+    def get_wallet_stats(self, wallet_id: str):
         """Get statistics for a wallet."""
         wallet = self.get_wallet(wallet_id)
         if not wallet:
             return None
         return wallet.stats
 
-    def get_top_earners(self, limit: int = 10) -> List[Wallet]:
+    def get_top_earners(self, limit: int = 10):
         """Get top earning wallets."""
         wallets = list(self._wallets.values())
         return sorted(wallets, key=lambda w: w.stats.total_earned, reverse=True)[:limit]

@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 
 import schedule
-
 from src.tasks.tournament_tasks import process_tournament_tasks
 
 

@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """WebSocket room rate limiting module.
 
 This module provides rate limiting functionality for room operations.
@@ -20,12 +24,16 @@ class RateLimiter:
         """Initialize RateLimiter."""
         # Track event counts per user
         self._user_events: Dict[str, Dict[str, Dict[str, Any]]] = defaultdict(
-            lambda: defaultdict(lambda: {"count": 0, "first_request": None, "last_request": None})
+            lambda: defaultdict(
+                lambda: {"count": 0, "first_request": None, "last_request": None}
+            )
         )
 
         # Track event counts per room
         self._room_events: Dict[str, Dict[str, Dict[str, Any]]] = defaultdict(
-            lambda: defaultdict(lambda: {"count": 0, "first_request": None, "last_request": None})
+            lambda: defaultdict(
+                lambda: {"count": 0, "first_request": None, "last_request": None}
+            )
         )
 
         # Track global event counts
@@ -42,9 +50,11 @@ class RateLimiter:
             cleanup_interval: Cleanup interval in seconds
         """
         if self._cleanup_task is None:
-            self._cleanup_task = asyncio.create_task(self._cleanup_loop(cleanup_interval))
+            self._cleanup_task = asyncio.create_task(
+                self._cleanup_loop(cleanup_interval)
+            )
 
-    async def stop_cleanup(self) -> None:
+    async def stop_cleanup(self):
         """Stop cleanup task."""
         if self._cleanup_task is not None:
             self._cleanup_task.cancel()
@@ -54,7 +64,7 @@ class RateLimiter:
                 pass
             self._cleanup_task = None
 
-    async def _cleanup_loop(self, interval: int) -> None:
+    async def _cleanup_loop(self, interval: int):
         """Cleanup loop to reset rate limits.
 
         Args:
@@ -68,10 +78,12 @@ class RateLimiter:
                 break
             except Exception as e:
                 logger.error(
-                    "Error in rate limiter cleanup", exc_info=True, extra={"error": str(e)}
+                    "Error in rate limiter cleanup",
+                    exc_info=True,
+                    extra={"error": str(e)},
                 )
 
-    async def cleanup_limits(self) -> None:
+    async def cleanup_limits(self):
         """Reset expired rate limits."""
         try:
             current_time = datetime.utcnow()
@@ -101,9 +113,13 @@ class RateLimiter:
                     del self._global_events[event_type]
 
         except Exception as e:
-            logger.error("Error cleaning up rate limits", exc_info=True, extra={"error": str(e)})
+            logger.error(
+                "Error cleaning up rate limits", exc_info=True, extra={"error": str(e)}
+            )
 
-    def _is_window_expired(self, event_data: Dict[str, Any], current_time: datetime) -> bool:
+    def _is_window_expired(
+        self, event_data: Dict[str, Any], current_time: datetime
+    ) -> bool:
         """Check if rate limit window has expired.
 
         Args:
@@ -141,8 +157,11 @@ class RateLimiter:
             return 100, 1000, 10000  # Default limits
 
     async def check_rate_limit(
-        self, event_type: str, user_id: Optional[str] = None, room_id: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        self,
+        event_type: str,
+        user_id: Optional[str] = None,
+        room_id: Optional[str] = None,
+    ):
         """Check rate limits for an event.
 
         Args:
@@ -173,7 +192,11 @@ class RateLimiter:
                         return format_error_response(
                             ErrorCodes.RATE_LIMIT_EXCEEDED,
                             "User rate limit exceeded",
-                            {"user_id": user_id, "event_type": event_type, "limit": user_limit},
+                            {
+                                "user_id": user_id,
+                                "event_type": event_type,
+                                "limit": user_limit,
+                            },
                         )
 
                 event_data["last_request"] = current_time.isoformat()
@@ -194,7 +217,11 @@ class RateLimiter:
                         return format_error_response(
                             ErrorCodes.RATE_LIMIT_EXCEEDED,
                             "Room rate limit exceeded",
-                            {"room_id": room_id, "event_type": event_type, "limit": room_limit},
+                            {
+                                "room_id": room_id,
+                                "event_type": event_type,
+                                "limit": room_limit,
+                            },
                         )
 
                 event_data["last_request"] = current_time.isoformat()
@@ -233,7 +260,9 @@ class RateLimiter:
             )
             return None  # Don't rate limit on error
 
-    def get_user_limits(self, user_id: str, event_type: Optional[str] = None) -> Dict[str, Any]:
+    def get_user_limits(
+        self, user_id: str, event_type: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Get rate limit info for a user.
 
         Args:
@@ -245,9 +274,12 @@ class RateLimiter:
         """
         if event_type:
             return dict(self._user_events[user_id][event_type])
-        return {event_type: dict(data) for event_type, data in self._user_events[user_id].items()}
+        return {
+            event_type: dict(data)
+            for event_type, data in self._user_events[user_id].items()
+        }
 
-    def get_room_limits(self, room_id: str, event_type: Optional[str] = None) -> Dict[str, Any]:
+    def get_room_limits(self, room_id: str, event_type: Optional[str] = None):
         """Get rate limit info for a room.
 
         Args:
@@ -259,9 +291,12 @@ class RateLimiter:
         """
         if event_type:
             return dict(self._room_events[room_id][event_type])
-        return {event_type: dict(data) for event_type, data in self._room_events[room_id].items()}
+        return {
+            event_type: dict(data)
+            for event_type, data in self._room_events[room_id].items()
+        }
 
-    def get_global_limits(self, event_type: Optional[str] = None) -> Dict[str, Any]:
+    def get_global_limits(self, event_type: Optional[str] = None):
         """Get global rate limit info.
 
         Args:
@@ -272,14 +307,16 @@ class RateLimiter:
         """
         if event_type:
             return dict(self._global_events[event_type])
-        return {event_type: dict(data) for event_type, data in self._global_events.items()}
+        return {
+            event_type: dict(data) for event_type, data in self._global_events.items()
+        }
 
 
 # Global rate limiter instance
 rate_limiter = RateLimiter()
 
 
-async def start_rate_limiter(cleanup_interval: int = 300) -> None:
+async def start_rate_limiter(cleanup_interval: int = 300):
     """Start rate limiter cleanup task.
 
     Args:

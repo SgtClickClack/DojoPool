@@ -29,10 +29,17 @@ def draw_modern_card(draw, x, y, width, height, color="#ffffff", alpha=128):
 
     # Draw corners
     draw.pieslice([x, y, x + radius * 2, y + radius * 2], 180, 270, fill=fill)
-    draw.pieslice([x + width - radius * 2, y, x + width, y + radius * 2], 270, 360, fill=fill)
-    draw.pieslice([x, y + height - radius * 2, x + radius * 2, y + height], 90, 180, fill=fill)
     draw.pieslice(
-        [x + width - radius * 2, y + height - radius * 2, x + width, y + height], 0, 90, fill=fill
+        [x + width - radius * 2, y, x + width, y + radius * 2], 270, 360, fill=fill
+    )
+    draw.pieslice(
+        [x, y + height - radius * 2, x + radius * 2, y + height], 90, 180, fill=fill
+    )
+    draw.pieslice(
+        [x + width - radius * 2, y + height - radius * 2, x + width, y + height],
+        0,
+        90,
+        fill=fill,
     )
 
 
@@ -59,17 +66,28 @@ def create_screenshot(filename, text, size=(1280, 720)):
     menu_items = ["Home", "Games", "Tournaments", "Profile", "Settings"]
     for i, item in enumerate(menu_items):
         x = 200 + i * 150
-        draw.text((x, 25), item, font=text_font, fill="#4a90e2" if item in text else "#ffffff")
+        draw.text(
+            (x, 25), item, font=text_font, fill="#4a90e2" if item in text else "#ffffff"
+        )
 
     # Draw main content area
     if "Home" in text:
         # Home screen layout
         draw_modern_card(draw, 40, 100, size[0] - 80, 200, "#ffffff", 30)
         draw.text((60, 120), "Welcome to DojoPool", font=title_font, fill="#ffffff")
-        draw.text((60, 170), "Your Ultimate Pool Gaming Experience", font=text_font, fill="#4a90e2")
+        draw.text(
+            (60, 170),
+            "Your Ultimate Pool Gaming Experience",
+            font=text_font,
+            fill="#4a90e2",
+        )
 
         # Stats cards
-        stats = [("Active Players", "1,234"), ("Tournaments", "42"), ("Games Today", "567")]
+        stats = [
+            ("Active Players", "1,234"),
+            ("Tournaments", "42"),
+            ("Games Today", "567"),
+        ]
         for i, (label, value) in enumerate(stats):
             x = 40 + i * (size[0] - 120) / 3
             draw_modern_card(draw, x, 320, (size[0] - 120) / 3 - 20, 150, "#ffffff", 40)
@@ -78,8 +96,12 @@ def create_screenshot(filename, text, size=(1280, 720)):
 
     elif "Game" in text:
         # Game interface layout
-        draw_modern_card(draw, 40, 100, size[0] - 400, size[1] - 140, "#ffffff", 30)  # Game area
-        draw_modern_card(draw, size[0] - 340, 100, 300, size[1] - 140, "#ffffff", 40)  # Sidebar
+        draw_modern_card(
+            draw, 40, 100, size[0] - 400, size[1] - 140, "#ffffff", 30
+        )  # Game area
+        draw_modern_card(
+            draw, size[0] - 340, 100, 300, size[1] - 140, "#ffffff", 40
+        )  # Sidebar
 
         # Game controls
         draw.text((size[0] - 320, 120), "Game Controls", font=text_font, fill="#ffffff")
@@ -99,7 +121,9 @@ def create_screenshot(filename, text, size=(1280, 720)):
 
         for x, y, w, h in charts:
             draw_modern_card(draw, x, y, w - x, h - y, "#ffffff", 30)
-            draw.text((x + 20, y + 20), "Statistics Chart", font=text_font, fill="#ffffff")
+            draw.text(
+                (x + 20, y + 20), "Statistics Chart", font=text_font, fill="#ffffff"
+            )
 
     # Draw footer
     draw_modern_card(draw, 0, size[1] - 60, size[0], 60, "#ffffff", 20)

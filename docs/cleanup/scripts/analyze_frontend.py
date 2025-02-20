@@ -15,13 +15,20 @@ class FrontendAnalyzer:
         self.components: Dict[str, Dict] = {}
         self.styles: Dict[str, Dict] = {}
         self.utils: Dict[str, Dict] = {}
-        self.ignored_dirs = {".git", "__pycache__", "node_modules", "venv", "build", "dist"}
+        self.ignored_dirs = {
+            ".git",
+            "__pycache__",
+            "node_modules",
+            "venv",
+            "build",
+            "dist",
+        }
 
     def should_ignore(self, path: Path) -> bool:
         """Check if path should be ignored."""
         return any(ignored in str(path).split(os.sep) for ignored in self.ignored_dirs)
 
-    def find_frontend_files(self) -> Dict[str, List[Path]]:
+    def find_frontend_files(self) :
         """Find all frontend-related files."""
         files = {"components": [], "styles": [], "utils": []}
 
@@ -66,7 +73,14 @@ class FrontendAnalyzer:
 
         # Extract hooks usage
         hooks = []
-        hook_patterns = ["useState", "useEffect", "useContext", "useRef", "useMemo", "useCallback"]
+        hook_patterns = [
+            "useState",
+            "useEffect",
+            "useContext",
+            "useRef",
+            "useMemo",
+            "useCallback",
+        ]
         for hook in hook_patterns:
             if hook in content:
                 hooks.append(hook)
@@ -238,7 +252,11 @@ class FrontendAnalyzer:
         # Generate JSON data
         with open(docs_dir / "frontend_analysis.json", "w", encoding="utf-8") as f:
             json.dump(
-                {"components": self.components, "styles": self.styles, "utils": self.utils},
+                {
+                    "components": self.components,
+                    "styles": self.styles,
+                    "utils": self.utils,
+                },
                 f,
                 indent=2,
             )

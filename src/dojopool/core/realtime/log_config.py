@@ -68,7 +68,7 @@ class WebSocketLogger(logging.Logger):
 
     def log_event(
         self, event_type: str, data: Dict[str, Any], level: int = logging.INFO, **kwargs
-    ) -> None:
+    ):
         """Log WebSocket event.
 
         Args:
@@ -82,8 +82,12 @@ class WebSocketLogger(logging.Logger):
         self.log(level, f"WebSocket event: {event_type}", extra=extra)
 
     def log_error(
-        self, error_code: int, message: str, details: Optional[Dict[str, Any]] = None, **kwargs
-    ) -> None:
+        self,
+        error_code: int,
+        message: str,
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ):
         """Log WebSocket error.
 
         Args:
@@ -97,8 +101,12 @@ class WebSocketLogger(logging.Logger):
         self.error(message, extra=extra)
 
     def log_metric(
-        self, metric_name: str, value: float, tags: Optional[Dict[str, str]] = None, **kwargs
-    ) -> None:
+        self,
+        metric_name: str,
+        value: float,
+        tags: Optional[Dict[str, str]] = None,
+        **kwargs,
+    ):
         """Log WebSocket metric.
 
         Args:
@@ -107,7 +115,12 @@ class WebSocketLogger(logging.Logger):
             tags: Optional metric tags
             **kwargs: Additional log data
         """
-        extra = {"metric_name": metric_name, "metric_value": value, "metric_tags": tags, **kwargs}
+        extra = {
+            "metric_name": metric_name,
+            "metric_value": value,
+            "metric_tags": tags,
+            **kwargs,
+        }
 
         self.info(f"WebSocket metric: {metric_name}", extra=extra)
 
@@ -147,7 +160,9 @@ def setup_logging(
     # Create file handler if log file specified
     if log_file:
         file_handler = logging.handlers.RotatingFileHandler(
-            os.path.join(logs_dir, log_file), maxBytes=max_bytes, backupCount=backup_count
+            os.path.join(logs_dir, log_file),
+            maxBytes=max_bytes,
+            backupCount=backup_count,
         )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
@@ -159,7 +174,7 @@ def setup_logging(
 logger = setup_logging(log_level=logging.INFO, log_file="websocket.log")
 
 
-def get_logger(name: Optional[str] = None) -> WebSocketLogger:
+def get_logger(name: Optional[str] = None):
     """Get logger instance.
 
     Args:

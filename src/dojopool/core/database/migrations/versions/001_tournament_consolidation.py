@@ -3,27 +3,50 @@
 This migration updates the tournament tables schema to match the new consolidated model.
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic
-revision = "tournament_consolidation_01"
-down_revision = None
-branch_labels = None
-depends_on = None
+revision: str = "tournament_consolidation_01"
+down_revision: str = None
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Add new columns to tournaments table
     op.add_column("tournaments", sa.Column("organizer_id", sa.Integer(), nullable=True))
-    op.add_column("tournaments", sa.Column("check_in_start", sa.DateTime(), nullable=True))
-    op.add_column("tournaments", sa.Column("check_in_end", sa.DateTime(), nullable=True))
-    op.add_column("tournaments", sa.Column("max_participants", sa.Integer(), nullable=True))
-    op.add_column("tournaments", sa.Column("min_participants", sa.Integer(), nullable=True))
-    op.add_column("tournaments", sa.Column("total_prize_pool", sa.Float(), nullable=True))
-    op.add_column("tournaments", sa.Column("scoring_type", sa.String(50), nullable=True))
-    op.add_column("tournaments", sa.Column("match_format", sa.String(50), nullable=True))
-    op.add_column("tournaments", sa.Column("seeding_method", sa.String(50), nullable=True))
+    op.add_column(
+        "tournaments", sa.Column("check_in_start", sa.DateTime(), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("check_in_end", sa.DateTime(), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("max_participants", sa.Integer(), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("min_participants", sa.Integer(), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("total_prize_pool", sa.Float(), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("scoring_type", sa.String(50), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("match_format", sa.String(50), nullable=True)
+    )
+    op.add_column(
+        "tournaments", sa.Column("seeding_method", sa.String(50), nullable=True)
+    )
     op.add_column("tournaments", sa.Column("visibility", sa.String(20), nullable=True))
     op.add_column("tournaments", sa.Column("featured", sa.Boolean(), nullable=True))
     op.add_column("tournaments", sa.Column("created_at", sa.DateTime(), nullable=True))
@@ -70,7 +93,9 @@ def upgrade():
     )
 
     # Update tournament_matches table
-    op.add_column("tournament_matches", sa.Column("bracket_id", sa.Integer(), nullable=True))
+    op.add_column(
+        "tournament_matches", sa.Column("bracket_id", sa.Integer(), nullable=True)
+    )
     op.add_column("tournament_matches", sa.Column("table_number", sa.Integer()))
     op.add_column("tournament_matches", sa.Column("scheduled_time", sa.DateTime()))
     op.add_column("tournament_matches", sa.Column("actual_start_time", sa.DateTime()))
@@ -79,7 +104,11 @@ def upgrade():
 
     # Create foreign key for bracket_id
     op.create_foreign_key(
-        "fk_matches_bracket", "tournament_matches", "tournament_brackets", ["bracket_id"], ["id"]
+        "fk_matches_bracket",
+        "tournament_matches",
+        "tournament_brackets",
+        ["bracket_id"],
+        ["id"],
     )
 
     # Create foreign key for next_match_id
@@ -93,7 +122,8 @@ def upgrade():
 
     # Update tournament_prizes table
     op.add_column(
-        "tournament_prizes", sa.Column("distribution_status", sa.String(20), nullable=True)
+        "tournament_prizes",
+        sa.Column("distribution_status", sa.String(20), nullable=True),
     )
     op.add_column("tournament_prizes", sa.Column("distributed_at", sa.DateTime()))
 
@@ -134,7 +164,9 @@ def downgrade():
     op.drop_table("tournament_match_players")
 
     # Remove new columns from tournament_matches table
-    op.drop_constraint("fk_matches_next_match", "tournament_matches", type_="foreignkey")
+    op.drop_constraint(
+        "fk_matches_next_match", "tournament_matches", type_="foreignkey"
+    )
     op.drop_constraint("fk_matches_bracket", "tournament_matches", type_="foreignkey")
     op.drop_column("tournament_matches", "bracket_id")
     op.drop_column("tournament_matches", "table_number")

@@ -1,9 +1,12 @@
 """Chat models for messaging between users."""
 
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
 
@@ -11,61 +14,77 @@ from .base import BaseModel
 class ChatRoom(BaseModel):
     """Chat room model."""
 
-    __tablename__ = "chat_rooms"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "chat_rooms"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-    description = Column(Text)
-    is_private = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    description: Mapped[str] = mapped_column(Text)
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
-    messages = relationship("ChatMessage", back_populates="room")
-    participants = relationship("ChatParticipant", back_populates="room")
+    messages: Mapped[List["ChatMessage"]] = relationship(
+        "ChatMessage", back_populates="room"
+    )
+    participants: Mapped[List["ChatParticipant"]] = relationship(
+        "ChatParticipant", back_populates="room"
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<ChatRoom {self.name}>"
 
 
 class ChatMessage(BaseModel):
     """Chat message model."""
 
-    __tablename__ = "chat_messages"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "chat_messages"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
-    id = Column(Integer, primary_key=True)
-    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    room_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("chat_rooms.id"), nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
-    room = relationship("ChatRoom", back_populates="messages")
-    user = relationship("User", backref="chat_messages")
+    room: Mapped["ChatRoom"] = relationship("ChatRoom", back_populates="messages")
+    user: Mapped["User"] = relationship("User", backref="chat_messages")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<ChatMessage {self.id} in Room {self.room_id}>"
 
 
 class ChatParticipant(BaseModel):
     """Chat participant model."""
 
-    __tablename__ = "chat_participants"
-    __table_args__ = {"extend_existing": True}
+    __tablename__: str = "chat_participants"
+    __table_args__: Dict[Any, Any] = {"extend_existing": True}
 
-    id = Column(Integer, primary_key=True)
-    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    joined_at = Column(DateTime, default=datetime.utcnow)
-    last_read_at = Column(DateTime)
-    is_admin = Column(Boolean, default=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    room_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("chat_rooms.id"), nullable=False
+    )
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    joined_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    last_read_at: Mapped[datetime] = mapped_column(DateTime)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    room = relationship("ChatRoom", back_populates="participants")
-    user = relationship("User", backref="chat_participations")
+    room: Mapped["ChatRoom"] = relationship("ChatRoom", back_populates="participants")
+    user: Mapped["User"] = relationship("User", backref="chat_participations")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<ChatParticipant {self.user_id} in Room {self.room_id}>"

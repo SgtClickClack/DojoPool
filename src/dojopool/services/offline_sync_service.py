@@ -5,7 +5,6 @@ from models.match import Match
 from models.shot import Shot
 from models.user import User
 from models.venue import Venue
-
 from services.performance_tracking_service import PerformanceTrackingService
 from services.shot_analysis import ShotAnalysis
 from utils.validation import validate_offline_sync_data
@@ -16,7 +15,9 @@ class OfflineSyncService:
         self.shot_analysis = ShotAnalysis()
         self.performance_tracking = PerformanceTrackingService()
 
-    def sync_offline_data(self, user_id: str, offline_data: Dict[str, Any]) -> Dict[str, Any]:
+    def sync_offline_data(
+        self, user_id: str, offline_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Synchronize offline data with server
         """
@@ -26,13 +27,17 @@ class OfflineSyncService:
             return validation
 
         # Process matches
-        processed_matches = self._process_matches(user_id, offline_data.get("matches", []))
+        processed_matches = self._process_matches(
+            user_id, offline_data.get("matches", [])
+        )
 
         # Process shots
         processed_shots = self._process_shots(user_id, offline_data.get("shots", []))
 
         # Process venue check-ins
-        processed_checkins = self._process_checkins(user_id, offline_data.get("checkins", []))
+        processed_checkins = self._process_checkins(
+            user_id, offline_data.get("checkins", [])
+        )
 
         # Get updated user data
         user = User.get_by_id(user_id)
@@ -49,11 +54,15 @@ class OfflineSyncService:
             },
             "user_data": {
                 "profile": user.to_dict(),
-                "performance": self.performance_tracking.track_player_performance(user_id),
+                "performance": self.performance_tracking.track_player_performance(
+                    user_id
+                ),
             },
         }
 
-    def get_sync_data(self, user_id: str, last_sync: Optional[datetime] = None) -> Dict[str, Any]:
+    def get_sync_data(
+        self, user_id: str, last_sync: Optional[datetime] = None
+    ) -> Dict[str, Any]:
         """
         Get data for offline storage
         """
@@ -82,7 +91,7 @@ class OfflineSyncService:
             "performance": self.performance_tracking.track_player_performance(user_id),
         }
 
-    def _process_matches(self, user_id: str, matches: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _process_matches(self, user_id: str, matches: List[Dict[str, Any]]):
         """
         Process offline matches
         """
@@ -111,7 +120,7 @@ class OfflineSyncService:
 
         return processed
 
-    def _process_shots(self, user_id: str, shots: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _process_shots(self, user_id: str, shots: List[Dict[str, Any]]):
         """
         Process offline shots
         """
@@ -130,7 +139,9 @@ class OfflineSyncService:
                 shot = Shot.create_or_update(shot_data)
                 if shot:
                     analysis = self.shot_analysis.analyze_shot(shot.to_dict())
-                    processed["success"].append({"shot": shot.to_dict(), "analysis": analysis})
+                    processed["success"].append(
+                        {"shot": shot.to_dict(), "analysis": analysis}
+                    )
                 else:
                     processed["failed"].append(
                         {"shot_data": shot_data, "error": "Shot creation failed"}
@@ -141,7 +152,7 @@ class OfflineSyncService:
 
         return processed
 
-    def _process_checkins(self, user_id: str, checkins: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _process_checkins(self, user_id: str, checkins: List[Dict[str, Any]]):
         """
         Process offline venue check-ins
         """
@@ -159,17 +170,29 @@ class OfflineSyncService:
 
                 # Process check-in
                 if venue.process_offline_checkin(
-                    {"user_id": user_id, "timestamp": checkin_data.get("timestamp"), **checkin_data}
+                    {
+                        "user_id": user_id,
+                        "timestamp": checkin_data.get("timestamp"),
+                        **checkin_data,
+                    }
                 ):
                     processed["success"].append(
-                        {"venue_id": venue.id, "timestamp": checkin_data.get("timestamp")}
+                        {
+                            "venue_id": venue.id,
+                            "timestamp": checkin_data.get("timestamp"),
+                        }
                     )
                 else:
                     processed["failed"].append(
-                        {"checkin_data": checkin_data, "error": "Check-in processing failed"}
+                        {
+                            "checkin_data": checkin_data,
+                            "error": "Check-in processing failed",
+                        }
                     )
 
             except Exception as e:
-                processed["failed"].append({"checkin_data": checkin_data, "error": str(e)})
+                processed["failed"].append(
+                    {"checkin_data": checkin_data, "error": str(e)}
+                )
 
         return processed

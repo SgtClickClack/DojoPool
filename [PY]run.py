@@ -5,8 +5,7 @@ Run the Flask application.
 import os
 
 from dotenv import load_dotenv
-
-from src.dojopool.app import create_app
+from dojopool.app import create_app
 
 # Load environment variables
 load_dotenv()

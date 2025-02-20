@@ -10,7 +10,9 @@ import sys
 from pathlib import Path
 from typing import Set
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class SecurityFixer:
@@ -249,7 +251,7 @@ class SecurityFixer:
         """Check if a path should be excluded from processing."""
         return any(part in self.exclude_dirs for part in path.parts)
 
-    def is_sensitive_file(self, path: Path) -> bool:
+    def is_sensitive_file(self, path: Path) :
         """Check if a file is considered sensitive."""
         if self.is_excluded(path):
             return False
@@ -271,7 +273,7 @@ class SecurityFixer:
 
         return False
 
-    def read_file_safely(self, path: Path) -> str:
+    def read_file_safely(self, path: Path) :
         """Read file with proper encoding handling."""
         encodings = ["utf-8", "latin1", "cp1252", "ascii"]
         content = ""
@@ -302,7 +304,9 @@ class SecurityFixer:
                 is_highly_sensitive = any(
                     d.lower() in str(path).lower() for d in self.highly_sensitive_dirs
                 )
-                is_sensitive = any(d.lower() in str(path).lower() for d in self.sensitive_dirs)
+                is_sensitive = any(
+                    d.lower() in str(path).lower() for d in self.sensitive_dirs
+                )
 
                 # Enhanced directory permissions
                 if is_highly_sensitive:
@@ -328,14 +332,20 @@ class SecurityFixer:
                         )
 
                 # Set sticky bit for sensitive directories
-                if (is_highly_sensitive or is_sensitive) and not (current_mode & stat.S_ISVTX):
+                if (is_highly_sensitive or is_sensitive) and not (
+                    current_mode & stat.S_ISVTX
+                ):
                     try:
                         path.chmod(current_mode | stat.S_ISVTX)
                         logging.info(f"Added sticky bit to directory {path}")
                     except PermissionError:
-                        logging.error(f"Permission denied setting sticky bit on directory {path}")
+                        logging.error(
+                            f"Permission denied setting sticky bit on directory {path}"
+                        )
                     except Exception as e:
-                        logging.error(f"Error setting sticky bit on directory {path}: {str(e)}")
+                        logging.error(
+                            f"Error setting sticky bit on directory {path}: {str(e)}"
+                        )
 
                 self.processed_dirs.add(path)
 
@@ -381,7 +391,10 @@ class SecurityFixer:
                 }
 
                 is_highly_sensitive = (
-                    any(pattern.lower() in str(path).lower() for pattern in name_patterns)
+                    any(
+                        pattern.lower() in str(path).lower()
+                        for pattern in name_patterns
+                    )
                     or any(
                         pattern.lower() in path.suffix.lower()
                         for pattern in [".key", ".pem", ".crt", ".p12", ".pfx"]
@@ -396,7 +409,14 @@ class SecurityFixer:
                     self.is_sensitive_file(path)
                     or any(
                         pattern.lower() in path.suffix.lower()
-                        for pattern in [".env", ".cfg", ".conf", ".ini", ".yml", ".yaml"]
+                        for pattern in [
+                            ".env",
+                            ".cfg",
+                            ".conf",
+                            ".ini",
+                            ".yml",
+                            ".yaml",
+                        ]
                     )
                     or any(
                         pattern.lower() in path.name.lower()
@@ -432,8 +452,12 @@ class SecurityFixer:
                     current_mode & (stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
                 ):
                     try:
-                        path.chmod(current_mode & ~(stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH))
-                        logging.info(f"Removed execute permissions from sensitive file {path}")
+                        path.chmod(
+                            current_mode & ~(stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+                        )
+                        logging.info(
+                            f"Removed execute permissions from sensitive file {path}"
+                        )
                     except PermissionError:
                         logging.error(
                             f"Permission denied removing execute permissions from file {path}"
@@ -465,7 +489,9 @@ class SecurityFixer:
                     matches_by_category[category] += 1
 
         # Require matches in at least 2 different categories to consider it a web app file
-        categories_with_matches = sum(1 for count in matches_by_category.values() if count > 0)
+        categories_with_matches = sum(
+            1 for count in matches_by_category.values() if count > 0
+        )
         return categories_with_matches >= 2
 
     def fix_security_headers(self, file_path):
@@ -633,7 +659,9 @@ async def add_security_headers(request: Request, call_next):
                         for key, value in updated_configs.items():
                             f.write(f"{key}={value}\n")
 
-                    logging.info(f"Updated environment file {env_file} with secure configurations")
+                    logging.info(
+                        f"Updated environment file {env_file} with secure configurations"
+                    )
             except Exception as e:
                 logging.error(f"Error updating environment file {env_file}: {str(e)}")
 
@@ -662,7 +690,9 @@ async def add_security_headers(request: Request, call_next):
 
 
 def main():
-    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    root_dir = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
     fixer = SecurityFixer(root_dir)
     fixer.run()
 

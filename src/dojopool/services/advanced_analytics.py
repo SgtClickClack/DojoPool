@@ -71,7 +71,9 @@ class AdvancedAnalytics:
 
         # Load ML models
         self.trend_analyzer = load_model(AI_CONFIG["trend_analyzer_path"])
-        self.performance_forecaster = load_model(AI_CONFIG["performance_forecaster_path"])
+        self.performance_forecaster = load_model(
+            AI_CONFIG["performance_forecaster_path"]
+        )
         self.player_clusterer = load_model(AI_CONFIG["player_clusterer_path"])
 
         # Initialize data transformers
@@ -107,7 +109,9 @@ class AdvancedAnalytics:
         seasonality = self._analyze_seasonality(time_series, granularity)
 
         # Generate forecast
-        forecast_values, confidence_interval = self._generate_forecast(time_series, periods=10)
+        forecast_values, confidence_interval = self._generate_forecast(
+            time_series, periods=10
+        )
 
         # Detect change points
         change_points = self._detect_change_points(time_series)
@@ -150,13 +154,19 @@ class AdvancedAnalytics:
         ranking = self._calculate_ranking(player_data, peer_data)
 
         # Find similar players
-        similar_players = await self._find_similar_players(player_id, peer_group, metric_name)
+        similar_players = await self._find_similar_players(
+            player_id, peer_group, metric_name
+        )
 
         # Analyze relative performance
-        strengths, weaknesses = await self._analyze_relative_performance(player_id, peer_group)
+        strengths, weaknesses = await self._analyze_relative_performance(
+            player_id, peer_group
+        )
 
         # Calculate improvement potential
-        improvement_potential = self._calculate_improvement_potential(player_data, peer_data)
+        improvement_potential = self._calculate_improvement_potential(
+            player_data, peer_data
+        )
 
         # Calculate benchmark gaps
         benchmark_gaps = self._calculate_benchmark_gaps(player_data, peer_data)
@@ -175,9 +185,7 @@ class AdvancedAnalytics:
             benchmark_gaps=benchmark_gaps,
         )
 
-    async def generate_visualization(
-        self, data_type: str, params: Dict[str, Any]
-    ) -> PerformanceVisualization:
+    async def generate_visualization(self, data_type: str, params: Dict[str, Any]):
         """Generate visualization data for various analytics."""
         if data_type == "trend":
             return await self._generate_trend_visualization(params)
@@ -192,7 +200,7 @@ class AdvancedAnalytics:
 
     async def forecast_performance(
         self, player_id: str, metrics: List[str], horizon: int = 30
-    ) -> Dict[str, List[float]]:
+    ):
         """Forecast future performance for specified metrics."""
         forecasts = {}
 
@@ -234,7 +242,9 @@ class AdvancedAnalytics:
 
         return direction, min(strength, 1.0)
 
-    def _analyze_seasonality(self, time_series: pd.Series, granularity: str) -> Dict[str, float]:
+    def _analyze_seasonality(
+        self, time_series: pd.Series, granularity: str
+    ) -> Dict[str, float]:
         """Analyze seasonality patterns in the time series."""
         seasonality = {}
 
@@ -261,7 +271,9 @@ class AdvancedAnalytics:
     def _generate_forecast(self, time_series: pd.Series, periods: int) -> tuple:
         """Generate forecast values and confidence intervals."""
         # Fit exponential smoothing model
-        model = ExponentialSmoothing(time_series, seasonal_periods=7, trend="add", seasonal="add")
+        model = ExponentialSmoothing(
+            time_series, seasonal_periods=7, trend="add", seasonal="add"
+        )
         fitted_model = model.fit()
 
         # Generate forecast
@@ -272,7 +284,7 @@ class AdvancedAnalytics:
 
         return forecast.tolist(), confidence_interval
 
-    def _detect_change_points(self, time_series: pd.Series) -> List[datetime]:
+    def _detect_change_points(self, time_series: pd.Series):
         """Detect significant change points in the time series."""
         change_points = []
 
@@ -282,7 +294,10 @@ class AdvancedAnalytics:
 
         # Detect significant changes
         for i in range(8, len(time_series)):
-            if abs(time_series.iloc[i] - rolling_mean.iloc[i - 1]) > 2 * rolling_std.iloc[i - 1]:
+            if (
+                abs(time_series.iloc[i] - rolling_mean.iloc[i - 1])
+                > 2 * rolling_std.iloc[i - 1]
+            ):
                 change_points.append(time_series.index[i])
 
         return change_points
@@ -299,38 +314,44 @@ class AdvancedAnalytics:
         # Implementation depends on data storage system
         pass
 
-    async def _get_player_metrics(self, player_id: str, metric_name: str) -> float:
+    async def _get_player_metrics(self, player_id: str, metric_name: str):
         """Retrieve current metric value for a player."""
         # Implementation depends on data storage system
         pass
 
-    async def _get_peer_metrics(self, peer_group: List[str], metric_name: str) -> List[float]:
+    async def _get_peer_metrics(self, peer_group: List[str], metric_name: str):
         """Retrieve metric values for a peer group."""
         # Implementation depends on data storage system
         pass
 
-    async def _identify_peer_group(self, player_id: str, size: int = 20) -> List[str]:
+    async def _identify_peer_group(self, player_id: str, size: int = 20):
         """Identify similar players for peer comparison."""
         # Implementation depends on player matching algorithm
         pass
 
-    def _calculate_percentile(self, player_value: float, peer_values: List[float]) -> float:
+    def _calculate_percentile(
+        self, player_value: float, peer_values: List[float]
+    ) -> float:
         """Calculate percentile rank of player within peer group."""
-        return 100 * (sum(1 for x in peer_values if x < player_value) / len(peer_values))
+        return 100 * (
+            sum(1 for x in peer_values if x < player_value) / len(peer_values)
+        )
 
-    def _calculate_ranking(self, player_value: float, peer_values: List[float]) -> int:
+    def _calculate_ranking(self, player_value: float, peer_values: List[float]):
         """Calculate ranking of player within peer group."""
         sorted_values = sorted(peer_values + [player_value], reverse=True)
         return sorted_values.index(player_value) + 1
 
     async def _find_similar_players(
         self, player_id: str, peer_group: List[str], metric_name: str
-    ) -> List[str]:
+    ):
         """Find most similar players based on performance patterns."""
         # Implementation depends on similarity calculation algorithm
         pass
 
-    async def _analyze_relative_performance(self, player_id: str, peer_group: List[str]) -> tuple:
+    async def _analyze_relative_performance(
+        self, player_id: str, peer_group: List[str]
+    ):
         """Analyze relative strengths and weaknesses."""
         # Implementation depends on performance analysis algorithm
         pass
@@ -362,23 +383,17 @@ class AdvancedAnalytics:
         # Implementation depends on visualization library
         pass
 
-    async def _generate_comparison_visualization(
-        self, params: Dict[str, Any]
-    ) -> PerformanceVisualization:
+    async def _generate_comparison_visualization(self, params: Dict[str, Any]):
         """Generate visualization for comparative analysis."""
         # Implementation depends on visualization library
         pass
 
-    async def _generate_distribution_visualization(
-        self, params: Dict[str, Any]
-    ) -> PerformanceVisualization:
+    async def _generate_distribution_visualization(self, params: Dict[str, Any]):
         """Generate visualization for metric distribution."""
         # Implementation depends on visualization library
         pass
 
-    async def _generate_correlation_visualization(
-        self, params: Dict[str, Any]
-    ) -> PerformanceVisualization:
+    async def _generate_correlation_visualization(self, params: Dict[str, Any]):
         """Generate visualization for metric correlations."""
         # Implementation depends on visualization library
         pass

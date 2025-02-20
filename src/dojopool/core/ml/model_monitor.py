@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Model monitoring module.
 
 This module provides real-time monitoring and evaluation of ML model performance.
@@ -10,6 +12,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from prometheus_client import Counter, Gauge, Histogram
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+
 from ...utils.monitoring import REGISTRY
 
 
@@ -85,7 +88,8 @@ class ModelMonitor:
 
         # Log prediction details
         self.logger.info(
-            f"Model prediction recorded - Type: {model_type}, " f"Latency: {latency:.3f}s"
+            f"Model prediction recorded - Type: {model_type}, "
+            f"Latency: {latency:.3f}s"
         )
 
     def analyze_performance(self, model_type: str) -> Dict[str, Any]:
@@ -132,7 +136,7 @@ class ModelMonitor:
 
     def detect_drift(
         self, current_features: List[Dict], reference_features: List[Dict]
-    ) -> Dict[str, float]:
+    ):
         """Detect feature drift between current and reference data.
 
         Args:
@@ -156,7 +160,7 @@ class ModelMonitor:
 
         return drift_scores
 
-    def get_monitoring_dashboard(self) -> Dict[str, Any]:
+    def get_monitoring_dashboard(self):
         """Get comprehensive monitoring dashboard data.
 
         Returns:
@@ -167,7 +171,8 @@ class ModelMonitor:
             "position_model": self.analyze_performance("position"),
             "success_model": self.analyze_performance("success"),
             "prediction_volumes": {
-                model_type: len(history) for model_type, history in self.prediction_history.items()
+                model_type: len(history)
+                for model_type, history in self.prediction_history.items()
             },
             "latency_trends": self._get_latency_trends(),
             "accuracy_trends": self._get_accuracy_trends(),
@@ -187,7 +192,9 @@ class ModelMonitor:
         """Update Prometheus metrics for model performance."""
         performance = self.analyze_performance(model_type)
         if "accuracy" in performance:
-            self.prediction_accuracy.labels(model_type=model_type).set(performance["accuracy"])
+            self.prediction_accuracy.labels(model_type=model_type).set(
+                performance["accuracy"]
+            )
 
     def _get_current_window(self, model_type: str) -> List[Dict]:
         """Get predictions within the current time window."""
@@ -198,7 +205,9 @@ class ModelMonitor:
             if datetime.fromisoformat(record["timestamp"]) > cutoff_time
         ]
 
-    def _calculate_drift_score(self, current: List[float], reference: List[float]) -> float:
+    def _calculate_drift_score(
+        self, current: List[float], reference: List[float]
+    ) -> float:
         """Calculate distribution drift score using KL divergence."""
         # Convert to numpy arrays and ensure non-zero probabilities
         current_hist = np.histogram(current, bins=20, density=True)[0] + 1e-10

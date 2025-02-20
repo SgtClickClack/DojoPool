@@ -1,17 +1,25 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Service for handling match statistics and score tracking."""
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from dojopool.core.extensions import db
-from dojopool.models.tournament import MatchStatus, TournamentMatch, TournamentParticipant
+from dojopool.models.tournament import (
+    MatchStatus,
+    TournamentMatch,
+    TournamentParticipant,
+)
 
 
 class MatchStatsService:
     """Service for tracking match statistics and scores."""
 
     @staticmethod
-    def record_score(match_id: int, score_data: Dict[str, Any]) -> Optional[TournamentMatch]:
+    def record_score(
+        match_id: int, score_data: Dict[str, Any]
+    ) -> Optional[TournamentMatch]:
         """Record the score for a match.
 
         Args:
@@ -115,13 +123,15 @@ class MatchStatsService:
 
             # Update foul count
             participant.stats["total_fouls"] += len(
-                [f for f in match.stats.get("fouls", []) if f["player_id"] == participant.id]
+                [
+                    f
+                    for f in match.stats.get("fouls", [])
+                    if f["player_id"] == participant.id
+                ]
             )
 
     @staticmethod
-    def get_match_history(
-        participant_id: int, limit: int = 10, offset: int = 0
-    ) -> List[TournamentMatch]:
+    def get_match_history(participant_id: int, limit: int = 10, offset: int = 0):
         """Get match history for a participant.
 
         Args:
@@ -144,7 +154,7 @@ class MatchStatsService:
         )
 
     @staticmethod
-    def get_participant_stats(participant_id: int) -> Optional[Dict[str, Any]]:
+    def get_participant_stats(participant_id: int):
         """Get statistics for a participant.
 
         Args:

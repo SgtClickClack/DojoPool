@@ -44,8 +44,12 @@ class BatchImageProcessor:
         self._cache = weakref.WeakValueDictionary()  # Cache with weak references
 
     def process_directory(
-        self, input_dir: Path, output_dir: Path, config: CompressionConfig, recursive: bool = True
-    ) -> BatchProcessingResult:
+        self,
+        input_dir: Path,
+        output_dir: Path,
+        config: CompressionConfig,
+        recursive: bool = True,
+    ):
         """
         Process all images in a directory.
 
@@ -68,7 +72,9 @@ class BatchImageProcessor:
             # Get all image files
             pattern = "**/*" if recursive else "*"
             image_files = [
-                f for f in input_dir.glob(pattern) if f.is_file() and self._is_image_file(f)
+                f
+                for f in input_dir.glob(pattern)
+                if f.is_file() and self._is_image_file(f)
             ]
 
             # Process in chunks to manage memory
@@ -91,7 +97,7 @@ class BatchImageProcessor:
         output_dir: Path,
         config: CompressionConfig,
         result: BatchProcessingResult,
-    ) -> None:
+    ):
         """Process a chunk of files in parallel."""
         with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
             # Submit all tasks
@@ -168,12 +174,12 @@ class BatchImageProcessor:
             logger.error(f"Error processing file {input_file}: {str(e)}")
             return False, 0, 0
 
-    def _chunk_iterator(self, items: List[Any]) -> Iterator[List[Any]]:
+    def _chunk_iterator(self, items: List[Any]):
         """Iterate over items in chunks."""
         for i in range(0, len(items), self._chunk_size):
             yield items[i : i + self._chunk_size]
 
-    def _is_image_file(self, path: Path) -> bool:
+    def _is_image_file(self, path: Path):
         """Check if a file is an image based on extension."""
         return path.suffix.lower() in {
             ".jpg",
@@ -186,7 +192,7 @@ class BatchImageProcessor:
             ".tiff",
         }
 
-    def _get_extension_for_format(self, format: ImageFormat) -> str:
+    def _get_extension_for_format(self, format: ImageFormat):
         """Get file extension for image format."""
         extensions = {
             ImageFormat.JPEG: ".jpg",

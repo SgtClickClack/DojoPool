@@ -62,7 +62,9 @@ class MemoryProfiler:
                 # Clean up old samples
                 self._cleanup_old_samples(current_time)
 
-            await asyncio.sleep(self.profile.sampling_rate / 1000)  # Convert ms to seconds
+            await asyncio.sleep(
+                self.profile.sampling_rate / 1000
+            )  # Convert ms to seconds
 
     def _get_memory_sample(self) -> Dict[str, float]:
         """Get current memory usage sample."""
@@ -78,14 +80,16 @@ class MemoryProfiler:
             "system_percent": vm.percent,
         }
 
-    def _detect_spike(self, sample: Dict[str, float]) -> bool:
+    def _detect_spike(self, sample: Dict[str, float]):
         """Detect if the current sample represents a memory spike."""
         if len(self.samples) < 2:
             return False
 
         # Calculate the moving average of the last few samples
         recent_samples = self.samples[-5:]  # Use last 5 samples
-        avg_rss = np.mean([s["rss"] for s in recent_samples[:-1]])  # Exclude current sample
+        avg_rss = np.mean(
+            [s["rss"] for s in recent_samples[:-1]]
+        )  # Exclude current sample
 
         # Check if current RSS exceeds threshold above average
         return sample["rss"] - avg_rss > self.profile.spike_threshold

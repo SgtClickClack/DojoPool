@@ -1,7 +1,10 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
+from flask_caching import Cache
+from flask_caching import Cache
 from typing import List, Optional
+
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
 
 
 class Clan(models.Model):
@@ -10,7 +13,9 @@ class Clan(models.Model):
     description = models.TextField()
     logo = models.ImageField(upload_to="clan_logos/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    leader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="led_clans")
+    leader = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="led_clans"
+    )
     members = models.ManyToManyField(User, through="ClanMembership")
 
     # Clan stats
@@ -27,22 +32,25 @@ class Clan(models.Model):
     def __str__(self) -> str:
         return f"[{self.tag}] {self.name}"
 
-    def add_member(self, user: User, role: str = "member") -> "ClanMembership":
+    def add_member(self, user: User, role: str = "member"):
         """Add a new member to the clan"""
         membership = ClanMembership.objects.create(clan=self, user=user, role=role)
         self.member_count = self.members.count()
         self.save()
         return membership
 
-    def remove_member(self, user: User) -> None:
+    def remove_member(self, user: User):
         """Remove a member from the clan"""
         ClanMembership.objects.filter(clan=self, user=user).delete()
         self.member_count = self.members.count()
         self.save()
 
-    def get_officers(self) -> List[User]:
+    def get_officers(self):
         """Get list of clan officers"""
-        return [membership.user for membership in self.clanmembership_set.filter(role="officer")]
+        return [
+            membership.user
+            for membership in self.clanmembership_set.filter(role="officer")
+        ]
 
 
 class ClanMembership(models.Model):
@@ -84,10 +92,10 @@ class Team(models.Model):
     tournaments_played = models.IntegerField(default=0)
     tournaments_won = models.IntegerField(default=0)
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"{self.name} ({self.clan.tag})"
 
-    def add_member(self, user: User, position: str) -> "TeamMembership":
+    def add_member(self, user: User, position: str):
         """Add a new member to the team"""
         return TeamMembership.objects.create(team=self, user=user, position=position)
 
@@ -109,7 +117,7 @@ class TeamMembership(models.Model):
     class Meta:
         unique_together = ("team", "user")
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"{self.user.username} ({self.position}) in {self.team.name}"
 
 
@@ -121,7 +129,9 @@ class ClanChallenge(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
-    challenger = models.ForeignKey(Clan, on_delete=models.CASCADE, related_name="challenges_sent")
+    challenger = models.ForeignKey(
+        Clan, on_delete=models.CASCADE, related_name="challenges_sent"
+    )
     challenged = models.ForeignKey(
         Clan, on_delete=models.CASCADE, related_name="challenges_received"
     )
@@ -137,14 +147,14 @@ class ClanChallenge(models.Model):
     def __str__(self) -> str:
         return f"{self.challenger.tag} vs {self.challenged.tag} ({self.status})"
 
-    def accept(self, scheduled_for: Optional[timezone.datetime] = None) -> None:
+    def accept(self, scheduled_for: Optional[timezone.datetime] = None):
         """Accept the clan challenge"""
         self.status = "accepted"
         if scheduled_for:
             self.scheduled_for = scheduled_for
         self.save()
 
-    def complete(self, winner: Clan) -> None:
+    def complete(self, winner: Clan):
         """Complete the clan challenge"""
         self.status = "completed"
         self.save()

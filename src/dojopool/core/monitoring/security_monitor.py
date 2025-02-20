@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """
 Real-time security monitoring module for DojoPool.
 Provides security event tracking, threat detection, and alerting.
@@ -10,30 +14,24 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from logging.handlers import RotatingFileHandler
-from typing import Any, Dict, Optional
+from logging import RotatingFileHandler
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import request
+from flask import Request, Response, current_app, g, request
+from flask.typing import ResponseReturnValue
 from prometheus_client import Counter, Histogram
-from ...utils.monitoring import REGISTRY
+from werkzeug.wrappers import Response as WerkzeugResponse
 
+from ...utils.monitoring import REGISTRY
 from ..security.threat_detection import threat_detector
 from ..security.types import SecurityEvent, SecuritySeverity, ThreatEvent
 from . import security_config as config
 
 # Security metrics
-SECURITY_EVENT_COUNTER = Counter(
+SECURITY_EVENT_COUNTER: Counter = Counter(
     "security_events_total",
-    "Total security events detected",
+    "Total number of security events by type and severity",
     ["event_type", "severity"],
-    registry=REGISTRY,
-)
-
-THREAT_RESPONSE_TIME = Histogram(
-    "threat_response_seconds",
-    "Time taken to respond to threats",
-    ["threat_type", "severity"],
-    registry=REGISTRY,
 )
 
 
@@ -67,7 +65,7 @@ class SecurityEvent:
 
 
 class SecurityMonitor:
-    """Manages security monitoring and threat detection."""
+    """Handles security monitoring and threat detection."""
 
     def __init__(self):
         """Initialize security monitor."""
@@ -77,13 +75,15 @@ class SecurityMonitor:
         self.ip_blocks = {}
         self.setup_logging()
 
-    def setup_logging(self):
+    def setup_logging(self) -> None:
         """Configure security event logging."""
         log_file = config.LOGGING_CONFIG["log_file"]
         max_bytes = config.LOGGING_CONFIG["max_file_size_mb"] * 1024 * 1024
         backup_count = config.LOGGING_CONFIG["backup_count"]
 
-        handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
+        handler = RotatingFileHandler(
+            log_file, maxBytes=max_bytes, backupCount=backup_count
+        )
 
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
@@ -131,7 +131,10 @@ class SecurityMonitor:
             # Check for suspicious patterns
             if payload := self._check_suspicious_patterns(request):
                 event = self._create_event(
-                    SecurityEventType.INJECTION_ATTEMPT, SecuritySeverity.HIGH, source_ip, payload
+                    SecurityEventType.INJECTION_ATTEMPT,
+                    SecuritySeverity.HIGH,
+                    source_ip,
+                    payload,
                 )
 
             # Check for unauthorized access to protected paths
@@ -182,7 +185,7 @@ class SecurityMonitor:
         severity: SecuritySeverity,
         source_ip: str,
         details: Dict[str, Any],
-    ) -> SecurityEvent:
+    ):
         """Create a security event."""
         event = SecurityEvent(
             timestamp=datetime.now(),
@@ -193,11 +196,13 @@ class SecurityMonitor:
         )
 
         # Update metrics
-        SECURITY_EVENT_COUNTER.labels(event_type=event_type.value, severity=severity.value).inc()
+        SECURITY_EVENT_COUNTER.labels(
+            event_type=event_type.value, severity=severity.value
+        ).inc()
 
         return event
 
-    def _log_event(self, event: SecurityEvent) -> None:
+    def _log_event(self, event: SecurityEvent):
         """Log security event."""
         self.logger.warning(
             f"Security event detected - "
@@ -218,7 +223,10 @@ class SecurityMonitor:
         current_time = time.time()
         if ip in self.ip_blocks:
             block_time = self.ip_blocks[ip]
-            if current_time - block_time < config.IP_SECURITY["block_duration_minutes"] * 60:
+            if (
+                current_time - block_time
+                < config.IP_SECURITY["block_duration_minutes"] * 60
+            ):
                 return True
             else:
                 del self.ip_blocks[ip]
@@ -269,12 +277,12 @@ class SecurityMonitor:
 
         return None
 
-    def _check_unauthorized_access(self, request) -> bool:
+    def _check_unauthorized_access(self, request):
         """Check for unauthorized access attempts."""
         protected_paths = config.PROTECTED_PATHS
         return any(re.match(pattern, request.path) for pattern in protected_paths)
 
-    def _check_content_security(self, request) -> Optional[SecurityEvent]:
+    def _check_content_security(self, request):
         """Check content security policies."""
         if request.method in ["POST", "PUT"] and request.files:
             for file in request.files.values():
@@ -295,7 +303,10 @@ class SecurityMonitor:
                     )
 
                 # Check file type
-                if file.content_type not in config.CONTENT_SECURITY["allowed_file_types"]:
+                if (
+                    file.content_type
+                    not in config.CONTENT_SECURITY["allowed_file_types"]
+                ):
                     return self._create_event(
                         SecurityEventType.CONTENT_VIOLATION,
                         SecuritySeverity.MEDIUM,
@@ -314,7 +325,7 @@ class SecurityMonitor:
 security_monitor = SecurityMonitor()
 
 
-def init_security_monitoring(app):
+def init_security_monitoring(app) -> None:
     """Initialize security monitoring for the Flask application."""
 
     @app.before_request

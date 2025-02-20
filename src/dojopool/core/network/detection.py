@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 Network quality detection module with mobile browser support.
 """
@@ -88,8 +90,12 @@ class NetworkQualityDetector:
             jitter_threshold = 50 if is_mobile else 30  # ms
 
             # Calculate quality score (0-100)
-            latency_score = max(0, min(100, (1 - avg_latency / latency_threshold) * 100))
-            bandwidth_score = max(0, min(100, (avg_bandwidth / bandwidth_threshold) * 100))
+            latency_score = max(
+                0, min(100, (1 - avg_latency / latency_threshold) * 100)
+            )
+            bandwidth_score = max(
+                0, min(100, (avg_bandwidth / bandwidth_threshold) * 100)
+            )
             packet_loss_score = max(
                 0, min(100, (1 - avg_packet_loss / packet_loss_threshold) * 100)
             )
@@ -97,9 +103,19 @@ class NetworkQualityDetector:
 
             # Weight the scores (prioritize latency and packet loss for mobile)
             if is_mobile:
-                weights = {"latency": 0.4, "bandwidth": 0.2, "packet_loss": 0.3, "jitter": 0.1}
+                weights = {
+                    "latency": 0.4,
+                    "bandwidth": 0.2,
+                    "packet_loss": 0.3,
+                    "jitter": 0.1,
+                }
             else:
-                weights = {"latency": 0.3, "bandwidth": 0.3, "packet_loss": 0.2, "jitter": 0.2}
+                weights = {
+                    "latency": 0.3,
+                    "bandwidth": 0.3,
+                    "packet_loss": 0.2,
+                    "jitter": 0.2,
+                }
 
             overall_score = (
                 latency_score * weights["latency"]
@@ -151,7 +167,7 @@ class NetworkQualityDetector:
             "is_mobile": is_mobile,
         }
 
-    def _cleanup_old_entries(self) -> None:
+    def _cleanup_old_entries(self):
         """Clean up old entries periodically."""
         now = datetime.now()
         if now - self._last_cleanup < timedelta(minutes=5):

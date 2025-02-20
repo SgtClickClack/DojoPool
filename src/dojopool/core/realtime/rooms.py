@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room management module.
 
 This module provides room management functionality for WebSocket operations.
@@ -86,7 +88,7 @@ class Room:
         self.last_activity = datetime.utcnow()
         return None
 
-    def update_metadata(self, metadata: Dict[str, Any]) -> None:
+    def update_metadata(self, metadata: Dict[str, Any]):
         """Update room metadata.
 
         Args:
@@ -95,7 +97,7 @@ class Room:
         self.metadata.update(metadata)
         self.last_activity = datetime.utcnow()
 
-    def is_empty(self) -> bool:
+    def is_empty(self):
         """Check if room is empty.
 
         Returns:
@@ -103,7 +105,7 @@ class Room:
         """
         return len(self.members) == 0
 
-    def is_idle(self, idle_timeout: timedelta) -> bool:
+    def is_idle(self, idle_timeout: timedelta):
         """Check if room is idle.
 
         Args:
@@ -141,8 +143,10 @@ class RoomManager:
         self._cleanup_task: Optional[asyncio.Task] = None
 
     async def start_cleanup(
-        self, idle_timeout: timedelta = timedelta(minutes=30), cleanup_interval: int = 300
-    ) -> None:
+        self,
+        idle_timeout: timedelta = timedelta(minutes=30),
+        cleanup_interval: int = 300,
+    ):
         """Start cleanup task.
 
         Args:
@@ -154,7 +158,7 @@ class RoomManager:
                 self._cleanup_loop(idle_timeout, cleanup_interval)
             )
 
-    async def stop_cleanup(self) -> None:
+    async def stop_cleanup(self):
         """Stop cleanup task."""
         if self._cleanup_task is not None:
             self._cleanup_task.cancel()
@@ -164,7 +168,7 @@ class RoomManager:
                 pass
             self._cleanup_task = None
 
-    async def _cleanup_loop(self, idle_timeout: timedelta, interval: int) -> None:
+    async def _cleanup_loop(self, idle_timeout: timedelta, interval: int):
         """Cleanup loop to remove idle rooms.
 
         Args:
@@ -179,7 +183,9 @@ class RoomManager:
                 break
             except Exception as e:
                 logger.error(
-                    "Error in room manager cleanup", exc_info=True, extra={"error": str(e)}
+                    "Error in room manager cleanup",
+                    exc_info=True,
+                    extra={"error": str(e)},
                 )
 
     async def cleanup_rooms(self, idle_timeout: timedelta) -> None:
@@ -198,8 +204,11 @@ class RoomManager:
             await self.delete_room(room_id)
 
     async def create_room(
-        self, room_type: str, max_members: int, metadata: Optional[Dict[str, Any]] = None
-    ) -> Room:
+        self,
+        room_type: str,
+        max_members: int,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         """Create new room.
 
         Args:
@@ -216,12 +225,16 @@ class RoomManager:
 
         logger.info(
             "Room created",
-            extra={"room_id": room_id, "room_type": room_type, "max_members": max_members},
+            extra={
+                "room_id": room_id,
+                "room_type": room_type,
+                "max_members": max_members,
+            },
         )
 
         return room
 
-    async def delete_room(self, room_id: str) -> Optional[Dict[str, Any]]:
+    async def delete_room(self, room_id: str):
         """Delete room.
 
         Args:
@@ -249,7 +262,7 @@ class RoomManager:
 
         return None
 
-    async def add_user_to_room(self, user_id: str, room_id: str) -> Optional[Dict[str, Any]]:
+    async def add_user_to_room(self, user_id: str, room_id: str):
         """Add user to room.
 
         Args:
@@ -271,11 +284,15 @@ class RoomManager:
 
         self._user_rooms[user_id].add(room_id)
 
-        logger.info("User added to room", extra={"user_id": user_id, "room_id": room_id})
+        logger.info(
+            "User added to room", extra={"user_id": user_id, "room_id": room_id}
+        )
 
         return None
 
-    async def remove_user_from_room(self, user_id: str, room_id: str) -> Optional[Dict[str, Any]]:
+    async def remove_user_from_room(
+        self, user_id: str, room_id: str
+    ) -> Optional[Dict[str, Any]]:
         """Remove user from room.
 
         Args:
@@ -299,11 +316,13 @@ class RoomManager:
         if not self._user_rooms[user_id]:
             del self._user_rooms[user_id]
 
-        logger.info("User removed from room", extra={"user_id": user_id, "room_id": room_id})
+        logger.info(
+            "User removed from room", extra={"user_id": user_id, "room_id": room_id}
+        )
 
         return None
 
-    def get_room(self, room_id: str) -> Optional[Room]:
+    def get_room(self, room_id: str):
         """Get room by ID.
 
         Args:
@@ -314,7 +333,7 @@ class RoomManager:
         """
         return self._rooms.get(room_id)
 
-    def get_user_rooms(self, user_id: str) -> List[Room]:
+    def get_user_rooms(self, user_id: str):
         """Get rooms user is in.
 
         Args:
@@ -323,9 +342,11 @@ class RoomManager:
         Returns:
             List[Room]: List of rooms
         """
-        return [self._rooms[room_id] for room_id in self._user_rooms.get(user_id, set())]
+        return [
+            self._rooms[room_id] for room_id in self._user_rooms.get(user_id, set())
+        ]
 
-    def get_rooms_by_type(self, room_type: str) -> List[Room]:
+    def get_rooms_by_type(self, room_type: str):
         """Get rooms by type.
 
         Args:

@@ -5,15 +5,17 @@ templates and error handling.
 """
 
 from threading import Thread
-from typing import Any, List, Union
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import current_app, render_template
+from flask import Request, Response, current_app, render_template
+from flask.typing import ResponseReturnValue
 from flask_mail import Message
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from dojopool.core.extensions import mail
 
 
-def send_async_email(app, msg: Message) -> None:
+def send_async_email(app, msg: Message):
     """Send email asynchronously.
 
     Args:
@@ -27,7 +29,9 @@ def send_async_email(app, msg: Message) -> None:
             current_app.logger.error(f"Failed to send email: {e}")
 
 
-def send_email(to: Union[str, List[str]], subject: str, template: str, **kwargs: Any) -> None:
+def send_email(
+    to: Union[str, List[str]], subject: str, template: str, **kwargs: Any
+) :
     """Send an email using a template.
 
     Args:
@@ -36,18 +40,18 @@ def send_email(to: Union[str, List[str]], subject: str, template: str, **kwargs:
         template: Template path without extension.
         **kwargs: Template variables.
     """
-    app = current_app._get_current_object()
+    app: Any = current_app._get_current_object()
 
     # Create message
-    msg = Message(
+    msg: Message = Message(
         subject=f'{app.config["MAIL_SUBJECT_PREFIX"]} {subject}',
         recipients=[to] if isinstance(to, str) else to,
         sender=app.config["MAIL_DEFAULT_SENDER"],
     )
 
     # Render templates
-    msg.body = render_template(f"{template}.txt", **kwargs)
-    msg.html = render_template(f"{template}.html", **kwargs)
+    msgetattr(g, "body", None) = render_template(f"{template}.txt", **kwargs)
+    msgetattr(g, "html", None) = render_template(f"{template}.html", **kwargs)
 
     # Send asynchronously
     if not app.config["TESTING"]:
@@ -62,7 +66,7 @@ def send_password_reset_email(user) -> None:
     Args:
         user: User to send email to.
     """
-    token = user.generate_auth_token(expires_in=3600)
+    token: Any = user.generate_auth_token(expires_in=3600)
     send_email(
         to=user.email,
         subject="Reset Your Password",
@@ -72,14 +76,14 @@ def send_password_reset_email(user) -> None:
     )
 
 
-def send_email_change_email(user, new_email: str) -> None:
+def send_email_change_email(user, new_email: str) :
     """Send email change confirmation email.
 
     Args:
         user: User changing email.
         new_email: New email address.
     """
-    token = user.generate_auth_token(expires_in=3600, new_email=new_email)
+    token: Any = user.generate_auth_token(expires_in=3600, new_email=new_email)
     send_email(
         to=new_email,
         subject="Confirm Your New Email",
@@ -89,13 +93,13 @@ def send_email_change_email(user, new_email: str) -> None:
     )
 
 
-def send_verification_email(user) -> None:
+def send_verification_email(user) :
     """Send email verification email.
 
     Args:
         user: User to verify.
     """
-    token = user.generate_auth_token(expires_in=86400)  # 24 hours
+    token: Any = user.generate_auth_token(expires_in=86400)  # 24 hours
     send_email(
         to=user.email,
         subject="Verify Your Email",
@@ -105,12 +109,15 @@ def send_verification_email(user) -> None:
     )
 
 
-def send_welcome_email(user) -> None:
+def send_welcome_email(user) :
     """Send welcome email to new user.
 
     Args:
         user: New user.
     """
     send_email(
-        to=user.email, subject="Welcome to DojoPool", template="auth/email/welcome", user=user
+        to=user.email,
+        subject="Welcome to DojoPool",
+        template="auth/email/welcome",
+        user=user,
     )

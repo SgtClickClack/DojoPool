@@ -3,7 +3,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type
 
-from flask import Blueprint
+from flask import Blueprint, current_app
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 
 @dataclass
@@ -22,7 +23,11 @@ class BaseBlueprint(Blueprint):
     """Base blueprint class with common functionality."""
 
     def __init__(
-        self, name: str, import_name: str, config: Optional[BlueprintConfig] = None, **kwargs: Any
+        self,
+        name: str,
+        import_name: str,
+        config: Optional[BlueprintConfig] = None,
+        **kwargs: Any,
     ):
         """Initialize blueprint.
 
@@ -51,7 +56,7 @@ class BaseBlueprint(Blueprint):
         # Register CLI commands
         self.register_commands()
 
-    def register_error_handlers(self) -> None:
+    def register_error_handlers(self):
         """Register blueprint-specific error handlers."""
         pass
 
@@ -60,7 +65,9 @@ class BaseBlueprint(Blueprint):
         pass
 
     @classmethod
-    def register_blueprints(cls, app: Any, blueprints: List[Type["BaseBlueprint"]]) -> None:
+    def register_blueprints(
+        cls, app: Any, blueprints: List[Type["BaseBlueprint"]]
+    ) -> None:
         """Register multiple blueprints with the app.
 
         Args:

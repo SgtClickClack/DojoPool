@@ -1,11 +1,14 @@
+import gc
+import gc
 """Pool game rule enforcement system."""
 
-from typing import Dict, List, Set, Optional, Tuple
+import logging
 from dataclasses import dataclass
 from datetime import datetime
-import logging
 from enum import Enum, auto
-from .game_tracker import Shot, BallPosition
+from typing import Dict, List, Optional, Set, Tuple
+
+from .game_tracker import BallPosition, Shot
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +76,10 @@ class RuleEnforcer:
                 game_type=GameType.EIGHT_BALL,
                 current_player=1,
                 player_groups={},  # Assigned after break
-                remaining_balls={1: set(range(1, 8)), 2: set(range(9, 16))},  # Solids  # Stripes
+                remaining_balls={
+                    1: set(range(1, 8)),
+                    2: set(range(9, 16)),
+                },  # Solids  # Stripes
                 on_ball=0,  # Cue ball
                 can_hit_rails=True,
                 last_shot=None,
@@ -105,7 +111,10 @@ class RuleEnforcer:
         for pos in shot.ball_positions:
             # Check if ball is near any rail
             if (
-                pos.x < 0.1 or pos.x > 2.44 or pos.y < 0.1 or pos.y > 1.17  # Standard table width
+                pos.x < 0.1
+                or pos.x > 2.44
+                or pos.y < 0.1
+                or pos.y > 1.17  # Standard table width
             ):  # Standard table height
                 rail_contact = True
                 break
@@ -170,7 +179,7 @@ class RuleEnforcer:
             )
         return None
 
-    def _update_game_state(self, shot: Shot) -> None:
+    def _update_game_state(self, shot: Shot):
         """Update game state based on shot outcome."""
         # Update pocketed balls
         current_player = self._state.current_player
@@ -239,17 +248,19 @@ class RuleEnforcer:
 
         return violations
 
-    def get_state(self) -> GameState:
+    def get_state(self):
         """Get current game state."""
         return self._state
 
-    def get_violations(self) -> List[RuleViolation]:
+    def get_violations(self):
         """Get list of rule violations."""
         return self._violations.copy()
 
-    def switch_player(self) -> None:
+    def switch_player(self):
         """Switch current player."""
-        self._state.current_player = 3 - self._state.current_player  # Switch between 1 and 2
+        self._state.current_player = (
+            3 - self._state.current_player
+        )  # Switch between 1 and 2
 
     def reset(self) -> None:
         """Reset game state."""

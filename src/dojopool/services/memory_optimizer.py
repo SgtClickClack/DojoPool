@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 import asyncio
 import gc
 import logging
@@ -72,7 +74,9 @@ class MemoryOptimizer:
                 # Check fragmentation
                 fragmentation = self._calculate_fragmentation()
                 if fragmentation > self.fragmentation_threshold:
-                    self.logger.warning(f"High memory fragmentation detected: {fragmentation:.2%}")
+                    self.logger.warning(
+                        f"High memory fragmentation detected: {fragmentation:.2%}"
+                    )
                     await self._defragment_memory()
 
                 # Optimize resource pools
@@ -149,7 +153,9 @@ class MemoryOptimizer:
         for leak in leaks:
             # Find related allocations
             related_allocations = [
-                alloc for alloc in self.allocations.values() if alloc.owner == leak["owner"]
+                alloc
+                for alloc in self.allocations.values()
+                if alloc.owner == leak["owner"]
             ]
 
             # Force cleanup of old allocations
@@ -260,12 +266,14 @@ class MemoryOptimizer:
         return {
             "allocations": len(self.allocations),
             "fragmentation": self.fragmentation_score,
-            "pools": {pool_type: len(pool) for pool_type, pool in self.resource_pools.items()},
+            "pools": {
+                pool_type: len(pool) for pool_type, pool in self.resource_pools.items()
+            },
             "total_pooled": sum(len(pool) for pool in self.resource_pools.values()),
             "last_cleanup": self.last_cleanup.isoformat(),
         }
 
-    def get_recommendations(self) -> List[str]:
+    def get_recommendations(self):
         """Get memory optimization recommendations."""
         recommendations = []
 

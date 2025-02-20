@@ -21,7 +21,9 @@ class Config(BaseConfig):
 
     # Security
     SECRET_KEY = os.environ.get("SECRET_KEY", "3996efd780a84a9cb2bbac6d5893a030")
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "3996efd780a84a9cb2bbac6d5893a030")
+    JWT_SECRET_KEY = os.environ.get(
+        "JWT_SECRET_KEY", "3996efd780a84a9cb2bbac6d5893a030"
+    )
 
     # Redis
     REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")

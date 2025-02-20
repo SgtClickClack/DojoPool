@@ -6,7 +6,8 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from src.app import create_app, db
+from dojopool.app import create_app
+from dojopool.core.extensions import db
 
 
 def init_db():
@@ -20,13 +21,13 @@ def init_db():
     print(f"Instance directory: {instance_dir}")
     print(f"Database path: {db_path}")
 
-    # Ensure instance directory exists and is writable
+    # Create the instance directory with safe permissions
     instance_dir.mkdir(parents=True, exist_ok=True)
-    os.chmod(instance_dir, 0o777)
+    os.chmod(instance_dir, 0o755)
 
-    # If database file exists, ensure it's writable
+    # Set database file permissions safely if the file exists
     if db_path.exists():
-        os.chmod(db_path, 0o666)
+        os.chmod(db_path, 0o644)
 
     with app.app_context():
         try:

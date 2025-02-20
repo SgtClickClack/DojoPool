@@ -1,3 +1,5 @@
+import gc
+import gc
 """Unified game metrics monitoring system."""
 
 from dataclasses import dataclass
@@ -58,7 +60,10 @@ class GameMetricsMonitor:
         self.RATE_WINDOW = 5 * 60  # 5 minutes in seconds
 
     def add_alert(
-        self, severity: AlertSeverity, message: str, details: Optional[Dict[str, Any]] = None
+        self,
+        severity: AlertSeverity,
+        message: str,
+        details: Optional[Dict[str, Any]] = None,
     ) -> Alert:
         """Add a new alert to the system.
 
@@ -98,7 +103,7 @@ class GameMetricsMonitor:
             return True
         return False
 
-    def get_alerts(self, severity: Optional[AlertSeverity] = None) -> List[Alert]:
+    def get_alerts(self, severity: Optional[AlertSeverity] = None):
         """Get alerts, optionally filtered by severity.
 
         Args:
@@ -111,7 +116,7 @@ class GameMetricsMonitor:
             return [a for a in self.alerts if a.severity == severity]
         return list(self.alerts)
 
-    def record_game_completion(self, game_id: str, score: float, time: float) -> None:
+    def record_game_completion(self, game_id: str, score: float, time: float):
         """Record a game completion.
 
         Args:
@@ -121,7 +126,9 @@ class GameMetricsMonitor:
         """
         metrics = self.metrics.get(game_id, GameMetrics())
         metrics.total_games_completed += 1
-        metrics.completion_rate = metrics.total_games_completed / max(metrics.active_games, 1)
+        metrics.completion_rate = metrics.total_games_completed / max(
+            metrics.active_games, 1
+        )
         metrics.average_completion_time = (
             metrics.average_completion_time * (metrics.total_games_completed - 1) + time
         ) / metrics.total_games_completed
@@ -131,7 +138,11 @@ class GameMetricsMonitor:
         self.metrics[game_id] = metrics
 
     def record_error(
-        self, game_id: str, error_type: str, message: str, details: Optional[Dict[str, Any]] = None
+        self,
+        game_id: str,
+        error_type: str,
+        message: str,
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record an error occurrence.
 
@@ -191,7 +202,7 @@ class GameMetricsMonitor:
         """
         return self.metrics.get(game_id, GameMetrics())
 
-    def clear_metrics(self, game_id: str) -> None:
+    def clear_metrics(self, game_id: str):
         """Clear metrics for a specific game.
 
         Args:

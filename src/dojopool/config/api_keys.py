@@ -36,13 +36,16 @@ class APIKeyManager:
 
             if response.status_code == 200 and data.get("status") != "REQUEST_DENIED":
                 return True, None
-            return False, f"API key validation failed: {data.get('error_message', 'Unknown error')}"
+            return (
+                False,
+                f"API key validation failed: {data.get('error_message', 'Unknown error')}",
+            )
 
         except Exception as e:
             return False, f"Error validating Google Maps API key: {str(e)}"
 
     @lru_cache(maxsize=1)
-    def validate_openai_key(self) -> tuple[bool, Optional[str]]:
+    def validate_openai_key(self):
         """Validate OpenAI API key."""
         if not self.openai_key:
             return False, "OpenAI API key not found in environment variables"
@@ -69,14 +72,14 @@ class APIKeyManager:
             raise ValueError(f"Invalid Google Maps API key: {error}")
         return self.google_maps_key
 
-    def get_openai_key(self) -> str:
+    def get_openai_key(self):
         """Get OpenAI API key with validation."""
         is_valid, error = self.validate_openai_key()
         if not is_valid:
             raise ValueError(f"Invalid OpenAI API key: {error}")
         return self.openai_key
 
-    def get_websocket_secret(self) -> str:
+    def get_websocket_secret(self):
         """Get WebSocket secret key."""
         if not self.websocket_secret:
             raise ValueError("WebSocket secret key not found in environment variables")

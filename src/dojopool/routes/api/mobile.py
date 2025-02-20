@@ -1,9 +1,13 @@
 """Mobile API routes."""
 
-from flask import Blueprint, jsonify
-from flask_login import login_required
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-mobile_bp = Blueprint("mobile", __name__, url_prefix="/mobile")
+from flask import Blueprint, Request, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from flask_login import login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+mobile_bp: Blueprint = Blueprint("mobile", __name__, url_prefix="/mobile")
 
 
 @mobile_bp.route("/auth", methods=["POST"])

@@ -140,7 +140,7 @@ class WorkerPool:
 
         return task.id
 
-    async def _create_worker(self) -> str:
+    async def _create_worker(self):
         """Create a new worker."""
         worker_id = f"worker_{len(self.workers)}"
         worker = Worker(
@@ -187,7 +187,10 @@ class WorkerPool:
                     self.distribution_optimizer.update_worker_status(worker_id, worker)
 
                     # Check for unresponsive workers
-                    if current_time - worker.last_heartbeat > self.config.heartbeat_interval * 3:
+                    if (
+                        current_time - worker.last_heartbeat
+                        > self.config.heartbeat_interval * 3
+                    ):
                         self.logger.warning(f"Worker {worker_id} unresponsive")
                         await self._terminate_worker(worker_id)
                         await self._create_worker()  # Replace unresponsive worker
@@ -228,11 +231,15 @@ class WorkerPool:
                 current_workers - int(queued_tasks * self.config.scaling_factor),
             )
             idle_workers = [
-                worker_id for worker_id, worker in self.workers.items() if worker.status == "idle"
+                worker_id
+                for worker_id, worker in self.workers.items()
+                if worker.status == "idle"
             ]
             for worker_id in idle_workers[:workers_to_remove]:
                 await self._terminate_worker(worker_id)
-            self.logger.info(f"Scaled down by {len(idle_workers[:workers_to_remove])} workers")
+            self.logger.info(
+                f"Scaled down by {len(idle_workers[:workers_to_remove])} workers"
+            )
 
     async def _process_task_queue(self):
         """Process tasks in the queue."""
@@ -258,7 +265,9 @@ class WorkerPool:
                 task = self.task_queue[0]
 
                 # Get optimal worker from distribution optimizer
-                worker_id = self.distribution_optimizer.get_optimal_worker(task, available_workers)
+                worker_id = self.distribution_optimizer.get_optimal_worker(
+                    task, available_workers
+                )
                 if worker_id:
                     self.task_queue.pop(0)  # Remove task from queue
                     await self._assign_task(worker_id, task)
@@ -282,13 +291,17 @@ class WorkerPool:
 
             # Record successful completion
             duration = datetime.now().timestamp() - start_time
-            self.distribution_optimizer.record_task_completion(task, worker_id, duration, True)
+            self.distribution_optimizer.record_task_completion(
+                task, worker_id, duration, True
+            )
             await self._handle_task_completion(task.id, result)
 
         except Exception as e:
             # Record failed completion
             duration = datetime.now().timestamp() - start_time
-            self.distribution_optimizer.record_task_completion(task, worker_id, duration, False)
+            self.distribution_optimizer.record_task_completion(
+                task, worker_id, duration, False
+            )
             await self._handle_task_failure(task.id, str(e))
             worker.errors += 1
 
@@ -309,7 +322,9 @@ class WorkerPool:
             if task.id == task_id:
                 if task.retries < task.max_retries:
                     task.retries += 1
-                    self.logger.info(f"Retrying task {task_id} (attempt {task.retries})")
+                    self.logger.info(
+                        f"Retrying task {task_id} (attempt {task.retries})"
+                    )
                 else:
                     self.logger.error(f"Task {task_id} exceeded max retries")
                 break
@@ -332,7 +347,7 @@ class WorkerPool:
             "distribution_metrics": self.distribution_optimizer.get_metrics(),
         }
 
-    def get_recommendations(self) -> List[str]:
+    def get_recommendations(self):
         """Get worker pool recommendations."""
         recommendations = []
 

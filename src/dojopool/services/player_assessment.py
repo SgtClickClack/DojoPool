@@ -7,10 +7,9 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from models.player import Player
 from models.shot import Shot
-from tensorflow.keras.models import load_model
-
 from services.shot_analysis import ShotAnalysis
 from src.core.config import AI_CONFIG
+from tensorflow.keras.models import load_model
 
 
 @dataclass
@@ -100,7 +99,12 @@ class PlayerAssessment:
 
         # Calculate overall rating using ML model
         features = self._extract_assessment_features(
-            accuracy, consistency, difficulty, adaptability, improvement, skill_breakdown
+            accuracy,
+            consistency,
+            difficulty,
+            adaptability,
+            improvement,
+            skill_breakdown,
         )
         overall_rating = float(self.skill_predictor.predict(features)[0])
 
@@ -117,9 +121,7 @@ class PlayerAssessment:
             confidence_score=confidence,
         )
 
-    async def predict_improvement(
-        self, player_id: str, target_timeframe: timedelta
-    ) -> Dict[str, Any]:
+    async def predict_improvement(self, player_id: str, target_timeframe: timedelta):
         """Predict player's potential improvement over time.
 
         Args:
@@ -149,12 +151,12 @@ class PlayerAssessment:
             "milestones": recommendations["milestones"],
         }
 
-    async def _get_player_data(self, player_id: str) -> Optional[Player]:
+    async def _get_player_data(self, player_id: str):
         """Retrieve player data from database."""
         # Implementation depends on data storage
         pass
 
-    async def _get_shot_history(self, player_id: str, timeframe: Optional[timedelta]) -> List[Shot]:
+    async def _get_shot_history(self, player_id: str, timeframe: Optional[timedelta]):
         """Retrieve shot history for the player."""
         # Implementation depends on data storage
         pass
@@ -166,7 +168,7 @@ class PlayerAssessment:
         successful = sum(1 for shot in shots if shot.success)
         return (successful / len(shots)) * 100
 
-    def _calculate_consistency(self, shots: List[Shot]) -> float:
+    def _calculate_consistency(self, shots: List[Shot]):
         """Calculate player's shot consistency."""
         if not shots:
             return 0.0
@@ -198,7 +200,7 @@ class PlayerAssessment:
         difficulties = [shot.difficulty for shot in successful_shots]
         return sum(difficulties) / len(difficulties)
 
-    def _analyze_shot_patterns(self, shots: List[Shot]) -> Dict[str, Any]:
+    def _analyze_shot_patterns(self, shots: List[Shot]):
         """Analyze patterns in shot selection and execution."""
         patterns = {
             "type_distribution": {},
@@ -230,14 +232,16 @@ class PlayerAssessment:
 
         return patterns
 
-    def _calculate_adaptability(self, patterns: Dict[str, Any]) -> float:
+    def _calculate_adaptability(self, patterns: Dict[str, Any]):
         """Calculate player's adaptability score."""
         if not patterns["position_adaptation"]:
             return 0.0
 
         # Calculate trend in position quality
         position_trend = np.polyfit(
-            range(len(patterns["position_adaptation"])), patterns["position_adaptation"], 1
+            range(len(patterns["position_adaptation"])),
+            patterns["position_adaptation"],
+            1,
         )[0]
 
         # Calculate variety in shot selection
@@ -288,8 +292,12 @@ class PlayerAssessment:
                 continue
 
             # Calculate weighted score based on success rate and difficulty
-            success_rate = sum(1 for shot in category_shots if shot.success) / len(category_shots)
-            avg_difficulty = sum(shot.difficulty for shot in category_shots) / len(category_shots)
+            success_rate = sum(1 for shot in category_shots if shot.success) / len(
+                category_shots
+            )
+            avg_difficulty = sum(shot.difficulty for shot in category_shots) / len(
+                category_shots
+            )
 
             # Weight success rate more heavily for easier shots
             weight = 0.7 - (avg_difficulty * 0.4)  # weight ranges from 0.3 to 0.7
@@ -302,32 +310,48 @@ class PlayerAssessment:
     def _identify_strengths(self, skill_breakdown: Dict[str, float]) -> List[str]:
         """Identify player's strongest shot types."""
         threshold = 70  # Minimum score to be considered a strength
-        return [shot_type for shot_type, score in skill_breakdown.items() if score >= threshold]
+        return [
+            shot_type
+            for shot_type, score in skill_breakdown.items()
+            if score >= threshold
+        ]
 
     def _identify_weaknesses(self, skill_breakdown: Dict[str, float]) -> List[str]:
         """Identify areas needing improvement."""
         threshold = 50  # Maximum score to be considered a weakness
-        return [shot_type for shot_type, score in skill_breakdown.items() if score <= threshold]
+        return [
+            shot_type
+            for shot_type, score in skill_breakdown.items()
+            if score <= threshold
+        ]
 
-    def _calculate_confidence(self, shots: List[Shot], skill_breakdown: Dict[str, float]) -> float:
+    def _calculate_confidence(
+        self, shots: List[Shot], skill_breakdown: Dict[str, float]
+    ):
         """Calculate player's confidence score."""
         if not shots:
             return 0.0
 
         # Recent performance weight
         recent_shots = shots[-20:]  # Last 20 shots
-        recent_success = sum(1 for shot in recent_shots if shot.success) / len(recent_shots)
+        recent_success = sum(1 for shot in recent_shots if shot.success) / len(
+            recent_shots
+        )
 
         # Skill level weight
         avg_skill = sum(skill_breakdown.values()) / len(skill_breakdown)
 
         # Difficulty adaptation
         recent_difficulties = [shot.difficulty for shot in recent_shots]
-        difficulty_trend = np.polyfit(range(len(recent_difficulties)), recent_difficulties, 1)[0]
+        difficulty_trend = np.polyfit(
+            range(len(recent_difficulties)), recent_difficulties, 1
+        )[0]
 
         # Combine factors
         confidence = (
-            0.4 * recent_success + 0.4 * (avg_skill / 100) + 0.2 * (1 + difficulty_trend) / 2
+            0.4 * recent_success
+            + 0.4 * (avg_skill / 100)
+            + 0.2 * (1 + difficulty_trend) / 2
         ) * 100
 
         return max(0, min(100, confidence))
@@ -386,7 +410,9 @@ class PlayerAssessment:
 
         # Generate training plan
         for area in focus_areas:
-            exercises = self._get_exercises_for_area(area, current.skill_breakdown[area])
+            exercises = self._get_exercises_for_area(
+                area, current.skill_breakdown[area]
+            )
             recommendations["plan"].append(
                 {
                     "area": area,
@@ -415,7 +441,9 @@ class PlayerAssessment:
         recommendations["milestones"] = milestones
         return recommendations
 
-    def _get_exercises_for_area(self, area: str, current_level: float) -> List[Dict[str, Any]]:
+    def _get_exercises_for_area(
+        self, area: str, current_level: float
+    ) -> List[Dict[str, Any]]:
         """Get appropriate exercises for a specific area."""
         # Implementation would include a database of exercises
         # This is a placeholder returning sample exercises

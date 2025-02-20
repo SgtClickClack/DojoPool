@@ -62,10 +62,12 @@ def validate_email_domain(
             )
         return ValidationResult(is_valid=True, data={"email": email})
     except IndexError:
-        return ValidationResult(is_valid=False, errors={"email": "Invalid email format"})
+        return ValidationResult(
+            is_valid=False, errors={"email": "Invalid email format"}
+        )
 
 
-def validate_phone_number(phone: str) -> ValidationResult:
+def validate_phone_number(phone: str):
     """Validate phone number format.
 
     Args:
@@ -76,11 +78,13 @@ def validate_phone_number(phone: str) -> ValidationResult:
     """
     pattern = r"^\+?1?\d{9,15}$"
     if not re.match(pattern, phone):
-        return ValidationResult(is_valid=False, errors={"phone": "Invalid phone number format"})
+        return ValidationResult(
+            is_valid=False, errors={"phone": "Invalid phone number format"}
+        )
     return ValidationResult(is_valid=True, data={"phone": phone})
 
 
-def validate_username(username: str) -> ValidationResult:
+def validate_username(username: str):
     """Validate username format.
 
     Args:
@@ -106,7 +110,9 @@ def validate_username(username: str) -> ValidationResult:
     )
 
 
-def validate_game_score(score: int, min_score: int = 0, max_score: int = 100) -> ValidationResult:
+def validate_game_score(
+    score: int, min_score: int = 0, max_score: int = 100
+) -> ValidationResult:
     """Validate game score.
 
     Args:
@@ -118,7 +124,9 @@ def validate_game_score(score: int, min_score: int = 0, max_score: int = 100) ->
         ValidationResult: Result of validation.
     """
     if not isinstance(score, int):
-        return ValidationResult(is_valid=False, errors={"score": "Score must be an integer"})
+        return ValidationResult(
+            is_valid=False, errors={"score": "Score must be an integer"}
+        )
 
     if score < min_score or score > max_score:
         return ValidationResult(
@@ -147,7 +155,7 @@ def validate_game_type(game_type: str) -> ValidationResult:
     return ValidationResult(is_valid=True, data={"game_type": game_type})
 
 
-def validate_time_slot(start_time: time, end_time: time) -> ValidationResult:
+def validate_time_slot(start_time: time, end_time: time):
     """Validate time slot.
 
     Args:
@@ -167,7 +175,9 @@ def validate_time_slot(start_time: time, end_time: time) -> ValidationResult:
             is_valid=False, errors={"time": "Start time must be before end time"}
         )
 
-    return ValidationResult(is_valid=True, data={"start_time": start_time, "end_time": end_time})
+    return ValidationResult(
+        is_valid=True, data={"start_time": start_time, "end_time": end_time}
+    )
 
 
 def validate_player_handicap(handicap: float) -> ValidationResult:
@@ -180,7 +190,9 @@ def validate_player_handicap(handicap: float) -> ValidationResult:
         ValidationResult: Result of validation.
     """
     if not isinstance(handicap, (int, float)):
-        return ValidationResult(is_valid=False, errors={"handicap": "Handicap must be a number"})
+        return ValidationResult(
+            is_valid=False, errors={"handicap": "Handicap must be a number"}
+        )
 
     if handicap < 0 or handicap > 10:
         return ValidationResult(
@@ -208,7 +220,7 @@ def validate_tournament_bracket_size(size: int) -> ValidationResult:
     return ValidationResult(is_valid=True, data={"size": size})
 
 
-def validate_race_to(race_to: int, min_games: int = 1, max_games: int = 25) -> ValidationResult:
+def validate_race_to(race_to: int, min_games: int = 1, max_games: int = 25):
     """Validate race to games.
 
     Args:
@@ -227,7 +239,9 @@ def validate_race_to(race_to: int, min_games: int = 1, max_games: int = 25) -> V
     if race_to < min_games or race_to > max_games:
         return ValidationResult(
             is_valid=False,
-            errors={"race_to": f"Race to value must be between {min_games} and {max_games}"},
+            errors={
+                "race_to": f"Race to value must be between {min_games} and {max_games}"
+            },
         )
 
     return ValidationResult(is_valid=True, data={"race_to": race_to})

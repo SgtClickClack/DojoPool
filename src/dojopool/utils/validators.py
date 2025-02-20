@@ -1,10 +1,12 @@
 import re
 from datetime import datetime
 from functools import wraps
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import jsonify, request
+from flask import Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
 from marshmallow import Schema, ValidationError, fields
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 
 class BaseSchema(Schema):
@@ -12,28 +14,28 @@ class BaseSchema(Schema):
 
 
 class UserSchema(BaseSchema):
-    username = fields.Str(required=True, validate=lambda x: len(x) >= 3)
-    email = fields.Email(required=True)
+    username: Any = fields.Str(required=True, validate=lambda x: len(x) >= 3)
+    email: Any = fields.Email(required=True)
     password = fields.Str(required=True, validate=lambda x: len(x) >= 8)
 
 
 class GameSchema(BaseSchema):
-    venue_id = fields.Int(required=True)
-    player_ids = fields.List(fields.Int(), required=True)
+    venue_id: Any = fields.Int(required=True)
+    player_ids: Any = fields.List(fields.Int(), required=True)
     game_type = fields.Str(required=True)
     score = fields.Dict(keys=fields.Int(), values=fields.Int())
 
 
-def validate_schema(schema_class):
+def validate_schema(schema_class) -> Union[Any, decorated_function, decorator]:
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             schema = schema_class()
             try:
                 if request.is_json:
-                    data = schema.load(request.get_json())
+                    data: Any = schema.load(request.get_json())
                 else:
-                    data = schema.load(request.form.to_dict())
+                    data: Any = schema.load(request.form.to_dict())
                 return f(*args, validated_data=data, **kwargs)
             except ValidationError as err:
                 return jsonify({"errors": err.messages}), 400
@@ -47,9 +49,9 @@ def sanitize_input(data):
     """Basic input sanitization"""
     if isinstance(data, str):
         # Remove potential script tags
-        data = data.replace("<script>", "").replace("</script>", "")
+        data: Any = data.replace("<script>", "").replace("</script>", "")
         # Escape HTML entities
-        data = data.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        data: Any = data.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         return data
     elif isinstance(data, dict):
         return {k: sanitize_input(v) for k, v in data.items()}
@@ -68,7 +70,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
     Returns:
         List of error messages, empty if validation passes.
     """
-    errors = []
+    errors: List[Any] = []
 
     # Required fields for new tournaments
     if not update:
@@ -89,8 +91,8 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
     # Validate dates if present
     if "start_date" in data and "end_date" in data:
         try:
-            start = datetime.fromisoformat(data["start_date"])
-            end = datetime.fromisoformat(data["end_date"])
+            start: Any = datetime.fromisoformat(data["start_date"])
+            end: Any = datetime.fromisoformat(data["end_date"])
             if start >= end:
                 errors.append("end_date must be after start_date")
             if start < datetime.now():
@@ -101,7 +103,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
     # Validate numeric fields if present
     if "max_players" in data:
         try:
-            max_players = int(data["max_players"])
+            max_players: int = int(data["max_players"])
             if max_players < 2:
                 errors.append("max_players must be at least 2")
             elif max_players > 128:
@@ -111,7 +113,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
 
     if "entry_fee" in data:
         try:
-            entry_fee = float(data["entry_fee"])
+            entry_fee: float = float(data["entry_fee"])
             if entry_fee < 0:
                 errors.append("entry_fee cannot be negative")
         except (ValueError, TypeError):
@@ -119,7 +121,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
 
     if "prize_pool" in data:
         try:
-            prize_pool = float(data["prize_pool"])
+            prize_pool: float = float(data["prize_pool"])
             if prize_pool < 0:
                 errors.append("prize_pool cannot be negative")
         except (ValueError, TypeError):
@@ -127,7 +129,11 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
 
     # Validate format if present
     if "format" in data:
-        valid_formats = ["single_elimination", "double_elimination", "round_robin"]
+        valid_formats: List[Any] = [
+            "single_elimination",
+            "double_elimination",
+            "round_robin",
+        ]
         if data["format"] not in valid_formats:
             errors.append(f'format must be one of: {", ".join(valid_formats)}')
 
@@ -137,7 +143,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
             errors.append("rules must be an object")
         else:
             # Validate specific rule fields
-            rules = data["rules"]
+            rules: Any = data["rules"]
 
             if "game_type" in rules:
                 valid_types = ["8-ball", "9-ball", "straight"]
@@ -146,7 +152,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
 
             if "race_to" in rules:
                 try:
-                    race_to = int(rules["race_to"])
+                    race_to: int = int(rules["race_to"])
                     if race_to < 1:
                         errors.append("race_to must be at least 1")
                 except (ValueError, TypeError):
@@ -154,7 +160,7 @@ def validate_tournament_data(data: Dict[str, Any], update: bool = False) -> List
 
             if "time_limit" in rules:
                 try:
-                    time_limit = int(rules["time_limit"])
+                    time_limit: int = int(rules["time_limit"])
                     if time_limit < 0:
                         errors.append("time_limit cannot be negative")
                 except (ValueError, TypeError):
@@ -179,7 +185,7 @@ def validate_coordinates(latitude: Optional[float], longitude: Optional[float]) 
 
     try:
         lat = float(latitude)
-        lng = float(longitude)
+        lng: float = float(longitude)
         return -90 <= lat <= 90 and -180 <= lng <= 180
     except (ValueError, TypeError):
         return False
@@ -198,7 +204,7 @@ def validate_email(email: str) -> bool:
     if not email:
         return False
 
-    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    pattern: str = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return bool(re.match(pattern, email))
 
 
@@ -216,7 +222,7 @@ def validate_phone(phone: str) -> bool:
         return False
 
     # Remove any non-digit characters
-    digits = re.sub(r"\D", "", phone)
+    digits: Any = re.sub(r"\D", "", phone)
     # Check if we have 10-15 digits
     return 10 <= len(digits) <= 15
 
@@ -234,7 +240,9 @@ def validate_url(url: str) -> bool:
     if not url:
         return False
 
-    pattern = r"^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$"
+    pattern: str = (
+        r"^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$"
+    )
     return bool(re.match(pattern, url))
 
 
@@ -252,14 +260,14 @@ def validate_postal_code(postal_code: str, country: str = "US") -> bool:
     if not postal_code:
         return False
 
-    patterns = {
+    patterns: Dict[Any, Any] = {
         "US": r"^\d{5}(-\d{4})?$",  # US ZIP code
         "CA": r"^[A-Z]\d[A-Z] \d[A-Z]\d$",  # Canadian postal code
         "GB": r"^[A-Z]{1,2}\d[A-Z\d]? \d[A-Z]{2}$",  # UK postcode
         "default": r"^[0-9A-Z]{3,10}$",  # Generic alphanumeric
     }
 
-    pattern = patterns.get(country.upper(), patterns["default"])
+    pattern: str = patterns.get(country.upper(), patterns["default"])
     return bool(re.match(pattern, postal_code.upper()))
 
 
@@ -278,14 +286,14 @@ def validate_date_range(
     """
     try:
         if isinstance(start_date, str):
-            start = datetime.fromisoformat(start_date)
+            start: Any = datetime.fromisoformat(start_date)
         else:
-            start = start_date
+            start: Any = start_date
 
         if isinstance(end_date, str):
-            end = datetime.fromisoformat(end_date)
+            end: Any = datetime.fromisoformat(end_date)
         else:
-            end = end_date
+            end: Any = end_date
 
         if start > end:
             return False, "Start date must be before end date"
@@ -312,7 +320,7 @@ def validate_rating(rating: Union[int, float]) -> bool:
         return False
 
 
-def validate_hours_format(hours: dict) -> Tuple[bool, Optional[str]]:
+def validate_hours_format(hours: dict):
     """
     Validate venue hours format.
 
@@ -322,8 +330,16 @@ def validate_hours_format(hours: dict) -> Tuple[bool, Optional[str]]:
     Returns:
         Tuple[bool, Optional[str]]: (is_valid, error_message)
     """
-    days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-    time_pattern = r"^([01]\d|2[0-3]):([0-5]\d)$"
+    days: List[Any] = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]
+    time_pattern: str = r"^([01]\d|2[0-3]):([0-5]\d)$"
 
     if not isinstance(hours, dict):
         return False, "Hours must be a dictionary"
@@ -333,7 +349,11 @@ def validate_hours_format(hours: dict) -> Tuple[bool, Optional[str]]:
             return False, f"Missing hours for {day}"
 
         day_hours = hours[day]
-        if not isinstance(day_hours, dict) or "open" not in day_hours or "close" not in day_hours:
+        if (
+            not isinstance(day_hours, dict)
+            or "open" not in day_hours
+            or "close" not in day_hours
+        ):
             return False, f"Invalid format for {day}"
 
         if not re.match(time_pattern, day_hours["open"]) or not re.match(
@@ -342,8 +362,8 @@ def validate_hours_format(hours: dict) -> Tuple[bool, Optional[str]]:
             return False, f"Invalid time format for {day}"
 
         # Validate that open time is before close time
-        open_time = datetime.strptime(day_hours["open"], "%H:%M")
-        close_time = datetime.strptime(day_hours["close"], "%H:%M")
+        open_time: Any = datetime.strptime(day_hours["open"], "%H:%M")
+        close_time: Any = datetime.strptime(day_hours["close"], "%H:%M")
         if open_time >= close_time:
             return False, f"Open time must be before close time for {day}"
 
@@ -360,7 +380,7 @@ def validate_features(features: list) -> Tuple[bool, Optional[str]]:
     Returns:
         Tuple[bool, Optional[str]]: (is_valid, error_message)
     """
-    valid_features = {
+    valid_features: Set[Any] = {
         "parking",
         "food_service",
         "bar",
@@ -386,7 +406,7 @@ def validate_features(features: list) -> Tuple[bool, Optional[str]]:
     if not isinstance(features, list):
         return False, "Features must be a list"
 
-    invalid_features = [f for f in features if f not in valid_features]
+    invalid_features: Set[Any] = [f for f in features if f not in valid_features]
     if invalid_features:
         return False, f"Invalid features: {', '.join(invalid_features)}"
 

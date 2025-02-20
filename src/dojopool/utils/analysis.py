@@ -39,7 +39,11 @@ def calculate_shot_metrics(
     control_rating = precision_factor * (1 - power / 100)
 
     return {
-        "velocity": {"x": float(velocity_x), "y": float(velocity_y), "total": float(power)},
+        "velocity": {
+            "x": float(velocity_x),
+            "y": float(velocity_y),
+            "total": float(power),
+        },
         "trajectory": {
             "max_height": float(max_height),
             "range": float(range_distance),
@@ -51,7 +55,10 @@ def calculate_shot_metrics(
             "rotational": float(rotational_energy),
             "total": float(total_energy),
         },
-        "control": {"precision": float(precision_factor), "control_rating": float(control_rating)},
+        "control": {
+            "precision": float(precision_factor),
+            "control_rating": float(control_rating),
+        },
     }
 
 
@@ -117,7 +124,7 @@ def calculate_shot_complexity(
     return min(1.0, complexity)
 
 
-def analyze_shot_pattern(shots: list) -> Dict[str, Any]:
+def analyze_shot_pattern(shots: list):
     """
     Analyze a sequence of shots to identify patterns
     """
@@ -159,7 +166,8 @@ def analyze_shot_pattern(shots: list) -> Dict[str, Any]:
     power_ranges = {"low": (0, 33), "medium": (34, 66), "high": (67, 100)}
 
     power_distribution = {
-        range_name: len([p for p in powers if range_val[0] <= p <= range_val[1]]) / len(powers)
+        range_name: len([p for p in powers if range_val[0] <= p <= range_val[1]])
+        / len(powers)
         for range_name, range_val in power_ranges.items()
     }
 

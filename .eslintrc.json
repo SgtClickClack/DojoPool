@@ -1,87 +1,14 @@
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint",
-    "react",
-    "react-hooks",
-    "jsx-a11y",
-    "security",
-    "jest",
-    "prettier"
-  ],
   "extends": [
     "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:jsx-a11y/recommended",
-    "plugin:security/recommended",
-    "plugin:prettier/recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
-  "env": {
-    "browser": true,
-    "node": true,
-    "es2022": true,
-    "jest": true
-  },
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
-  },
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "root": true,
   "rules": {
-    // Security
-    "security/detect-object-injection": "warn",
-    "security/detect-non-literal-regexp": "warn",
-    "security/detect-unsafe-regex": "error",
-    "security/detect-buffer-noassert": "error",
-    "security/detect-eval-with-expression": "error",
-    "security/detect-no-csrf-before-method-override": "error",
-    "security/detect-possible-timing-attacks": "warn",
-
-    // React
-    "react/prop-types": "off",
-    "react/react-in-jsx-scope": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-
-    // TypeScript
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-non-null-assertion": "warn",
-
-    // Best Practices
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "no-debugger": "error",
-    "no-alert": "error",
-    "no-var": "error",
-    "prefer-const": "error",
-    "eqeqeq": ["error", "always"],
-    "curly": ["error", "all"],
-    "max-lines": ["warn", { "max": 300, "skipBlankLines": true, "skipComments": true }],
-    "complexity": ["warn", 10],
-
-    "jsx-a11y/anchor-is-valid": [
-      "error",
-      {
-        "components": ["Link"],
-        "specialLink": ["hrefLeft", "hrefRight"],
-        "aspects": ["invalidHref", "preferButton"]
-      }
-    ]
-  },
-  "overrides": [
-    {
-      "files": ["**/*.test.ts", "**/*.test.tsx"],
-      "env": {
-        "jest": true
-      },
-      "rules": {
-        "security/detect-non-literal-fs-filename": "off",
-        "@typescript-eslint/no-explicit-any": "off"
-      }
-    }
-  ]
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
 } 

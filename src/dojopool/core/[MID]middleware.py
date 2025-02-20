@@ -4,12 +4,13 @@ import logging
 import re
 import time
 from functools import wraps
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 from urllib.parse import urlparse
 
 from flask import abort, current_app, g, request
 from flask_login import current_user
 from jsonschema import ValidationError, validate
+from werkzeug.wrappers import Response
 
 from .exceptions import RateLimitExceeded
 from .extensions import cache
@@ -18,7 +19,7 @@ from .security import is_ip_blocked
 logger = logging.getLogger(__name__)
 
 # Rate limit configurations (requests per minute)
-RATE_LIMITS = {
+RATE_LIMITS: Dict[str, int] = {
     "default": 60,  # Default rate limit
     "game_create": 10,  # Game creation
     "game_update": 30,  # Game updates
@@ -28,7 +29,7 @@ RATE_LIMITS = {
 }
 
 
-def get_rate_limit_key(endpoint, identifier):
+def get_rate_limit_key(endpoint: str, identifier: str) -> str:
     """Generate rate limit key.
 
     Args:
@@ -36,12 +37,12 @@ def get_rate_limit_key(endpoint, identifier):
         identifier: User/IP identifier
 
     Returns:
-        str: Rate limit key
+        Rate limit key
     """
     return f"ratelimit:{endpoint}:{identifier}"
 
 
-def check_rate_limit(endpoint, identifier, limit=None):
+def check_rate_limit(endpoint: str, identifier: str, limit: Optional[int] = None):
     """Check if rate limit is exceeded.
 
     Args:
@@ -50,7 +51,7 @@ def check_rate_limit(endpoint, identifier, limit=None):
         limit: Optional custom limit
 
     Returns:
-        tuple: (is_allowed, remaining_requests, reset_time)
+        Tuple of (is_allowed, remaining_requests, reset_time)
     """
     key = get_rate_limit_key(endpoint, identifier)
     current = int(time.time())
@@ -76,18 +77,25 @@ def check_rate_limit(endpoint, identifier, limit=None):
     return is_allowed, remaining, reset_time
 
 
-def rate_limit(endpoint=None, limit=None, exempt_when=None):
+def rate_limit(
+    endpoint: Optional[str] = None,
+    limit: Optional[int] = None,
+    exempt_when: Optional[Callable[[], bool]] = None,
+) -> Callable:
     """Rate limiting decorator.
 
     Args:
         endpoint: API endpoint name for specific limits
         limit: Optional custom request limit
         exempt_when: Optional function to check for exemption
+
+    Returns:
+        Decorated function
     """
 
-    def decorator(f):
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any):
             # Check for exemption
             if exempt_when and exempt_when():
                 return f(*args, **kwargs)
@@ -100,12 +108,13 @@ def rate_limit(endpoint=None, limit=None, exempt_when=None):
             )
 
             # Check rate limit
-            is_allowed, remaining, reset_time = check_rate_limit(
-                endpoint or f.__name__, identifier, limit
-            )
+            result = check_rate_limit(endpoint or f.__name__, identifier, limit)
+            is_allowed, remaining, reset_time = result
 
             if not is_allowed:
-                raise RateLimitExceeded(message="Rate limit exceeded", reset_time=reset_time)
+                raise RateLimitExceeded(
+                    message="Rate limit exceeded", reset_time=reset_time
+                )
 
             # Set rate limit headers
             response = f(*args, **kwargs)
@@ -119,7 +128,7 @@ def rate_limit(endpoint=None, limit=None, exempt_when=None):
     return decorator
 
 
-def is_admin():
+def is_admin() -> bool:
     """Check if current user is admin."""
     return hasattr(request, "user") and request.user and request.user.is_admin
 
@@ -127,12 +136,12 @@ def is_admin():
 class RateLimitMiddleware:
     """Rate limiting middleware."""
 
-    def __init__(self, app=None):
+    def __init__(self, app: Optional[Flask] = None):
         self.app = app
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app: Flask):
         """Initialize middleware with app.
 
         Args:
@@ -143,7 +152,7 @@ class RateLimitMiddleware:
         def check_rate_limit():
             # Skip rate limiting for non-API routes
             if not request.path.startswith("/api/"):
-                return
+                return None
 
             # Get endpoint name from route
             endpoint = request.endpoint or "default"
@@ -156,20 +165,26 @@ class RateLimitMiddleware:
             )
 
             # Check rate limit
-            is_allowed, remaining, reset_time = check_rate_limit(endpoint, identifier)
+            result = check_rate_limit(endpoint, identifier)
+            is_allowed, remaining, reset_time = result
 
             if not is_allowed:
-                raise RateLimitExceeded(message="Rate limit exceeded", reset_time=reset_time)
+                raise RateLimitExceeded(
+                    message="Rate limit exceeded", reset_time=reset_time
+                )
 
             # Store rate limit info for response headers
             request.rate_limit_remaining = remaining
             request.rate_limit_reset = reset_time
+            return None
 
         @app.after_request
-        def add_rate_limit_headers(response):
+        def add_rate_limit_headers(response: Response) -> Response:
             """Add rate limit headers to response."""
             if hasattr(request, "rate_limit_remaining"):
-                response.headers["X-RateLimit-Remaining"] = str(request.rate_limit_remaining)
+                response.headers["X-RateLimit-Remaining"] = str(
+                    request.rate_limit_remaining
+                )
             if hasattr(request, "rate_limit_reset"):
                 response.headers["X-RateLimit-Reset"] = str(request.rate_limit_reset)
             return response
@@ -178,12 +193,12 @@ class RateLimitMiddleware:
 class SecurityMiddleware:
     """Security middleware for request processing."""
 
-    def __init__(self, app=None):
+    def __init__(self, app: Optional[Flask] = None) -> None:
         self.app = app
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app: Flask):
         """Initialize middleware with app."""
         app.before_request(self.before_request)
         app.after_request(self.after_request)
@@ -202,9 +217,8 @@ class SecurityMiddleware:
             abort(405, description="Method not allowed")
 
         # Validate request size
-        if (
-            request.content_length
-            and request.content_length > current_app.config["MAX_CONTENT_LENGTH"]
+        if request.content_length and request.content_length > current_app.config.get(
+            "MAX_CONTENT_LENGTH", 0
         ):
             abort(413, description="Request too large")
 
@@ -222,9 +236,9 @@ class SecurityMiddleware:
         if not url.scheme or not url.netloc:
             abort(400, description="Invalid URL")
 
-        # Additional security checks can be added here
+        return None
 
-    def after_request(self, response):
+    def after_request(self, response: Response) -> Response:
         """Process response after handling."""
         # Add security headers
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -238,12 +252,12 @@ class SecurityMiddleware:
         return response
 
 
-def require_https():
+def require_https() -> Callable:
     """Decorator to require HTTPS."""
 
-    def decorator(f):
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any):
             if not request.is_secure and not current_app.debug:
                 abort(403, description="HTTPS required")
             return f(*args, **kwargs)
@@ -256,9 +270,9 @@ def require_https():
 def validate_host():
     """Decorator to validate request host."""
 
-    def decorator(f):
+    def decorator(f: Callable) -> Callable:
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any):
             allowed_hosts = current_app.config.get("ALLOWED_HOSTS", [])
             if request.host not in allowed_hosts and not current_app.debug:
                 abort(400, description="Invalid host")
@@ -272,9 +286,9 @@ def validate_host():
 def validate_origin():
     """Decorator to validate request origin."""
 
-    def decorator(f):
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any) -> Any:
             origin = request.headers.get("Origin")
             if origin:
                 allowed_origins = current_app.config.get("ALLOWED_ORIGINS", [])
@@ -290,13 +304,15 @@ def validate_origin():
 def validate_referrer():
     """Decorator to validate request referrer."""
 
-    def decorator(f):
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args: Any, **kwargs: Any):
             referrer = request.referrer
             if referrer:
                 allowed_referrers = current_app.config.get("ALLOWED_REFERRERS", [])
-                if not any(re.match(pattern, referrer) for pattern in allowed_referrers):
+                if not any(
+                    re.match(pattern, referrer) for pattern in allowed_referrers
+                ):
                     abort(400, description="Invalid referrer")
             return f(*args, **kwargs)
 
@@ -305,11 +321,11 @@ def validate_referrer():
     return decorator
 
 
-def login_required_for_api(f):
+def login_required_for_api(f: Callable) -> Callable:
     """Decorator to require login for API endpoints."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated_function(*args: Any, **kwargs: Any):
         if not current_user.is_authenticated:
             return {"error": "Authentication required"}, 401
         return f(*args, **kwargs)
@@ -318,8 +334,9 @@ def login_required_for_api(f):
 
 
 class InputValidation:
+    """Input validation middleware."""
+
     def __init__(self):
-        """Initialize input validation middleware."""
         self.schemas: Dict[str, Dict[str, Any]] = {}
 
     def register_schema(self, name: str, schema: Dict[str, Any]):
@@ -364,7 +381,7 @@ def validate_input(validator: InputValidation, schema_name: str):
 
     def decorator(func: Callable):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any):
             request_data = kwargs.get("data")
 
             if not request_data:
@@ -420,7 +437,8 @@ class RequestLogging:
             request: Request object to log
         """
         self.logger.info(
-            f"Request: {request.method} {request.path} " f"(Client: {request.remote_addr})"
+            f"Request: {request.method} {request.path} "
+            f"(Client: {request.remote_addr})"
         )
 
     def log_response(self, response: Any):
@@ -430,11 +448,12 @@ class RequestLogging:
             response: Response object to log
         """
         self.logger.info(
-            f"Response: {response.status_code} " f"(Content-Length: {response.content_length})"
+            f"Response: {response.status_code} "
+            f"(Content-Length: {response.content_length})"
         )
 
 
-def with_error_handling(func: Callable):
+def with_error_handling(func: Callable) -> Callable:
     """Decorator for error handling.
 
     Args:
@@ -445,7 +464,7 @@ def with_error_handling(func: Callable):
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any):
         try:
             return func(*args, **kwargs)
         except Exception as e:
@@ -466,7 +485,7 @@ def with_logging(func: Callable):
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any):
         logger = RequestLogging()
         request = kwargs.get("request")
 

@@ -12,7 +12,9 @@ mimetypes.add_type("application/javascript", ".js")
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("application/manifest+json", ".json")
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -134,7 +136,10 @@ def run_server(port=8000):
             sys.exit(1)
 
         # Set up the server
-        server_address = ("", port)  # Empty string means bind to all available interfaces
+        server_address = (
+            "",
+            port,
+        )  # Empty string means bind to all available interfaces
         httpd = HTTPServer(server_address, PWAHandler)
 
         logger.info("Server is available at:")

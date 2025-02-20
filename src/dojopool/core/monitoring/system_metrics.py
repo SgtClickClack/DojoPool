@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 System metrics collector for monitoring system resources.
 """
@@ -7,7 +9,12 @@ from typing import Any, Dict, Optional
 
 import psutil
 
-from ...utils.monitoring import MEMORY_USAGE, NETWORK_IO, SYSTEM_CPU_USAGE, SYSTEM_DISK_USAGE
+from ...utils.monitoring import (
+    MEMORY_USAGE,
+    NETWORK_IO,
+    SYSTEM_CPU_USAGE,
+    SYSTEM_DISK_USAGE,
+)
 
 
 class SystemMetricsCollector:
@@ -29,7 +36,9 @@ class SystemMetricsCollector:
             return
 
         self._stop_event.clear()
-        self._collection_thread = threading.Thread(target=self._collect_metrics, daemon=True)
+        self._collection_thread = threading.Thread(
+            target=self._collect_metrics, daemon=True
+        )
         self._collection_thread.start()
 
     def stop(self):
@@ -63,9 +72,9 @@ class SystemMetricsCollector:
                 for partition in psutil.disk_partitions():
                     try:
                         usage = psutil.disk_usage(partition.mountpoint)
-                        SYSTEM_DISK_USAGE.labels(mount_point=partition.mountpoint).observe(
-                            usage.used
-                        )
+                        SYSTEM_DISK_USAGE.labels(
+                            mount_point=partition.mountpoint
+                        ).observe(usage.used)
                     except (PermissionError, OSError):
                         continue
 
@@ -79,7 +88,9 @@ class SystemMetricsCollector:
                 from .error_logger import ErrorSeverity, error_logger
 
                 error_logger.log_error(
-                    error=e, severity=ErrorSeverity.WARNING, component="system_metrics_collector"
+                    error=e,
+                    severity=ErrorSeverity.WARNING,
+                    component="system_metrics_collector",
                 )
 
             # Wait for next collection interval

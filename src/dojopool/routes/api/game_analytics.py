@@ -1,9 +1,10 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 from datetime import datetime, timedelta
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-
 from services.game_analytics_service import GameAnalyticsService
 from utils.auth import get_current_user
 from utils.rate_limit import rate_limiter
@@ -32,7 +33,9 @@ async def get_match_analytics(match_id: str, current_user=Depends(get_current_us
         analytics = await analytics_service.analyze_match(match_data)
 
         return AnalyticsResponse(
-            success=True, data=analytics.dict(), message="Match analytics generated successfully"
+            success=True,
+            data=analytics.dict(),
+            message="Match analytics generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -73,7 +76,8 @@ async def get_player_progression(
 async def get_player_insights(
     player_id: str,
     time_period: str = Query(
-        default="last_30_days", regex="^(last_7_days|last_30_days|last_90_days|all_time)$"
+        default="last_30_days",
+        regex="^(last_7_days|last_30_days|last_90_days|all_time)$",
     ),
     current_user=Depends(get_current_user),
 ):
@@ -99,7 +103,9 @@ async def get_player_insights(
         insights = await analytics_service.generate_performance_insights(analytics)
 
         return AnalyticsResponse(
-            success=True, data=insights, message="Player insights generated successfully"
+            success=True,
+            data=insights,
+            message="Player insights generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -114,7 +120,8 @@ async def compare_players(
         regex="^(shots|position|strategy|pressure)$",
     ),
     time_period: str = Query(
-        default="last_30_days", regex="^(last_7_days|last_30_days|last_90_days|all_time)$"
+        default="last_30_days",
+        regex="^(last_7_days|last_30_days|last_90_days|all_time)$",
     ),
     current_user=Depends(get_current_user),
 ):
@@ -161,7 +168,7 @@ async def get_match_data(match_id: str) -> dict:
     return {}
 
 
-async def generate_metric_comparison(player_analytics: dict, metric_type: str) -> dict:
+async def generate_metric_comparison(player_analytics: dict, metric_type: str):
     """Generate comparison data for a specific metric type."""
     comparison = {}
     for player_id, analytics in player_analytics.items():
@@ -185,13 +192,13 @@ async def generate_metric_comparison(player_analytics: dict, metric_type: str) -
     return comparison
 
 
-def calculate_metric_average(metrics: List[dict]) -> dict:
+def calculate_metric_average(metrics: List[dict]):
     """Calculate average values for a list of metrics."""
     # TODO: Implement metric averaging
     return {}
 
 
-def calculate_metric_trend(metrics: List[dict]) -> dict:
+def calculate_metric_trend(metrics: List[dict]):
     """Calculate trend data for a list of metrics."""
     # TODO: Implement trend calculation
     return {}

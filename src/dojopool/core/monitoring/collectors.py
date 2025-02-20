@@ -1,8 +1,9 @@
 """System metrics collection utilities."""
 
-import psutil
 from datetime import datetime
-from typing import Dict, Optional, Union, Callable
+from typing import Callable, Dict, Optional, Union
+
+import psutil
 
 try:
     import GPUtil
@@ -20,7 +21,9 @@ ProcessMetrics = Dict[str, Union[float, Dict[str, float]]]
 class MetricsCollector:
     """Collects system metrics."""
 
-    def __init__(self, custom_metrics_callbacks: Optional[Dict[str, MetricCallback]] = None):
+    def __init__(
+        self, custom_metrics_callbacks: Optional[Dict[str, MetricCallback]] = None
+    ):
         """Initialize collector.
 
         Args:
@@ -58,7 +61,8 @@ class MetricsCollector:
         custom_metrics = None
         if self._custom_metrics_callbacks:
             custom_metrics = {
-                name: callback() for name, callback in self._custom_metrics_callbacks.items()
+                name: callback()
+                for name, callback in self._custom_metrics_callbacks.items()
             }
 
         # Create snapshot
@@ -86,7 +90,7 @@ class MetricsCollector:
                 snapshot.gpu_usage = gpu.load * 100
         return snapshot
 
-    def get_process_metrics(self, pid: Optional[int] = None) -> ProcessMetrics:
+    def get_process_metrics(self, pid: Optional[int] = None):
         """Get metrics for a specific process or the current process.
 
         Args:
@@ -118,7 +122,7 @@ class MetricsCollector:
                 "threads": float(num_threads),
             }
 
-    def register_custom_metric(self, name: str, callback: MetricCallback) -> None:
+    def register_custom_metric(self, name: str, callback: MetricCallback):
         """Register a new custom metric.
 
         Args:
@@ -127,7 +131,7 @@ class MetricsCollector:
         """
         self._custom_metrics_callbacks[name] = callback
 
-    def unregister_custom_metric(self, name: str) -> None:
+    def unregister_custom_metric(self, name: str):
         """Unregister a custom metric.
 
         Args:

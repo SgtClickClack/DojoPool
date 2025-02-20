@@ -44,4 +44,10 @@ def get_config(config_name: Optional[str] = None) -> Type[Config]:
     return config_class
 
 
-__all__ = ["Config", "DevelopmentConfig", "TestingConfig", "ProductionConfig", "get_config"]
+__all__ = [
+    "Config",
+    "DevelopmentConfig",
+    "TestingConfig",
+    "ProductionConfig",
+    "get_config",
+]

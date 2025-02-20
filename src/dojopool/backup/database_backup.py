@@ -41,7 +41,9 @@ def setup_backup_directory():
 def cleanup_old_backups():
     """Remove backups older than BACKUP_RETENTION_DAYS."""
     try:
-        cutoff_date = datetime.datetime.now() - datetime.timedelta(days=BACKUP_RETENTION_DAYS)
+        cutoff_date = datetime.datetime.now() - datetime.timedelta(
+            days=BACKUP_RETENTION_DAYS
+        )
         for backup_file in BACKUP_DIR.glob("*.sql.gz"):
             if backup_file.stat().st_mtime < cutoff_date.timestamp():
                 backup_file.unlink()
@@ -59,7 +61,10 @@ def create_backup():
         # Create backup using pg_dump and compress with gzip
         cmd = f"pg_dump -h {DB_HOST} -p {DB_PORT} -U {DB_USER} {DB_NAME} | gzip > {backup_file}"
         subprocess.run(
-            cmd, shell=True, check=True, env={"PGPASSWORD": os.getenv("POSTGRES_PASSWORD")}
+            cmd,
+            shell=True,
+            check=True,
+            env={"PGPASSWORD": os.getenv("POSTGRES_PASSWORD")},
         )
         logger.info(f"Backup created successfully: {backup_file}")
 

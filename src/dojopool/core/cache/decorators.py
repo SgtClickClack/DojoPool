@@ -1,28 +1,35 @@
 """Cache decorators for DojoPool."""
 
 from functools import wraps
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from flask import current_app, request
+from flask import Response, current_app, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from . import cache
 
 
-def cached_view(timeout: int = 300, key_prefix: str = "") -> Callable:
+def cached_view(timeout: int = 300, key_prefix: str = "") -> Callable[..., Any]:
     """Cache a view function's response.
 
     Args:
         timeout: Cache timeout in seconds
-        key_prefix: Prefix for cache key
+        key_prefix: Cache key prefix
+
+    Returns:
+        Decorated function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any) -> Any:
-            cache_key = f"{key_prefix}:{request.path}:{request.query_string.decode()}"
-            response = cache.get(cache_key)
+        def decorated_function(*args: Any, **kwargs: Any):
+            cache_key: Any = (
+                f"{key_prefix}:{request.path}:{request.query_stringetattr(g, "decode", None)()}"
+            )
+            response: f = cache.get(cache_key)
             if response is None:
-                response = f(*args, **kwargs)
+                response: f = f(*args, **kwargs)
                 cache.set(cache_key, response, timeout=timeout)
             return response
 
@@ -33,7 +40,7 @@ def cached_view(timeout: int = 300, key_prefix: str = "") -> Callable:
 
 def cached_model(
     timeout: int = 300, key_prefix: str = "", unless: Optional[Callable] = None
-) -> Callable:
+):
     """Cache a model method's result.
 
     Args:
@@ -44,14 +51,16 @@ def cached_model(
 
     def decorator(f: Callable) -> Callable:
         @wraps(f)
-        def decorated_function(self, *args: Any, **kwargs: Any) -> Any:
+        def decorated_function(self, *args: Any, **kwargs: Any):
             if unless and unless():
                 return f(self, *args, **kwargs)
 
-            cache_key = f"{key_prefix}:{self.__class__.__name__}:{self.id}:{f.__name__}"
-            result = cache.get(cache_key)
+            cache_key: Any = (
+                f"{key_prefix}:{self.__class__.__name__}:{self.id}:{f.__name__}"
+            )
+            result: Any = cache.get(cache_key)
             if result is None:
-                result = f(self, *args, **kwargs)
+                result: Any = f(self, *args, **kwargs)
                 cache.set(cache_key, result, timeout=timeout)
             return result
 
@@ -60,7 +69,7 @@ def cached_model(
     return decorator
 
 
-def invalidate_cache(key_pattern: str) -> None:
+def invalidate_cache(key_pattern: str):
     """Invalidate all cache keys matching pattern."""
     if hasattr(cache, "delete_pattern"):
         cache.delete_pattern(key_pattern)

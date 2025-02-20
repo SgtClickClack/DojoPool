@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Inventory model."""
 
 from datetime import datetime
@@ -16,7 +18,9 @@ class Inventory(TimestampedModel):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    item_type = db.Column(db.String(50), nullable=False)  # 'cosmetic', 'achievement', etc.
+    item_type = db.Column(
+        db.String(50), nullable=False
+    )  # 'cosmetic', 'achievement', etc.
     quantity = db.Column(db.Integer, default=0)
     expires_at = db.Column(db.DateTime, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
@@ -43,9 +47,13 @@ class Inventory(TimestampedModel):
         ]
 
     @classmethod
-    def update_item_count(cls, user_id: int, item_type: str, quantity_change: int) -> None:
+    def update_item_count(
+        cls, user_id: int, item_type: str, quantity_change: int
+    ) -> None:
         """Update item quantity in inventory."""
-        item = cls.query.filter_by(user_id=user_id, item_type=item_type, is_active=True).first()
+        item = cls.query.filter_by(
+            user_id=user_id, item_type=item_type, is_active=True
+        ).first()
 
         if item:
             item.quantity += quantity_change
@@ -53,7 +61,9 @@ class Inventory(TimestampedModel):
                 item.is_active = False
         else:
             if quantity_change > 0:
-                item = cls(user_id=user_id, item_type=item_type, quantity=quantity_change)
+                item = cls(
+                    user_id=user_id, item_type=item_type, quantity=quantity_change
+                )
                 db.session.add(item)
 
         db.session.commit()

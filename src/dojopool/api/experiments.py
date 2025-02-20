@@ -1,14 +1,17 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """
 API endpoints for A/B testing experiments.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify, request
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from ..core.experiments.analysis import ExperimentAnalyzer
 from ..core.experiments.manager import ExperimentManager
-from ..monitoring.error_logger import ErrorSeverity, error_logger
+from ..monitoring import ErrorSeverity, error_logger
 
 experiments_bp = Blueprint("experiments", __name__)
 experiment_manager = ExperimentManager()
@@ -23,19 +26,26 @@ def create_experiment() -> Response:
         if not data or "name" not in data or "variants" not in data:
             return jsonify({"error": "Missing required fields: name, variants"}), 400
 
-        experiment_id = experiment_manager.create_experiment(
+        experiment_id: Any = experiment_manager.create_experiment(
             name=data["name"],
             variants=data["variants"],
             traffic_percentage=data.get("traffic_percentage", 100.0),
         )
 
         return (
-            jsonify({"experiment_id": experiment_id, "message": "Experiment created successfully"}),
+            jsonify(
+                {
+                    "experiment_id": experiment_id,
+                    "message": "Experiment created successfully",
+                }
+            ),
             201,
         )
 
     except Exception as e:
-        error_logger.log_error(error=e, severity=ErrorSeverity.ERROR, component="experiments_api")
+        error_logger.log_error(
+            error=e, severity=ErrorSeverity.ERROR, component="experiments_api"
+        )
         return jsonify({"error": str(e)}), 500
 
 
@@ -47,17 +57,24 @@ def assign_variant(experiment_id: str) -> Response:
         if not data or "user_id" not in data:
             return jsonify({"error": "Missing required field: user_id"}), 400
 
-        variant_id = experiment_manager.assign_variant(
+        variant_id: Any = experiment_manager.assign_variant(
             experiment_id=experiment_id, user_id=data["user_id"]
         )
 
         if variant_id is None:
             return jsonify({"message": "User not included in experiment"}), 200
 
-        return jsonify({"variant_id": variant_id, "message": "User assigned successfully"}), 200
+        return (
+            jsonify(
+                {"variant_id": variant_id, "message": "User assigned successfully"}
+            ),
+            200,
+        )
 
     except Exception as e:
-        error_logger.log_error(error=e, severity=ErrorSeverity.ERROR, component="experiments_api")
+        error_logger.log_error(
+            error=e, severity=ErrorSeverity.ERROR, component="experiments_api"
+        )
         return jsonify({"error": str(e)}), 500
 
 
@@ -66,9 +83,12 @@ def record_metric(experiment_id: str) -> Response:
     """Record a metric for an experiment."""
     try:
         data = request.get_json()
-        required_fields = {"user_id", "variant_id", "metric_name", "value"}
+        required_fields: Set[Any] = {"user_id", "variant_id", "metric_name", "value"}
         if not data or not all(field in data for field in required_fields):
-            return jsonify({"error": f"Missing required fields: {required_fields}"}), 400
+            return (
+                jsonify({"error": f"Missing required fields: {required_fields}"}),
+                400,
+            )
 
         experiment_manager.record_metric(
             experiment_id=experiment_id,
@@ -82,7 +102,9 @@ def record_metric(experiment_id: str) -> Response:
         return jsonify({"message": "Metric recorded successfully"}), 200
 
     except Exception as e:
-        error_logger.log_error(error=e, severity=ErrorSeverity.ERROR, component="experiments_api")
+        error_logger.log_error(
+            error=e, severity=ErrorSeverity.ERROR, component="experiments_api"
+        )
         return jsonify({"error": str(e)}), 500
 
 
@@ -91,17 +113,17 @@ def get_experiment_results(experiment_id: str) -> Response:
     """Get results for an experiment."""
     try:
         # Get experiment metrics
-        metrics = experiment_manager.get_experiment_results(experiment_id)
+        metrics: Any = experiment_manager.get_experiment_results(experiment_id)
         if not metrics:
             return jsonify({"error": "No metrics found for experiment"}), 404
 
         # Get control and variant values
-        control_values = []
+        control_values: List[Any] = []
         variant_values: Dict[str, list] = {}
 
         for variant_id, variant_metrics in metrics.items():
             for _metric_name, events in variant_metrics.items():
-                values = [event.value for event in events]
+                values: Any = [event.value for event in events]
                 if variant_id == "control":
                     control_values.extend(values)
                 else:
@@ -110,7 +132,7 @@ def get_experiment_results(experiment_id: str) -> Response:
                     variant_values[variant_id].extend(values)
 
         # Analyze results
-        results = experiment_analyzer.analyze_experiment(
+        results: Any = experiment_analyzer.analyze_experiment(
             experiment_id=experiment_id,
             control_values=control_values,
             variant_values=variant_values,
@@ -149,10 +171,12 @@ def get_experiment_results(experiment_id: str) -> Response:
         )
 
     except Exception as e:
-        error_logger.log_error(error=e, severity=ErrorSeverity.ERROR, component="experiments_api")
+        error_logger.log_error(
+            error=e, severity=ErrorSeverity.ERROR, component="experiments_api"
+        )
         return jsonify({"error": str(e)}), 500
 
 
-def init_app(app: Any) -> None:
+def init_app(app: Any):
     """Initialize the experiments blueprint."""
     app.register_blueprint(experiments_bp, url_prefix="/api")

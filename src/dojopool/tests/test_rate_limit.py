@@ -1,16 +1,19 @@
 """Tests for rate limiting system."""
 
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 from unittest.mock import patch
 
 import pytest
-from flask import Flask, jsonify
+from flask import Flask, Request, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from dojopool.core.venue.rate_limit import RateLimiter, rate_limit
 
 
 @pytest.fixture
-def rate_limiter():
+def rate_limiter() -> limiter:
     """Create a test instance of RateLimiter."""
     limiter = RateLimiter()
     # Stop the cleanup thread for testing
@@ -61,7 +64,7 @@ def test_basic_rate_limit(rate_limiter):
     assert retry is not None
 
 
-def test_window_reset(rate_limiter):
+def test_window_reset(rate_limiter) -> None:
     """Test rate limit window reset."""
     rate_limiter.configure_limit("test", 1, 60)  # 1 request per minute
 
@@ -84,7 +87,9 @@ def test_window_reset(rate_limiter):
 
 def test_blocking_duration(rate_limiter):
     """Test blocking duration functionality."""
-    rate_limiter.configure_limit("test", 1, 60, block_duration=300)  # 1 request/min, 5 min block
+    rate_limiter.configure_limit(
+        "test", 1, 60, block_duration=300
+    )  # 1 request/min, 5 min block
 
     # First request
     allowed, _, _ = rate_limiter.check_limit("test_key", "test")
@@ -131,7 +136,7 @@ def test_default_limit(rate_limiter):
     assert rate_limiter.default_limits["default"].window == 60
 
 
-def test_cleanup_expired(rate_limiter):
+def test_cleanup_expired(rate_limiter) -> None:
     """Test cleanup of expired rate limits."""
     rate_limiter.configure_limit("test", 1, 60)
 
@@ -147,13 +152,15 @@ def test_cleanup_expired(rate_limiter):
         rate_limiter._cleanup_expired()
 
         # Limits should be cleaned up
-        assert "test" not in rate_limiter._limits or len(rate_limiter._limits["test"]) == 0
+        assert (
+            "test" not in rate_limiter._limits or len(rate_limiter._limits["test"]) == 0
+        )
 
 
 def test_route_decorator(app, client):
     """Test rate limit decorator on routes."""
     # First request should succeed
-    response = client.get("/test")
+    response: Any = client.get("/test")
     assert response.status_code == 200
 
     # Make many requests to exceed limit
@@ -161,24 +168,24 @@ def test_route_decorator(app, client):
         client.get("/test")
 
     # Next request should be rate limited
-    response = client.get("/test")
+    response: Any = client.get("/test")
     assert response.status_code == 429
     assert "Retry-After" in response.headers
 
 
-def test_custom_limit_route(app, client):
+def test_custom_limit_route(app, client) -> None:
     """Test route with custom rate limit."""
     # Configure custom limit
     app.rate_limiter.configure_limit("custom", 2, 60)
 
     # First two requests should succeed
-    response = client.get("/test_custom")
+    response: Any = client.get("/test_custom")
     assert response.status_code == 200
-    response = client.get("/test_custom")
+    response: Any = client.get("/test_custom")
     assert response.status_code == 200
 
     # Third request should be rate limited
-    response = client.get("/test_custom")
+    response: Any = client.get("/test_custom")
     assert response.status_code == 429
 
 
@@ -188,15 +195,15 @@ def test_ip_based_limiting(app, client):
     app.rate_limiter.configure_limit("test", 1, 60)
 
     # First request from IP1
-    response = client.get("/test", environ_base={"REMOTE_ADDR": "1.1.1.1"})
+    response: Any = client.get("/test", environ_base={"REMOTE_ADDR": "1.1.1.1"})
     assert response.status_code == 200
 
     # Second request from IP1 should be limited
-    response = client.get("/test", environ_base={"REMOTE_ADDR": "1.1.1.1"})
+    response: Any = client.get("/test", environ_base={"REMOTE_ADDR": "1.1.1.1"})
     assert response.status_code == 429
 
     # Request from IP2 should succeed
-    response = client.get("/test", environ_base={"REMOTE_ADDR": "2.2.2.2"})
+    response: Any = client.get("/test", environ_base={"REMOTE_ADDR": "2.2.2.2"})
     assert response.status_code == 200
 
 
@@ -214,12 +221,12 @@ def test_limit_configuration_validation(rate_limiter):
     assert rate_limiter.default_limits["test"].block_duration == 300
 
 
-def test_concurrent_requests(rate_limiter):
+def test_concurrent_requests(rate_limiter) -> None:
     """Test rate limiting with concurrent requests."""
     rate_limiter.configure_limit("test", 3, 60)
 
     # Simulate concurrent requests
-    results = []
+    results: List[Any] = []
     for _ in range(5):
         allowed, error, _ = rate_limiter.check_limit("test_key", "test")
         results.append(allowed)

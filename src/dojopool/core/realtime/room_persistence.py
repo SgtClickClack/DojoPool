@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room persistence module.
 
 This module provides persistence functionality for room data.
@@ -5,19 +7,22 @@ This module provides persistence functionality for room data.
 
 import asyncio
 import json
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Union, cast
 
 from .constants import ErrorCodes
 from .log_config import logger
 from .utils import format_error_response
 
+RoomData = Dict[str, Any]
+
 
 class RoomPersistence:
     """Room persistence class."""
 
-    def __init__(self, data_dir: str = "data/rooms"):
+    def __init__(self, data_dir: Union[str, Path] = "data/rooms") -> None:
         """Initialize RoomPersistence.
 
         Args:
@@ -25,13 +30,22 @@ class RoomPersistence:
         """
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
-
-        # Track dirty rooms that need saving
         self._dirty_rooms: Set[str] = set()
-        self._save_task: Optional[asyncio.Task] = None
+        self._save_task: Optional[asyncio.Task[None]] = None
         self._lock = asyncio.Lock()
 
-    async def start_persistence(self, save_interval: int = 60) -> None:
+    def _get_room_path(self, room_id: str):
+        """Get path for room data file.
+
+        Args:
+            room_id: Room identifier
+
+        Returns:
+            Path to room data file
+        """
+        return self.data_dir / f"{room_id}.json"
+
+    async def start_persistence(self, save_interval: int = 60):
         """Start persistence task.
 
         Args:
@@ -40,7 +54,7 @@ class RoomPersistence:
         if self._save_task is None:
             self._save_task = asyncio.create_task(self._save_loop(save_interval))
 
-    async def stop_persistence(self) -> None:
+    async def stop_persistence(self):
         """Stop persistence task."""
         if self._save_task is not None:
             self._save_task.cancel()
@@ -67,10 +81,12 @@ class RoomPersistence:
                 break
             except Exception as e:
                 logger.error(
-                    "Error in room persistence loop", exc_info=True, extra={"error": str(e)}
+                    "Error in room persistence loop",
+                    exc_info=True,
+                    extra={"error": str(e)},
                 )
 
-    def mark_room_dirty(self, room_id: str) -> None:
+    def mark_room_dirty(self, room_id: str):
         """Mark room as needing persistence.
 
         Args:
@@ -78,7 +94,7 @@ class RoomPersistence:
         """
         self._dirty_rooms.add(room_id)
 
-    async def save_dirty_rooms(self) -> None:
+    async def save_dirty_rooms(self):
         """Save all dirty rooms."""
         async with self._lock:
             try:
@@ -91,21 +107,21 @@ class RoomPersistence:
                     await self.save_room(room_id)
 
             except Exception as e:
-                logger.error("Error saving dirty rooms", exc_info=True, extra={"error": str(e)})
+                logger.error(
+                    "Error saving dirty rooms", exc_info=True, extra={"error": str(e)}
+                )
                 # Add rooms back to dirty set
                 self._dirty_rooms.update(dirty_rooms)
 
-    async def save_room(
-        self, room_id: str, room_data: Optional[Dict[str, Any]] = None
-    ) -> Optional[Dict[str, Any]]:
+    async def save_room(self, room_id: str, room_data: Optional[RoomData] = None):
         """Save room data.
 
         Args:
-            room_id: Room ID
+            room_id: Room identifier
             room_data: Optional room data to save
 
         Returns:
-            Optional[Dict[str, Any]]: Error response if failed, None if successful
+            Optional error response if failed
         """
         try:
             # Get room data if not provided
@@ -115,7 +131,9 @@ class RoomPersistence:
                 room = room_manager.get_room(room_id)
                 if not room:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
                 room_data = room.to_dict()
 
@@ -123,44 +141,47 @@ class RoomPersistence:
             room_data["_saved_at"] = datetime.utcnow().isoformat()
 
             # Save to file
-            file_path = self.data_dir / f"{room_id}.json"
+            file_path = self._get_room_path(room_id)
             async with self._lock:
                 with open(file_path, "w") as f:
                     json.dump(room_data, f, indent=2)
 
-            logger.info("Room data saved", extra={"room_id": room_id, "file_path": str(file_path)})
+            logger.info(
+                "Room data saved",
+                extra={"room_id": room_id, "file_path": str(file_path)},
+            )
 
             return None
 
         except Exception as e:
             logger.error(
-                "Error saving room data", exc_info=True, extra={"room_id": room_id, "error": str(e)}
+                "Error saving room data",
+                exc_info=True,
+                extra={"room_id": room_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error saving room data", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error saving room data",
+                {"error": str(e)},
             )
 
-    async def load_room(self, room_id: str) -> Optional[Dict[str, Any]]:
+    async def load_room(self, room_id: str) -> Optional[RoomData]:
         """Load room data.
 
         Args:
-            room_id: Room ID
+            room_id: Room identifier
 
         Returns:
-            Optional[Dict[str, Any]]: Room data if found, None if not found
+            Room data if found, None otherwise
         """
         try:
-            file_path = self.data_dir / f"{room_id}.json"
+            file_path = self._get_room_path(room_id)
             if not file_path.exists():
                 return None
 
             async with self._lock:
                 with open(file_path, "r") as f:
-                    room_data = json.load(f)
-
-            logger.info("Room data loaded", extra={"room_id": room_id, "file_path": str(file_path)})
-
-            return room_data
+                    return cast(RoomData, json.load(f))
 
         except Exception as e:
             logger.error(
@@ -170,28 +191,23 @@ class RoomPersistence:
             )
             return None
 
-    async def delete_room(self, room_id: str) -> Optional[Dict[str, Any]]:
+    async def delete_room(self, room_id: str):
         """Delete room data.
 
         Args:
-            room_id: Room ID
+            room_id: Room identifier
 
         Returns:
-            Optional[Dict[str, Any]]: Error response if failed, None if successful
+            True if room was deleted, False otherwise
         """
         try:
-            file_path = self.data_dir / f"{room_id}.json"
+            file_path = self._get_room_path(room_id)
             if not file_path.exists():
-                return None
+                return False
 
             async with self._lock:
                 file_path.unlink()
-
-            logger.info(
-                "Room data deleted", extra={"room_id": room_id, "file_path": str(file_path)}
-            )
-
-            return None
+                return True
 
         except Exception as e:
             logger.error(
@@ -199,27 +215,25 @@ class RoomPersistence:
                 exc_info=True,
                 extra={"room_id": room_id, "error": str(e)},
             )
-            return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error deleting room data", {"error": str(e)}
-            )
+            return False
 
-    async def list_rooms(self, room_type: Optional[str] = None) -> List[str]:
+    async def list_rooms(self, room_type: Optional[str] = None):
         """List persisted room IDs.
 
         Args:
             room_type: Optional room type filter
 
         Returns:
-            List[str]: List of room IDs
+            List of room IDs
         """
         try:
-            room_ids = []
+            room_ids: List[str] = []
 
             for file_path in self.data_dir.glob("*.json"):
                 try:
                     # Load room data to check type
                     with open(file_path, "r") as f:
-                        room_data = json.load(f)
+                        room_data = cast(RoomData, json.load(f))
 
                     # Apply room type filter
                     if room_type and room_data.get("room_type") != room_type:
@@ -240,7 +254,7 @@ class RoomPersistence:
             logger.error("Error listing rooms", exc_info=True, extra={"error": str(e)})
             return []
 
-    async def cleanup_old_rooms(self, max_age_days: int = 7) -> None:
+    async def cleanup_old_rooms(self, max_age_days: int = 7):
         """Clean up old room data files.
 
         Args:
@@ -256,7 +270,9 @@ class RoomPersistence:
                     file_time = datetime.fromtimestamp(file_path.stat().st_mtime)
                     if current_time - file_time > max_age:
                         file_path.unlink()
-                        logger.info("Old room data deleted", extra={"file_path": str(file_path)})
+                        logger.info(
+                            "Old room data deleted", extra={"file_path": str(file_path)}
+                        )
 
                 except Exception as e:
                     logger.error(
@@ -266,7 +282,9 @@ class RoomPersistence:
                     )
 
         except Exception as e:
-            logger.error("Error cleaning up old rooms", exc_info=True, extra={"error": str(e)})
+            logger.error(
+                "Error cleaning up old rooms", exc_info=True, extra={"error": str(e)}
+            )
 
 
 # Global room persistence instance
@@ -282,6 +300,6 @@ async def start_room_persistence(save_interval: int = 60) -> None:
     await room_persistence.start_persistence(save_interval)
 
 
-async def stop_room_persistence() -> None:
+async def stop_room_persistence():
     """Stop room persistence."""
     await room_persistence.stop_persistence()

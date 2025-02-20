@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Real-time analytics module for tracking system metrics."""
 
 import asyncio
@@ -60,7 +64,9 @@ class RealTimeAnalytics:
         self._redis = Redis(connection_pool=self._redis_pool)
         self._snapshot_interval = 60  # Take snapshots every minute
         self._retention_periods = {
-            AnalyticsPeriod.MINUTE: timedelta(hours=24),  # Keep minute data for 24 hours
+            AnalyticsPeriod.MINUTE: timedelta(
+                hours=24
+            ),  # Keep minute data for 24 hours
             AnalyticsPeriod.HOUR: timedelta(days=7),  # Keep hourly data for 7 days
             AnalyticsPeriod.DAY: timedelta(days=90),  # Keep daily data for 90 days
             AnalyticsPeriod.WEEK: timedelta(days=365),  # Keep weekly data for 1 year
@@ -75,7 +81,10 @@ class RealTimeAnalytics:
         }
 
     async def record_metric(
-        self, metric_type: MetricTypes, value: float, metadata: Optional[Dict[str, Any]] = None
+        self,
+        metric_type: MetricTypes,
+        value: float,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record a metric value with optional metadata."""
         try:
@@ -103,7 +112,9 @@ class RealTimeAnalytics:
         except Exception as e:
             logger.error(f"Error recording analytics metric: {str(e)}", exc_info=True)
 
-    async def _update_aggregates(self, metric_type: MetricTypes, snapshot: MetricSnapshot) -> None:
+    async def _update_aggregates(
+        self, metric_type: MetricTypes, snapshot: MetricSnapshot
+    ):
         """Update metric aggregates for different time periods."""
         try:
             for period in AnalyticsPeriod:
@@ -136,7 +147,9 @@ class RealTimeAnalytics:
                             "sum": snapshot.value,
                             "min": snapshot.value,
                             "max": snapshot.value,
-                            "metadata": {k: {str(v): 1} for k, v in snapshot.metadata.items()},
+                            "metadata": {
+                                k: {str(v): 1} for k, v in snapshot.metadata.items()
+                            },
                         }
 
                     # Store updated aggregate
@@ -148,9 +161,11 @@ class RealTimeAnalytics:
                     pipe.execute()
 
         except Exception as e:
-            logger.error(f"Error updating analytics aggregates: {str(e)}", exc_info=True)
+            logger.error(
+                f"Error updating analytics aggregates: {str(e)}", exc_info=True
+            )
 
-    def _get_period_start(self, timestamp: datetime, period: AnalyticsPeriod) -> datetime:
+    def _get_period_start(self, timestamp: datetime, period: AnalyticsPeriod):
         """Get the start of the period containing the timestamp."""
         if period == AnalyticsPeriod.MINUTE:
             return timestamp.replace(second=0, microsecond=0)
@@ -217,7 +232,9 @@ class RealTimeAnalytics:
             logger.error(f"Error getting metric stats: {str(e)}", exc_info=True)
             return {}
 
-    def _summarize_metadata(self, aggregates: List[Dict[str, Any]]) -> Dict[str, Dict[str, int]]:
+    def _summarize_metadata(
+        self, aggregates: List[Dict[str, Any]]
+    ) -> Dict[str, Dict[str, int]]:
         """Summarize metadata across aggregates."""
         summary = {}
 
@@ -232,7 +249,7 @@ class RealTimeAnalytics:
 
         return summary
 
-    async def start_cleanup_task(self) -> None:
+    async def start_cleanup_task(self):
         """Start periodic cleanup of old analytics data."""
         while True:
             try:
@@ -243,7 +260,9 @@ class RealTimeAnalytics:
                     # Scan and delete old data in batches
                     cursor = 0
                     while True:
-                        cursor, keys = self._redis.scan(cursor, match=pattern, count=1000)
+                        cursor, keys = self._redis.scan(
+                            cursor, match=pattern, count=1000
+                        )
 
                         if keys:
                             # Filter keys older than cutoff
@@ -269,7 +288,10 @@ class RealTimeAnalytics:
             await asyncio.sleep(3600)  # Run cleanup hourly
 
     async def analyze_trend(
-        self, metric_type: MetricTypes, period: AnalyticsPeriod, window_size: int = 60  # minutes
+        self,
+        metric_type: MetricTypes,
+        period: AnalyticsPeriod,
+        window_size: int = 60,  # minutes
     ) -> Dict[str, Any]:
         """Analyze trend for a metric over time."""
         try:
@@ -277,7 +299,9 @@ class RealTimeAnalytics:
             start_time = end_time - timedelta(minutes=window_size)
 
             # Get metric data
-            stats = await self.get_metric_stats(metric_type, period, start_time, end_time)
+            stats = await self.get_metric_stats(
+                metric_type, period, start_time, end_time
+            )
             if not stats:
                 return {}
 
@@ -324,7 +348,10 @@ class RealTimeAnalytics:
         return TrendDirection.UP if slope > 0 else TrendDirection.DOWN
 
     async def detect_anomalies(
-        self, metric_type: MetricTypes, period: AnalyticsPeriod, window_size: int = 60  # minutes
+        self,
+        metric_type: MetricTypes,
+        period: AnalyticsPeriod,
+        window_size: int = 60,  # minutes
     ) -> List[Dict[str, Any]]:
         """Detect anomalies in metric data."""
         try:
@@ -335,7 +362,9 @@ class RealTimeAnalytics:
             # Get metric data
             end_time = datetime.utcnow()
             start_time = end_time - timedelta(minutes=window_size)
-            stats = await self.get_metric_stats(metric_type, period, start_time, end_time)
+            stats = await self.get_metric_stats(
+                metric_type, period, start_time, end_time
+            )
 
             values = [agg["value"] for agg in stats.get("aggregates", [])]
             if len(values) < thresholds["min_samples"]:
@@ -353,8 +382,14 @@ class RealTimeAnalytics:
                     if z_score > thresholds["z_score"]:
                         anomalies.append(
                             {
-                                "type": AnomalyType.SPIKE if value > mean_val else AnomalyType.DROP,
-                                "timestamp": (start_time + timedelta(minutes=i)).isoformat(),
+                                "type": (
+                                    AnomalyType.SPIKE
+                                    if value > mean_val
+                                    else AnomalyType.DROP
+                                ),
+                                "timestamp": (
+                                    start_time + timedelta(minutes=i)
+                                ).isoformat(),
                                 "value": value,
                                 "z_score": z_score,
                                 "threshold": thresholds["z_score"],
@@ -375,7 +410,9 @@ class RealTimeAnalytics:
                             anomalies.append(
                                 {
                                     "type": AnomalyType.TREND_BREAK,
-                                    "timestamp": (start_time + timedelta(minutes=i)).isoformat(),
+                                    "timestamp": (
+                                        start_time + timedelta(minutes=i)
+                                    ).isoformat(),
                                     "value": values[i],
                                     "trend_change": abs(trend1 - trend2),
                                 }
@@ -395,7 +432,9 @@ class RealTimeAnalytics:
                         anomalies.append(
                             {
                                 "type": AnomalyType.LEVEL_SHIFT,
-                                "timestamp": (start_time + timedelta(minutes=i)).isoformat(),
+                                "timestamp": (
+                                    start_time + timedelta(minutes=i)
+                                ).isoformat(),
                                 "value": values[i],
                                 "shift_magnitude": abs(mean2 - mean1) / mean1,
                             }

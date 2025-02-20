@@ -1,10 +1,11 @@
 """AI-powered shot recommendation system for DojoPool."""
 
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Dict
-from enum import Enum
-import numpy as np
 from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 
 
 class ShotDifficulty(Enum):
@@ -49,7 +50,9 @@ class ShotRecommendation:
     object_ball_position: BallPosition
     target_pocket: Tuple[float, float]  # (x, y) coordinates of target pocket
     required_force: float  # 0-100
-    spin: Optional[Tuple[float, float]] = None  # (horizontal, vertical) spin, each -1 to 1
+    spin: Optional[Tuple[float, float]] = (
+        None  # (horizontal, vertical) spin, each -1 to 1
+    )
     narrative: str = ""  # AI-generated narrative description
     visualization_data: Dict = None  # Data for shot visualization
 
@@ -62,7 +65,7 @@ class ShotRecommender:
         # Load ML models and parameters
         self._load_models()
 
-    def _load_models(self) -> None:
+    def _load_models(self):
         """Load required ML models and parameters."""
         # TODO: Load trained models for:
         # - Ball detection and tracking
@@ -71,7 +74,9 @@ class ShotRecommender:
         # - Shot type classification
         pass
 
-    def analyze_table_state(self, image: np.ndarray, player_skill_level: int) -> List[BallPosition]:
+    def analyze_table_state(
+        self, image: np.ndarray, player_skill_level: int
+    ) -> List[BallPosition]:
         """Analyze current table state from overhead camera image."""
         # TODO: Implement computer vision analysis
         # - Detect and locate all balls
@@ -138,12 +143,12 @@ class ShotRecommender:
 
         return ranked_shots
 
-    def _get_player_skill_level(self, player_id: str) -> int:
+    def _get_player_skill_level(self, player_id: str):
         """Get player's skill level."""
         # TODO: Implement player skill level retrieval
         pass
 
-    def _get_player_style(self, player_id: str) -> Dict[str, float]:
+    def _get_player_style(self, player_id: str):
         """Get player's style preferences."""
         # TODO: Implement player style analysis
         # Returns dict of style attributes and their weights

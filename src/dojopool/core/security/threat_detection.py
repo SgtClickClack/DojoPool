@@ -18,8 +18,8 @@ from prometheus_client import Counter, Gauge, Histogram
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
-from ..utils.notifications import send_notification
 from ...utils.monitoring import REGISTRY
+from ..utils.notifications import send_notification
 from . import security_config as config
 from .types import SecurityEvent, SecuritySeverity, ThreatEvent
 
@@ -32,7 +32,10 @@ THREAT_DETECTION_COUNTER = Counter(
 )
 
 THREAT_DETECTION_LATENCY = Histogram(
-    "threat_detection_seconds", "Time taken to detect threats", ["threat_type"], registry=REGISTRY
+    "threat_detection_seconds",
+    "Time taken to detect threats",
+    ["threat_type"],
+    registry=REGISTRY,
 )
 
 ANOMALY_SCORE_GAUGE = Gauge(
@@ -83,11 +86,13 @@ class ThreatDetector:
             self.model = joblib.load(self.model_path)
             self.logger.info("Loaded existing anomaly detection model")
         else:
-            self.model = IsolationForest(n_estimators=100, contamination=0.1, random_state=42)
+            self.model = IsolationForest(
+                n_estimators=100, contamination=0.1, random_state=42
+            )
             self.logger.info("Created new anomaly detection model")
             self._train_initial_model()
 
-    def _train_initial_model(self) -> None:
+    def _train_initial_model(self):
         """Train model with initial normal behavior data."""
         try:
             # Load historical normal behavior data
@@ -115,7 +120,7 @@ class ThreatDetector:
             self.logger.error(f"Error loading normal behavior data: {e}")
             return np.array([])
 
-    def _load_threat_patterns(self) -> Dict[str, Dict]:
+    def _load_threat_patterns(self):
         """Load threat detection patterns."""
         try:
             with open(config.THREAT_PATTERNS_PATH) as f:
@@ -124,7 +129,7 @@ class ThreatDetector:
             self.logger.error(f"Error loading threat patterns: {e}")
             return {}
 
-    def extract_features(self, event: SecurityEvent) -> np.ndarray:
+    def extract_features(self, event: SecurityEvent):
         """Extract features from security event for anomaly detection."""
         features = []
 
@@ -177,9 +182,9 @@ class ThreatDetector:
             normalized_score = 1 - (anomaly_score + 1) / 2
 
             # Update anomaly score metric
-            ANOMALY_SCORE_GAUGE.labels(threat_type=self._determine_threat_type(event)).set(
-                normalized_score
-            )
+            ANOMALY_SCORE_GAUGE.labels(
+                threat_type=self._determine_threat_type(event)
+            ).set(normalized_score)
 
             # Check if anomalous (using threshold from config)
             is_anomaly = normalized_score > config.ANOMALY_THRESHOLD
@@ -189,7 +194,9 @@ class ThreatDetector:
 
             # Combine ML and pattern detection
             if is_anomaly or pattern_match:
-                threat = self._create_threat_event(event, normalized_score, pattern_match)
+                threat = self._create_threat_event(
+                    event, normalized_score, pattern_match
+                )
 
                 # Record detection time
                 THREAT_DETECTION_LATENCY.labels(threat_type=threat.threat_type).observe(
@@ -198,7 +205,9 @@ class ThreatDetector:
 
                 # Update counter
                 THREAT_DETECTION_COUNTER.labels(
-                    threat_type=threat.threat_type, severity=threat.severity, status="detected"
+                    threat_type=threat.threat_type,
+                    severity=threat.severity,
+                    status="detected",
                 ).inc()
 
                 # Handle threat
@@ -216,10 +225,13 @@ class ThreatDetector:
         """Check for known threat patterns."""
         for pattern_name, pattern in self.threat_patterns.items():
             if self._matches_pattern(event, pattern):
-                return {"pattern_name": pattern_name, "confidence": pattern.get("confidence", 0.8)}
+                return {
+                    "pattern_name": pattern_name,
+                    "confidence": pattern.get("confidence", 0.8),
+                }
         return None
 
-    def _matches_pattern(self, event: SecurityEvent, pattern: Dict) -> bool:
+    def _matches_pattern(self, event: SecurityEvent, pattern: Dict):
         """Check if event matches a threat pattern."""
         try:
             conditions = pattern.get("conditions", {})
@@ -237,7 +249,7 @@ class ThreatDetector:
 
     def _create_threat_event(
         self, event: SecurityEvent, anomaly_score: float, pattern_match: Optional[Dict]
-    ) -> ThreatEvent:
+    ):
         """Create threat event from detection results."""
         severity = self._determine_severity(anomaly_score, pattern_match)
 
@@ -256,7 +268,7 @@ class ThreatDetector:
             automated_response=self._determine_response(severity),
         )
 
-    def _determine_severity(self, anomaly_score: float, pattern_match: Optional[Dict]) -> str:
+    def _determine_severity(self, anomaly_score: float, pattern_match: Optional[Dict]):
         """Determine threat severity based on detection results."""
         if pattern_match:
             return SecuritySeverity.HIGH.value
@@ -266,13 +278,15 @@ class ThreatDetector:
             return SecuritySeverity.MEDIUM.value
         return SecuritySeverity.LOW.value
 
-    def _determine_threat_type(self, event: SecurityEvent, pattern_match: Optional[Dict]) -> str:
+    def _determine_threat_type(
+        self, event: SecurityEvent, pattern_match: Optional[Dict]
+    ) -> str:
         """Determine threat type based on detection results."""
         if pattern_match:
             return pattern_match["pattern_name"]
         return "ANOMALOUS_BEHAVIOR"
 
-    def _determine_response(self, severity: str) -> str:
+    def _determine_response(self, severity: str):
         """Determine automated response based on severity."""
         if severity == SecuritySeverity.HIGH.value:
             return "BLOCK_IP"
@@ -280,7 +294,7 @@ class ThreatDetector:
             return "INCREASE_MONITORING"
         return "LOG_ONLY"
 
-    def _handle_threat(self, threat: ThreatEvent) -> None:
+    def _handle_threat(self, threat: ThreatEvent):
         """Handle detected threat."""
         try:
             # Log threat
@@ -288,7 +302,9 @@ class ThreatDetector:
 
             # Store in Redis for real-time access
             self.redis.setex(
-                f"threat:{threat.source_ip}", config.THREAT_CACHE_TTL, json.dumps(threat.__dict__)
+                f"threat:{threat.source_ip}",
+                config.THREAT_CACHE_TTL,
+                json.dumps(threat.__dict__),
             )
 
             # Send notification
@@ -326,7 +342,7 @@ class ThreatDetector:
         elif threat.automated_response == "INCREASE_MONITORING":
             self._increase_monitoring(threat.source_ip)
 
-    def _block_ip(self, ip: str) -> None:
+    def _block_ip(self, ip: str):
         """Block an IP address."""
         try:
             self.redis.setex(f"blocked_ip:{ip}", config.IP_BLOCK_DURATION, "blocked")
@@ -334,18 +350,20 @@ class ThreatDetector:
         except Exception as e:
             self.logger.error(f"Error blocking IP: {e}")
 
-    def _increase_monitoring(self, ip: str) -> None:
+    def _increase_monitoring(self, ip: str):
         """Increase monitoring for an IP address."""
         try:
             self.redis.setex(
-                f"increased_monitoring:{ip}", config.INCREASED_MONITORING_DURATION, "active"
+                f"increased_monitoring:{ip}",
+                config.INCREASED_MONITORING_DURATION,
+                "active",
             )
             self.logger.info(f"Increased monitoring for IP: {ip}")
         except Exception as e:
             self.logger.error(f"Error increasing monitoring: {e}")
 
     # Helper methods for feature extraction
-    def _get_request_count(self, ip: str) -> int:
+    def _get_request_count(self, ip: str):
         """Get request count for IP in recent timeframe."""
         try:
             count = self.redis.get(f"request_count:{ip}")
@@ -364,7 +382,7 @@ class ThreatDetector:
         except Exception:
             return 0.0
 
-    def _get_location_risk(self, ip: str) -> float:
+    def _get_location_risk(self, ip: str):
         """Get risk score for IP's location."""
         try:
             risk = self.redis.get(f"location_risk:{ip}")
@@ -372,7 +390,7 @@ class ThreatDetector:
         except Exception:
             return 0.0
 
-    def _get_session_duration(self, ip: str) -> float:
+    def _get_session_duration(self, ip: str):
         """Get current session duration for IP."""
         try:
             start_time = self.redis.get(f"session_start:{ip}")

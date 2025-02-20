@@ -1,133 +1,150 @@
-"""Authentication blueprint for DojoPool."""
+from flask_caching import Cache
+from flask_caching import Cache
+"""Authentication blueprint module."""
 
-from typing import Dict, Any
-from flask import jsonify, request, url_for, redirect
-from flask_login import login_user, logout_user, login_required, current_user
-from src.core.blueprints import BaseBlueprint, BlueprintConfig
-from src.core.auth.security import hash_password
-from src.core.database import db_session
-from .models import User
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import (
+    Blueprint,
+    Request,
+    Response,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from flask.typing import ResponseReturnValue
+from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+from ..core.database import db_session
+from ..core.security import require_auth
+from ..models.user import User
+from .base import BaseBlueprint
+
+auth_bp: Blueprint = Blueprint("auth", __name__)
+
 
 class AuthBlueprint(BaseBlueprint):
-    """Authentication blueprint."""
-    
-    def __init__(self):
-        """Initialize blueprint."""
-        config = BlueprintConfig(
-            url_prefix="/auth",
-            template_folder="templates/auth"
-        )
-        super().__init__("auth", __name__, config)
-        
-        # Register routes
+    """Authentication blueprint class."""
+
+    def __init__(self) -> None:
+        """Initialize auth blueprint."""
+        super().__init__("auth", __name__, url_prefix="/auth")
         self.register_routes()
-        
-        # Register API routes
         self.register_api_routes()
-    
-    def register_routes(self) -> None:
-        """Register blueprint routes."""
-        
-        @self.route("/login", methods=["GET", "POST"])
+        self.register_error_handlers()
+        self.register_commands()
+
+    def register_routes(self):
+        """Register web routes."""
+
+        @auth_bp.route("/login", methods=["POST"])
         def login():
-            """Login route."""
-            if request.method == "POST":
-                data = request.get_json()
-                email = data.get("email")
-                os.getenv("PASSWORD_28"))
-                
-                with db_session() as session:
-                    user = session.query(User).filter_by(email=email).first()
-                    if user and user.verify_password(password):
-                        login_user(user)
-                        return jsonify({
-                            "message": "Login successful",
-                            "user": user.to_dict()
-                        })
-                
-                return jsonify({
-                    "error": "Invalid credentials"
-                }), 401
-            
-            return jsonify({
-                "message": "Please log in"
-            })
-        
-        @self.route("/logout")
+            """Handle user login."""
+            if current_user.is_authenticated:
+                return redirect(url_for("main.index"))
+
+            data: Any = request.get_json() or {}
+            email: Any = data.get("email")
+            password: Any = data.get("password")
+
+            with db_session() as session:
+                user: Any = session.query(User).filter_by(email=email).first()
+
+                if user and user.check_password(password):
+                    login_user(user)
+                    return {"message": "Logged in successfully"}, 200
+
+                return {"error": "Invalid email or password"}, 401
+
+        @auth_bp.route("/logout", methods=["POST"])
         @login_required
         def logout():
-            """Logout route."""
+            """Handle user logout."""
             logout_user()
-            return jsonify({
-                "message": "Logout successful"
-            })
-    
+            flash("You have been logged out.", "info")
+            return {"message": "Logged out successfully"}, 200
+
     def register_api_routes(self) -> None:
-        """Register blueprint API routes."""
-        
-        @self.route("/api/register", methods=["POST"])
+        """Register API routes."""
+
+        @auth_bp.route("/register", methods=["POST"])
         def register():
-            """Register new user."""
-            data = request.get_json()
-            
+            """Handle user registration."""
+            data: Any = request.get_json() or {}
+
+            # Validate input
+            required_fields: List[Any] = ["email", "password", "username"]
+            for field in required_fields:
+                if not data.get(field):
+                    return {"error": f"{field} is required"}, 400
+
             with db_session() as session:
+                # Check if user exists
                 if session.query(User).filter_by(email=data["email"]).first():
-                    return jsonify({
-                        "error": "Email already registered"
-                    }), 400
-                
-                user = User(
+                    return {"error": "Email already registered"}, 400
+
+                if session.query(User).filter_by(username=data["username"]).first():
+                    return {"error": "Username already taken"}, 400
+
+                # Create user
+                user: Any = User(
                     email=data["email"],
-                    os.getenv("PASSWORD_28")]),
-                    name=data.get("name", "")
+                    username=data["username"],
+                    password_hash=generate_password_hash(data["password"]),
                 )
                 session.add(user)
                 session.commit()
-            
-            return jsonify({
-                "message": "Registration successful",
-                "user": user.to_dict()
-            })
-        
+
+                return {"message": "Registration successful"}, 201
+
         @self.route("/api/me")
-        @login_required
+        @require_auth
         def me():
-            """Get current user."""
-            return jsonify({
-                "user": current_user.to_dict()
-            })
-    
-    def register_error_handlers(self) -> None:
-        """Register blueprint error handlers."""
-        
+            """Get current user details."""
+            return {
+                "id": current_user.id,
+                "email": current_user.email,
+                "username": current_user.username,
+            }
+
+    def register_error_handlers(self):
+        """Register error handlers."""
+
         @self.errorhandler(401)
         def unauthorized_error(error: Any) -> Dict[str, Any]:
-            """Handle 401 errors."""
-            return jsonify({
-                "error": "Unauthorized"
-            }), 401
-        
+            """Handle unauthorized error."""
+            return {"error": "Unauthorized", "message": str(error)}, 401
+
         @self.errorhandler(403)
-        def forbidden_error(error: Any) -> Dict[str, Any]:
-            """Handle 403 errors."""
-            return jsonify({
-                "error": "Forbidden"
-            }), 403
-    
-    def register_commands(self) -> None:
-        """Register blueprint CLI commands."""
-        
+        def forbidden_error(error: Any):
+            """Handle forbidden error."""
+            return {"error": "Forbidden", "message": str(error)}, 403
+
+    def register_commands(self):
+        """Register CLI commands."""
+
         @self.cli.command("create-admin")
-        def create_admin():
+        def create_admin() -> None:
             """Create admin user."""
             with db_session() as session:
-                if not session.query(User).filter_by(email="admin@dojopool.com").first():
-                    admin = User(
-                        email="admin@dojopool.com",
-                        password=hash_password("admin"),
-                        name="Admin",
-                        is_admin=True
-                    )
-                    session.add(admin)
-                    session.commit()
-                    print("Admin user created") 
+                # Check if admin exists
+                if session.query(User).filter_by(email="admin@dojopool.com").first():
+                    print("Admin user already exists")
+                    return
+
+                # Create admin user
+                admin: User = User(
+                    email="admin@dojopool.com",
+                    username="admin",
+                    password_hash=generate_password_hash("admin"),
+                    is_admin=True,
+                )
+                session.add(admin)
+                session.commit()
+                print("Admin user created successfully")

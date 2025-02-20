@@ -1,8 +1,10 @@
 """Base model class for DojoPool."""
 
-import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
+
+from sqlalchemy import Boolean, DateTime, Integer
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from ..extensions import db
 
@@ -11,12 +13,15 @@ class BaseModel(db.Model):
     """Base model class with common functionality."""
 
     __abstract__ = True
+    __allow_unmapped__ = True
 
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    deleted_at = db.Column(db.DateTime, nullable=True)
-    _is_deleted = db.Column("is_deleted", db.Boolean, default=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    _is_deleted: Mapped[bool] = mapped_column("is_deleted", Boolean, default=False)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert model to dictionary."""
@@ -29,30 +34,36 @@ class BaseModel(db.Model):
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "BaseModel":
+    def from_dict(cls, data: Dict[str, Any]):
         """Create model instance from dictionary."""
         instance = cls()
         instance.id = data.get("id")
         instance.created_at = (
-            datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None
+            datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None
         )
         instance.updated_at = (
-            datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None
+            datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else None
         )
         instance.deleted_at = (
-            datetime.fromisoformat(data["deleted_at"]) if data.get("deleted_at") else None
+            datetime.fromisoformat(data["deleted_at"])
+            if data.get("deleted_at")
+            else None
         )
         instance._is_deleted = data.get("is_deleted", False)
         return instance
 
-    def update(self, data: Dict[str, Any]) -> None:
+    def update(self, data: Dict[str, Any]):
         """Update model with new data."""
         for key, value in data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
         self.updated_at = datetime.utcnow()
 
-    def delete(self) -> None:
+    def delete(self):
         """Soft delete the model."""
         self._is_deleted = True
         self.deleted_at = datetime.utcnow()
@@ -67,13 +78,13 @@ class BaseModel(db.Model):
         """Check if model is deleted."""
         return self._is_deleted
 
-    def validate(self) -> bool:
+    def validate(self):
         """
         Validate model data.
         Override in subclasses to implement specific validation.
         """
         return True
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """String representation of model."""
         return f"<{self.__class__.__name__} {self.id}>"

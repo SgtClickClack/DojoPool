@@ -6,18 +6,26 @@ common operations such as executing queries, adding, deleting, and updating reco
 """
 
 import logging
-from typing import Any, List, Optional, Tuple
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from uuid import UUID
 
 from flask_sqlalchemy import SQLAlchemy  # type: ignore
 from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.orm import DeclarativeMeta, Mapped, mapped_column, relationship
+from sqlalchemy.ext.declarative import declarative_base
 
-logger = logging.getLogger(__name__)
+logger: Any = logging.getLogger(__name__)
 
 # Initialize SQLAlchemy with no settings
-db = SQLAlchemy()
+db: SQLAlchemy = SQLAlchemy()
+
+# Create declarative base
+Base = declarative_base()
 
 
-def init_db(app):
+def init_db(app) -> None:
     """Initialize the database with the app context."""
     db.init_app(app)
 
@@ -28,32 +36,36 @@ def init_db(app):
         db.create_all()
 
 
-def reference_col(tablename: str, nullable: bool = False, pk_name: str = "id", **kwargs) -> Column:
+def reference_col(
+    tablename: str, nullable: bool = False, pk_name: str = "id", **kwargs: Any
+):
     """Column that adds primary key foreign key reference.
 
     Args:
-        tablename: Name of the referenced table.
-        nullable: Whether the column is nullable.
-        pk_name: Name of the primary key column.
-        **kwargs: Additional column arguments.
+        tablename: Table name being referenced
+        nullable: Whether it should be nullable
+        pk_name: Name of primary key column being referenced
+        **kwargs: Additional arguments passed to Column
 
     Returns:
-        Column: Foreign key column.
+        Column with foreign key reference
     """
-    return Column(Integer, ForeignKey(f"{tablename}.{pk_name}"), nullable=nullable, **kwargs)
+    return Column(db.ForeignKey(f"{tablename}.{pk_name}"), nullable=nullable, **kwargs)
 
 
 class Database:
-    def __init__(self, db: SQLAlchemy) -> None:
+    def __init__(self, db: SQLAlchemy):
         """
         Initialize the database wrapper.
 
         Args:
             db (SQLAlchemy): The Flask-SQLAlchemy instance.
         """
-        self.db = db
+        self.db: SQLAlchemy = db
 
-    def execute_query(self, query: str, params: Optional[Tuple[Any, ...]] = None) -> List[Any]:
+    def execute_query(
+        self, query: str, params: Optional[Tuple[Any, ...]] = None
+    ) -> List[Any]:
         """
         Execute a given SQL query using the current SQLAlchemy session.
 
@@ -65,7 +77,7 @@ class Database:
             List[Any]: A list of fetched results.
         """
         try:
-            result = self.db.session.execute(query, params or ())
+            result: Any = self.db.session.execute(query, params or ())
             self.db.session.commit()
             logger.info("Executed query successfully: %s", query)
             return result.fetchall()
@@ -74,7 +86,7 @@ class Database:
             self.db.session.rollback()
             raise
 
-    def add_record(self, record: Any) -> None:
+    def add_record(self, record: Any):
         """
         Add a record (typically a SQLAlchemy model instance) to the session and commit.
 
@@ -90,7 +102,7 @@ class Database:
             self.db.session.rollback()
             raise
 
-    def delete_record(self, record: Any) -> None:
+    def delete_record(self, record: Any):
         """
         Delete a record (typically a SQLAlchemy model instance) from the session and commit.
 
@@ -106,7 +118,7 @@ class Database:
             self.db.session.rollback()
             raise
 
-    def update_record(self) -> None:
+    def update_record(self):
         """
         Commit the changes for all pending modifications in the session.
         """

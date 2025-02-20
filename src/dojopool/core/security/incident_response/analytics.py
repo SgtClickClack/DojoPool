@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """
 Incident analytics and reporting system implementation.
 Provides analytics, insights, and reporting capabilities for security incidents.
@@ -24,10 +28,14 @@ class IncidentAnalytics:
         self.logger = logging.getLogger(__name__)
 
         # Setup report templates
-        self.template_env = Environment(loader=FileSystemLoader(config.REPORT_TEMPLATES_DIR))
+        self.template_env = Environment(
+            loader=FileSystemLoader(config.REPORT_TEMPLATES_DIR)
+        )
 
     def analyze_trends(
-        self, incidents: List[SecurityIncident], time_window: timedelta = timedelta(days=30)
+        self,
+        incidents: List[SecurityIncident],
+        time_window: timedelta = timedelta(days=30),
     ) -> Dict[str, Any]:
         """Analyze incident trends."""
         try:
@@ -65,7 +73,9 @@ class IncidentAnalytics:
             self.logger.error(f"Error analyzing trends: {str(e)}")
             return {}
 
-    def _analyze_daily_distribution(self, incidents: List[SecurityIncident]) -> Dict[str, int]:
+    def _analyze_daily_distribution(
+        self, incidents: List[SecurityIncident]
+    ) -> Dict[str, int]:
         """Analyze daily incident distribution."""
         daily_counts = defaultdict(int)
         for incident in incidents:
@@ -73,12 +83,14 @@ class IncidentAnalytics:
             daily_counts[date_key] += 1
         return dict(daily_counts)
 
-    def _analyze_mttr(self, incidents: List[SecurityIncident]) -> Dict[str, Any]:
+    def _analyze_mttr(self, incidents: List[SecurityIncident]):
         """Analyze Mean Time To Resolve (MTTR)."""
         resolution_times = []
         for incident in incidents:
             if incident.resolved_at:
-                resolution_time = (incident.resolved_at - incident.created_at).total_seconds()
+                resolution_time = (
+                    incident.resolved_at - incident.created_at
+                ).total_seconds()
                 resolution_times.append(resolution_time)
 
         if resolution_times:
@@ -101,14 +113,14 @@ class IncidentAnalytics:
             severity_trends[date_key][incident.severity.value] += 1
         return {k: dict(v) for k, v in severity_trends.items()}
 
-    def _analyze_type_distribution(self, incidents: List[SecurityIncident]) -> Dict[str, int]:
+    def _analyze_type_distribution(self, incidents: List[SecurityIncident]):
         """Analyze incident type distribution."""
         type_counts = defaultdict(int)
         for incident in incidents:
             type_counts[incident.incident_type.value] += 1
         return dict(type_counts)
 
-    def _analyze_system_impact(self, incidents: List[SecurityIncident]) -> Dict[str, Any]:
+    def _analyze_system_impact(self, incidents: List[SecurityIncident]):
         """Analyze system impact patterns."""
         system_stats = defaultdict(
             lambda: {
@@ -122,8 +134,12 @@ class IncidentAnalytics:
         for incident in incidents:
             for system in incident.affected_systems:
                 system_stats[system]["incident_count"] += 1
-                system_stats[system]["severity_distribution"][incident.severity.value] += 1
-                system_stats[system]["type_distribution"][incident.incident_type.value] += 1
+                system_stats[system]["severity_distribution"][
+                    incident.severity.value
+                ] += 1
+                system_stats[system]["type_distribution"][
+                    incident.incident_type.value
+                ] += 1
 
                 if incident.resolved_at:
                     resolution_time = (
@@ -137,7 +153,9 @@ class IncidentAnalytics:
 
         return {k: dict(v) for k, v in system_stats.items()}
 
-    def _analyze_threat_patterns(self, incidents: List[SecurityIncident]) -> Dict[str, Any]:
+    def _analyze_threat_patterns(
+        self, incidents: List[SecurityIncident]
+    ) -> Dict[str, Any]:
         """Analyze threat patterns."""
         ip_stats = defaultdict(
             lambda: {
@@ -159,22 +177,35 @@ class IncidentAnalytics:
         for incident in incidents:
             if incident.source_ip:
                 ip_stats[incident.source_ip]["incident_count"] += 1
-                ip_stats[incident.source_ip]["severity_distribution"][incident.severity.value] += 1
-                ip_stats[incident.source_ip]["type_distribution"][incident.incident_type.value] += 1
-                ip_stats[incident.source_ip]["affected_systems"].update(incident.affected_systems)
+                ip_stats[incident.source_ip]["severity_distribution"][
+                    incident.severity.value
+                ] += 1
+                ip_stats[incident.source_ip]["type_distribution"][
+                    incident.incident_type.value
+                ] += 1
+                ip_stats[incident.source_ip]["affected_systems"].update(
+                    incident.affected_systems
+                )
 
             for indicator in incident.indicators:
                 indicator_stats[indicator]["incident_count"] += 1
-                indicator_stats[indicator]["severity_distribution"][incident.severity.value] += 1
-                indicator_stats[indicator]["type_distribution"][incident.incident_type.value] += 1
+                indicator_stats[indicator]["severity_distribution"][
+                    incident.severity.value
+                ] += 1
+                indicator_stats[indicator]["type_distribution"][
+                    incident.incident_type.value
+                ] += 1
 
         # Convert sets to lists for JSON serialization
         for ip_data in ip_stats.values():
             ip_data["affected_systems"] = list(ip_data["affected_systems"])
 
-        return {"ip_patterns": dict(ip_stats), "indicator_patterns": dict(indicator_stats)}
+        return {
+            "ip_patterns": dict(ip_stats),
+            "indicator_patterns": dict(indicator_stats),
+        }
 
-    def _analyze_response_effectiveness(self, incidents: List[SecurityIncident]) -> Dict[str, Any]:
+    def _analyze_response_effectiveness(self, incidents: List[SecurityIncident]):
         """Analyze response effectiveness."""
         action_stats = defaultdict(
             lambda: {
@@ -189,7 +220,9 @@ class IncidentAnalytics:
             for action in incident.actions_taken:
                 action_type = action["type"]
                 action_stats[action_type]["total_executions"] += 1
-                action_stats[action_type]["severity_distribution"][incident.severity.value] += 1
+                action_stats[action_type]["severity_distribution"][
+                    incident.severity.value
+                ] += 1
 
                 # Assuming success if no error in details
                 if "error" not in action.get("details", {}):
@@ -198,11 +231,15 @@ class IncidentAnalytics:
         # Calculate success rates
         for stats in action_stats.values():
             if stats["total_executions"] > 0:
-                stats["success_rate"] = (stats["success_rate"] / stats["total_executions"]) * 100
+                stats["success_rate"] = (
+                    stats["success_rate"] / stats["total_executions"]
+                ) * 100
 
         return dict(action_stats)
 
-    def _analyze_playbook_effectiveness(self, incidents: List[SecurityIncident]) -> Dict[str, Any]:
+    def _analyze_playbook_effectiveness(
+        self, incidents: List[SecurityIncident]
+    ) -> Dict[str, Any]:
         """Analyze playbook effectiveness."""
         playbook_stats = defaultdict(
             lambda: {
@@ -219,14 +256,17 @@ class IncidentAnalytics:
 
             playbook_type = incident.incident_type.value
             playbook_stats[playbook_type]["total_executions"] += 1
-            playbook_stats[playbook_type]["severity_distribution"][incident.severity.value] += 1
+            playbook_stats[playbook_type]["severity_distribution"][
+                incident.severity.value
+            ] += 1
 
             # Check if incident was contained
             containment_action = next(
                 (
                     a
                     for a in incident.actions_taken
-                    if a["type"] == "status_update" and "contained" in a["description"].lower()
+                    if a["type"] == "status_update"
+                    and "contained" in a["description"].lower()
                 ),
                 None,
             )
@@ -238,7 +278,9 @@ class IncidentAnalytics:
                         datetime.fromisoformat(containment_action["timestamp"])
                         - incident.created_at
                     ).total_seconds() / 60  # Convert to minutes
-                    current_avg = playbook_stats[playbook_type]["average_containment_time"]
+                    current_avg = playbook_stats[playbook_type][
+                        "average_containment_time"
+                    ]
                     current_count = playbook_stats[playbook_type]["total_executions"]
                     playbook_stats[playbook_type]["average_containment_time"] = (
                         current_avg * (current_count - 1) + containment_time
@@ -247,11 +289,15 @@ class IncidentAnalytics:
         # Calculate success rates
         for stats in playbook_stats.values():
             if stats["total_executions"] > 0:
-                stats["success_rate"] = (stats["success_rate"] / stats["total_executions"]) * 100
+                stats["success_rate"] = (
+                    stats["success_rate"] / stats["total_executions"]
+                ) * 100
 
         return dict(playbook_stats)
 
-    def generate_report(self, analysis_results: Dict[str, Any], report_type: str = "html") -> str:
+    def generate_report(
+        self, analysis_results: Dict[str, Any], report_type: str = "html"
+    ) -> str:
         """Generate incident analysis report."""
         try:
             template = self.template_env.get_template(f"incident_report.{report_type}")
@@ -270,7 +316,7 @@ class IncidentAnalytics:
             self.logger.error(f"Error generating report: {str(e)}")
             return ""
 
-    def _create_visualizations(self, analysis_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _create_visualizations(self, analysis_results: Dict[str, Any]):
         """Create visualizations for report."""
         visualizations = {}
 
@@ -296,18 +342,25 @@ class IncidentAnalytics:
                 fig = go.Figure()
                 for severity, counts in severity_data.items():
                     fig.add_trace(go.Bar(name=severity, x=dates, y=counts))
-                fig.update_layout(title="Incident Severity Distribution", barmode="stack")
+                fig.update_layout(
+                    title="Incident Severity Distribution", barmode="stack"
+                )
                 visualizations["severity_distribution"] = fig.to_html(full_html=False)
 
             # System impact heatmap
             if "system_impact" in analysis_results:
                 systems = list(analysis_results["system_impact"].keys())
                 impact_data = [
-                    [s["incident_count"] for s in analysis_results["system_impact"].values()]
+                    [
+                        s["incident_count"]
+                        for s in analysis_results["system_impact"].values()
+                    ]
                 ]
 
                 fig = go.Figure(
-                    data=go.Heatmap(z=impact_data, x=systems, y=["Impact"], colorscale="Viridis")
+                    data=go.Heatmap(
+                        z=impact_data, x=systems, y=["Impact"], colorscale="Viridis"
+                    )
                 )
                 fig.update_layout(title="System Impact Heatmap")
                 visualizations["system_impact"] = fig.to_html(full_html=False)
@@ -316,7 +369,8 @@ class IncidentAnalytics:
             if "response_stats" in analysis_results:
                 actions = list(analysis_results["response_stats"].keys())
                 success_rates = [
-                    s["success_rate"] for s in analysis_results["response_stats"].values()
+                    s["success_rate"]
+                    for s in analysis_results["response_stats"].values()
                 ]
 
                 fig = go.Figure(data=go.Bar(x=actions, y=success_rates))

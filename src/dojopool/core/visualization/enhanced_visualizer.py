@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Enhanced visualization system providing advanced plotting and interactive visualization capabilities."""
 
 import json
@@ -131,7 +133,9 @@ class EnhancedVisualizer:
 
         # Latency Distribution
         for model_type in ["shot", "success", "position"]:
-            latency_data = [m["latency"] for m in metrics if m["model_type"] == model_type]
+            latency_data = [
+                m["latency"] for m in metrics if m["model_type"] == model_type
+            ]
             if latency_data:
                 fig.add_trace(
                     go.Histogram(
@@ -178,7 +182,10 @@ class EnhancedVisualizer:
 
         # Update layout
         fig.update_layout(
-            height=800, width=1200, title_text="Model Performance Overview", showlegend=True
+            height=800,
+            width=1200,
+            title_text="Model Performance Overview",
+            showlegend=True,
         )
 
         return fig
@@ -384,7 +391,9 @@ class EnhancedVisualizer:
         for entry in history:
             if "resource_usage" in entry:
                 resource_data["timestamp"].append(entry["timestamp"])
-                resource_data["memory_usage"].append(entry["resource_usage"].get("memory_mb", 0))
+                resource_data["memory_usage"].append(
+                    entry["resource_usage"].get("memory_mb", 0)
+                )
                 resource_data["model_type"].append(entry["model_type"])
 
         df = pd.DataFrame(resource_data)
@@ -403,7 +412,10 @@ class EnhancedVisualizer:
 
         # Update layout
         fig.update_layout(
-            height=800, width=1200, title_text="Training Analysis Dashboard", showlegend=True
+            height=800,
+            width=1200,
+            title_text="Training Analysis Dashboard",
+            showlegend=True,
         )
 
         return fig
@@ -514,14 +526,20 @@ class EnhancedVisualizer:
 
         # Update layout
         fig.update_layout(
-            height=800, width=1200, title_text="Resource Usage Analysis", showlegend=True
+            height=800,
+            width=1200,
+            title_text="Resource Usage Analysis",
+            showlegend=True,
         )
 
         return fig
 
     def _generate_summary(
-        self, monitor: ModelMonitor, version_manager: ModelVersion, retrainer: ModelRetrainer
-    ) -> Dict[str, Any]:
+        self,
+        monitor: ModelMonitor,
+        version_manager: ModelVersion,
+        retrainer: ModelRetrainer,
+    ):
         """Generate summary statistics."""
         summary = {"performance": {}, "versions": {}, "training": {}, "resources": {}}
 
@@ -533,7 +551,9 @@ class EnhancedVisualizer:
                 summary["performance"][model_type] = {
                     "avg_accuracy": np.mean([m["accuracy"] for m in type_metrics]),
                     "avg_latency": np.mean([m["latency"] for m in type_metrics]),
-                    "prediction_count": sum(m["prediction_count"] for m in type_metrics),
+                    "prediction_count": sum(
+                        m["prediction_count"] for m in type_metrics
+                    ),
                 }
 
         # Version summary
@@ -543,10 +563,15 @@ class EnhancedVisualizer:
             if type_versions:
                 summary["versions"][model_type] = {
                     "total_versions": len(type_versions),
-                    "active_versions": len([v for v in type_versions if v["is_active"]]),
+                    "active_versions": len(
+                        [v for v in type_versions if v["is_active"]]
+                    ),
                     "avg_age_days": np.mean(
                         [
-                            (datetime.utcnow() - datetime.fromisoformat(v["created_at"])).days
+                            (
+                                datetime.utcnow()
+                                - datetime.fromisoformat(v["created_at"])
+                            ).days
                             for v in type_versions
                         ]
                     ),
@@ -573,11 +598,17 @@ class EnhancedVisualizer:
         # Resource summary
         resource_metrics = monitor.get_resource_metrics()
         for model_type in ["shot", "success", "position"]:
-            type_metrics = [m for m in resource_metrics if m["model_type"] == model_type]
+            type_metrics = [
+                m for m in resource_metrics if m["model_type"] == model_type
+            ]
             if type_metrics:
                 summary["resources"][model_type] = {
-                    "avg_memory_mb": np.mean([m.get("memory_mb", 0) for m in type_metrics]),
-                    "avg_cpu_percent": np.mean([m.get("cpu_percent", 0) for m in type_metrics]),
+                    "avg_memory_mb": np.mean(
+                        [m.get("memory_mb", 0) for m in type_metrics]
+                    ),
+                    "avg_cpu_percent": np.mean(
+                        [m.get("cpu_percent", 0) for m in type_metrics]
+                    ),
                     "avg_latency": np.mean(
                         [
                             np.mean(m["prediction_latencies"])

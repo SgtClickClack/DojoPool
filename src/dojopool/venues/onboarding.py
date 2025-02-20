@@ -1,3 +1,5 @@
+import gc
+import gc
 """
 Venue Onboarding System for DojoPool.
 
@@ -14,11 +16,11 @@ from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple
 
-from dojopool.utils.validation import validate_address, validate_phone
-from dojopool.utils.geolocation import geocode_address
-from dojopool.core.models.venue import Venue, VenueEquipment
 from dojopool.core.models.staff import StaffMember
+from dojopool.core.models.venue import Venue, VenueEquipment
+from dojopool.utils.geolocation import geocode_address
 from dojopool.utils.security import generate_venue_api_key
+from dojopool.utils.validation import validate_address, validate_phone
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +95,13 @@ class VenueOnboardingManager:
         try:
             # Validate inputs
             if not self._validate_registration_data(
-                name, address, contact_email, contact_phone, business_hours, num_tables, owner_info
+                name,
+                address,
+                contact_email,
+                contact_phone,
+                business_hours,
+                num_tables,
+                owner_info,
             ):
                 return None, False
 
@@ -141,7 +149,16 @@ class VenueOnboardingManager:
         """Validate venue registration data."""
         try:
             # Basic validation
-            if not all([name, address, contact_email, contact_phone, business_hours, owner_info]):
+            if not all(
+                [
+                    name,
+                    address,
+                    contact_email,
+                    contact_phone,
+                    business_hours,
+                    owner_info,
+                ]
+            ):
                 logger.error("Missing required registration fields")
                 return False
 
@@ -186,8 +203,11 @@ class VenueOnboardingManager:
             return False
 
     def verify_venue(
-        self, venue_id: str, documents: Dict[str, str], verification_notes: Optional[str] = None
-    ) -> bool:
+        self,
+        venue_id: str,
+        documents: Dict[str, str],
+        verification_notes: Optional[str] = None,
+    ):
         """
         Verify a registered venue's documentation.
 
@@ -292,7 +312,7 @@ class VenueOnboardingManager:
             logger.error(f"Error setting up equipment: {str(e)}")
             return False
 
-    def _validate_equipment(self, equipment: VenueEquipment) -> bool:
+    def _validate_equipment(self, equipment: VenueEquipment):
         """Validate a single piece of equipment."""
         try:
             # Implement equipment validation logic here
@@ -346,7 +366,7 @@ class VenueOnboardingManager:
             logger.error(f"Error recording staff training: {str(e)}")
             return False
 
-    def run_integration_test(self, venue_id: str) -> bool:
+    def run_integration_test(self, venue_id: str):
         """
         Run integration tests for the venue.
 
@@ -381,7 +401,7 @@ class VenueOnboardingManager:
             logger.error(f"Error running integration tests: {str(e)}")
             return False
 
-    def _run_test_suite(self, venue: Venue) -> Dict[str, bool]:
+    def _run_test_suite(self, venue: Venue):
         """Run the complete test suite for a venue."""
         return {
             "camera_feed": self._test_camera_feeds(venue),
@@ -391,7 +411,7 @@ class VenueOnboardingManager:
             "sensor_readings": self._test_sensors(venue),
         }
 
-    def _test_camera_feeds(self, venue: Venue) -> bool:
+    def _test_camera_feeds(self, venue: Venue):
         """Test all camera feeds."""
         # Implement camera testing logic
         return True
@@ -401,17 +421,17 @@ class VenueOnboardingManager:
         # Implement network testing logic
         return True
 
-    def _test_data_processing(self, venue: Venue) -> bool:
+    def _test_data_processing(self, venue: Venue):
         """Test data processing capabilities."""
         # Implement processing testing logic
         return True
 
-    def _test_displays(self, venue: Venue) -> bool:
+    def _test_displays(self, venue: Venue):
         """Test all displays."""
         # Implement display testing logic
         return True
 
-    def _test_sensors(self, venue: Venue) -> bool:
+    def _test_sensors(self, venue: Venue):
         """Test all sensors."""
         # Implement sensor testing logic
         return True

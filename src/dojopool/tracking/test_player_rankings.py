@@ -1,9 +1,17 @@
 """Tests for player rankings system."""
 
-import pytest
 from datetime import datetime, timedelta
-from .player_rankings import PlayerRankingSystem, PlayerStats, MatchResult, RankingEntry, SkillLevel
-from .game_tracker import Shot, BallPosition
+
+import pytest
+
+from .game_tracker import BallPosition, Shot
+from .player_rankings import (
+    MatchResult,
+    PlayerRankingSystem,
+    PlayerStats,
+    RankingEntry,
+    SkillLevel,
+)
 
 
 @pytest.fixture
@@ -13,7 +21,7 @@ def ranking_system() -> PlayerRankingSystem:
 
 
 @pytest.fixture
-def sample_match() -> MatchResult:
+def sample_match():
     """Create a sample match result."""
     now = datetime.now()
     return MatchResult(
@@ -61,7 +69,7 @@ class TestPlayerRankingSystem:
 
     def test_record_match(
         self, ranking_system: PlayerRankingSystem, sample_match: MatchResult
-    ) -> None:
+    ):
         """Test recording a match."""
         ranking_system.record_match(sample_match)
 
@@ -83,7 +91,7 @@ class TestPlayerRankingSystem:
 
     def test_tournament_match(
         self, ranking_system: PlayerRankingSystem, tournament_match: MatchResult
-    ) -> None:
+    ):
         """Test recording a tournament match."""
         ranking_system.record_match(tournament_match)
 
@@ -116,7 +124,7 @@ class TestPlayerRankingSystem:
 
     def test_elo_rating_changes(
         self, ranking_system: PlayerRankingSystem, sample_match: MatchResult
-    ) -> None:
+    ):
         """Test ELO rating updates."""
         # Record match between equal rated players
         initial_rating = ranking_system.skill_thresholds[SkillLevel.BEGINNER]
@@ -216,16 +224,20 @@ class TestPlayerRankingSystem:
             ranking_system.record_match(match)
 
         # Test filtering by player
-        player_matches = ranking_system.get_match_history(player_id=sample_match.winner_id)
+        player_matches = ranking_system.get_match_history(
+            player_id=sample_match.winner_id
+        )
         assert len(player_matches) == 5
 
         # Test filtering by date
-        recent_matches = ranking_system.get_match_history(start_date=now + timedelta(days=2))
+        recent_matches = ranking_system.get_match_history(
+            start_date=now + timedelta(days=2)
+        )
         assert len(recent_matches) == 3
 
     def test_head_to_head(
         self, ranking_system: PlayerRankingSystem, sample_match: MatchResult
-    ) -> None:
+    ):
         """Test head-to-head statistics."""
         # Record matches between same players
         ranking_system.record_match(sample_match)
@@ -242,7 +254,9 @@ class TestPlayerRankingSystem:
         ranking_system.record_match(reverse_match)
 
         # Get head-to-head stats
-        h2h = ranking_system.get_head_to_head(sample_match.winner_id, sample_match.loser_id)
+        h2h = ranking_system.get_head_to_head(
+            sample_match.winner_id, sample_match.loser_id
+        )
 
         assert h2h["total_matches"] == 2
         assert h2h["player1_wins"] == 1

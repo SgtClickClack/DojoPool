@@ -1,5 +1,12 @@
-from typing import Dict, List, Optional
+from flask_caching import Cache
+from flask_caching import Cache
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from ..core.exceptions import ValidationError
@@ -9,7 +16,11 @@ from ..models import Rating, Tournament, User, Venue, db
 class RatingService:
     @staticmethod
     def create_rating(
-        user_id: int, target_type: str, target_id: int, rating: int, review: Optional[str] = None
+        user_id: int,
+        target_type: str,
+        target_id: int,
+        rating: int,
+        review: Optional[str] = None,
     ) -> Rating:
         """Create a new rating or update existing one."""
         # Validate rating value
@@ -18,11 +29,11 @@ class RatingService:
 
         # Check if target exists
         if target_type == "venue":
-            target = Venue.query.get(target_id)
+            target: Any = Venue.query.get(target_id)
         elif target_type == "tournament":
-            target = Tournament.query.get(target_id)
+            target: Any = Tournament.query.get(target_id)
         elif target_type == "player":
-            target = User.query.get(target_id)
+            target: Any = User.query.get(target_id)
         else:
             raise ValidationError(f"Invalid target type: {target_type}")
 
@@ -30,18 +41,18 @@ class RatingService:
             raise ValidationError(f"{target_type.capitalize()} not found")
 
         # Check for existing rating
-        existing = Rating.query.filter_by(
+        existing: Any = Rating.query.filter_by(
             user_id=user_id, target_type=target_type, target_id=target_id
         ).first()
 
         if existing:
-            existing.rating = rating
+            existing.rating: Any = rating
             existing.review = review
             db.session.commit()
             return existing
 
         # Create new rating
-        new_rating = Rating(
+        new_rating: Rating = Rating(
             user_id=user_id,
             target_type=target_type,
             target_id=target_id,
@@ -53,32 +64,40 @@ class RatingService:
         return new_rating
 
     @staticmethod
-    def get_ratings(target_type: str, target_id: int, verified_only: bool = False) -> List[Dict]:
+    def get_ratings(target_type: str, target_id: int, verified_only: bool = False):
         """Get all ratings for a target."""
-        query = Rating.query.filter_by(target_type=target_type, target_id=target_id)
+        query: Any = Rating.query.filter_by(
+            target_type=target_type, target_id=target_id
+        )
 
         if verified_only:
-            query = query.filter(Rating.is_verified is True)
+            query: Any = query.filter(Rating.is_verified is True)
 
         return [rating.to_dict() for rating in query.all()]
 
     @staticmethod
-    def get_average_rating(target_type: str, target_id: int, verified_only: bool = False) -> Dict:
+    def get_average_rating(
+        target_type: str, target_id: int, verified_only: bool = False
+    ):
         """Get average rating and count for a target."""
-        query = db.session.query(
-            func.avg(Rating.rating).label("average"), func.count(Rating.id).label("count")
+        query: Any = db.session.query(
+            func.avg(Rating.rating).label("average"),
+            func.count(Rating.id).label("count"),
         ).filter_by(target_type=target_type, target_id=target_id)
 
         if verified_only:
-            query = query.filter(Rating.is_verified is True)
+            query: Any = query.filter(Rating.is_verified is True)
 
-        result = query.first()
-        return {"average": float(result.average) if result.average else 0.0, "count": result.count}
+        result: Any = query.first()
+        return {
+            "average": float(result.average) if result.average else 0.0,
+            "count": result.count,
+        }
 
     @staticmethod
-    def delete_rating(rating_id: int, user_id: int) -> bool:
+    def delete_rating(rating_id: int, user_id: int):
         """Delete a rating."""
-        rating = Rating.query.get(rating_id)
+        rating: Any = Rating.query.get(rating_id)
         if not rating or rating.user_id != user_id:
             return False
 

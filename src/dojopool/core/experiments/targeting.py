@@ -1,3 +1,5 @@
+import gc
+import gc
 """Targeting system for A/B testing experiments."""
 
 import hashlib
@@ -40,7 +42,10 @@ class TimeWindow:
         if self.start_time <= self.end_time:
             return self.start_time <= current_time_of_day <= self.end_time
         else:  # Handles overnight windows (e.g., 22:00-06:00)
-            return current_time_of_day >= self.start_time or current_time_of_day <= self.end_time
+            return (
+                current_time_of_day >= self.start_time
+                or current_time_of_day <= self.end_time
+            )
 
 
 @dataclass
@@ -79,13 +84,29 @@ class TargetingRule:
         if self.operator == Operator.EQUALS:
             return user_value == self.value
         elif self.operator == Operator.CONTAINS:
-            return self.value in user_value if isinstance(user_value, (list, set, str)) else False
+            return (
+                self.value in user_value
+                if isinstance(user_value, (list, set, str))
+                else False
+            )
         elif self.operator == Operator.GT:
-            return user_value > self.value if isinstance(user_value, (int, float)) else False
+            return (
+                user_value > self.value
+                if isinstance(user_value, (int, float))
+                else False
+            )
         elif self.operator == Operator.LT:
-            return user_value < self.value if isinstance(user_value, (int, float)) else False
+            return (
+                user_value < self.value
+                if isinstance(user_value, (int, float))
+                else False
+            )
         elif self.operator == Operator.IN:
-            return user_value in self.value if isinstance(self.value, (list, set)) else False
+            return (
+                user_value in self.value
+                if isinstance(self.value, (list, set))
+                else False
+            )
         elif self.operator == Operator.BETWEEN:
             if not isinstance(self.value, (list, tuple)) or len(self.value) != 2:
                 return False
@@ -130,7 +151,7 @@ class ExperimentTargeting:
         """Set or update user attributes."""
         self._user_attributes[user_id] = attributes
 
-    def set_custom_attribute(self, name: str, value: Any) -> None:
+    def set_custom_attribute(self, name: str, value: Any):
         """Set a custom attribute for targeting (e.g., current_time for testing)."""
         self._custom_attributes[name] = value
 
@@ -140,7 +161,7 @@ class ExperimentTargeting:
         rules: List[TargetingRule],
         traffic_percentage: float,
         required_segments: Optional[Set[str]] = None,
-    ) -> bool:
+    ):
         """Check if user is eligible for an experiment."""
         # Get user attributes
         attributes = self._user_attributes.get(user_id, {})
@@ -157,4 +178,6 @@ class ExperimentTargeting:
             return False
 
         # Check traffic allocation
-        return self._traffic_allocator.is_in_traffic(user_id, "experiment", traffic_percentage)
+        return self._traffic_allocator.is_in_traffic(
+            user_id, "experiment", traffic_percentage
+        )

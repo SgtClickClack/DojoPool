@@ -1,134 +1,208 @@
+from flask_caching import Cache
+from flask_caching import Cache
+"""Routes for training module."""
+
+from typing import Any, Dict, List
+
 from flask import Blueprint, jsonify, request
+from flask.typing import ResponseReturnValue
 
-from ..auth.decorators import login_required
-from .models import Exercise, TrainingProgram
-from .service import TrainingService
+from ..auth.utils import login_required
+from ..database import db
+from ..models.training import TrainingExercise, TrainingSession
 
-training_bp = Blueprint("training", __name__)
-training_service = TrainingService()
+bp = Blueprint("training", __name__, url_prefix="/api/training")
 
 
-@training_bp.route("/training/recommend", methods=["GET"])
+@bp.route("/sessions", methods=["GET"])
 @login_required
-def recommend_program():
-    """Get a recommended training program."""
-    try:
-        recommendation = training_service.recommend_program(request.user.id)
-        if not recommendation:
-            return jsonify({"message": "No suitable programs found"}), 404
-
-        program = recommendation["program"]
-        return jsonify(
-            {
-                "program": {
-                    "id": program.id,
-                    "name": program.name,
-                    "description": program.description,
-                    "difficulty": program.difficulty,
-                    "duration_weeks": program.duration_weeks,
-                },
-                "match_score": recommendation["match_score"],
-                "reasons": recommendation["reasons"],
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+def get_training_sessions() -> ResponseReturnValue:
+    """Get training sessions for the current user."""
+    sessions = TrainingSession.query.filter_by(user_id=request.user.id).all()
+    return jsonify(
+        {
+            "sessions": [
+                {
+                    "id": session.id,
+                    "title": session.title,
+                    "description": session.description,
+                    "start_time": session.start_time.isoformat(),
+                    "end_time": (
+                        session.end_time.isoformat() if session.end_time else None
+                    ),
+                    "status": session.status,
+                    "exercises": len(session.exercises),
+                }
+                for session in sessions
+            ]
+        }
+    )
 
 
-@training_bp.route("/training/programs/<int:program_id>/exercises", methods=["GET"])
+@bp.route("/sessions/<int:session_id>", methods=["GET"])
 @login_required
-def get_program_exercises(program_id):
-    """Get exercises for a specific program."""
-    try:
-        program = TrainingProgram.query.get(program_id)
-        if not program:
-            return jsonify({"error": "Program not found"}), 404
+def get_training_session(session_id: int) -> ResponseReturnValue:
+    """Get details of a specific training session."""
+    session = TrainingSession.query.get_or_404(session_id)
 
-        exercises = Exercise.query.filter_by(program_id=program_id).all()
-        return jsonify(
-            {
-                "exercises": [
-                    {
-                        "id": ex.id,
-                        "name": ex.name,
-                        "description": ex.description,
-                        "type": ex.type,
-                        "difficulty": ex.difficulty,
-                        "target_metrics": ex.target_metrics,
-                    }
-                    for ex in exercises
-                ]
-            }
-        )
+    # Verify ownership
+    if session.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@training_bp.route("/training/exercises/generate", methods=["POST"])
-@login_required
-def generate_exercise():
-    """Generate a new personalized exercise."""
-    try:
-        program_id = request.json.get("program_id")
-        if not program_id:
-            return jsonify({"error": "Program ID required"}), 400
-
-        exercise = training_service.generate_exercise(program_id, request.user.id)
-        return jsonify(
-            {
-                "exercise": {
+    return jsonify(
+        {
+            "id": session.id,
+            "title": session.title,
+            "description": session.description,
+            "start_time": session.start_time.isoformat(),
+            "end_time": session.end_time.isoformat() if session.end_time else None,
+            "status": session.status,
+            "exercises": [
+                {
                     "id": exercise.id,
-                    "name": exercise.name,
-                    "description": exercise.description,
                     "type": exercise.type,
                     "difficulty": exercise.difficulty,
-                    "target_metrics": exercise.target_metrics,
+                    "instructions": exercise.instructions,
+                    "completed": exercise.completed,
+                    "score": exercise.score,
                 }
-            }
-        )
+                for exercise in session.exercises
+            ],
+        }
+    )
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
-
-@training_bp.route("/training/progress", methods=["POST"])
+@bp.route("/sessions", methods=["POST"])
 @login_required
-def track_progress():
-    """Track progress for an exercise."""
-    try:
-        data = request.json
-        if not data or "exercise_id" not in data or "metrics" not in data:
-            return jsonify({"error": "Exercise ID and metrics required"}), 400
+def create_training_session():
+    """Create a new training session."""
+    data = request.get_json()
 
-        progress = training_service.track_progress(
-            request.user.id, data["exercise_id"], data["metrics"]
-        )
+    # Validate required fields
+    if not data.get("title"):
+        return jsonify({"error": "Title is required"}), 400
 
-        return jsonify(
-            {
-                "progress": {
-                    "id": progress.id,
-                    "completion_date": progress.completion_date,
-                    "performance_metrics": progress.performance_metrics,
-                    "notes": progress.notes,
-                }
-            }
-        )
+    session = TrainingSession(
+        user_id=request.user.id,
+        title=data["title"],
+        description=data.get("description"),
+        status="created",
+    )
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    db.session.add(session)
+    db.session.commit()
+
+    return (
+        jsonify({"id": session.id, "title": session.title, "status": session.status}),
+        201,
+    )
 
 
-@training_bp.route("/training/progress", methods=["GET"])
+@bp.route("/sessions/<int:session_id>/exercises", methods=["POST"])
 @login_required
-def get_progress():
-    """Get user's training progress."""
-    try:
-        program_id = request.args.get("program_id", type=int)
-        progress = training_service.get_user_progress(request.user.id, program_id)
-        return jsonify({"progress": progress})
+def add_exercise(session_id: int) -> ResponseReturnValue:
+    """Add an exercise to a training session."""
+    session = TrainingSession.query.get_or_404(session_id)
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Verify ownership
+    if session.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+
+    # Validate required fields
+    required_fields = ["type", "difficulty", "instructions"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    exercise = TrainingExercise(
+        session_id=session_id,
+        type=data["type"],
+        difficulty=data["difficulty"],
+        instructions=data["instructions"],
+    )
+
+    db.session.add(exercise)
+    db.session.commit()
+
+    return jsonify(
+        {"id": exercise.id, "type": exercise.type, "difficulty": exercise.difficulty}
+    )
+
+
+@bp.route("/sessions/<int:session_id>/start", methods=["POST"])
+@login_required
+def start_training_session(session_id: int) -> ResponseReturnValue:
+    """Start a training session."""
+    session = TrainingSession.query.get_or_404(session_id)
+
+    # Verify ownership
+    if session.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if session.status != "created":
+        return jsonify({"error": "Session cannot be started"}), 400
+
+    if not session.exercises:
+        return jsonify({"error": "Session has no exercises"}), 400
+
+    session.status = "in_progress"
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Training session started",
+            "id": session.id,
+            "status": session.status,
+        }
+    )
+
+
+@bp.route("/sessions/<int:session_id>/complete", methods=["POST"])
+@login_required
+def complete_training_session(session_id: int) -> ResponseReturnValue:
+    """Complete a training session."""
+    session = TrainingSession.query.get_or_404(session_id)
+
+    # Verify ownership
+    if session.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if session.status != "in_progress":
+        return jsonify({"error": "Session is not in progress"}), 400
+
+    session.status = "completed"
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Training session completed",
+            "id": session.id,
+            "status": session.status,
+        }
+    )
+
+
+@bp.route("/exercises/<int:exercise_id>/complete", methods=["POST"])
+@login_required
+def complete_exercise(exercise_id: int) -> ResponseReturnValue:
+    """Mark an exercise as completed."""
+    exercise = TrainingExercise.query.get_or_404(exercise_id)
+
+    # Verify session ownership
+    if exercise.session.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+    score = data.get("score")
+
+    if score is not None:
+        exercise.score = score
+
+    exercise.completed = True
+    db.session.commit()
+
+    return jsonify(
+        {"message": "Exercise completed", "id": exercise.id, "score": exercise.score}
+    )

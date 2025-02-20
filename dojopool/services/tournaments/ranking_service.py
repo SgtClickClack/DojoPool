@@ -2,9 +2,10 @@
 Professional player ranking service.
 """
 
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Tuple
+
 from .pro_tournament_config import ProTournamentTier
 
 
@@ -152,7 +153,7 @@ class RankingService:
 
         return base_points + bonus_points
 
-    def update_global_rankings(self) -> bool:
+    def update_global_rankings(self) :
         """Update global rankings for all players."""
         if (datetime.now() - self.last_global_update) < self.ranking_update_frequency:
             return False
@@ -196,16 +197,22 @@ class RankingService:
         """Get a player's current ranking details."""
         return self.rankings.get(player_id)
 
-    def get_rankings_in_range(self, start_rank: int, end_rank: int) -> List[PlayerRanking]:
+    def get_rankings_in_range(
+        self, start_rank: int, end_rank: int
+    ) :
         """Get rankings for a specific range."""
         return sorted(
-            [r for r in self.rankings.values() if start_rank <= r.current_rank <= end_rank],
+            [
+                r
+                for r in self.rankings.values()
+                if start_rank <= r.current_rank <= end_rank
+            ],
             key=lambda x: x.current_rank,
         )
 
     def get_ranking_history(
         self, player_id: str, start_date: datetime, end_date: datetime
-    ) -> List[Tuple[datetime, int]]:
+    ) :
         """Get a player's ranking history for a specific period."""
         if player_id not in self.rankings:
             return []
@@ -216,7 +223,7 @@ class RankingService:
             if start_date <= date <= end_date
         ]
 
-    def get_ranking_movement(self, player_id: str, period: timedelta) -> Dict[str, any]:
+    def get_ranking_movement(self, player_id: str, period: timedelta) :
         """Get a player's ranking movement over a period."""
         if player_id not in self.rankings:
             return {}
@@ -233,7 +240,9 @@ class RankingService:
             }
 
         start_date = datetime.now() - period
-        relevant_history = [(date, rank) for date, rank in history if date >= start_date]
+        relevant_history = [
+            (date, rank) for date, rank in history if date >= start_date
+        ]
 
         if not relevant_history:
             return {
@@ -268,7 +277,7 @@ class RankingService:
             active_streak={"type": "new", "value": 0, "start_date": datetime.now()},
         )
 
-    def _update_player_points(self, player_id: str) -> None:
+    def _update_player_points(self, player_id: str) :
         """Update a player's total ranking points."""
         player = self.rankings[player_id]
         current_time = datetime.now()

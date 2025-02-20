@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room initialization module.
 
 This module provides functionality for room setup and configuration.
@@ -68,7 +70,9 @@ class RoomInitializer:
                     )
 
                 # Initialize room state
-                error = await room_state_manager.initialize_room(room.room_id, room_type, metadata)
+                error = await room_state_manager.initialize_room(
+                    room.room_id, room_type, metadata
+                )
                 if error:
                     await room_manager.delete_room(room.room_id)
                     self._init_stats["failed_initializations"] += 1
@@ -102,7 +106,10 @@ class RoomInitializer:
                 # Update initialization stats
                 self._init_stats.update(
                     {
-                        "total_initializations": self._init_stats["total_initializations"] + 1,
+                        "total_initializations": self._init_stats[
+                            "total_initializations"
+                        ]
+                        + 1,
                         "successful_initializations": (
                             self._init_stats["successful_initializations"] + 1
                         ),
@@ -128,12 +135,12 @@ class RoomInitializer:
             )
             self._init_stats["failed_initializations"] += 1
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error initializing room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error initializing room",
+                {"error": str(e)},
             )
 
-    async def _configure_room(
-        self, room_id: str, config: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    async def _configure_room(self, room_id: str, config: Dict[str, Any]):
         """Configure room settings.
 
         Args:
@@ -174,15 +181,17 @@ class RoomInitializer:
 
         except Exception as e:
             logger.error(
-                "Error configuring room", exc_info=True, extra={"room_id": room_id, "error": str(e)}
+                "Error configuring room",
+                exc_info=True,
+                extra={"room_id": room_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error configuring room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error configuring room",
+                {"error": str(e)},
             )
 
-    def _validate_room_config(
-        self, room_type: str, config: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    def _validate_room_config(self, room_type: str, config: Dict[str, Any]):
         """Validate room configuration.
 
         Args:
@@ -260,7 +269,7 @@ class RoomInitializer:
                 {"error": str(e)},
             )
 
-    def get_initialization_stats(self) -> Dict[str, Any]:
+    def get_initialization_stats(self):
         """Get initialization statistics.
 
         Returns:
@@ -306,7 +315,9 @@ class RoomInitializer:
 
             # Transition back to active state
             await room_state_manager.transition_state(
-                room_id, RoomState.ACTIVE, {"reinitialized_at": datetime.utcnow().isoformat()}
+                room_id,
+                RoomState.ACTIVE,
+                {"reinitialized_at": datetime.utcnow().isoformat()},
             )
 
             return None
@@ -318,7 +329,9 @@ class RoomInitializer:
                 extra={"room_id": room_id, "error": str(e)},
             )
             return format_error_response(
-                ErrorCodes.INTERNAL_ERROR, "Internal error reinitializing room", {"error": str(e)}
+                ErrorCodes.INTERNAL_ERROR,
+                "Internal error reinitializing room",
+                {"error": str(e)},
             )
 
 

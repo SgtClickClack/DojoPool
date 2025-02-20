@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 from typing import Dict, List
 
 import numpy as np
@@ -144,7 +146,10 @@ class PredictiveAnalyticsService:
 
                 if milestone_date:
                     skill_milestones.append(
-                        {"level": threshold, "estimated_date": milestone_date.strftime("%Y-%m-%d")}
+                        {
+                            "level": threshold,
+                            "estimated_date": milestone_date.strftime("%Y-%m-%d"),
+                        }
                     )
 
             progression_predictions[skill] = {
@@ -153,7 +158,10 @@ class PredictiveAnalyticsService:
             }
             milestones[skill] = skill_milestones
 
-        return {"progression_predictions": progression_predictions, "milestones": milestones}
+        return {
+            "progression_predictions": progression_predictions,
+            "milestones": milestones,
+        }
 
     async def predict_matchup_outcomes(
         self, player_id: str, opponent_id: str, match_history: List[dict]
@@ -185,7 +193,7 @@ class PredictiveAnalyticsService:
             "opponent_stats": opponent_stats,
         }
 
-    def _create_time_features(self, df: pd.DataFrame) -> np.ndarray:
+    def _create_time_features(self, df: pd.DataFrame):
         """Create time-based features for forecasting."""
         features = pd.DataFrame()
         features["day_of_week"] = df["date"].dt.dayofweek
@@ -206,7 +214,9 @@ class PredictiveAnalyticsService:
         features = pd.DataFrame()
 
         # Time-based features
-        features["days_training"] = (df["date"] - df["date"].min()).dt.total_seconds() / (24 * 3600)
+        features["days_training"] = (
+            df["date"] - df["date"].min()
+        ).dt.total_seconds() / (24 * 3600)
 
         # Add rolling statistics if historical data is available
         if skill in df.columns:
@@ -219,20 +229,24 @@ class PredictiveAnalyticsService:
 
     def _calculate_player_stats(self, df: pd.DataFrame, player_id: str) -> Dict:
         """Calculate comprehensive player statistics."""
-        player_matches = df[(df["player_id"] == player_id) | (df["opponent_id"] == player_id)]
+        player_matches = df[
+            (df["player_id"] == player_id) | (df["opponent_id"] == player_id)
+        ]
 
         stats = {
             "matches_played": len(player_matches),
             "wins": len(player_matches[player_matches["winner_id"] == player_id]),
-            "avg_score": player_matches[player_matches["player_id"] == player_id]["score"].mean(),
-            "avg_opponent_score": player_matches[player_matches["opponent_id"] == player_id][
+            "avg_score": player_matches[player_matches["player_id"] == player_id][
                 "score"
             ].mean(),
+            "avg_opponent_score": player_matches[
+                player_matches["opponent_id"] == player_id
+            ]["score"].mean(),
         }
 
         return stats
 
-    def _create_matchup_features(self, player_stats: Dict, opponent_stats: Dict) -> np.ndarray:
+    def _create_matchup_features(self, player_stats: Dict, opponent_stats: Dict):
         """Create features for matchup prediction."""
         features = []
 
@@ -293,6 +307,12 @@ class PredictiveAnalyticsService:
         opponent_predicted = opponent_avg_score - score_adjustment
 
         return {
-            "player": {"low": max(0, player_predicted - 5), "high": player_predicted + 5},
-            "opponent": {"low": max(0, opponent_predicted - 5), "high": opponent_predicted + 5},
+            "player": {
+                "low": max(0, player_predicted - 5),
+                "high": player_predicted + 5,
+            },
+            "opponent": {
+                "low": max(0, opponent_predicted - 5),
+                "high": opponent_predicted + 5,
+            },
         }

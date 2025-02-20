@@ -1,7 +1,7 @@
-from enum import Enum
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class ShotType(Enum):
@@ -71,7 +71,7 @@ class Shot:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Shot":
+    def from_dict(cls, data: Dict[str, Any]):
         """Create shot from dictionary."""
         result_data = data.get("result")
         result = (

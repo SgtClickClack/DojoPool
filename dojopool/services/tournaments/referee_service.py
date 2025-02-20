@@ -2,9 +2,10 @@
 Professional referee management service.
 """
 
-from typing import Dict, List, Optional, Set
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Set
+
 from .pro_tournament_config import RefereeLevel
 
 
@@ -49,7 +50,9 @@ class RefereeService:
         self.tournament_assignments: Dict[str, Dict[str, str]] = (
             {}
         )  # tournament_id -> {match_id -> referee_id}
-        self.certifications: Dict[str, Set[str]] = {}  # certification -> set of referee_ids
+        self.certifications: Dict[str, Set[str]] = (
+            {}
+        )  # certification -> set of referee_ids
 
     def register_referee(
         self,
@@ -93,7 +96,7 @@ class RefereeService:
 
     def update_availability(
         self, referee_id: str, availability: Dict[str, List[Dict[str, datetime]]]
-    ) -> bool:
+    ) :
         """Update a referee's availability."""
         if referee_id not in self.referees:
             raise ValueError(f"Referee {referee_id} not found")
@@ -101,7 +104,7 @@ class RefereeService:
         self.referees[referee_id].availability = availability
         return True
 
-    def add_certification(self, referee_id: str, certification: Certification) -> bool:
+    def add_certification(self, referee_id: str, certification: Certification) :
         """Add a new certification for a referee."""
         if referee_id not in self.referees:
             raise ValueError(f"Referee {referee_id} not found")
@@ -150,7 +153,7 @@ class RefereeService:
 
         return best_referee.referee_id
 
-    def record_tournament_history(self, referee_id: str, tournament_data: Dict) -> bool:
+    def record_tournament_history(self, referee_id: str, tournament_data: Dict) :
         """Record a tournament in a referee's history."""
         if referee_id not in self.referees:
             raise ValueError(f"Referee {referee_id} not found")
@@ -162,7 +165,9 @@ class RefereeService:
 
         return True
 
-    def add_review(self, referee_id: str, reviewer: str, rating: float, comments: str) -> bool:
+    def add_review(
+        self, referee_id: str, reviewer: str, rating: float, comments: str
+    ) :
         """Add a review for a referee."""
         if referee_id not in self.referees:
             raise ValueError(f"Referee {referee_id} not found")
@@ -184,7 +189,7 @@ class RefereeService:
 
         return True
 
-    def get_referee(self, referee_id: str) -> Optional[RefereeProfile]:
+    def get_referee(self, referee_id: str) :
         """Get a referee's profile."""
         return self.referees.get(referee_id)
 
@@ -196,7 +201,7 @@ class RefereeService:
             if referee.level == level and referee.active
         ]
 
-    def get_referees_by_certification(self, certification: str) -> List[RefereeProfile]:
+    def get_referees_by_certification(self, certification: str) :
         """Get all referees with a specific certification."""
         referee_ids = self.certifications.get(certification, set())
         return [
@@ -211,7 +216,7 @@ class RefereeService:
         end_time: datetime,
         required_level: RefereeLevel,
         required_certifications: List[str],
-    ) -> List[RefereeProfile]:
+    ) :
         """Get referees available for a specific time slot."""
         available = []
 

@@ -1,12 +1,14 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Service for handling tournament prize distribution and tracking."""
 
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from dojopool.core.extensions import db
-from dojopool.models.notification import Notification
-from dojopool.models.tournament import Tournament, TournamentParticipant
+from ..core.extensions import db
+from ..models.notification import Notification
+from ..models.tournament import Tournament, TournamentPrize
 
 
 class PrizeDistributionRule:
@@ -27,12 +29,12 @@ class PrizeDistributionRule:
 class StandardPrizeRule(PrizeDistributionRule):
     """Standard prize distribution rule (50/30/20)."""
 
-    def calculate_prizes(self, tournament: Tournament) -> Dict[int, float]:
+    def calculate_prizes(self, tournament: Tournament):
         """Calculate standard prize distribution."""
         return {
-            1: tournament.prize_pool * 0.5,  # 50% for 1st place
-            2: tournament.prize_pool * 0.3,  # 30% for 2nd place
-            3: tournament.prize_pool * 0.2,  # 20% for 3rd place
+            1: tournament.total_prize_pool * 0.5,  # 50% for 1st place
+            2: tournament.total_prize_pool * 0.3,  # 30% for 2nd place
+            3: tournament.total_prize_pool * 0.2,  # 20% for 3rd place
         }
 
 
@@ -50,10 +52,10 @@ class CustomPrizeRule(PrizeDistributionRule):
             raise ValueError("Prize distribution must sum to 1.00")
         self.distribution = distribution
 
-    def calculate_prizes(self, tournament: Tournament) -> Dict[int, float]:
+    def calculate_prizes(self, tournament: Tournament):
         """Calculate custom prize distribution."""
         return {
-            place: tournament.prize_pool * percentage
+            place: tournament.total_prize_pool * percentage
             for place, percentage in self.distribution.items()
         }
 
@@ -67,7 +69,7 @@ class PrizeService:
             "custom": None,  # Set via configure_custom_rule
         }
 
-    def configure_custom_rule(self, distribution: Dict[int, float]) -> None:
+    def configure_custom_rule(self, distribution: Dict[int, float]):
         """Configure custom prize distribution rule.
 
         Args:
@@ -75,7 +77,9 @@ class PrizeService:
         """
         self.rules["custom"] = CustomPrizeRule(distribution)
 
-    def distribute_prizes(self, tournament_id: int, rule_name: str = "standard") -> None:
+    def distribute_prizes(
+        self, tournament_id: int, rule_name: str = "standard"
+    ) -> None:
         """Distribute prizes for a tournament.
 
         Args:
@@ -86,7 +90,7 @@ class PrizeService:
         if not tournament:
             raise ValueError("Tournament not found")
 
-        if not tournament.prize_pool:
+        if not tournament.total_prize_pool:
             return
 
         rule = self.rules.get(rule_name)
@@ -96,105 +100,37 @@ class PrizeService:
         # Calculate prize distribution
         prizes = rule.calculate_prizes(tournament)
 
-        # Get participants ordered by final rank
-        participants = (
-            TournamentParticipant.query.filter_by(tournament_id=tournament_id)
-            .order_by(TournamentParticipant.final_rank)
+        # Get players ordered by final rank
+        players = (
+            TournamentPrize.query.filter_by(tournament_id=tournament_id)
+            .order_by(TournamentPrize.rank.asc())
             .all()
         )
 
         # Distribute prizes
-        for participant in participants:
-            if participant.final_rank in prizes:
-                prize_amount = prizes[participant.final_rank]
-                participant.prize_amount = prize_amount
-
-                # Record prize in participant stats
-                if not participant.stats.get("prizes"):
-                    participant.stats["prizes"] = []
-
-                participant.stats["prizes"].append(
-                    {
-                        "tournament_id": tournament_id,
-                        "tournament_name": tournament.name,
-                        "amount": prize_amount,
-                        "rank": participant.final_rank,
-                        "date": datetime.utcnow().isoformat(),
-                        "claimed": False,
-                    }
-                )
+        for rank, player in enumerate(players, start=1):
+            if rank in prizes:
+                prize_amount = prizes[rank]
 
                 # Create notification
                 Notification.create(
-                    user_id=participant.user_id,
+                    user_id=player.player_id,
                     type="prize_won",
                     title=f"Prize Won in {tournament.name}",
                     message=(
                         f"Congratulations! You won {prize_amount:.2f} for "
-                        f"placing {participant.final_rank} in {tournament.name}."
+                        f"placing {rank} in {tournament.name}."
                     ),
                     data={
                         "tournament_id": tournament_id,
                         "prize_amount": prize_amount,
-                        "rank": participant.final_rank,
+                        "rank": rank,
                     },
                 )
 
         db.session.commit()
 
-    def claim_prize(self, participant_id: int, tournament_id: int) -> Optional[Dict[str, Any]]:
-        """Claim a prize for a tournament.
-
-        Args:
-            participant_id: Participant ID
-            tournament_id: Tournament ID
-
-        Returns:
-            Optional[Dict[str, Any]]: Prize details if claimed
-        """
-        participant = TournamentParticipant.query.get(participant_id)
-        if not participant:
-            raise ValueError("Participant not found")
-
-        # Find prize in participant stats
-        prizes = participant.stats.get("prizes", [])
-        prize = next((p for p in prizes if p["tournament_id"] == tournament_id), None)
-
-        if not prize:
-            raise ValueError("No prize found for this tournament")
-
-        if prize["claimed"]:
-            raise ValueError("Prize already claimed")
-
-        # Mark prize as claimed
-        prize["claimed"] = True
-        prize["claimed_at"] = datetime.utcnow().isoformat()
-
-        # Update participant stats
-        participant.stats["prizes"] = prizes
-
-        # Create notification
-        Notification.create(
-            user_id=participant.user_id,
-            type="prize_claimed",
-            title="Prize Claimed",
-            message=(
-                f'Your prize of {prize["amount"]:.2f} for '
-                f'{prize["tournament_name"]} has been claimed.'
-            ),
-            data={
-                "tournament_id": tournament_id,
-                "prize_amount": prize["amount"],
-                "rank": prize["rank"],
-            },
-        )
-
-        db.session.commit()
-        return prize
-
-    def get_unclaimed_prizes(
-        self, user_id: int, limit: int = 10, offset: int = 0
-    ) -> List[Dict[str, Any]]:
+    def get_unclaimed_prizes(self, user_id: int, limit: int = 10, offset: int = 0):
         """Get unclaimed prizes for a user.
 
         Args:
@@ -205,21 +141,49 @@ class PrizeService:
         Returns:
             List[Dict[str, Any]]: List of unclaimed prizes
         """
-        participants = TournamentParticipant.query.filter_by(user_id=user_id).all()
+        # Get tournaments where the user placed in top 3
+        tournaments = (
+            Tournament.query.join(TournamentPrize)
+            .filter(
+                TournamentPrize.player_id == user_id,
+                Tournament.status == "completed",
+            )
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         unclaimed_prizes = []
-        for participant in participants:
-            prizes = participant.stats.get("prizes", [])
-            unclaimed = [
-                {**p, "participant_id": participant.id}
-                for p in prizes
-                if not p.get("claimed", False)
-            ]
-            unclaimed_prizes.extend(unclaimed)
+        for tournament in tournaments:
+            # Get player's rank
+            player = next(
+                (p for p in tournament.players if p.player_id == user_id), None
+            )
+            if player and player.total_points > 0:
+                # Calculate prize based on standard distribution
+                rank = (
+                    sorted(
+                        tournament.players,
+                        key=lambda x: x.total_points,
+                        reverse=True,
+                    ).index(player)
+                    + 1
+                )
 
-        # Sort by date (newest first) and apply pagination
-        unclaimed_prizes.sort(key=lambda p: p["date"], reverse=True)
-        return unclaimed_prizes[offset : offset + limit]
+                if rank <= 3:  # Only top 3 get prizes
+                    prize_amount = tournament.total_prize_pool * (
+                        0.5 if rank == 1 else 0.3 if rank == 2 else 0.2
+                    )
+                    unclaimed_prizes.append(
+                        {
+                            "tournament_id": tournament.id,
+                            "tournament_name": tournament.name,
+                            "prize_amount": prize_amount,
+                            "rank": rank,
+                        }
+                    )
+
+        return unclaimed_prizes
 
     def get_prize_history(
         self, user_id: int, limit: int = 10, offset: int = 0
@@ -234,14 +198,52 @@ class PrizeService:
         Returns:
             List[Dict[str, Any]]: List of prizes
         """
-        participants = TournamentParticipant.query.filter_by(user_id=user_id).all()
+        # Get all completed tournaments where user participated
+        tournaments = (
+            Tournament.query.join(TournamentPrize)
+            .filter(
+                TournamentPrize.player_id == user_id,
+                Tournament.status == "completed",
+            )
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
-        all_prizes = []
-        for participant in participants:
-            prizes = participant.stats.get("prizes", [])
-            prizes_with_id = [{**p, "participant_id": participant.id} for p in prizes]
-            all_prizes.extend(prizes_with_id)
+        prize_history = []
+        for tournament in tournaments:
+            # Get player's rank
+            player = next(
+                (p for p in tournament.players if p.player_id == user_id), None
+            )
+            if player and player.total_points > 0:
+                # Calculate prize based on standard distribution
+                rank = (
+                    sorted(
+                        tournament.players,
+                        key=lambda x: x.total_points,
+                        reverse=True,
+                    ).index(player)
+                    + 1
+                )
 
-        # Sort by date (newest first) and apply pagination
-        all_prizes.sort(key=lambda p: p["date"], reverse=True)
-        return all_prizes[offset : offset + limit]
+                if rank <= 3:  # Only top 3 get prizes
+                    prize_amount = tournament.total_prize_pool * (
+                        0.5 if rank == 1 else 0.3 if rank == 2 else 0.2
+                    )
+                    prize_history.append(
+                        {
+                            "tournament_id": tournament.id,
+                            "tournament_name": tournament.name,
+                            "prize_amount": prize_amount,
+                            "rank": rank,
+                            "claimed": True,  # Since we're not tracking claims separately
+                            "claimed_at": (
+                                tournament.end_date.isoformat()
+                                if tournament.end_date
+                                else None
+                            ),
+                        }
+                    )
+
+        return prize_history

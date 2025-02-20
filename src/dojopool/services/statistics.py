@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Statistics service for dashboard."""
 
 from datetime import datetime, timedelta
@@ -31,7 +33,7 @@ class StatisticsService:
         }
 
     @staticmethod
-    def _get_game_stats(user_id: int) -> Dict[str, Any]:
+    def _get_game_stats(user_id: int):
         """Get game-related statistics."""
         games = Game.query.filter_by(user_id=user_id).all()
         total_games = len(games)
@@ -50,7 +52,10 @@ class StatisticsService:
         highest_score = max(game.score for game in games)
 
         recent_games = (
-            Game.query.filter_by(user_id=user_id).order_by(Game.created_at.desc()).limit(5).all()
+            Game.query.filter_by(user_id=user_id)
+            .order_by(Game.created_at.desc())
+            .limit(5)
+            .all()
         )
 
         return {
@@ -68,7 +73,9 @@ class StatisticsService:
         total_achievements = len(achievements)
 
         # Get achievement progress
-        in_progress = Achievement.query.filter_by(user_id=user_id, completed=False).all()
+        in_progress = Achievement.query.filter_by(
+            user_id=user_id, completed=False
+        ).all()
 
         recent_achievements = (
             Achievement.query.filter_by(user_id=user_id, completed=True)
@@ -131,22 +138,29 @@ class StatisticsService:
     def _get_rating_stats(user_id: int) -> Dict[str, Any]:
         """Get rating-related statistics."""
         current_rating = (
-            Rating.query.filter_by(user_id=user_id).order_by(Rating.created_at.desc()).first()
+            Rating.query.filter_by(user_id=user_id)
+            .order_by(Rating.created_at.desc())
+            .first()
         )
 
         # Get rating history for the past month
         month_ago = datetime.utcnow() - timedelta(days=30)
         rating_history = (
-            Rating.query.filter(Rating.user_id == user_id, Rating.created_at >= month_ago)
+            Rating.query.filter(
+                Rating.user_id == user_id, Rating.created_at >= month_ago
+            )
             .order_by(Rating.created_at)
             .all()
         )
 
         return {
             "current_rating": current_rating.value if current_rating else 1200,
-            "peak_rating": max(r.value for r in rating_history) if rating_history else 1200,
+            "peak_rating": (
+                max(r.value for r in rating_history) if rating_history else 1200
+            ),
             "rating_history": [
-                {"date": r.created_at.isoformat(), "rating": r.value} for r in rating_history
+                {"date": r.created_at.isoformat(), "rating": r.value}
+                for r in rating_history
             ],
         }
 
@@ -154,4 +168,8 @@ class StatisticsService:
     def _get_power_up_stats(user_id: int) -> Dict[str, Any]:
         """Get power-up related statistics."""
         # This would be implemented when power-ups are added
-        return {"available_power_ups": [], "active_power_ups": [], "power_up_history": []}
+        return {
+            "available_power_ups": [],
+            "active_power_ups": [],
+            "power_up_history": [],
+        }

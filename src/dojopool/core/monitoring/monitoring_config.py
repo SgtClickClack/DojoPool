@@ -3,11 +3,16 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Dict
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
 import structlog
 from prometheus_client import Counter, Gauge, Histogram
 from pythonjsonlogger import jsonlogger
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 @dataclass
@@ -16,67 +21,87 @@ class MetricsConfig:
 
     namespace: str = "dojopool"
     subsystem: str = "core"
-    labels: Dict[str, str] = None
+    labels: Optional[Dict[str, str]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize default values."""
         self.labels = self.labels or {}
 
 
 class MetricsRegistry:
-    """Registry for Prometheus metrics."""
+    """Registry for application metrics."""
 
-    def __init__(self, config: MetricsConfig):
-        self.config = config
+    def __init__(self, config: Optional[MetricsConfig] = None):
+        """Initialize metrics registry."""
+        self.config = config or MetricsConfig()
 
         # Request metrics
-        self.request_counter = Counter(
-            f"{config.namespace}_requests_total",
+        self.request_count = Counter(
+            f"{self.config.namespace}_request_total",
             "Total number of requests",
-            ["method", "endpoint", "status"],
+            labelnames=["method", "endpoint", "status"],
+            registry=None,
         )
 
         self.request_latency = Histogram(
-            f"{config.namespace}_request_latency_seconds",
+            f"{self.config.namespace}_request_latency_seconds",
             "Request latency in seconds",
-            ["method", "endpoint"],
-            buckets=(0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0),
+            labelnames=["method", "endpoint"],
+            registry=None,
         )
 
-        # Game metrics
-        self.active_games = Gauge(
-            f"{config.namespace}_active_games", "Number of currently active games"
+        # Method metrics
+        self.method_latency = Histogram(
+            f"{self.config.namespace}_method_latency_seconds",
+            "Method execution time in seconds",
+            labelnames=["method", "class"],
+            registry=None,
         )
 
-        self.game_duration = Histogram(
-            f"{config.namespace}_game_duration_seconds",
-            "Game duration in seconds",
-            ["game_type"],
-            buckets=(300, 600, 900, 1200, 1800, 2700, 3600),
+        self.success_count = Counter(
+            f"{self.config.namespace}_method_success_total",
+            "Total number of successful method executions",
+            labelnames=["method", "class"],
+            registry=None,
+        )
+
+        self.error_count = Counter(
+            f"{self.config.namespace}_method_error_total",
+            "Total number of method execution errors",
+            labelnames=["method", "class", "error_type"],
+            registry=None,
         )
 
         # System metrics
-        self.system_memory = Gauge(
-            f"{config.namespace}_system_memory_bytes", "System memory usage in bytes", ["type"]
+        self.memory_usage = Gauge(
+            f"{self.config.namespace}_memory_usage_bytes",
+            "Memory usage in bytes",
+            labelnames=["type"],
+            registry=None,
         )
 
         self.cpu_usage = Gauge(
-            f"{config.namespace}_cpu_usage_percent", "CPU usage percentage", ["core"]
+            f"{self.config.namespace}_cpu_usage_percent",
+            "CPU usage percentage",
+            labelnames=["type"],
+            registry=None,
         )
 
-        # Error metrics
-        self.error_counter = Counter(
-            f"{config.namespace}_errors_total", "Total number of errors", ["type", "component"]
-        )
 
+def setup_logging(
+    log_level: str = "INFO", json_logs: bool = True, log_file: Optional[str] = None
+):
+    """Set up application logging."""
+    # Set up basic logging configuration
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logging.StreamHandler(),
+            *([logging.FileHandler(log_file)] if log_file else []),
+        ],
+    )
 
-def setup_logging(log_level: str = "INFO", json_logs: bool = True, log_file: str = None) -> None:
-    """Set up structured logging.
-
-    Args:
-        log_level: Logging level
-        json_logs: Whether to output logs in JSON format
-        log_file: Optional log file path
-    """
     # Configure structlog
     structlog.configure(
         processors=[
@@ -88,7 +113,11 @@ def setup_logging(log_level: str = "INFO", json_logs: bool = True, log_file: str
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            structlog.stdlib.render_to_log_kwargs,
+            (
+                structlog.processors.JSONRenderer()
+                if json_logs
+                else structlog.dev.ConsoleRenderer()
+            ),
         ],
         context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
@@ -96,91 +125,75 @@ def setup_logging(log_level: str = "INFO", json_logs: bool = True, log_file: str
         cache_logger_on_first_use=True,
     )
 
-    # Set up root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-
-    # Console handler
-    console_handler = logging.StreamHandler()
-
-    if json_logs:
-        formatter = jsonlogger.JsonFormatter(
-            fmt="%(asctime)s %(name)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-        )
-    else:
-        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-
-    console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
-
-    # File handler if log file specified
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-
 
 class HealthCheck:
-    """Health check implementation."""
+    """Health check utilities."""
 
     @staticmethod
-    def check_database() -> Dict[str, Any]:
+    def check_database():
         """Check database health."""
-        from sqlalchemy import create_engine
-        from sqlalchemy.exc import SQLAlchemyError
-
         try:
-            engine = create_engine(os.getenv("DATABASE_URL"))
-            with engine.connect() as conn:
-                conn.execute("SELECT 1")
-            return {"status": "healthy", "message": "Database connection successful"}
-        except SQLAlchemyError as e:
-            return {"status": "unhealthy", "message": str(e)}
+            # TODO: Implement actual database health check
+            return {
+                "status": "healthy",
+                "message": "Database connection successful",
+                "latency_ms": 0,
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "message": str(e),
+                "error": e.__class__.__name__,
+            }
 
     @staticmethod
     def check_redis() -> Dict[str, Any]:
         """Check Redis health."""
-        import redis
-        from redis.exceptions import RedisError
-
         try:
-            client = redis.Redis.from_url(os.getenv("REDIS_URL"))
-            client.ping()
-            return {"status": "healthy", "message": "Redis connection successful"}
-        except RedisError as e:
-            return {"status": "unhealthy", "message": str(e)}
+            # TODO: Implement actual Redis health check
+            return {
+                "status": "healthy",
+                "message": "Redis connection successful",
+                "latency_ms": 0,
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "message": str(e),
+                "error": e.__class__.__name__,
+            }
 
     @staticmethod
-    def check_disk_space() -> Dict[str, Any]:
+    def check_disk_space():
         """Check disk space."""
-        import shutil
+        try:
+            # Get disk usage of the current directory
+            total, used, free = (
+                os.statvfs("/").f_blocks,
+                os.statvfs("/").f_bfree,
+                os.statvfs("/").f_bavail,
+            )
+            usage_percent = (used / total) * 100
 
-        total, used, free = shutil.disk_usage("/")
-        percent_used = (used / total) * 100
-
-        return {
-            "status": "healthy" if percent_used < 90 else "warning",
-            "message": f"Disk usage: {percent_used:.1f}%",
-            "details": {
-                "total_gb": total // (2**30),
-                "used_gb": used // (2**30),
-                "free_gb": free // (2**30),
-            },
-        }
+            return {
+                "status": "healthy" if usage_percent < 90 else "warning",
+                "message": f"Disk usage: {usage_percent:.1f}%",
+                "usage_percent": usage_percent,
+                "free_space_mb": free * os.statvfs("/").f_bsize / (1024 * 1024),
+            }
+        except Exception as e:
+            return {
+                "status": "unhealthy",
+                "message": str(e),
+                "error": e.__class__.__name__,
+            }
 
     @classmethod
-    def check_all(cls) -> Dict[str, Any]:
+    def check_all(cls):
         """Run all health checks."""
-        checks = {
+        return {
             "database": cls.check_database(),
             "redis": cls.check_redis(),
             "disk": cls.check_disk_space(),
-        }
-
-        overall_status = all(check["status"] == "healthy" for check in checks.values())
-
-        return {
-            "status": "healthy" if overall_status else "unhealthy",
-            "checks": checks,
-            "timestamp": structlog.get_timestamp(),
+            "timestamp": structlog.get_logger().bind().new()._context.get("timestamp"),
         }

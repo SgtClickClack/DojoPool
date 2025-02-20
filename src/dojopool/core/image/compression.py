@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """
 Image compression service with support for AVIF, WebP, and JPEG formats.
 Includes batch processing and memory optimization features.
@@ -77,7 +79,7 @@ class ImageCompressionService:
         )
         return optimal_size
 
-    def _get_optimal_quality(self, file_size_bytes: int) -> Dict[str, int]:
+    def _get_optimal_quality(self, file_size_bytes: int):
         """Adjust quality settings based on input file size."""
         size_mb = file_size_bytes / (1024 * 1024)
 
@@ -90,7 +92,7 @@ class ImageCompressionService:
 
     def _process_single_file(
         self, input_path: str, output_dir: str, filename: str, config: CompressionConfig
-    ) -> Dict[str, Any]:
+    ):
         """Process a single image file."""
         try:
             # Get input file size
@@ -117,7 +119,9 @@ class ImageCompressionService:
                     img.thumbnail(config.target_size, Image.Resampling.LANCZOS)
 
                 # Save with format-specific settings
-                output_path = os.path.join(variant_dir, f"{filename}.{config.format.value}")
+                output_path = os.path.join(
+                    variant_dir, f"{filename}.{config.format.value}"
+                )
                 save_args = {"quality": config.quality, "optimize": config.optimize}
 
                 if config.format == ImageFormat.AVIF:
@@ -130,7 +134,11 @@ class ImageCompressionService:
             # Get output file size
             output_size = os.path.getsize(output_path)
 
-            result = {"path": output_path, "input_size": input_size, "output_size": output_size}
+            result = {
+                "path": output_path,
+                "input_size": input_size,
+                "output_size": output_size,
+            }
             return result
 
         except Exception as e:
@@ -174,15 +182,21 @@ class ImageCompressionService:
 
             # Calculate optimal thread count based on CPU cores
             cpu_count = psutil.cpu_count(logical=False) or 1
-            max_workers = min(cpu_count - 1 or 1, 8)  # Leave one core free, max 8 threads
+            max_workers = min(
+                cpu_count - 1 or 1, 8
+            )  # Leave one core free, max 8 threads
 
             # Process in chunks
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 for i in range(0, len(image_files), chunk_size):
                     # Check available memory before processing chunk
                     if psutil.virtual_memory().percent > 80:
-                        logger.warning("High memory usage detected, reducing chunk size")
-                        chunk_size = max(chunk_size - 2, 5)  # Reduce chunk size but not below 5
+                        logger.warning(
+                            "High memory usage detected, reducing chunk size"
+                        )
+                        chunk_size = max(
+                            chunk_size - 2, 5
+                        )  # Reduce chunk size but not below 5
                         gc.collect()  # Force garbage collection
                         time.sleep(1)  # Give system time to stabilize
 

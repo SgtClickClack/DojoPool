@@ -1,7 +1,9 @@
-"""Game routes."""
+"""Game routes blueprint."""
 
 from flask import Blueprint
 
+# Create the game blueprint
 game_bp = Blueprint("game", __name__)
 
-from . import views  # noqa
+# Import all views to register routes
+from . import routes  # noqa

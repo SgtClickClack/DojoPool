@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import boto3
-from botocore.exceptions import BotoClientError
+from botocore.exceptions import ClientError
 from cryptography.fernet import Fernet
 
 from ..config.backup_config import backup_settings
@@ -54,7 +54,7 @@ class BackupManager:
         else:
             self.fernet = None
 
-    def _setup_remote(self) -> None:
+    def _setup_remote(self):
         """Set up remote backup client if enabled."""
         if self.settings.REMOTE_BACKUP_ENABLED:
             if self.settings.REMOTE_BACKUP_TYPE == "s3":
@@ -75,7 +75,7 @@ class BackupManager:
         else:
             self.s3 = None
 
-    def backup_database(self) -> Optional[Path]:
+    def backup_database(self):
         """Perform database backup."""
         if not self.settings.DB_BACKUP_ENABLED:
             logger.info("Database backup disabled")
@@ -83,7 +83,10 @@ class BackupManager:
 
         try:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_file = self.settings.get_backup_dirs()["database"] / f"db_backup_{timestamp}.sql"
+            backup_file = (
+                self.settings.get_backup_dirs()["database"]
+                / f"db_backup_{timestamp}.sql"
+            )
 
             # Perform database dump
             cmd = [
@@ -182,7 +185,7 @@ class BackupManager:
             logger.info(f"Uploaded backup to S3: {key}")
             return True
 
-        except BotoClientError as e:
+        except ClientError as e:
             logger.error(f"Failed to upload backup to S3: {e}")
             self._send_notification("Remote Backup Failed", str(e))
             return False
@@ -224,7 +227,7 @@ class BackupManager:
                 slack_webhook=self.settings.BACKUP_NOTIFICATION_SLACK_WEBHOOK,
             )
 
-    def run_backup(self) -> None:
+    def run_backup(self):
         """Run complete backup process."""
         if not self.settings.BACKUP_ENABLED:
             logger.info("Backup system disabled")

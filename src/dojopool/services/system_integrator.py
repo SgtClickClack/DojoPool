@@ -90,7 +90,7 @@ class SystemIntegrator:
             await self.stop()
             raise
 
-    async def stop(self) -> None:
+    async def stop(self):
         """Stop all system components."""
         self.logger.info("Stopping system components...")
         self.is_running = False
@@ -120,7 +120,7 @@ class SystemIntegrator:
 
         self.logger.info("All system components stopped")
 
-    async def _collect_metrics(self) -> None:
+    async def _collect_metrics(self):
         """Collect metrics from all components periodically."""
         while self.is_running:
             try:
@@ -184,12 +184,18 @@ class SystemIntegrator:
         return {
             "is_running": self.is_running,
             "component_status": self.component_status,
-            "current_metrics": self.metrics_history[-1] if self.metrics_history else None,
+            "current_metrics": (
+                self.metrics_history[-1] if self.metrics_history else None
+            ),
             "worker_count": (
-                self.worker_pool.worker_count if self.component_status["worker_pool"] else 0
+                self.worker_pool.worker_count
+                if self.component_status["worker_pool"]
+                else 0
             ),
             "active_games": (
-                self.game_analytics.active_games if self.component_status["game_analytics"] else 0
+                self.game_analytics.active_games
+                if self.component_status["game_analytics"]
+                else 0
             ),
             "active_tournaments": (
                 self.tournament_manager.active_tournaments
@@ -197,10 +203,14 @@ class SystemIntegrator:
                 else 0
             ),
             "active_venues": (
-                self.venue_manager.active_venues if self.component_status["venue_manager"] else 0
+                self.venue_manager.active_venues
+                if self.component_status["venue_manager"]
+                else 0
             ),
             "ai_requests_processed": (
-                self.ai_service.requests_processed if self.component_status["ai_service"] else 0
+                self.ai_service.requests_processed
+                if self.component_status["ai_service"]
+                else 0
             ),
         }
 
@@ -212,7 +222,9 @@ class SystemIntegrator:
             worker_metrics = self.worker_pool.get_metrics()
             if worker_metrics["queue_length"] > worker_metrics["optimal_queue_length"]:
                 recommendations.append("Consider increasing worker pool size")
-            elif worker_metrics["idle_workers"] > worker_metrics["optimal_idle_workers"]:
+            elif (
+                worker_metrics["idle_workers"] > worker_metrics["optimal_idle_workers"]
+            ):
                 recommendations.append("Consider decreasing worker pool size")
 
         if self.component_status["game_analytics"]:
@@ -247,7 +259,7 @@ class SystemIntegrator:
                 if device_info.get("battery_level", 100) < 20:
                     await self.worker_pool.optimize_for_power_saving()
 
-    async def validate_system_health(self) -> Dict[str, bool]:
+    async def validate_system_health(self):
         """Validate health of all system components."""
         health_status = {}
 
@@ -258,13 +270,17 @@ class SystemIntegrator:
 
             try:
                 if component == "mobile_optimizer":
-                    health_status[component] = self.mobile_optimizer.device_profile is not None
+                    health_status[component] = (
+                        self.mobile_optimizer.device_profile is not None
+                    )
                 elif component == "worker_pool":
                     health_status[component] = await self.worker_pool.check_health()
                 elif component == "game_analytics":
                     health_status[component] = await self.game_analytics.check_health()
                 elif component == "tournament_manager":
-                    health_status[component] = await self.tournament_manager.check_health()
+                    health_status[component] = (
+                        await self.tournament_manager.check_health()
+                    )
                 elif component == "venue_manager":
                     health_status[component] = await self.venue_manager.check_health()
                 elif component == "ai_service":

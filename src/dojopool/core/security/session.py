@@ -32,11 +32,17 @@ class SessionManager:
         token = secrets.token_urlsafe(32)
         expires = time.time() + (30 * 24 * 3600 if remember else 24 * 3600)
 
-        session_data = {"user_id": user_id, "expires": expires, "created_at": time.time()}
+        session_data = {
+            "user_id": user_id,
+            "expires": expires,
+            "created_at": time.time(),
+        }
 
         if self.redis:
             try:
-                self.redis.setex(f"session:{token}", int(expires - time.time()), str(session_data))
+                self.redis.setex(
+                    f"session:{token}", int(expires - time.time()), str(session_data)
+                )
             except redis.RedisError:
                 # Fall back to in-memory storage
                 self.sessions[token] = session_data
@@ -99,7 +105,7 @@ class SessionManager:
         if token in self.sessions:
             del self.sessions[token]
 
-    def generate_reset_token(self, user_id: int, expires_in: int = 3600) -> str:
+    def generate_reset_token(self, user_id: int, expires_in: int = 3600):
         """Generate a password reset token.
 
         Args:

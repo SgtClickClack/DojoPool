@@ -1,16 +1,20 @@
+from flask_caching import Cache
+from flask_caching import Cache
 from datetime import datetime
+from typing import Any, Dict, List
 
 from flask import Blueprint, jsonify, request
+from flask.typing import ResponseReturnValue
 from flask_login import current_user, login_required
 
-from src.core.auth.utils import admin_required
-from src.core.models import Tournament, Venue, db
+from ..auth.utils import admin_required
+from ..models import Tournament, Venue, db
 
 bp = Blueprint("tournaments", __name__, url_prefix="/tournaments")
 
 
 @bp.route("/", methods=["GET"])
-def list_tournaments():
+def list_tournaments() -> ResponseReturnValue:
     """List all tournaments."""
     # Get query parameters for filtering
     venue_id = request.args.get("venue_id", type=int)
@@ -25,273 +29,251 @@ def list_tournaments():
         query = query.filter_by(status=status)
 
     tournaments = query.all()
+
     return jsonify(
         {
-            "status": "success",
-            "data": {"tournaments": [tournament.to_dict() for tournament in tournaments]},
+            "tournaments": [
+                {
+                    "id": t.id,
+                    "name": t.name,
+                    "venue_id": t.venue_id,
+                    "start_date": t.start_date.isoformat() if t.start_date else None,
+                    "end_date": t.end_date.isoformat() if t.end_date else None,
+                    "status": t.status,
+                    "max_participants": t.max_participants,
+                    "current_participants": len(t.participants),
+                }
+                for t in tournaments
+            ]
         }
     )
 
 
 @bp.route("/<int:tournament_id>", methods=["GET"])
-def get_tournament(tournament_id):
+def get_tournament(tournament_id: int) -> ResponseReturnValue:
     """Get tournament details."""
     tournament = Tournament.query.get_or_404(tournament_id)
-    return jsonify({"status": "success", "data": {"tournament": tournament.to_dict()}})
+
+    return jsonify(
+        {
+            "id": tournament.id,
+            "name": tournament.name,
+            "description": tournament.description,
+            "venue_id": tournament.venue_id,
+            "start_date": (
+                tournament.start_date.isoformat() if tournament.start_date else None
+            ),
+            "end_date": (
+                tournament.end_date.isoformat() if tournament.end_date else None
+            ),
+            "status": tournament.status,
+            "max_participants": tournament.max_participants,
+            "current_participants": len(tournament.participants),
+            "rules": tournament.rules,
+            "prize_pool": tournament.prize_pool,
+        }
+    )
 
 
 @bp.route("/", methods=["POST"])
 @admin_required
-def create_tournament(admin_user):
+def create_tournament():
     """Create a new tournament."""
     data = request.get_json()
 
     # Validate required fields
-    required_fields = ["venue_id", "name", "start_date", "end_date"]
-    if not all(field in data for field in required_fields):
-        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+    required_fields = ["name", "venue_id", "max_participants"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
 
-    # Verify venue exists
-    venue = Venue.query.get_or_404(data["venue_id"])
-    if not venue.is_active:
-        return jsonify({"status": "error", "message": "Venue is not active"}), 400
+    # Validate venue exists
+    venue = Venue.query.get(data["venue_id"])
+    if not venue:
+        return jsonify({"error": "Invalid venue ID"}), 400
 
     # Create tournament
     tournament = Tournament(
-        venue_id=data["venue_id"],
         name=data["name"],
         description=data.get("description"),
-        start_date=datetime.fromisoformat(data["start_date"]),
-        end_date=datetime.fromisoformat(data["end_date"]),
-        max_participants=data.get("max_participants"),
-        entry_fee=data.get("entry_fee"),
+        venue_id=data["venue_id"],
+        max_participants=data["max_participants"],
+        rules=data.get("rules"),
         prize_pool=data.get("prize_pool"),
-        tournament_type=data.get("tournament_type", "single_elimination"),
-        status="upcoming",
-        rules=data.get("rules", {}),
-        created_at=datetime.utcnow(),
+        status="pending",
     )
 
-    try:
-        db.session.add(tournament)
-        db.session.commit()
-        return (
-            jsonify(
-                {
-                    "status": "success",
-                    "message": "Tournament created successfully",
-                    "data": {"tournament": tournament.to_dict()},
-                }
-            ),
-            201,
-        )
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    db.session.add(tournament)
+    db.session.commit()
+
+    return (
+        jsonify(
+            {
+                "id": tournament.id,
+                "name": tournament.name,
+                "venue_id": tournament.venue_id,
+                "status": tournament.status,
+            }
+        ),
+        201,
+    )
 
 
 @bp.route("/<int:tournament_id>", methods=["PUT"])
 @admin_required
-def update_tournament(admin_user, tournament_id):
+def update_tournament(tournament_id: int) -> ResponseReturnValue:
     """Update tournament details."""
     tournament = Tournament.query.get_or_404(tournament_id)
-
-    # Only venue owner or admin can update
-    venue = Venue.query.get(tournament.venue_id)
-    if venue.owner_id != admin_user.id and not admin_user.is_admin:
-        return (
-            jsonify({"status": "error", "message": "Not authorized to update this tournament"}),
-            403,
-        )
-
     data = request.get_json()
 
-    # Update allowed fields
-    allowed_fields = [
-        "name",
-        "description",
-        "start_date",
-        "end_date",
-        "max_participants",
-        "entry_fee",
-        "prize_pool",
-        "tournament_type",
-        "status",
-        "rules",
-    ]
-    for field in allowed_fields:
-        if field in data:
-            if field in ["start_date", "end_date"]:
-                setattr(tournament, field, datetime.fromisoformat(data[field]))
-            else:
-                setattr(tournament, field, data[field])
+    # Don't allow updating if tournament has started
+    if tournament.status not in ["pending", "registration"]:
+        return jsonify({"error": "Cannot update tournament after it has started"}), 400
 
-    try:
-        db.session.commit()
-        return jsonify(
-            {
-                "status": "success",
-                "message": "Tournament updated successfully",
-                "data": {"tournament": tournament.to_dict()},
-            }
-        )
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # Update fields
+    if "name" in data:
+        tournament.name = data["name"]
+    if "description" in data:
+        tournament.description = data["description"]
+    if "max_participants" in data:
+        if len(tournament.participants) > data["max_participants"]:
+            return (
+                jsonify(
+                    {"error": "New max_participants is less than current participants"}
+                ),
+                400,
+            )
+        tournament.max_participants = data["max_participants"]
+    if "rules" in data:
+        tournament.rules = data["rules"]
+    if "prize_pool" in data:
+        tournament.prize_pool = data["prize_pool"]
+
+    db.session.commit()
+
+    return jsonify(
+        {"id": tournament.id, "name": tournament.name, "status": tournament.status}
+    )
 
 
 @bp.route("/<int:tournament_id>", methods=["DELETE"])
 @admin_required
-def delete_tournament(admin_user, tournament_id):
+def delete_tournament(tournament_id: int) -> ResponseReturnValue:
     """Delete a tournament."""
     tournament = Tournament.query.get_or_404(tournament_id)
 
-    # Only venue owner or admin can delete
-    venue = Venue.query.get(tournament.venue_id)
-    if venue.owner_id != admin_user.id and not admin_user.is_admin:
-        return (
-            jsonify({"status": "error", "message": "Not authorized to delete this tournament"}),
-            403,
-        )
+    # Don't allow deleting if tournament has started
+    if tournament.status not in ["pending", "registration"]:
+        return jsonify({"error": "Cannot delete tournament after it has started"}), 400
 
-    try:
-        db.session.delete(tournament)
-        db.session.commit()
-        return jsonify({"status": "success", "message": "Tournament deleted successfully"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    db.session.delete(tournament)
+    db.session.commit()
+
+    return jsonify({"message": "Tournament deleted successfully"})
 
 
 @bp.route("/<int:tournament_id>/register", methods=["POST"])
 @login_required
-def register_for_tournament(tournament_id):
+def register_for_tournament(tournament_id: int) -> ResponseReturnValue:
     """Register current user for a tournament."""
     tournament = Tournament.query.get_or_404(tournament_id)
 
-    # Verify tournament is accepting registrations
-    if tournament.status != "upcoming":
-        return (
-            jsonify({"status": "error", "message": "Tournament is not accepting registrations"}),
-            400,
-        )
+    # Check tournament status
+    if tournament.status != "registration":
+        return jsonify({"error": "Tournament is not open for registration"}), 400
 
-    # Check if tournament is full
-    if tournament.max_participants and len(tournament.participants) >= tournament.max_participants:
-        return jsonify({"status": "error", "message": "Tournament is full"}), 400
-
-    # Check if user is already registered
+    # Check if already registered
     if current_user in tournament.participants:
-        return (
-            jsonify({"status": "error", "message": "Already registered for this tournament"}),
-            400,
-        )
+        return jsonify({"error": "Already registered for this tournament"}), 400
 
-    try:
-        tournament.participants.append(current_user)
-        db.session.commit()
-        return jsonify({"status": "success", "message": "Successfully registered for tournament"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # Check max participants
+    if len(tournament.participants) >= tournament.max_participants:
+        return jsonify({"error": "Tournament is full"}), 400
+
+    # Register user
+    tournament.participants.append(current_user)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Successfully registered for tournament",
+            "tournament_id": tournament.id,
+        }
+    )
 
 
 @bp.route("/<int:tournament_id>/unregister", methods=["POST"])
 @login_required
-def unregister_from_tournament(tournament_id):
+def unregister_from_tournament(tournament_id: int) -> ResponseReturnValue:
     """Unregister current user from a tournament."""
     tournament = Tournament.query.get_or_404(tournament_id)
 
-    # Verify tournament hasn't started
-    if tournament.status != "upcoming":
-        return (
-            jsonify(
-                {"status": "error", "message": "Cannot unregister from tournament that has started"}
-            ),
-            400,
-        )
+    # Check tournament status
+    if tournament.status != "registration":
+        return jsonify({"error": "Cannot unregister after tournament has started"}), 400
 
-    # Check if user is registered
+    # Check if registered
     if current_user not in tournament.participants:
-        return jsonify({"status": "error", "message": "Not registered for this tournament"}), 400
+        return jsonify({"error": "Not registered for this tournament"}), 400
 
-    try:
-        tournament.participants.remove(current_user)
-        db.session.commit()
-        return jsonify(
-            {"status": "success", "message": "Successfully unregistered from tournament"}
-        )
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # Unregister user
+    tournament.participants.remove(current_user)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Successfully unregistered from tournament",
+            "tournament_id": tournament.id,
+        }
+    )
 
 
 @bp.route("/<int:tournament_id>/start", methods=["POST"])
 @admin_required
-def start_tournament(admin_user, tournament_id):
+def start_tournament(tournament_id: int) -> ResponseReturnValue:
     """Start a tournament."""
     tournament = Tournament.query.get_or_404(tournament_id)
 
-    # Only venue owner or admin can start
-    venue = Venue.query.get(tournament.venue_id)
-    if venue.owner_id != admin_user.id and not admin_user.is_admin:
-        return (
-            jsonify({"status": "error", "message": "Not authorized to start this tournament"}),
-            403,
-        )
-
-    # Verify tournament can be started
-    if tournament.status != "upcoming":
-        return jsonify({"status": "error", "message": "Tournament cannot be started"}), 400
+    # Validate tournament can be started
+    if tournament.status != "registration":
+        return jsonify({"error": "Tournament cannot be started"}), 400
 
     if len(tournament.participants) < 2:
-        return (
-            jsonify({"status": "error", "message": "Not enough participants to start tournament"}),
-            400,
-        )
+        return jsonify({"error": "Not enough participants to start tournament"}), 400
 
-    try:
-        tournament.status = "in_progress"
-        tournament.start_date = datetime.utcnow()
-        db.session.commit()
-        return jsonify(
-            {
-                "status": "success",
-                "message": "Tournament started successfully",
-                "data": {"tournament": tournament.to_dict()},
-            }
-        )
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # Update tournament status and start time
+    tournament.status = "in_progress"
+    tournament.start_date = datetime.utcnow()
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Tournament started successfully",
+            "tournament_id": tournament.id,
+            "start_date": tournament.start_date.isoformat(),
+        }
+    )
 
 
 @bp.route("/<int:tournament_id>/end", methods=["POST"])
 @admin_required
-def end_tournament(admin_user, tournament_id):
+def end_tournament(tournament_id: int) -> ResponseReturnValue:
     """End a tournament."""
     tournament = Tournament.query.get_or_404(tournament_id)
 
-    # Only venue owner or admin can end
-    venue = Venue.query.get(tournament.venue_id)
-    if venue.owner_id != admin_user.id and not admin_user.is_admin:
-        return jsonify({"status": "error", "message": "Not authorized to end this tournament"}), 403
-
-    # Verify tournament can be ended
+    # Validate tournament can be ended
     if tournament.status != "in_progress":
-        return jsonify({"status": "error", "message": "Tournament is not in progress"}), 400
+        return jsonify({"error": "Tournament is not in progress"}), 400
 
-    try:
-        tournament.status = "completed"
-        tournament.end_date = datetime.utcnow()
-        db.session.commit()
-        return jsonify(
-            {
-                "status": "success",
-                "message": "Tournament ended successfully",
-                "data": {"tournament": tournament.to_dict()},
-            }
-        )
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # Update tournament status and end time
+    tournament.status = "completed"
+    tournament.end_date = datetime.utcnow()
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "Tournament ended successfully",
+            "tournament_id": tournament.id,
+            "end_date": tournament.end_date.isoformat(),
+        }
+    )

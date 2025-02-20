@@ -1,16 +1,18 @@
 """Tests for tournament management system."""
 
-import pytest
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict, Set
+
+import pytest
+
 from .tournament_manager import (
-    TournamentManager,
-    Tournament,
-    TournamentMatch,
-    TournamentType,
-    TournamentStatus,
     MatchStatus,
+    Tournament,
+    TournamentManager,
+    TournamentMatch,
+    TournamentStatus,
+    TournamentType,
 )
 
 
@@ -21,7 +23,7 @@ def tournament_manager() -> TournamentManager:
 
 
 @pytest.fixture
-def test_tournament(tournament_manager: TournamentManager) -> Tournament:
+def test_tournament(tournament_manager: TournamentManager):
     """Create a test tournament."""
     prize_pool: Dict[int, Decimal] = {
         1: Decimal("1000.00"),
@@ -48,7 +50,7 @@ def test_tournament(tournament_manager: TournamentManager) -> Tournament:
 class TestTournamentCreation:
     """Test tournament creation functionality."""
 
-    def test_create_tournament(self, tournament_manager: TournamentManager) -> None:
+    def test_create_tournament(self, tournament_manager: TournamentManager):
         """Test creating a tournament."""
         prize_pool = {1: Decimal("1000.00")}
         tournament = tournament_manager.create_tournament(
@@ -74,7 +76,7 @@ class TestTournamentCreation:
 
     def test_tournament_retrieval(
         self, tournament_manager: TournamentManager, test_tournament: Tournament
-    ) -> None:
+    ):
         """Test retrieving tournament."""
         tournament = tournament_manager.get_tournament(test_tournament.tournament_id)
         assert tournament == test_tournament
@@ -111,7 +113,7 @@ class TestPlayerRegistration:
 
     def test_registration_limits(
         self, tournament_manager: TournamentManager, test_tournament: Tournament
-    ) -> None:
+    ):
         """Test registration limits."""
         test_tournament.status = TournamentStatus.REGISTRATION_OPEN
         test_tournament.max_players = 2
@@ -131,7 +133,7 @@ class TestPlayerRegistration:
 
     def test_registration_status(
         self, tournament_manager: TournamentManager, test_tournament: Tournament
-    ) -> None:
+    ):
         """Test registration status restrictions."""
         # Try to register when not open
         assert not tournament_manager.register_player(
@@ -156,7 +158,7 @@ class TestTournamentProgress:
 
     def test_start_tournament(
         self, tournament_manager: TournamentManager, test_tournament: Tournament
-    ) -> None:
+    ):
         """Test starting a tournament."""
         # Register players
         test_tournament.status = TournamentStatus.REGISTRATION_OPEN
@@ -277,7 +279,9 @@ class TestTournamentQueries:
         """Test retrieving player tournaments."""
         # Register player in tournament
         test_tournament.status = TournamentStatus.REGISTRATION_OPEN
-        tournament_manager.register_player(test_tournament.tournament_id, "player1", skill_level=6)
+        tournament_manager.register_player(
+            test_tournament.tournament_id, "player1", skill_level=6
+        )
 
         # Query tournaments
         tournaments = tournament_manager.get_player_tournaments("player1")
@@ -297,7 +301,7 @@ class TestTournamentQueries:
 
     def test_get_venue_tournaments(
         self, tournament_manager: TournamentManager, test_tournament: Tournament
-    ) -> None:
+    ):
         """Test retrieving venue tournaments."""
         tournaments = tournament_manager.get_venue_tournaments(test_tournament.venue_id)
         assert len(tournaments) == 1
@@ -309,7 +313,7 @@ class TestTournamentQueries:
 
     def test_get_tournament_standings(
         self, tournament_manager: TournamentManager, test_tournament: Tournament
-    ) -> None:
+    ):
         """Test tournament standings calculation."""
         # Setup and start tournament
         test_tournament.status = TournamentStatus.REGISTRATION_OPEN
@@ -335,7 +339,9 @@ class TestTournamentQueries:
             )
 
         # Get standings
-        standings = tournament_manager.get_tournament_standings(test_tournament.tournament_id)
+        standings = tournament_manager.get_tournament_standings(
+            test_tournament.tournament_id
+        )
 
         # Verify standings
         assert len(standings) == 2  # Two winners from first round

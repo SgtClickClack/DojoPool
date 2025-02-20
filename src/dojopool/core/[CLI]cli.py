@@ -5,9 +5,13 @@ This module provides command-line interface commands.
 
 import click
 from flask.cli import with_appcontext
-
 from src.core.database.init_db import init_db
-from src.core.database.migrations import create_tables, drop_tables, init_migrations, reset_tables
+from src.core.database.migrations import (
+    create_tables,
+    drop_tables,
+    init_migrations,
+    reset_tables,
+)
 
 
 @click.group()

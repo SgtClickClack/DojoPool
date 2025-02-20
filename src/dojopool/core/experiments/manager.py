@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """
 Experiment manager for A/B testing.
 Manages experiments, assignments, and metrics collection.
@@ -51,14 +53,16 @@ class ExperimentManager:
 
     def create_experiment(
         self, name: str, variants: List[str], traffic_percentage: float = 100.0
-    ) -> str:
+    ):
         """Create a new experiment."""
         try:
             # Validate variants and normalize weights
             if not variants:
                 error = ValueError("At least one variant must be provided")
                 error_logger.log_error(
-                    error=error, severity=ErrorSeverity.ERROR, component="experiment_manager"
+                    error=error,
+                    severity=ErrorSeverity.ERROR,
+                    component="experiment_manager",
                 )
                 raise error
 
@@ -67,13 +71,16 @@ class ExperimentManager:
             if experiment_id in self._experiments:
                 error = ValueError(f"Experiment {name} already exists")
                 error_logger.log_error(
-                    error=error, severity=ErrorSeverity.ERROR, component="experiment_manager"
+                    error=error,
+                    severity=ErrorSeverity.ERROR,
+                    component="experiment_manager",
                 )
                 raise error
 
             # Create experiment
             variant_configs = [
-                {"id": variant_id, "name": variant_id, "weight": 1.0} for variant_id in variants
+                {"id": variant_id, "name": variant_id, "weight": 1.0}
+                for variant_id in variants
             ]
             experiment = Experiment(
                 id=experiment_id,
@@ -103,11 +110,11 @@ class ExperimentManager:
             )
             raise
 
-    def get_experiment(self, experiment_id: str) -> Optional[Experiment]:
+    def get_experiment(self, experiment_id: str):
         """Get experiment by ID."""
         return self._experiments.get(experiment_id)
 
-    def get_active_experiments(self) -> List[Experiment]:
+    def get_active_experiments(self):
         """Get all active experiments."""
         now = datetime.now()
         return [
@@ -140,7 +147,7 @@ class ExperimentManager:
         metric_name: str,
         value: float,
         attributes: Optional[Dict[str, str]] = None,
-    ) -> None:
+    ):
         """Record a metric for an experiment."""
         try:
             self._metrics_collector.record_event(
@@ -157,13 +164,15 @@ class ExperimentManager:
             )
             raise
 
-    def get_experiment_results(self, experiment_id: str) -> Dict[str, Any]:
+    def get_experiment_results(self, experiment_id: str):
         """Get results for an experiment."""
         try:
             if experiment_id not in self._experiments:
                 error = ValueError(f"Experiment {experiment_id} not found")
                 error_logger.log_error(
-                    error=error, severity=ErrorSeverity.WARNING, component="experiment_manager"
+                    error=error,
+                    severity=ErrorSeverity.WARNING,
+                    component="experiment_manager",
                 )
                 return {}
 

@@ -1,7 +1,6 @@
-"""Main views."""
+"""Main routes views."""
 
-from flask import jsonify
-
+from flask import render_template, jsonify
 from . import main_bp
 
 
@@ -9,3 +8,9 @@ from . import main_bp
 def health():
     """Health check endpoint."""
     return jsonify({"status": "healthy"})
+
+
+@main_bp.route("/")
+def index():
+    """Landing page."""
+    return render_template("landing.html")

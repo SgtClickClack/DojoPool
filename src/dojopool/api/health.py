@@ -3,22 +3,21 @@ Health check endpoints for system monitoring.
 """
 
 import time
-from typing import Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from flask import Blueprint, Flask, Response, jsonify
+from flask import Blueprint, Flask, Response, current_app, jsonify
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-from ..core.monitoring.error_logger import ErrorSeverity, error_logger
-
-# Use relative imports since we're within the dojopool package
-from ..core.monitoring.system_metrics import SystemMetricsCollector
+from ..core.monitoring import ErrorSeverity, error_logger
+from ..core.system_metrics import SystemMetricsCollector
 from ..utils.monitoring import (
     ERROR_COUNT,
     REQUEST_COUNT,
     REQUEST_LATENCY,
 )
 
-health_bp = Blueprint("health", __name__)
-metrics_collector = SystemMetricsCollector(interval=30)
+health_bp: Blueprint = Blueprint("health", __name__)
+metrics_collector: SystemMetricsCollector = SystemMetricsCollector(interval=30)
 
 
 def start_collector() -> None:
@@ -31,7 +30,7 @@ health_bp.record(lambda s: s.app.before_first_request(start_collector))
 
 
 @health_bp.route("/health")
-def health_check() -> Response:
+def health_check():
     """Basic health check endpoint.
 
     Returns:
@@ -41,7 +40,7 @@ def health_check() -> Response:
 
 
 @health_bp.route("/health/detailed")
-def detailed_health() -> Union[Response, Tuple[Response, int]]:
+def detailed_health():
     """Detailed health check endpoint.
 
     Returns:
@@ -49,21 +48,22 @@ def detailed_health() -> Union[Response, Tuple[Response, int]]:
     """
     try:
         # Get current system metrics
-        system_metrics = metrics_collector.get_current_metrics()
+        system_metrics: Dict[str, Any] = metrics_collector.get_current_metrics()
 
         # Get recent errors
-        recent_errors = error_logger.get_recent_errors(limit=10)
+        recent_errors: List[Dict[str, Any]] = error_logger.get_recent_errors(limit=10)
 
         # Calculate request metrics
-        total_requests = sum(float(v) for v in REQUEST_COUNT._metrics.values())
+        total_requests: float = sum(float(v) for v in REQUEST_COUNT._metrics.values())
 
-        avg_latency = (
-            sum(float(v) for v in REQUEST_LATENCY._metrics.values()) / len(REQUEST_LATENCY._metrics)
+        avg_latency: float = (
+            sum(float(v) for v in REQUEST_LATENCY._metrics.values())
+            / len(REQUEST_LATENCY._metrics)
             if REQUEST_LATENCY._metrics
             else 0
         )
 
-        total_errors = sum(float(v) for v in ERROR_COUNT._metrics.values())
+        total_errors: float = sum(float(v) for v in ERROR_COUNT._metrics.values())
 
         return jsonify(
             {
@@ -79,12 +79,16 @@ def detailed_health() -> Union[Response, Tuple[Response, int]]:
             }
         )
     except Exception as e:
-        error_logger.log_error(error=e, severity=ErrorSeverity.ERROR, component="health_check")
-        return jsonify({"status": "error", "timestamp": int(time.time()), "error": str(e)}), 500
+        error_logger.log_error(
+            error=e, severity=ErrorSeverity.ERROR, component="health_check"
+        )
+        return jsonify(
+            {"status": "error", "timestamp": int(time.time()), "error": str(e)}
+        )
 
 
 @health_bp.route("/health/metrics")
-def prometheus_metrics() -> Response:
+def prometheus_metrics():
     """Prometheus metrics endpoint.
 
     Returns:
@@ -92,7 +96,9 @@ def prometheus_metrics() -> Response:
     """
     from prometheus_client import generate_latest
 
-    return Response(generate_latest(), mimetype="text/plain; version=0.0.4; charset=utf-8")
+    return Response(
+        generate_latest(), mimetype="text/plain; version=0.0.4; charset=utf-8"
+    )
 
 
 def init_app(app: Flask) -> None:

@@ -1,9 +1,13 @@
-from typing import Dict, Set, Optional, List, Any, cast, Union
-from datetime import datetime
-import json
+import gc
+import gc
 import asyncio
+import json
 import zlib
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Set, Union, cast
+
 from fastapi import WebSocket
+
 from ...extensions import cache_service
 from .global_ranking import GlobalRankingService
 
@@ -41,7 +45,11 @@ class RealTimeRankingService:
                 "total_bytes_raw": 0,
                 "total_bytes_compressed": 0,
             },
-            "batch_stats": {"batches_sent": 0, "messages_batched": 0, "avg_batch_size": 0.0},
+            "batch_stats": {
+                "batches_sent": 0,
+                "messages_batched": 0,
+                "avg_batch_size": 0.0,
+            },
         }
         self.rate_limits: RateLimits = {
             "max_connections_per_user": 5.0,
@@ -63,25 +71,30 @@ class RealTimeRankingService:
         self._message_queues: Dict[UserID, MessageQueue] = {}
         self._batch_tasks: BatchTasks = {}
 
-    def _get_stat(self, key: str, default: Any = 0) -> Any:
+    def _get_stat(self, key: str, default: Any = 0):
         """Safely get a stat value with proper type casting."""
         return self.stats.get(key, default)
 
-    def _increment_stat(self, key: str, amount: int = 1) -> None:
+    def _increment_stat(self, key: str, amount: int = 1):
         """Safely increment a numeric stat value."""
         current = cast(int, self._get_stat(key, 0))
         self.stats[key] = current + amount
 
-    def _update_stat(self, key: str, value: Any) -> None:
+    def _update_stat(self, key: str, value: Any):
         """Safely update a stat value."""
         self.stats[key] = value
 
     async def connect(
-        self, websocket: WebSocket, user_id: UserID, reconnect_token: Optional[str] = None
+        self,
+        websocket: WebSocket,
+        user_id: UserID,
+        reconnect_token: Optional[str] = None,
     ) -> None:
         """Connect a new WebSocket client with reconnection support."""
         try:
-            if reconnect_token and self._validate_reconnect_token(user_id, reconnect_token):
+            if reconnect_token and self._validate_reconnect_token(
+                user_id, reconnect_token
+            ):
                 self._increment_stat("successful_reconnections")
             else:
                 if user_id in self.active_connections and len(
@@ -90,7 +103,9 @@ class RealTimeRankingService:
                     self._increment_stat("rate_limited_attempts")
                     raise ValueError(f"Maximum connections reached for user {user_id}")
 
-                total_connections = sum(len(conns) for conns in self.active_connections.values())
+                total_connections = sum(
+                    len(conns) for conns in self.active_connections.values()
+                )
                 if total_connections >= int(self.rate_limits["max_total_connections"]):
                     self._increment_stat("rate_limited_attempts")
                     raise ValueError("Maximum total connections reached")
@@ -120,7 +135,9 @@ class RealTimeRankingService:
 
             self._increment_stat("total_connections")
             cast(Set[int], self.stats["connected_users"]).add(user_id)
-            current_connections = sum(len(conns) for conns in self.active_connections.values())
+            current_connections = sum(
+                len(conns) for conns in self.active_connections.values()
+            )
             self._update_stat(
                 "peak_connections",
                 max(cast(int, self._get_stat("peak_connections")), current_connections),
@@ -165,7 +182,9 @@ class RealTimeRankingService:
             self._update_stat("last_error", f"Disconnect error: {str(e)}")
             await self._cache_stats()
 
-    async def broadcast_ranking_update(self, user_id: UserID, ranking_data: Dict[str, Any]) -> None:
+    async def broadcast_ranking_update(
+        self, user_id: UserID, ranking_data: Dict[str, Any]
+    ):
         """Broadcast ranking update with batching and rate limiting."""
         current_time = asyncio.get_event_loop().time()
 
@@ -190,16 +209,21 @@ class RealTimeRankingService:
             await self._cache_stats()
             raise
 
-    async def broadcast_global_update(self, start_rank: int, end_rank: int) -> None:
+    async def broadcast_global_update(self, start_rank: int, end_rank: int):
         """Broadcast global ranking updates with batching."""
         current_time = asyncio.get_event_loop().time()
 
-        if current_time - self._last_broadcast_time < self.rate_limits["broadcast_cooldown"]:
+        if (
+            current_time - self._last_broadcast_time
+            < self.rate_limits["broadcast_cooldown"]
+        ):
             self._increment_stat("rate_limited_attempts")
             return
 
         try:
-            rankings = await self.ranking_service.get_rankings_in_range(start_rank, end_rank)
+            rankings = await self.ranking_service.get_rankings_in_range(
+                start_rank, end_rank
+            )
             message = {
                 "type": "global_update",
                 "data": rankings,
@@ -261,16 +285,16 @@ class RealTimeRankingService:
                 print(f"Error in periodic updates: {str(e)}")
                 await asyncio.sleep(60)  # Wait before retrying
 
-    async def _cache_stats(self) -> None:
+    async def _cache_stats(self):
         """Cache the current statistics."""
         await cache_service.set("ranking_stats", self.stats)
 
-    async def get_stats(self) -> Stats:
+    async def get_stats(self):
         """Get the current statistics."""
         cached_stats = await cache_service.get("ranking_stats")
         return cached_stats if cached_stats is not None else self.stats
 
-    def _generate_reconnect_token(self, user_id: UserID) -> str:
+    def _generate_reconnect_token(self, user_id: UserID):
         """Generate a reconnection token for a user."""
         token = f"{user_id}_{datetime.now().timestamp()}"
         self._connection_tokens[user_id] = token
@@ -282,12 +306,12 @@ class RealTimeRankingService:
             return False
         return self._connection_tokens[user_id] == token
 
-    async def _cleanup_reconnect_token(self, user_id: UserID) -> None:
+    async def _cleanup_reconnect_token(self, user_id: UserID):
         """Clean up a reconnection token after timeout."""
         await asyncio.sleep(self.rate_limits["reconnect_timeout"])
         self._connection_tokens.pop(user_id, None)
 
-    async def _start_heartbeat_monitor(self, websocket: WebSocket, user_id: UserID) -> None:
+    async def _start_heartbeat_monitor(self, websocket: WebSocket, user_id: UserID):
         """Start heartbeat monitoring for a connection."""
         if user_id not in self._heartbeat_tasks:
             self._heartbeat_tasks[user_id] = set()
@@ -295,15 +319,18 @@ class RealTimeRankingService:
         task = asyncio.create_task(self._monitor_heartbeat(websocket, user_id))
         self._heartbeat_tasks[user_id].add(task)
 
-    async def _monitor_heartbeat(self, websocket: WebSocket, user_id: UserID) -> None:
+    async def _monitor_heartbeat(self, websocket: WebSocket, user_id: UserID):
         """Monitor heartbeat for a connection."""
         while True:
             try:
-                await websocket.send_json({"type": "ping", "timestamp": datetime.now().isoformat()})
+                await websocket.send_json(
+                    {"type": "ping", "timestamp": datetime.now().isoformat()}
+                )
 
                 try:
                     response = await asyncio.wait_for(
-                        websocket.receive_json(), timeout=self.rate_limits["heartbeat_interval"]
+                        websocket.receive_json(),
+                        timeout=self.rate_limits["heartbeat_interval"],
                     )
 
                     if response.get("type") != "pong":
@@ -324,12 +351,14 @@ class RealTimeRankingService:
             self._message_queues[user_id] = []
         self._message_queues[user_id].append(message)
 
-    async def _start_batch_processor(self, user_id: UserID) -> None:
+    async def _start_batch_processor(self, user_id: UserID):
         """Start batch message processor for a user."""
         if user_id not in self._batch_tasks or self._batch_tasks[user_id].done():
-            self._batch_tasks[user_id] = asyncio.create_task(self._process_message_batch(user_id))
+            self._batch_tasks[user_id] = asyncio.create_task(
+                self._process_message_batch(user_id)
+            )
 
-    async def _process_message_batch(self, user_id: UserID) -> None:
+    async def _process_message_batch(self, user_id: UserID):
         """Process batched messages for a user."""
         while user_id in self.active_connections:
             try:
@@ -352,8 +381,12 @@ class RealTimeRankingService:
                         batch_size = len(messages)
                         self._increment_stat("batch_stats.batches_sent")
                         self._increment_stat("batch_stats.messages_batched", batch_size)
-                        total_batches = cast(int, self._get_stat("batch_stats.batches_sent"))
-                        total_messages = cast(int, self._get_stat("batch_stats.messages_batched"))
+                        total_batches = cast(
+                            int, self._get_stat("batch_stats.batches_sent")
+                        )
+                        total_messages = cast(
+                            int, self._get_stat("batch_stats.messages_batched")
+                        )
                         avg_batch_size = (
                             total_messages / total_batches if total_batches > 0 else 0.0
                         )
@@ -373,7 +406,9 @@ class RealTimeRankingService:
                 self._update_stat("last_error", f"Batch processing error: {str(e)}")
                 await asyncio.sleep(1)
 
-    async def _send_message(self, websocket: WebSocket, message: Dict[str, Any]) -> None:
+    async def _send_message(
+        self, websocket: WebSocket, message: Dict[str, Any]
+    ) -> None:
         """Send a message with optional compression."""
         try:
             message_data = json.dumps(message).encode("utf-8")
@@ -384,10 +419,14 @@ class RealTimeRankingService:
                 compressed_data = zlib.compress(message_data)
                 compressed_size = len(compressed_data)
                 self._increment_stat("compression_stats.compressed_messages")
-                self._increment_stat("compression_stats.total_bytes_compressed", compressed_size)
+                self._increment_stat(
+                    "compression_stats.total_bytes_compressed", compressed_size
+                )
                 await websocket.send_bytes(compressed_data)
             else:
-                self._increment_stat("compression_stats.total_bytes_compressed", raw_size)
+                self._increment_stat(
+                    "compression_stats.total_bytes_compressed", raw_size
+                )
                 await websocket.send_json(message)
 
             self._increment_stat("messages_sent")
@@ -402,7 +441,8 @@ class RealTimeRankingService:
         """Check if the operation should be rate limited."""
         if (
             user_id in self._last_update_time
-            and current_time - self._last_update_time[user_id] < self.rate_limits["update_cooldown"]
+            and current_time - self._last_update_time[user_id]
+            < self.rate_limits["update_cooldown"]
         ):
             self._increment_stat("rate_limited_attempts")
             return True

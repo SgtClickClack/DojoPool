@@ -6,17 +6,24 @@ Create Date: 2024-01-20 15:00:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic
-revision = "add_tournament_system"
-down_revision = "add_social_features"
-branch_labels = None
-depends_on = None
+revision: str = "add_tournament_system"
+down_revision: str = "add_social_features"
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create enum types
     op.execute(
         "CREATE TYPE tournament_status AS ENUM ('upcoming', 'registration_open', 'in_progress', 'completed', 'cancelled')"
@@ -132,7 +139,13 @@ def upgrade():
         sa.Column("actual_end_time", sa.DateTime(), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("scheduled", "in_progress", "completed", "cancelled", name="match_status"),
+            sa.Enum(
+                "scheduled",
+                "in_progress",
+                "completed",
+                "cancelled",
+                name="match_status",
+            ),
             nullable=False,
         ),
         sa.Column("winner_id", sa.Integer(), nullable=True),

@@ -14,22 +14,37 @@ class TypeScriptMigrator:
         self.root_dir = Path(root_dir)
         self.js_files: List[Path] = []
         self.type_definitions: Dict[str, str] = {}
-        self.ignored_dirs = {".git", "__pycache__", "node_modules", "venv", "build", "dist"}
+        self.ignored_dirs = {
+            ".git",
+            "__pycache__",
+            "node_modules",
+            "venv",
+            "build",
+            "dist",
+        }
 
     def find_js_files(self) -> None:
         """Find all JavaScript files that need migration."""
         for path in self.root_dir.rglob("*.js"):
             path_str = str(path)
-            if not any(ignored in path_str.split(os.sep) for ignored in self.ignored_dirs):
+            if not any(
+                ignored in path_str.split(os.sep) for ignored in self.ignored_dirs
+            ):
                 if "test" not in path_str and "config" not in path_str:
                     self.js_files.append(path)
 
-    def analyze_file(self, file_path: Path) -> Dict:
+    def analyze_file(self, file_path: Path) :
         """Analyze a JavaScript file for type information."""
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        analysis = {"functions": [], "classes": [], "variables": [], "imports": [], "exports": []}
+        analysis = {
+            "functions": [],
+            "classes": [],
+            "variables": [],
+            "imports": [],
+            "exports": [],
+        }
 
         # Extract function declarations
         func_pattern = r"(?:function|const)\s+(\w+)\s*\((.*?)\)"
@@ -58,7 +73,10 @@ class TypeScriptMigrator:
         for match in re.finditer(var_pattern, content):
             var_name = match.group(1)
             analysis["variables"].append(
-                {"name": var_name, "type": "any"}  # Default to any, will be refined later
+                {
+                    "name": var_name,
+                    "type": "any",
+                }  # Default to any, will be refined later
             )
 
         # Extract imports
@@ -111,7 +129,9 @@ interface {export} {{
 
         return types
 
-    def migrate_file(self, file_path: Path, analysis: Dict, types: Dict[str, str]) -> str:
+    def migrate_file(
+        self, file_path: Path, analysis: Dict, types: Dict[str, str]
+    ) :
         """Migrate a JavaScript file to TypeScript."""
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()

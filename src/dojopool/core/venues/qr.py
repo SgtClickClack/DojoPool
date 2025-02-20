@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 import base64
 import io
 import json
@@ -28,7 +30,9 @@ class QRCodeManager:
                 "table_id": table_id,
                 "venue_id": venue_id,
                 "timestamp": datetime.utcnow().isoformat(),
-                "expires": (datetime.utcnow() + timedelta(minutes=self.expiry_minutes)).isoformat(),
+                "expires": (
+                    datetime.utcnow() + timedelta(minutes=self.expiry_minutes)
+                ).isoformat(),
             }
 
             # Generate QR code
@@ -55,7 +59,7 @@ class QRCodeManager:
             logger.error(f"Failed to generate QR code: {str(e)}")
             return None
 
-    def verify_qr_code(self, qr_data: str) -> Optional[Dict]:
+    def verify_qr_code(self, qr_data: str):
         """Verify a QR code and return table information."""
         try:
             # Parse QR data
@@ -89,7 +93,7 @@ class QRCodeManager:
             logger.error(f"Failed to verify QR code: {str(e)}")
             return None
 
-    def generate_batch_qr_codes(self, venue_id: int) -> Dict[int, str]:
+    def generate_batch_qr_codes(self, venue_id: int):
         """Generate QR codes for all tables in a venue."""
         try:
             tables = PoolTable.query.filter_by(venue_id=venue_id).all()
@@ -106,9 +110,7 @@ class QRCodeManager:
             logger.error(f"Failed to generate batch QR codes: {str(e)}")
             return {}
 
-    def update_table_status_from_qr(
-        self, qr_data: str, user_id: int, action: str
-    ) -> Optional[Dict]:
+    def update_table_status_from_qr(self, qr_data: str, user_id: int, action: str):
         """Update table status using QR code scan."""
         try:
             # Verify QR code

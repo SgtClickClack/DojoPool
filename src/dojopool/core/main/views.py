@@ -1,18 +1,50 @@
-"""Main views.
+from flask_caching import Cache
+from flask_caching import Cache
+"""Main views for DojoPool."""
 
-This module provides the main routes for the application.
-"""
+from datetime import datetime
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import Blueprint, render_template
-from flask_login import login_required
+from flask import (
+    Blueprint,
+    Request,
+    Response,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-bp = Blueprint("main", __name__)
+from dojopool.models.tournament import Tournament
+from dojopool.models.venue import Venue
+
+from ..auth import current_user, login_required
+from ..models import User, db
+
+bp: Blueprint = Blueprint("main", __name__)
 
 
 @bp.route("/")
-def index():
-    """Render index page."""
-    return render_template("index.html")
+def index() -> ResponseReturnValue:
+    """Render index page with featured venues and tournaments."""
+    # Get latest venues
+    featured_venues = Venue.query.order_by(Venue.created_at.desc()).limit(3).all()
+
+    # Get latest tournaments
+    latest_tournaments: Any = (
+        Tournament.query.order_by(Tournament.created_at.desc()).limit(2).all()
+    )
+
+    return render_template(
+        "index.html",
+        featured_venues=featured_venues or [],
+        latest_tournaments=latest_tournaments or [],
+    )
 
 
 @bp.route("/dashboard")
@@ -29,16 +61,16 @@ def profile():
     return render_template("profile.html")
 
 
-@bp.route("/settings")
+@bp.route("/sstrings")
 @login_required
-def settings():
-    """Render settings page."""
-    return render_template("settings.html")
+def sstrings():
+    """Render sstrings page."""
+    return render_template("sstrings.html")
 
 
 @bp.route("/about")
-def about():
-    """Render about page."""
+def about() -> str:
+    """Render abostrpage."""
     return render_template("about.html")
 
 

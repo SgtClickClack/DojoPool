@@ -1,6 +1,7 @@
 """Test suite for validation module."""
 
 import pytest
+
 from .validators import VenueValidator
 
 
@@ -124,7 +125,9 @@ class TestVenueValidator:
 
     def test_validate_social_links(self):
         """Test social links validation."""
-        assert VenueValidator.validate_social_links({"facebook": "https://fb.com/venue"})
+        assert VenueValidator.validate_social_links(
+            {"facebook": "https://fb.com/venue"}
+        )
         assert VenueValidator.validate_social_links(None)
         assert not VenueValidator.validate_social_links({"facebook": "x" * 256})
 

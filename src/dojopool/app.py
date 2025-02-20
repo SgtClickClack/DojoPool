@@ -1,86 +1,79 @@
 """Main application module."""
 
-import logging
 import os
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-import eventlet
-from dotenv import load_dotenv
 from flask import Flask
-from flask_login import LoginManager
+from flask_cors import CORS
 
-from dojopool.core.extensions import db
-from dojopool.core.main.views import bp as main_bp
-from dojopool.core.models.auth import User
-from dojopool.core.sockets import init_socketio, socketio
-from dojopool.routes.auth import auth_bp
-from dojopool.routes.game import game_bp
-from dojopool.routes.performance import bp as performance_bp
-from dojopool.routes.venue import bp as venue_bp
+from .core.extensions import db, login_manager, migrate
+from .models.user import User
 
-# Initialize eventlet for async operations
-eventlet.monkey_patch()
+@login_manager.user_loader
+def load_user(user_id):
+    """Load user by ID."""
+    return User.query.get(int(user_id))
 
-logger = logging.getLogger(__name__)
+def create_app(config: Optional[Dict[str, Any]] = None) -> Flask:
+    """Create and configure the Flask application.
 
+    Args:
+        config: Optional configuration dictionary to override defaults
 
-def create_app(config_name=None):
-    app = Flask(__name__)
+    Returns:
+        Configured Flask application instance
+    """
+    # Create Flask app with explicit template and static folders
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(os.path.dirname(__file__), "templates"),
+        static_folder=os.path.join(os.path.dirname(__file__), "static"),
+    )
 
-    # Configure static and template folders explicitly
-    static_folder = os.path.join(os.path.dirname(__file__), "static")
-    template_folder = os.path.join(os.path.dirname(__file__), "templates")
+    # Ensure data directory exists
+    data_dir = Path(os.path.dirname(__file__)) / "data"
+    data_dir.mkdir(exist_ok=True)
 
-    app.static_folder = static_folder
-    app.template_folder = template_folder
+    # Default configuration
+    app.config.update(
+        {
+            "SECRET_KEY": os.getenv("SECRET_KEY", "dev-key-please-change"),
+            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{data_dir}/dojopool.db",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            "TEMPLATES_AUTO_RELOAD": True,
+            "DEBUG": os.getenv("FLASK_ENV", "development") == "development",
+        }
+    )
 
-    logger.debug(f"Static folder: {static_folder}")
-    logger.debug(f"Template folder: {template_folder}")
-
-    # Load environment variables
-    load_dotenv()
-
-    # Basic configuration
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev")
-    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0  # Disable cache during development
-    app.config["GOOGLE_MAPS_API_KEY"] = os.getenv("GOOGLE_MAPS_API_KEY", "")
-    app.config["GOOGLE_CLIENT_ID"] = os.getenv("GOOGLE_CLIENT_ID", "")
-    app.config["GOOGLE_CLIENT_SECRET"] = os.getenv("GOOGLE_CLIENT_SECRET", "")
-
-    # Database configuration
-    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "dojopool.db")
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # Override config if provided
+    if config:
+        app.config.update(config)
 
     # Initialize extensions
     db.init_app(app)
-    login_manager = LoginManager()
+    migrate.init_app(app, db)
     login_manager.init_app(app)
+    CORS(app)
+
+    # Configure login manager
     login_manager.login_view = "auth.login"
+    login_manager.login_message_category = "info"
 
-    # Create database tables if they don't exist
     with app.app_context():
+        # Import routes here to avoid circular imports
+        from .routes import register_routes
+
+        register_routes(app)
+
+        # Create database tables
         db.create_all()
-
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
-
-    # Register blueprints
-    from dojopool.core.health import health_bp
-
-    app.register_blueprint(health_bp)
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(performance_bp)
-    app.register_blueprint(main_bp)
-    app.register_blueprint(game_bp, url_prefix="/game")
-    app.register_blueprint(venue_bp)
-
-    # Initialize SocketIO
-    init_socketio(app)
 
     return app
 
 
+# Create the application instance
+app = create_app()
+
 if __name__ == "__main__":
-    app = create_app()
-    socketio.run(app, debug=True, port=8000)
+    app.run(host="0.0.0.0", port=5000)

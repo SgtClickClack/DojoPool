@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Unified shot analysis service combining AI/ML capabilities with statistical analysis."""
 
 from dataclasses import dataclass
@@ -9,11 +11,10 @@ import mediapipe as mp
 import numpy as np
 import tensorflow as tf
 from models.shot import Shot
-from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.models import load_model
-
 from src.core.config import AI_CONFIG
 from src.extensions import cache
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.models import load_model
 from utils.analysis import calculate_shot_metrics
 from utils.validation import validate_shot_data
 
@@ -82,11 +83,17 @@ class ShotAnalysis:
         )
 
         # Initialize feature extraction
-        self.feature_extractor = MobileNetV2(weights="imagenet", include_top=False, pooling="avg")
+        self.feature_extractor = MobileNetV2(
+            weights="imagenet", include_top=False, pooling="avg"
+        )
 
         # Load calibration models
-        self.power_scaler = tf.keras.models.load_model(AI_CONFIG["POWER_CALIBRATION_PATH"])
-        self.accuracy_scaler = tf.keras.models.load_model(AI_CONFIG["ACCURACY_CALIBRATION_PATH"])
+        self.power_scaler = tf.keras.models.load_model(
+            AI_CONFIG["POWER_CALIBRATION_PATH"]
+        )
+        self.accuracy_scaler = tf.keras.models.load_model(
+            AI_CONFIG["ACCURACY_CALIBRATION_PATH"]
+        )
 
         # Load prediction models
         self.shot_predictor = load_model(AI_CONFIG["shot_predictor_path"])
@@ -127,7 +134,7 @@ class ShotAnalysis:
 
         return base_metrics
 
-    def _analyze_shot_data(self, shot_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_shot_data(self, shot_data: Dict[str, Any]):
         """Analyze shot based on input data."""
         # Extract parameters
         power = shot_data.get("power", 0)
@@ -146,7 +153,9 @@ class ShotAnalysis:
         difficulty = self._calculate_difficulty(power, angle, spin, english)
 
         # Calculate success probability
-        success_prob = self._calculate_success_probability(power, angle, spin, english, difficulty)
+        success_prob = self._calculate_success_probability(
+            power, angle, spin, english, difficulty
+        )
 
         # Calculate effectiveness
         effectiveness = self._calculate_effectiveness(result, difficulty, success_prob)
@@ -160,7 +169,7 @@ class ShotAnalysis:
             "timestamp": datetime.utcnow(),
         }
 
-    def _analyze_video(self, video_path: str) -> Dict[str, Any]:
+    def _analyze_video(self, video_path: str):
         """Analyze shot using video footage."""
         # Try to get from cache
         cache_key = f"shot_analysis:{video_path}"
@@ -180,10 +189,14 @@ class ShotAnalysis:
         ball_trajectory = self._track_ball_advanced(frames)
 
         # Calculate metrics
-        metrics = self._calculate_shot_metrics_from_video(pose_sequence, ball_trajectory)
+        metrics = self._calculate_shot_metrics_from_video(
+            pose_sequence, ball_trajectory
+        )
 
         # Generate feedback
-        feedback = self._generate_detailed_feedback(pose_sequence, ball_trajectory, metrics)
+        feedback = self._generate_detailed_feedback(
+            pose_sequence, ball_trajectory, metrics
+        )
 
         results = {
             "pose_analysis": {
@@ -194,7 +207,9 @@ class ShotAnalysis:
             },
             "ball_analysis": {
                 "trajectory": ball_trajectory,
-                "spin_characteristics": self._analyze_spin_characteristics(ball_trajectory),
+                "spin_characteristics": self._analyze_spin_characteristics(
+                    ball_trajectory
+                ),
                 "power_curve": self._analyze_power_curve(ball_trajectory),
             },
             "feedback": feedback,
@@ -207,7 +222,7 @@ class ShotAnalysis:
 
     def analyze_player_performance(
         self, player_id: str, time_range: Optional[Dict[str, datetime]] = None
-    ) -> Dict[str, Any]:
+    ):
         """Analyze player's performance over time."""
         # Get player's shots
         shots = Shot.get_player_shots(player_id, time_range)
@@ -291,7 +306,9 @@ class ShotAnalysis:
         position_analysis = self.position_analyzer.predict(position_features)
 
         # Generate shot options
-        shot_options = self._generate_shot_options(position_analysis, table_state, target_ball)
+        shot_options = self._generate_shot_options(
+            position_analysis, table_state, target_ball
+        )
 
         # Predict success rates for each option
         predictions = self.shot_predictor.predict(shot_options)
@@ -313,7 +330,7 @@ class ShotAnalysis:
             alternative_shots=alternatives,
         )
 
-    def _validate_table_state(self, table_state: Dict[str, Any]) -> bool:
+    def _validate_table_state(self, table_state: Dict[str, Any]):
         """Validate the provided table state."""
         try:
             required_keys = ["balls", "dimensions", "obstacles"]
@@ -327,7 +344,7 @@ class ShotAnalysis:
         player_position: Tuple[float, float],
         target_ball: Dict[str, Any],
         pocket: Optional[Dict[str, Any]],
-    ) -> np.ndarray:
+    ):
         """Extract relevant features for position analysis."""
         features = []
 
@@ -400,8 +417,11 @@ class ShotAnalysis:
         }
 
     def _generate_alternatives(
-        self, predictions: np.ndarray, shot_options: np.ndarray, num_alternatives: int = 3
-    ) -> List[Dict[str, float]]:
+        self,
+        predictions: np.ndarray,
+        shot_options: np.ndarray,
+        num_alternatives: int = 3,
+    ):
         """Generate alternative shots based on predictions."""
         # Get indices of top shots excluding the best one
         top_indices = np.argsort(predictions)[-num_alternatives - 1 : -1]
@@ -432,11 +452,11 @@ class ShotAnalysis:
             encoded.extend([0, 0, 0])
         return encoded
 
-    def _calculate_direct_angle(self, position_analysis: np.ndarray) -> float:
+    def _calculate_direct_angle(self, position_analysis: np.ndarray):
         """Calculate the direct angle to the target."""
         return float(position_analysis[0])  # Assuming first value is the angle
 
-    def _calculate_distance(self, position_analysis: np.ndarray) -> float:
+    def _calculate_distance(self, position_analysis: np.ndarray):
         """Calculate the distance to the target."""
         return float(position_analysis[1])  # Assuming second value is the distance
 

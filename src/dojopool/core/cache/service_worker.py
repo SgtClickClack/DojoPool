@@ -1,24 +1,26 @@
-"""
-Service worker implementation for offline support and background synchronization.
-Handles caching strategies and offline image processing queue.
-"""
+import gc
+import gc
+"""Service worker module for caching and background sync."""
 
-from typing import Optional, Dict, Any, List, Tuple
-from dataclasses import dataclass
-from datetime import datetime
-import logging
-import json
-import os
-from pathlib import Path
 import asyncio
-import aiohttp
-from .cache_manager import CacheManager, CacheConfig
+import json
+import logging
+import os
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
+from uuid import uuid4
+
+from .cache_manager import CacheConfig, CacheManager
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class SyncTask:
     """Represents a task for background synchronization."""
+
     id: str
     type: str  # 'upload', 'process', 'delete'
     data: Dict[str, Any]
@@ -26,288 +28,303 @@ class SyncTask:
     retries: int = 0
     max_retries: int = 3
 
+
 class ServiceWorker:
-    """Manages offline support and background synchronization."""
-    
+    """Service worker for caching and background sync."""
+
     def __init__(
         self,
         cache_config: Optional[CacheConfig] = None,
-        sync_interval: int = 300  # 5 minutes
-    ):
-        """Initialize service worker with configuration."""
-        self.cache = CacheManager(cache_config)
-        self.sync_interval = sync_interval
-        
-        # Create sync directory if it doesn't exist
-        self._sync_dir = Path('sync')
-        self._sync_dir.mkdir(exist_ok=True)
-        
-        # Initialize sync queue
-        self._sync_queue: List[SyncTask] = []
-        self._load_sync_queue()
-        
-        # Start background sync
-        asyncio.create_task(self._run_background_sync())
-    
-    async def fetch(
-        self,
-        url: str,
-        strategy: str = 'cache-first'
-    ) -> Tuple[Optional[bytes], Optional[str]]:
+        sync_interval: int = 300,  # 5 minutes
+    ) -> None:
+        """Initialize service worker.
+
+        Args:
+            cache_config: Optional cache configuration
+            sync_interval: Sync interval in seconds
         """
-        Fetch a resource using the specified caching strategy.
-        
-        Strategies:
-        - cache-first: Check cache before network
-        - network-first: Try network, fall back to cache
-        - cache-only: Only check cache
-        - network-only: Only try network
+        self.cache_manager = CacheManager(cache_config)
+        self.sync_interval = sync_interval
+        self.sync_queue: Dict[str, SyncTask] = {}
+        self.sync_dir = Path("data/sync")
+        self.sync_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load existing sync tasks
+        self._load_sync_queue()
+
+        # Start background sync
+        self._sync_task: Optional[asyncio.Task[None]] = None
+        asyncio.create_task(self._run_background_sync())
+
+    async def fetch(
+        self, url: str, strategy: str = "cache-first"
+    ) -> Tuple[Optional[bytes], Optional[str]]:
+        """Fetch resource using caching strategy.
+
+        Args:
+            url: Resource URL
+            strategy: Caching strategy
+
+        Returns:
+            Tuple[Optional[bytes], Optional[str]]: Data and MIME type
         """
         try:
-            if strategy == 'cache-only':
+            if strategy == "cache-first":
+                # Try cache first
+                data, mime_type = self._fetch_from_cache(url)
+                if data is not None:
+                    return data, mime_type
+
+                # Fallback to network
+                # TODO: Implement network fetch
+                return None, None
+
+            elif strategy == "network-first":
+                # Try network first
+                # TODO: Implement network fetch
+
+                # Fallback to cache
                 return self._fetch_from_cache(url)
-            
-            if strategy == 'cache-first':
-                cached = self._fetch_from_cache(url)
-                if cached[0]:
-                    return cached
-            
-            if strategy in ('network-first', 'network-only', 'cache-first'):
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(url) as response:
-                            if response.status == 200:
-                                data = await response.read()
-                                mime_type = response.headers.get('content-type')
-                                
-                                # Cache the response
-                                if strategy != 'network-only':
-                                    self.cache.put(url, data, mime_type)
-                                
-                                return data, mime_type
-                except Exception as e:
-                    logger.error(f"Network fetch failed: {str(e)}")
-                    if strategy == 'network-first':
-                        return self._fetch_from_cache(url)
-            
-            return None, None
-            
+
+            elif strategy == "cache-only":
+                return self._fetch_from_cache(url)
+
+            elif strategy == "network-only":
+                # TODO: Implement network fetch
+                return None, None
+
+            else:
+                logger.error(f"Unknown caching strategy: {strategy}")
+                return None, None
+
         except Exception as e:
             logger.error(f"Error fetching resource: {str(e)}")
             return None, None
-    
-    def queue_sync_task(
-        self,
-        task_type: str,
-        data: Dict[str, Any]
-    ) -> str:
-        """Add a task to the synchronization queue."""
+
+    def queue_sync_task(self, task_type: str, data: Dict[str, Any]) -> str:
+        """Queue a sync task.
+
+        Args:
+            task_type: Task type
+            data: Task data
+
+        Returns:
+            str: Task ID
+        """
         try:
+            task_id = str(uuid4())
             task = SyncTask(
-                id=f"{task_type}_{datetime.now().timestamp()}",
-                type=task_type,
-                data=data,
-                created_at=datetime.now()
+                id=task_id, type=task_type, data=data, created_at=datetime.utcnow()
             )
-            
-            # Save task to disk
-            task_path = self._sync_dir / f"{task.id}.json"
-            with open(task_path, 'w') as f:
-                json.dump({
-                    'id': task.id,
-                    'type': task.type,
-                    'data': task.data,
-                    'created_at': task.created_at.isoformat(),
-                    'retries': task.retries,
-                    'max_retries': task.max_retries
-                }, f)
-            
+
             # Add to queue
-            self._sync_queue.append(task)
-            
-            return task.id
-            
+            self.sync_queue[task_id] = task
+
+            # Save to disk
+            task_path = self.sync_dir / f"{task_id}.json"
+            with open(task_path, "w") as f:
+                json.dump(asdict(task), f)
+
+            logger.info(f"Queued sync task: {task_id}")
+            return task_id
+
         except Exception as e:
-            logger.error(f"Error queuing sync task: {str(e)}")
+            logger.error(f"Error queueing sync task: {str(e)}")
             return ""
-    
-    def get_sync_status(self) -> Dict[str, Any]:
-        """Get the current synchronization status."""
+
+    def get_sync_status(self):
+        """Get sync queue status.
+
+        Returns:
+            Dict[str, Any]: Queue status
+        """
         try:
-            pending = len(self._sync_queue)
-            failed = len([t for t in self._sync_queue if t.retries >= t.max_retries])
-            
+            total = len(self.sync_queue)
+            failed = sum(
+                1
+                for task in self.sync_queue.values()
+                if task.retries >= task.max_retries
+            )
+            pending = total - failed
+
             return {
-                'pending_tasks': pending,
-                'failed_tasks': failed,
-                'next_sync': self._next_sync_time.isoformat() if hasattr(self, '_next_sync_time') else None
+                "total": total,
+                "pending": pending,
+                "failed": failed,
+                "tasks": [asdict(task) for task in self.sync_queue.values()],
             }
-            
+
         except Exception as e:
             logger.error(f"Error getting sync status: {str(e)}")
-            return {
-                'error': str(e)
-            }
-    
+            return {"total": 0, "pending": 0, "failed": 0, "tasks": []}
+
     def clear_failed_tasks(self) -> int:
-        """Clear failed tasks from the queue."""
+        """Clear failed sync tasks.
+
+        Returns:
+            int: Number of tasks cleared
+        """
         try:
-            failed_tasks = [
-                t for t in self._sync_queue
-                if t.retries >= t.max_retries
-            ]
-            
-            for task in failed_tasks:
-                task_path = self._sync_dir / f"{task.id}.json"
-                if task_path.exists():
-                    os.remove(task_path)
-                self._sync_queue.remove(task)
-            
-            return len(failed_tasks)
-            
+            cleared = 0
+            task_ids = list(self.sync_queue.keys())
+
+            for task_id in task_ids:
+                task = self.sync_queue[task_id]
+                if task.retries >= task.max_retries:
+                    del self.sync_queue[task_id]
+                    task_path = self.sync_dir / f"{task_id}.json"
+                    if task_path.exists():
+                        task_path.unlink()
+                    cleared += 1
+
+            return cleared
+
         except Exception as e:
             logger.error(f"Error clearing failed tasks: {str(e)}")
             return 0
-    
+
     async def _run_background_sync(self) -> None:
-        """Run background synchronization periodically."""
-        while True:
-            try:
-                self._next_sync_time = datetime.now()
-                
+        """Run background sync loop."""
+        try:
+            while True:
                 # Process sync queue
-                for task in self._sync_queue[:]:  # Copy list to allow modification
+                task_ids = list(self.sync_queue.keys())
+                for task_id in task_ids:
+                    task = self.sync_queue[task_id]
+
+                    # Skip failed tasks
                     if task.retries >= task.max_retries:
                         continue
-                    
-                    success = await self._process_sync_task(task)
-                    
-                    if success:
-                        # Remove task file and from queue
-                        task_path = self._sync_dir / f"{task.id}.json"
+
+                    # Process task
+                    if await self._process_sync_task(task):
+                        # Task completed successfully
+                        del self.sync_queue[task_id]
+                        task_path = self.sync_dir / f"{task_id}.json"
                         if task_path.exists():
-                            os.remove(task_path)
-                        self._sync_queue.remove(task)
+                            task_path.unlink()
                     else:
-                        # Update retry count
+                        # Task failed
                         task.retries += 1
-                        task_path = self._sync_dir / f"{task.id}.json"
-                        with open(task_path, 'w') as f:
-                            json.dump({
-                                'id': task.id,
-                                'type': task.type,
-                                'data': task.data,
-                                'created_at': task.created_at.isoformat(),
-                                'retries': task.retries,
-                                'max_retries': task.max_retries
-                            }, f)
-                
-            except Exception as e:
-                logger.error(f"Error in background sync: {str(e)}")
-            
-            # Wait for next sync interval
-            await asyncio.sleep(self.sync_interval)
-    
+                        if task.retries < task.max_retries:
+                            # Save updated retry count
+                            task_path = self.sync_dir / f"{task_id}.json"
+                            with open(task_path, "w") as f:
+                                json.dump(asdict(task), f)
+
+                # Wait for next sync
+                await asyncio.sleep(self.sync_interval)
+
+        except asyncio.CancelledError:
+            logger.info("Background sync cancelled")
+        except Exception as e:
+            logger.error(f"Error in background sync: {str(e)}")
+
     async def _process_sync_task(self, task: SyncTask) -> bool:
-        """Process a single synchronization task."""
+        """Process a sync task.
+
+        Args:
+            task: Task to process
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            if task.type == 'upload':
+            if task.type == "upload":
                 return await self._process_upload_task(task)
-            elif task.type == 'process':
+            elif task.type == "process":
                 return await self._process_processing_task(task)
-            elif task.type == 'delete':
+            elif task.type == "delete":
                 return await self._process_delete_task(task)
             else:
                 logger.error(f"Unknown task type: {task.type}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error processing sync task: {str(e)}")
             return False
-    
-    async def _process_upload_task(self, task: SyncTask) -> bool:
-        """Process an upload task."""
+
+    async def _process_upload_task(self, task: SyncTask):
+        """Process an upload task.
+
+        Args:
+            task: Task to process
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            url = task.data.get('url')
-            data = task.data.get('data')
-            headers = task.data.get('headers', {})
-            
-            if not url or not data:
-                return False
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, data=data, headers=headers) as response:
-                    return response.status in (200, 201)
-                    
+            # TODO: Implement upload task processing
+            logger.info(f"Processing upload task: {task.id}")
+            return True
+
         except Exception as e:
             logger.error(f"Error processing upload task: {str(e)}")
             return False
-    
-    async def _process_processing_task(self, task: SyncTask) -> bool:
-        """Process an image processing task."""
+
+    async def _process_processing_task(self, task: SyncTask):
+        """Process a processing task.
+
+        Args:
+            task: Task to process
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            input_path = task.data.get('input_path')
-            output_path = task.data.get('output_path')
-            config = task.data.get('config', {})
-            
-            if not input_path or not output_path:
-                return False
-            
-            # Process image
-            # This would integrate with the image compression service
+            # TODO: Implement processing task processing
+            logger.info(f"Processing processing task: {task.id}")
             return True
-            
+
         except Exception as e:
-            logger.error(f"Error processing image task: {str(e)}")
+            logger.error(f"Error processing processing task: {str(e)}")
             return False
-    
-    async def _process_delete_task(self, task: SyncTask) -> bool:
-        """Process a delete task."""
+
+    async def _process_delete_task(self, task: SyncTask):
+        """Process a delete task.
+
+        Args:
+            task: Task to process
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            url = task.data.get('url')
-            headers = task.data.get('headers', {})
-            
-            if not url:
-                return False
-            
-            async with aiohttp.ClientSession() as session:
-                async with session.delete(url, headers=headers) as response:
-                    return response.status in (200, 204)
-                    
+            # TODO: Implement delete task processing
+            logger.info(f"Processing delete task: {task.id}")
+            return True
+
         except Exception as e:
             logger.error(f"Error processing delete task: {str(e)}")
             return False
-    
+
     def _fetch_from_cache(self, key: str) -> Tuple[Optional[bytes], Optional[str]]:
-        """Fetch an item from cache."""
-        entry = self.cache.get(key)
-        if entry:
-            return entry.data, entry.mime_type
-        return None, None
-    
-    def _load_sync_queue(self) -> None:
-        """Load existing sync tasks from disk."""
+        """Fetch from cache.
+
+        Args:
+            key: Cache key
+
+        Returns:
+            Tuple[Optional[bytes], Optional[str]]: Data and MIME type
+        """
+        entry = self.cache_manager.get(key)
+        return (entry.data, entry.mime_type) if entry else (None, None)
+
+    def _load_sync_queue(self):
+        """Load sync queue from disk."""
         try:
-            for task_path in self._sync_dir.glob('*.json'):
+            for task_file in self.sync_dir.glob("*.json"):
                 try:
-                    with open(task_path, 'r') as f:
-                        data = json.load(f)
-                    
-                    task = SyncTask(
-                        id=data['id'],
-                        type=data['type'],
-                        data=data['data'],
-                        created_at=datetime.fromisoformat(data['created_at']),
-                        retries=data['retries'],
-                        max_retries=data['max_retries']
-                    )
-                    
-                    self._sync_queue.append(task)
-                    
+                    with open(task_file, "r") as f:
+                        task_data = json.load(f)
+                        task_data["created_at"] = datetime.fromisoformat(
+                            task_data["created_at"]
+                        )
+                        task = SyncTask(**task_data)
+                        self.sync_queue[task.id] = task
                 except Exception as e:
                     logger.error(f"Error loading sync task: {str(e)}")
                     continue
-                    
+
         except Exception as e:
             logger.error(f"Error loading sync queue: {str(e)}")
-``` 

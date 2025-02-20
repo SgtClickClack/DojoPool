@@ -1,9 +1,11 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Matchmaking system module."""
 
 from datetime import datetime, timedelta
 
 from ..core.extensions import cache
-from ..core.models.game import Game
+from ..models.game import Game
 
 
 class MatchmakingSystem:
@@ -38,12 +40,12 @@ class MatchmakingSystem:
         self._add_to_queue(player_id, venue_id)
         return None
 
-    def _is_in_queue(self, player_id: int) -> bool:
+    def _is_in_queue(self, player_id: int):
         """Check if player is already in matchmaking queue."""
         queue = self._get_queue()
         return any(entry["player_id"] == player_id for entry in queue)
 
-    def _get_queue(self) -> list:
+    def _get_queue(self):
         """Get current matchmaking queue."""
         return cache.get("matchmaking_queue") or []
 
@@ -128,7 +130,7 @@ class MatchmakingSystem:
 
         return skill
 
-    def _get_recent_games(self, player_id: int, days: int = 30) -> list:
+    def _get_recent_games(self, player_id: int, days: int = 30):
         """Get player's recent games."""
         cutoff_date = datetime.utcnow() - timedelta(days=days)
 
@@ -151,7 +153,7 @@ class MatchmakingSystem:
                 return i + 1
         return 0
 
-    def get_estimated_wait_time(self, player_id: int) -> int:
+    def get_estimated_wait_time(self, player_id: int):
         """Get estimated wait time in seconds."""
         position = self.get_queue_position(player_id)
         if position == 0:

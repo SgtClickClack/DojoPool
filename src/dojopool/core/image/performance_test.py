@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """
 Automated performance testing suite for the image compression service.
 Tests memory usage, processing speed, and compression quality.
@@ -50,11 +52,11 @@ class ImageCompressionPerformanceTester:
             image.save(bio, format="PNG")
             return bio.getvalue()
 
-    def _measure_memory_usage(self) -> float:
+    def _measure_memory_usage(self):
         """Get current memory usage in MB."""
         return self.process.memory_info().rss / (1024 * 1024)
 
-    def _detect_memory_leak(self, memory_samples: List[float], threshold: float = 0.1) -> bool:
+    def _detect_memory_leak(self, memory_samples: List[float], threshold: float = 0.1):
         """
         Detect if there's a memory leak by analyzing memory usage pattern.
         Returns True if memory usage shows an upward trend exceeding the threshold.
@@ -140,29 +142,40 @@ class ImageCompressionPerformanceTester:
                         compression_ratio = 1 - (result.total_output_size / total_size)
 
                         metrics = PerformanceMetrics(
-                            avg_memory_usage_mb=sum(memory_samples) / len(memory_samples),
+                            avg_memory_usage_mb=sum(memory_samples)
+                            / len(memory_samples),
                             peak_memory_usage_mb=max(memory_samples),
                             avg_processing_time_ms=processing_time,
                             compression_ratio=compression_ratio,
                             failed_images=len(result.failed),
                             total_images=num_images,
-                            memory_leak_detected=self._detect_memory_leak(memory_samples),
+                            memory_leak_detected=self._detect_memory_leak(
+                                memory_samples
+                            ),
                         )
 
                         results[test_name] = metrics
 
                         # Log results
                         logger.info(f"Test {test_name} completed:")
-                        logger.info(f"  Average memory usage: {metrics.avg_memory_usage_mb:.2f} MB")
-                        logger.info(f"  Peak memory usage: {metrics.peak_memory_usage_mb:.2f} MB")
+                        logger.info(
+                            f"  Average memory usage: {metrics.avg_memory_usage_mb:.2f} MB"
+                        )
+                        logger.info(
+                            f"  Peak memory usage: {metrics.peak_memory_usage_mb:.2f} MB"
+                        )
                         logger.info(
                             f"  Average processing time: {metrics.avg_processing_time_ms:.2f} ms"
                         )
-                        logger.info(f"  Compression ratio: {metrics.compression_ratio:.2%}")
+                        logger.info(
+                            f"  Compression ratio: {metrics.compression_ratio:.2%}"
+                        )
                         logger.info(
                             f"  Failed images: {metrics.failed_images}/{metrics.total_images}"
                         )
-                        logger.info(f"  Memory leak detected: {metrics.memory_leak_detected}")
+                        logger.info(
+                            f"  Memory leak detected: {metrics.memory_leak_detected}"
+                        )
 
                     except Exception as e:
                         logger.error(f"Test {test_name} failed: {str(e)}")

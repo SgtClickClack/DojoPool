@@ -5,9 +5,10 @@ This module generates dynamic, context-aware narratives for DojoPool matches.
 Enhanced with full type annotations and comprehensive docstrings.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
-def generate_narrative(game_state: Dict[str, Any]) -> str:
+
+def generate_narrative(game_state: Dict[str, Any]):
     """
     Generate a dynamic narrative based on the current game state.
 
@@ -22,7 +23,7 @@ def generate_narrative(game_state: Dict[str, Any]) -> str:
     player2 = game_state.get("player2", "Player 2")
     score1 = game_state.get("score1", 0)
     score2 = game_state.get("score2", 0)
-    
+
     if score1 > score2:
         lead = f"{player1} is leading"
     elif score2 > score1:
@@ -32,6 +33,7 @@ def generate_narrative(game_state: Dict[str, Any]) -> str:
 
     narrative = f"In a thrilling match, {lead} with scores {score1} to {score2}."
     return narrative
+
 
 if __name__ == "__main__":
     sample_game_state = {"player1": "John", "player2": "Jane", "score1": 5, "score2": 3}

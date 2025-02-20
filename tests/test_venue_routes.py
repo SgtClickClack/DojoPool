@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.dojopool.core.venue.models import PoolTable
-from src.dojopool.core.venue.routes import venue_bp
+from dojopool.core.venue.models import PoolTable
+from dojopool.core.venue.routes import venue_bp
 
 
 @pytest.fixture
@@ -66,7 +66,9 @@ def mock_qr_data():
     )
 
 
-def test_generate_table_qr_success(client, auth_headers, mock_table, mock_venue, mock_qr_code):
+def test_generate_table_qr_success(
+    client, auth_headers, mock_table, mock_venue, mock_qr_code
+):
     """Test successful QR code generation."""
     with (
         patch("src.dojopool.core.venue.models.venue_manager") as mock_manager,
@@ -79,7 +81,8 @@ def test_generate_table_qr_success(client, auth_headers, mock_table, mock_venue,
 
         # Make request
         response = client.get(
-            f'/venues/{mock_venue["id"]}/tables/{mock_table.id}/qr', headers=auth_headers
+            f'/venues/{mock_venue["id"]}/tables/{mock_table.id}/qr',
+            headers=auth_headers,
         )
 
         # Check response
@@ -95,7 +98,9 @@ def test_generate_table_qr_invalid_venue(client, auth_headers):
     with patch("src.dojopool.core.venue.models.venue_manager") as mock_manager:
         mock_manager.get_venue.return_value = None
 
-        response = client.get("/venues/invalid_venue/tables/table123/qr", headers=auth_headers)
+        response = client.get(
+            "/venues/invalid_venue/tables/table123/qr", headers=auth_headers
+        )
 
         assert response.status_code == 404
         data = json.loads(response.data)
@@ -119,7 +124,9 @@ def test_generate_table_qr_invalid_table(client, auth_headers, mock_venue):
         assert "Table not found" in data["error"]
 
 
-def test_verify_qr_code_success(client, auth_headers, mock_table, mock_venue, mock_qr_data):
+def test_verify_qr_code_success(
+    client, auth_headers, mock_table, mock_venue, mock_qr_data
+):
     """Test successful QR code verification."""
     with patch("src.dojopool.core.venue.qr.qr_manager") as mock_qr:
         # Setup mock verification result
@@ -131,7 +138,9 @@ def test_verify_qr_code_success(client, auth_headers, mock_table, mock_venue, mo
         }
 
         # Make request
-        response = client.post("/qr/verify", headers=auth_headers, json={"qr_data": mock_qr_data})
+        response = client.post(
+            "/qr/verify", headers=auth_headers, json={"qr_data": mock_qr_data}
+        )
 
         # Check response
         assert response.status_code == 200
@@ -155,9 +164,14 @@ def test_verify_qr_code_invalid_data(client, auth_headers):
 def test_verify_qr_code_verification_failed(client, auth_headers, mock_qr_data):
     """Test QR code verification failure."""
     with patch("src.dojopool.core.venue.qr.qr_manager") as mock_qr:
-        mock_qr.verify_qr_code.return_value = {"valid": False, "error": "Invalid signature"}
+        mock_qr.verify_qr_code.return_value = {
+            "valid": False,
+            "error": "Invalid signature",
+        }
 
-        response = client.post("/qr/verify", headers=auth_headers, json={"qr_data": mock_qr_data})
+        response = client.post(
+            "/qr/verify", headers=auth_headers, json={"qr_data": mock_qr_data}
+        )
 
         assert response.status_code == 400
         data = json.loads(response.data)
@@ -166,7 +180,9 @@ def test_verify_qr_code_verification_failed(client, auth_headers, mock_qr_data):
         assert "Invalid signature" in data["error"]
 
 
-def test_refresh_table_qr_success(client, auth_headers, mock_table, mock_venue, mock_qr_code):
+def test_refresh_table_qr_success(
+    client, auth_headers, mock_table, mock_venue, mock_qr_code
+):
     """Test successful QR code refresh."""
     with (
         patch("src.dojopool.core.venue.models.venue_manager") as mock_manager,
@@ -179,7 +195,8 @@ def test_refresh_table_qr_success(client, auth_headers, mock_table, mock_venue, 
 
         # Make request
         response = client.post(
-            f'/venues/{mock_venue["id"]}/tables/{mock_table.id}/qr/refresh', headers=auth_headers
+            f'/venues/{mock_venue["id"]}/tables/{mock_table.id}/qr/refresh',
+            headers=auth_headers,
         )
 
         # Check response
@@ -212,7 +229,8 @@ def test_refresh_table_qr_invalid_table(client, auth_headers, mock_venue):
         mock_manager.tables.get.return_value = None
 
         response = client.post(
-            f'/venues/{mock_venue["id"]}/tables/invalid_table/qr/refresh', headers=auth_headers
+            f'/venues/{mock_venue["id"]}/tables/invalid_table/qr/refresh',
+            headers=auth_headers,
         )
 
         assert response.status_code == 404
@@ -221,7 +239,9 @@ def test_refresh_table_qr_invalid_table(client, auth_headers, mock_venue):
         assert "Table not found" in data["error"]
 
 
-def test_refresh_table_qr_generation_failed(client, auth_headers, mock_table, mock_venue):
+def test_refresh_table_qr_generation_failed(
+    client, auth_headers, mock_table, mock_venue
+):
     """Test QR code refresh with generation failure."""
     with (
         patch("src.dojopool.core.venue.models.venue_manager") as mock_manager,
@@ -234,7 +254,8 @@ def test_refresh_table_qr_generation_failed(client, auth_headers, mock_table, mo
 
         # Make request
         response = client.post(
-            f'/venues/{mock_venue["id"]}/tables/{mock_table.id}/qr/refresh', headers=auth_headers
+            f'/venues/{mock_venue["id"]}/tables/{mock_table.id}/qr/refresh',
+            headers=auth_headers,
         )
 
         # Check response

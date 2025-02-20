@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Cached database queries for improved performance."""
 
 from ..core.cache import (
@@ -37,7 +39,11 @@ def get_user_stats(user_id):
     games_won = Game.query.filter_by(winner_id=user_id).count()
     win_rate = (games_won / games_played * 100) if games_played > 0 else 0
 
-    return {"games_played": games_played, "games_won": games_won, "win_rate": round(win_rate, 2)}
+    return {
+        "games_played": games_played,
+        "games_won": games_won,
+        "win_rate": round(win_rate, 2),
+    }
 
 
 @cached_user_data(timeout=300)

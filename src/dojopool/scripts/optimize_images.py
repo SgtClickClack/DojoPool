@@ -35,7 +35,7 @@ class ImageOptimizer:
         except:
             return None
 
-    def optimize_image(self, input_path: str, output_path: str) -> bool:
+    def optimize_image(self, input_path: str, output_path: str):
         """Optimize a single image with error handling and statistics tracking."""
         try:
             with PILImage.open(input_path) as img:
@@ -101,7 +101,9 @@ class ImageOptimizer:
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="Optimize images while preserving EXIF data")
+    parser = argparse.ArgumentParser(
+        description="Optimize images while preserving EXIF data"
+    )
     parser.add_argument("input_dir", help="Input directory containing images")
     parser.add_argument("output_dir", help="Output directory for optimized images")
     parser.add_argument("--quality", type=int, default=85, help="JPEG quality (1-100)")

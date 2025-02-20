@@ -1,22 +1,43 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "dojopool"
 version = "0.1.0"
-description = "DojoPool - Smart Pool Gaming Platform"
-readme = "README.md"
-requires-python = ">=3.9"
-license = "MIT"
+description = "Next generation pool gaming platform"
 authors = [
-    { name = "DojoPool Team" }
+    {name = "DojoPool Team", email = "team@dojopool.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "flask",
+    "flask-sqlalchemy",
+    "flask-migrate",
+    "flask-login",
+    "flask-cors",
+    "waitress",
+    "flask-caching",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ["py39"]
-include = '\.pyi?$'
+include = '\.py$'
+exclude = '''
+/(
+    venv|
+    venv311|
+    \.venv|
+    \.git|
+    \.mypy_cache|
+    \.tox|
+    build|
+    dist|
+    \[.*\]        # Exclude files with square brackets in their names.
+)/
+'''
 
 [tool.ruff]
 line-length = 100
@@ -39,7 +60,7 @@ known-first-party = ["dojopool"]
 combine-as-imports = true
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -51,10 +72,21 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
+strict_optional = true
+plugins = ["sqlalchemy.ext.mypy.plugin"]
 
 [[tool.mypy.overrides]]
-module = ["tests.*"]
-disallow_untyped_defs = false
+module = [
+    "sqlalchemy.*",
+    "flask_sqlalchemy.*",
+    "flask.*",
+    "celery.*",
+    "redis.*",
+    "jwt.*",
+    "pkg_resources.*",
+    "setuptools.*"
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -76,4 +108,12 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "pass",
     "raise ImportError",
-] 
+]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 100 

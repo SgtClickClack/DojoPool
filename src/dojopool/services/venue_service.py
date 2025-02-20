@@ -1,47 +1,50 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Venue service module."""
 
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from ..core.extensions import db
-from ..core.models.game import Game
-from ..core.models.venue import (
-    Venue,
-    VenueCheckIn,
-    VenueEvent,
-    VenueEventParticipant,
-    VenueLeaderboard,
-)
+from ..core.models.venue import VenueEvent, VenueEventParticipant
+from ..models.game import Game
+from ..models.venue import Venue
+from ..models.venue_checkin import VenueCheckIn
+from ..models.venue_leaderboard import VenueLeaderboard
 
 
 class VenueService:
     """Service for managing venue operations."""
 
-    def create_venue(self, data: Dict) -> Venue:
-        """
-        Create a new venue.
-
-        Args:
-            data: Venue data including name, location, etc.
-
-        Returns:
-            Venue: Created venue
-        """
+    def create_venue(
+        self,
+        name: str,
+        address: str,
+        city: str,
+        state: str,
+        country: str,
+        owner_id: int,
+        description: Optional[str] = None,
+        phone: Optional[str] = None,
+        email: Optional[str] = None,
+        website: Optional[str] = None,
+        opening_hours: Optional[str] = None,
+        tables_count: Optional[int] = None,
+    ) -> Venue:
+        """Create a new venue."""
         venue = Venue(
-            name=data["name"],
-            description=data.get("description"),
-            address=data["address"],
-            city=data["city"],
-            state=data["state"],
-            country=data["country"],
-            postal_code=data["postal_code"],
-            phone=data.get("phone"),
-            email=data.get("email"),
-            website=data.get("website"),
-            hours=data.get("hours"),
-            amenities=data.get("amenities"),
-            tables=data.get("tables", []),
-            status="active",
+            name=name,
+            address=address,
+            city=city,
+            state=state,
+            country=country,
+            owner_id=owner_id,
+            description=description,
+            phone=phone,
+            email=email,
+            website=website,
+            opening_hours=opening_hours,
+            tables_count=tables_count,
         )
 
         db.session.add(venue)
@@ -49,66 +52,45 @@ class VenueService:
 
         return venue
 
-    def update_venue(self, venue_id: int, data: Dict) -> Optional[Venue]:
-        """
-        Update venue details.
-
-        Args:
-            venue_id: Venue ID
-            data: Updated venue data
-
-        Returns:
-            Optional[Venue]: Updated venue if found
-        """
-        venue = Venue.query.get(venue_id)
-        if not venue:
-            return None
-
-        # Update fields
-        for key, value in data.items():
-            if hasattr(venue, key):
-                setattr(venue, key, value)
-
-        db.session.commit()
-        return venue
-
-    def get_venue(self, venue_id: int) -> Optional[Venue]:
-        """
-        Get venue by ID.
-
-        Args:
-            venue_id: Venue ID
-
-        Returns:
-            Optional[Venue]: Venue if found
-        """
+    def get_venue(self, venue_id: int):
+        """Get venue by ID."""
         return Venue.query.get(venue_id)
 
-    def get_venues(
-        self, filters: Optional[Dict] = None, limit: int = 10, offset: int = 0
-    ) -> List[Venue]:
-        """
-        Get venues with optional filtering.
+    def get_venues(self):
+        """Get all venues."""
+        return Venue.query.all()
 
-        Args:
-            filters: Optional filters
-            limit: Maximum number of venues to return
-            offset: Number of venues to skip
+    def get_active_venues(self):
+        """Get all active venues."""
+        return Venue.query.filter_by(status="active").all()
 
-        Returns:
-            List[Venue]: List of venues
-        """
-        query = Venue.query
+    def get_venue_games(self, venue_id: int) -> List[Game]:
+        """Get all games at a venue."""
+        return Game.query.filter_by(venue_id=venue_id).all()
 
-        if filters:
-            if "city" in filters:
-                query = query.filter(Venue.city.ilike(f"%{filters['city']}%"))
-            if "state" in filters:
-                query = query.filter(Venue.state == filters["state"])
-            if "status" in filters:
-                query = query.filter(Venue.status == filters["status"])
+    def get_venue_active_games(self, venue_id: int):
+        """Get active games at a venue."""
+        return Game.query.filter_by(venue_id=venue_id, status="in_progress").all()
 
-        return query.offset(offset).limit(limit).all()
+    def update_venue(self, venue_id: int, **kwargs):
+        """Update venue details."""
+        venue = self.get_venue(venue_id)
+        if venue:
+            for key, value in kwargs.items():
+                if hasattr(venue, key):
+                    setattr(venue, key, value)
+            venue.updated_at = datetime.utcnow()
+            db.session.commit()
+        return venue
+
+    def delete_venue(self, venue_id: int):
+        """Delete a venue."""
+        venue = self.get_venue(venue_id)
+        if venue:
+            db.session.delete(venue)
+            db.session.commit()
+            return True
+        return False
 
     def get_venue_stats(self, venue_id: int, days: int = 30) -> Dict:
         """
@@ -125,7 +107,9 @@ class VenueService:
         cutoff_date = datetime.utcnow() - timedelta(days=days)
 
         # Get recent games
-        games = Game.query.filter(Game.venue_id == venue_id, Game.created_at >= cutoff_date).all()
+        games = Game.query.filter(
+            Game.venue_id == venue_id, Game.created_at >= cutoff_date
+        ).all()
 
         # Calculate stats
         total_games = len(games)
@@ -133,7 +117,11 @@ class VenueService:
         cancelled_games = len([g for g in games if g.status == "cancelled"])
 
         total_players = len(
-            {player_id for game in games for player_id in [game.player1_id, game.player2_id]}
+            {
+                player_id
+                for game in games
+                for player_id in [game.player1_id, game.player2_id]
+            }
         )
 
         return {
@@ -170,7 +158,9 @@ class VenueService:
             "total_tables": total_tables,
             "available_tables": total_tables - occupied_tables,
             "occupied_tables": occupied_tables,
-            "utilization_rate": occupied_tables / total_tables if total_tables > 0 else 0,
+            "utilization_rate": (
+                occupied_tables / total_tables if total_tables > 0 else 0
+            ),
         }
 
     def search_venues(
@@ -202,7 +192,8 @@ class VenueService:
                 base_query = base_query.filter(
                     (Venue.latitude - lat) * (Venue.latitude - lat)
                     + (Venue.longitude - lng) * (Venue.longitude - lng)
-                    <= (radius / 111.0) * (radius / 111.0)  # Rough km to degree conversion
+                    <= (radius / 111.0)
+                    * (radius / 111.0)  # Rough km to degree conversion
                 )
 
         return base_query.all()
@@ -226,13 +217,18 @@ class VenueService:
             VenueCheckIn: Created check-in record
         """
         # Check if user is already checked in
-        active_check_in = VenueCheckIn.query.filter_by(user_id=user_id, checked_out_at=None).first()
+        active_check_in = VenueCheckIn.query.filter_by(
+            user_id=user_id, checked_out_at=None
+        ).first()
 
         if active_check_in:
             raise ValueError("User is already checked in at a venue")
 
         check_in = VenueCheckIn(
-            venue_id=venue_id, user_id=user_id, table_number=table_number, game_type=game_type
+            venue_id=venue_id,
+            user_id=user_id,
+            table_number=table_number,
+            game_type=game_type,
         )
 
         db.session.add(check_in)
@@ -249,7 +245,9 @@ class VenueService:
         Returns:
             Optional[VenueCheckIn]: Updated check-in record if found
         """
-        check_in = VenueCheckIn.query.filter_by(user_id=user_id, checked_out_at=None).first()
+        check_in = VenueCheckIn.query.filter_by(
+            user_id=user_id, checked_out_at=None
+        ).first()
 
         if check_in:
             check_in.checked_out_at = datetime.utcnow()
@@ -283,7 +281,7 @@ class VenueService:
         return [entry.to_dict() for entry in entries]
 
     @staticmethod
-    def update_leaderboard(venue_id: int, user_id: int, won: bool, points: int) -> VenueLeaderboard:
+    def update_leaderboard(venue_id: int, user_id: int, won: bool, points: int):
         """Update venue leaderboard after a game.
 
         Args:
@@ -295,7 +293,9 @@ class VenueService:
         Returns:
             VenueLeaderboard: Updated leaderboard entry
         """
-        entry = VenueLeaderboard.query.filter_by(venue_id=venue_id, user_id=user_id).first()
+        entry = VenueLeaderboard.query.filter_by(
+            venue_id=venue_id, user_id=user_id
+        ).first()
 
         if not entry:
             entry = VenueLeaderboard(venue_id=venue_id, user_id=user_id)
@@ -316,7 +316,7 @@ class VenueService:
         return entry
 
     @staticmethod
-    def create_event(venue_id: int, data: Dict[str, Any]) -> VenueEvent:
+    def create_event(venue_id: int, data: Dict[str, Any]):
         """Create a new venue event.
 
         Args:
@@ -334,7 +334,7 @@ class VenueService:
     @staticmethod
     def get_venue_events(
         venue_id: int, status: Optional[str] = None, limit: int = 10, offset: int = 0
-    ) -> List[VenueEvent]:
+    ):
         """Get venue events.
 
         Args:
@@ -371,11 +371,16 @@ class VenueService:
         if event.status != "upcoming":
             raise ValueError("Event registration is closed")
 
-        if event.registration_deadline and datetime.utcnow() > event.registration_deadline:
+        if (
+            event.registration_deadline
+            and datetime.utcnow() > event.registration_deadline
+        ):
             raise ValueError("Registration deadline has passed")
 
         # Check if user is already registered
-        existing = VenueEventParticipant.query.filter_by(event_id=event_id, user_id=user_id).first()
+        existing = VenueEventParticipant.query.filter_by(
+            event_id=event_id, user_id=user_id
+        ).first()
 
         if existing:
             raise ValueError("User is already registered for this event")

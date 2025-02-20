@@ -2,6 +2,7 @@
 
 import logging
 from typing import Optional, Tuple
+
 import requests
 
 from dojopool.config.settings import GEOCODING_API_KEY
@@ -43,12 +44,12 @@ def geocode_address(address: str) -> Tuple[float, float]:
         raise ValueError(f"Could not geocode address: {str(e)}")
 
 
-def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+def get_distance(lat1: float, lon1: float, lat2: float, lon2: float):
     """
     Calculate distance between two points in kilometers.
     Uses Haversine formula.
     """
-    from math import radians, sin, cos, sqrt, atan2
+    from math import atan2, cos, radians, sin, sqrt
 
     R = 6371  # Earth's radius in kilometers
 
@@ -67,7 +68,9 @@ def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return distance
 
 
-def find_nearby_venues(latitude: float, longitude: float, radius_km: float = 10.0) -> list:
+def find_nearby_venues(
+    latitude: float, longitude: float, radius_km: float = 10.0
+) -> list:
     """
     Find venues within specified radius of coordinates.
 
@@ -95,6 +98,6 @@ def find_nearby_venues(latitude: float, longitude: float, radius_km: float = 10.
     return nearby_venues
 
 
-def validate_coordinates(latitude: float, longitude: float) -> bool:
+def validate_coordinates(latitude: float, longitude: float):
     """Validate geographic coordinates."""
     return -90 <= latitude <= 90 and -180 <= longitude <= 180

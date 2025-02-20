@@ -128,7 +128,13 @@ ACHIEVEMENT_CATEGORIES = {
 }
 
 # Achievement Points Thresholds
-ACHIEVEMENT_LEVELS = {"bronze": 100, "silver": 500, "gold": 1000, "platinum": 2000, "diamond": 5000}
+ACHIEVEMENT_LEVELS = {
+    "bronze": 100,
+    "silver": 500,
+    "gold": 1000,
+    "platinum": 2000,
+    "diamond": 5000,
+}
 
 # Achievement Reward Types
 REWARD_TYPES = {
@@ -138,19 +144,21 @@ REWARD_TYPES = {
 }
 
 
-def get_achievement_config(achievement_type: str) -> dict:
+def get_achievement_config(achievement_type: str):
     """Get achievement configuration by type"""
     return ACHIEVEMENT_TYPES.get(achievement_type)
 
 
-def get_achievement_category_name(category: str) -> str:
+def get_achievement_category_name(category: str):
     """Get achievement category display name"""
     return ACHIEVEMENT_CATEGORIES.get(category, category)
 
 
 def get_achievement_level(points: int) -> str:
     """Get achievement level based on points"""
-    for level, threshold in sorted(ACHIEVEMENT_LEVELS.items(), key=lambda x: x[1], reverse=True):
+    for level, threshold in sorted(
+        ACHIEVEMENT_LEVELS.items(), key=lambda x: x[1], reverse=True
+    ):
         if points >= threshold:
             return level
     return "bronze"

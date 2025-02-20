@@ -1,11 +1,12 @@
 import pytest
+
 from ...tests.scalability.load_generator import LoadGenerator
 from ...tests.scalability.metrics_collector import MetricsCollector
 from ...tests.scalability.test_scenarios import (
-    load_test_config,
-    stress_test_config,
-    spike_test_config,
     endurance_test_config,
+    load_test_config,
+    spike_test_config,
+    stress_test_config,
 )
 
 

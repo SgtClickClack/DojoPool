@@ -46,7 +46,9 @@ class StagingConfig(ProductionConfig):
         import logging
         from logging.handlers import RotatingFileHandler
 
-        file_handler = RotatingFileHandler(cls.LOG_FILE, maxBytes=10485760, backupCount=10)  # 10MB
+        file_handler = RotatingFileHandler(
+            cls.LOG_FILE, maxBytes=10485760, backupCount=10
+        )  # 10MB
         file_handler.setFormatter(logging.Formatter(cls.LOG_FORMAT))
         file_handler.setLevel(cls.LOG_LEVEL)
         app.logger.addHandler(file_handler)

@@ -3,11 +3,11 @@ Tournament management service for DojoPool.
 Handles professional tournament organization, brackets, and scoring.
 """
 
-from typing import Dict, List, Optional, Tuple
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-import uuid
+from typing import Dict, List, Optional, Tuple
 
 
 class TournamentType(Enum):
@@ -128,7 +128,9 @@ class TournamentService:
             "qualification_criteria": qualification_criteria,
             "status": TournamentStatus.DRAFT,
             "current_round": 0,
-            "rounds_config": self._generate_rounds_config(tournament_type, max_participants),
+            "rounds_config": self._generate_rounds_config(
+                tournament_type, max_participants
+            ),
         }
 
         self.tournaments[tournament_id] = tournament
@@ -136,7 +138,9 @@ class TournamentService:
 
         return tournament_id
 
-    def open_registration(self, tournament_id: str, registration_deadline: datetime) -> bool:
+    def open_registration(
+        self, tournament_id: str, registration_deadline: datetime
+    ) :
         """Open tournament registration."""
         if tournament_id not in self.tournaments:
             raise ValueError(f"Tournament {tournament_id} not found")
@@ -155,7 +159,7 @@ class TournamentService:
         player_id: str,
         player_name: str,
         player_rank: Optional[int] = None,
-    ) -> bool:
+    ) :
         """Register a participant for the tournament."""
         if tournament_id not in self.tournaments:
             raise ValueError(f"Tournament {tournament_id} not found")
@@ -168,14 +172,20 @@ class TournamentService:
             raise ValueError("Tournament is full")
 
         participant = Participant(
-            player_id=player_id, name=player_name, rank=player_rank, seed=None, status="active"
+            player_id=player_id,
+            name=player_name,
+            rank=player_rank,
+            seed=None,
+            status="active",
         )
 
         self.participants[tournament_id][player_id] = participant
         return True
 
     def generate_seeding(
-        self, tournament_id: str, method: str = "ranking"  # 'ranking', 'random', 'manual'
+        self,
+        tournament_id: str,
+        method: str = "ranking",  # 'ranking', 'random', 'manual'
     ) -> List[Participant]:
         """Generate tournament seeding."""
         if tournament_id not in self.tournaments:
@@ -201,7 +211,7 @@ class TournamentService:
 
         return participants
 
-    def start_tournament(self, tournament_id: str) -> bool:
+    def start_tournament(self, tournament_id: str) :
         """Start the tournament and generate first round matches."""
         if tournament_id not in self.tournaments:
             raise ValueError(f"Tournament {tournament_id} not found")
@@ -224,7 +234,7 @@ class TournamentService:
 
     def record_match_result(
         self, match_id: str, score: Tuple[int, int], stats: Optional[Dict] = None
-    ) -> bool:
+    ) :
         """Record the result of a match."""
         if match_id not in self.matches:
             raise ValueError(f"Match {match_id} not found")
@@ -292,7 +302,7 @@ class TournamentService:
             self._award_prizes(tournament_id)
             return False
 
-    def get_standings(self, tournament_id: str) -> List[Dict[str, any]]:
+    def get_standings(self, tournament_id: str) :
         """Get current tournament standings."""
         if tournament_id not in self.tournaments:
             raise ValueError(f"Tournament {tournament_id} not found")
@@ -373,7 +383,9 @@ class TournamentService:
 
         return rounds_config
 
-    def _generate_round_matches(self, tournament_id: str, round_number: int) -> List[Match]:
+    def _generate_round_matches(
+        self, tournament_id: str, round_number: int
+    ) -> List[Match]:
         """Generate matches for a tournament round."""
         tournament = self.tournaments[tournament_id]
         round_config = next(
@@ -384,7 +396,8 @@ class TournamentService:
         if round_number == 1:
             # First round - use seeding
             participants = sorted(
-                self.participants[tournament_id].values(), key=lambda p: p.seed or float("inf")
+                self.participants[tournament_id].values(),
+                key=lambda p: p.seed or float("inf"),
             )
 
             # Pair participants based on seeding
@@ -431,7 +444,9 @@ class TournamentService:
 
         return matches
 
-    def _get_matches_for_round(self, tournament_id: str, round_number: int) -> List[Match]:
+    def _get_matches_for_round(
+        self, tournament_id: str, round_number: int
+    ) -> List[Match]:
         """Get all matches for a specific round."""
         return [
             match
@@ -440,19 +455,21 @@ class TournamentService:
             and match.round_number == round_number
         ]
 
-    def _get_tournament_id_for_match(self, match_id: str) -> str:
+    def _get_tournament_id_for_match(self, match_id: str) :
         """Get tournament ID for a match."""
         # In real implementation, would use database relationship
         # This is a placeholder implementation
         for tournament_id, tournament in self.tournaments.items():
             if any(
                 match.match_id == match_id
-                for match in self._get_matches_for_round(tournament_id, tournament["current_round"])
+                for match in self._get_matches_for_round(
+                    tournament_id, tournament["current_round"]
+                )
             ):
                 return tournament_id
         return None
 
-    def _award_prizes(self, tournament_id: str) -> None:
+    def _award_prizes(self, tournament_id: str) :
         """Award prize money to winners."""
         tournament = self.tournaments[tournament_id]
         if not tournament["prize_money"]:

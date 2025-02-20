@@ -60,7 +60,9 @@ class AvatarTransformationService:
         img.save(output, format="PNG")
         return output.getvalue()
 
-    def transform_avatar(self, image_data: bytes, style: str) -> Tuple[bytes, Optional[str]]:
+    def transform_avatar(
+        self, image_data: bytes, style: str
+    ) -> Tuple[bytes, Optional[str]]:
         """Transform user photo into stylized avatar.
 
         Note: Currently just returns the prepared image without transformation
@@ -68,7 +70,10 @@ class AvatarTransformationService:
         """
         # Validate style
         if style not in self.ALLOWED_STYLES:
-            return None, f'Invalid style. Allowed styles: {", ".join(self.ALLOWED_STYLES.keys())}'
+            return (
+                None,
+                f'Invalid style. Allowed styles: {", ".join(self.ALLOWED_STYLES.keys())}',
+            )
 
         # Validate image
         is_valid, error = self._validate_image(image_data)
@@ -78,7 +83,7 @@ class AvatarTransformationService:
         # Prepare and return image without transformation
         return self._prepare_image(image_data), None
 
-    def save_avatar(self, user_id: int, image_data: bytes) -> Tuple[str, Optional[str]]:
+    def save_avatar(self, user_id: int, image_data: bytes):
         """Save avatar to storage."""
         try:
             # Create user avatars directory if it doesn't exist

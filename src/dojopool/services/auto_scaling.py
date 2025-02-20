@@ -1,3 +1,5 @@
+import gc
+import gc
 import logging
 from collections import deque
 from datetime import datetime, timedelta
@@ -47,7 +49,7 @@ class AutoScalingService:
 
         return decision
 
-    def get_scaling_recommendations(self) -> List[Dict]:
+    def get_scaling_recommendations(self):
         """Get detailed scaling recommendations."""
         if not self.metrics_buffer:
             return []
@@ -74,7 +76,9 @@ class AutoScalingService:
                     ],
                 }
             )
-        elif cpu_trend == "decreasing" and np.mean(cpu_usage) < self.scale_down_threshold:
+        elif (
+            cpu_trend == "decreasing" and np.mean(cpu_usage) < self.scale_down_threshold
+        ):
             recommendations.append(
                 {
                     "resource": "cpu",
@@ -91,7 +95,10 @@ class AutoScalingService:
 
         # Memory recommendations
         memory_trend = self._calculate_trend(memory_usage)
-        if memory_trend == "increasing" and np.mean(memory_usage) > self.scale_up_threshold:
+        if (
+            memory_trend == "increasing"
+            and np.mean(memory_usage) > self.scale_up_threshold
+        ):
             recommendations.append(
                 {
                     "resource": "memory",
@@ -105,7 +112,10 @@ class AutoScalingService:
                     ],
                 }
             )
-        elif memory_trend == "decreasing" and np.mean(memory_usage) < self.scale_down_threshold:
+        elif (
+            memory_trend == "decreasing"
+            and np.mean(memory_usage) < self.scale_down_threshold
+        ):
             recommendations.append(
                 {
                     "resource": "memory",
@@ -216,7 +226,7 @@ class AutoScalingService:
 
         return history
 
-    def _get_resource_status(self, usage: float) -> str:
+    def _get_resource_status(self, usage: float):
         """Get status of a resource based on its usage."""
         if usage > self.scale_up_threshold:
             return "high"

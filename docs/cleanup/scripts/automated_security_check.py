@@ -14,7 +14,10 @@ from typing import Dict, List, Set
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("security_check.log", encoding="utf-8"), logging.StreamHandler()],
+    handlers=[
+        logging.FileHandler("security_check.log", encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
 )
 
 
@@ -255,7 +258,12 @@ class SecurityChecker:
         self.web_frameworks = {
             "flask": ["from flask import", "app = Flask(", "@app.route"],
             "django": ["from django", "DJANGO_SETTINGS", "urlpatterns"],
-            "fastapi": ["from fastapi import", "app = FastAPI(", "@app.get", "@app.post"],
+            "fastapi": [
+                "from fastapi import",
+                "app = FastAPI(",
+                "@app.get",
+                "@app.post",
+            ],
             "aiohttp": ["from aiohttp import", "web.Application()", "async def"],
             "tornado": ["import tornado", "tornado.web", "RequestHandler"],
         }
@@ -264,7 +272,7 @@ class SecurityChecker:
         """Check if a path should be excluded from processing."""
         return any(part in self.exclude_dirs for part in path.parts)
 
-    def is_sensitive_file(self, path: Path) -> bool:
+    def is_sensitive_file(self, path: Path) :
         """Check if a file is considered sensitive."""
         if self.is_excluded(path):
             return False
@@ -286,7 +294,7 @@ class SecurityChecker:
 
         return False
 
-    def read_file_safely(self, path: Path) -> str:
+    def read_file_safely(self, path: Path) :
         """Read file with proper encoding handling."""
         encodings = ["utf-8", "latin1", "cp1252", "ascii"]
         content = ""
@@ -384,7 +392,9 @@ class SecurityChecker:
                     if file in self.exclude_files:
                         continue
 
-                    if file.endswith((".py", ".js", ".ts", ".json", ".yml", ".yaml", ".env")):
+                    if file.endswith(
+                        (".py", ".js", ".ts", ".json", ".yml", ".yaml", ".env")
+                    ):
                         path = Path(root) / file
                         if self.is_excluded(path):
                             continue
@@ -397,7 +407,11 @@ class SecurityChecker:
 
                                 matches = re.finditer(pattern, content)
                                 for match in matches:
-                                    value = match.group(1) if match.groups() else match.group(0)
+                                    value = (
+                                        match.group(1)
+                                        if match.groups()
+                                        else match.group(0)
+                                    )
                                     # Skip template values
                                     if any(
                                         x in value.lower()
@@ -410,7 +424,10 @@ class SecurityChecker:
                                             "severity": "high",
                                             "type": "secret",
                                             "description": f"Potential secret found in {path.relative_to(self.root_dir)}",
-                                            "line": content.count("\n", 0, match.start()) + 1,
+                                            "line": content.count(
+                                                "\n", 0, match.start()
+                                            )
+                                            + 1,
                                         }
                                     )
                         except Exception as e:
@@ -464,7 +481,11 @@ class SecurityChecker:
                 for config, message in required_configs.items():
                     if config not in content:
                         self.issues.append(
-                            {"severity": "high", "type": "config", "description": message}
+                            {
+                                "severity": "high",
+                                "type": "config",
+                                "description": message,
+                            }
                         )
 
             # Check security headers in code
@@ -524,7 +545,9 @@ class SecurityChecker:
 
                 # Check for framework patterns
                 for _framework, patterns in self.web_frameworks.items():
-                    framework_matches = sum(1 for pattern in patterns if pattern.lower() in content)
+                    framework_matches = sum(
+                        1 for pattern in patterns if pattern.lower() in content
+                    )
                     if framework_matches >= 2:  # Require at least 2 framework patterns
                         return True
 
@@ -550,8 +573,19 @@ class SecurityChecker:
 
                 # Check for combinations of web patterns that together indicate a web app
                 web_patterns = {
-                    "request_handling": ["request.", "response.", ".status_code", ".headers["],
-                    "routing": ["@route", "def get(", "def post(", "def put(", "def delete("],
+                    "request_handling": [
+                        "request.",
+                        "response.",
+                        ".status_code",
+                        ".headers[",
+                    ],
+                    "routing": [
+                        "@route",
+                        "def get(",
+                        "def post(",
+                        "def put(",
+                        "def delete(",
+                    ],
                     "web_framework": [
                         "wsgi",
                         "asgi",
@@ -567,7 +601,13 @@ class SecurityChecker:
                         "content-type:",
                         "application/json",
                     ],
-                    "auth": ["oauth", "jwt", "bearer", "authentication", "authorization"],
+                    "auth": [
+                        "oauth",
+                        "jwt",
+                        "bearer",
+                        "authentication",
+                        "authorization",
+                    ],
                 }
 
                 # Count pattern categories present
@@ -596,11 +636,16 @@ class SecurityChecker:
             current_mode = path.stat().st_mode
             if path.is_dir():
                 is_highly_sensitive = any(
-                    d.lower() in path.parts[-1].lower() for d in self.highly_sensitive_dirs
+                    d.lower() in path.parts[-1].lower()
+                    for d in self.highly_sensitive_dirs
                 )
-                is_sensitive = any(d.lower() in path.parts[-1].lower() for d in self.sensitive_dirs)
+                is_sensitive = any(
+                    d.lower() in path.parts[-1].lower() for d in self.sensitive_dirs
+                )
 
-                expected_mode = 0o700 if is_highly_sensitive else 0o750 if is_sensitive else 0o755
+                expected_mode = (
+                    0o700 if is_highly_sensitive else 0o750 if is_sensitive else 0o755
+                )
 
                 if (current_mode & 0o777) != expected_mode:
                     self.issues.append(
@@ -612,7 +657,9 @@ class SecurityChecker:
                     )
 
                 # Check sticky bit for sensitive directories
-                if (is_highly_sensitive or is_sensitive) and not (current_mode & stat.S_ISVTX):
+                if (is_highly_sensitive or is_sensitive) and not (
+                    current_mode & stat.S_ISVTX
+                ):
                     self.issues.append(
                         {
                             "severity": "high",
@@ -671,7 +718,9 @@ class SecurityChecker:
                 )
                 is_sensitive = self.is_sensitive_file(path)
 
-                expected_mode = 0o600 if is_highly_sensitive else 0o640 if is_sensitive else 0o644
+                expected_mode = (
+                    0o600 if is_highly_sensitive else 0o640 if is_sensitive else 0o644
+                )
 
                 if (current_mode & 0o777) != expected_mode:
                     self.issues.append(
@@ -731,7 +780,15 @@ class SecurityChecker:
             return
 
         # Skip if not in a web application directory
-        web_app_dirs = {"app", "web", "api", "routes", "views", "controllers", "endpoints"}
+        web_app_dirs = {
+            "app",
+            "web",
+            "api",
+            "routes",
+            "views",
+            "controllers",
+            "endpoints",
+        }
         if not any(d in str(file_path).lower() for d in web_app_dirs):
             return
 
@@ -874,7 +931,9 @@ class SecurityChecker:
                 "issues_by_severity": severity_counts,
                 "issues_by_type": type_counts,
                 "top_issues": (
-                    filtered_issues[:10] if len(filtered_issues) > 10 else filtered_issues
+                    filtered_issues[:10]
+                    if len(filtered_issues) > 10
+                    else filtered_issues
                 ),
                 "execution_time": 0,  # Will be updated at the end
             }
@@ -883,7 +942,9 @@ class SecurityChecker:
                 json.dump(report, f, indent=2)
 
             print(f"\nDetailed report saved to: {report_file}")
-            logging.info(f"Security checks completed in {report['execution_time']:.2f} seconds")
+            logging.info(
+                f"Security checks completed in {report['execution_time']:.2f} seconds"
+            )
 
         except Exception as e:
             logging.error(f"Error running security checks: {str(e)}")
@@ -891,7 +952,9 @@ class SecurityChecker:
 
 
 def main():
-    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    root_dir = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
     checker = SecurityChecker(root_dir)
     checker.run()
 

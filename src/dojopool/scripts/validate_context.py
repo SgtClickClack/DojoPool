@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 import logging
 import re
 from datetime import datetime, timedelta
@@ -7,7 +11,9 @@ from typing import Dict, List, Set
 import yaml
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class ContextValidator:
@@ -36,7 +42,10 @@ class ContextValidator:
             for match in matches:
                 # Get the file path from the match
                 path = match.group(2) if len(match.groups()) > 1 else match.group(1)
-                if any(ext in path.lower() for ext in [".md", ".py", ".html", ".css", ".js"]):
+                if any(
+                    ext in path.lower()
+                    for ext in [".md", ".py", ".html", ".css", ".js"]
+                ):
                     refs.add(path)
 
         return refs
@@ -161,7 +170,9 @@ class ContextValidator:
                 logging.warning(f"- {issue['file']}: {issue['message']}")
 
         if not (self.broken_links or self.inconsistencies):
-            logging.info("\nContext validation passed! All documentation is consistent.")
+            logging.info(
+                "\nContext validation passed! All documentation is consistent."
+            )
 
 
 def main():

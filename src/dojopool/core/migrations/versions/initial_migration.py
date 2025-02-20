@@ -6,18 +6,25 @@ Create Date: 2023-12-17 02:30:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic.
-revision = "001_initial_migration"
-down_revision = None
-branch_labels = None
-depends_on = None
+revision: str = "001_initial_migration"
+down_revision: str = None
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create users table
     op.create_table(
         "users",
@@ -44,8 +51,12 @@ def upgrade():
         sa.Column("latitude", sa.Float(), nullable=True),
         sa.Column("longitude", sa.Float(), nullable=True),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column("opening_hours", postgresql.JSON(astext_type=sa.Text()), nullable=True),
-        sa.Column("contact_info", postgresql.JSON(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "opening_hours", postgresql.JSON(astext_type=sa.Text()), nullable=True
+        ),
+        sa.Column(
+            "contact_info", postgresql.JSON(astext_type=sa.Text()), nullable=True
+        ),
         sa.Column("created_at", sa.DateTime(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=True),
         sa.ForeignKeyConstraint(

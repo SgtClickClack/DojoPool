@@ -9,7 +9,9 @@ from typing import Any, Dict, Optional
 class WebSocketError(Exception):
     """Base exception for WebSocket errors."""
 
-    def __init__(self, message: str, code: int = 1000, data: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, message: str, code: int = 1000, data: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(message)
         self.message = message
         self.code = code
@@ -20,7 +22,9 @@ class AuthenticationError(WebSocketError):
     """Raised when authentication fails."""
 
     def __init__(
-        self, message: str = "Authentication required", data: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Authentication required",
+        data: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, code=4001, data=data)
 
@@ -28,21 +32,29 @@ class AuthenticationError(WebSocketError):
 class RateLimitError(WebSocketError):
     """Raised when rate limit is exceeded."""
 
-    def __init__(self, message: str = "Rate limit exceeded", data: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        message: str = "Rate limit exceeded",
+        data: Optional[Dict[str, Any]] = None,
+    ):
         super().__init__(message, code=4002, data=data)
 
 
 class RoomAccessError(WebSocketError):
     """Raised when room access is denied."""
 
-    def __init__(self, message: str = "Room access denied", data: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, message: str = "Room access denied", data: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(message, code=4003, data=data)
 
 
 class ValidationError(WebSocketError):
     """Raised when event data validation fails."""
 
-    def __init__(self, message: str = "Invalid event data", data: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, message: str = "Invalid event data", data: Optional[Dict[str, Any]] = None
+    ):
         super().__init__(message, code=4004, data=data)
 
 
@@ -50,7 +62,9 @@ class GameError(WebSocketError):
     """Raised when game-related operations fail."""
 
     def __init__(
-        self, message: str = "Game operation failed", data: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Game operation failed",
+        data: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, code=4005, data=data)
 
@@ -59,7 +73,9 @@ class TournamentError(WebSocketError):
     """Raised when tournament-related operations fail."""
 
     def __init__(
-        self, message: str = "Tournament operation failed", data: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Tournament operation failed",
+        data: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(message, code=4006, data=data)
 
@@ -76,7 +92,7 @@ def format_error_response(error: WebSocketError) -> Dict[str, Any]:
     return {"error": {"code": error.code, "message": error.message, "data": error.data}}
 
 
-def handle_websocket_error(error: WebSocketError) -> Dict[str, Any]:
+def handle_websocket_error(error: WebSocketError):
     """Handle WebSocket error and return formatted response.
 
     Args:
@@ -89,7 +105,7 @@ def handle_websocket_error(error: WebSocketError) -> Dict[str, Any]:
     return format_error_response(error)
 
 
-def validate_event_data(event_name: str, data: Dict[str, Any]) -> None:
+def validate_event_data(event_name: str, data: Dict[str, Any]):
     """Validate event data against schema.
 
     Args:
@@ -110,7 +126,8 @@ def validate_event_data(event_name: str, data: Dict[str, Any]) -> None:
         if param_info.get("required", False):
             if param_name not in data:
                 raise ValidationError(
-                    f"Missing required parameter: {param_name}", data={"parameter": param_name}
+                    f"Missing required parameter: {param_name}",
+                    data={"parameter": param_name},
                 )
 
             # Type validation
@@ -130,5 +147,8 @@ def validate_event_data(event_name: str, data: Dict[str, Any]) -> None:
             if "enum" in param_info and data[param_name] not in param_info["enum"]:
                 raise ValidationError(
                     f"Invalid value for parameter {param_name}. Must be one of: {param_info['enum']}",
-                    data={"parameter": param_name, "allowed_values": param_info["enum"]},
+                    data={
+                        "parameter": param_name,
+                        "allowed_values": param_info["enum"],
+                    },
                 )

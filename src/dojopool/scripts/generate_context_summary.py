@@ -7,7 +7,9 @@ from typing import Dict, List
 import yaml
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class ContextSummarizer:
@@ -41,7 +43,10 @@ class ContextSummarizer:
             with open(status_file) as f:
                 data = yaml.safe_load(f) or {}
                 for file_info in data.get("files", {}).values():
-                    if file_info.get("priority") == "High" and file_info.get("status") != "Current":
+                    if (
+                        file_info.get("priority") == "High"
+                        and file_info.get("status") != "Current"
+                    ):
                         self.critical_updates.append(file_info)
 
     def get_recent_development(self) -> str:
@@ -93,7 +98,8 @@ class ContextSummarizer:
         recent = [
             change
             for change in self.recent_changes
-            if datetime.fromisoformat(change["timestamp"]) > datetime.now() - timedelta(days=1)
+            if datetime.fromisoformat(change["timestamp"])
+            > datetime.now() - timedelta(days=1)
         ]
 
         if not recent:

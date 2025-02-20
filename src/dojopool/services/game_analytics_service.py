@@ -41,7 +41,7 @@ class GameAnalyticsService:
 
     async def analyze_player_progression(
         self, player_id: str, start_date: datetime, end_date: datetime
-    ) -> List[GameAnalytics]:
+    ):
         """Analyze player's progression over a time period."""
         # Fetch historical match data
         matches = await self._get_player_matches(player_id, start_date, end_date)
@@ -54,7 +54,7 @@ class GameAnalyticsService:
 
         return analytics
 
-    async def generate_performance_insights(self, analytics: List[GameAnalytics]) -> Dict:
+    async def generate_performance_insights(self, analytics: List[GameAnalytics]):
         """Generate insights from a series of game analytics."""
         return {
             "trends": await self._analyze_trends(analytics),
@@ -63,7 +63,7 @@ class GameAnalyticsService:
             "recommendations": await self._generate_recommendations(analytics),
         }
 
-    async def _analyze_shots(self, match_data: Dict) -> ShotMetrics:
+    async def _analyze_shots(self, match_data: Dict):
         """Analyze shot-related metrics from match data."""
         shots = match_data.get("shots", [])
         if not shots:
@@ -85,14 +85,18 @@ class GameAnalyticsService:
             position_controls[shot_type].append(shot["position_control"])
 
         # Calculate metrics for the most common shot type
-        primary_shot_type = max(success_rates.keys(), key=lambda k: len(success_rates[k]))
+        primary_shot_type = max(
+            success_rates.keys(), key=lambda k: len(success_rates[k])
+        )
 
         return ShotMetrics(
             type=primary_shot_type,
             success_rate=np.mean(success_rates[primary_shot_type]),
             average_difficulty=np.mean(difficulties[primary_shot_type]),
             position_control=np.mean(position_controls[primary_shot_type]),
-            consistency_score=self._calculate_consistency(success_rates[primary_shot_type]),
+            consistency_score=self._calculate_consistency(
+                success_rates[primary_shot_type]
+            ),
             preferred_angles=self._identify_preferred_angles(shots),
             common_patterns=self._identify_shot_patterns(shots),
         )
@@ -136,8 +140,12 @@ class GameAnalyticsService:
             clutch_performance=self._calculate_clutch_performance(pressure_situations),
             recovery_after_error=self._calculate_recovery_rate(pressure_situations),
             time_management=self._evaluate_time_management(pressure_situations),
-            consistency_under_pressure=self._calculate_pressure_consistency(pressure_situations),
-            adaptation_to_pressure=self._calculate_pressure_adaptation(pressure_situations),
+            consistency_under_pressure=self._calculate_pressure_consistency(
+                pressure_situations
+            ),
+            adaptation_to_pressure=self._calculate_pressure_adaptation(
+                pressure_situations
+            ),
         )
 
     async def _analyze_progression(self, match_data: Dict) -> ProgressionMetrics:
@@ -184,7 +192,7 @@ class GameAnalyticsService:
         # TODO: Implement database query to fetch matches
         return []
 
-    async def _get_historical_data(self, player_id: str) -> List[Dict]:
+    async def _get_historical_data(self, player_id: str):
         """Fetch historical performance data for a player."""
         # TODO: Implement database query to fetch historical data
         return []

@@ -83,7 +83,8 @@ class BaseLogger:
             )
         else:
             formatter = logging.Formatter(
-                "%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%Y-%m-%dT%H:%M:%S"
+                "%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+                datefmt="%Y-%m-%dT%H:%M:%S",
             )
 
         # Add file handler
@@ -129,7 +130,7 @@ class BaseLogger:
         """
         self.logger.debug(self._format_message(message, **kwargs))
 
-    def info(self, message: str, **kwargs) -> None:
+    def info(self, message: str, **kwargs):
         """Log info message.
 
         Args:
@@ -138,7 +139,7 @@ class BaseLogger:
         """
         self.logger.info(self._format_message(message, **kwargs))
 
-    def warning(self, message: str, **kwargs) -> None:
+    def warning(self, message: str, **kwargs):
         """Log warning message.
 
         Args:
@@ -147,7 +148,7 @@ class BaseLogger:
         """
         self.logger.warning(self._format_message(message, **kwargs))
 
-    def error(self, message: str, error: Optional[Exception] = None, **kwargs) -> None:
+    def error(self, message: str, error: Optional[Exception] = None, **kwargs):
         """Log error message.
 
         Args:
@@ -160,7 +161,9 @@ class BaseLogger:
             kwargs["error_message"] = str(error)
         self.logger.error(self._format_message(message, **kwargs))
 
-    def critical(self, message: str, error: Optional[Exception] = None, **kwargs) -> None:
+    def critical(
+        self, message: str, error: Optional[Exception] = None, **kwargs
+    ) -> None:
         """Log critical message.
 
         Args:
@@ -173,7 +176,7 @@ class BaseLogger:
             kwargs["error_message"] = str(error)
         self.logger.critical(self._format_message(message, **kwargs))
 
-    def set_level(self, level: LogLevel) -> None:
+    def set_level(self, level: LogLevel):
         """Set logging level.
 
         Args:
@@ -182,7 +185,7 @@ class BaseLogger:
         self.level = level
         self.logger.setLevel(level.value)
 
-    def add_context(self, **kwargs) -> None:
+    def add_context(self, **kwargs):
         """Add persistent context to all log messages.
 
         Args:

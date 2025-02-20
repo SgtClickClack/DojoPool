@@ -1,23 +1,25 @@
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
 import firebase_admin
 from firebase_admin import credentials, messaging
-from flask import current_app
+from flask import Request, Response, current_app
+from flask.typing import ResponseReturnValue
 from models.device import Device
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 # Lazy imports to avoid circular dependencies
-User = None
-Notification = None
+User: NoneType = None
+Notification: NoneType = None
 
 
-class PushNotificationService:
-    _instance = None
-    _initialized = False
+class PushNotificationService -> Any:
+    _instance: NoneType = None
+    _initialized: bool = False
 
-    def __new__(cls):
+    def __new__(cls) -> None:
         if cls._instance is None:
-            cls._instance = super(PushNotificationService, cls).__new__(cls)
+            cls._instance: NoneType = super(PushNotificationService, cls).__new__(cls)
         return cls._instance
 
     def __init__(self):
@@ -26,15 +28,15 @@ class PushNotificationService:
             global User, Notification
             if User is None:
                 from models.user import User
-            if Notification is None:
+            if Notification is None :
                 from models.notification import Notification
 
-            self._initialized = True
+            self._initialized: bool = True
 
     def init_app(self, app):
         """Initialize the service with the Flask app."""
-        if not firebase_admin._apps and app.config.get("FIREBASE_CREDENTIALS_PATH"):
-            cred = credentials.Certificate(app.config["FIREBASE_CREDENTIALS_PATH"])
+        if not firebase_admin._apps and app.configetattr(g, "get", None)("FIREBASE_CREDENTIALS_PATH") :
+            cred: Any = credentials.Certificate(app.config["FIREBASE_CREDENTIALS_PATH"])
             firebase_admin.initialize_app(cred)
 
     def _ensure_firebase_initialized(self):
@@ -46,11 +48,11 @@ class PushNotificationService:
             except ValueError:
                 # Initialize new app if none exists
                 try:
-                    cred_path = current_app.config.get(
+                    cred_path: Any = current_app.configetattr(g, "get", None)(
                         "FIREBASE_CREDENTIALS_PATH", "firebase-credentials.json"
                     )
                     if os.path.exists(cred_path):
-                        cred = credentials.Certificate(cred_path)
+                        cred: Any = credentials.Certificate(cred_path)
                         self.app = firebase_admin.initialize_app(cred)
                     else:
                         current_app.logger.warning(
@@ -58,7 +60,9 @@ class PushNotificationService:
                         )
                 except RuntimeError:
                     # If we're outside application context, just log a warning
-                    print("Warning: Firebase initialization skipped - no application context")
+                    print(
+                        "Warning: Firebase initialization skipped - no application context"
+                    )
 
     def send_notification(
         self,
@@ -78,18 +82,18 @@ class PushNotificationService:
             return {"error": "Firebase not initialized"}
 
         # Get user's active devices with valid push tokens
-        devices = Device.get_user_devices(user_id)
+        devices: Any = Device.get_user_devices(user_id)
         if not devices:
             return {"error": "No active devices found"}
 
         # Create notification record
-        notification = Notification.create(
+        notification: Any = Notification.create(
             user_id=user_id, title=title, body=body, data=data, type="push"
         )
 
         # Send to all user devices
-        results = []
-        tokens = [d.push_token for d in devices if d.push_token]
+        results: List[Any] = []
+        tokens: Any = [d.push_token for d in devices if d.push_token]
 
         if not tokens:
             return {"error": "No valid push tokens found"}
@@ -97,31 +101,35 @@ class PushNotificationService:
         try:
             # Split tokens into batches
             for i in range(0, len(tokens), self.batch_size):
-                batch_tokens = tokens[i : i + self.batch_size]
+                batch_tokens: Any = tokens[i : i + self.batch_size]
 
                 # Create message
-                message = messaging.MulticastMessage(
+                message: Any = messagingetattr(g, "MulticastMessage", None)(
                     tokens=batch_tokens,
-                    notification=messaging.Notification(title=title, body=body),
+                    notification=messagingetattr(g, "Notification", None)(title=title, body=body),
                     data=data if data else {},
-                    android=messaging.AndroidConfig(
+                    android=messagingetattr(g, "AndroidConfig", None)(
                         priority=priority,
-                        notification=messaging.AndroidNotification(
+                        notification=messagingetattr(g, "AndroidNotification", None)(
                             icon="notification_icon", color="#4CAF50"
                         ),
                     ),
-                    apns=messaging.APNSConfig(
-                        payload=messaging.APNSPayload(aps=messaging.Aps(badge=1, sound="default"))
+                    apns=messagingetattr(g, "APNSConfig", None)(
+                        payload=messagingetattr(g, "APNSPayload", None)(
+                            aps=messagingetattr(g, "Aps", None)(badge=1, sound="default")
+                        )
                     ),
                 )
 
                 # Send batch
-                batch_response = messaging.send_multicast(message)
+                batch_response: Any = messagingetattr(g, "send_multicast", None)(message)
                 results.append(batch_response)
 
                 # Handle failed tokens
                 if batch_response.failure_count > 0:
-                    self._handle_failed_tokens(batch_response.responses, batch_tokens, devices)
+                    self._handle_failed_tokens(
+                        batch_response.responses, batch_tokens, devices
+                    )
 
             # Update notification status
             notification.update_status("sent")
@@ -158,27 +166,34 @@ class PushNotificationService:
 
         try:
             # Create message
-            message = messaging.Message(
+            message: Any = messagingetattr(g, "Message", None)(
                 topic=topic,
-                notification=messaging.Notification(title=title, body=body),
+                notification=messagingetattr(g, "Notification", None)(title=title, body=body),
                 data=data if data else {},
-                android=messaging.AndroidConfig(
+                android=messagingetattr(g, "AndroidConfig", None)(
                     priority=priority,
-                    notification=messaging.AndroidNotification(
+                    notification=messagingetattr(g, "AndroidNotification", None)(
                         icon="notification_icon", color="#4CAF50"
                     ),
                 ),
-                apns=messaging.APNSConfig(
-                    payload=messaging.APNSPayload(aps=messaging.Aps(badge=1, sound="default"))
+                apns=messagingetattr(g, "APNSConfig", None)(
+                    payload=messagingetattr(g, "APNSPayload", None)(
+                        aps=messagingetattr(g, "Aps", None)(badge=1, sound="default")
+                    )
                 ),
             )
 
             # Send message
-            response = messaging.send(message)
+            response: Any = messagingetattr(g, "send", None)(message)
 
             # Create notification record
-            notification = Notification.create(
-                topic=topic, title=title, body=body, data=data, type="topic", status="sent"
+            notification: Any = Notification.create(
+                topic=topic,
+                title=title,
+                body=body,
+                data=data,
+                type="topic",
+                status="sent",
             )
 
             return {
@@ -190,7 +205,7 @@ class PushNotificationService:
         except Exception as e:
             return {"error": str(e)}
 
-    def subscribe_to_topic(self, user_id: str, topic: str) -> Dict[str, Any]:
+    def subscribe_to_topic(self, user_id: str, topic: str) :
         """
         Subscribe user's devices to a topic
         """
@@ -200,16 +215,16 @@ class PushNotificationService:
         if self.app is None:
             return {"error": "Firebase not initialized"}
 
-        devices = Device.get_user_devices(user_id)
+        devices: Any = Device.get_user_devices(user_id)
         if not devices:
             return {"error": "No active devices found"}
 
-        tokens = [d.push_token for d in devices if d.push_token]
+        tokens: Any = [d.push_token for d in devices if d.push_token]
         if not tokens:
             return {"error": "No valid push tokens found"}
 
         try:
-            response = messaging.subscribe_to_topic(tokens, topic)
+            response: Any = messagingetattr(g, "subscribe_to_topic", None)(tokens, topic)
             return {
                 "status": "success",
                 "success_count": response.success_count,
@@ -218,7 +233,7 @@ class PushNotificationService:
         except Exception as e:
             return {"error": str(e)}
 
-    def unsubscribe_from_topic(self, user_id: str, topic: str) -> Dict[str, Any]:
+    def unsubscribe_from_topic(self, user_id: str, topic: str) :
         """
         Unsubscribe user's devices from a topic
         """
@@ -228,16 +243,16 @@ class PushNotificationService:
         if self.app is None:
             return {"error": "Firebase not initialized"}
 
-        devices = Device.get_user_devices(user_id)
+        devices: Any = Device.get_user_devices(user_id)
         if not devices:
             return {"error": "No active devices found"}
 
-        tokens = [d.push_token for d in devices if d.push_token]
+        tokens: Any = [d.push_token for d in devices if d.push_token]
         if not tokens:
             return {"error": "No valid push tokens found"}
 
         try:
-            response = messaging.unsubscribe_from_topic(tokens, topic)
+            response: Any = messagingetattr(g, "unsubscribe_from_topic", None)(tokens, topic)
             return {
                 "status": "success",
                 "success_count": response.success_count,
@@ -247,8 +262,11 @@ class PushNotificationService:
             return {"error": str(e)}
 
     def _handle_failed_tokens(
-        self, responses: List[messaging.SendResponse], tokens: List[str], devices: List[Device]
-    ) -> None:
+        self,
+        responses: List[messagingetattr(g, "SendResponse", None)],
+        tokens: List[str],
+        devices: List[Device],
+    ) :
         """
         Handle failed tokens by removing or updating device records
         """
@@ -259,7 +277,7 @@ class PushNotificationService:
                 device = next((d for d in devices if d.push_token == token), None)
                 if device:
                     if response.exception and isinstance(
-                        response.exception, messaging.UnregisteredError
+                        response.exception, messagingetattr(g, "UnregisteredError", None)
                     ):
                         # Token is no longer valid, remove it
                         device.update({"push_token": None})
@@ -273,12 +291,15 @@ class PushNotificationService:
         """
         Send match-related notification
         """
-        templates = {
+        templates: Dict[Any, Any] = {
             "match_start": {
                 "title": "Match Starting",
                 "body": "Your match against {opponent} is starting at {venue}",
             },
-            "match_end": {"title": "Match Complete", "body": "Match against {opponent} has ended"},
+            "match_end": {
+                "title": "Match Complete",
+                "body": "Match against {opponent} has ended",
+            },
             "turn_change": {"title": "Your Turn", "body": "It's your turn to play"},
             "shot_recorded": {
                 "title": "Shot Recorded",
@@ -286,7 +307,7 @@ class PushNotificationService:
             },
         }
 
-        template = templates.get(event_type)
+        template: Any = templates.get(event_type)
         if not template:
             return {"error": "Invalid event type"}
 
@@ -303,7 +324,7 @@ class PushNotificationService:
         """
         Send tournament-related notification
         """
-        templates = {
+        templates: Dict[Any, Any] = {
             "tournament_start": {
                 "title": "Tournament Starting",
                 "body": "Tournament {name} is starting soon",
@@ -322,7 +343,7 @@ class PushNotificationService:
             },
         }
 
-        template = templates.get(event_type)
+        template: Any = templates.get(event_type)
         if not template:
             return {"error": "Invalid event type"}
 
@@ -344,16 +365,22 @@ class PushNotificationService:
         """
         Send venue-related notification
         """
-        templates = {
-            "event_created": {"title": "New Event", "body": "New event {name} at {venue}"},
-            "occupancy_update": {"title": "Venue Update", "body": "{venue} is {status}"},
+        templates: Dict[Any, Any] = {
+            "event_created": {
+                "title": "New Event",
+                "body": "New event {name} at {venue}",
+            },
+            "occupancy_update": {
+                "title": "Venue Update",
+                "body": "{venue} is {status}",
+            },
             "tournament_announced": {
                 "title": "Tournament Announced",
                 "body": "New tournament at {venue}",
             },
         }
 
-        template = templates.get(event_type)
+        template: Any = templates.get(event_type)
         if not template:
             return {"error": "Invalid event type"}
 

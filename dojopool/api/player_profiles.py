@@ -2,24 +2,25 @@
 FastAPI endpoints for professional player profiles.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, File, UploadFile
-from typing import Dict, List, Optional
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Dict, List, Optional
 
-from ..services.tournaments.player_profile_service import (
-    PlayerProfileService,
-    PlayerProfile,
-    Achievement,
-    Certification,
-    CareerHighlight,
-    Equipment,
-    Sponsorship,
-    PlayerStatus,
-    PlayingStyle,
-)
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from pydantic import BaseModel
+
 from ..auth.dependencies import get_current_user, require_admin
 from ..models.user import User
+from ..services.tournaments.player_profile_service import (
+    Achievement,
+    CareerHighlight,
+    Certification,
+    Equipment,
+    PlayerProfile,
+    PlayerProfileService,
+    PlayerStatus,
+    PlayingStyle,
+    Sponsorship,
+)
 
 router = APIRouter(prefix="/api/players", tags=["players"])
 
@@ -146,7 +147,9 @@ async def update_player_profile(
 ) -> Dict:
     """Update a player's profile."""
     if current_user.id != player_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized to update this profile")
+        raise HTTPException(
+            status_code=403, detail="Not authorized to update this profile"
+        )
 
     try:
         profile = profile_service.update_profile(player_id, updates)
@@ -160,11 +163,15 @@ async def update_player_profile(
 # Achievement and Certification Endpoints
 @router.post("/{player_id}/achievements")
 async def add_achievement(
-    player_id: str, achievement: AchievementRequest, current_user: User = Depends(get_current_user)
+    player_id: str,
+    achievement: AchievementRequest,
+    current_user: User = Depends(get_current_user),
 ) -> Dict:
     """Add an achievement to player's profile."""
     if current_user.id != player_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized to add achievements")
+        raise HTTPException(
+            status_code=403, detail="Not authorized to add achievements"
+        )
 
     try:
         success = profile_service.add_achievement(
@@ -191,7 +198,9 @@ async def add_certification(
 ) -> Dict:
     """Add a certification to player's profile."""
     if current_user.id != player_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized to add certifications")
+        raise HTTPException(
+            status_code=403, detail="Not authorized to add certifications"
+        )
 
     try:
         success = profile_service.add_certification(
@@ -213,11 +222,15 @@ async def add_certification(
 # Sponsorship Management
 @router.post("/{player_id}/sponsorships")
 async def add_sponsorship(
-    player_id: str, sponsorship: SponsorshipRequest, current_user: User = Depends(get_current_user)
+    player_id: str,
+    sponsorship: SponsorshipRequest,
+    current_user: User = Depends(get_current_user),
 ) -> Dict:
     """Add a sponsorship to player's profile."""
     if current_user.id != player_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized to add sponsorships")
+        raise HTTPException(
+            status_code=403, detail="Not authorized to add sponsorships"
+        )
 
     try:
         success = profile_service.add_sponsorship(
@@ -238,7 +251,9 @@ async def add_sponsorship(
 # Profile Verification
 @router.post("/{player_id}/verify")
 async def verify_player_profile(
-    player_id: str, verification_proof: Dict, current_user: User = Depends(require_admin)
+    player_id: str,
+    verification_proof: Dict,
+    current_user: User = Depends(require_admin),
 ) -> Dict:
     """Verify a player's professional profile."""
     try:
@@ -251,11 +266,15 @@ async def verify_player_profile(
 # Profile Image Upload
 @router.post("/{player_id}/image")
 async def upload_profile_image(
-    player_id: str, file: UploadFile = File(...), current_user: User = Depends(get_current_user)
+    player_id: str,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
 ) -> Dict:
     """Upload a profile image."""
     if current_user.id != player_id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized to update profile image")
+        raise HTTPException(
+            status_code=403, detail="Not authorized to update profile image"
+        )
 
     try:
         # Implement image upload logic here

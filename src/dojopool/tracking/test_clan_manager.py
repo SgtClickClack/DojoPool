@@ -1,8 +1,12 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Tests for clan management system."""
 
-import pytest
 from datetime import datetime, timedelta
-from .clan_manager import ClanManager, Clan, ClanRole, ClanRank, ClanMember, ClanStats
+
+import pytest
+
+from .clan_manager import Clan, ClanManager, ClanMember, ClanRank, ClanRole, ClanStats
 
 
 @pytest.fixture
@@ -12,7 +16,7 @@ def clan_manager() -> ClanManager:
 
 
 @pytest.fixture
-def sample_clan(clan_manager: ClanManager) -> Clan:
+def sample_clan(clan_manager: ClanManager):
     """Create a sample clan."""
     return clan_manager.create_clan(
         name="Test Clan",
@@ -24,7 +28,7 @@ def sample_clan(clan_manager: ClanManager) -> Clan:
 
 
 @pytest.fixture
-def populated_clan(clan_manager: ClanManager, sample_clan: Clan) -> Clan:
+def populated_clan(clan_manager: ClanManager, sample_clan: Clan):
     """Create a clan with multiple members and some activity."""
     # Add members with different roles
     clan_manager.add_member(sample_clan.clan_id, "member1")
@@ -32,8 +36,12 @@ def populated_clan(clan_manager: ClanManager, sample_clan: Clan) -> Clan:
     clan_manager.add_member(sample_clan.clan_id, "member3")
 
     # Record some activity
-    clan_manager.record_activity(sample_clan.clan_id, "member1", points=100, match_won=True)
-    clan_manager.record_activity(sample_clan.clan_id, "member2", points=200, tournament_won=True)
+    clan_manager.record_activity(
+        sample_clan.clan_id, "member1", points=100, match_won=True
+    )
+    clan_manager.record_activity(
+        sample_clan.clan_id, "member2", points=200, tournament_won=True
+    )
 
     return sample_clan
 
@@ -41,7 +49,7 @@ def populated_clan(clan_manager: ClanManager, sample_clan: Clan) -> Clan:
 class TestClanManager:
     """Test clan management functionality."""
 
-    def test_create_clan(self, clan_manager: ClanManager) -> None:
+    def test_create_clan(self, clan_manager: ClanManager):
         """Test creating a new clan."""
         clan = clan_manager.create_clan(
             name="Test Clan",
@@ -90,7 +98,10 @@ class TestClanManager:
 
         with pytest.raises(ValueError, match="Tag must be 2-5 characters"):
             clan_manager.create_clan(
-                name="Test Clan", tag="T", description="Test clan", leader_id="leader2"  # Too short
+                name="Test Clan",
+                tag="T",
+                description="Test clan",
+                leader_id="leader2",  # Too short
             )
 
         with pytest.raises(ValueError, match="Tag must be 2-5 characters"):
@@ -101,11 +112,15 @@ class TestClanManager:
                 leader_id="leader2",
             )
 
-    def test_clan_membership(self, clan_manager: ClanManager, sample_clan: Clan) -> None:
+    def test_clan_membership(
+        self, clan_manager: ClanManager, sample_clan: Clan
+    ) -> None:
         """Test clan membership operations."""
         # Test adding members with different roles
         assert clan_manager.add_member(sample_clan.clan_id, "member1")
-        assert clan_manager.add_member(sample_clan.clan_id, "member2", role=ClanRole.OFFICER)
+        assert clan_manager.add_member(
+            sample_clan.clan_id, "member2", role=ClanRole.OFFICER
+        )
 
         # Test adding member to nonexistent clan
         assert not clan_manager.add_member("nonexistent_clan", "member3")
@@ -128,7 +143,9 @@ class TestClanManager:
 
         # Test member removal permissions
         # Leader can remove anyone
-        assert clan_manager.remove_member(sample_clan.clan_id, "member1", by_player_id="leader1")
+        assert clan_manager.remove_member(
+            sample_clan.clan_id, "member1", by_player_id="leader1"
+        )
 
         # Officer can remove regular member
         clan_manager.add_member(sample_clan.clan_id, "member3")
@@ -148,9 +165,11 @@ class TestClanManager:
         )
 
         # Test removing from nonexistent clan
-        assert not clan_manager.remove_member("nonexistent_clan", "member1", by_player_id="leader1")
+        assert not clan_manager.remove_member(
+            "nonexistent_clan", "member1", by_player_id="leader1"
+        )
 
-    def test_role_management(self, clan_manager: ClanManager, sample_clan: Clan) -> None:
+    def test_role_management(self, clan_manager: ClanManager, sample_clan: Clan):
         """Test role management."""
         # Add members
         clan_manager.add_member(sample_clan.clan_id, "member1")
@@ -194,14 +213,16 @@ class TestClanManager:
             "nonexistent_clan", "member1", ClanRole.OFFICER, by_player_id="leader1"
         )
 
-    def test_clan_activity(self, clan_manager: ClanManager, sample_clan: Clan) -> None:
+    def test_clan_activity(self, clan_manager: ClanManager, sample_clan: Clan):
         """Test clan activity tracking."""
         # Add members
         clan_manager.add_member(sample_clan.clan_id, "member1")
         clan_manager.add_member(sample_clan.clan_id, "member2")
 
         # Test match activity
-        clan_manager.record_activity(sample_clan.clan_id, "member1", points=100, match_won=True)
+        clan_manager.record_activity(
+            sample_clan.clan_id, "member1", points=100, match_won=True
+        )
 
         clan = clan_manager.get_clan(sample_clan.clan_id)
         assert clan is not None
@@ -234,7 +255,7 @@ class TestClanManager:
             sample_clan.clan_id, "nonexistent_member", points=100
         )  # Should not raise error
 
-    def test_clan_ranking(self, clan_manager: ClanManager, sample_clan: Clan) -> None:
+    def test_clan_ranking(self, clan_manager: ClanManager, sample_clan: Clan):
         """Test clan ranking system."""
         # Test progression through all ranks
         ranks_data = [
@@ -248,7 +269,9 @@ class TestClanManager:
         for target_rank, points, tournaments in ranks_data:
             if points > 0:  # Skip initial state
                 # Add points
-                clan_manager.record_activity(sample_clan.clan_id, "leader1", points=points)
+                clan_manager.record_activity(
+                    sample_clan.clan_id, "leader1", points=points
+                )
 
                 # Win tournaments
                 for _ in range(tournaments):
@@ -271,15 +294,22 @@ class TestClanManager:
         created_clans = []
         for name, leader, points, tournaments, matches in clans_data:
             clan = clan_manager.create_clan(
-                name=name, tag=name.upper(), description=f"Test {name}", leader_id=leader
+                name=name,
+                tag=name.upper(),
+                description=f"Test {name}",
+                leader_id=leader,
             )
             created_clans.append(clan)
 
             # Record activities
-            clan_manager.record_activity(clan.clan_id, leader, points=points, match_won=matches)
+            clan_manager.record_activity(
+                clan.clan_id, leader, points=points, match_won=matches
+            )
 
             for _ in range(tournaments):
-                clan_manager.record_activity(clan.clan_id, leader, points=0, tournament_won=True)
+                clan_manager.record_activity(
+                    clan.clan_id, leader, points=0, tournament_won=True
+                )
 
         # Test contribution ranking
         contribution_ranks = clan_manager.get_top_clans(sort_by="contribution")
@@ -301,7 +331,7 @@ class TestClanManager:
         limited_ranks = clan_manager.get_top_clans(limit=3)
         assert len(limited_ranks) == 3
 
-    def test_member_inactivity(self, clan_manager: ClanManager, populated_clan: Clan) -> None:
+    def test_member_inactivity(self, clan_manager: ClanManager, populated_clan: Clan):
         """Test handling of inactive members."""
         clan = clan_manager.get_clan(populated_clan.clan_id)
         assert clan is not None
@@ -321,7 +351,9 @@ class TestClanManager:
         assert removed[0] == "member1"
         assert "member1" not in clan.members
 
-    def test_clan_achievements(self, clan_manager: ClanManager, populated_clan: Clan) -> None:
+    def test_clan_achievements(
+        self, clan_manager: ClanManager, populated_clan: Clan
+    ) -> None:
         """Test clan achievement system."""
         clan = clan_manager.get_clan(populated_clan.clan_id)
         assert clan is not None
@@ -345,7 +377,7 @@ class TestClanManager:
 
         assert "growing_community" in clan.achievements
 
-    def test_weekly_reset(self, clan_manager: ClanManager, populated_clan: Clan) -> None:
+    def test_weekly_reset(self, clan_manager: ClanManager, populated_clan: Clan):
         """Test weekly points reset."""
         clan = clan_manager.get_clan(populated_clan.clan_id)
         assert clan is not None
@@ -360,9 +392,11 @@ class TestClanManager:
         assert clan.stats.weekly_points == 0
 
         # Weekly points should not affect total contribution
-        assert clan.stats.total_contribution == 1300  # 100 + 200 + 1000 from previous activities
+        assert (
+            clan.stats.total_contribution == 1300
+        )  # 100 + 200 + 1000 from previous activities
 
-    def test_monthly_reset(self, clan_manager: ClanManager, populated_clan: Clan) -> None:
+    def test_monthly_reset(self, clan_manager: ClanManager, populated_clan: Clan):
         """Test monthly points reset."""
         clan = clan_manager.get_clan(populated_clan.clan_id)
         assert clan is not None
@@ -379,7 +413,7 @@ class TestClanManager:
         # Monthly points should not affect total contribution
         assert clan.stats.total_contribution == 2300  # Previous total + 2000
 
-    def test_clan_merging(self, clan_manager: ClanManager, populated_clan: Clan) -> None:
+    def test_clan_merging(self, clan_manager: ClanManager, populated_clan: Clan):
         """Test merging two clans."""
         # Create second clan
         clan2 = clan_manager.create_clan(
@@ -393,7 +427,10 @@ class TestClanManager:
 
         # Merge clans
         merged = clan_manager.merge_clans(
-            populated_clan.clan_id, clan2.clan_id, new_name="Merged Clan", new_tag="MERGE"
+            populated_clan.clan_id,
+            clan2.clan_id,
+            new_name="Merged Clan",
+            new_tag="MERGE",
         )
 
         assert merged is not None

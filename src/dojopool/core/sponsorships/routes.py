@@ -1,87 +1,22 @@
+from flask_caching import Cache
+from flask_caching import Cache
+from typing import Any, Dict, List
+
 from flask import Blueprint, jsonify, request
 
-from ..auth.decorators import admin_required, login_required
-from .models import SponsorshipDeal
-from .service import SponsorshipService
+from ..database import db
+from ..exceptions import ValidationError
+from ..models.sponsorship import Sponsorship, SponsorshipTier
+from ..models.user import User
+from ..security import login_required
 
 sponsorships_bp = Blueprint("sponsorships", __name__)
-sponsorship_service = SponsorshipService()
-
-
-# Sponsor routes
-@sponsorships_bp.route("/sponsors", methods=["POST"])
-@login_required
-def create_sponsor():
-    """Create a new sponsor."""
-    try:
-        data = request.get_json()
-        sponsor = sponsorship_service.create_sponsor(data)
-        return jsonify({"id": sponsor.id, "name": sponsor.name, "status": sponsor.status}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
-@sponsorships_bp.route("/sponsors/<int:sponsor_id>", methods=["GET"])
-def get_sponsor(sponsor_id):
-    """Get sponsor details."""
-    sponsor = sponsorship_service.get_sponsor(sponsor_id)
-    if not sponsor:
-        return jsonify({"error": "Sponsor not found"}), 404
-
-    return jsonify(
-        {
-            "id": sponsor.id,
-            "name": sponsor.name,
-            "description": sponsor.description,
-            "logo_url": sponsor.logo_url,
-            "website": sponsor.website,
-            "status": sponsor.status,
-        }
-    )
-
-
-@sponsorships_bp.route("/sponsors/<int:sponsor_id>", methods=["PUT"])
-@login_required
-def update_sponsor(sponsor_id):
-    """Update sponsor information."""
-    try:
-        data = request.get_json()
-        sponsor = sponsorship_service.update_sponsor(sponsor_id, data)
-        if not sponsor:
-            return jsonify({"error": "Sponsor not found"}), 404
-
-        return jsonify({"id": sponsor.id, "name": sponsor.name, "status": sponsor.status})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
-# Sponsorship tier routes
-@sponsorships_bp.route("/tiers", methods=["POST"])
-@admin_required
-def create_tier():
-    """Create a new sponsorship tier."""
-    try:
-        data = request.get_json()
-        tier = sponsorship_service.create_sponsorship_tier(data)
-        return (
-            jsonify(
-                {
-                    "id": tier.id,
-                    "name": tier.name,
-                    "price": tier.price,
-                    "duration_days": tier.duration_days,
-                }
-            ),
-            201,
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
 
 
 @sponsorships_bp.route("/tiers", methods=["GET"])
-def get_tiers():
-    """Get all active sponsorship tiers."""
-    tiers = sponsorship_service.get_active_tiers()
+def get_sponsorship_tiers() -> Dict[str, List[Dict[str, Any]]]:
+    """Get all available sponsorship tiers."""
+    tiers = SponsorshipTier.query.all()
     return jsonify(
         {
             "tiers": [
@@ -89,9 +24,9 @@ def get_tiers():
                     "id": tier.id,
                     "name": tier.name,
                     "description": tier.description,
-                    "price": tier.price,
-                    "duration_days": tier.duration_days,
+                    "price": float(tier.price),
                     "benefits": tier.benefits,
+                    "duration_days": tier.duration_days,
                 }
                 for tier in tiers
             ]
@@ -99,81 +34,107 @@ def get_tiers():
     )
 
 
-# Sponsorship deal routes
-@sponsorships_bp.route("/deals", methods=["POST"])
+@sponsorships_bp.route("/sponsorships", methods=["GET"])
 @login_required
-def create_deal():
-    """Create a new sponsorship deal."""
-    try:
-        data = request.get_json()
-        deal = sponsorship_service.create_sponsorship_deal(data)
-        if not deal:
-            return jsonify({"error": "Unable to create deal"}), 400
+def get_user_sponsorships():
+    """Get all sponsorships for the current user."""
+    user_id = request.user.id
+    sponsorships = Sponsorship.query.filter_by(user_id=user_id).all()
 
-        return (
-            jsonify(
-                {
-                    "id": deal.id,
-                    "sponsor_id": deal.sponsor_id,
-                    "tier_id": deal.tier_id,
-                    "status": deal.status,
-                    "payment_status": deal.payment_status,
-                    "client_secret": deal.stripe_payment_id,  # For Stripe payment
-                }
-            ),
-            201,
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
-@sponsorships_bp.route("/deals", methods=["GET"])
-def get_deals():
-    """Get active sponsorship deals."""
-    sponsor_id = request.args.get("sponsor_id", type=int)
-    deals = sponsorship_service.get_active_deals(sponsor_id)
     return jsonify(
         {
-            "deals": [
+            "sponsorships": [
                 {
-                    "id": deal.id,
-                    "sponsor": {
-                        "id": deal.sponsor.id,
-                        "name": deal.sponsor.name,
-                        "logo_url": deal.sponsor.logo_url,
-                    },
-                    "tier": {"id": deal.tier.id, "name": deal.tier.name},
-                    "start_date": deal.start_date.isoformat(),
-                    "end_date": deal.end_date.isoformat(),
-                    "status": deal.status,
+                    "id": s.id,
+                    "tier": {"id": s.tier.id, "name": s.tier.name},
+                    "start_date": s.start_date.isoformat(),
+                    "end_date": s.end_date.isoformat(),
+                    "status": s.status,
+                    "auto_renew": s.auto_renew,
                 }
-                for deal in deals
+                for s in sponsorships
             ]
         }
     )
 
 
-@sponsorships_bp.route("/deals/<int:deal_id>", methods=["GET"])
-def get_deal(deal_id):
-    """Get details of a specific sponsorship deal."""
-    deal = SponsorshipDeal.query.get(deal_id)
-    if not deal:
-        return jsonify({"error": "Deal not found"}), 404
+@sponsorships_bp.route("/sponsorships", methods=["POST"])
+@login_required
+def create_sponsorship():
+    """Create a new sponsorship for the current user."""
+    data = request.get_json()
+    tier_id = data.get("tier_id")
+    auto_renew = data.get("auto_renew", False)
+
+    if not tier_id:
+        return jsonify({"error": "Tier ID is required"}), 400
+
+    tier = SponsorshipTier.query.get(tier_id)
+    if not tier:
+        return jsonify({"error": "Invalid tier ID"}), 400
+
+    # Create new sponsorship
+    sponsorship = Sponsorship.create(
+        user_id=request.user.id, tier_id=tier_id, auto_renew=auto_renew
+    )
 
     return jsonify(
         {
-            "id": deal.id,
-            "sponsor": {
-                "id": deal.sponsor.id,
-                "name": deal.sponsor.name,
-                "logo_url": deal.sponsor.logo_url,
-            },
-            "tier": {"id": deal.tier.id, "name": deal.tier.name, "benefits": deal.tier.benefits},
-            "venue_id": deal.venue_id,
-            "start_date": deal.start_date.isoformat(),
-            "end_date": deal.end_date.isoformat(),
-            "status": deal.status,
-            "payment_status": deal.payment_status,
-            "total_amount": deal.total_amount,
+            "sponsorship": {
+                "id": sponsorship.id,
+                "tier": {"id": sponsorship.tier.id, "name": sponsorship.tier.name},
+                "start_date": sponsorship.start_date.isoformat(),
+                "end_date": sponsorship.end_date.isoformat(),
+                "status": sponsorship.status,
+                "auto_renew": sponsorship.auto_renew,
+            }
         }
     )
+
+
+@sponsorships_bp.route("/sponsorships/<int:sponsorship_id>", methods=["PATCH"])
+@login_required
+def update_sponsorship(sponsorship_id: int) -> Dict[str, Any]:
+    """Update an existing sponsorship."""
+    data = request.get_json()
+    auto_renew = data.get("auto_renew")
+
+    sponsorship = Sponsorship.query.get_or_404(sponsorship_id)
+
+    if sponsorship.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if auto_renew is not None:
+        sponsorship.auto_renew = auto_renew
+        db.session.commit()
+
+    return jsonify(
+        {
+            "sponsorship": {
+                "id": sponsorship.id,
+                "tier": {"id": sponsorship.tier.id, "name": sponsorship.tier.name},
+                "start_date": sponsorship.start_date.isoformat(),
+                "end_date": sponsorship.end_date.isoformat(),
+                "status": sponsorship.status,
+                "auto_renew": sponsorship.auto_renew,
+            }
+        }
+    )
+
+
+@sponsorships_bp.route("/sponsorships/<int:sponsorship_id>/cancel", methods=["POST"])
+@login_required
+def cancel_sponsorship(sponsorship_id: int) -> Dict[str, str]:
+    """Cancel an active sponsorship."""
+    sponsorship = Sponsorship.query.get_or_404(sponsorship_id)
+
+    if sponsorship.user_id != request.user.id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if sponsorship.status != "active":
+        return jsonify({"error": "Sponsorship is not active"}), 400
+
+    sponsorship.cancel()
+    db.session.commit()
+
+    return jsonify({"message": "Sponsorship cancelled successfully"})

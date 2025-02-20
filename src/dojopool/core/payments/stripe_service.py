@@ -1,35 +1,85 @@
-from typing import Dict, Optional
+"""
+Stripe payment service for DojoPool.
+Handles Stripe API integration and payment processing.
+"""
+
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Union
 
 import stripe
 from flask import current_app
+from stripe.error import StripeError
 
+from ..exceptions import PaymentError
 from ..models import db
 from .models import Payment, Subscription
 
 
 class StripeService:
-    def __init__(self):
+    """Service for handling Stripe payment operations."""
+
+    def __init__(self) -> None:
+        """Initialize Stripe service with API key."""
         self.stripe = stripe
         self.stripe.api_key = current_app.config["STRIPE_SECRET_KEY"]
+        self.webhook_secret = current_app.config["STRIPE_WEBHOOK_SECRET"]
 
-    def create_payment_intent(self, amount: float, currency: str = "USD") -> Dict:
-        """Create a payment intent for a one-time payment."""
+    def create_payment_intent(
+        self,
+        amount: Decimal,
+        currency: str = "usd",
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """Create a payment intent for a one-time payment.
+
+        Args:
+            amount: Payment amount in dollars
+            currency: Payment currency code
+            metadata: Optional metadata for the payment intent
+
+        Returns:
+            Dict containing payment intent details
+
+        Raises:
+            PaymentError: If payment intent creation fails
+        """
         try:
             intent = self.stripe.PaymentIntent.create(
                 amount=int(amount * 100),  # Convert to cents
-                currency=currency,
+                currency=currency.lower(),
+                metadata=metadata or {},
             )
-            return {"client_secret": intent.client_secret, "id": intent.id}
-        except stripe.error.StripeError as e:
-            raise Exception(f"Error creating payment intent: {str(e)}")
+            return {
+                "id": intent.id,
+                "client_secret": intent.client_secret,
+                "amount": amount,
+                "currency": currency,
+                "status": intent.status,
+            }
+        except StripeError as e:
+            raise PaymentError(f"Error creating payment intent: {str(e)}")
 
-    def create_subscription(self, customer_id: str, price_id: str) -> Dict:
-        """Create a subscription for a customer."""
+    def create_subscription(
+        self, customer_id: str, price_id: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Create a subscription for a customer.
+
+        Args:
+            customer_id: Stripe customer ID
+            price_id: Stripe price ID
+            metadata: Optional metadata for the subscription
+
+        Returns:
+            Dict containing subscription details
+
+        Raises:
+            PaymentError: If subscription creation fails
+        """
         try:
             subscription = self.stripe.Subscription.create(
                 customer=customer_id,
                 items=[{"price": price_id}],
-                payment_behavior="default_incomplete",
+                metadata=metadata or {},
                 expand=["latest_invoice.payment_intent"],
             )
             return {
@@ -37,35 +87,78 @@ class StripeService:
                 "client_secret": subscription.latest_invoice.payment_intent.client_secret,
                 "status": subscription.status,
             }
-        except stripe.error.StripeError as e:
-            raise Exception(f"Error creating subscription: {str(e)}")
+        except StripeError as e:
+            raise PaymentError(f"Error creating subscription: {str(e)}")
 
-    def create_customer(self, email: str, name: Optional[str] = None) -> Dict:
-        """Create a new Stripe customer."""
+    def create_customer(
+        self,
+        email: str,
+        name: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """Create a new Stripe customer.
+
+        Args:
+            email: Customer email
+            name: Optional customer name
+            metadata: Optional metadata for the customer
+
+        Returns:
+            Dict containing customer details
+
+        Raises:
+            PaymentError: If customer creation fails
+        """
         try:
-            customer = self.stripe.Customer.create(email=email, name=name)
-            return {"customer_id": customer.id}
-        except stripe.error.StripeError as e:
-            raise Exception(f"Error creating customer: {str(e)}")
+            customer = self.stripe.Customer.create(
+                email=email, name=name, metadata=metadata or {}
+            )
+            return {
+                "customer_id": customer.id,
+                "email": customer.email,
+                "name": customer.name,
+            }
+        except StripeError as e:
+            raise PaymentError(f"Error creating customer: {str(e)}")
 
-    def cancel_subscription(self, subscription_id: str, at_period_end: bool = True) -> Dict:
-        """Cancel a subscription."""
+    def cancel_subscription(self, subscription_id: str, at_period_end: bool = True):
+        """Cancel a subscription.
+
+        Args:
+            subscription_id: Stripe subscription ID
+            at_period_end: Whether to cancel at period end
+
+        Returns:
+            Dict containing cancellation details
+
+        Raises:
+            PaymentError: If subscription cancellation fails
+        """
         try:
             subscription = self.stripe.Subscription.modify(
                 subscription_id, cancel_at_period_end=at_period_end
             )
             return {
+                "subscription_id": subscription.id,
                 "status": subscription.status,
-                "cancel_at_period_end": subscription.cancel_at_period_end,
+                "cancel_at": subscription.cancel_at,
             }
-        except stripe.error.StripeError as e:
-            raise Exception(f"Error canceling subscription: {str(e)}")
+        except StripeError as e:
+            raise PaymentError(f"Error canceling subscription: {str(e)}")
 
-    def handle_webhook(self, payload: Dict, sig_header: str) -> None:
-        """Handle Stripe webhooks."""
+    def handle_webhook(self, payload: bytes, sig_header: str):
+        """Handle Stripe webhook events.
+
+        Args:
+            payload: Raw webhook payload
+            sig_header: Stripe signature header
+
+        Raises:
+            PaymentError: If webhook handling fails
+        """
         try:
             event = self.stripe.Webhook.construct_event(
-                payload, sig_header, current_app.config["STRIPE_WEBHOOK_SECRET"]
+                payload, sig_header, self.webhook_secret
             )
 
             if event.type == "payment_intent.succeeded":
@@ -77,37 +170,42 @@ class StripeService:
             elif event.type == "customer.subscription.deleted":
                 self._handle_subscription_deletion(event.data.object)
 
-        except stripe.error.SignatureVerificationError:
-            raise Exception("Invalid signature")
-        except Exception as e:
-            raise Exception(f"Error handling webhook: {str(e)}")
+        except StripeError as e:
+            raise PaymentError(f"Error handling webhook: {str(e)}")
 
-    def _handle_payment_success(self, payment_intent):
-        """Handle successful payment."""
+    def _handle_payment_success(self, payment_intent: stripe.PaymentIntent) -> None:
+        """Handle successful payment webhook event."""
         payment = Payment.query.filter_by(stripe_payment_id=payment_intent.id).first()
         if payment:
-            payment.status = "succeeded"
+            payment.status = "completed"
             db.session.commit()
 
-    def _handle_payment_failure(self, payment_intent):
-        """Handle failed payment."""
+    def _handle_payment_failure(self, payment_intent: stripe.PaymentIntent):
+        """Handle failed payment webhook event."""
         payment = Payment.query.filter_by(stripe_payment_id=payment_intent.id).first()
         if payment:
             payment.status = "failed"
+            payment.error = (
+                payment_intent.last_payment_error.message
+                if payment_intent.last_payment_error
+                else None
+            )
             db.session.commit()
 
-    def _handle_subscription_update(self, subscription):
-        """Handle subscription update."""
-        sub = Subscription.query.filter_by(stripe_subscription_id=subscription.id).first()
+    def _handle_subscription_update(self, subscription: stripe.Subscription):
+        """Handle subscription update webhook event."""
+        sub = Subscription.query.filter_by(
+            stripe_subscription_id=subscription.id
+        ).first()
         if sub:
             sub.status = subscription.status
-            sub.current_period_end = subscription.current_period_end
-            sub.cancel_at_period_end = subscription.cancel_at_period_end
             db.session.commit()
 
-    def _handle_subscription_deletion(self, subscription):
-        """Handle subscription deletion."""
-        sub = Subscription.query.filter_by(stripe_subscription_id=subscription.id).first()
+    def _handle_subscription_deletion(self, subscription: stripe.Subscription):
+        """Handle subscription deletion webhook event."""
+        sub = Subscription.query.filter_by(
+            stripe_subscription_id=subscription.id
+        ).first()
         if sub:
             sub.status = "canceled"
             db.session.commit()

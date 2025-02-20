@@ -12,7 +12,9 @@ class UserReward(TimestampMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    type = db.Column(db.String(50), nullable=False)  # achievement, tournament, special_event, etc.
+    type = db.Column(
+        db.String(50), nullable=False
+    )  # achievement, tournament, special_event, etc.
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     value = db.Column(db.Float, default=0.0)  # Monetary or point value

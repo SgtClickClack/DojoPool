@@ -4,7 +4,7 @@ from functools import wraps
 from flask_login import current_user
 from flask_socketio import join_room, leave_room
 
-from src.extensions import cache, socketio
+from ..core.extensions import cache, socketio
 
 
 class NotificationManager:
@@ -18,7 +18,11 @@ class NotificationManager:
         :param notification_type: Type of notification
         :param data: Notification data
         """
-        notification = {"type": notification_type, "data": data, "timestamp": time.time()}
+        notification = {
+            "type": notification_type,
+            "data": data,
+            "timestamp": time.time(),
+        }
 
         # Emit to user's room
         socketio.emit("notification", notification, room=f"user_{user_id}")
@@ -134,3 +138,13 @@ def with_notifications(notification_type):
         return decorated_function
 
     return decorator
+
+
+def send_notification(user_id: int, notification_type: str, data: dict):
+    """
+    Send a notification to a specific user
+    :param user_id: Target user ID
+    :param notification_type: Type of notification
+    :param data: Notification data
+    """
+    NotificationManager.emit_notification(user_id, notification_type, data)

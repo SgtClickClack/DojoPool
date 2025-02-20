@@ -4,10 +4,12 @@ Authentication utilities for the application.
 
 import logging
 from functools import wraps
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
 import jwt
-from flask import current_app, g, jsonify, request
+from flask import Request, Response, current_app, g, jsonify, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +30,13 @@ def verify_token(token: str) -> Dict[str, Any]:
     return jwt.decode(token, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"])
 
 
-def require_auth(f: Callable) -> Callable:
+def require_auth(
+    f: Callable[..., ResponseReturnValue],
+):
     """Decorator to require authentication."""
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(*args: Any, **kwargs: Any):
         auth_header = request.headers.get("Authorization")
         if not auth_header:
             return jsonify({"error": "No authorization header"}), 401

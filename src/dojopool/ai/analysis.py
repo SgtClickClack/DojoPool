@@ -1,11 +1,14 @@
 """Module for AI-powered match analysis and insights."""
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, TypedDict, cast
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Tuple, TypedDict, Union, cast
+from uuid import UUID
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Mapped, joinedload, mapped_column, relationship
 
 from ..core.database import db
 from ..core.exceptions import AnalysisError
@@ -68,12 +71,12 @@ class MatchAnalyzer:
         """
         try:
             # Check cache first
-            cached = self._get_from_cache(match_id)
+            cached: Any = self._get_from_cache(match_id)
             if cached:
                 return cached
 
             # Load match with related data in one query
-            match = (
+            match: Any = (
                 await db.session.query(Match)
                 .options(
                     joinedload(Match.player1),
@@ -88,25 +91,34 @@ class MatchAnalyzer:
                 raise ValueError(f"Match with ID {match_id} not found")
 
             # Get player levels concurrently
-            player1_levels, player2_levels = await self._get_player_levels(match)
+            temp: Tuple[Dict[str, Any], Dict[str, Any]] = await self._get_player_levels(
+                match
+            )
+            player1_levels, player2_levels = temp
 
             # Perform various analyses concurrently
-            key_moments = await self._analyze_key_moments(match)
-            performance_stats = await self._analyze_performance(match)
-            tactical_analysis = await self._analyze_tactics(match, player1_levels, player2_levels)
-            improvement_areas = await self._identify_improvement_areas(
+            key_moments: Any = await self._analyze_key_moments(match)
+            performance_stats: Any = await self._analyze_performance(match)
+            tactical_analysis: Any = await self._analyze_tactics(
+                match, player1_levels, player2_levels
+            )
+            improvement_areas: Any = await self._identify_improvement_areas(
                 match, player1_levels, player2_levels
             )
 
-            analysis = {
+            analysis: Dict[Any, Any] = {
                 "match_summary": await self._generate_match_summary(match),
                 "key_moments": key_moments,
                 "performance_stats": performance_stats,
                 "tactical_analysis": tactical_analysis,
                 "improvement_areas": improvement_areas,
                 "player_insights": {
-                    "player1": await self._generate_player_insights(match.player1_id, match),
-                    "player2": await self._generate_player_insights(match.player2_id, match),
+                    "player1": await self._generate_player_insights(
+                        match.player1_id, match
+                    ),
+                    "player2": await self._generate_player_insights(
+                        match.player2_id, match
+                    ),
                 },
                 "timestamp": datetime.utcnow().isoformat(),
             }
@@ -116,11 +128,13 @@ class MatchAnalyzer:
             return analysis
 
         except SQLAlchemyError as e:
-            raise AnalysisError(f"Database error during match analysis: {str(e)}") from e
+            raise AnalysisError(
+                f"Database error during match analysis: {str(e)}"
+            ) from e
         except Exception as e:
             raise AnalysisError(f"Error analyzing match: {str(e)}") from e
 
-    def _get_empty_analysis(self) -> Dict[str, Any]:
+    def _get_empty_analysis(self):
         """Return empty analysis structure with proper types."""
         return {
             "match_summary": cast(
@@ -150,17 +164,23 @@ class MatchAnalyzer:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-    async def _get_player_levels(self, match: Match) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    async def _get_player_levels(
+        self, match: Match
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         """Get player levels concurrently."""
-        player1_levels = await self.difficulty.calculate_player_level(match.player1_id)
-        player2_levels = await self.difficulty.calculate_player_level(match.player2_id)
+        player1_levels: Any = await self.difficulty.calculate_player_level(
+            match.player1_id
+        )
+        player2_levels: Any = await self.difficulty.calculate_player_level(
+            match.player2_id
+        )
         return player1_levels, player2_levels
 
-    def _get_from_cache(self, match_id: int) -> Optional[Dict[str, Any]]:
+    def _get_from_cache(self, match_id: int):
         """Get analysis from cache if valid."""
         if match_id in self.cache:
-            cached = self.cache[match_id]
-            cached_time = datetime.fromisoformat(cached["timestamp"])
+            cached: Any = self.cache[match_id]
+            cached_time: Any = datetime.fromisoformat(cached["timestamp"])
             if (datetime.utcnow() - cached_time).total_seconds() < self._cache_timeout:
                 return cached
             del self.cache[match_id]
@@ -171,9 +191,11 @@ class MatchAnalyzer:
         self.cache[match_id] = analysis
         # Implement cache size limit
         if len(self.cache) > 1000:  # Arbitrary limit
-            oldest_id = min(self.cache.keys(), key=lambda k: self.cache[k]["timestamp"])
+            oldest_id: min = min(
+                self.cache.keys(), key=lambda k: self.cache[k]["timestamp"]
+            )
             del self.cache[oldest_id]
 
 
 # Initialize match analyzer
-match_analyzer = MatchAnalyzer()
+match_analyzer: MatchAnalyzer = MatchAnalyzer()

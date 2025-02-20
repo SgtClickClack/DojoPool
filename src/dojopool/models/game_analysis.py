@@ -1,94 +1,157 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
-from typing import Dict, Any, List, Optional
+from flask_caching import Cache
+from sqlalchemy.orm import joinedload
+from flask_caching import Cache
+from sqlalchemy.orm import joinedload
+"""Game analysis models for DojoPool."""
+
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import numpy as np
-from datetime import timedelta
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from ..core.extensions import db
+from .user import User
 
 
-class GameAnalysis(models.Model):
-    GAME_TYPES = [
-        ("8ball", "8 Ball"),
-        ("9ball", "9 Ball"),
-        ("straight", "Straight Pool"),
-        ("rotation", "Rotation"),
-    ]
+class GameAnalysis(Base):
+    """Game analysis model."""
 
-    game_id = models.CharField(max_length=100, unique=True)
-    game_type = models.CharField(max_length=20, choices=GAME_TYPES)
-    player1 = models.ForeignKey(User, related_name="games_as_p1", on_delete=models.CASCADE)
-    player2 = models.ForeignKey(User, related_name="games_as_p2", on_delete=models.CASCADE)
-    winner = models.ForeignKey(User, related_name="games_won", on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    __tablename__: str = "game_analysis"
+    __table_args__ = {"extend_existing": True}
+
+    GAME_TYPES: List[Any] = ["8ball", "9ball", "straight", "rotation"]
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    game_id: Mapped[str] = mapped_column(String(100), unique=True)
+    game_type: Mapped[str] = mapped_column(String(20))
+    player1_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    player2_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    winner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    start_time: Mapped[datetime] = mapped_column()
+    end_time: Mapped[datetime] = mapped_column()
 
     # Game stats
-    total_shots = models.IntegerField(default=0)
-    successful_shots = models.IntegerField(default=0)
-    average_shot_difficulty = models.FloatField(default=0.0)
-    average_position_score = models.FloatField(default=0.0)
-    breaks_attempted = models.IntegerField(default=0)
-    balls_pocketed_on_break = models.IntegerField(default=0)
+    total_shots: Mapped[int] = mapped_column(default=0)
+    successful_shots: Mapped[int] = mapped_column(default=0)
+    average_shot_difficulty: Mapped[float] = mapped_column(default=0.0)
+    average_position_score: Mapped[float] = mapped_column(default=0.0)
+    breaks_attempted: Mapped[int] = mapped_column(default=0)
+    balls_pocketed_on_break: Mapped[int] = mapped_column(default=0)
 
     # Advanced metrics
-    shot_pattern_data = models.JSONField(default=dict)
-    position_heat_map = models.JSONField(default=dict)
-    shot_clustering = models.JSONField(default=dict)
+    shot_pattern_data: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    position_heat_map: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
+    shot_clustering: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
-    def __str__(self) -> str:
-        return f"Game {self.game_id}: {self.player1.username} vs {self.player2.username}"
+    # Relationships
+    player1: relationship = relationship(
+        User, foreign_keys=[player1_id], backref="games_as_p1", lazy="select"
+    )
+    player2: relationship = relationship(
+        User, foreign_keys=[player2_id], backref="games_as_p2", lazy="select"
+    )
+    winner: relationship = relationship(
+        User, foreign_keys=[winner_id], backref="games_won", lazy="select"
+    )
+    shots: relationship = relationship(
+        "ShotAnalysis",
+        back_populates="game",
+        lazy="select",
+        cascade="all, delete-orphan",
+    )
 
-    def calculate_metrics(self) -> Dict[str, Any]:
-        """Calculate advanced game metrics"""
+    def __repr__(self) -> str:
+        """Return string representation."""
+        return (
+            f"Game {self.game_id}: {self.player1.username} vs {self.player2.username}"
+        )
+
+    def calculate_metrics(self):
+        """Calculate advanced game metrics."""
         return {
             "accuracy": self.successful_shots / max(1, self.total_shots),
             "avg_difficulty": self.average_shot_difficulty,
             "position_score": self.average_position_score,
-            "break_success": self.balls_pocketed_on_break / max(1, self.breaks_attempted),
+            "break_success": self.balls_pocketed_on_break
+            / max(1, self.breaks_attempted),
             "game_duration": (self.end_time - self.start_time).total_seconds() / 60.0,
         }
 
 
-class ShotAnalysis(models.Model):
-    SHOT_TYPES = [
-        ("straight", "Straight In"),
-        ("cut", "Cut Shot"),
-        ("bank", "Bank Shot"),
-        ("kick", "Kick Shot"),
-        ("combo", "Combination"),
-        ("carom", "Carom Shot"),
-        ("jump", "Jump Shot"),
-        ("masse", "Masse Shot"),
+class ShotAnalysis(Base):
+    """Shot analysis model."""
+
+    __tablename__: str = "shot_analysis"
+    __table_args__ = {"extend_existing": True}
+
+    SHOT_TYPES: List[Any] = [
+        "straight",
+        "cut",
+        "bank",
+        "kick",
+        "combo",
+        "carom",
+        "jump",
+        "masse",
     ]
 
-    game = models.ForeignKey(GameAnalysis, on_delete=models.CASCADE, related_name="shots")
-    player = models.ForeignKey(User, on_delete=models.CASCADE)
-    shot_number = models.IntegerField()
-    shot_type = models.CharField(max_length=20, choices=SHOT_TYPES)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("game_analysis.id"), nullable=False)
+    player_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    shot_number: Mapped[int] = mapped_column()
+    shot_type: Mapped[str] = mapped_column(String(20))
 
     # Shot details
-    difficulty = models.FloatField()  # 0.0 to 1.0
-    success = models.BooleanField()
-    position_score = models.FloatField()  # 0.0 to 1.0
-    english_applied = models.FloatField()  # -1.0 to 1.0
-    speed = models.FloatField()  # 0.0 to 1.0
+    difficulty: Mapped[float] = mapped_column()  # 0.0 to 1.0
+    success: Mapped[bool] = mapped_column()
+    position_score: Mapped[float] = mapped_column()  # 0.0 to 1.0
+    english_applied: Mapped[float] = mapped_column()  # -1.0 to 1.0
+    speed: Mapped[float] = mapped_column()  # 0.0 to 1.0
 
     # Position data
-    cue_ball_start = models.JSONField()  # {x: float, y: float}
-    cue_ball_end = models.JSONField(null=True)  # {x: float, y: float}
-    object_ball_start = models.JSONField()  # {x: float, y: float}
-    target_pocket = models.JSONField(null=True)  # {x: float, y: float}
+    cue_ball_start: Mapped[Dict[str, float]] = mapped_column(
+        JSON
+    )  # {x: float, y: float}
+    cue_ball_end: Mapped[Optional[Dict[str, float]]] = mapped_column(
+        JSON, nullable=True
+    )  # {x: float, y: float}
+    object_ball_start: Mapped[Dict[str, float]] = mapped_column(
+        JSON
+    )  # {x: float, y: float}
+    target_pocket: Mapped[Optional[Dict[str, float]]] = mapped_column(
+        JSON, nullable=True
+    )  # {x: float, y: float}
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
-    def __str__(self) -> str:
+    # Relationships
+    game: relationship = relationship(
+        "GameAnalysis", back_populates="shots", lazy="select"
+    )
+    player: relationship = relationship(User, lazy="select")
+
+    def __repr__(self) -> str:
+        """Return string representation."""
         return f"Shot {self.shot_number} by {self.player.username}"
 
-    def calculate_difficulty(self) -> float:
-        """Calculate shot difficulty based on various factors"""
-        factors = {
+    def calculate_difficulty(self):
+        """Calculate shot difficulty based on various factors."""
+        factors: Dict[Any, Any] = {
             "distance": self._calculate_distance_factor(),
             "angle": self._calculate_angle_factor(),
             "obstacles": self._calculate_obstacle_factor(),
@@ -96,7 +159,7 @@ class ShotAnalysis(models.Model):
             "speed_control": self._calculate_speed_factor(),
         }
 
-        weights = {
+        weights: Dict[Any, Any] = {
             "distance": 0.2,
             "angle": 0.3,
             "obstacles": 0.2,
@@ -106,47 +169,47 @@ class ShotAnalysis(models.Model):
 
         return sum(factor * weights[key] for key, factor in factors.items())
 
-    def _calculate_distance_factor(self) -> float:
-        """Calculate difficulty factor based on shot distance"""
-        cb_start = np.array([self.cue_ball_start["x"], self.cue_ball_start["y"]])
+    def _calculate_distance_factor(self):
+        """Calculate difficulty factor based on shot distance."""
+        cb_start: Any = np.array([self.cue_ball_start["x"], self.cue_ball_start["y"]])
         ob_start = np.array([self.object_ball_start["x"], self.object_ball_start["y"]])
-        distance = np.linalg.norm(cb_start - ob_start)
+        distance: Any = np.linalg.norm(cb_start - ob_start)
         return min(1.0, distance / 100.0)  # Normalize to table length
 
     def _calculate_angle_factor(self) -> float:
-        """Calculate difficulty factor based on cut angle"""
+        """Calculate difficulty factor based on cut angle."""
         if not self.target_pocket:
             return 0.5
 
         cb = np.array([self.cue_ball_start["x"], self.cue_ball_start["y"]])
-        ob = np.array([self.object_ball_start["x"], self.object_ball_start["y"]])
-        pocket = np.array([self.target_pocket["x"], self.target_pocket["y"]])
+        ob: Any = np.array([self.object_ball_start["x"], self.object_ball_start["y"]])
+        pocket: Any = np.array([self.target_pocket["x"], self.target_pocket["y"]])
 
         # Calculate vectors
         shot_line = ob - cb
-        pocket_line = pocket - ob
+        pocket_line: Any = pocket - ob
 
         # Calculate angle between vectors
-        cos_angle = np.dot(shot_line, pocket_line) / (
+        cos_angle: Any = np.dot(shot_line, pocket_line) / (
             np.linalg.norm(shot_line) * np.linalg.norm(pocket_line)
         )
-        angle = np.arccos(np.clip(cos_angle, -1.0, 1.0))
+        angle: Any = np.arccos(np.clip(cos_angle, -1.0, 1.0))
 
         return angle / np.pi  # Normalize to [0, 1]
 
     def _calculate_obstacle_factor(self) -> float:
-        """Calculate difficulty factor based on obstacles"""
+        """Calculate difficulty factor based on obstacles."""
         # This would use the game state to check for blocking balls
         # For now, return a placeholder value
         return 0.5
 
-    def _calculate_speed_factor(self) -> float:
-        """Calculate difficulty factor based on speed control requirements"""
+    def _calculate_speed_factor(self):
+        """Calculate difficulty factor based on speed control requirements."""
         return self.speed
 
 
-class PerformanceInsight(models.Model):
-    INSIGHT_TYPES = [
+class PerformanceInsight(Base):
+    INSIGHT_TYPES: List[Any] = [
         ("strength", "Strength"),
         ("weakness", "Weakness"),
         ("improvement", "Improvement"),
@@ -154,32 +217,34 @@ class PerformanceInsight(models.Model):
         ("recommendation", "Recommendation"),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    insight_type = models.CharField(max_length=20, choices=INSIGHT_TYPES)
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    metrics = models.JSONField()
-    confidence = models.FloatField()  # 0.0 to 1.0
-    generated_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(null=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    insight_type: Mapped[str] = mapped_column(String(20))
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(String(200))
+    metrics: Mapped[Dict[str, Any]] = mapped_column(JSON)
+    confidence: Mapped[float] = mapped_column()  # 0.0 to 1.0
+    generated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    expires_at: Mapped[Optional[datetime]] = mapped_column()
 
-    def __str__(self) -> str:
+    # Relationships
+    user: relationship = relationship(User, foreign_keys=[user_id], lazy="select")
+
+    def __repr__(self):
         return f"{self.insight_type} insight for {self.user.username}"
 
     @classmethod
-    def generate_insights(
-        cls, user: User, recent_games: List[GameAnalysis]
-    ) -> List["PerformanceInsight"]:
+    def generate_insights(cls, user: User, recent_games: List[GameAnalysis]):
         """Generate performance insights based on recent games"""
         insights = []
 
         # Analyze shot patterns
-        shot_patterns = cls._analyze_shot_patterns(recent_games)
+        shot_patterns: Any = cls._analyze_shot_patterns(recent_games)
         if shot_patterns:
             insights.extend(cls._create_pattern_insights(user, shot_patterns))
 
         # Analyze strengths and weaknesses
-        performance_analysis = cls._analyze_performance(recent_games)
+        performance_analysis: Any = cls._analyze_performance(recent_games)
         insights.extend(cls._create_performance_insights(user, performance_analysis))
 
         # Generate recommendations
@@ -191,11 +256,11 @@ class PerformanceInsight(models.Model):
     @staticmethod
     def _analyze_shot_patterns(games: List[GameAnalysis]) -> Dict[str, Any]:
         """Analyze shot patterns across games"""
-        all_shots = []
+        all_shots: relationship = []
         for game in games:
             all_shots.extend(game.shots.all())
 
-        patterns = {
+        patterns: Dict[Any, Any] = {
             "preferred_shots": {},
             "success_rates": {},
             "position_patterns": [],
@@ -204,7 +269,7 @@ class PerformanceInsight(models.Model):
 
         # Analyze shot type preferences
         for shot in all_shots:
-            shot_type = shot.shot_type
+            shot_type: Any = shot.shot_type
             patterns["preferred_shots"][shot_type] = (
                 patterns["preferred_shots"].get(shot_type, 0) + 1
             )
@@ -219,12 +284,12 @@ class PerformanceInsight(models.Model):
         return patterns
 
     @staticmethod
-    def _analyze_performance(games: List[GameAnalysis]) -> Dict[str, Any]:
+    def _analyze_performance(games: List[GameAnalysis]):
         """Analyze overall performance metrics"""
-        total_shots = 0
-        successful_shots = 0
+        total_shots: relationship = 0
+        successful_shots: relationship = 0
         total_difficulty = 0
-        total_position = 0
+        total_position: int = 0
 
         for game in games:
             total_shots += game.total_shots
@@ -239,18 +304,16 @@ class PerformanceInsight(models.Model):
         }
 
     @classmethod
-    def _create_pattern_insights(
-        cls, user: User, patterns: Dict[str, Any]
-    ) -> List["PerformanceInsight"]:
+    def _create_pattern_insights(cls, user: User, patterns: Dict[str, Any]):
         """Create insights based on shot patterns"""
         insights = []
 
         # Analyze preferred shots
-        total_shots = sum(patterns["preferred_shots"].values())
+        total_shots: relationship = sum(patterns["preferred_shots"].values())
         for shot_type, count in patterns["preferred_shots"].items():
-            percentage = count / total_shots
+            percentage: Any = count / total_shots
             if percentage > 0.3:  # Significant preference
-                success_rate = (
+                success_rate: Any = (
                     patterns["success_rates"][shot_type]["success"]
                     / patterns["success_rates"][shot_type]["total"]
                 )
@@ -262,7 +325,10 @@ class PerformanceInsight(models.Model):
                             insight_type="strength",
                             title=f"Strong {shot_type} shots",
                             description=f"You excel at {shot_type} shots with a {success_rate:.1%} success rate",
-                            metrics={"success_rate": success_rate, "frequency": percentage},
+                            metrics={
+                                "success_rate": success_rate,
+                                "frequency": percentage,
+                            },
                             confidence=0.8,
                         )
                     )
@@ -273,7 +339,10 @@ class PerformanceInsight(models.Model):
                             insight_type="weakness",
                             title=f"Improve {shot_type} shots",
                             description=f"Consider practicing {shot_type} shots to improve your {success_rate:.1%} success rate",
-                            metrics={"success_rate": success_rate, "frequency": percentage},
+                            metrics={
+                                "success_rate": success_rate,
+                                "frequency": percentage,
+                            },
                             confidence=0.8,
                         )
                     )
@@ -335,7 +404,7 @@ class PerformanceInsight(models.Model):
         return insights
 
     @staticmethod
-    def _generate_recommendations(performance: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_recommendations(performance: Dict[str, Any]):
         """Generate training recommendations based on performance"""
         recommendations = {}
 

@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket room recovery module.
 
 This module provides functionality for room state recovery and error handling.
@@ -49,7 +51,9 @@ class RoomRecovery:
                 room_state = room_state_manager.get_room_state(room_id)
                 if not room_state:
                     return format_error_response(
-                        ErrorCodes.ROOM_NOT_FOUND, "Room not found", {"room_id": room_id}
+                        ErrorCodes.ROOM_NOT_FOUND,
+                        "Room not found",
+                        {"room_id": room_id},
                     )
 
                 # Check if room is in error state
@@ -57,11 +61,16 @@ class RoomRecovery:
                     return format_error_response(
                         ErrorCodes.INVALID_STATE,
                         "Room is not in error state",
-                        {"room_id": room_id, "current_state": room_state["current_state"]},
+                        {
+                            "room_id": room_id,
+                            "current_state": room_state["current_state"],
+                        },
                     )
 
                 # Start recovery task
-                recovery_task = asyncio.create_task(self._perform_recovery(room_id, error_data))
+                recovery_task = asyncio.create_task(
+                    self._perform_recovery(room_id, error_data)
+                )
                 self._recovery_tasks[room_id] = recovery_task
 
                 try:
@@ -72,13 +81,17 @@ class RoomRecovery:
                 except Exception as e:
                     self._recovery_stats["failed_recoveries"] += 1
                     return format_error_response(
-                        ErrorCodes.RECOVERY_FAILED, "Room recovery failed", {"error": str(e)}
+                        ErrorCodes.RECOVERY_FAILED,
+                        "Room recovery failed",
+                        {"error": str(e)},
                     )
 
                 finally:
                     self._recovery_tasks.pop(room_id, None)
                     self._recovery_stats["total_recoveries"] += 1
-                    self._recovery_stats["last_recovery"] = datetime.utcnow().isoformat()
+                    self._recovery_stats["last_recovery"] = (
+                        datetime.utcnow().isoformat()
+                    )
 
         except Exception as e:
             logger.error(
@@ -94,7 +107,7 @@ class RoomRecovery:
 
     async def _perform_recovery(
         self, room_id: str, error_data: Optional[Dict[str, Any]] = None
-    ) -> None:
+    ):
         """Perform room recovery steps.
 
         Args:
@@ -145,12 +158,17 @@ class RoomRecovery:
 
             logger.info(
                 "Room recovery successful",
-                extra={"room_id": room_id, "recovery_time": datetime.utcnow().isoformat()},
+                extra={
+                    "room_id": room_id,
+                    "recovery_time": datetime.utcnow().isoformat(),
+                },
             )
 
         except Exception as e:
             logger.error(
-                "Room recovery failed", exc_info=True, extra={"room_id": room_id, "error": str(e)}
+                "Room recovery failed",
+                exc_info=True,
+                extra={"room_id": room_id, "error": str(e)},
             )
 
             # Notify users of failed recovery
@@ -163,8 +181,11 @@ class RoomRecovery:
             raise
 
     async def _restore_room_state(
-        self, room_id: str, persisted_data: Dict[str, Any], room_stats: Optional[Dict[str, Any]]
-    ) -> None:
+        self,
+        room_id: str,
+        persisted_data: Dict[str, Any],
+        room_stats: Optional[Dict[str, Any]],
+    ):
         """Restore room state from persisted data.
 
         Args:
@@ -193,7 +214,7 @@ class RoomRecovery:
             )
             raise
 
-    async def _verify_room_state(self, room_id: str) -> bool:
+    async def _verify_room_state(self, room_id: str):
         """Verify room state consistency.
 
         Args:
@@ -242,7 +263,7 @@ class RoomRecovery:
         """
         return dict(self._recovery_stats)
 
-    async def cancel_recovery(self, room_id: str) -> Optional[Dict[str, Any]]:
+    async def cancel_recovery(self, room_id: str):
         """Cancel ongoing room recovery.
 
         Args:
@@ -256,7 +277,9 @@ class RoomRecovery:
             recovery_task = self._recovery_tasks.get(room_id)
             if not recovery_task:
                 return format_error_response(
-                    ErrorCodes.NO_RECOVERY, "No recovery in progress", {"room_id": room_id}
+                    ErrorCodes.NO_RECOVERY,
+                    "No recovery in progress",
+                    {"room_id": room_id},
                 )
 
             # Cancel recovery task
@@ -271,7 +294,9 @@ class RoomRecovery:
 
             # Notify users
             await room_notifications.broadcast_room_event(
-                room_id, "recovery_cancelled", {"timestamp": datetime.utcnow().isoformat()}
+                room_id,
+                "recovery_cancelled",
+                {"timestamp": datetime.utcnow().isoformat()},
             )
 
             return None

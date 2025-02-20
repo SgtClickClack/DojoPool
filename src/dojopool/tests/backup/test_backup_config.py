@@ -1,15 +1,19 @@
 """Unit tests for backup configuration."""
 
 import os
+import stat
+import tempfile
 from pathlib import Path
-from unittest.mock import patch
+from typing import Any, Dict, List
+from unittest.mock import Mock, patch
 
 import pytest
+from pydantic_settings import BaseSettings
 
-from ...config.backup_config import BackupSettings
+from dojopool.config.backup_config import BackupSettings
 
 
-def test_backup_settings_defaults():
+def test_backup_settings_defaults() -> None:
     """Test default backup settings."""
     settings = BackupSettings()
     assert settings.BACKUP_ENABLED is True
@@ -21,17 +25,19 @@ def test_backup_settings_defaults():
 
 def test_backup_dirs():
     """Test backup directory structure."""
-    settings = BackupSettings(BACKUP_ROOT_DIR=Path("/tmp/test_backups"))
-    dirs = settings.get_backup_dirs()
+    # Use a temporary directory securely instead of hardcoding the path
+    backup_root = Path(tempfile.mkdtemp(prefix="test_backups_"))
+    settings = BackupSettings(BACKUP_ROOT_DIR=backup_root)
+    dirs: Dict[str, Path] = settings.get_backup_dirs()
     assert "root" in dirs
     assert "database" in dirs
     assert "files" in dirs
     assert "logs" in dirs
-    assert dirs["database"] == Path("/tmp/test_backups/database")
+    assert dirs["database"] == backup_root / "database"
 
 
 @pytest.mark.parametrize("dir_exists", [True, False])
-def test_validate_paths(dir_exists, tmp_path):
+def test_validate_paths(dir_exists: bool, tmp_path: Path):
     """Test path validation with and without existing directories."""
     settings = BackupSettings(BACKUP_ROOT_DIR=tmp_path)
 
@@ -46,20 +52,20 @@ def test_validate_paths(dir_exists, tmp_path):
         assert dir_path.is_dir()
 
 
-def test_validate_paths_permission_error(tmp_path):
+def test_validate_paths_permission_error(tmp_path: Path):
     """Test path validation with permission error."""
     settings = BackupSettings(BACKUP_ROOT_DIR=tmp_path)
 
-    # Make directory read-only
-    tmp_path.chmod(0o500)
+    # Mock os.access to simulate permission error
+    with patch("os.access") as mock_access:
+        mock_access.return_value = False
+        with pytest.raises(PermissionError):
+            settings.validate_paths()
 
-    with pytest.raises(PermissionError):
-        settings.validate_paths()
 
-
-def test_backup_settings_from_env():
+def test_backup_settings_from_env() -> None:
     """Test loading settings from environment variables."""
-    env_vars = {
+    env_vars: Dict[str, str] = {
         "DOJOPOOL_BACKUP_BACKUP_ENABLED": "false",
         "DOJOPOOL_BACKUP_DB_BACKUP_RETENTION_DAYS": "14",
         "DOJOPOOL_BACKUP_FILE_BACKUP_FREQUENCY": "0 0 * * *",
@@ -78,7 +84,7 @@ def test_backup_settings_from_env():
         assert settings.REMOTE_BACKUP_URL == "s3://my-bucket"
 
 
-def test_backup_paths_validation():
+def test_backup_paths_validation() -> None:
     """Test backup paths validation."""
     settings = BackupSettings(
         FILE_BACKUP_PATHS=[Path("/path/one"), Path("/path/two"), Path("/path/three")]

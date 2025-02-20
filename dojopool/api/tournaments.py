@@ -2,22 +2,23 @@
 FastAPI endpoints for professional tournament management.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket
-from typing import Dict, List, Optional
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Dict, List, Optional
 
-from ..services.tournaments.tournament_service import (
-    TournamentService,
-    TournamentType,
-    TournamentStatus,
-    TournamentRules,
-    PrizeMoney,
-    Match,
-    Participant,
-)
+from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket
+from pydantic import BaseModel
+
 from ..auth.dependencies import get_current_user, require_venue_access
 from ..models.user import User
+from ..services.tournaments.tournament_service import (
+    Match,
+    Participant,
+    PrizeMoney,
+    TournamentRules,
+    TournamentService,
+    TournamentStatus,
+    TournamentType,
+)
 
 router = APIRouter(prefix="/api/tournaments", tags=["tournaments"])
 
@@ -136,7 +137,9 @@ async def open_registration(
 ) -> Dict:
     """Open registration for a tournament."""
     try:
-        success = tournament_service.open_registration(tournament_id, registration_deadline)
+        success = tournament_service.open_registration(
+            tournament_id, registration_deadline
+        )
         if success:
             return {"status": "success", "message": "Registration opened"}
         raise HTTPException(status_code=400, detail="Failed to open registration")
@@ -170,7 +173,9 @@ async def register_participant(
 
 @router.post("/{tournament_id}/seeding")
 async def generate_seeding(
-    tournament_id: str, method: str = "ranking", current_user: User = Depends(get_current_user)
+    tournament_id: str,
+    method: str = "ranking",
+    current_user: User = Depends(get_current_user),
 ) -> List[ParticipantResponse]:
     """Generate tournament seeding."""
     try:
@@ -218,7 +223,9 @@ async def record_match_result(
 
 
 @router.post("/{tournament_id}/advance")
-async def advance_round(tournament_id: str, current_user: User = Depends(get_current_user)) -> Dict:
+async def advance_round(
+    tournament_id: str, current_user: User = Depends(get_current_user)
+) -> Dict:
     """Advance tournament to next round."""
     try:
         success = tournament_service.advance_round(tournament_id)
@@ -301,10 +308,14 @@ async def get_tournament_statistics(
             "total_matches": total_matches,
             "completed_matches": completed_matches,
             "total_games": total_games,
-            "average_games_per_match": total_games / completed_matches if completed_matches else 0,
+            "average_games_per_match": (
+                total_games / completed_matches if completed_matches else 0
+            ),
             "current_round": tournament["current_round"],
             "participants": len(tournament_service.participants[tournament_id]),
-            "prize_pool": tournament["prize_money"].total_pool if tournament["prize_money"] else 0,
+            "prize_pool": (
+                tournament["prize_money"].total_pool if tournament["prize_money"] else 0
+            ),
         }
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

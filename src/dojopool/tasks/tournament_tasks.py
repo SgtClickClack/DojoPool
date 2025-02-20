@@ -1,3 +1,7 @@
+from flask_caching import Cache
+from multiprocessing import Pool
+from flask_caching import Cache
+from multiprocessing import Pool
 """Tournament scheduled tasks module."""
 
 from datetime import datetime, timedelta
@@ -62,7 +66,9 @@ def check_tournament_completions():
                 # Send completion notifications
                 NotificationService.notify_tournament_completion(tournament.id)
             except Exception as e:
-                print(f"Failed to process tournament completion {tournament.id}: {str(e)}")
+                print(
+                    f"Failed to process tournament completion {tournament.id}: {str(e)}"
+                )
 
 
 def cleanup_expired_tournaments():
@@ -84,7 +90,10 @@ def cleanup_expired_tournaments():
                         player_id=player.id,
                         title="Tournament Cancelled",
                         message=f"Tournament {tournament.name} has been cancelled due to insufficient players",
-                        data={"type": "tournament_cancelled", "tournament_id": tournament.id},
+                        data={
+                            "type": "tournament_cancelled",
+                            "tournament_id": tournament.id,
+                        },
                     )
         except Exception as e:
             print(f"Failed to cleanup tournament {tournament.id}: {str(e)}")

@@ -117,7 +117,7 @@ def sanitize_filename(filename: str) -> str:
     return name
 
 
-def is_safe_path(base_path: str, path: str) -> bool:
+def is_safe_path(base_path: str, path: str):
     """
     Check if a path is safe (doesn't escape base directory).
 
@@ -136,7 +136,7 @@ def is_safe_path(base_path: str, path: str) -> bool:
         return False
 
 
-def get_safe_filename(filename: str, existing_files: Set[str] | None = None) -> str:
+def get_safe_filename(filename: str, existing_files: Set[str] | None = None):
     """
     Get a safe, unique filename.
 

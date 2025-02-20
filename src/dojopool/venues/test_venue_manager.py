@@ -1,16 +1,18 @@
 """Tests for venue management system."""
 
-import pytest
 from datetime import datetime, timedelta
 from typing import Set
+
+import pytest
+
 from .venue_manager import (
-    VenueManager,
-    Venue,
     PoolTable,
-    TableType,
-    TableStatus,
-    VenueFeature,
     TableReservation,
+    TableStatus,
+    TableType,
+    Venue,
+    VenueFeature,
+    VenueManager,
 )
 
 
@@ -21,7 +23,7 @@ def venue_manager() -> VenueManager:
 
 
 @pytest.fixture
-def test_venue(venue_manager: VenueManager) -> Venue:
+def test_venue(venue_manager: VenueManager):
     """Create a test venue."""
     features = {VenueFeature.TOURNAMENTS, VenueFeature.BAR}
     operating_hours = {
@@ -70,7 +72,7 @@ def test_table(venue_manager: VenueManager, test_venue: Venue) -> PoolTable:
 class TestVenueManagement:
     """Test venue management functionality."""
 
-    def test_register_venue(self, venue_manager: VenueManager) -> None:
+    def test_register_venue(self, venue_manager: VenueManager):
         """Test venue registration."""
         features = {VenueFeature.TOURNAMENTS, VenueFeature.BAR}
         operating_hours = {"monday": ("09:00", "23:00")}
@@ -121,7 +123,7 @@ class TestVenueManagement:
 
     def test_update_table_status(
         self, venue_manager: VenueManager, test_venue: Venue, test_table: PoolTable
-    ) -> None:
+    ):
         """Test updating table status."""
         # Update to in-use
         success = venue_manager.update_table_status(
@@ -175,7 +177,7 @@ class TestReservations:
 
     def test_reservation_conflict(
         self, venue_manager: VenueManager, test_venue: Venue, test_table: PoolTable
-    ) -> None:
+    ):
         """Test handling reservation conflicts."""
         # Create first reservation
         start_time = datetime.now() + timedelta(hours=1)
@@ -205,7 +207,7 @@ class TestReservations:
 
     def test_cancel_reservation(
         self, venue_manager: VenueManager, test_venue: Venue, test_table: PoolTable
-    ) -> None:
+    ):
         """Test canceling reservations."""
         # Create reservation
         start_time = datetime.now() + timedelta(hours=1)
@@ -220,7 +222,9 @@ class TestReservations:
         )
 
         # Cancel reservation
-        success = venue_manager.cancel_reservation(test_venue.venue_id, reservation.reservation_id)
+        success = venue_manager.cancel_reservation(
+            test_venue.venue_id, reservation.reservation_id
+        )
 
         assert success
 
@@ -238,7 +242,7 @@ class TestMatchRecording:
 
     def test_record_match(
         self, venue_manager: VenueManager, test_venue: Venue, test_table: PoolTable
-    ) -> None:
+    ):
         """Test recording completed matches."""
         players: Set[str] = {"player1", "player2"}
         duration = timedelta(hours=1, minutes=30)
@@ -272,7 +276,9 @@ class TestMatchRecording:
 class TestVenueQueries:
     """Test venue query functionality."""
 
-    def test_get_available_tables(self, venue_manager: VenueManager, test_venue: Venue) -> None:
+    def test_get_available_tables(
+        self, venue_manager: VenueManager, test_venue: Venue
+    ) -> None:
         """Test querying available tables."""
         # Add multiple tables
         table1 = venue_manager.add_table(
@@ -294,7 +300,9 @@ class TestVenueQueries:
         )
 
         # Set table1 as in use
-        venue_manager.update_table_status(test_venue.venue_id, table1.table_id, TableStatus.IN_USE)
+        venue_manager.update_table_status(
+            test_venue.venue_id, table1.table_id, TableStatus.IN_USE
+        )
 
         # Query available tables
         available = venue_manager.get_available_tables(test_venue.venue_id)
@@ -308,7 +316,7 @@ class TestVenueQueries:
         assert len(available) == 1
         assert available[0].table_type == TableType.TOURNAMENT_9FT
 
-    def test_get_popular_venues(self, venue_manager: VenueManager) -> None:
+    def test_get_popular_venues(self, venue_manager: VenueManager):
         """Test querying popular venues."""
         # Create multiple venues
         venue1 = venue_manager.register_venue(
@@ -354,6 +362,8 @@ class TestVenueQueries:
         assert popular[1].venue_id == venue2.venue_id
 
         # Query by feature
-        tournament_venues = venue_manager.get_popular_venues(feature=VenueFeature.TOURNAMENTS)
+        tournament_venues = venue_manager.get_popular_venues(
+            feature=VenueFeature.TOURNAMENTS
+        )
         assert len(tournament_venues) == 1
         assert tournament_venues[0].venue_id == venue1.venue_id

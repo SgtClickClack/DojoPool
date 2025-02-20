@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
 import jwt
-from flask import current_app
+from flask import Request, Response, current_app
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from ..core.models.session import Session
 from ..models.user import User
@@ -11,11 +13,13 @@ from ..utils.security import hash_token
 
 class AuthSecurityService:
     def __init__(self):
-        self.max_sessions = 5  # Maximum concurrent sessions per user
+        self.max_sessions: Any = 5  # Maximum concurrent sessions per user
         self.session_timeout = timedelta(hours=12)  # Session timeout period
         self.refresh_token_expiry = timedelta(days=30)  # Refresh token expiry
 
-    def enhance_session_security(self, user_id: str, device_info: Dict[str, Any]) -> Dict[str, Any]:
+    def enhance_session_security(
+        self, user_id: str, device_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Enhance session security with advanced features
         """
@@ -24,16 +28,16 @@ class AuthSecurityService:
             self._cleanup_expired_sessions(user_id)
 
             # Check concurrent sessions
-            active_sessions = Session.get_active_sessions(user_id)
+            active_sessions: Any = Session.get_active_sessions(user_id)
             if len(active_sessions) >= self.max_sessions:
                 self._revoke_oldest_session(active_sessions)
 
             # Generate secure tokens
-            access_token = self._generate_access_token(user_id)
-            refresh_token = self._generate_refresh_token(user_id)
+            access_token: Any = self._generate_access_token(user_id)
+            refresh_token: Any = self._generate_refresh_token(user_id)
 
             # Create session record
-            session = Session.create(
+            session: Any = Session.create(
                 {
                     "user_id": user_id,
                     "access_token_hash": hash_token(access_token),
@@ -64,10 +68,14 @@ class AuthSecurityService:
         """
         try:
             # Decode token
-            jwt.decode(access_token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            jwt.decode(
+                access_token,
+                current_app.configetattr(g, "get", None)("SECRET_KEY"),
+                algorithms=["HS256"],
+            )
 
             # Get session
-            session = Session.get_by_token_hash(hash_token(access_token))
+            session: Any = Session.get_by_token_hash(hash_token(access_token))
 
             if not session or not session.is_active:
                 return {"error": "Invalid session"}
@@ -78,29 +86,37 @@ class AuthSecurityService:
                 return {"error": "Session expired"}
 
             # Verify device info if provided
-            if device_info and not self._verify_device_info(session.device_info, device_info):
+            if device_info and not self._verify_device_info(
+                session.device_info, device_info
+            ):
                 session.update({"is_active": False})
                 return {"error": "Device mismatch"}
 
             # Get user
-            user = User.get_by_id(session.user_id)
+            user: Any = User.get_by_id(session.user_id)
             if not user:
                 return {"error": "User not found"}
 
-            return {"status": "success", "user_id": str(user._id), "session_id": str(session._id)}
+            return {
+                "status": "success",
+                "user_id": str(user._id),
+                "session_id": str(session._id),
+            }
 
         except jwt.InvalidTokenError:
             return {"error": "Invalid token"}
         except Exception as e:
             return {"error": str(e)}
 
-    def refresh_session(self, refresh_token: str, device_info: Dict[str, Any]) -> Dict[str, Any]:
+    def refresh_session(
+        self, refresh_token: str, device_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Refresh session with enhanced security
         """
         try:
             # Get session by refresh token
-            session = Session.get_by_refresh_token_hash(hash_token(refresh_token))
+            session: Any = Session.get_by_refresh_token_hash(hash_token(refresh_token))
 
             if not session or not session.is_active:
                 return {"error": "Invalid refresh token"}
@@ -116,8 +132,8 @@ class AuthSecurityService:
                 return {"error": "Device mismatch"}
 
             # Generate new tokens
-            access_token = self._generate_access_token(session.user_id)
-            new_refresh_token = self._generate_refresh_token(session.user_id)
+            access_token: Any = self._generate_access_token(session.user_id)
+            new_refresh_token: Any = self._generate_refresh_token(session.user_id)
 
             # Update session
             session.update(
@@ -144,7 +160,7 @@ class AuthSecurityService:
         Revoke a specific session
         """
         try:
-            session = Session.get_by_id(session_id)
+            session: Any = Session.get_by_id(session_id)
             if not session or session.user_id != user_id:
                 return {"error": "Invalid session"}
 
@@ -156,12 +172,12 @@ class AuthSecurityService:
 
     def revoke_all_sessions(
         self, user_id: str, except_session_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    ):
         """
         Revoke all sessions for a user
         """
         try:
-            sessions = Session.get_active_sessions(user_id)
+            sessions: Any = Session.get_active_sessions(user_id)
             for session in sessions:
                 if not except_session_id or str(session._id) != except_session_id:
                     session.update({"is_active": False})
@@ -171,33 +187,41 @@ class AuthSecurityService:
         except Exception as e:
             return {"error": str(e)}
 
-    def _generate_access_token(self, user_id: str) -> str:
+    def _generate_access_token(self, user_id: str):
         """
         Generate secure access token
         """
-        payload = {
+        payload: Dict[Any, Any] = {
             "user_id": user_id,
             "type": "access",
             "exp": datetime.utcnow() + self.session_timeout,
         }
-        return jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+        return jwt.encode(
+            payload,
+            current_app.configetattr(g, "get", None)("SECRET_KEY"),
+            algorithm="HS256",
+        )
 
-    def _generate_refresh_token(self, user_id: str) -> str:
+    def _generate_refresh_token(self, user_id: str):
         """
         Generate secure refresh token
         """
-        payload = {
+        payload: Dict[Any, Any] = {
             "user_id": user_id,
             "type": "refresh",
             "exp": datetime.utcnow() + self.refresh_token_expiry,
         }
-        return jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+        return jwt.encode(
+            payload,
+            current_app.configetattr(g, "get", None)("SECRET_KEY"),
+            algorithm="HS256",
+        )
 
     def _cleanup_expired_sessions(self, user_id: str) -> None:
         """
         Clean up expired sessions
         """
-        sessions = Session.get_active_sessions(user_id)
+        sessions: Any = Session.get_active_sessions(user_id)
         for session in sessions:
             if datetime.utcnow() > session.expires_at:
                 session.update({"is_active": False})
@@ -206,14 +230,17 @@ class AuthSecurityService:
         """
         Revoke oldest active session
         """
-        oldest_session = min(sessions, key=lambda s: s.created_at)
+        oldest_session: Any = min(sessions, key=lambda s: s.created_at)
         oldest_session.update({"is_active": False})
 
     def _verify_device_info(
         self, stored_info: Dict[str, Any], current_info: Dict[str, Any]
-    ) -> bool:
+    ):
         """
         Verify device information matches
         """
-        required_fields = ["device_id", "platform", "app_version"]
-        return all(stored_info.get(field) == current_info.get(field) for field in required_fields)
+        required_fields: List[Any] = ["device_id", "platform", "app_version"]
+        return all(
+            stored_info.get(field) == current_info.get(field)
+            for field in required_fields
+        )

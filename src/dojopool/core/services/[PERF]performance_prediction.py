@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Performance prediction service with advanced AI capabilities."""
 
 from dataclasses import dataclass
@@ -7,13 +9,12 @@ from typing import Dict, List
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
-from tensorflow.keras.applications import EfficientNetB0
-from tensorflow.keras.models import load_model
-
 from src.core.config import AI_CONFIG
 from src.core.services.game_analysis import GameAnalyzer
 from src.core.services.shot_analysis import ShotAnalyzer
 from src.extensions import cache
+from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.models import load_model
 
 
 @dataclass
@@ -62,13 +63,18 @@ class PerformancePredictor:
         self.progression_scaler = StandardScaler()
 
         # Load calibration data
-        self.skill_calibration = tf.keras.models.load_model(AI_CONFIG["SKILL_CALIBRATION_PATH"])
+        self.skill_calibration = tf.keras.models.load_model(
+            AI_CONFIG["SKILL_CALIBRATION_PATH"]
+        )
         self.potential_calibration = tf.keras.models.load_model(
             AI_CONFIG["POTENTIAL_CALIBRATION_PATH"]
         )
 
     def predict_performance(
-        self, player_data: Dict, timeframe: str = "6m", comparison_group: str = "similar_skill"
+        self,
+        player_data: Dict,
+        timeframe: str = "6m",
+        comparison_group: str = "similar_skill",
     ) -> Dict:
         """Predict future performance with advanced metrics.
 
@@ -81,9 +87,7 @@ class PerformancePredictor:
             dict: Comprehensive performance prediction
         """
         # Try to get from cache
-        cache_key = (
-            f'performance_prediction:{player_data["player_id"]}:{timeframe}:{comparison_group}'
-        )
+        cache_key = f'performance_prediction:{player_data["player_id"]}:{timeframe}:{comparison_group}'
         cached = cache.get(cache_key)
         if cached:
             return cached
@@ -95,7 +99,9 @@ class PerformancePredictor:
         progression = self._analyze_progression(player_data)
 
         # Predict skill development
-        future_skills = self._predict_skill_development(current_skills, progression, timeframe)
+        future_skills = self._predict_skill_development(
+            current_skills, progression, timeframe
+        )
 
         # Generate comparative analysis
         comparison = self._generate_comparison(
@@ -149,7 +155,7 @@ class PerformancePredictor:
 
         return results
 
-    def _calculate_skill_metrics(self, player_data: Dict) -> SkillMetrics:
+    def _calculate_skill_metrics(self, player_data: Dict):
         """Calculate current skill metrics using historical data."""
         # Extract relevant features
         shots = player_data.get("shots", [])
@@ -185,7 +191,7 @@ class PerformancePredictor:
             overall=overall_score,
         )
 
-    def _analyze_progression(self, player_data: Dict) -> ProgressionMetrics:
+    def _analyze_progression(self, player_data: Dict):
         """Analyze skill progression patterns."""
         # Extract historical progression data
         history = self._extract_progression_history(player_data)
@@ -205,7 +211,9 @@ class PerformancePredictor:
         )
 
         # Calculate current trajectory
-        current_trajectory = self._calculate_current_trajectory(history, potential_ceiling)
+        current_trajectory = self._calculate_current_trajectory(
+            history, potential_ceiling
+        )
 
         return ProgressionMetrics(
             learning_rate=learning_rate,
@@ -216,8 +224,11 @@ class PerformancePredictor:
         )
 
     def _predict_skill_development(
-        self, current_skills: SkillMetrics, progression: ProgressionMetrics, timeframe: str
-    ) -> SkillMetrics:
+        self,
+        current_skills: SkillMetrics,
+        progression: ProgressionMetrics,
+        timeframe: str,
+    ):
         """Predict future skill development."""
         # Convert timeframe to months
         months = {"3m": 3, "6m": 6, "1y": 12}.get(timeframe, 6)
@@ -267,7 +278,9 @@ class PerformancePredictor:
     ) -> Dict:
         """Generate comparative analysis against peer group."""
         # Get comparison group data
-        peer_data = self._get_peer_group_data(current_skills, player_data, comparison_group)
+        peer_data = self._get_peer_group_data(
+            current_skills, player_data, comparison_group
+        )
 
         # Calculate percentiles
         percentiles = self._calculate_percentiles(current_skills, peer_data)
@@ -296,10 +309,12 @@ class PerformancePredictor:
         future_skills: SkillMetrics,
         progression: ProgressionMetrics,
         comparison: Dict,
-    ) -> Dict:
+    ):
         """Generate personalized training recommendations."""
         # Identify focus areas
-        focus_areas = self._identify_focus_areas(current_skills, future_skills, comparison)
+        focus_areas = self._identify_focus_areas(
+            current_skills, future_skills, comparison
+        )
 
         # Generate specific drills
         drills = self._generate_specific_drills(focus_areas)
@@ -318,8 +333,11 @@ class PerformancePredictor:
         }
 
     def _identify_focus_areas(
-        self, current_skills: SkillMetrics, future_skills: SkillMetrics, comparison: Dict
-    ) -> List[Dict]:
+        self,
+        current_skills: SkillMetrics,
+        future_skills: SkillMetrics,
+        comparison: Dict,
+    ):
         """Identify key areas for improvement."""
         focus_areas = []
 
@@ -509,7 +527,9 @@ class PerformancePredictor:
             week_end = week_start + timedelta(days=6)
 
             # Get relevant milestones
-            week_milestones = [m for m in milestones if self._is_milestone_in_week(m, week)]
+            week_milestones = [
+                m for m in milestones if self._is_milestone_in_week(m, week)
+            ]
 
             # Select drills for the week
             week_drills = self._select_weekly_drills(drills, focus_areas, week)
@@ -573,7 +593,7 @@ class PerformancePredictor:
 
     def _select_weekly_drills(
         self, drills: List[Dict], focus_areas: List[Dict], week: int
-    ) -> List[Dict]:
+    ):
         """Select appropriate drills for the week."""
         selected_drills = []
 
@@ -586,16 +606,20 @@ class PerformancePredictor:
 
             # Adjust difficulty based on week
             difficulty = "intermediate" if week < 6 else "advanced"
-            suitable_drills = [d for d in aspect_drills if d["difficulty"] == difficulty]
+            suitable_drills = [
+                d for d in aspect_drills if d["difficulty"] == difficulty
+            ]
 
             selected_drills.extend(suitable_drills[:2])  # Up to 2 drills per aspect
 
         return selected_drills
 
-    def _determine_weekly_focus(self, focus_areas: List[Dict], week: int) -> List[str]:
+    def _determine_weekly_focus(self, focus_areas: List[Dict], week: int):
         """Determine focus areas for the week."""
         # Start with highest priority areas
-        high_priority = [area["aspect"] for area in focus_areas if area["priority"] == "high"]
+        high_priority = [
+            area["aspect"] for area in focus_areas if area["priority"] == "high"
+        ]
 
         # Add medium priority areas later in the program
         if week > 4:
@@ -610,10 +634,14 @@ class PerformancePredictor:
         """Get aspects to focus on for given week."""
         if week <= 4:
             # First month: focus on high priority
-            return [area["aspect"] for area in focus_areas if area["priority"] == "high"][:2]
+            return [
+                area["aspect"] for area in focus_areas if area["priority"] == "high"
+            ][:2]
         elif week <= 8:
             # Second month: mix high and medium priority
-            high_priority = [area["aspect"] for area in focus_areas if area["priority"] == "high"]
+            high_priority = [
+                area["aspect"] for area in focus_areas if area["priority"] == "high"
+            ]
             medium_priority = [
                 area["aspect"] for area in focus_areas if area["priority"] == "medium"
             ]

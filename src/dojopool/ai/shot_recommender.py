@@ -1,11 +1,15 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """AI-powered shot recommendation system."""
 
-from typing import List, Optional, Tuple, Dict
 from dataclasses import dataclass
-import numpy as np
 from datetime import datetime
+from typing import Dict, List, Optional, Set, Tuple
+
+import numpy as np
+
 from ..tracking.game_tracker import BallPosition
-from ..tracking.shot_difficulty import ShotDifficultyCalculator, DifficultyScore
+from ..tracking.shot_difficulty import DifficultyScore, ShotDifficultyCalculator
 
 
 @dataclass
@@ -39,7 +43,7 @@ class GameContext:
 class ShotRecommender:
     """Recommend optimal shots based on current table state."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Initialize recommender."""
         self.difficulty_calculator = ShotDifficultyCalculator()
 
@@ -53,7 +57,12 @@ class ShotRecommender:
         self.cushion_restitution = 0.6
 
         # Strategy weights
-        self.weights = {"difficulty": 0.3, "position": 0.3, "safety": 0.2, "strategic": 0.2}
+        self.weights = {
+            "difficulty": 0.3,
+            "position": 0.3,
+            "safety": 0.2,
+            "strategic": 0.2,
+        }
 
     def get_shot_options(
         self, ball_positions: List[BallPosition], context: GameContext
@@ -85,12 +94,16 @@ class ShotRecommender:
 
             for pocket in pockets:
                 # Check direct shot
-                direct_option = self._analyze_direct_shot(cue_pos, ball_pos, pocket, ball_positions)
+                direct_option = self._analyze_direct_shot(
+                    cue_pos, ball_pos, pocket, ball_positions
+                )
                 if direct_option:
                     options.append(direct_option)
 
                 # Check bank shots
-                bank_options = self._analyze_bank_shots(cue_pos, ball_pos, pocket, ball_positions)
+                bank_options = self._analyze_bank_shots(
+                    cue_pos, ball_pos, pocket, ball_positions
+                )
                 options.extend(bank_options)
 
                 # Check combination shots
@@ -110,7 +123,7 @@ class ShotRecommender:
 
     def _get_legal_targets(
         self, ball_positions: List[BallPosition], context: GameContext
-    ) -> Set[int]:
+    ):
         """Get set of legal target balls."""
         if context.game_type == "9-ball":
             # Must hit lowest numbered ball first
@@ -118,7 +131,11 @@ class ShotRecommender:
             return {lowest}
         elif context.game_type == "8-ball":
             if context.is_open_table:
-                return {p.ball_id for p in ball_positions if p.ball_id > 0 and p.ball_id != 8}
+                return {
+                    p.ball_id
+                    for p in ball_positions
+                    if p.ball_id > 0 and p.ball_id != 8
+                }
             else:
                 # Must hit own group, except 8-ball if it's legal
                 targets = context.player_balls
@@ -138,7 +155,9 @@ class ShotRecommender:
         """Analyze possibility of direct shot."""
         # Calculate angles
         cue_to_target = np.array([target_pos.x - cue_pos.x, target_pos.y - cue_pos.y])
-        target_to_pocket = np.array([pocket[0] - target_pos.x, pocket[1] - target_pos.y])
+        target_to_pocket = np.array(
+            [pocket[0] - target_pos.x, pocket[1] - target_pos.y]
+        )
 
         # Check if shot is geometrically possible
         if not self._is_shot_possible(cue_pos, target_pos, pocket):
@@ -198,7 +217,9 @@ class ShotRecommender:
         ]
 
         for rail_name, rail_pos in rails:
-            bank_point = self._calculate_bank_point(target_pos, pocket, rail_name, rail_pos)
+            bank_point = self._calculate_bank_point(
+                target_pos, pocket, rail_name, rail_pos
+            )
             if bank_point:
                 path_points = [
                     (cue_pos.x, cue_pos.y),
@@ -217,19 +238,21 @@ class ShotRecommender:
                             self._estimate_success_probability(difficulty) * 0.7
                         )  # Bank shots are harder
 
-                        english_type, english_amount = self._calculate_english_requirements(
-                            np.array(
-                                [
-                                    path_points[1][0] - path_points[0][0],
-                                    path_points[1][1] - path_points[0][1],
-                                ]
-                            ),
-                            np.array(
-                                [
-                                    path_points[2][0] - path_points[1][0],
-                                    path_points[2][1] - path_points[1][1],
-                                ]
-                            ),
+                        english_type, english_amount = (
+                            self._calculate_english_requirements(
+                                np.array(
+                                    [
+                                        path_points[1][0] - path_points[0][0],
+                                        path_points[1][1] - path_points[0][1],
+                                    ]
+                                ),
+                                np.array(
+                                    [
+                                        path_points[2][0] - path_points[1][0],
+                                        path_points[2][1] - path_points[1][1],
+                                    ]
+                                ),
+                            )
                         )
 
                         power = self._calculate_required_power(path_points)
@@ -268,7 +291,10 @@ class ShotRecommender:
                 continue
 
             # Check if intermediate ball is legal to hit
-            if not context.is_open_table and inter_pos.ball_id not in context.player_balls:
+            if (
+                not context.is_open_table
+                and inter_pos.ball_id not in context.player_balls
+            ):
                 continue
 
             # Calculate paths
@@ -324,12 +350,17 @@ class ShotRecommender:
         return options
 
     def _is_shot_possible(
-        self, cue_pos: BallPosition, target_pos: BallPosition, pocket: Tuple[float, float]
+        self,
+        cue_pos: BallPosition,
+        target_pos: BallPosition,
+        pocket: Tuple[float, float],
     ) -> bool:
         """Check if shot is geometrically possible."""
         # Calculate angles
         cue_to_target = np.array([target_pos.x - cue_pos.x, target_pos.y - cue_pos.y])
-        target_to_pocket = np.array([pocket[0] - target_pos.x, pocket[1] - target_pos.y])
+        target_to_pocket = np.array(
+            [pocket[0] - target_pos.x, pocket[1] - target_pos.y]
+        )
 
         # Normalize vectors
         cue_to_target = cue_to_target / np.linalg.norm(cue_to_target)
@@ -364,7 +395,11 @@ class ShotRecommender:
         return False
 
     def _calculate_bank_point(
-        self, ball_pos: BallPosition, pocket: Tuple[float, float], rail: str, rail_pos: float
+        self,
+        ball_pos: BallPosition,
+        pocket: Tuple[float, float],
+        rail: str,
+        rail_pos: float,
     ) -> Optional[Tuple[float, float]]:
         """Calculate bank point on rail."""
         if rail in ("top", "bottom"):
@@ -415,7 +450,9 @@ class ShotRecommender:
         else:
             return "left", min(1.0, angle / np.pi)
 
-    def _calculate_required_power(self, path_points: List[Tuple[float, float]]) -> float:
+    def _calculate_required_power(
+        self, path_points: List[Tuple[float, float]]
+    ) -> float:
         """Calculate required power for shot."""
         # Calculate total distance
         total_distance = 0.0
@@ -436,7 +473,9 @@ class ShotRecommender:
         # Adjust for confidence
         return base_prob * difficulty.confidence
 
-    def _calculate_expected_value(self, option: ShotOption, context: GameContext) -> float:
+    def _calculate_expected_value(
+        self, option: ShotOption, context: GameContext
+    ) -> float:
         """Calculate expected value of shot option."""
         # Base value from success probability
         value = option.success_probability
@@ -472,7 +511,10 @@ class ShotRecommender:
         return total_value
 
     def _create_mock_shot(
-        self, path_points: List[Tuple[float, float]], target_ball: int, shot_type: str = "normal"
+        self,
+        path_points: List[Tuple[float, float]],
+        target_ball: int,
+        shot_type: str = "normal",
     ) -> Shot:
         """Create a mock shot for difficulty calculation."""
         now = datetime.now()

@@ -1,9 +1,11 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Adaptive difficulty module."""
 
 from datetime import datetime, timedelta
 
 from ..core.extensions import cache
-from ..core.models.game import Game
+from ..models.game import Game
 
 
 class AdaptiveDifficulty:
@@ -40,7 +42,7 @@ class AdaptiveDifficulty:
 
         return settings
 
-    def _get_recent_games(self, player_id: int, days: int = 7) -> list:
+    def _get_recent_games(self, player_id: int, days: int = 7):
         """Get player's recent games."""
         cutoff_date = datetime.utcnow() - timedelta(days=days)
 
@@ -52,7 +54,11 @@ class AdaptiveDifficulty:
     def _calculate_performance_metrics(self, games: list) -> dict:
         """Calculate performance metrics from recent games."""
         if not games:
-            return {"win_rate": 0.5, "avg_score": 0, "streak": 0}  # Default to 50% win rate
+            return {
+                "win_rate": 0.5,
+                "avg_score": 0,
+                "streak": 0,
+            }  # Default to 50% win rate
 
         wins = 0
         total_score = 0
@@ -69,7 +75,9 @@ class AdaptiveDifficulty:
 
                 total_score += player1_score if game.player1_id else player2_score
 
-                if game.winner_id == (game.player1_id if game.player1_id else game.player2_id):
+                if game.winner_id == (
+                    game.player1_id if game.player1_id else game.player2_id
+                ):
                     wins += 1
                     current_streak += 1
                 else:

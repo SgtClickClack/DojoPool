@@ -30,7 +30,10 @@ class QRCodeManager:
         self._secret_key = generate_secure_token()
 
     def generate_table_qr(
-        self, table_id: Union[str, int], venue_id: Union[str, int], logo_path: Optional[str] = None
+        self,
+        table_id: Union[str, int],
+        venue_id: Union[str, int],
+        logo_path: Optional[str] = None,
     ) -> Image:
         """Generate QR code for a pool table.
 
@@ -115,7 +118,9 @@ class QRCodeManager:
                 raise ValueError("Invalid QR code format")
 
             # Verify signature
-            if not self._verify_signature(data["table_id"], data["venue_id"], data["signature"]):
+            if not self._verify_signature(
+                data["table_id"], data["venue_id"], data["signature"]
+            ):
                 raise ValueError("Invalid QR code signature")
 
             # Check expiration
@@ -132,7 +137,9 @@ class QRCodeManager:
             metrics.QR_ERRORS.labels(type="verification_error").inc()
             raise ValueError(f"QR code verification failed: {str(e)}")
 
-    def _generate_signature(self, table_id: Union[str, int], venue_id: Union[str, int]) -> str:
+    def _generate_signature(
+        self, table_id: Union[str, int], venue_id: Union[str, int]
+    ) -> str:
         """Generate HMAC signature for QR code data.
 
         Args:
@@ -143,7 +150,9 @@ class QRCodeManager:
             str: HMAC signature
         """
         msg = f"{table_id}:{venue_id}".encode("utf-8")
-        signature = hmac.new(self._secret_key.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+        signature = hmac.new(
+            self._secret_key.encode("utf-8"), msg, hashlib.sha256
+        ).hexdigest()
         return signature
 
     def _verify_signature(self, table_id: str, venue_id: str, signature: str) -> bool:

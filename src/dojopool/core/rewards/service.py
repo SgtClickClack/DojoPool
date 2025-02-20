@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -19,15 +21,15 @@ class RewardsService:
         db.session.commit()
         return tier
 
-    def get_tier(self, tier_id: int) -> Optional[RewardTier]:
+    def get_tier(self, tier_id: int):
         """Get a reward tier by ID."""
         return RewardTier.query.get(tier_id)
 
-    def get_active_tiers(self) -> List[RewardTier]:
+    def get_active_tiers(self):
         """Get all active reward tiers."""
         return RewardTier.query.filter_by(is_active=True).all()
 
-    def create_reward(self, data: Dict) -> Reward:
+    def create_reward(self, data: Dict):
         """Create a new reward."""
         reward = Reward(
             tier_id=data["tier_id"],
@@ -106,7 +108,10 @@ class RewardsService:
 
         # Create user reward
         user_reward = UserReward(
-            user_id=user_id, reward_id=reward_id, status="claimed", points_spent=reward.points_cost
+            user_id=user_id,
+            reward_id=reward_id,
+            status="claimed",
+            points_spent=reward.points_cost,
         )
 
         # Deduct points from user
@@ -127,7 +132,7 @@ class RewardsService:
         db.session.commit()
         return True
 
-    def get_user_rewards(self, user_id: int) -> List[Dict]:
+    def get_user_rewards(self, user_id: int):
         """Get all rewards claimed by a user."""
         user_rewards = UserReward.query.filter_by(user_id=user_id).all()
         return [

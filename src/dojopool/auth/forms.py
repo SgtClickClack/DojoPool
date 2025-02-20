@@ -4,7 +4,13 @@ This module contains forms for user authentication and registration.
 """
 
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, StringField, SubmitField, ValidationError
+from wtforms import (
+    BooleanField,
+    PasswordField,
+    StringField,
+    SubmitField,
+    ValidationError,
+)
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Regexp
 
 from dojopool.models.user import User
@@ -13,7 +19,9 @@ from dojopool.models.user import User
 class LoginForm(FlaskForm):
     """Form for user login."""
 
-    username = StringField("Username or Email", validators=[DataRequired(), Length(1, 120)])
+    username = StringField(
+        "Username or Email", validators=[DataRequired(), Length(1, 120)]
+    )
     password = PasswordField("Password", validators=[DataRequired()])
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Log In")
@@ -51,7 +59,10 @@ class RegistrationForm(FlaskForm):
     )
     confirm_password = PasswordField(
         "Confirm Password",
-        validators=[DataRequired(), EqualTo("password", message="Passwords must match")],
+        validators=[
+            DataRequired(),
+            EqualTo("password", message="Passwords must match"),
+        ],
     )
     submit = SubmitField("Register")
 
@@ -105,7 +116,10 @@ class PasswordResetForm(FlaskForm):
     )
     confirm_password = PasswordField(
         "Confirm Password",
-        validators=[DataRequired(), EqualTo("password", message="Passwords must match")],
+        validators=[
+            DataRequired(),
+            EqualTo("password", message="Passwords must match"),
+        ],
     )
     submit = SubmitField("Reset Password")
 
@@ -129,7 +143,10 @@ class ChangePasswordForm(FlaskForm):
     )
     confirm_password = PasswordField(
         "Confirm New Password",
-        validators=[DataRequired(), EqualTo("password", message="Passwords must match")],
+        validators=[
+            DataRequired(),
+            EqualTo("password", message="Passwords must match"),
+        ],
     )
     submit = SubmitField("Change Password")
 
@@ -137,7 +154,9 @@ class ChangePasswordForm(FlaskForm):
 class EmailChangeForm(FlaskForm):
     """Form for changing email address."""
 
-    email = StringField("New Email", validators=[DataRequired(), Email(), Length(1, 120)])
+    email = StringField(
+        "New Email", validators=[DataRequired(), Email(), Length(1, 120)]
+    )
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Change Email")
 

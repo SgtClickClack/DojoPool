@@ -1,3 +1,5 @@
+import gc
+import gc
 """Socket manager for server-side WebSocket handling.
 
 This module provides a unified WebSocket manager for handling real-time game events,
@@ -224,7 +226,11 @@ class SocketManager:
             data: Event data
         """
         if room in self.connections:
-            message = {"type": event_type, "payload": data, "timestamp": datetime.now().isoformat()}
+            message = {
+                "type": event_type,
+                "payload": data,
+                "timestamp": datetime.now().isoformat(),
+            }
             await self.sio.emit("message", message, room=room)
             logger.debug(f"Emitted {event_type} to room {room}")
 
@@ -291,7 +297,7 @@ class SocketManager:
         """
         return self.connections.get(room, set())
 
-    def get_connection_state(self) -> Dict[str, Any]:
+    def get_connection_state(self):
         """Get current connection state.
 
         Returns:

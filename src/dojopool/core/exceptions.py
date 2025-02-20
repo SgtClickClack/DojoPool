@@ -16,7 +16,10 @@ class APIError(BaseError):
     """Base class for API errors."""
 
     def __init__(
-        self, message: str, status_code: int = 400, details: Optional[Dict[str, Any]] = None
+        self,
+        message: str,
+        status_code: int = 400,
+        details: Optional[Dict[str, Any]] = None,
     ):
         """Initialize API error.
 
@@ -94,7 +97,9 @@ class AuthenticationError(APIError):
     """Authentication error."""
 
     def __init__(
-        self, message: str = "Authentication required", details: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Authentication required",
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize authentication error."""
         super().__init__(message=message, status_code=401, details=details)
@@ -104,8 +109,10 @@ class AuthorizationError(APIError):
     """Authorization error."""
 
     def __init__(
-        self, message: str = "Permission denied", details: Optional[Dict[str, Any]] = None
-    ) -> None:
+        self,
+        message: str = "Permission denied",
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """Initialize authorization error."""
         super().__init__(message=message, status_code=403, details=details)
 
@@ -114,8 +121,10 @@ class NotFoundError(APIError):
     """Resource not found error."""
 
     def __init__(
-        self, message: str = "Resource not found", details: Optional[Dict[str, Any]] = None
-    ) -> None:
+        self,
+        message: str = "Resource not found",
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """Initialize not found error."""
         super().__init__(message=message, status_code=404, details=details)
 
@@ -124,8 +133,10 @@ class ConflictError(APIError):
     """Resource conflict error."""
 
     def __init__(
-        self, message: str = "Resource conflict", details: Optional[Dict[str, Any]] = None
-    ) -> None:
+        self,
+        message: str = "Resource conflict",
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """Initialize conflict error."""
         super().__init__(message=message, status_code=409, details=details)
 
@@ -134,7 +145,9 @@ class RateLimitError(APIError):
     """Rate limit exceeded error."""
 
     def __init__(
-        self, message: str = "Rate limit exceeded", details: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Rate limit exceeded",
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize rate limit error."""
         super().__init__(message=message, status_code=429, details=details)
@@ -144,8 +157,10 @@ class ServerError(APIError):
     """Internal server error."""
 
     def __init__(
-        self, message: str = "Internal server error", details: Optional[Dict[str, Any]] = None
-    ) -> None:
+        self,
+        message: str = "Internal server error",
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """Initialize server error."""
         super().__init__(message=message, status_code=500, details=details)
 
@@ -154,7 +169,9 @@ class VenueError(APIError):
     """Venue-related error."""
 
     def __init__(
-        self, message: str = "Venue operation failed", details: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Venue operation failed",
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize venue error."""
         super().__init__(message=message, status_code=400, details=details)
@@ -164,7 +181,9 @@ class PaymentError(APIError):
     """Payment-related error."""
 
     def __init__(
-        self, message: str = "Payment operation failed", details: Optional[Dict[str, Any]] = None
+        self,
+        message: str = "Payment operation failed",
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize payment error."""
         super().__init__(message=message, status_code=400, details=details)
@@ -264,7 +283,7 @@ class VisionSystemError(APIError):
         details: Optional[Dict[str, Any]] = None,
         frame_id: Optional[str] = None,
         detection_errors: Optional[List[str]] = None,
-    ) -> None:
+    ):
         """Initialize vision system error.
 
         Args:
@@ -277,10 +296,12 @@ class VisionSystemError(APIError):
         self.frame_id = frame_id
         self.detection_errors = detection_errors or []
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert error to dictionary."""
         error = super().to_dict()
-        error.update({"frame_id": self.frame_id, "detection_errors": self.detection_errors})
+        error.update(
+            {"frame_id": self.frame_id, "detection_errors": self.detection_errors}
+        )
         return error
 
 
@@ -293,7 +314,7 @@ class MLModelError(APIError):
         details: Optional[Dict[str, Any]] = None,
         model_name: Optional[str] = None,
         prediction_errors: Optional[List[str]] = None,
-    ) -> None:
+    ):
         """Initialize ML model error.
 
         Args:
@@ -309,7 +330,9 @@ class MLModelError(APIError):
     def to_dict(self) -> Dict[str, Any]:
         """Convert error to dictionary."""
         error = super().to_dict()
-        error.update({"model_name": self.model_name, "prediction_errors": self.prediction_errors})
+        error.update(
+            {"model_name": self.model_name, "prediction_errors": self.prediction_errors}
+        )
         return error
 
 
@@ -338,5 +361,7 @@ class RealTimeProcessingError(APIError):
     def to_dict(self) -> Dict[str, Any]:
         """Convert error to dictionary."""
         error = super().to_dict()
-        error.update({"processing_stage": self.processing_stage, "latency": self.latency})
+        error.update(
+            {"processing_stage": self.processing_stage, "latency": self.latency}
+        )
         return error

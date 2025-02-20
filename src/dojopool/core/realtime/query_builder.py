@@ -34,7 +34,7 @@ class LogQueryBuilder:
         self.filters.append(lambda entry: entry.get("room_id") == room_id)
         return self
 
-    def filter_by_user(self, user_id: str) -> "LogQueryBuilder":
+    def filter_by_user(self, user_id: str):
         """Filter logs by user ID.
 
         Args:
@@ -46,7 +46,7 @@ class LogQueryBuilder:
         self.filters.append(lambda entry: entry.get("user_id") == user_id)
         return self
 
-    def filter_by_event_type(self, event_type: str) -> "LogQueryBuilder":
+    def filter_by_event_type(self, event_type: str):
         """Filter logs by event type.
 
         Args:
@@ -58,7 +58,7 @@ class LogQueryBuilder:
         self.filters.append(lambda entry: entry.get("event_type") == event_type)
         return self
 
-    def filter_by_action(self, action: str) -> "LogQueryBuilder":
+    def filter_by_action(self, action: str):
         """Filter logs by action.
 
         Args:
@@ -86,7 +86,7 @@ class LogQueryBuilder:
         self,
         start_time: Optional[Union[datetime, str]] = None,
         end_time: Optional[Union[datetime, str]] = None,
-    ) -> "LogQueryBuilder":
+    ):
         """Set time range for query.
 
         Args:
@@ -108,7 +108,7 @@ class LogQueryBuilder:
 
         return self
 
-    def set_limit(self, limit: int) -> "LogQueryBuilder":
+    def set_limit(self, limit: int):
         """Set maximum number of results.
 
         Args:
@@ -120,7 +120,7 @@ class LogQueryBuilder:
         self.limit = limit
         return self
 
-    def order(self, field: str = "timestamp", descending: bool = True) -> "LogQueryBuilder":
+    def order(self, field: str = "timestamp", descending: bool = True):
         """Set result ordering.
 
         Args:
@@ -174,7 +174,7 @@ class LogQueryBuilder:
 
         return filtered
 
-    def _sort_results(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _sort_results(self, entries: List[Dict[str, Any]]):
         """Sort filtered results.
 
         Args:
@@ -183,9 +183,11 @@ class LogQueryBuilder:
         Returns:
             List[Dict[str, Any]]: Sorted entries
         """
-        return sorted(entries, key=lambda x: x.get(self.order_by, ""), reverse=self.order_desc)
+        return sorted(
+            entries, key=lambda x: x.get(self.order_by, ""), reverse=self.order_desc
+        )
 
-    def execute(self) -> List[Dict[str, Any]]:
+    def execute(self):
         """Execute query and return results.
 
         Returns:

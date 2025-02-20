@@ -1,17 +1,19 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """A/B testing module for ML models.
 
 This module provides functionality for comparing different model variants.
 """
 
-import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
-from uuid import uuid4
-from enum import Enum
-from dataclasses import dataclass
-import random
 import hashlib
 import json
+import logging
+import random
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
+from uuid import uuid4
 
 import numpy as np
 
@@ -75,13 +77,13 @@ class ABTest:
         split = 1.0 / len(self.variants)
         return {variant: split for variant in self.variants}
 
-    def _hash_user_id(self, user_id: Union[int, str]) -> int:
+    def _hash_user_id(self, user_id: Union[int, str]):
         """Create consistent hash for user ID."""
         hash_input = f"{self.test_name}:{user_id}"
         hash_value = hashlib.md5(hash_input.encode()).hexdigest()
         return int(hash_value, 16)
 
-    def _select_variant(self, user_id: Union[int, str]) -> ModelVariant:
+    def _select_variant(self, user_id: Union[int, str]):
         """Select variant for a user based on consistent hashing."""
         hash_value = self._hash_user_id(user_id)
         random.seed(hash_value)
@@ -100,7 +102,7 @@ class ABTest:
         variant: ModelVariant,
         metrics: Dict[str, float],
         metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
+    ):
         """
         Record test result for a variant.
 
@@ -109,7 +111,11 @@ class ABTest:
             metrics: Performance metrics
             metadata: Optional metadata about the result
         """
-        result = {"timestamp": datetime.now(), "metrics": metrics, "metadata": metadata or {}}
+        result = {
+            "timestamp": datetime.now(),
+            "metrics": metrics,
+            "metadata": metadata or {},
+        }
         self.results[variant].append(result)
 
     def get_results(self) -> Dict[ModelVariant, TestResult]:
@@ -139,7 +145,7 @@ class ABTest:
 
         return results
 
-    def route_prediction(self, features: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+    def route_prediction(self, features: Dict[str, Any]):
         """
         Route a prediction request to the appropriate model variant.
 

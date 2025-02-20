@@ -1,8 +1,9 @@
 """Example usage of the metrics collection system."""
 
 import os
-import time
 import random
+import time
+
 from .collectors import MetricsCollector
 
 

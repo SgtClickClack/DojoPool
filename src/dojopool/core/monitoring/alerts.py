@@ -1,13 +1,13 @@
 """Alert system for monitoring performance and security issues."""
 
-import logging
-from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime, timedelta
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import json
+import logging
 import os
+import smtplib
+from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import Any, Callable, Dict, List, Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 
@@ -19,7 +19,10 @@ logger = logging.getLogger(__name__)
 registry = CollectorRegistry()
 
 ALERT_COUNTER = Counter(
-    "alerts_total", "Total number of alerts triggered", ["type", "severity"], registry=registry
+    "alerts_total",
+    "Total number of alerts triggered",
+    ["type", "severity"],
+    registry=registry,
 )
 
 ALERT_LATENCY = Histogram(
@@ -97,7 +100,7 @@ class AlertManager:
         # Load configuration
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self):
         """Load alert configuration."""
         config_path = os.path.join(os.path.dirname(__file__), "alert_config.json")
 
@@ -127,7 +130,7 @@ class AlertManager:
                 },
             }
 
-    def add_handler(self, severity: str, handler: Callable) -> None:
+    def add_handler(self, severity: str, handler: Callable):
         """Add alert handler for severity level."""
         if severity in self.handlers:
             self.handlers[severity].append(handler)
@@ -139,7 +142,7 @@ class AlertManager:
         severity: str,
         alert_type: str,
         metadata: Optional[Dict[str, Any]] = None,
-    ) -> Alert:
+    ):
         """Trigger a new alert."""
         alert = Alert(title, message, severity, alert_type, metadata)
         self.alerts.append(alert)
@@ -163,14 +166,14 @@ class AlertManager:
             except Exception as e:
                 logger.error(f"Error in alert handler: {str(e)}")
 
-    def resolve_alert(self, alert: Alert) -> None:
+    def resolve_alert(self, alert: Alert):
         """Mark alert as resolved."""
         alert.resolved = True
         alert.resolved_at = datetime.now()
 
     def get_active_alerts(
         self, severity: Optional[str] = None, alert_type: Optional[str] = None
-    ) -> List[Alert]:
+    ):
         """Get list of active alerts."""
         alerts = [a for a in self.alerts if not a.resolved]
 
@@ -182,7 +185,7 @@ class AlertManager:
 
         return alerts
 
-    def send_email_notification(self, alert: Alert) -> None:
+    def send_email_notification(self, alert: Alert):
         """Send email notification for alert."""
         if not self.config["notification"]["email"]["enabled"]:
             return
@@ -247,14 +250,20 @@ class AlertManager:
                         "text": alert.message,
                         "fields": [
                             {"title": "Type", "value": alert.type, "short": True},
-                            {"title": "Severity", "value": alert.severity, "short": True},
+                            {
+                                "title": "Severity",
+                                "value": alert.severity,
+                                "short": True,
+                            },
                         ],
                         "footer": f"Alert triggered at {alert.timestamp}",
                     }
                 ]
             }
 
-            requests.post(self.config["notification"]["slack"]["webhook_url"], json=payload)
+            requests.post(
+                self.config["notification"]["slack"]["webhook_url"], json=payload
+            )
 
             alert.notification_sent = True
 

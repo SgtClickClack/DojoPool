@@ -6,18 +6,25 @@ Create Date: 2024-01-20 10:00:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic.
-revision = "add_venue_system"
-down_revision = "add_avatar_support"
-branch_labels = None
-depends_on = None
+revision: str = "add_venue_system"
+down_revision: str = "add_avatar_support"
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create venues table
     op.create_table(
         "venues",
@@ -34,7 +41,9 @@ def upgrade():
         sa.Column("phone", sa.String(length=20), nullable=True),
         sa.Column("email", sa.String(length=100), nullable=True),
         sa.Column("website", sa.String(length=200), nullable=True),
-        sa.Column("operating_hours", postgresql.JSON(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "operating_hours", postgresql.JSON(astext_type=sa.Text()), nullable=True
+        ),
         sa.Column("has_parking", sa.Boolean(), default=False),
         sa.Column("is_accessible", sa.Boolean(), default=False),
         sa.Column("has_food_service", sa.Boolean(), default=False),
@@ -80,8 +89,12 @@ def upgrade():
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("rating", sa.Integer(), nullable=False),
         sa.Column("review", sa.String(length=500), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.text("CURRENT_TIMESTAMP")),
-        sa.Column("updated_at", sa.DateTime(), server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(), server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.ForeignKeyConstraint(
             ["venue_id"],
             ["venues.id"],

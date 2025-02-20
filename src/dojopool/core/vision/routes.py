@@ -1,7 +1,11 @@
 """Vision system routes."""
 
-from flask import Blueprint, current_app, jsonify, request
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import Blueprint, Request, Response, current_app, g, jsonify, request
+from flask.typing import ResponseReturnValue
 from flask_login import login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from ..auth.utils import admin_required
 from .ball_tracker import BallTracker
@@ -10,17 +14,17 @@ from .camera import CameraConfig, PoolCamera
 from .game_tracker import GameTracker
 from .monitor import GameMonitor
 
-bp = Blueprint("vision", __name__, url_prefix="/vision")
+bp: Blueprint = Blueprint("vision", __name__, url_prefix="/vision")
 
 # Initialize vision components
-camera = None
-ball_tracker = None
-game_tracker = None
-game_monitor = None
-vision_bridge = None
+camera: Optional[PoolCamera] = None
+ball_tracker: Optional[BallTracker] = None
+game_tracker: Optional[GameTracker] = None
+game_monitor: Optional[GameMonitor] = None
+vision_bridge: Optional[VisionGameBridge] = None
 
 
-def init_vision_system():
+def init_vision_system() -> bool:
     """Initialize the vision system components."""
     global camera, ball_tracker, game_tracker, game_monitor, vision_bridge
     try:
@@ -35,7 +39,7 @@ def init_vision_system():
         return False
 
 
-_vision_system_initialized = False
+_vision_system_initialized: bool = False
 
 
 @bp.before_app_request
@@ -66,9 +70,14 @@ def calibrate_table(admin_user):
         # Calibrate table
         success = game_monitor.calibrate_table(venue_id, corners)
         if success:
-            return jsonify({"status": "success", "message": "Table calibration successful"})
+            return jsonify(
+                {"status": "success", "message": "Table calibration successful"}
+            )
         else:
-            return jsonify({"status": "error", "message": "Table calibration failed"}), 500
+            return (
+                jsonify({"status": "error", "message": "Table calibration failed"}),
+                500,
+            )
 
     except Exception as e:
         current_app.logger.error(f"Calibration error: {str(e)}")
@@ -85,12 +94,20 @@ def track_game():
         venue_id = request.json.get("venue_id")
 
         if not game_id or not venue_id:
-            return jsonify({"status": "error", "message": "Missing game ID or venue ID"}), 400
+            return (
+                jsonify({"status": "error", "message": "Missing game ID or venue ID"}),
+                400,
+            )
 
         # Start game tracking through bridge
         success = vision_bridge.start_tracking(game_id, venue_id)
         if not success:
-            return jsonify({"status": "error", "message": "Failed to start game tracking"}), 500
+            return (
+                jsonify(
+                    {"status": "error", "message": "Failed to start game tracking"}
+                ),
+                500,
+            )
 
         return jsonify({"status": "success", "message": "Game tracking started"})
 
@@ -101,7 +118,7 @@ def track_game():
 
 @bp.route("/stop", methods=["POST"])
 @login_required
-def stop_tracking():
+def stop_tracking() -> ResponseReturnValue:
     """Stop tracking a game."""
     try:
         game_id = request.json.get("game_id")
@@ -111,7 +128,10 @@ def stop_tracking():
         # Stop tracking through bridge
         success = vision_bridge.stop_tracking(game_id)
         if not success:
-            return jsonify({"status": "error", "message": "Failed to stop game tracking"}), 500
+            return (
+                jsonify({"status": "error", "message": "Failed to stop game tracking"}),
+                500,
+            )
 
         return jsonify({"status": "success", "message": "Game tracking stopped"})
 
@@ -125,7 +145,7 @@ def stop_tracking():
 def get_vision_status(admin_user):
     """Get vision system status."""
     try:
-        status = {
+        status: Dict[str, Any] = {
             "camera_connected": camera and camera.is_running,
             "monitoring_active": game_monitor and game_monitor.is_running,
             "active_games": len(game_monitor.active_games) if game_monitor else 0,

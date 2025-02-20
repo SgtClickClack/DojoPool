@@ -1,12 +1,18 @@
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from flask_caching import Cache
+from flask_caching import Cache
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
 
-from sqlalchemy import desc, func
+from sqlalchemy import ForeignKey, desc, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.extensions import db
 from ..core.models.auth import User
 from ..core.models.notification import Notification
-from ..core.models.venue import Venue, VenueLeaderboard
+from ..models.venue import Venue
+from ..models.venue_leaderboard import VenueLeaderboard
 
 
 class LeaderboardService:
@@ -19,7 +25,11 @@ class LeaderboardService:
         self.streak_threshold = 3  # Number of wins to start streak bonus
 
     def update_leaderboard(
-        self, venue_id: int, user_id: int, won: bool, points_earned: Optional[int] = None
+        self,
+        venue_id: int,
+        user_id: int,
+        won: bool,
+        points_earned: Optional[int] = None,
     ) -> VenueLeaderboard:
         """Update leaderboard entry after a game.
 
@@ -33,17 +43,19 @@ class LeaderboardService:
             VenueLeaderboard: Updated leaderboard entry
         """
         # Verify venue and user exist
-        venue = Venue.query.get(venue_id)
-        user = User.query.get(user_id)
+        venue: Any = Venue.query.get(venue_id)
+        user: Any = User.query.get(user_id)
 
         if not venue or not user:
             raise ValueError("Venue or user not found")
 
         # Get or create leaderboard entry
-        entry = VenueLeaderboard.query.filter_by(venue_id=venue_id, user_id=user_id).first()
+        entry: Any = VenueLeaderboard.query.filter_by(
+            venue_id=venue_id, user_id=user_id
+        ).first()
 
         if not entry:
-            entry = VenueLeaderboard(
+            entry: Any = VenueLeaderboard(
                 venue_id=venue_id,
                 user_id=user_id,
                 points=0,
@@ -58,21 +70,27 @@ class LeaderboardService:
         # Update stats
         if won:
             entry.wins += 1
-            entry.current_streak = entry.current_streak + 1 if entry.current_streak >= 0 else 1
+            entry.current_streak = (
+                entry.current_streak + 1 if entry.current_streak >= 0 else 1
+            )
 
             # Calculate points
             if points_earned is not None:
-                points = points_earned
+                points: Any = points_earned
             else:
-                points = self.points_per_win
+                points: Any = self.points_per_win
                 if entry.current_streak >= self.streak_threshold:
                     points += self.streak_bonus
 
             entry.points += points
         else:
             entry.losses += 1
-            entry.current_streak = entry.current_streak - 1 if entry.current_streak <= 0 else -1
-            entry.points += points_earned if points_earned is not None else self.points_per_loss
+            entry.current_streak = (
+                entry.current_streak - 1 if entry.current_streak <= 0 else -1
+            )
+            entry.points += (
+                points_earned if points_earned is not None else self.points_per_loss
+            )
 
         # Update highest streak
         if entry.current_streak > entry.highest_streak:
@@ -96,7 +114,11 @@ class LeaderboardService:
         return entry
 
     def get_leaderboard(
-        self, venue_id: int, period: Optional[str] = None, limit: int = 10, offset: int = 0
+        self,
+        venue_id: int,
+        period: Optional[str] = None,
+        limit: int = 10,
+        offset: int = 0,
     ) -> List[Dict[str, Any]]:
         """Get venue leaderboard.
 
@@ -109,22 +131,27 @@ class LeaderboardService:
         Returns:
             List[Dict[str, Any]]: List of leaderboard entries
         """
-        query = VenueLeaderboard.query.filter_by(venue_id=venue_id)
+        query: Any = VenueLeaderboard.query.filter_by(venue_id=venue_id)
 
         if period:
             now = datetime.utcnow()
             if period == "week":
-                start_date = now - timedelta(weeks=1)
+                start_date: Any = now - timedelta(weeks=1)
             elif period == "month":
-                start_date = now - timedelta(days=30)
+                start_date: Any = now - timedelta(days=30)
             elif period == "year":
-                start_date = now - timedelta(days=365)
+                start_date: Any = now - timedelta(days=365)
             else:
                 raise ValueError("Invalid period")
 
-            query = query.filter(VenueLeaderboard.last_played >= start_date)
+            query: Any = query.filter(VenueLeaderboard.last_played >= start_date)
 
-        entries = query.order_by(desc(VenueLeaderboard.points)).offset(offset).limit(limit).all()
+        entries: Any = (
+            query.order_by(desc(VenueLeaderboard.points))
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         return [
             {
@@ -153,16 +180,21 @@ class LeaderboardService:
         Returns:
             Optional[Dict[str, Any]]: User's stats if found
         """
-        entry = VenueLeaderboard.query.filter_by(venue_id=venue_id, user_id=user_id).first()
+        entry: Any = VenueLeaderboard.query.filter_by(
+            venue_id=venue_id, user_id=user_id
+        ).first()
 
         if not entry:
             return None
 
         # Get user's rank
-        rank = (
+        rank: Any = (
             db.session.query(func.count())
             .select_from(VenueLeaderboard)
-            .filter(VenueLeaderboard.venue_id == venue_id, VenueLeaderboard.points > entry.points)
+            .filter(
+                VenueLeaderboard.venue_id == venue_id,
+                VenueLeaderboard.points > entry.points,
+            )
             .scalar()
         )
 

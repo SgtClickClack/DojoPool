@@ -1,14 +1,20 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Player rankings and performance tracking system."""
 
-from typing import Dict, List, Optional, Set, Tuple
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-import numpy as np
 from enum import Enum
-import logging
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+import numpy as np
+
 from .game_tracker import Shot
-from .shot_difficulty import ShotDifficultyCalculator
 from .player_analytics import PlayerAnalytics
+from .shot_difficulty import ShotDifficultyCalculator
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +35,7 @@ class SkillLevel(Enum):
 class PlayerStats:
     """Player statistics."""
 
+    player_id: str
     total_games: int = 0
     games_won: int = 0
     total_matches: int = 0
@@ -109,7 +116,7 @@ class PlayerRankingSystem:
         # Initialize players if needed
         for player_id in (result.winner_id, result.loser_id):
             if player_id not in self._player_stats:
-                self._player_stats[player_id] = PlayerStats()
+                self._player_stats[player_id] = PlayerStats(player_id=player_id)
                 self._provisional_players.add(player_id)
 
         # Update match statistics
@@ -149,14 +156,18 @@ class PlayerRankingSystem:
         for player_id in (result.winner_id, result.loser_id):
             if (
                 player_id in self._provisional_players
-                and self._player_stats[player_id].total_matches >= self.provisional_games
+                and self._player_stats[player_id].total_matches
+                >= self.provisional_games
             ):
                 self._provisional_players.remove(player_id)
 
     def _update_shot_stats(self, result: MatchResult) -> None:
         """Update shot statistics from match."""
         # Group shots by player
-        player_shots: Dict[str, List[Shot]] = {result.winner_id: [], result.loser_id: []}
+        player_shots: Dict[str, List[Shot]] = {
+            result.winner_id: [],
+            result.loser_id: [],
+        }
 
         for shot in result.shots:
             # Determine shot owner (simplified)
@@ -189,7 +200,7 @@ class PlayerRankingSystem:
                     current_run = 0
             stats.highest_run = max(stats.highest_run, max_run)
 
-    def _update_elo_ratings(self, result: MatchResult) -> None:
+    def _update_elo_ratings(self, result: MatchResult):
         """Update ELO ratings based on match result."""
         winner_stats = self._player_stats[result.winner_id]
         loser_stats = self._player_stats[result.loser_id]
@@ -228,16 +239,22 @@ class PlayerRankingSystem:
 
         # Adjust points based on opponent's skill level
         skill_diff = loser_stats.skill_level.value - winner_stats.skill_level.value
-        skill_multiplier = 1 + (skill_diff * 0.1)  # 10% bonus per skill level difference
+        skill_multiplier = 1 + (
+            skill_diff * 0.1
+        )  # 10% bonus per skill level difference
 
         # Adjust for game score
-        score_multiplier = result.winner_score / (result.winner_score + result.loser_score)
+        score_multiplier = result.winner_score / (
+            result.winner_score + result.loser_score
+        )
 
         # Tournament bonus
         tournament_multiplier = 2.0 if result.tournament_id else 1.0
 
         # Calculate final points
-        points = base_points * skill_multiplier * score_multiplier * tournament_multiplier
+        points = (
+            base_points * skill_multiplier * score_multiplier * tournament_multiplier
+        )
 
         # Update points
         winner_stats.ranking_points += points
@@ -295,7 +312,8 @@ class PlayerRankingSystem:
                 # Apply decay
                 decay = self.decay_rate * months_inactive
                 stats.elo_rating = max(
-                    self.skill_thresholds[SkillLevel.NOVICE], stats.elo_rating * (1 - decay)
+                    self.skill_thresholds[SkillLevel.NOVICE],
+                    stats.elo_rating * (1 - decay),
                 )
                 stats.ranking_points *= 1 - decay
 
@@ -316,7 +334,7 @@ class PlayerRankingSystem:
 
         return rankings
 
-    def get_player_stats(self, player_id: str) -> Optional[PlayerStats]:
+    def get_player_stats(self, player_id: str):
         """Get statistics for a player."""
         return self._player_stats.get(player_id)
 
@@ -325,7 +343,7 @@ class PlayerRankingSystem:
         player_id: Optional[str] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-    ) -> List[MatchResult]:
+    ):
         """Get match history, optionally filtered."""
         matches = self._match_history
 
@@ -345,7 +363,10 @@ class PlayerRankingSystem:
         matches = [
             m
             for m in self._match_history
-            if (m.winner_id in (player1_id, player2_id) and m.loser_id in (player1_id, player2_id))
+            if (
+                m.winner_id in (player1_id, player2_id)
+                and m.loser_id in (player1_id, player2_id)
+            )
         ]
 
         player1_wins = sum(1 for m in matches if m.winner_id == player1_id)

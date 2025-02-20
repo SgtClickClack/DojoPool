@@ -1,10 +1,10 @@
 """Clan management system for DojoPool."""
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Set
 from enum import Enum
-import uuid
+from typing import Dict, List, Optional, Set
 
 
 class ClanRole(Enum):
@@ -74,16 +74,12 @@ class ClanManager:
     def __init__(self) -> None:
         """Initialize clan manager."""
         self._clans: Dict[str, Clan] = {}
-        self._player_clans: Dict[str, str] = {}  # player_id -> clan_id
-
-    def create_clan(
-        self,
-        name: str,
+        self._player_clans: Dict[str, str] = {}  # player_id : str,
         tag: str,
         description: str,
         leader_id: str,
         home_venue_id: Optional[str] = None,
-    ) -> Clan:
+    ) :
         """Create a new clan."""
         if leader_id in self._player_clans:
             raise ValueError("Player is already in a clan")
@@ -114,12 +110,14 @@ class ClanManager:
         """Get clan details."""
         return self._clans.get(clan_id)
 
-    def get_player_clan(self, player_id: str) -> Optional[Clan]:
+    def get_player_clan(self, player_id: str) :
         """Get a player's clan."""
         clan_id = self._player_clans.get(player_id)
         return self._clans.get(clan_id) if clan_id else None
 
-    def add_member(self, clan_id: str, player_id: str, role: ClanRole = ClanRole.MEMBER) -> bool:
+    def add_member(
+        self, clan_id: str, player_id: str, role: ClanRole = ClanRole.MEMBER
+    ) :
         """Add a member to a clan."""
         if player_id in self._player_clans:
             return False
@@ -137,7 +135,7 @@ class ClanManager:
 
         return True
 
-    def remove_member(self, clan_id: str, player_id: str, by_player_id: str) -> bool:
+    def remove_member(self, clan_id: str, player_id: str, by_player_id: str) :
         """Remove a member from a clan."""
         clan = self._clans.get(clan_id)
         if not clan:
@@ -196,7 +194,7 @@ class ClanManager:
         points: int,
         match_won: bool = False,
         tournament_won: bool = False,
-    ) -> None:
+    ) :
         """Record clan member activity."""
         clan = self._clans.get(clan_id)
         if not clan:
@@ -225,18 +223,24 @@ class ClanManager:
         # Update clan rank based on activity
         self._update_clan_rank(clan)
 
-    def _update_clan_rank(self, clan: Clan) -> None:
+    def _update_clan_rank(self, clan: Clan) :
         """Update clan rank based on stats."""
         if clan.stats.tournaments_won >= 50 and clan.stats.total_contribution >= 100000:
             clan.rank = ClanRank.DIAMOND
-        elif clan.stats.tournaments_won >= 25 and clan.stats.total_contribution >= 50000:
+        elif (
+            clan.stats.tournaments_won >= 25 and clan.stats.total_contribution >= 50000
+        ):
             clan.rank = ClanRank.PLATINUM
-        elif clan.stats.tournaments_won >= 10 and clan.stats.total_contribution >= 25000:
+        elif (
+            clan.stats.tournaments_won >= 10 and clan.stats.total_contribution >= 25000
+        ):
             clan.rank = ClanRank.GOLD
         elif clan.stats.tournaments_won >= 5 and clan.stats.total_contribution >= 10000:
             clan.rank = ClanRank.SILVER
 
-    def get_top_clans(self, limit: int = 10, sort_by: str = "contribution") -> List[Clan]:
+    def get_top_clans(
+        self, limit: int = 10, sort_by: str = "contribution"
+    ) -> List[Clan]:
         """Get top ranked clans."""
         clans = list(self._clans.values())
 
@@ -251,14 +255,18 @@ class ClanManager:
 
         return clans[:limit]
 
-    def get_inactive_members(self, clan_id: str) -> List[ClanMember]:
+    def get_inactive_members(self, clan_id: str) :
         """Get list of members who haven't been active in the last 30 days."""
         clan = self.get_clan(clan_id)
         if not clan:
             return []
 
         cutoff_date = datetime.now() - timedelta(days=30)
-        return [member for member in clan.members.values() if member.last_active < cutoff_date]
+        return [
+            member
+            for member in clan.members.values()
+            if member.last_active < cutoff_date
+        ]
 
     def remove_inactive_members(self, clan_id: str, days: int = 30) -> List[str]:
         """Remove members who haven't been active for specified number of days."""
@@ -286,14 +294,14 @@ class ClanManager:
         for clan in self._clans.values():
             clan.stats.weekly_points = 0
 
-    def reset_monthly_points(self) -> None:
+    def reset_monthly_points(self) :
         """Reset monthly points for all clans."""
         for clan in self._clans.values():
             clan.stats.monthly_points = 0
 
     def merge_clans(
         self, clan_id1: str, clan_id2: str, new_name: str, new_tag: str
-    ) -> Optional[Clan]:
+    ) :
         """Merge two clans into a new clan."""
         clan1 = self.get_clan(clan_id1)
         clan2 = self.get_clan(clan_id2)
@@ -315,18 +323,30 @@ class ClanManager:
                     self.add_member(
                         new_clan.clan_id,
                         member_id,
-                        role=member.role if member.role != ClanRole.LEADER else ClanRole.OFFICER,
+                        role=(
+                            member.role
+                            if member.role != ClanRole.LEADER
+                            else ClanRole.OFFICER
+                        ),
                     )
 
         # Combine stats
-        new_clan.stats.total_matches = clan1.stats.total_matches + clan2.stats.total_matches
+        new_clan.stats.total_matches = (
+            clan1.stats.total_matches + clan2.stats.total_matches
+        )
         new_clan.stats.matches_won = clan1.stats.matches_won + clan2.stats.matches_won
-        new_clan.stats.tournaments_won = clan1.stats.tournaments_won + clan2.stats.tournaments_won
+        new_clan.stats.tournaments_won = (
+            clan1.stats.tournaments_won + clan2.stats.tournaments_won
+        )
         new_clan.stats.total_contribution = (
             clan1.stats.total_contribution + clan2.stats.total_contribution
         )
-        new_clan.stats.weekly_points = clan1.stats.weekly_points + clan2.stats.weekly_points
-        new_clan.stats.monthly_points = clan1.stats.monthly_points + clan2.stats.monthly_points
+        new_clan.stats.weekly_points = (
+            clan1.stats.weekly_points + clan2.stats.weekly_points
+        )
+        new_clan.stats.monthly_points = (
+            clan1.stats.monthly_points + clan2.stats.monthly_points
+        )
 
         # Combine achievements
         new_clan.achievements = clan1.achievements.union(clan2.achievements)

@@ -96,13 +96,31 @@ SHOT_CONFIG = {
         "bank",
         "combination",
     ],
-    "difficulty_levels": ["beginner", "intermediate", "advanced", "expert", "professional"],
-    "analysis_metrics": ["accuracy", "power_control", "spin_control", "consistency", "technique"],
+    "difficulty_levels": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert",
+        "professional",
+    ],
+    "analysis_metrics": [
+        "accuracy",
+        "power_control",
+        "spin_control",
+        "consistency",
+        "technique",
+    ],
 }
 
 NARRATIVE_CONFIG = {
     "story_elements": ["setup", "challenge", "action", "outcome", "reflection"],
-    "tone_options": ["encouraging", "instructive", "motivational", "analytical", "celebratory"],
+    "tone_options": [
+        "encouraging",
+        "instructive",
+        "motivational",
+        "analytical",
+        "celebratory",
+    ],
     "length_options": {"short": 100, "medium": 250, "long": 500},
 }
 

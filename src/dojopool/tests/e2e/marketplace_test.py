@@ -22,7 +22,9 @@ def test_user():
 
 @pytest.fixture
 def test_wallet(test_user):
-    wallet = Wallet.create({"userId": test_user["_id"], "balance": 1000, "currency": "DP"})
+    wallet = Wallet.create(
+        {"userId": test_user["_id"], "balance": 1000, "currency": "DP"}
+    )
     yield wallet
     wallet.delete()
 
@@ -81,13 +83,17 @@ def test_get_items(test_client):
     response = test_client.get("/api/marketplace/items?sortBy=price-asc")
     assert response.status_code == 200
     items = response.json
-    assert all(items[i]["price"] <= items[i + 1]["price"] for i in range(len(items) - 1))
+    assert all(
+        items[i]["price"] <= items[i + 1]["price"] for i in range(len(items) - 1)
+    )
 
 
 def test_get_inventory(test_client, auth_headers, test_user, test_items):
     """Test fetching user inventory"""
     # Add items to user's inventory
-    UserInventory.add_to_inventory(str(test_user["_id"]), str(test_items[0]._id), quantity=2)
+    UserInventory.add_to_inventory(
+        str(test_user["_id"]), str(test_items[0]._id), quantity=2
+    )
 
     response = test_client.get("/api/marketplace/inventory", headers=auth_headers)
     assert response.status_code == 200
@@ -136,7 +142,9 @@ def test_purchase_flow(test_client, auth_headers, test_user, test_wallet, test_i
     assert purchased_item["quantity"] == 1
 
 
-def test_purchase_validation(test_client, auth_headers, test_user, test_wallet, test_items):
+def test_purchase_validation(
+    test_client, auth_headers, test_user, test_wallet, test_items
+):
     """Test purchase validation scenarios"""
     # Test insufficient funds
     expensive_item = test_items[1]
@@ -179,11 +187,15 @@ def test_item_preview(test_client, test_items):
     test_items[0].preview = "test_preview_data"
     test_items[0].save()
 
-    response = test_client.get(f"/api/marketplace/items/{str(test_items[0]._id)}/preview")
+    response = test_client.get(
+        f"/api/marketplace/items/{str(test_items[0]._id)}/preview"
+    )
     assert response.status_code == 200
     preview = response.json
     assert preview["preview"] == "test_preview_data"
 
     # Test non-existent preview
-    response = test_client.get(f"/api/marketplace/items/{str(test_items[1]._id)}/preview")
+    response = test_client.get(
+        f"/api/marketplace/items/{str(test_items[1]._id)}/preview"
+    )
     assert response.status_code == 404

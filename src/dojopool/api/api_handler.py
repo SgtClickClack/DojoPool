@@ -96,7 +96,9 @@ class APIHandler:
         return decorator
 
     @rate_limit_decorator("places")
-    async def fetch_places(self, query: str, location: Dict[str, float]) -> Dict[str, Any]:
+    async def fetch_places(
+        self, query: str, location: Dict[str, float]
+    ) -> Dict[str, Any]:
         """Fetch places data with rate limiting and caching."""
         cache_key = f"places_{query}_{location['lat']}_{location['lng']}"
 
@@ -116,7 +118,10 @@ class APIHandler:
             "data": {
                 "query": query,
                 "location": location,
-                "results": [{"name": "Place A", "rating": 4.5}, {"name": "Place B", "rating": 4.0}],
+                "results": [
+                    {"name": "Place A", "rating": 4.5},
+                    {"name": "Place B", "rating": 4.0},
+                ],
             },
         }
 
@@ -125,7 +130,7 @@ class APIHandler:
         return response
 
     @rate_limit_decorator("weather")
-    async def fetch_weather(self, location: Dict[str, float]) -> Dict:
+    async def fetch_weather(self, location: Dict[str, float]):
         """Fetch weather data with rate limiting and caching."""
         cache_key = f"weather_{location['lat']}_{location['lng']}"
 
@@ -150,7 +155,10 @@ class APIHandler:
                         data = await response.json()
 
                         # Cache the results
-                        self.cache[cache_key] = {"data": data, "timestamp": datetime.now()}
+                        self.cache[cache_key] = {
+                            "data": data,
+                            "timestamp": datetime.now(),
+                        }
 
                         return data
                     else:
@@ -174,10 +182,12 @@ class APIHandler:
             logger.error(f"Failed to save avatar: {str(e)}")
             return False
 
-    async def save_event(self, event_data: Dict) -> bool:
+    async def save_event(self, event_data: Dict):
         """Save event data to database."""
         try:
-            await self.db.events.insert_one({**event_data, "created_at": datetime.now()})
+            await self.db.events.insert_one(
+                {**event_data, "created_at": datetime.now()}
+            )
             return True
         except Exception as e:
             logger.error(f"Failed to save event: {str(e)}")
@@ -185,7 +195,7 @@ class APIHandler:
 
     async def get_avatar_events(
         self, avatar_name: str, limit: int = 10, event_type: Optional[str] = None
-    ) -> List[Dict]:
+    ):
         """Retrieve avatar events with optional filtering."""
         try:
             query = {"avatar_name": avatar_name}
@@ -202,14 +212,17 @@ class APIHandler:
     def generate_jwt(self, avatar_name: str) -> str:
         """Generate JWT token for API authentication."""
         try:
-            payload = {"avatar_name": avatar_name, "exp": datetime.utcnow() + timedelta(days=1)}
+            payload = {
+                "avatar_name": avatar_name,
+                "exp": datetime.utcnow() + timedelta(days=1),
+            }
             return jwt.encode(payload, os.getenv("JWT_SECRET"), algorithm="HS256")
         except Exception as e:
             logger.error(f"Failed to generate JWT: {str(e)}")
             return None
 
     @staticmethod
-    def verify_jwt(token: str) -> Optional[Dict]:
+    def verify_jwt(token: str):
         """Verify JWT token and return payload."""
         try:
             return jwt.decode(token, os.getenv("JWT_SECRET"), algorithms=["HS256"])

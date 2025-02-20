@@ -1,7 +1,7 @@
 """Cache service module."""
 
-from typing import Any, Dict, List, Optional, Union
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
 
 from ..extensions import cache
 
@@ -22,7 +22,7 @@ class CacheService:
         return cache.get(key)
 
     @staticmethod
-    async def set(key: str, value: Any, timeout: Optional[int] = None) -> None:
+    async def set(key: str, value: Any, timeout: Optional[int] = None):
         """Set a value in cache.
 
         Args:
@@ -33,7 +33,7 @@ class CacheService:
         cache.set(key, value, timeout=timeout)
 
     @staticmethod
-    async def delete(key: str) -> None:
+    async def delete(key: str):
         """Delete a value from cache.
 
         Args:
@@ -42,7 +42,7 @@ class CacheService:
         cache.delete(key)
 
     @staticmethod
-    async def clear() -> None:
+    async def clear():
         """Clear all cache."""
         cache.clear()
 
@@ -59,7 +59,7 @@ class CacheService:
         return {key: cache.get(key) for key in keys}
 
     @staticmethod
-    async def set_many(mapping: Dict[str, Any], timeout: Optional[int] = None) -> None:
+    async def set_many(mapping: Dict[str, Any], timeout: Optional[int] = None):
         """Set multiple values in cache.
 
         Args:
@@ -70,7 +70,7 @@ class CacheService:
             cache.set(key, value, timeout=timeout)
 
     @staticmethod
-    async def delete_many(keys: List[str]) -> None:
+    async def delete_many(keys: List[str]):
         """Delete multiple values from cache.
 
         Args:

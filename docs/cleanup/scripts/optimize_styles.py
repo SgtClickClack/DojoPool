@@ -40,18 +40,29 @@ class StyleOptimizer:
         self.all_rules: List[StyleRule] = []
         self.global_variables: Dict[str, Set[str]] = {}
         self.duplicate_selectors: Dict[str, List[str]] = {}
-        self.ignored_dirs = {".git", "__pycache__", "node_modules", "venv", "build", "dist"}
+        self.ignored_dirs = {
+            ".git",
+            "__pycache__",
+            "node_modules",
+            "venv",
+            "build",
+            "dist",
+        }
 
     def find_style_files(self) -> List[Path]:
         """Find all style files."""
         style_files = []
         for ext in [".scss", ".css"]:
             for path in self.root_dir.rglob(f"*{ext}"):
-                if not any(ignored in str(path).split(os.sep) for ignored in self.ignored_dirs):
+                if not any(
+                    ignored in str(path).split(os.sep) for ignored in self.ignored_dirs
+                ):
                     style_files.append(path)
         return style_files
 
-    def parse_style_file(self, file_path: Path) -> tuple[List[StyleRule], Dict[str, str]]:
+    def parse_style_file(
+        self, file_path: Path
+    ) :
         """Parse a style file and extract rules."""
         rules: List[StyleRule] = []
 
@@ -60,7 +71,9 @@ class StyleOptimizer:
 
         # Extract variables
         variable_pattern = r"--([a-zA-Z][a-zA-Z0-9_-]*)\s*:\s*([^;]+);"
-        variables = {name: value.strip() for name, value in re.findall(variable_pattern, content)}
+        variables = {
+            name: value.strip() for name, value in re.findall(variable_pattern, content)
+        }
 
         # Extract media queries and their content
         media_pattern = r"@media[^{]+{([^}]+)}"
@@ -136,7 +149,13 @@ class StyleOptimizer:
         for selector, rules_list in selector_rules.items():
             if len(rules_list) > 1:
                 duplicate_rules.append(
-                    (selector, [f"{rule.source_file}:{rule.line_number}" for rule in rules_list])
+                    (
+                        selector,
+                        [
+                            f"{rule.source_file}:{rule.line_number}"
+                            for rule in rules_list
+                        ],
+                    )
                 )
 
         # Generate suggestions
@@ -169,7 +188,9 @@ class StyleOptimizer:
                 selector_files[selector].append(file_path)
 
         self.duplicate_selectors = {
-            selector: files for selector, files in selector_files.items() if len(files) > 1
+            selector: files
+            for selector, files in selector_files.items()
+            if len(files) > 1
         }
 
     def generate_report(self) -> None:
@@ -238,7 +259,9 @@ class StyleOptimizer:
             f.write("  @media (max-width: 768px) { @content; }\n")
             f.write("}\n\n")
             f.write("@mixin tablet {\n")
-            f.write("  @media (min-width: 769px) and (max-width: 1024px) { @content; }\n")
+            f.write(
+                "  @media (min-width: 769px) and (max-width: 1024px) { @content; }\n"
+            )
             f.write("}\n```\n\n")
 
             # Suggest selector optimization

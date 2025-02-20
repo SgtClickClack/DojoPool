@@ -1,17 +1,21 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Venue routes."""
 
 from datetime import datetime
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import Blueprint, jsonify, request
-
+from flask import Blueprint, Request, Response, current_app, g, jsonify, request
+from flask.typing import ResponseReturnValue
 from src.core.auth.utils import admin_required, token_required
 from src.core.models import Venue, db
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-bp = Blueprint("venues", __name__, url_prefix="/venues")
+bp: Blueprint = Blueprint("venues", __name__, url_prefix="/venues")
 
 
 @bp.route("/", methods=["GET"])
-def list_venues():
+def list_venues() -> ResponseReturnValue:
     """List all active venues."""
     # Get pagination parameters
     page = request.args.get("page", 1, type=int)
@@ -19,8 +23,8 @@ def list_venues():
     offset = request.args.get("offset", 0, type=int)
 
     # Get filter parameters
-    name = request.args.get("name")
-    active_param = request.args.get("active")
+    name = request.args.get("name", type=str)
+    active_param = request.args.get("active", type=str)
     active = True if active_param is None else active_param.lower() == "true"
 
     # Build query
@@ -57,10 +61,10 @@ def list_venues():
 
 
 @bp.route("/<int:venue_id>", methods=["GET"])
-def get_venue(venue_id):
+def get_venue(venue_id: int) -> ResponseReturnValue:
     """Get venue details."""
     try:
-        venue = Venue.query.get_or_404(venue_id)
+        venue: Venue = Venue.query.get_or_404(venue_id)
         return jsonify({"status": "success", "data": {"venue": venue.to_dict()}})
     except Exception:
         db.session.rollback()
@@ -112,13 +116,18 @@ def create_venue(admin_user):
 
 @bp.route("/<int:venue_id>", methods=["PUT"])
 @token_required
-def update_venue(current_user, venue_id):
+def update_venue(current_user, venue_id: int) -> ResponseReturnValue:
     """Update venue details."""
-    venue = Venue.query.get_or_404(venue_id)
+    venue: Venue = Venue.query.get_or_404(venue_id)
 
     # Only owner or admin can update
     if venue.owner_id != current_user.id and not current_user.is_admin:
-        return jsonify({"status": "error", "message": "Not authorized to update this venue"}), 403
+        return (
+            jsonify(
+                {"status": "error", "message": "Not authorized to update this venue"}
+            ),
+            403,
+        )
 
     data = request.get_json()
 
@@ -152,9 +161,9 @@ def update_venue(current_user, venue_id):
 
 @bp.route("/<int:venue_id>", methods=["DELETE"])
 @token_required
-def delete_venue(current_user, venue_id):
+def delete_venue(current_user, venue_id: int) -> ResponseReturnValue:
     """Soft delete a venue."""
-    venue = Venue.query.get_or_404(venue_id)
+    venue: Venue = Venue.query.get_or_404(venue_id)
 
     # Only admin can delete
     if not current_user.is_admin:
@@ -170,21 +179,28 @@ def delete_venue(current_user, venue_id):
 
 
 @bp.route("/<int:venue_id>/games", methods=["GET"])
-def get_venue_games(venue_id):
+def get_venue_games(venue_id: int) -> ResponseReturnValue:
     """Get all games at a venue."""
-    venue = Venue.query.get_or_404(venue_id)
+    venue: Venue = Venue.query.get_or_404(venue_id)
     return jsonify(
-        {"status": "success", "data": {"games": [game.to_dict() for game in venue.games]}}
+        {
+            "status": "success",
+            "data": {"games": [game.to_dict() for game in venue.games]},
+        }
     )
 
 
 @bp.route("/<int:venue_id>/tournaments", methods=["GET"])
-def get_venue_tournaments(venue_id):
+def get_venue_tournaments(venue_id: int) -> ResponseReturnValue:
     """Get all tournaments at a venue."""
-    venue = Venue.query.get_or_404(venue_id)
+    venue: Venue = Venue.query.get_or_404(venue_id)
     return jsonify(
         {
             "status": "success",
-            "data": {"tournaments": [tournament.to_dict() for tournament in venue.tournaments]},
+            "data": {
+                "tournaments": [
+                    tournament.to_dict() for tournament in venue.tournaments
+                ]
+            },
         }
     )

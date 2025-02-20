@@ -42,7 +42,11 @@ def sample_security_event():
         event_type=SecurityEventType.SUSPICIOUS_REQUEST,
         severity=SecuritySeverity.MEDIUM,
         source_ip="192.168.1.100",
-        details={"path": "/api/users", "method": "POST", "payload": {"username": "test"}},
+        details={
+            "path": "/api/users",
+            "method": "POST",
+            "payload": {"username": "test"},
+        },
     )
 
 
@@ -60,7 +64,9 @@ def test_feature_extraction(threat_detector, sample_security_event):
     assert features.shape == (1, 8)  # Expected feature count
 
 
-def test_threat_detection_normal_behavior(threat_detector, sample_security_event, redis_mock):
+def test_threat_detection_normal_behavior(
+    threat_detector, sample_security_event, redis_mock
+):
     """Test threat detection with normal behavior."""
     # Mock normal behavior scores
     threat_detector.model.score_samples.return_value = np.array([0.9])
@@ -72,7 +78,9 @@ def test_threat_detection_normal_behavior(threat_detector, sample_security_event
     assert threat is None
 
 
-def test_threat_detection_anomalous_behavior(threat_detector, sample_security_event, redis_mock):
+def test_threat_detection_anomalous_behavior(
+    threat_detector, sample_security_event, redis_mock
+):
     """Test threat detection with anomalous behavior."""
     # Mock anomalous behavior scores
     threat_detector.model.score_samples.return_value = np.array([-0.9])
@@ -197,7 +205,9 @@ def test_error_handling(threat_detector, sample_security_event, redis_mock):
 
 def test_threat_notification(threat_detector):
     """Test threat notification functionality."""
-    with patch("dojopool.core.security.threat_detection.send_notification") as mock_notify:
+    with patch(
+        "dojopool.core.security.threat_detection.send_notification"
+    ) as mock_notify:
         threat = ThreatEvent(
             timestamp=datetime.now(),
             threat_type="SQL_INJECTION",

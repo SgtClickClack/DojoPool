@@ -120,9 +120,9 @@ class ScoringSystem:
         # Update shot timing
         if self.last_shot_time:
             shot_time = (current_time - self.last_shot_time).total_seconds()
-            stats.avg_shot_time = (stats.avg_shot_time * stats.total_shots + shot_time) / (
-                stats.total_shots + 1
-            )
+            stats.avg_shot_time = (
+                stats.avg_shot_time * stats.total_shots + shot_time
+            ) / (stats.total_shots + 1)
 
         self.last_shot_time = current_time
 
@@ -248,7 +248,7 @@ class ScoringSystem:
         """
         return self.player_stats.get(player_id)
 
-    def get_frame_stats(self, frame_number: Optional[int] = None) -> Optional[FrameStats]:
+    def get_frame_stats(self, frame_number: Optional[int] = None):
         """Get statistics for a frame.
 
         Args:
@@ -265,7 +265,7 @@ class ScoringSystem:
         except StopIteration:
             return None
 
-    def check_winner(self) -> Optional[str]:
+    def check_winner(self):
         """Check if there's a winner based on scoring system.
 
         Returns:
@@ -308,7 +308,9 @@ class ScoringSystem:
                     "total_points": stats.total_points,
                     "frames_won": stats.frames_won,
                     "success_rate": (
-                        stats.successful_shots / stats.total_shots if stats.total_shots > 0 else 0
+                        stats.successful_shots / stats.total_shots
+                        if stats.total_shots > 0
+                        else 0
                     ),
                     "avg_shot_time": stats.avg_shot_time,
                     "longest_run": stats.longest_run,

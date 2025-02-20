@@ -40,7 +40,7 @@ class CodebaseAnalyzer:
         """Check if a path should be ignored."""
         return any(ignored in path.parts for ignored in self.ignored_dirs)
 
-    def analyze_imports(self, content: str, file_ext: str) -> List[str]:
+    def analyze_imports(self, content: str, file_ext: str) :
         """Extract imports from file content based on file type."""
         imports = []
         if file_ext in {".ts", ".tsx", ".js", ".jsx"}:
@@ -58,7 +58,7 @@ class CodebaseAnalyzer:
                 imports.extend(re.findall(pattern, content))
         return imports
 
-    def analyze_exports(self, content: str, file_ext: str) -> List[str]:
+    def analyze_exports(self, content: str, file_ext: str) :
         """Extract exports from file content based on file type."""
         exports = []
         if file_ext in {".ts", ".tsx", ".js", ".jsx"}:
@@ -85,7 +85,9 @@ class CodebaseAnalyzer:
                 path=str(file_path.relative_to(self.root_dir)),
                 size=file_path.stat().st_size,
                 extension=file_path.suffix,
-                last_modified=datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(),
+                last_modified=datetime.fromtimestamp(
+                    file_path.stat().st_mtime
+                ).isoformat(),
                 imports=[],
                 exports=[],
                 dependencies=[],
@@ -173,7 +175,8 @@ class CodebaseAnalyzer:
         stats = {
             "total_size": sum(info.size for info in self.file_inventory.values()),
             "avg_file_size": (
-                sum(info.size for info in self.file_inventory.values()) / len(self.file_inventory)
+                sum(info.size for info in self.file_inventory.values())
+                / len(self.file_inventory)
                 if self.file_inventory
                 else 0
             ),
@@ -212,7 +215,9 @@ class CodebaseAnalyzer:
 
             f.write("## Overview\n")
             f.write(f"- Total Files: {report['total_files']}\n")
-            f.write(f"- Total Size: {report['statistics']['total_size'] / 1024:.2f} KB\n")
+            f.write(
+                f"- Total Size: {report['statistics']['total_size'] / 1024:.2f} KB\n"
+            )
             f.write(
                 f"- Average File Size: {report['statistics']['avg_file_size'] / 1024:.2f} KB\n\n"
             )

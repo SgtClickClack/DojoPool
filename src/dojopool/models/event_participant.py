@@ -57,7 +57,9 @@ class EventParticipant(db.Model):
             "user_id": self.user_id,
             "registered_at": self.registered_at.isoformat(),
             "checked_in": self.checked_in,
-            "checked_in_at": self.checked_in_at.isoformat() if self.checked_in_at else None,
+            "checked_in_at": (
+                self.checked_in_at.isoformat() if self.checked_in_at else None
+            ),
             "placement": self.placement,
             "prize_amount": self.prize_amount,
             "status": self.status,
@@ -65,6 +67,6 @@ class EventParticipant(db.Model):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """String representation of event participant object"""
         return f"<EventParticipant {self.user_id} - Event {self.event_id}>"

@@ -13,7 +13,14 @@ class StyleOptimizer:
         self.styles_dir = self.root_dir / "frontend" / "styles"
         self.scss_dir = self.root_dir / "static" / "scss"
         self.backup_dir = self.root_dir / "backups" / "styles"
-        self.ignored_dirs = {".git", "__pycache__", "node_modules", "venv", "build", "dist"}
+        self.ignored_dirs = {
+            ".git",
+            "__pycache__",
+            "node_modules",
+            "venv",
+            "build",
+            "dist",
+        }
 
     def create_backup(self) -> None:
         """Create backup of current styles."""
@@ -28,7 +35,7 @@ class StyleOptimizer:
         if self.scss_dir.exists():
             shutil.copytree(self.scss_dir, backup_path / "static" / "scss")
 
-    def create_variables_file(self) -> None:
+    def create_variables_file(self) :
         """Create variables.scss file with common values."""
         variables_file = self.scss_dir / "abstracts" / "_variables.scss"
         variables_file.parent.mkdir(parents=True, exist_ok=True)

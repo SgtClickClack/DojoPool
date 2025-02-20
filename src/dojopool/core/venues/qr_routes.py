@@ -1,16 +1,19 @@
 import logging
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, Request, Response, current_app, g, jsonify, request
+from flask.typing import ResponseReturnValue
 from flask_login import current_user, login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .qr import QRCodeManager
 
-logger = logging.getLogger(__name__)
-qr_bp = Blueprint("qr", __name__)
-qr_manager = None
+logger: logging.Logger = logging.getLogger(__name__)
+qr_bp: Blueprint = Blueprint("qr", __name__)
+qr_manager: Optional[QRCodeManager] = None
 
 
-def init_qr_manager(app):
+def init_qr_manager(app) -> bool:
     """Initialize the QR code manager."""
     global qr_manager
     try:
@@ -27,7 +30,7 @@ def init_qr_manager(app):
 
 @qr_bp.route("/venues/<int:venue_id>/tables/<int:table_id>/qr", methods=["GET"])
 @login_required
-def generate_table_qr(venue_id: int, table_id: int):
+def generate_table_qr(venue_id: int, table_id: int) -> ResponseReturnValue:
     """Generate QR code for a specific table."""
     try:
         if not qr_manager:
@@ -35,7 +38,12 @@ def generate_table_qr(venue_id: int, table_id: int):
 
         qr_code = qr_manager.generate_table_qr(table_id, venue_id)
         if qr_code:
-            return jsonify({"qr_code": qr_code, "table_id": table_id, "venue_id": venue_id}), 200
+            return (
+                jsonify(
+                    {"qr_code": qr_code, "table_id": table_id, "venue_id": venue_id}
+                ),
+                200,
+            )
         return jsonify({"error": "Failed to generate QR code"}), 400
 
     except Exception as e:
@@ -45,7 +53,7 @@ def generate_table_qr(venue_id: int, table_id: int):
 
 @qr_bp.route("/venues/<int:venue_id>/qr/batch", methods=["GET"])
 @login_required
-def generate_venue_qr_codes(venue_id: int):
+def generate_venue_qr_codes(venue_id: int) -> ResponseReturnValue:
     """Generate QR codes for all tables in a venue."""
     try:
         if not qr_manager:
@@ -102,7 +110,9 @@ def table_qr_action():
         if action not in ["check_in", "check_out", "report_maintenance"]:
             return jsonify({"error": "Invalid action"}), 400
 
-        result = qr_manager.update_table_status_from_qr(qr_data, current_user.id, action)
+        result = qr_manager.update_table_status_from_qr(
+            qr_data, current_user.id, action
+        )
 
         if result:
             return jsonify(result), 200

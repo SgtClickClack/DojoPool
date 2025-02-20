@@ -8,6 +8,7 @@ import logging
 from typing import Any, Dict, Optional
 
 from prometheus_client import Counter
+
 from ...utils.monitoring import REGISTRY
 
 # Notification metrics
@@ -43,7 +44,12 @@ def send_notification(
         logging.info(
             "Notification sent: %s",
             json.dumps(
-                {"message": message, "channel": channel, "priority": priority, "metadata": metadata}
+                {
+                    "message": message,
+                    "channel": channel,
+                    "priority": priority,
+                    "metadata": metadata,
+                }
             ),
         )
 

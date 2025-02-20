@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Friendship model for user relationships."""
 
 from ..core.database import db
@@ -19,14 +21,20 @@ class Friendship(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user1_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user2_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    status = db.Column(db.String(20), default="pending")  # pending, accepted, declined, blocked
+    status = db.Column(
+        db.String(20), default="pending"
+    )  # pending, accepted, declined, blocked
     action_user_id = db.Column(
         db.Integer, db.ForeignKey("users.id")
     )  # User who took the last action
 
     # Relationships
-    user1 = db.relationship("User", foreign_keys=[user1_id], back_populates="friendships_as_user1")
-    user2 = db.relationship("User", foreign_keys=[user2_id], back_populates="friendships_as_user2")
+    user1 = db.relationship(
+        "User", foreign_keys=[user1_id], back_populates="friendships_as_user1"
+    )
+    user2 = db.relationship(
+        "User", foreign_keys=[user2_id], back_populates="friendships_as_user2"
+    )
     action_user = db.relationship(
         "User", foreign_keys=[action_user_id], back_populates="friendship_actions"
     )
@@ -52,8 +60,10 @@ class Friendship(TimestampMixin, db.Model):
         return (
             Friendship.query.filter(
                 (
-                    (Friendship.user1_id == user_id) & (Friendship.user2_id == friend_id)
-                    | (Friendship.user1_id == friend_id) & (Friendship.user2_id == user_id)
+                    (Friendship.user1_id == user_id)
+                    & (Friendship.user2_id == friend_id)
+                    | (Friendship.user1_id == friend_id)
+                    & (Friendship.user2_id == user_id)
                 )
                 & (Friendship.status == "accepted")
             ).first()

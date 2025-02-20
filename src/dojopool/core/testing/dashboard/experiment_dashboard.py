@@ -75,7 +75,7 @@ class ExperimentDashboard:
 
         return summary
 
-    def plot_metric_comparison(self, experiment_id: str, metric_name: str) -> Optional[go.Figure]:
+    def plot_metric_comparison(self, experiment_id: str, metric_name: str):
         """
         Create a visualization comparing metric values between variants.
 

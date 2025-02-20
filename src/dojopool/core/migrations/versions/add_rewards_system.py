@@ -6,17 +6,24 @@ Create Date: 2024-01-20 12:00:00.000000
 
 """
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # revision identifiers, used by Alembic
-revision = "add_rewards_system"
-down_revision = "add_sponsorship_system"
-branch_labels = None
-depends_on = None
+revision: str = "add_rewards_system"
+down_revision: str = "add_sponsorship_system"
+branch_labels: NoneType = None
+depends_on: NoneType = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create reward_tiers table
     op.create_table(
         "reward_tiers",

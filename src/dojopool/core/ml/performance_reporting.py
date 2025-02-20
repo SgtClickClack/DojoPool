@@ -136,7 +136,10 @@ class PerformanceReporting:
         # Compile report
         report = {
             "timestamp": datetime.utcnow().isoformat(),
-            "period": {"start": start_time.isoformat(), "end": datetime.utcnow().isoformat()},
+            "period": {
+                "start": start_time.isoformat(),
+                "end": datetime.utcnow().isoformat(),
+            },
             "performance_summary": performance_summary,
             "recommendations": recommendations,
             "plots": plots,
@@ -188,7 +191,9 @@ class PerformanceReporting:
             # Send email
             with smtplib.SMTP(self.config["email"]["smtp_server"]) as server:
                 server.starttls()
-                server.login(self.config["email"]["username"], self.config["email"]["password"])
+                server.login(
+                    self.config["email"]["username"], self.config["email"]["password"]
+                )
                 server.send_message(msg)
 
             self.logger.info(f"Sent performance report to {len(recipients)} recipients")
@@ -252,7 +257,10 @@ class PerformanceReporting:
             trends = self.monitor._get_latency_trends()[model_type]
             plt.plot(trends["trend"], label="Latency")
             plt.axhline(
-                y=self.dashboard.thresholds["latency"], color="r", linestyle="--", label="Threshold"
+                y=self.dashboard.thresholds["latency"],
+                color="r",
+                linestyle="--",
+                label="Threshold",
             )
             plt.title(f"{model_type.capitalize()} Model - Latency Trend")
             plt.xlabel("Prediction")
@@ -280,7 +288,9 @@ class PerformanceReporting:
                 plt.xlabel("Training Iteration")
                 plt.ylabel("Metric Value")
                 plt.legend()
-                plot_path = self.plots_dir / f"training_history_{model_type}_{timestamp}.png"
+                plot_path = (
+                    self.plots_dir / f"training_history_{model_type}_{timestamp}.png"
+                )
                 plt.savefig(plot_path)
                 plt.close()
                 plots[f"training_history_{model_type}"] = str(plot_path)

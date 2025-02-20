@@ -1,23 +1,22 @@
-"""
-Cache management system for optimizing image delivery and enabling offline support.
-Implements browser caching strategies and service worker integration.
-"""
+import gc
+import gc
+"""Cache management module."""
 
-from typing import Optional, Dict, Any, List, Set
-from dataclasses import dataclass
-from datetime import datetime, timedelta
 import logging
-import json
 import os
-import hashlib
+import pickle
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
-import weakref
+from typing import Dict, Optional, Set
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class CacheEntry:
     """Represents a cached item with metadata."""
+
     key: str
     data: bytes
     mime_type: str
@@ -27,305 +26,316 @@ class CacheEntry:
     access_count: int
     tags: Set[str]
 
+
 class CacheConfig:
     """Configuration for cache behavior."""
+
     def __init__(
         self,
         max_size_mb: int = 500,
         max_items: int = 10000,
         ttl_seconds: int = 86400,  # 24 hours
         cleanup_interval: int = 3600,  # 1 hour
-        eviction_policy: str = 'lru'  # 'lru', 'lfu', or 'fifo'
+        eviction_policy: str = "lru",  # 'lru', 'lfu', or 'fifo'
     ):
-        self.max_size_bytes = max_size_mb * 1024 * 1024
+        """Initialize cache configuration.
+
+        Args:
+            max_size_mb: Maximum cache size in MB
+            max_items: Maximum number of items
+            ttl_seconds: Time to live in seconds
+            cleanup_interval: Cleanup interval in seconds
+            eviction_policy: Cache eviction policy
+        """
+        self.max_size = max_size_mb * 1024 * 1024  # Convert to bytes
         self.max_items = max_items
-        self.ttl = timedelta(seconds=ttl_seconds)
-        self.cleanup_interval = timedelta(seconds=cleanup_interval)
+        self.ttl = ttl_seconds
+        self.cleanup_interval = cleanup_interval
         self.eviction_policy = eviction_policy
 
+
 class CacheManager:
-    """Manages caching of processed images with various eviction policies."""
-    
+    """Manages caching of data with metadata."""
+
     def __init__(self, config: Optional[CacheConfig] = None):
-        """Initialize cache manager with configuration."""
+        """Initialize cache manager.
+
+        Args:
+            config: Optional cache configuration
+        """
         self.config = config or CacheConfig()
-        self._cache: Dict[str, CacheEntry] = {}
-        self._size_bytes = 0
-        self._last_cleanup = datetime.now()
-        
-        # Use weak references for values to allow garbage collection
-        self._weak_cache = weakref.WeakValueDictionary()
-        
-        # Create cache directory if it doesn't exist
-        self._cache_dir = Path('cache')
-        self._cache_dir.mkdir(exist_ok=True)
-        
-        # Load existing cache entries
+        self.cache: Dict[str, CacheEntry] = {}
+        self.last_cleanup = datetime.utcnow()
+        self.cache_dir = Path("data/cache")
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._load_cache()
-    
+
     def get(self, key: str) -> Optional[CacheEntry]:
-        """Retrieve an item from cache."""
+        """Get cached entry.
+
+        Args:
+            key: Cache key
+
+        Returns:
+            Optional[CacheEntry]: Cached entry if found
+        """
         try:
-            # Check memory cache first
-            entry = self._cache.get(key)
-            if entry:
-                # Update access metadata
-                entry.last_accessed = datetime.now()
-                entry.access_count += 1
-                return entry
-            
-            # Check disk cache
-            cache_path = self._get_cache_path(key)
-            if cache_path.exists():
-                with open(cache_path, 'rb') as f:
-                    data = f.read()
-                with open(f"{cache_path}.meta", 'r') as f:
-                    meta = json.load(f)
-                
-                # Create new cache entry
-                entry = CacheEntry(
-                    key=key,
-                    data=data,
-                    mime_type=meta['mime_type'],
-                    size=len(data),
-                    created_at=datetime.fromisoformat(meta['created_at']),
-                    last_accessed=datetime.now(),
-                    access_count=meta['access_count'] + 1,
-                    tags=set(meta['tags'])
-                )
-                
-                # Add to memory cache if within limits
-                if self._can_add_to_memory(len(data)):
-                    self._cache[key] = entry
-                    self._size_bytes += len(data)
-                
-                return entry
-            
-            return None
-            
+            entry = self.cache.get(key)
+            if not entry:
+                return None
+
+            # Check if expired
+            now = datetime.utcnow()
+            if (now - entry.created_at).total_seconds() > self.config.ttl:
+                self.invalidate(key)
+                return None
+
+            # Update access time and count
+            entry.last_accessed = now
+            entry.access_count += 1
+
+            # Maybe cleanup
+            self._maybe_cleanup()
+
+            return entry
+
         except Exception as e:
             logger.error(f"Error retrieving from cache: {str(e)}")
             return None
-    
+
     def put(
-        self,
-        key: str,
-        data: bytes,
-        mime_type: str,
-        tags: Optional[Set[str]] = None
+        self, key: str, data: bytes, mime_type: str, tags: Optional[Set[str]] = None
     ) -> bool:
-        """Add an item to cache."""
+        """Put data in cache.
+
+        Args:
+            key: Cache key
+            data: Data to cache
+            mime_type: MIME type of data
+            tags: Optional tags
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            # Check if cleanup is needed
-            self._maybe_cleanup()
-            
-            # Create cache entry
+            size = len(data)
+            if not self._can_add_to_memory(size):
+                # Try to free up space
+                while (
+                    len(self.cache) > 0
+                    and not self._can_add_to_memory(size)
+                    and self._evict_one()
+                ):
+                    pass
+
+                if not self._can_add_to_memory(size):
+                    logger.error("Cannot add to cache: insufficient space")
+                    return False
+
+            # Create entry
             entry = CacheEntry(
                 key=key,
                 data=data,
                 mime_type=mime_type,
-                size=len(data),
-                created_at=datetime.now(),
-                last_accessed=datetime.now(),
-                access_count=1,
-                tags=tags or set()
+                size=size,
+                created_at=datetime.utcnow(),
+                last_accessed=datetime.utcnow(),
+                access_count=0,
+                tags=tags or set(),
             )
-            
-            # Save to disk cache
+
+            # Save to cache
+            self.cache[key] = entry
+
+            # Save to disk
             cache_path = self._get_cache_path(key)
-            with open(cache_path, 'wb') as f:
-                f.write(data)
-            
-            # Save metadata
-            meta = {
-                'mime_type': mime_type,
-                'created_at': entry.created_at.isoformat(),
-                'access_count': entry.access_count,
-                'tags': list(entry.tags)
-            }
-            with open(f"{cache_path}.meta", 'w') as f:
-                json.dump(meta, f)
-            
-            # Add to memory cache if within limits
-            if self._can_add_to_memory(len(data)):
-                if key in self._cache:
-                    self._size_bytes -= self._cache[key].size
-                self._cache[key] = entry
-                self._size_bytes += len(data)
-            
+            with open(cache_path, "wb") as f:
+                pickle.dump(entry, f)
+
+            # Maybe cleanup
+            self._maybe_cleanup()
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error adding to cache: {str(e)}")
             return False
-    
+
     def invalidate(self, key: str) -> bool:
-        """Remove an item from cache."""
+        """Invalidate cached entry.
+
+        Args:
+            key: Cache key
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            # Remove from memory cache
-            if key in self._cache:
-                self._size_bytes -= self._cache[key].size
-                del self._cache[key]
-            
-            # Remove from disk cache
+            if key in self.cache:
+                del self.cache[key]
+
+            # Remove from disk
             cache_path = self._get_cache_path(key)
             if cache_path.exists():
-                os.remove(cache_path)
-            meta_path = Path(f"{cache_path}.meta")
-            if meta_path.exists():
-                os.remove(meta_path)
-            
+                cache_path.unlink()
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error invalidating cache entry: {str(e)}")
             return False
-    
-    def invalidate_by_tag(self, tag: str) -> int:
-        """Remove all items with the specified tag."""
+
+    def invalidate_by_tag(self, tag: str):
+        """Invalidate entries by tag.
+
+        Args:
+            tag: Tag to match
+
+        Returns:
+            int: Number of entries invalidated
+        """
         try:
-            invalidated = 0
+            count = 0
             keys_to_remove = [
-                key for key, entry in self._cache.items()
-                if tag in entry.tags
+                key for key, entry in self.cache.items() if tag in entry.tags
             ]
-            
+
             for key in keys_to_remove:
                 if self.invalidate(key):
-                    invalidated += 1
-            
-            return invalidated
-            
+                    count += 1
+
+            return count
+
         except Exception as e:
             logger.error(f"Error invalidating by tag: {str(e)}")
             return 0
-    
-    def clear(self) -> bool:
-        """Clear all cache entries."""
+
+    def clear(self):
+        """Clear all cached entries.
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            # Clear memory cache
-            self._cache.clear()
-            self._size_bytes = 0
-            
+            self.cache.clear()
+
             # Clear disk cache
-            for path in self._cache_dir.glob('*'):
-                os.remove(path)
-            
+            for cache_file in self.cache_dir.glob("*.cache"):
+                cache_file.unlink()
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error clearing cache: {str(e)}")
             return False
-    
-    def _get_cache_path(self, key: str) -> Path:
-        """Get the file path for a cache key."""
-        # Use hash of key as filename to avoid filesystem issues
-        filename = hashlib.sha256(key.encode()).hexdigest()
-        return self._cache_dir / filename
-    
+
+    def _get_cache_path(self, key: str):
+        """Get path for cache file.
+
+        Args:
+            key: Cache key
+
+        Returns:
+            Path: Cache file path
+        """
+        return self.cache_dir / f"{key}.cache"
+
     def _can_add_to_memory(self, size: int) -> bool:
-        """Check if an item can be added to memory cache."""
+        """Check if item can be added to cache.
+
+        Args:
+            size: Size in bytes
+
+        Returns:
+            bool: True if item can be added
+        """
+        current_size = sum(entry.size for entry in self.cache.values())
         return (
-            len(self._cache) < self.config.max_items and
-            (self._size_bytes + size) <= self.config.max_size_bytes
+            current_size + size <= self.config.max_size
+            and len(self.cache) < self.config.max_items
         )
-    
-    def _maybe_cleanup(self) -> None:
-        """Perform cleanup if needed."""
-        now = datetime.now()
-        if (now - self._last_cleanup) >= self.config.cleanup_interval:
+
+    def _maybe_cleanup(self):
+        """Maybe run cache cleanup."""
+        now = datetime.utcnow()
+        if (now - self.last_cleanup).total_seconds() >= self.config.cleanup_interval:
             self._cleanup()
-            self._last_cleanup = now
-    
+            self.last_cleanup = now
+
     def _cleanup(self) -> None:
-        """Clean up expired and excess entries."""
+        """Clean up expired entries."""
         try:
-            now = datetime.now()
-            
+            now = datetime.utcnow()
+            keys_to_remove = []
+
+            # Find expired entries
+            for key, entry in self.cache.items():
+                if (now - entry.created_at).total_seconds() > self.config.ttl:
+                    keys_to_remove.append(key)
+
             # Remove expired entries
-            expired_keys = [
-                key for key, entry in self._cache.items()
-                if (now - entry.created_at) > self.config.ttl
-            ]
-            
-            for key in expired_keys:
+            for key in keys_to_remove:
                 self.invalidate(key)
-            
-            # If still over limits, apply eviction policy
-            while (
-                len(self._cache) > self.config.max_items or
-                self._size_bytes > self.config.max_size_bytes
+
+            # Check size limits
+            while len(self.cache) > 0 and (
+                sum(e.size for e in self.cache.values()) > self.config.max_size
+                or len(self.cache) > self.config.max_items
             ):
                 if not self._evict_one():
                     break
-                
+
         except Exception as e:
             logger.error(f"Error during cleanup: {str(e)}")
-    
+
     def _evict_one(self) -> bool:
-        """Evict one item based on the configured policy."""
-        if not self._cache:
-            return False
-        
+        """Evict one entry based on policy.
+
+        Returns:
+            bool: True if successful
+        """
         try:
-            if self.config.eviction_policy == 'lru':
-                # Least Recently Used
+            if not self.cache:
+                return False
+
+            key_to_evict = None
+
+            if self.config.eviction_policy == "lru":
+                # Least recently used
                 key_to_evict = min(
-                    self._cache.keys(),
-                    key=lambda k: self._cache[k].last_accessed
+                    self.cache.keys(), key=lambda k: self.cache[k].last_accessed
                 )
-            elif self.config.eviction_policy == 'lfu':
-                # Least Frequently Used
+            elif self.config.eviction_policy == "lfu":
+                # Least frequently used
                 key_to_evict = min(
-                    self._cache.keys(),
-                    key=lambda k: self._cache[k].access_count
+                    self.cache.keys(), key=lambda k: self.cache[k].access_count
                 )
-            else:
-                # FIFO (First In First Out)
+            else:  # fifo
+                # First in first out
                 key_to_evict = min(
-                    self._cache.keys(),
-                    key=lambda k: self._cache[k].created_at
+                    self.cache.keys(), key=lambda k: self.cache[k].created_at
                 )
-            
-            return self.invalidate(key_to_evict)
-            
+
+            if key_to_evict:
+                return self.invalidate(key_to_evict)
+
+            return False
+
         except Exception as e:
-            logger.error(f"Error during eviction: {str(e)}")
+            logger.error(f"Error evicting cache entry: {str(e)}")
             return False
-    
-    def _load_cache(self) -> None:
-        """Load existing cache entries from disk."""
+
+    def _load_cache(self):
+        """Load cache from disk."""
         try:
-            for meta_path in self._cache_dir.glob('*.meta'):
+            for cache_file in self.cache_dir.glob("*.cache"):
                 try:
-                    # Load metadata
-                    with open(meta_path, 'r') as f:
-                        meta = json.load(f)
-                    
-                    # Load data if within memory limits
-                    data_path = meta_path.with_suffix('')
-                    if data_path.exists():
-                        with open(data_path, 'rb') as f:
-                            data = f.read()
-                        
-                        if self._can_add_to_memory(len(data)):
-                            entry = CacheEntry(
-                                key=meta_path.stem,
-                                data=data,
-                                mime_type=meta['mime_type'],
-                                size=len(data),
-                                created_at=datetime.fromisoformat(meta['created_at']),
-                                last_accessed=datetime.fromisoformat(meta['created_at']),
-                                access_count=meta['access_count'],
-                                tags=set(meta['tags'])
-                            )
-                            self._cache[meta_path.stem] = entry
-                            self._size_bytes += len(data)
-                
+                    with open(cache_file, "rb") as f:
+                        entry = pickle.load(f)
+                        self.cache[entry.key] = entry
                 except Exception as e:
                     logger.error(f"Error loading cache entry: {str(e)}")
                     continue
-                    
+
         except Exception as e:
             logger.error(f"Error loading cache: {str(e)}")
-``` 

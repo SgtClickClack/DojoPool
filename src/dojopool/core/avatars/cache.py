@@ -1,194 +1,245 @@
-import redis
+"""Avatar caching module."""
+
+import hashlib
 import json
 import logging
-from typing import Optional, Dict, Any
-from datetime import timedelta
-import hashlib
+from datetime import datetime, timedelta
+from typing import Any, Dict, Optional, Union, cast
+
+import redis
 
 logger = logging.getLogger(__name__)
 
+
 class AvatarCache:
-    """Redis-based caching service for avatars."""
+    """Cache for user avatars."""
+
     def __init__(
         self,
-        host: str = 'localhost',
+        host: str = "localhost",
         port: int = 6379,
         db: int = 0,
         password: Optional[str] = None,
-        ssl: bool = False
-    ):
+        ssl: bool = False,
+    ) -> None:
+        """Initialize avatar cache.
+
+        Args:
+            host: Redis host
+            port: Redis port
+            db: Redis database number
+            password: Redis password
+            ssl: Use SSL connection
+        """
         self.redis = redis.Redis(
             host=host,
             port=port,
             db=db,
             password=password,
             ssl=ssl,
-            decode_responses=True  # For metadata
+            decode_responses=True,
         )
-        self.binary_redis = redis.Redis(
-            host=host,
-            port=port,
-            db=db,
-            password=password,
-            ssl=ssl,
-            decode_responses=False  # For binary data
-        )
-        
-        # Cache configuration
-        self.default_ttl = timedelta(days=7)  # Cache avatars for 7 days
-        self.metadata_prefix = 'avatar:meta:'
-        self.data_prefix = 'avatar:data:'
-    
-    def _get_metadata_key(self, user_id: int) -> str:
-        """Get Redis key for avatar metadata."""
-        return f"{self.metadata_prefix}{user_id}"
-    
-    def _get_data_key(self, user_id: int) -> str:
-        """Get Redis key for avatar binary data."""
-        return f"{self.data_prefix}{user_id}"
-    
-    def _compute_hash(self, data: bytes) -> str:
-        """Compute SHA-256 hash of avatar data."""
+
+        # Set default expiration time (7 days)
+        self.expiration = timedelta(days=7)
+
+    def _get_metadata_key(self, user_id: int):
+        """Get Redis key for avatar metadata.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Redis key
+        """
+        return f"avatar:metadata:{user_id}"
+
+    def _get_data_key(self, user_id: int):
+        """Get Redis key for avatar data.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Redis key
+        """
+        return f"avatar:data:{user_id}"
+
+    def _compute_hash(self, data: bytes):
+        """Compute hash of avatar data.
+
+        Args:
+            data: Avatar data
+
+        Returns:
+            Data hash
+        """
         return hashlib.sha256(data).hexdigest()
-    
+
     def get_avatar(self, user_id: int) -> Optional[bytes]:
-        """Get avatar from cache."""
+        """Get avatar data for user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Avatar data if found
+        """
         try:
-            # Get avatar binary data
-            avatar_data = self.binary_redis.get(self._get_data_key(user_id))
-            if not avatar_data:
+            # Get avatar data
+            data = self.redis.get(self._get_data_key(user_id))
+            if not data:
                 return None
-            
-            # Get and update metadata
-            metadata = self.get_metadata(user_id)
+
+            # Update last accessed time
+            metadata_key = self._get_metadata_key(user_id)
+            metadata = self.redis.hgetall(metadata_key)
             if metadata:
-                # Verify data integrity
-                if self._compute_hash(avatar_data) != metadata.get('hash'):
-                    logger.warning(f"Avatar data corruption detected for user {user_id}")
-                    self.delete_avatar(user_id)
-                    return None
-                
-                # Update access timestamp
-                metadata['last_accessed'] = datetime.utcnow().isoformat()
-                self.redis.set(
-                    self._get_metadata_key(user_id),
-                    json.dumps(metadata),
-                    ex=int(self.default_ttl.total_seconds())
-                )
-            
-            return avatar_data
-            
-        except Exception as e:
-            logger.error(f"Failed to get avatar from cache: {str(e)}")
+                metadata["last_accessed"] = datetime.utcnow().isoformat()
+                self.redis.hmset(metadata_key, metadata)
+
+            return cast(bytes, data)
+
+        except redis.RedisError:
             return None
-    
+
     def set_avatar(
         self,
         user_id: int,
         avatar_data: bytes,
         style_name: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
-        """Store avatar in cache."""
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """Set avatar data for user.
+
+        Args:
+            user_id: User ID
+            avatar_data: Avatar image data
+            style_name: Avatar style name
+            metadata: Additional metadata
+
+        Returns:
+            True if successful
+        """
         try:
-            # Compute data hash
-            data_hash = self._compute_hash(avatar_data)
-            
-            # Prepare metadata
-            meta = {
-                'user_id': user_id,
-                'style': style_name,
-                'hash': data_hash,
-                'size': len(avatar_data),
-                'created_at': datetime.utcnow().isoformat(),
-                'last_accessed': datetime.utcnow().isoformat(),
-                **metadata or {}
-            }
-            
-            # Store data and metadata
-            pipe = self.redis.pipeline()
-            
-            # Store binary data
-            self.binary_redis.set(
-                self._get_data_key(user_id),
-                avatar_data,
-                ex=int(self.default_ttl.total_seconds())
-            )
-            
+            # Store avatar data
+            data_key = self._get_data_key(user_id)
+            self.redis.set(data_key, avatar_data)
+
             # Store metadata
-            pipe.set(
-                self._get_metadata_key(user_id),
-                json.dumps(meta),
-                ex=int(self.default_ttl.total_seconds())
-            )
-            
-            pipe.execute()
-            return True
-            
-        except Exception as e:
-            logger.error(f"Failed to cache avatar: {str(e)}")
-            return False
-    
-    def get_metadata(self, user_id: int) -> Optional[Dict[str, Any]]:
-        """Get avatar metadata from cache."""
-        try:
-            data = self.redis.get(self._get_metadata_key(user_id))
-            return json.loads(data) if data else None
-        except Exception as e:
-            logger.error(f"Failed to get avatar metadata: {str(e)}")
-            return None
-    
-    def delete_avatar(self, user_id: int) -> bool:
-        """Delete avatar from cache."""
-        try:
-            pipe = self.redis.pipeline()
-            pipe.delete(self._get_metadata_key(user_id))
-            pipe.delete(self._get_data_key(user_id))
-            pipe.execute()
-            return True
-        except Exception as e:
-            logger.error(f"Failed to delete avatar: {str(e)}")
-            return False
-    
-    def clear_expired(self) -> int:
-        """Clear expired avatars from cache."""
-        try:
-            # Get all avatar keys
-            meta_keys = self.redis.keys(f"{self.metadata_prefix}*")
-            data_keys = self.redis.keys(f"{self.data_prefix}*")
-            
-            # Delete expired keys
-            deleted = 0
-            for key in meta_keys + data_keys:
-                if not self.redis.ttl(key):
-                    self.redis.delete(key)
-                    deleted += 1
-            
-            return deleted
-            
-        except Exception as e:
-            logger.error(f"Failed to clear expired avatars: {str(e)}")
-            return 0
-    
-    def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache statistics."""
-        try:
-            meta_keys = self.redis.keys(f"{self.metadata_prefix}*")
-            data_keys = self.redis.keys(f"{self.data_prefix}*")
-            
-            total_size = 0
-            for key in data_keys:
-                size = self.redis.memory_usage(key)
-                if size:
-                    total_size += size
-            
-            return {
-                'total_avatars': len(data_keys),
-                'total_size_bytes': total_size,
-                'metadata_count': len(meta_keys),
-                'data_count': len(data_keys)
+            base_metadata = {
+                "hash": self._compute_hash(avatar_data),
+                "style": style_name,
+                "size": len(avatar_data),
+                "created_at": datetime.utcnow().isoformat(),
+                "last_accessed": datetime.utcnow().isoformat(),
             }
-            
-        except Exception as e:
-            logger.error(f"Failed to get cache stats: {str(e)}")
-            return {} 
+
+            if metadata:
+                base_metadata.update(metadata)
+
+            metadata_key = self._get_metadata_key(user_id)
+            self.redis.hmset(metadata_key, base_metadata)
+
+            # Set expiration
+            self.redis.expire(data_key, int(self.expiration.total_seconds()))
+            self.redis.expire(metadata_key, int(self.expiration.total_seconds()))
+
+            return True
+
+        except redis.RedisError:
+            return False
+
+    def get_metadata(self, user_id: int):
+        """Get avatar metadata for user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Avatar metadata if found
+        """
+        try:
+            metadata = self.redis.hgetall(self._get_metadata_key(user_id))
+            return metadata if metadata else None
+        except redis.RedisError:
+            return None
+
+    def delete_avatar(self, user_id: int):
+        """Delete avatar for user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            True if successful
+        """
+        try:
+            self.redis.delete(self._get_data_key(user_id))
+            self.redis.delete(self._get_metadata_key(user_id))
+            return True
+        except redis.RedisError:
+            return False
+
+    def clear_expired(self) -> int:
+        """Clear expired avatars.
+
+        Returns:
+            Number of cleared avatars
+        """
+        try:
+            cleared = 0
+            pattern = "avatar:metadata:*"
+
+            for key in self.redis.scan_iter(match=pattern):
+                metadata = self.redis.hgetall(key)
+                if not metadata:
+                    continue
+
+                last_accessed = datetime.fromisoformat(metadata["last_accessed"])
+                if datetime.utcnow() - last_accessed > self.expiration:
+                    user_id = int(key.split(":")[-1])
+                    if self.delete_avatar(user_id):
+                        cleared += 1
+
+            return cleared
+
+        except redis.RedisError:
+            return 0
+
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get cache statistics.
+
+        Returns:
+            Cache statistics
+        """
+        try:
+            total_avatars = 0
+            total_size = 0
+            styles: Dict[str, int] = {}
+
+            pattern = "avatar:metadata:*"
+            for key in self.redis.scan_iter(match=pattern):
+                metadata = self.redis.hgetall(key)
+                if not metadata:
+                    continue
+
+                total_avatars += 1
+                total_size += int(metadata["size"])
+                style = metadata["style"]
+                styles[style] = styles.get(style, 0) + 1
+
+            return {
+                "total_avatars": total_avatars,
+                "total_size": total_size,
+                "styles": styles,
+            }
+
+        except redis.RedisError:
+            return {"total_avatars": 0, "total_size": 0, "styles": {}}
+
+
+def update_avatar_cache(key: str, data: Dict[str, Union[str, int, float]]):
+    # Ensure all values are converted to strings to satisfy hmset's expected type.
+    serialized_data: Dict[str, str] = {k: str(v) for k, v in data.items()}
+    redis_client.hmset(key, serialized_data)

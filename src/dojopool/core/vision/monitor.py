@@ -82,7 +82,7 @@ class GameMonitor:
 
             return True
 
-    def stop_game_tracking(self, game_id: int) -> bool:
+    def stop_game_tracking(self, game_id: int):
         """Stop tracking a game."""
         with self.lock:
             if game_id not in self.active_games:
@@ -99,7 +99,7 @@ class GameMonitor:
 
             return True
 
-    def process_frame(self, frame: Any) -> Dict:
+    def process_frame(self, frame: Any):
         """Process a single frame.
 
         Args:
@@ -190,19 +190,21 @@ class GameMonitor:
                 logger.error(f"Frame processing error: {str(e)}")
                 if self.on_tracking_error:
                     for game_id in self.active_games:
-                        self.on_tracking_error(game_id, {"message": str(e), "type": "frame_error"})
+                        self.on_tracking_error(
+                            game_id, {"message": str(e), "type": "frame_error"}
+                        )
 
     def add_event_handler(self, handler: Callable) -> None:
         """Add event handler callback."""
         if handler not in self.event_handlers:
             self.event_handlers.append(handler)
 
-    def remove_event_handler(self, handler: Callable) -> None:
+    def remove_event_handler(self, handler: Callable):
         """Remove event handler callback."""
         if handler in self.event_handlers:
             self.event_handlers.remove(handler)
 
-    def _notify_handlers(self, event_data: Dict) -> None:
+    def _notify_handlers(self, event_data: Dict):
         """Notify all event handlers."""
         for handler in self.event_handlers:
             try:
@@ -211,7 +213,7 @@ class GameMonitor:
                 logger.error(f"Error in event handler: {e}")
                 metrics.VISION_ERRORS.inc()
 
-    def calibrate_table(self, venue_id: int, corners: Dict[str, Any]) -> bool:
+    def calibrate_table(self, venue_id: int, corners: Dict[str, Any]):
         """Calibrate table detection for a venue."""
         try:
             if not self.camera or not self.ball_tracker:

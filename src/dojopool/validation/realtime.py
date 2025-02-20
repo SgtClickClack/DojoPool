@@ -1,11 +1,15 @@
+import gc
+import gc
 """Real-time validation service."""
 
-from typing import Dict, Any, Optional, List, Tuple
-from datetime import datetime, timedelta
-import threading
-from cachetools import TTLCache, LRUCache
-from dataclasses import dataclass
 import logging
+import threading
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
+from cachetools import LRUCache, TTLCache
+
 from .validators import VenueValidator
 
 logger = logging.getLogger(__name__)
@@ -26,7 +30,10 @@ class RateLimiter:
     """Rate limiter for validation requests."""
 
     def __init__(
-        self, max_requests: int = 100, time_window: int = 60, burst_limit: int = 10  # seconds
+        self,
+        max_requests: int = 100,
+        time_window: int = 60,
+        burst_limit: int = 10,  # seconds
     ):
         """Initialize rate limiter."""
         self._lock = threading.Lock()
@@ -83,7 +90,7 @@ class ValidationCache:
         with self._lock:
             return self._cache.get(key)
 
-    def set(self, key: str, result: ValidationResult) -> None:
+    def set(self, key: str, result: ValidationResult):
         """Cache validation result."""
         with self._lock:
             self._cache[key] = result
@@ -114,13 +121,21 @@ class RealtimeValidator:
         sorted_items = sorted((k, str(v)) for k, v in data.items() if v is not None)
         return ";".join(f"{k}={v}" for k, v in sorted_items)
 
-    def _collect_field_results(self, data: Dict[str, Any]) -> Tuple[Dict[str, bool], List[str]]:
+    def _collect_field_results(self, data: Dict[str, Any]):
         """Collect validation results for each field."""
         field_results = {}
         errors = []
 
         # Check required fields
-        required_fields = {"name", "address", "city", "state", "country", "postal_code", "tables"}
+        required_fields = {
+            "name",
+            "address",
+            "city",
+            "state",
+            "country",
+            "postal_code",
+            "tables",
+        }
         missing_fields = required_fields - set(data.keys())
         if missing_fields:
             errors.append(f"Missing required fields: {', '.join(missing_fields)}")

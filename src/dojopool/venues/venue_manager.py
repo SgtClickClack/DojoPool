@@ -1,10 +1,10 @@
 """Venue management system for DojoPool."""
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List, Optional, Set
-import uuid
 
 
 class TableStatus(Enum):
@@ -115,12 +115,9 @@ class VenueManager:
     def __init__(self) -> None:
         """Initialize the venue manager."""
         self._venues: Dict[str, Venue] = {}
-        self._player_venues: Dict[str, Set[str]] = {}  # player_id -> venue_ids
-        self._table_history: Dict[str, List[Dict]] = {}  # table_id -> match history
-
-    def register_venue(
-        self,
-        name: str,
+        self._player_venues: Dict[str, Set[str]] = (
+            {}
+        )  # player_id : Dict[str, List[Dict]] = {}  # table_id : str,
         address: str,
         owner_id: str,
         features: Set[VenueFeature],
@@ -150,7 +147,7 @@ class VenueManager:
         has_smart_tracking: bool,
         hourly_rate: float,
         features: Dict[str, bool],
-    ) -> Optional[PoolTable]:
+    ):
         """Add a new table to a venue."""
         venue = self._venues.get(venue_id)
         if not venue:
@@ -176,7 +173,7 @@ class VenueManager:
         """Get venue by ID."""
         return self._venues.get(venue_id)
 
-    def get_table(self, venue_id: str, table_id: str) -> Optional[PoolTable]:
+    def get_table(self, venue_id: str, table_id: str):
         """Get table from a venue."""
         venue = self._venues.get(venue_id)
         if not venue:
@@ -190,7 +187,7 @@ class VenueManager:
         status: TableStatus,
         match_id: Optional[str] = None,
         players: Optional[Set[str]] = None,
-    ) -> bool:
+    ) :
         """Update table status."""
         table = self.get_table(venue_id, table_id)
         if not table:
@@ -220,7 +217,7 @@ class VenueManager:
         end_time: datetime,
         additional_players: Optional[Set[str]] = None,
         tournament_id: Optional[str] = None,
-    ) -> Optional[TableReservation]:
+    ):
         """Create a table reservation."""
         venue = self._venues.get(venue_id)
         if not venue:
@@ -233,7 +230,10 @@ class VenueManager:
         # Check for conflicts
         for reservation in venue.reservations.values():
             if reservation.table_id == table_id:
-                if start_time < reservation.end_time and end_time > reservation.start_time:
+                if (
+                    start_time < reservation.end_time
+                    and end_time > reservation.start_time
+                ):
                     return None
 
         reservation_id = str(uuid.uuid4())
@@ -277,7 +277,7 @@ class VenueManager:
         players: Set[str],
         duration: timedelta,
         winner_id: Optional[str] = None,
-    ) -> bool:
+    ):
         """Record a completed match."""
         venue = self._venues.get(venue_id)
         if not venue or table_id not in venue.tables:
@@ -333,7 +333,10 @@ class VenueManager:
             # Check future reservations
             has_conflict = False
             for reservation in venue.reservations.values():
-                if reservation.table_id == table.table_id and start_time < reservation.end_time:
+                if (
+                    reservation.table_id == table.table_id
+                    and start_time < reservation.end_time
+                ):
                     has_conflict = True
                     break
 
@@ -342,7 +345,7 @@ class VenueManager:
 
         return available_tables
 
-    def get_venue_stats(self, venue_id: str, timeframe: str = "daily") -> Optional[VenueStats]:
+    def get_venue_stats(self, venue_id: str, timeframe: str = "daily"):
         """Get venue statistics."""
         venue = self._venues.get(venue_id)
         if not venue:
@@ -377,7 +380,7 @@ class VenueManager:
 
     def get_popular_venues(
         self, limit: int = 10, feature: Optional[VenueFeature] = None
-    ) -> List[Venue]:
+    ):
         """Get most popular venues."""
         venues = list(self._venues.values())
 
@@ -385,5 +388,7 @@ class VenueManager:
             venues = [v for v in venues if feature in v.features]
 
         return sorted(
-            venues, key=lambda v: (v.stats.total_matches, v.rating, len(v.tables)), reverse=True
+            venues,
+            key=lambda v: (v.stats.total_matches, v.rating, len(v.tables)),
+            reverse=True,
         )[:limit]

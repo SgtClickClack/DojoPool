@@ -21,7 +21,12 @@ class MockRequest:
     """Mock Flask request for testing."""
 
     def __init__(
-        self, path: str, method: str, remote_addr: str, headers: dict = None, json_data: dict = None
+        self,
+        path: str,
+        method: str,
+        remote_addr: str,
+        headers: dict = None,
+        json_data: dict = None,
     ):
         self.path = path
         self.method = method
@@ -38,7 +43,9 @@ class MockRequest:
 def redis_client():
     """Create Redis client for testing."""
     return redis.Redis(
-        host=config.REDIS_HOST, port=config.REDIS_PORT, db=15  # Use separate DB for testing
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        db=15,  # Use separate DB for testing
     )
 
 
@@ -151,7 +158,10 @@ def test_anomaly_detection_integration(threat_detector, security_monitor, redis_
     # Simulate anomalous behavior
     for _ in range(50):  # Sudden burst of requests
         request = MockRequest(
-            path="/api/admin", method="POST", remote_addr=ip, json_data={"action": "delete"}
+            path="/api/admin",
+            method="POST",
+            remote_addr=ip,
+            json_data={"action": "delete"},
         )
         event = security_monitor.monitor_request(request)
         if event:
@@ -168,7 +178,10 @@ def test_recovery_from_block(threat_detector, security_monitor, redis_client):
 
     # Create high-severity threat
     request = MockRequest(
-        path="/api/users", method="POST", remote_addr=ip, json_data={"query": "DROP TABLE users;"}
+        path="/api/users",
+        method="POST",
+        remote_addr=ip,
+        json_data={"query": "DROP TABLE users;"},
     )
 
     # Get blocked

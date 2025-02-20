@@ -1,3 +1,5 @@
+import gc
+import gc
 """WebSocket documentation module.
 
 This module provides documentation for WebSocket events and protocols.
@@ -28,7 +30,12 @@ EVENTS = {
             }
         },
         "response": {"type": "boolean", "description": "True if successfully joined"},
-        "emits": [{"event": "player_joined", "data": {"user_id": "integer", "username": "string"}}],
+        "emits": [
+            {
+                "event": "player_joined",
+                "data": {"user_id": "integer", "username": "string"},
+            }
+        ],
     },
     "leave_game": {
         "description": "Leave a game room",
@@ -41,13 +48,22 @@ EVENTS = {
             }
         },
         "response": {"type": "boolean", "description": "True if successfully left"},
-        "emits": [{"event": "player_left", "data": {"user_id": "integer", "username": "string"}}],
+        "emits": [
+            {
+                "event": "player_left",
+                "data": {"user_id": "integer", "username": "string"},
+            }
+        ],
     },
     "update_score": {
         "description": "Update game scores",
         "authentication_required": True,
         "parameters": {
-            "game_id": {"type": "integer", "description": "ID of the game", "required": True},
+            "game_id": {
+                "type": "integer",
+                "description": "ID of the game",
+                "required": True,
+            },
             "player1_score": {
                 "type": "integer",
                 "description": "Score for player 1",
@@ -76,7 +92,11 @@ EVENTS = {
         "description": "End a game",
         "authentication_required": True,
         "parameters": {
-            "game_id": {"type": "integer", "description": "ID of the game to end", "required": True}
+            "game_id": {
+                "type": "integer",
+                "description": "ID of the game to end",
+                "required": True,
+            }
         },
         "response": {"type": "boolean", "description": "True if successfully ended"},
         "emits": [
@@ -102,7 +122,10 @@ EVENTS = {
         },
         "response": {"type": "boolean", "description": "True if successfully joined"},
         "emits": [
-            {"event": "participant_joined", "data": {"user_id": "integer", "username": "string"}}
+            {
+                "event": "participant_joined",
+                "data": {"user_id": "integer", "username": "string"},
+            }
         ],
     },
     "leave_tournament": {
@@ -117,15 +140,26 @@ EVENTS = {
         },
         "response": {"type": "boolean", "description": "True if successfully left"},
         "emits": [
-            {"event": "participant_left", "data": {"user_id": "integer", "username": "string"}}
+            {
+                "event": "participant_left",
+                "data": {"user_id": "integer", "username": "string"},
+            }
         ],
     },
     "chat_message": {
         "description": "Send chat message",
         "authentication_required": True,
         "parameters": {
-            "room_id": {"type": "integer", "description": "ID of the room", "required": True},
-            "message": {"type": "string", "description": "Message content", "required": True},
+            "room_id": {
+                "type": "integer",
+                "description": "ID of the room",
+                "required": True,
+            },
+            "message": {
+                "type": "string",
+                "description": "Message content",
+                "required": True,
+            },
             "room_type": {
                 "type": "string",
                 "description": "Type of room (game or tournament)",
@@ -161,7 +195,7 @@ def get_event_docs(event_name: str) -> Dict[str, Any]:
     return EVENTS.get(event_name, {})
 
 
-def get_all_events() -> List[str]:
+def get_all_events():
     """Get list of all documented events.
 
     Returns:
@@ -170,16 +204,20 @@ def get_all_events() -> List[str]:
     return list(EVENTS.keys())
 
 
-def get_authenticated_events() -> List[str]:
+def get_authenticated_events():
     """Get list of events requiring authentication.
 
     Returns:
         List[str]: List of event names.
     """
-    return [event for event, docs in EVENTS.items() if docs.get("authentication_required", False)]
+    return [
+        event
+        for event, docs in EVENTS.items()
+        if docs.get("authentication_required", False)
+    ]
 
 
-def get_event_parameters(event_name: str) -> Dict[str, Any]:
+def get_event_parameters(event_name: str):
     """Get parameters for specific event.
 
     Args:

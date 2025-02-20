@@ -5,6 +5,7 @@ Integrates with Prometheus metrics and provides structured logging.
 
 import json
 import logging
+import os
 import threading
 import traceback
 from dataclasses import asdict, dataclass
@@ -13,6 +14,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from prometheus_client import Counter, Histogram
+
 from ...utils.monitoring import REGISTRY
 
 # Singleton metrics
@@ -72,40 +74,35 @@ class ErrorLogger:
 
     def __init__(self):
         """Initialize the error logger."""
-        self.logger = logging.getLogger("dojopool.errors")
         self._setup_logger()
         self._local = threading.local()
 
     def _setup_logger(self):
         """Configure the logger with appropriate handlers and formatters."""
-        # Create handlers if they don't exist
-        if not self.logger.handlers:
-            # File handler for all errors
-            fh = logging.FileHandler("logs/error.log")
-            fh.setLevel(logging.WARNING)
+        # Determine the logs directory relative to this file
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        logs_dir = os.path.join(base_dir, "..", "logs")
+        if not os.path.exists(logs_dir):
+            os.makedirs(logs_dir)
 
-            # File handler for critical errors
-            ch = logging.FileHandler("logs/critical.log")
-            ch.setLevel(logging.CRITICAL)
+        log_file = os.path.join(logs_dir, "error.log")
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.ERROR)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        fh.setFormatter(formatter)
 
-            # Console handler
-            console = logging.StreamHandler()
-            console.setLevel(logging.ERROR)
+        self.logger = logging.getLogger("error_logger")
+        self.logger.setLevel(logging.ERROR)
+        self.logger.addHandler(fh)
 
-            # Create formatter
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        # Optionally, log an initialization message
+        self.logger.error(
+            "Error logger initialized at %s", datetime.utcnow().isoformat()
+        )
 
-            # Set formatters
-            fh.setFormatter(formatter)
-            ch.setFormatter(formatter)
-            console.setFormatter(formatter)
-
-            # Add handlers
-            self.logger.addHandler(fh)
-            self.logger.addHandler(ch)
-            self.logger.addHandler(console)
-
-    def set_context(self, request_id: Optional[str] = None, user_id: Optional[str] = None):
+    def set_context(
+        self, request_id: Optional[str] = None, user_id: Optional[str] = None
+    ):
         """Set context for the current thread."""
         self._local.request_id = request_id
         self._local.user_id = user_id
@@ -127,7 +124,9 @@ class ErrorLogger:
         """Log an error with context information."""
         # Start timing error handling
         with (
-            get_metrics()["error_handling_time"].labels(error_type=error.__class__.__name__).time()
+            get_metrics()["error_handling_time"]
+            .labels(error_type=error.__class__.__name__)
+            .time()
         ):
             error_context = ErrorContext(
                 timestamp=datetime.utcnow().isoformat(),
@@ -143,7 +142,8 @@ class ErrorLogger:
 
             # Update Prometheus metrics
             get_metrics()["error_count"].labels(
-                error_type=error_context.error_type, severity=error_context.severity.value
+                error_type=error_context.error_type,
+                severity=error_context.severity.value,
             ).inc()
 
             # Log the error
@@ -164,10 +164,14 @@ class ErrorLogger:
 
     def get_recent_errors(
         self, severity: Optional[ErrorSeverity] = None, limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    ):
         """Get recent errors from the log file."""
         errors = []
-        log_file = "logs/critical.log" if severity == ErrorSeverity.CRITICAL else "logs/error.log"
+        log_file = (
+            "logs/critical.log"
+            if severity == ErrorSeverity.CRITICAL
+            else "logs/error.log"
+        )
 
         try:
             with open(log_file, "r") as f:

@@ -1,3 +1,7 @@
+from flask_caching import Cache
+from multiprocessing import Pool
+from flask_caching import Cache
+from multiprocessing import Pool
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -127,7 +131,7 @@ class AIService:
 
     def get_personalized_recommendations(
         self, user_id: int, recommendation_type: str = "training"
-    ) -> List[Dict[str, Any]]:
+    ):
         """Get personalized recommendations with monitoring."""
         with AIMetricsTimer(self.monitor, f"recommendations_{recommendation_type}"):
             try:
@@ -146,7 +150,9 @@ class AIService:
                 normalized_features = normalize_data(features)
 
                 # Generate recommendations
-                return self._generate_recommendations(normalized_features, recommendation_type)
+                return self._generate_recommendations(
+                    normalized_features, recommendation_type
+                )
 
             except Exception as e:
                 self.monitor.record_prediction(
@@ -154,7 +160,7 @@ class AIService:
                 )
                 raise
 
-    def analyze_match(self, match_id: int, analysis_type: str = "full") -> Dict[str, Any]:
+    def analyze_match(self, match_id: int, analysis_type: str = "full"):
         """Analyze a match with monitoring."""
         with AIMetricsTimer(self.monitor, f"match_analysis_{analysis_type}") as timer:
             cache_key = f"{self.config.cache.prefix}match:{match_id}:{analysis_type}"
@@ -162,7 +168,9 @@ class AIService:
             # Try to get from cache first
             cached_result = cache.get(cache_key)
             if cached_result:
-                self.monitor.record_prediction(f"match_analysis_{analysis_type}", 0, cache_hit=True)
+                self.monitor.record_prediction(
+                    f"match_analysis_{analysis_type}", 0, cache_hit=True
+                )
                 return cached_result
 
             try:
@@ -172,7 +180,10 @@ class AIService:
                     raise DataError(f"Match {match_id} not found")
 
                 # Validate data
-                if not match.shots or len(match.shots) < self.config.analysis.min_shots_required:
+                if (
+                    not match.shots
+                    or len(match.shots) < self.config.analysis.min_shots_required
+                ):
                     raise DataError(f"Insufficient shot data for match {match_id}")
 
                 # Perform analysis based on type
@@ -191,7 +202,7 @@ class AIService:
                 timer.error = str(e)
                 raise
 
-    def get_difficulty_adjustment(self, user_id: int, game_id: int) -> Dict[str, Any]:
+    def get_difficulty_adjustment(self, user_id: int, game_id: int):
         """Calculate adaptive difficulty adjustment based on user performance."""
         # Get user's recent performance
         recent_matches = (
@@ -204,7 +215,9 @@ class AIService:
         # Calculate performance metrics
         scores = [match.score for match in recent_matches]
         win_rate = sum(1 for match in recent_matches if match.won) / len(recent_matches)
-        avg_duration = sum(match.duration for match in recent_matches) / len(recent_matches)
+        avg_duration = sum(match.duration for match in recent_matches) / len(
+            recent_matches
+        )
 
         # Calculate difficulty adjustment
         base_difficulty = self._calculate_base_difficulty(scores, win_rate)
@@ -213,7 +226,9 @@ class AIService:
         return {
             "base_difficulty": base_difficulty,
             "adjustments": adjustments,
-            "recommended_settings": self._get_recommended_settings(base_difficulty, adjustments),
+            "recommended_settings": self._get_recommended_settings(
+                base_difficulty, adjustments
+            ),
         }
 
     def _generate_story_from_template(self, context: Dict[str, Any]) -> str:
@@ -222,15 +237,13 @@ class AIService:
         story = STORY_PROMPT_TEMPLATE.format(**context)
         return story
 
-    def _generate_recommendations(
-        self, features: np.ndarray, recommendation_type: str
-    ) -> List[Dict[str, Any]]:
+    def _generate_recommendations(self, features: np.ndarray, recommendation_type: str):
         """Generate recommendations based on user features."""
         # Implement recommendation logic using ML model
         predictions = self.performance_predictor.predict(features)
         return self._format_recommendations(predictions, recommendation_type)
 
-    def _prepare_match_data(self, match: Match, metrics: List[GameMetrics]) -> Dict[str, Any]:
+    def _prepare_match_data(self, match: Match, metrics: List[GameMetrics]):
         """Prepare match data for analysis."""
         return {
             "match_details": match.to_dict(),
@@ -238,7 +251,7 @@ class AIService:
             "timeline": self._generate_match_timeline(match),
         }
 
-    def _perform_full_analysis(self, match: Match) -> Dict[str, Any]:
+    def _perform_full_analysis(self, match: Match):
         """Perform comprehensive match analysis."""
         match_data = self._prepare_match_data(match, match.metrics)
         return {
@@ -260,7 +273,7 @@ class AIService:
             "performance_trends": self._analyze_trends(metrics),
         }
 
-    def _analyze_strategy(self, match_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_strategy(self, match_data: Dict[str, Any]):
         """Analyze player strategy and decision making."""
         timeline = match_data["timeline"]
 
@@ -270,14 +283,12 @@ class AIService:
             "decision_analysis": self._analyze_decisions(timeline),
         }
 
-    def _calculate_base_difficulty(self, scores: List[float], win_rate: float) -> float:
+    def _calculate_base_difficulty(self, scores: List[float], win_rate: float):
         """Calculate base difficulty level."""
         score_factor = np.mean(scores) / 100
         return 0.4 + (0.4 * win_rate) + (0.2 * score_factor)
 
-    def _calculate_adjustments(
-        self, base_difficulty: float, avg_duration: float
-    ) -> Dict[str, float]:
+    def _calculate_adjustments(self, base_difficulty: float, avg_duration: float):
         """Calculate specific difficulty adjustments."""
         return {
             "speed": self._adjust_speed(base_difficulty, avg_duration),
@@ -298,7 +309,7 @@ class AIService:
 
     def _format_recommendations(
         self, predictions: np.ndarray, recommendation_type: str
-    ) -> List[Dict[str, Any]]:
+    ):
         """Format model predictions into actionable recommendations."""
         recommendations = []
 
@@ -326,7 +337,7 @@ class AIService:
 
         return recommendations
 
-    def _generate_match_timeline(self, match: Match) -> List[Dict[str, Any]]:
+    def _generate_match_timeline(self, match: Match):
         """Generate a detailed timeline of match events."""
         timeline = []
 
@@ -354,7 +365,10 @@ class AIService:
                         "type": "highlight",
                         "timestamp": shot.timestamp.isoformat(),
                         "description": "Excellent difficult shot",
-                        "details": {"difficulty": shot.difficulty, "shot_type": shot.type},
+                        "details": {
+                            "difficulty": shot.difficulty,
+                            "shot_type": shot.type,
+                        },
                     }
                 )
 
@@ -388,7 +402,7 @@ class AIService:
 
         return summary
 
-    def _format_anomalies(self, anomalies: np.ndarray) -> List[Dict[str, Any]]:
+    def _format_anomalies(self, anomalies: np.ndarray):
         """Format anomaly detection results."""
         formatted_anomalies = []
 
@@ -434,7 +448,7 @@ class AIService:
 
         return trends
 
-    def _identify_key_moments(self, timeline: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _identify_key_moments(self, timeline: List[Dict[str, Any]]):
         """Identify key moments in the match timeline."""
         key_moments = []
 
@@ -510,7 +524,8 @@ class AIService:
             pattern = {
                 "type": "shot_sequence",
                 "length": len(sequence),
-                "accuracy": sum(1 for shot in sequence if shot["result"] == "made") / len(sequence),
+                "accuracy": sum(1 for shot in sequence if shot["result"] == "made")
+                / len(sequence),
                 "avg_difficulty": np.mean([shot["difficulty"] for shot in sequence]),
                 "position_pattern": self._analyze_position_pattern(
                     [shot["position"] for shot in sequence]
@@ -534,7 +549,7 @@ class AIService:
 
         return decisions
 
-    def _adjust_speed(self, base_difficulty: float, avg_duration: float) -> float:
+    def _adjust_speed(self, base_difficulty: float, avg_duration: float):
         """Calculate speed adjustment factor."""
         speed_factor = 1.0
 
@@ -553,7 +568,7 @@ class AIService:
         """Calculate complexity adjustment factor."""
         return min(max(base_difficulty * 1.5, 0.3), 1.0)
 
-    def _adjust_assistance(self, base_difficulty: float) -> float:
+    def _adjust_assistance(self, base_difficulty: float):
         """Calculate assistance level adjustment."""
         return max(1.0 - base_difficulty, 0.0)
 
@@ -577,7 +592,7 @@ class AIService:
         slope = np.polyfit(range(len(values)), values, 1)[0]
         return abs(slope)
 
-    def _calculate_consistency(self, values: List[float]) -> float:
+    def _calculate_consistency(self, values: List[float]):
         """Calculate consistency score."""
         if not values:
             return 0.0
@@ -593,7 +608,9 @@ class AIService:
         previous = np.mean(values[:-3])
         return (recent - previous) / (previous + 1e-6)
 
-    def _compare_periods(self, values: List[float], timestamps: List[str]) -> Dict[str, float]:
+    def _compare_periods(
+        self, values: List[float], timestamps: List[str]
+    ) -> Dict[str, float]:
         """Compare performance between different periods."""
         if len(values) < 6:
             return {}
@@ -616,7 +633,7 @@ class AIService:
         results = [event["result"] for event in events]
         return (results[0] == results[1]) != (results[1] == results[2])
 
-    def _analyze_position_pattern(self, positions: List[Dict[str, float]]) -> Dict[str, Any]:
+    def _analyze_position_pattern(self, positions: List[Dict[str, float]]):
         """Analyze patterns in shot positions."""
         if not positions:
             return {}
@@ -657,7 +674,7 @@ class AIService:
             "success_rate_by_difficulty": self._calculate_success_by_difficulty(shots),
         }
 
-    def _analyze_risk_taking(self, timeline: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_risk_taking(self, timeline: List[Dict[str, Any]]):
         """Analyze risk-taking behavior."""
         shots = [event for event in timeline if event["type"] == "shot"]
 
@@ -669,9 +686,13 @@ class AIService:
 
         return {
             "risk_level": len(difficult_shots) / (len(shots) + 1e-6),
-            "risk_success_rate": sum(1 for shot in difficult_shots if shot["result"] == "made")
+            "risk_success_rate": sum(
+                1 for shot in difficult_shots if shot["result"] == "made"
+            )
             / (len(difficult_shots) + 1e-6),
-            "safe_success_rate": sum(1 for shot in safe_shots if shot["result"] == "made")
+            "safe_success_rate": sum(
+                1 for shot in safe_shots if shot["result"] == "made"
+            )
             / (len(safe_shots) + 1e-6),
         }
 
@@ -688,7 +709,7 @@ class AIService:
             "recovery_ability": self._calculate_recovery_ability(shots),
         }
 
-    def _analyze_time_management(self, timeline: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_time_management(self, timeline: List[Dict[str, Any]]):
         """Analyze time management during the match."""
         shots = [event for event in timeline if event["type"] == "shot"]
 
@@ -716,11 +737,11 @@ class AIService:
         else:
             return "mastery"
 
-    def _calculate_training_difficulty(self, prediction: float) -> float:
+    def _calculate_training_difficulty(self, prediction: float):
         """Calculate appropriate training difficulty."""
         return min(max(prediction * 1.2, 0.3), 1.0)
 
-    def _suggest_exercises(self, prediction: float) -> List[Dict[str, Any]]:
+    def _suggest_exercises(self, prediction: float):
         """Suggest specific exercises based on prediction."""
         focus_area = self._determine_focus_area(prediction)
         difficulty = self._calculate_training_difficulty(prediction)
@@ -797,7 +818,7 @@ class AIService:
 
         return exercises
 
-    def _recommend_duration(self, prediction: float) -> int:
+    def _recommend_duration(self, prediction: float):
         """Recommend training session duration in minutes."""
         base_duration = 45
         if prediction < 0.3:
@@ -820,7 +841,7 @@ class AIService:
         else:
             return "expert"
 
-    def _generate_strategy_suggestions(self, prediction: float) -> List[str]:
+    def _generate_strategy_suggestions(self, prediction: float):
         """Generate strategy suggestions based on prediction."""
         pattern = self._identify_pattern(prediction)
 
@@ -871,7 +892,7 @@ class AIService:
         else:
             return "optional"
 
-    def _identify_preferred_areas(self, positions: List[Dict[str, float]]) -> List[Dict[str, Any]]:
+    def _identify_preferred_areas(self, positions: List[Dict[str, float]]):
         """Identify preferred areas on the table."""
         if not positions:
             return []
@@ -956,7 +977,9 @@ class AIService:
         else:
             return "vertical" if dy > 0 else "vertical_reverse"
 
-    def _calculate_difficulty_distribution(self, shots: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _calculate_difficulty_distribution(
+        self, shots: List[Dict[str, Any]]
+    ) -> Dict[str, float]:
         """Calculate distribution of shot difficulties."""
         if not shots:
             return {}
@@ -968,7 +991,9 @@ class AIService:
         total = len(shots)
         return {"easy": easy / total, "medium": medium / total, "hard": hard / total}
 
-    def _calculate_shot_type_distribution(self, shots: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _calculate_shot_type_distribution(
+        self, shots: List[Dict[str, Any]]
+    ) -> Dict[str, float]:
         """Calculate distribution of shot types."""
         if not shots:
             return {}
@@ -982,7 +1007,7 @@ class AIService:
 
         return {shot_type: count / total for shot_type, count in type_counts.items()}
 
-    def _calculate_success_by_difficulty(self, shots: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _calculate_success_by_difficulty(self, shots: List[Dict[str, Any]]):
         """Calculate success rate for different difficulty levels."""
         if not shots:
             return {}
@@ -1028,7 +1053,9 @@ class AIService:
 
         return np.mean(control_scores) if control_scores else 0.0
 
-    def _calculate_pattern_effectiveness(self, shots: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _calculate_pattern_effectiveness(
+        self, shots: List[Dict[str, Any]]
+    ) -> Dict[str, float]:
         """Calculate effectiveness of different shot patterns."""
         if len(shots) < 3:
             return {}
@@ -1077,13 +1104,19 @@ class AIService:
         normal_shots = [shot for shot in shots if shot["duration"] >= 15]
 
         pressure_success = (
-            (sum(1 for shot in pressure_shots if shot["result"] == "made") / len(pressure_shots))
+            (
+                sum(1 for shot in pressure_shots if shot["result"] == "made")
+                / len(pressure_shots)
+            )
             if pressure_shots
             else 0.0
         )
 
         normal_success = (
-            (sum(1 for shot in normal_shots if shot["result"] == "made") / len(normal_shots))
+            (
+                sum(1 for shot in normal_shots if shot["result"] == "made")
+                / len(normal_shots)
+            )
             if normal_shots
             else 0.0
         )
@@ -1099,19 +1132,21 @@ class AIService:
         """Generate a key for a shot pattern."""
         return "_".join(f"{shot['type']}_{shot['difficulty']:.1f}" for shot in sequence)
 
-    def _perform_basic_analysis(self, match_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _perform_basic_analysis(self, match_data: Dict[str, Any]):
         """Perform basic analysis of match data."""
         return {
             "duration": match_data.get("duration", 0),
             "total_shots": len(match_data.get("shots", [])),
             "successful_shots": sum(
-                1 for shot in match_data.get("shots", []) if shot.get("successful", False)
+                1
+                for shot in match_data.get("shots", [])
+                if shot.get("successful", False)
             ),
             "average_shot_time": match_data.get("avg_shot_time", 0),
             "fouls": match_data.get("fouls", 0),
         }
 
-    def _generate_suggestions(self, analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _generate_suggestions(self, analysis: Dict[str, Any]):
         """Generate improvement suggestions based on analysis."""
         suggestions = []
 
@@ -1159,7 +1194,9 @@ class AIService:
         avg_diff = sum(differences) / len(differences) if differences else 0
 
         # Calculate trend strength (normalized between 0 and 1)
-        max_diff = max(abs(min(differences)), abs(max(differences))) if differences else 1
+        max_diff = (
+            max(abs(min(differences)), abs(max(differences))) if differences else 1
+        )
         strength = abs(avg_diff) / max_diff if max_diff != 0 else 0
 
         return {

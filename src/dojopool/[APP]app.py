@@ -2,33 +2,46 @@
 
 import logging
 import os
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, send_from_directory
+from flask import (
+    Flask,
+    Request,
+    Response,
+    current_app,
+    jsonify,
+    render_template,
+    send_from_directory,
+)
+from flask.typing import ResponseReturnValue
 from flask_login import LoginManager
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .auth.routes import auth_bp
-from .core.auth.models import User, db
+from .core.extensions import db
+from .models.user import User
 from .routes.game import game_bp
 from .routes.main import main_bp
 from .routes.performance import bp as performance_bp
 
 # Configure logging
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+loggingetattr(g, "basicConfig", None)(
+    level=loggingetattr(g, "DEBUG", None),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+logger: Any = loggingetattr(g, "getLogger", None)(__name__)
 
 
-def create_app(config_name=None):
+def create_app(config_name=None) -> Union[Any, Dict[Any, Any], app]:
     app = Flask(__name__)
 
     # Configure static and template folders explicitly
     static_folder = os.path.join(os.path.dirname(__file__), "static")
-    template_folder = os.path.join(os.path.dirname(__file__), "templates")
+    template_folder: Any = os.path.join(os.path.dirname(__file__), "templates")
 
     app.static_folder = static_folder
-    app.template_folder = template_folder
+    app.template_folder: Any = template_folder
 
     logger.debug(f"Static folder: {static_folder}")
     logger.debug(f"Template folder: {template_folder}")
@@ -44,13 +57,15 @@ def create_app(config_name=None):
     app.config["GOOGLE_CLIENT_SECRET"] = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
     # Database configuration
-    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "dojopool.db")
+    db_path: Any = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "instance", "dojopool.db"
+    )
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Initialize extensions
     db.init_app(app)
-    login_manager = LoginManager()
+    login_manager: LoginManager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
 
@@ -77,7 +92,7 @@ def create_app(config_name=None):
 
     # Custom static data
     @app.route("/static/<path:filename>")
-    def custom_static(filename):
+    def custom_static(filename) -> Response:
         logger.debug(f"Serving static file: {filename}")
         return send_from_directory(static_folder, filename)
 
@@ -86,7 +101,7 @@ def create_app(config_name=None):
         """Return a list of sample venues."""
         logger.debug("Getting venues")
         # Sample venue data
-        venues = [
+        venues: List[Any] = [
             {
                 "name": "DojoPool London",
                 "latitude": 51.5074,
@@ -118,7 +133,7 @@ def create_app(config_name=None):
         return jsonify(venues)
 
     @app.route("/api/v1/maps/verify-key")
-    def verify_maps_key():
+    def verify_maps_key() -> ResponseReturnValue:
         """Verify the Google Maps API key."""
         logger.debug("Verifying Google Maps API key")
         api_key = app.config["GOOGLE_MAPS_API_KEY"]

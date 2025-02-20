@@ -1,24 +1,36 @@
-from flask import Blueprint, jsonify, request
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
+from flask import Blueprint, Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
 from src.services.venue_management_service import VenueManagementService
 from src.utils.auth import admin_required
 from src.utils.validation import validate_request_data
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-venue_management_bp = Blueprint("venue_management", __name__)
-venue_service = VenueManagementService()
+venue_management_bp: Blueprint = Blueprint("venue_management", __name__)
+venue_service: VenueManagementService = VenueManagementService()
 
 
 @venue_management_bp.route("/create", methods=["POST"])
 @admin_required
-def create_venue():
+def create_venue() -> Response:
     """Create a new venue."""
     try:
-        data = request.get_json()
+        data: Any = request.get_json()
         validate_request_data(
-            data, ["name", "address", "latitude", "longitude", "venue_type", "tables", "owner_id"]
+            data,
+            [
+                "name",
+                "address",
+                "latitude",
+                "longitude",
+                "venue_type",
+                "tables",
+                "owner_id",
+            ],
         )
 
-        result = venue_service.create_venue(data)
+        result: Any = venue_service.create_venue(data)
         return jsonify(result), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -29,8 +41,8 @@ def create_venue():
 def update_venue(venue_id):
     """Update venue details."""
     try:
-        data = request.get_json()
-        result = venue_service.update_venue(venue_id, data)
+        data: Any = request.get_json()
+        result: Any = venue_service.update_venue(venue_id, data)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -41,7 +53,7 @@ def update_venue(venue_id):
 def delete_venue(venue_id):
     """Delete a venue."""
     try:
-        result = venue_service.delete_venue(venue_id)
+        result: Any = venue_service.delete_venue(venue_id)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -52,7 +64,7 @@ def delete_venue(venue_id):
 def get_venue_staff(venue_id):
     """Get venue staff list."""
     try:
-        staff = venue_service.get_venue_staff(venue_id)
+        staff: Any = venue_service.get_venue_staff(venue_id)
         return jsonify(staff)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -63,10 +75,10 @@ def get_venue_staff(venue_id):
 def add_staff_member(venue_id):
     """Add a staff member to venue."""
     try:
-        data = request.get_json()
+        data: Any = request.get_json()
         validate_request_data(data, ["user_id", "role"])
 
-        result = venue_service.add_staff_member(
+        result: Any = venue_service.add_staff_member(
             venue_id=venue_id, user_id=data["user_id"], role=data["role"]
         )
         return jsonify(result)
@@ -74,12 +86,14 @@ def add_staff_member(venue_id):
         return jsonify({"error": str(e)}), 500
 
 
-@venue_management_bp.route("/<int:venue_id>/staff/<int:user_id>/remove", methods=["DELETE"])
+@venue_management_bp.route(
+    "/<int -> Response -> Any:venue_id>/staff/<int:user_id>/remove", methods=["DELETE"]
+)
 @admin_required
 def remove_staff_member(venue_id, user_id):
     """Remove a staff member from venue."""
     try:
-        result = venue_service.remove_staff_member(venue_id, user_id)
+        result: Any = venue_service.remove_staff_member(venue_id, user_id)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -90,10 +104,10 @@ def remove_staff_member(venue_id, user_id):
 def update_venue_hours(venue_id):
     """Update venue operating hours."""
     try:
-        data = request.get_json()
+        data: Any = request.get_json()
         validate_request_data(data, ["hours"])
 
-        result = venue_service.update_venue_hours(venue_id, data["hours"])
+        result: Any = venue_service.update_venue_hours(venue_id, data["hours"])
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -104,10 +118,10 @@ def update_venue_hours(venue_id):
 def update_venue_tables(venue_id):
     """Update venue table configuration."""
     try:
-        data = request.get_json()
+        data: Any = request.get_json()
         validate_request_data(data, ["tables"])
 
-        result = venue_service.update_venue_tables(venue_id, data["tables"])
+        result: Any = venue_service.update_venue_tables(venue_id, data["tables"])
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

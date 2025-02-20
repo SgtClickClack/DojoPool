@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Automated alert system for QR code monitoring."""
 
 import threading
@@ -102,7 +106,7 @@ class QRAlertManager:
         with self._lock:
             self.alert_handlers[channel] = handler
 
-    def configure_alert(self, alert_type: AlertType, config: AlertConfig) -> None:
+    def configure_alert(self, alert_type: AlertType, config: AlertConfig):
         """Configure an alert type.
 
         Args:
@@ -119,7 +123,7 @@ class QRAlertManager:
         severity: Optional[AlertSeverity] = None,
         include_acknowledged: bool = False,
         days: Optional[int] = None,
-    ) -> List[Alert]:
+    ):
         """Get alerts matching criteria.
 
         Args:
@@ -185,7 +189,7 @@ class QRAlertManager:
 
             time.sleep(60)  # Check every minute
 
-    def _check_alerts(self) -> None:
+    def _check_alerts(self):
         """Check for alert conditions."""
         with self._lock:
             # Check each venue
@@ -197,7 +201,10 @@ class QRAlertManager:
                 # Check error rate
                 if stats["total_scans"] > 0:
                     error_rate = stats["failed_scans"] / stats["total_scans"]
-                    if error_rate >= self.alert_configs[AlertType.HIGH_ERROR_RATE].threshold:
+                    if (
+                        error_rate
+                        >= self.alert_configs[AlertType.HIGH_ERROR_RATE].threshold
+                    ):
                         self._create_alert(
                             AlertType.HIGH_ERROR_RATE,
                             f"High error rate ({error_rate*100:.1f}%) detected",
@@ -208,7 +215,10 @@ class QRAlertManager:
                 # Check success rate
                 if stats["total_scans"] > 0:
                     success_rate = stats["successful_scans"] / stats["total_scans"]
-                    if success_rate <= self.alert_configs[AlertType.LOW_SUCCESS_RATE].threshold:
+                    if (
+                        success_rate
+                        <= self.alert_configs[AlertType.LOW_SUCCESS_RATE].threshold
+                    ):
                         self._create_alert(
                             AlertType.LOW_SUCCESS_RATE,
                             f"Low success rate ({success_rate*100:.1f}%)",
@@ -237,10 +247,15 @@ class QRAlertManager:
                     for error in error_report["errors"]:
                         if datetime.fromisoformat(error["timestamp"]) >= recent_cutoff:
                             error_type = error["error_type"]
-                            error_counts[error_type] = error_counts.get(error_type, 0) + 1
+                            error_counts[error_type] = (
+                                error_counts.get(error_type, 0) + 1
+                            )
 
                     for error_type, count in error_counts.items():
-                        if count >= self.alert_configs[AlertType.REPEATED_ERRORS].threshold:
+                        if (
+                            count
+                            >= self.alert_configs[AlertType.REPEATED_ERRORS].threshold
+                        ):
                             self._create_alert(
                                 AlertType.REPEATED_ERRORS,
                                 f"Repeated errors of type '{error_type}'",
@@ -298,7 +313,7 @@ class QRAlertManager:
                 except Exception as e:
                     print(f"Error in alert handler for {channel}: {str(e)}")
 
-    def _get_alert_key(self, alert: Alert) -> str:
+    def _get_alert_key(self, alert: Alert):
         """Get unique key for an alert.
 
         Args:

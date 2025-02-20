@@ -107,7 +107,11 @@ class VisionGameBridge:
             if game.is_game_over():
                 emit(
                     "game_completed",
-                    {"winner": game.winner_id, "final_score": game.score, "stats": game.stats},
+                    {
+                        "winner": game.winner_id,
+                        "final_score": game.score,
+                        "stats": game.stats,
+                    },
                     room=room,
                     namespace="/game",
                 )
@@ -167,7 +171,7 @@ class VisionGameBridge:
         """
         return self.game_monitor.start_game_tracking(game_id, venue_id)
 
-    def stop_tracking(self, game_id: int) -> bool:
+    def stop_tracking(self, game_id: int):
         """Stop tracking a game.
 
         Args:

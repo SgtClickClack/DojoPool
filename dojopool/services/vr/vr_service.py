@@ -3,9 +3,10 @@ Virtual Reality service for DojoPool.
 Handles VR integration, scene management, and player interactions.
 """
 
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 
 
@@ -54,7 +55,7 @@ class VRService:
         self.playspaces: Dict[str, VRPlayspace] = {}
         self.table_states: Dict[str, VRTableState] = {}
 
-    def initialize_vr_system(self) -> bool:
+    def initialize_vr_system(self):
         """Initialize VR hardware and software systems."""
         try:
             # Initialize VR runtime
@@ -80,7 +81,7 @@ class VRService:
         room_dimensions: Tuple[float, float, float],
         table_position: Tuple[float, float, float],
         obstacles: List[Dict[str, float]] = None,
-    ) -> VRPlayspace:
+    ) :
         """Calibrate VR playspace for a venue."""
         playspace = VRPlayspace(
             width=room_dimensions[0],
@@ -112,8 +113,10 @@ class VRService:
         self,
         session_id: str,
         ball_positions: Dict[int, Tuple[float, float, float]],
-        cue_data: Optional[Tuple[Tuple[float, float, float], Tuple[float, float, float]]] = None,
-    ) -> None:
+        cue_data: Optional[
+            Tuple[Tuple[float, float, float], Tuple[float, float, float]]
+        ] = None,
+    ) :
         """Update the state of the virtual pool table."""
         if session_id not in self.table_states:
             raise ValueError(f"No active session {session_id}")
@@ -131,7 +134,7 @@ class VRService:
         cue_orientation: Tuple[float, float, float],
         power: float,
         english: Tuple[float, float],  # side_spin, top_spin
-    ) -> Dict[str, any]:
+    ) :
         """Process a shot in VR."""
         if session_id not in self.table_states:
             raise ValueError(f"No active session {session_id}")
@@ -151,7 +154,7 @@ class VRService:
 
     def get_haptic_feedback(
         self, session_id: str, event_type: str, intensity: float
-    ) -> Dict[str, float]:
+    ) :
         """Generate haptic feedback data for VR controllers."""
         if not self.config.haptic_feedback:
             return {}
@@ -176,17 +179,17 @@ class VRService:
         if session_id in self.table_states:
             del self.table_states[session_id]
 
-    def _init_vr_runtime(self) -> None:
+    def _init_vr_runtime(self) :
         """Initialize VR runtime environment."""
         # Implementation would depend on specific VR SDK
         pass
 
-    def _setup_tracking(self) -> None:
+    def _setup_tracking(self) :
         """Setup VR tracking system."""
         # Implementation would depend on specific VR SDK
         pass
 
-    def _setup_renderer(self) -> None:
+    def _setup_renderer(self) :
         """Setup VR rendering pipeline."""
         # Implementation would depend on specific VR SDK
         pass
@@ -196,7 +199,7 @@ class VRService:
         # Implementation would depend on specific physics engine
         pass
 
-    def _create_initial_table_state(self) -> VRTableState:
+    def _create_initial_table_state(self) :
         """Create initial state for a pool table."""
         return VRTableState(
             balls={},
@@ -207,8 +210,10 @@ class VRService:
         )
 
     def _calculate_impact_point(
-        self, cue_position: Tuple[float, float, float], cue_orientation: Tuple[float, float, float]
-    ) -> Tuple[float, float, float]:
+        self,
+        cue_position: Tuple[float, float, float],
+        cue_orientation: Tuple[float, float, float],
+    ) :
         """Calculate the point where the cue will impact the cue ball."""
         # Simple ray-sphere intersection calculation
         # In real implementation, would use proper physics calculations

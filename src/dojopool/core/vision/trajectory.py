@@ -1,9 +1,12 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Ball trajectory tracking module."""
 
-import numpy as np
-from typing import List, Tuple, Dict, Optional
-from dataclasses import dataclass
 from collections import deque
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 from numpy.typing import NDArray
 
 from .ball_tracker import Ball

@@ -11,7 +11,9 @@ def setup_logging(verbose: bool = False):
     """Configure logging based on verbosity level."""
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
-        level=level, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        level=level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
 
@@ -31,7 +33,9 @@ def main():
         default=80,
         help="Quality setting for image compression (0-100, default: 80)",
     )
-    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose logging")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
 
     args = parser.parse_args()
     setup_logging(args.verbose)
@@ -58,14 +62,20 @@ def main():
 
         logger.info("Processing complete!")
         logger.info(f"WebP conversions: {successful_webp}/{total_webp} successful")
-        logger.info(f"Optimized images: {successful_optimized}/{total_optimized} successful")
+        logger.info(
+            f"Optimized images: {successful_optimized}/{total_optimized} successful"
+        )
 
         # Calculate average compression ratios for successful conversions
         webp_ratios = [
-            r.compression_ratio for r in results["webp"] if r.success and r.compression_ratio
+            r.compression_ratio
+            for r in results["webp"]
+            if r.success and r.compression_ratio
         ]
         opt_ratios = [
-            r.compression_ratio for r in results["optimized"] if r.success and r.compression_ratio
+            r.compression_ratio
+            for r in results["optimized"]
+            if r.success and r.compression_ratio
         ]
 
         if webp_ratios:

@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel
-
 from services.predictive_analytics_service import PredictiveAnalyticsService
 from utils.auth import get_current_user
 from utils.rate_limit import rate_limiter
@@ -55,7 +54,9 @@ async def forecast_performance(
         )
 
         return PredictiveResponse(
-            success=True, data=result, message="Performance forecast generated successfully"
+            success=True,
+            data=result,
+            message="Performance forecast generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -79,7 +80,9 @@ async def predict_progression(
         )
 
         return PredictiveResponse(
-            success=True, data=result, message="Skill progression prediction generated successfully"
+            success=True,
+            data=result,
+            message="Skill progression prediction generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -101,7 +104,9 @@ async def predict_matchup(
         )
 
         return PredictiveResponse(
-            success=True, data=result, message="Matchup prediction generated successfully"
+            success=True,
+            data=result,
+            message="Matchup prediction generated successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -118,7 +123,9 @@ async def get_model_metrics(current_user=Depends(get_current_user)):
         }
 
         return PredictiveResponse(
-            success=True, data={"metrics": metrics}, message="Model metrics retrieved successfully"
+            success=True,
+            data={"metrics": metrics},
+            message="Model metrics retrieved successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -1,14 +1,20 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Automated testing system for comprehensive test execution and reporting."""
 
 import json
 import logging
+import shutil
 import smtplib
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import coverage
 import jinja2
@@ -16,6 +22,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class AutomatedTesting:
@@ -36,6 +45,10 @@ class AutomatedTesting:
 
         # Load or create configuration
         self.config = self._load_config()
+
+        self.results_dir = self.base_path / "results"
+        self.results_dir.mkdir(exist_ok=True)
+        self.cov = coverage.Coverage()
 
     def run_tests(
         self,
@@ -83,7 +96,9 @@ class AutomatedTesting:
             self.logger.error(f"Error running tests: {str(e)}")
             raise
 
-    def analyze_results(self, time_period: Optional[timedelta] = None) -> Dict[str, Any]:
+    def analyze_results(
+        self, time_period: Optional[timedelta] = None
+    ) -> Dict[str, Any]:
         """Analyze test results over time.
 
         Args:
@@ -96,7 +111,9 @@ class AutomatedTesting:
 
         if time_period:
             cutoff = datetime.now() - time_period
-            history = [h for h in history if datetime.fromisoformat(h["timestamp"]) > cutoff]
+            history = [
+                h for h in history if datetime.fromisoformat(h["timestamp"]) > cutoff
+            ]
 
         analysis = {
             "total_runs": len(history),
@@ -109,7 +126,9 @@ class AutomatedTesting:
 
         return analysis
 
-    def generate_visualizations(self, time_period: Optional[timedelta] = None) -> Dict[str, str]:
+    def generate_visualizations(
+        self, time_period: Optional[timedelta] = None
+    ) -> Dict[str, str]:
         """Generate visualizations of test results.
 
         Args:
@@ -125,26 +144,36 @@ class AutomatedTesting:
         plots = {}
 
         # Success rate over time
-        plots["success_rate"] = self._plot_success_rate(analysis["success_rate"], plots_dir)
+        plots["success_rate"] = self._plot_success_rate(
+            analysis["success_rate"], plots_dir
+        )
 
         # Coverage trends
-        plots["coverage"] = self._plot_coverage_trends(analysis["coverage_trends"], plots_dir)
+        plots["coverage"] = self._plot_coverage_trends(
+            analysis["coverage_trends"], plots_dir
+        )
 
         # Test duration trends
-        plots["duration"] = self._plot_duration_trends(analysis["test_duration_stats"], plots_dir)
+        plots["duration"] = self._plot_duration_trends(
+            analysis["test_duration_stats"], plots_dir
+        )
 
         # Failure patterns
-        plots["failures"] = self._plot_failure_patterns(analysis["failure_patterns"], plots_dir)
+        plots["failures"] = self._plot_failure_patterns(
+            analysis["failure_patterns"], plots_dir
+        )
 
         return plots
 
-    def _run_parallel_tests(self, test_types: List[str], collect_coverage: bool) -> Dict[str, Any]:
+    def _run_parallel_tests(self, test_types: List[str], collect_coverage: bool):
         """Run tests in parallel using thread pool."""
         results = {}
 
         with ThreadPoolExecutor() as executor:
             futures = {
-                executor.submit(self._run_test_type, test_type, collect_coverage): test_type
+                executor.submit(
+                    self._run_test_type, test_type, collect_coverage
+                ): test_type
                 for test_type in test_types
             }
 
@@ -158,9 +187,7 @@ class AutomatedTesting:
 
         return results
 
-    def _run_sequential_tests(
-        self, test_types: List[str], collect_coverage: bool
-    ) -> Dict[str, Any]:
+    def _run_sequential_tests(self, test_types: List[str], collect_coverage: bool):
         """Run tests sequentially."""
         results = {}
 
@@ -173,7 +200,7 @@ class AutomatedTesting:
 
         return results
 
-    def _run_test_type(self, test_type: str, collect_coverage: bool) -> Dict[str, Any]:
+    def _run_test_type(self, test_type: str, collect_coverage: bool):
         """Run specific type of tests."""
         test_dir = self.base_path / "tests" / test_type
 
@@ -182,8 +209,7 @@ class AutomatedTesting:
 
         # Set up coverage if enabled
         if collect_coverage:
-            cov = coverage.Coverage()
-            cov.start()
+            self.cov.start()
 
         # Run tests with pytest
         result = pytest.main(
@@ -197,9 +223,9 @@ class AutomatedTesting:
         # Collect coverage if enabled
         coverage_data = None
         if collect_coverage:
-            cov.stop()
-            cov.save()
-            coverage_data = cov.report()
+            self.cov.stop()
+            self.cov.save()
+            coverage_data = self.cov.report()
 
         return {
             "status": "success" if result == 0 else "failure",
@@ -207,7 +233,9 @@ class AutomatedTesting:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def _generate_report(self, results: Dict[str, Any], start_time: datetime) -> Dict[str, Any]:
+    def _generate_report(
+        self, results: Dict[str, Any], start_time: datetime
+    ) -> Dict[str, Any]:
         """Generate comprehensive test report."""
         end_time = datetime.now()
         duration = (end_time - start_time).total_seconds()
@@ -218,14 +246,18 @@ class AutomatedTesting:
             "results": results,
             "summary": {
                 "total_tests": len(results),
-                "successful": sum(1 for r in results.values() if r["status"] == "success"),
+                "successful": sum(
+                    1 for r in results.values() if r["status"] == "success"
+                ),
                 "failed": sum(1 for r in results.values() if r["status"] == "failure"),
                 "errors": sum(1 for r in results.values() if r["status"] == "error"),
             },
         }
 
         # Calculate average coverage if available
-        coverages = [r["coverage"] for r in results.values() if r["coverage"] is not None]
+        coverages = [
+            r["coverage"] for r in results.values() if r["coverage"] is not None
+        ]
         if coverages:
             report["summary"]["average_coverage"] = sum(coverages) / len(coverages)
 
@@ -252,7 +284,7 @@ class AutomatedTesting:
 
         return config
 
-    def _load_history(self) -> List[Dict[str, Any]]:
+    def _load_history(self):
         """Load test execution history."""
         if self.history_file.exists():
             with open(self.history_file, "r") as f:
@@ -319,7 +351,9 @@ class AutomatedTesting:
         with smtplib.SMTP("localhost") as server:
             server.send_message(msg)
 
-    def _calculate_success_rate(self, history: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _calculate_success_rate(
+        self, history: List[Dict[str, Any]]
+    ) -> Dict[str, float]:
         """Calculate success rate trends."""
         if not history:
             return {}
@@ -340,10 +374,13 @@ class AutomatedTesting:
         return {
             "overall": float(df["success_rate"].mean()),
             "trend": float(np.polyfit(range(len(df)), df["success_rate"].values, 1)[0]),
-            "daily": df.set_index("timestamp").resample("D")["success_rate"].mean().to_dict(),
+            "daily": df.set_index("timestamp")
+            .resample("D")["success_rate"]
+            .mean()
+            .to_dict(),
         }
 
-    def _analyze_duration(self, history: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _analyze_duration(self, history: List[Dict[str, Any]]):
         """Analyze test execution duration trends."""
         if not history:
             return {}
@@ -358,13 +395,16 @@ class AutomatedTesting:
             "trend": float(np.polyfit(range(len(durations)), durations, 1)[0]),
         }
 
-    def _analyze_coverage(self, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_coverage(self, history: List[Dict[str, Any]]):
         """Analyze code coverage trends."""
         if not history:
             return {}
 
         coverages = [
-            {"timestamp": h["timestamp"], "coverage": h["summary"].get("average_coverage")}
+            {
+                "timestamp": h["timestamp"],
+                "coverage": h["summary"].get("average_coverage"),
+            }
             for h in history
             if "average_coverage" in h["summary"]
         ]
@@ -378,7 +418,10 @@ class AutomatedTesting:
         return {
             "current": float(df["coverage"].iloc[-1]),
             "trend": float(np.polyfit(range(len(df)), df["coverage"].values, 1)[0]),
-            "daily": df.set_index("timestamp").resample("D")["coverage"].mean().to_dict(),
+            "daily": df.set_index("timestamp")
+            .resample("D")["coverage"]
+            .mean()
+            .to_dict(),
         }
 
     def _analyze_failures(self, history: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -409,7 +452,7 @@ class AutomatedTesting:
             "total": len(failures),
         }
 
-    def _analyze_performance(self, history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_performance(self, history: List[Dict[str, Any]]):
         """Analyze test performance trends."""
         if not history:
             return {}
@@ -429,11 +472,16 @@ class AutomatedTesting:
 
         return {
             "mean_tests_per_second": float(df["tests_per_second"].mean()),
-            "trend": float(np.polyfit(range(len(df)), df["tests_per_second"].values, 1)[0]),
-            "daily": df.set_index("timestamp").resample("D")["tests_per_second"].mean().to_dict(),
+            "trend": float(
+                np.polyfit(range(len(df)), df["tests_per_second"].values, 1)[0]
+            ),
+            "daily": df.set_index("timestamp")
+            .resample("D")["tests_per_second"]
+            .mean()
+            .to_dict(),
         }
 
-    def _plot_success_rate(self, success_rate: Dict[str, Any], plots_dir: Path) -> str:
+    def _plot_success_rate(self, success_rate: Dict[str, Any], plots_dir: Path):
         """Plot success rate trends."""
         plt.figure(figsize=(10, 6))
         dates = list(success_rate["daily"].keys())
@@ -452,7 +500,7 @@ class AutomatedTesting:
 
         return str(plot_path)
 
-    def _plot_coverage_trends(self, coverage: Dict[str, Any], plots_dir: Path) -> str:
+    def _plot_coverage_trends(self, coverage: Dict[str, Any], plots_dir: Path):
         """Plot code coverage trends."""
         plt.figure(figsize=(10, 6))
         dates = list(coverage["daily"].keys())
@@ -471,7 +519,9 @@ class AutomatedTesting:
 
         return str(plot_path)
 
-    def _plot_duration_trends(self, duration_stats: Dict[str, float], plots_dir: Path) -> str:
+    def _plot_duration_trends(
+        self, duration_stats: Dict[str, float], plots_dir: Path
+    ) -> str:
         """Plot test duration trends."""
         plt.figure(figsize=(10, 6))
 
@@ -489,7 +539,7 @@ class AutomatedTesting:
 
         return str(plot_path)
 
-    def _plot_failure_patterns(self, failures: Dict[str, Any], plots_dir: Path) -> str:
+    def _plot_failure_patterns(self, failures: Dict[str, Any], plots_dir: Path):
         """Plot test failure patterns."""
         if not failures:
             return ""
@@ -511,3 +561,193 @@ class AutomatedTesting:
         plt.close()
 
         return str(plot_path)
+
+    def generate_report(
+        self, results: Dict[str, Any], report_path: Optional[Path] = None
+    ):
+        """
+        Generate a detailed HTML report from test results.
+
+        Args:
+            results: Dictionary containing test results
+            report_path: Optional custom path for the report
+
+        Returns:
+            Path to the generated report
+        """
+        if report_path is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_path = self.results_dir / f"test_report_{timestamp}.html"
+
+        with open(report_path, "w") as f:
+            f.write("<html><head><title>Test Report</title></head><body>")
+            f.write(f"<h1>Test Report - {results['timestamp']}</h1>")
+
+            if results["status"] == "completed":
+                f.write("<h2>Coverage Report</h2>")
+                f.write("<pre>")
+                for module, coverage in results["coverage"].items():
+                    f.write(f"{module}: {coverage:.2f}%\n")
+                f.write("</pre>")
+            else:
+                f.write(f"<h2>Error: {results.get('error', 'Unknown error')}</h2>")
+
+            f.write("</body></html>")
+
+        return report_path
+
+    def get_coverage_report(self) -> Dict[str, float]:
+        """
+        Get detailed coverage information for each module.
+
+        Returns:
+            Dictionary mapping module names to coverage percentages
+        """
+        coverage_data = {}
+        for filename in self.cov.get_data().measured_files():
+            file_coverage = self.cov.analysis2(filename)
+            total_lines = len(file_coverage[1]) + len(file_coverage[2])
+            if total_lines > 0:
+                coverage_pct = (len(file_coverage[1]) / total_lines) * 100
+                coverage_data[Path(filename).name] = coverage_pct
+        return coverage_data
+
+    def get_test_history(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve history of test runs from stored results.
+
+        Returns:
+            List of historical test results
+        """
+        history = []
+        for result_file in self.results_dir.glob("*.json"):
+            with open(result_file) as f:
+                history.append(json.load(f))
+        return sorted(history, key=lambda x: x["timestamp"])
+
+    def compare_results(self, previous_run: str, current_run: str):
+        """
+        Compare two test runs and generate a diff report.
+
+        Args:
+            previous_run: Path or ID of previous test run
+            current_run: Path or ID of current test run
+
+        Returns:
+            Dictionary containing comparison results
+        """
+        prev_results = None
+        curr_results = None
+
+        # Load previous results
+        prev_path = self.results_dir / f"{previous_run}.json"
+        if prev_path.exists():
+            with open(prev_path) as f:
+                prev_results = json.load(f)
+
+        # Load current results
+        curr_path = self.results_dir / f"{current_run}.json"
+        if curr_path.exists():
+            with open(curr_path) as f:
+                curr_results = json.load(f)
+
+        if not (prev_results and curr_results):
+            raise ValueError("Could not load one or both test results")
+
+        comparison = {
+            "timestamp": datetime.now().isoformat(),
+            "coverage_diff": {},
+            "regression_tests": [],
+            "new_passing_tests": [],
+        }
+
+        # Compare coverage
+        for module in set(prev_results["coverage"].keys()) | set(
+            curr_results["coverage"].keys()
+        ):
+            prev_cov = prev_results["coverage"].get(module, 0)
+            curr_cov = curr_results["coverage"].get(module, 0)
+            comparison["coverage_diff"][module] = curr_cov - prev_cov
+
+        return comparison
+
+    def send_report_email(self, recipients: List[str], report_path: Path) -> bool:
+        """
+        Email test report to specified recipients.
+
+        Args:
+            recipients: List of email addresses
+            report_path: Path to the report file
+
+        Returns:
+            Boolean indicating success/failure
+        """
+        try:
+            msg = MIMEMultipart()
+            msg["Subject"] = (
+                f'Test Report - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
+            )
+            msg["From"] = "dojopool-testing@example.com"
+            msg["To"] = ", ".join(recipients)
+
+            # Attach the report
+            with open(report_path) as f:
+                attachment = MIMEApplication(f.read(), _subtype="html")
+                attachment.add_header(
+                    "Content-Disposition", "attachment", filename=report_path.name
+                )
+                msg.attach(attachment)
+
+            # Add summary in email body
+            body = MIMEText("Please find attached the latest test report.")
+            msg.attach(body)
+
+            # Send email (configure SMTP settings as needed)
+            with smtplib.SMTP("localhost") as s:
+                s.send_message(msg)
+
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to send email: {str(e)}")
+            return False
+
+    def plot_metrics(self, metrics: Dict[str, List[float]]) -> None:
+        """
+        Generate plots for test metrics over time.
+
+        Args:
+            metrics: Dictionary mapping metric names to lists of values
+        """
+        plt.figure(figsize=(12, 6))
+
+        for metric_name, values in metrics.items():
+            plt.plot(values, label=metric_name)
+
+        plt.title("Test Metrics Over Time")
+        plt.xlabel("Test Run")
+        plt.ylabel("Value")
+        plt.legend()
+
+        plot_path = self.results_dir / "metrics_plot.png"
+        plt.savefig(plot_path)
+        plt.close()
+
+    def cleanup_old_reports(self, days_to_keep: int = 30):
+        """
+        Remove test reports older than specified number of days.
+
+        Args:
+            days_to_keep: Number of days to retain reports
+        """
+        cutoff_date = datetime.now() - timedelta(days=days_to_keep)
+
+        for report_file in self.results_dir.glob("*"):
+            if report_file.is_file():
+                file_time = datetime.fromtimestamp(report_file.stat().st_mtime)
+                if file_time < cutoff_date:
+                    try:
+                        report_file.unlink()
+                        logger.info(f"Deleted old report: {report_file}")
+                    except Exception as e:
+                        logger.error(f"Failed to delete {report_file}: {str(e)}")

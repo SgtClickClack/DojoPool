@@ -18,7 +18,10 @@ class PerformanceDashboard:
     """Performance monitoring and optimization dashboard."""
 
     def __init__(
-        self, monitor: ModelMonitor, version_manager: ModelVersion, retrainer: ModelRetrainer
+        self,
+        monitor: ModelMonitor,
+        version_manager: ModelVersion,
+        retrainer: ModelRetrainer,
     ):
         """Initialize performance dashboard.
 
@@ -47,7 +50,9 @@ class PerformanceDashboard:
         """Set up Prometheus metrics."""
         # Prediction metrics
         self.prediction_accuracy = Gauge(
-            "model_prediction_accuracy", "Model prediction accuracy by type", ["model_type"]
+            "model_prediction_accuracy",
+            "Model prediction accuracy by type",
+            ["model_type"],
         )
         self.prediction_latency = Histogram(
             "model_prediction_latency_seconds",
@@ -63,13 +68,17 @@ class PerformanceDashboard:
 
         # Training metrics
         self.training_duration = Gauge(
-            "model_training_duration_seconds", "Model training duration in seconds", ["model_type"]
+            "model_training_duration_seconds",
+            "Model training duration in seconds",
+            ["model_type"],
         )
         self.training_samples = Gauge(
             "model_training_samples", "Number of training samples used", ["model_type"]
         )
         self.model_version = Gauge(
-            "model_version_info", "Current model version information", ["model_type", "version_id"]
+            "model_version_info",
+            "Current model version information",
+            ["model_type", "version_id"],
         )
 
         # Performance metrics
@@ -79,7 +88,9 @@ class PerformanceDashboard:
             ["model_type", "metric_name"],
         )
         self.feature_drift = Gauge(
-            "model_feature_drift", "Feature drift detection metrics", ["model_type", "feature_name"]
+            "model_feature_drift",
+            "Feature drift detection metrics",
+            ["model_type", "feature_name"],
         )
 
     def update_metrics(self):
@@ -94,7 +105,9 @@ class PerformanceDashboard:
 
         # Update prediction metrics
         if "accuracy" in performance:
-            self.prediction_accuracy.labels(model_type=model_type).set(performance["accuracy"])
+            self.prediction_accuracy.labels(model_type=model_type).set(
+                performance["accuracy"]
+            )
 
         if "avg_latency" in performance:
             self.prediction_latency.labels(model_type=model_type).observe(
@@ -102,32 +115,42 @@ class PerformanceDashboard:
             )
 
         if "error_count" in performance:
-            self.prediction_errors.labels(model_type=model_type, error_type="total").inc(
-                performance["error_count"]
-            )
+            self.prediction_errors.labels(
+                model_type=model_type, error_type="total"
+            ).inc(performance["error_count"])
 
         # Get training metrics
         training_history = self.retrainer.get_retraining_history(model_type)
         if training_history:
             latest_training = training_history[-1]
-            self.training_duration.labels(model_type=model_type).set(latest_training["duration"])
-            self.training_samples.labels(model_type=model_type).set(latest_training["samples_used"])
+            self.training_duration.labels(model_type=model_type).set(
+                latest_training["duration"]
+            )
+            self.training_samples.labels(model_type=model_type).set(
+                latest_training["samples_used"]
+            )
 
         # Get version info
         versions = self.version_manager.list_versions(status="active")
         for version in versions:
             if version["metadata"]["model_type"] == model_type:
-                self.model_version.labels(model_type=model_type, version_id=version["id"]).set(1)
+                self.model_version.labels(
+                    model_type=model_type, version_id=version["id"]
+                ).set(1)
 
         # Update performance metrics
         metrics = self._get_detailed_metrics(model_type)
         for name, value in metrics.items():
-            self.model_performance.labels(model_type=model_type, metric_name=name).set(value)
+            self.model_performance.labels(model_type=model_type, metric_name=name).set(
+                value
+            )
 
         # Update feature drift metrics
         drift_metrics = self._analyze_feature_drift(model_type)
         for feature, drift in drift_metrics.items():
-            self.feature_drift.labels(model_type=model_type, feature_name=feature).set(drift)
+            self.feature_drift.labels(model_type=model_type, feature_name=feature).set(
+                drift
+            )
 
     def get_performance_summary(self) -> Dict[str, Any]:
         """Get comprehensive performance summary.
@@ -207,7 +230,9 @@ class PerformanceDashboard:
             # Check feature drift
             drift_metrics = self._analyze_feature_drift(model_type)
             high_drift_features = [
-                f for f, d in drift_metrics.items() if d > self.thresholds["drift_threshold"]
+                f
+                for f, d in drift_metrics.items()
+                if d > self.thresholds["drift_threshold"]
             ]
             if high_drift_features:
                 model_recommendations.append(
@@ -246,19 +271,24 @@ class PerformanceDashboard:
                 }
             )
         else:
-            metrics.update({"mse": performance.get("mse", 0), "rmse": performance.get("rmse", 0)})
+            metrics.update(
+                {"mse": performance.get("mse", 0), "rmse": performance.get("rmse", 0)}
+            )
 
         return metrics
 
-    def _analyze_feature_drift(self, model_type: str) -> Dict[str, float]:
+    def _analyze_feature_drift(self, model_type: str):
         """Analyze feature drift for a model type."""
         # This would need to be implemented based on your feature drift detection system
         # For now, returning placeholder values
         return {"feature_1": 0.05, "feature_2": 0.08, "feature_3": 0.12}
 
     def _check_health_status(
-        self, model_type: str, performance: Dict[str, Any], version_info: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self,
+        model_type: str,
+        performance: Dict[str, Any],
+        version_info: Optional[Dict[str, Any]],
+    ):
         """Check health status of a model."""
         status = {"status": "healthy", "issues": []}
 

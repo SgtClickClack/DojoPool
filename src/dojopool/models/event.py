@@ -25,7 +25,9 @@ class Event(db.Model):
     max_participants = db.Column(db.Integer)
     entry_fee = db.Column(db.Float, default=0.0)
     prize_pool = db.Column(db.Float, default=0.0)
-    status = db.Column(db.String(20), default="upcoming")  # upcoming, active, completed, cancelled
+    status = db.Column(
+        db.String(20), default="upcoming"
+    )  # upcoming, active, completed, cancelled
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
@@ -71,7 +73,9 @@ class Event(db.Model):
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat(),
             "registration_deadline": (
-                self.registration_deadline.isoformat() if self.registration_deadline else None
+                self.registration_deadline.isoformat()
+                if self.registration_deadline
+                else None
             ),
             "max_participants": self.max_participants,
             "entry_fee": self.entry_fee,
@@ -81,6 +85,6 @@ class Event(db.Model):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """String representation of event object"""
         return f"<Event {self.name}>"

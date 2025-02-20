@@ -1,3 +1,5 @@
+import gc
+import gc
 """Game state validation module."""
 
 from dataclasses import dataclass
@@ -124,7 +126,7 @@ class StateValidator:
 
         return True
 
-    def _is_legal_transition(self, current: Dict, next_state: Dict) -> bool:
+    def _is_legal_transition(self, current: Dict, next_state: Dict):
         """Check if state transition is legal.
 
         Args:
@@ -157,7 +159,7 @@ class StateValidator:
 
         return next_status in legal_transitions[current_status]
 
-    def _update_scores(self, current: Dict, next_state: Dict) -> Dict:
+    def _update_scores(self, current: Dict, next_state: Dict):
         """Update scores based on state transition.
 
         Args:
@@ -209,7 +211,9 @@ class StateValidator:
             state["ball_in_hand"] = True
 
         # Update state scores
-        state["scores"] = {player_id: vars(score) for player_id, score in self.scores.items()}
+        state["scores"] = {
+            player_id: vars(score) for player_id, score in self.scores.items()
+        }
 
         self.last_foul = foul
 
@@ -223,8 +227,12 @@ class StateValidator:
         current_player = current["current_player"]
 
         # Get newly pocketed balls
-        current_pocketed = {b["number"] for b in current["balls"] if b.get("is_pocketed")}
-        next_pocketed = {b["number"] for b in next_state["balls"] if b.get("is_pocketed")}
+        current_pocketed = {
+            b["number"] for b in current["balls"] if b.get("is_pocketed")
+        }
+        next_pocketed = {
+            b["number"] for b in next_state["balls"] if b.get("is_pocketed")
+        }
         new_pocketed = next_pocketed - current_pocketed
 
         if not new_pocketed:
@@ -253,7 +261,9 @@ class StateValidator:
         self.scores[current_player].consecutive_fouls = 0
 
         # Update state scores
-        next_state["scores"] = {player_id: vars(score) for player_id, score in self.scores.items()}
+        next_state["scores"] = {
+            player_id: vars(score) for player_id, score in self.scores.items()
+        }
 
     def get_legal_shots(self, state: Dict) -> List[Dict]:
         """Get list of legal shots in current state.
@@ -276,7 +286,7 @@ class StateValidator:
 
         return legal_shots
 
-    def _get_eight_ball_legal_shots(self, state: Dict) -> List[Dict]:
+    def _get_eight_ball_legal_shots(self, state: Dict):
         """Get legal shots for 8-ball.
 
         Args:
@@ -307,21 +317,34 @@ class StateValidator:
             b
             for b in state["balls"]
             if not b.get("is_pocketed")
-            and (b["number"] <= 7 if player_group == "solids" else 8 < b["number"] <= 15)
+            and (
+                b["number"] <= 7 if player_group == "solids" else 8 < b["number"] <= 15
+            )
         ]
 
         if not player_balls:  # All balls of group pocketed
             # Can shoot at 8-ball
             eight_ball = next(
-                (b for b in state["balls"] if b["number"] == 8 and not b.get("is_pocketed")), None
+                (
+                    b
+                    for b in state["balls"]
+                    if b["number"] == 8 and not b.get("is_pocketed")
+                ),
+                None,
             )
             if eight_ball:
-                shots.append({"ball": 8, "type": "eight_ball", "called_pocket_required": True})
+                shots.append(
+                    {"ball": 8, "type": "eight_ball", "called_pocket_required": True}
+                )
         else:
             # Must shoot at own group
             for ball in player_balls:
                 shots.append(
-                    {"ball": ball["number"], "type": player_group, "called_pocket_required": True}
+                    {
+                        "ball": ball["number"],
+                        "type": player_group,
+                        "called_pocket_required": True,
+                    }
                 )
 
         return shots
@@ -339,9 +362,13 @@ class StateValidator:
 
         # Must hit lowest numbered ball first
         lowest_ball = min(
-            b["number"] for b in state["balls"] if not b.get("is_pocketed") and b["number"] > 0
+            b["number"]
+            for b in state["balls"]
+            if not b.get("is_pocketed") and b["number"] > 0
         )
 
-        shots.append({"ball": lowest_ball, "type": "nine_ball", "called_pocket_required": False})
+        shots.append(
+            {"ball": lowest_ball, "type": "nine_ball", "called_pocket_required": False}
+        )
 
         return shots

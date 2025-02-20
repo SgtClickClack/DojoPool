@@ -1,10 +1,12 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Player profile management for DojoPool."""
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Set
 from enum import Enum
-import uuid
+from typing import Dict, List, Optional, Set
 
 
 class PlayerRank(Enum):
@@ -95,7 +97,7 @@ class PlayerProfileManager:
         self._achievements: Dict[str, Achievement] = {}
         self._initialize_achievements()
 
-    def _initialize_achievements(self) -> None:
+    def _initialize_achievements(self):
         """Initialize available achievements."""
         # Tournament achievements
         self._achievements["first_tournament_win"] = Achievement(
@@ -140,7 +142,7 @@ class PlayerProfileManager:
             icon_url="/assets/achievements/hot_streak.png",
         )
 
-    def create_profile(self, username: str, display_name: str, email: str) -> PlayerProfile:
+    def create_profile(self, username: str, display_name: str, email: str):
         """Create a new player profile."""
         player_id = str(uuid.uuid4())
 
@@ -155,7 +157,7 @@ class PlayerProfileManager:
         self._profiles[player_id] = profile
         return profile
 
-    def get_profile(self, player_id: str) -> Optional[PlayerProfile]:
+    def get_profile(self, player_id: str):
         """Get a player's profile."""
         return self._profiles.get(player_id)
 
@@ -229,7 +231,7 @@ class PlayerProfileManager:
                     # Award coins
                     profile.dojo_coins += achievement.reward_coins
 
-    def update_rank(self, player_id: str) -> None:
+    def update_rank(self, player_id: str):
         """Update player rank based on level and achievements."""
         profile = self._profiles.get(player_id)
         if not profile:
@@ -259,7 +261,7 @@ class PlayerProfileManager:
         friend_profile.friends.add(player_id)
         return True
 
-    def add_rival(self, player_id: str, rival_id: str) -> bool:
+    def add_rival(self, player_id: str, rival_id: str):
         """Add a rival to player's profile."""
         profile = self._profiles.get(player_id)
         rival_profile = self._profiles.get(rival_id)
@@ -271,7 +273,7 @@ class PlayerProfileManager:
         rival_profile.rivals.add(player_id)
         return True
 
-    def join_clan(self, player_id: str, clan_id: str) -> bool:
+    def join_clan(self, player_id: str, clan_id: str):
         """Add player to a clan."""
         profile = self._profiles.get(player_id)
         if not profile:

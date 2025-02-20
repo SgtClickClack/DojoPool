@@ -65,7 +65,9 @@ class FileAnalyzer:
             issues.extend([f"TODO found: {todo.strip()}" for todo in todos])
 
         # Check for long lines
-        long_lines = [i + 1 for i, line in enumerate(content.splitlines()) if len(line) > 100]
+        long_lines = [
+            i + 1 for i, line in enumerate(content.splitlines()) if len(line) > 100
+        ]
         if long_lines:
             issues.append(f"Long lines found on lines: {long_lines}")
 
@@ -77,7 +79,9 @@ class FileAnalyzer:
                 r"(?:from|import)\s+([\w.]+)(?:\s+import\s+[\w,\s]+)?", content
             )
             # JavaScript/TypeScript imports
-            js_imports = re.findall(r'(?:import|require)\s*\(?\s*[\'"]([^\'\"]+)[\'\"]', content)
+            js_imports = re.findall(
+                r'(?:import|require)\s*\(?\s*[\'"]([^\'\"]+)[\'\"]', content
+            )
             dependencies.extend(python_imports + js_imports)
 
         return {
@@ -117,12 +121,17 @@ class FileAnalyzer:
                         else:
                             # Compare content for similarity
                             try:
-                                with open(file1["path"], "r") as f1, open(file2["path"], "r") as f2:
+                                with (
+                                    open(file1["path"], "r") as f1,
+                                    open(file2["path"], "r") as f2,
+                                ):
                                     similarity = difflib.SequenceMatcher(
                                         None, f1.read(), f2.read()
                                     ).ratio()
                                     if similarity > 0.8:  # 80% similar
-                                        self.analysis_results["potential_duplicates"].append(
+                                        self.analysis_results[
+                                            "potential_duplicates"
+                                        ].append(
                                             {
                                                 "file1": file1["path"],
                                                 "file2": file2["path"],

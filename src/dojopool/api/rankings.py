@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from ..core.ranking.global_ranking import GlobalRankingService
 from ..core.auth import get_current_user
-from ..models.user import User
 from ..core.cache.fastapi_cache import cache_response_fastapi, invalidate_endpoint_cache
 from ..core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
+from ..core.ranking.global_ranking import GlobalRankingService
+from ..models.user import User
 
 router = APIRouter(prefix="/rankings", tags=["rankings"])
 ranking_service = GlobalRankingService()
@@ -61,7 +62,9 @@ async def get_global_rankings(
 ) -> List[Dict]:
     """Get global rankings for a specific range."""
     if end_rank < start_rank:
-        raise HTTPException(status_code=400, detail="End rank must be greater than start rank")
+        raise HTTPException(
+            status_code=400, detail="End rank must be greater than start rank"
+        )
 
     rankings = ranking_service.get_rankings_in_range(start_rank, end_rank)
 
@@ -77,11 +80,15 @@ async def get_global_rankings(
                     "rank_streak_type": user.rank_streak_type,
                     "highest_rating": user.highest_rating,
                     "highest_rating_date": (
-                        user.highest_rating_date.isoformat() if user.highest_rating_date else None
+                        user.highest_rating_date.isoformat()
+                        if user.highest_rating_date
+                        else None
                     ),
                     "highest_rank": user.highest_rank,
                     "highest_rank_date": (
-                        user.highest_rank_date.isoformat() if user.highest_rank_date else None
+                        user.highest_rank_date.isoformat()
+                        if user.highest_rank_date
+                        else None
                     ),
                     "ranking_history": user.ranking_history or [],
                 }
@@ -91,8 +98,12 @@ async def get_global_rankings(
 
 
 @router.get("/player/{user_id}", response_model=PlayerRankingResponse)
-@cache_response_fastapi(timeout=CACHE_REGIONS["medium"]["timeout"], key_prefix="player_ranking")
-async def get_player_ranking(user_id: int, current_user: User = Depends(get_current_user)) -> Dict:
+@cache_response_fastapi(
+    timeout=CACHE_REGIONS["medium"]["timeout"], key_prefix="player_ranking"
+)
+async def get_player_ranking(
+    user_id: int, current_user: User = Depends(get_current_user)
+) -> Dict:
     """Get detailed ranking information for a specific player."""
     details = ranking_service.get_player_ranking_details(user_id)
     if not details:
@@ -110,7 +121,9 @@ async def get_player_ranking(user_id: int, current_user: User = Depends(get_curr
             "rank_streak_type": user.rank_streak_type,
             "highest_rating": user.highest_rating,
             "highest_rating_date": (
-                user.highest_rating_date.isoformat() if user.highest_rating_date else None
+                user.highest_rating_date.isoformat()
+                if user.highest_rating_date
+                else None
             ),
             "highest_rank": user.highest_rank,
             "highest_rank_date": (
@@ -124,7 +137,9 @@ async def get_player_ranking(user_id: int, current_user: User = Depends(get_curr
 
 
 @router.post("/update", response_model=bool)
-async def trigger_ranking_update(current_user: User = Depends(get_current_user)) -> bool:
+async def trigger_ranking_update(
+    current_user: User = Depends(get_current_user),
+) -> bool:
     """Trigger a global rankings update. Admin only."""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")

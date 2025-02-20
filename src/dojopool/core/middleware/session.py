@@ -1,102 +1,105 @@
 """Session security middleware."""
 
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import abort, g, request
+from flask import Request, Response, abort, current_app, g, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from dojopool.core.security.session import SessionManager
 from dojopool.utils.security import secure_headers
 
-session_manager = SessionManager()
+session_manager: SessionManager = SessionManager()
 
 
 def session_security_middleware() -> Callable:
-    """Middleware to enforce session security."""
+    """Middleware to enforce session security.
 
-    def decorator(f: Callable) -> Callable:
+    Returns:
+        Callable: Decorator function for session security
+    """
+
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any) -> Any:
+        def decorated_function(*args: Any, **kwargs: Any):
             # Skip for non-authenticated endpoints
-            if request.endpoint in ["auth.login", "auth.register", "static"]:
+            if getattr(f, "skip_session_security", False):
                 return f(*args, **kwargs)
 
-            # Get session token from header or cookie
-            session_token = request.headers.get("X-Session-Token") or request.cookies.get(
-                "session_token"
-            )
-
+            # Get session token
+            session_token = request.cookies.get("session_token")
             if not session_token:
-                abort(401)
+                abort(401, "Session token missing")
 
             # Validate session
             session_data = session_manager.validate_session(session_token)
             if not session_data:
-                abort(401)
+                abort(401, "Invalid session")
 
-            # Store session data in g for route handlers
-            g.session = session_data
-            g.user_id = session_data["user_id"]
+            # Check session expiry
+            if session_manager.is_session_expired(session_data):
+                abort(401, "Session expired")
 
-            # Add security headers
-            response = f(*args, **kwargs)
-            if hasattr(response, "headers"):
-                response.headers.update(secure_headers())
-
-            # Rotate session periodically
+            # Check for session rotation
             if _should_rotate_session(session_data):
                 new_token = session_manager.rotate_session(session_token)
-                if new_token and hasattr(response, "set_cookie"):
-                    response.set_cookie(
-                        "session_token", new_token, httponly=True, secure=True, samesite="Lax"
-                    )
+                response = f(*args, **kwargs)
+                response.set_cookie(
+                    "session_token",
+                    new_token,
+                    secure=True,
+                    httponly=True,
+                    samesite="Strict",
+                )
+                return response
 
-            return response
+            # Add session data to request context
+            g.session = session_data
+
+            return f(*args, **kwargs)
 
         return decorated_function
 
     return decorator
 
 
-def _should_rotate_session(session_data: dict) -> bool:
-    """Determine if session should be rotated based on activity."""
-    from datetime import datetime, timedelta
+def _should_rotate_session(session_data: Dict[str, Any]) -> bool:
+    """Check if session should be rotated based on age and activity.
 
-    last_activity = datetime.fromisoformat(session_data["last_activity"])
-    rotation_threshold = timedelta(minutes=30)  # Rotate every 30 minutes
+    Args:
+        session_data: Session data dictionary
 
-    return datetime.utcnow() - last_activity > rotation_threshold
+    Returns:
+        bool: Whether session should be rotated
+    """
+    # Rotate session after 12 hours or 100 requests
+    return (
+        session_data.get("age", 0) > 43200  # 12 hours in seconds
+        or session_data.get("request_count", 0) > 100
+    )
 
 
 def rate_limit_middleware(requests: int = 100, window: int = 3600) -> Callable:
-    """Rate limiting middleware.
+    """Rate limiting middleware for sessions.
 
     Args:
-        requests: Maximum number of requests allowed
+        requests: Maximum number of requests allowed in window
         window: Time window in seconds
 
     Returns:
-        Callable: Decorated function
+        Callable: Decorator function for rate limiting
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @wraps(f)
-        def decorated_function(*args: Any, **kwargs: Any) -> Any:
+        def decorated_function(*args: Any, **kwargs: Any):
             # Get client identifier (IP or session token)
-            client_id = request.headers.get("X-Session-Token") or request.remote_addr
+            client_id = request.cookies.get("session_token") or request.remote_addr
 
             # Check rate limit
-            key = f"rate_limit:{client_id}"
-            current = session_manager.redis_client.get(key)
-
-            if current is not None and int(current) >= requests:
-                abort(429)  # Too Many Requests
-
-            # Increment counter
-            if current is None:
-                session_manager.redis_client.setex(key, window, 1)
-            else:
-                session_manager.redis_client.incr(key)
+            if not session_manager.check_rate_limit(client_id, requests, window):
+                abort(429, "Rate limit exceeded")
 
             return f(*args, **kwargs)
 

@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Device model module."""
 
 from datetime import datetime
@@ -37,17 +39,17 @@ class Device(TimestampedModel):
         return device
 
     @classmethod
-    def get_by_id(cls, device_id: str) -> Optional["Device"]:
+    def get_by_id(cls, device_id: str):
         """Get device by ID."""
         return cls.query.filter_by(id=device_id, is_active=True).first()
 
     @classmethod
-    def get_by_device_id(cls, device_id: str) -> Optional["Device"]:
+    def get_by_device_id(cls, device_id: str):
         """Get device by device_id."""
         return cls.query.filter_by(device_id=device_id, is_active=True).first()
 
     @classmethod
-    def get_user_devices(cls, user_id: str) -> list["Device"]:
+    def get_user_devices(cls, user_id: str):
         """Get all active devices for a user."""
         return cls.query.filter_by(user_id=user_id, is_active=True).all()
 
@@ -63,7 +65,7 @@ class Device(TimestampedModel):
             db.session.rollback()
             return False
 
-    def revoke_access(self) -> bool:
+    def revoke_access(self):
         """Revoke device access."""
         try:
             self.is_active = False
@@ -74,7 +76,7 @@ class Device(TimestampedModel):
             db.session.rollback()
             return False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert device to dictionary."""
         base_dict = super().to_dict()
         device_dict = {

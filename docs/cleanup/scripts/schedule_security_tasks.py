@@ -29,7 +29,8 @@ class SecurityTaskScheduler:
             format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.FileHandler(
-                    log_dir / f"scheduler_{datetime.now(timezone.utc).strftime('%Y%m%d')}.log"
+                    log_dir
+                    / f"scheduler_{datetime.now(timezone.utc).strftime('%Y%m%d')}.log"
                 ),
                 logging.StreamHandler(),
             ],
@@ -39,9 +40,15 @@ class SecurityTaskScheduler:
         """Run the automated security check script."""
         try:
             script_path = (
-                self.root_dir / "docs" / "cleanup" / "scripts" / "automated_security_check.py"
+                self.root_dir
+                / "docs"
+                / "cleanup"
+                / "scripts"
+                / "automated_security_check.py"
             )
-            subprocess.run(["python", str(script_path)], capture_output=True, text=True, check=True)
+            subprocess.run(
+                ["python", str(script_path)], capture_output=True, text=True, check=True
+            )
             logging.info("Security check completed successfully")
             return True
         except subprocess.CalledProcessError as e:
@@ -51,8 +58,16 @@ class SecurityTaskScheduler:
     def run_certificate_rotation(self):
         """Run the certificate rotation script."""
         try:
-            script_path = self.root_dir / "docs" / "cleanup" / "scripts" / "certificate_rotation.py"
-            subprocess.run(["python", str(script_path)], capture_output=True, text=True, check=True)
+            script_path = (
+                self.root_dir
+                / "docs"
+                / "cleanup"
+                / "scripts"
+                / "certificate_rotation.py"
+            )
+            subprocess.run(
+                ["python", str(script_path)], capture_output=True, text=True, check=True
+            )
             logging.info("Certificate rotation completed successfully")
             return True
         except subprocess.CalledProcessError as e:
@@ -67,7 +82,9 @@ class SecurityTaskScheduler:
                 logging.warning("Security documentation not found")
                 return
 
-            last_modified = datetime.fromtimestamp(doc_file.stat().st_mtime, tz=timezone.utc)
+            last_modified = datetime.fromtimestamp(
+                doc_file.stat().st_mtime, tz=timezone.utc
+            )
             days_since_update = (datetime.now(timezone.utc) - last_modified).days
 
             if days_since_update > 30:
@@ -91,7 +108,9 @@ class SecurityTaskScheduler:
             reports_dir = self.root_dir / "docs" / "cleanup" / "security_reports"
             if reports_dir.exists():
                 latest_report = max(
-                    reports_dir.glob("*.json"), key=lambda x: x.stat().st_mtime, default=None
+                    reports_dir.glob("*.json"),
+                    key=lambda x: x.stat().st_mtime,
+                    default=None,
                 )
                 if latest_report:
                     with open(latest_report) as f:
@@ -101,7 +120,9 @@ class SecurityTaskScheduler:
             cert_logs_dir = self.root_dir / "logs" / "certificates"
             if cert_logs_dir.exists():
                 latest_log = max(
-                    cert_logs_dir.glob("*.log"), key=lambda x: x.stat().st_mtime, default=None
+                    cert_logs_dir.glob("*.log"),
+                    key=lambda x: x.stat().st_mtime,
+                    default=None,
                 )
                 if latest_log:
                     report["latest_certificate_rotation"] = datetime.fromtimestamp(

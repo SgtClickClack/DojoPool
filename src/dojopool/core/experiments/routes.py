@@ -4,23 +4,26 @@ REST API routes for A/B testing management.
 
 from datetime import datetime
 from functools import wraps
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Request, Response, current_app, jsonify, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from ..auth import is_admin, require_auth
 from .manager import Experiment, ExperimentManager
 from .metrics import MetricEvent, MetricsCollector
 
-bp = Blueprint("experiments", __name__, url_prefix="/api/experiments")
-experiment_manager = ExperimentManager()
-metrics_collector = MetricsCollector()
+bp: Blueprint = Blueprint("experiments", __name__, url_prefix="/api/experiments")
+experiment_manager: ExperimentManager = ExperimentManager()
+metrics_collector: MetricsCollector = MetricsCollector()
 
 
-def admin_required(f):
-    """Decorator to require admin access."""
+def admin_required(f: Callable) -> Callable:
+    """Decorator to require admin access for a route."""
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    def decorated(*args: Any, **kwargs: Any):
         if not is_admin():
             return jsonify({"error": "Admin access required"}), 403
         return f(*args, **kwargs)
@@ -55,17 +58,21 @@ def list_experiments():
 @admin_required
 def create_experiment():
     """Create a new experiment."""
-    data = request.get_json()
+    data: Any = request.get_json()
 
     try:
-        experiment = Experiment(
+        experiment: Any = Experiment(
             id=data["id"],
             name=data["name"],
             description=data["description"],
             variants=data["variants"],
             traffic_percentage=float(data["traffic_percentage"]),
             start_date=datetime.fromisoformat(data["start_date"]),
-            end_date=datetime.fromisoformat(data["end_date"]) if data.get("end_date") else None,
+            end_date=(
+                datetime.fromisoformat(data["end_date"])
+                if data.get("end_date")
+                else None
+            ),
             is_active=data.get("is_active", True),
         )
         experiment_manager.create_experiment(experiment)
@@ -78,7 +85,7 @@ def create_experiment():
 @require_auth
 def get_experiment(experiment_id: str):
     """Get experiment details."""
-    experiment = experiment_manager.get_experiment(experiment_id)
+    experiment: Any = experiment_manager.get_experiment(experiment_id)
     if not experiment:
         return jsonify({"error": "Experiment not found"}), 404
 
@@ -90,7 +97,9 @@ def get_experiment(experiment_id: str):
             "variants": experiment.variants,
             "traffic_percentage": experiment.traffic_percentage,
             "start_date": experiment.start_date.isoformat(),
-            "end_date": experiment.end_date.isoformat() if experiment.end_date else None,
+            "end_date": (
+                experiment.end_date.isoformat() if experiment.end_date else None
+            ),
             "is_active": experiment.is_active,
         }
     )
@@ -99,24 +108,27 @@ def get_experiment(experiment_id: str):
 @bp.route("/<experiment_id>/metrics", methods=["GET"])
 @require_auth
 @admin_required
-def get_experiment_metrics(experiment_id: str):
+def get_experiment_metrics(experiment_id: str) -> ResponseReturnValue:
     """Get metrics for an experiment."""
-    experiment = experiment_manager.get_experiment(experiment_id)
+    experiment: Any = experiment_manager.get_experiment(experiment_id)
     if not experiment:
         return jsonify({"error": "Experiment not found"}), 404
 
-    event_type = request.args.get("event_type")
-    start_time = request.args.get("start_time")
-    end_time = request.args.get("end_time")
+    event_type: Any = request.args.get("event_type", type=str)
+    start_time: Any = request.args.get("start_time", type=str)
+    end_time: Any = request.args.get("end_time", type=str)
 
     try:
         if start_time:
-            start_time = datetime.fromisoformat(start_time)
+            start_time: Any = datetime.fromisoformat(start_time)
         if end_time:
-            end_time = datetime.fromisoformat(end_time)
+            end_time: Any = datetime.fromisoformat(end_time)
 
-        metrics = metrics_collector.get_experiment_metrics(
-            experiment_id, event_type=event_type, start_time=start_time, end_time=end_time
+        metrics: Any = metrics_collector.get_experiment_metrics(
+            experiment_id,
+            event_type=event_type,
+            start_time=start_time,
+            end_time=end_time,
         )
         return jsonify(metrics)
     except ValueError as e:
@@ -125,13 +137,13 @@ def get_experiment_metrics(experiment_id: str):
 
 @bp.route("/<experiment_id>/events", methods=["POST"])
 @require_auth
-def track_event(experiment_id: str):
+def track_event(experiment_id: str) -> ResponseReturnValue:
     """Track a new event for an experiment."""
-    data = request.get_json()
-    user_id = request.user_id  # Assuming this is set by @require_auth
+    data: Any = request.get_json()
+    user_id: Any = request.user_id  # Assuming this is set by @require_auth
 
     try:
-        event = MetricEvent(
+        event: MetricEvent = MetricEvent(
             experiment_id=experiment_id,
             user_id=user_id,
             variant=data["variant"],
@@ -148,12 +160,12 @@ def track_event(experiment_id: str):
 
 @bp.route("/<experiment_id>/assignment", methods=["GET"])
 @require_auth
-def get_assignment(experiment_id: str):
+def get_assignment(experiment_id: str) -> ResponseReturnValue:
     """Get or create a variant assignment for the current user."""
-    user_id = request.user_id  # Assuming this is set by @require_auth
+    user_id: Any = request.user_id  # Assuming this is set by @require_auth
 
     try:
-        variant = experiment_manager.assign_user(user_id, experiment_id)
+        variant: Any = experiment_manager.assign_user(user_id, experiment_id)
         return jsonify({"experiment_id": experiment_id, "variant": variant})
     except ValueError as e:
         return jsonify({"error": str(e)}), 404

@@ -1,3 +1,5 @@
+import gc
+import gc
 import logging
 from pathlib import Path
 from typing import Optional
@@ -40,7 +42,7 @@ def add_avif_source(picture: Tag, img: Tag) -> bool:
     return True
 
 
-def update_template(template_file: Path) -> None:
+def update_template(template_file: Path):
     """Update a template file to include AVIF sources."""
     try:
         with open(template_file, "r", encoding="utf-8") as f:
@@ -85,7 +87,9 @@ def process_templates(template_dir: Optional[str] = None) -> None:
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Process templates
     process_templates()

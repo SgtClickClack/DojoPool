@@ -7,7 +7,10 @@ class DojoPoolError(Exception):
     """Base exception for DojoPool errors."""
 
     def __init__(
-        self, message: str, status_code: int = 500, payload: Optional[Dict[str, Any]] = None
+        self,
+        message: str,
+        status_code: int = 500,
+        payload: Optional[Dict[str, Any]] = None,
     ):
         """Initialize error.
 

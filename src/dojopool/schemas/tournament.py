@@ -31,13 +31,21 @@ class TournamentSchema(Schema):
     @validates("end_date")
     def validate_end_date(self, value):
         """Validate end date is after start date."""
-        if value and self.context.get("start_date") and value <= self.context["start_date"]:
+        if (
+            value
+            and self.context.get("start_date")
+            and value <= self.context["start_date"]
+        ):
             raise ValidationError("End date must be after start date")
 
     @validates("registration_deadline")
     def validate_registration_deadline(self, value):
         """Validate registration deadline is before start date."""
-        if value and self.context.get("start_date") and value >= self.context["start_date"]:
+        if (
+            value
+            and self.context.get("start_date")
+            and value >= self.context["start_date"]
+        ):
             raise ValidationError("Registration deadline must be before start date")
 
 
@@ -55,7 +63,9 @@ class TournamentParticipantSchema(Schema):
     final_rank = fields.Int(dump_only=True)
     prize_amount = fields.Float(dump_only=True)
     stats = fields.Dict(dump_only=True)
-    user = fields.Nested("UserSchema", only=("id", "username", "avatar_url"), dump_only=True)
+    user = fields.Nested(
+        "UserSchema", only=("id", "username", "avatar_url"), dump_only=True
+    )
 
 
 class TournamentMatchSchema(Schema):
@@ -83,5 +93,9 @@ class TournamentMatchSchema(Schema):
     @validates("end_time")
     def validate_end_time(self, value):
         """Validate end time is after start time."""
-        if value and self.context.get("start_time") and value <= self.context["start_time"]:
+        if (
+            value
+            and self.context.get("start_time")
+            and value <= self.context["start_time"]
+        ):
             raise ValidationError("End time must be after start time")

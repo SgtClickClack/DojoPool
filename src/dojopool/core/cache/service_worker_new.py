@@ -141,7 +141,7 @@ class ServiceWorker:
             logger.error(f"Error queuing sync task: {str(e)}")
             return ""
 
-    def get_sync_status(self) -> Dict[str, Union[int, Optional[str]]]:
+    def get_sync_status(self):
         """Get the current synchronization status."""
         try:
             pending = len(self._sync_queue)
@@ -151,7 +151,9 @@ class ServiceWorker:
                 "pending_tasks": pending,
                 "failed_tasks": failed,
                 "next_sync": (
-                    self._next_sync_time.isoformat() if hasattr(self, "_next_sync_time") else None
+                    self._next_sync_time.isoformat()
+                    if hasattr(self, "_next_sync_time")
+                    else None
                 ),
             }
 
@@ -268,7 +270,7 @@ class ServiceWorker:
             logger.error(f"Error processing sync task: {str(e)}")
             return False
 
-    async def _process_upload_task(self, task: SyncTask) -> bool:
+    async def _process_upload_task(self, task: SyncTask):
         """Process an upload task."""
         try:
             url = task.data.get("url")
@@ -286,7 +288,7 @@ class ServiceWorker:
             logger.error(f"Error processing upload task: {str(e)}")
             return False
 
-    async def _process_processing_task(self, task: SyncTask) -> bool:
+    async def _process_processing_task(self, task: SyncTask):
         """Process an image processing task."""
         try:
             input_path = task.data.get("input_path")
@@ -304,7 +306,7 @@ class ServiceWorker:
             logger.error(f"Error processing image task: {str(e)}")
             return False
 
-    async def _process_delete_task(self, task: SyncTask) -> bool:
+    async def _process_delete_task(self, task: SyncTask):
         """Process a delete task."""
         try:
             url = task.data.get("url")
@@ -328,7 +330,7 @@ class ServiceWorker:
             return entry.data, entry.mime_type
         return None, None
 
-    def _load_sync_queue(self) -> None:
+    def _load_sync_queue(self):
         """Load existing sync tasks from disk."""
         try:
             # Load task files

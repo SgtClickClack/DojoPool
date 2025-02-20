@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 import logging
 import re
 from pathlib import Path
@@ -26,7 +30,7 @@ def is_critical_image(src: str, alt: str) -> bool:
     )
 
 
-def add_lazy_loading(html_file: str) -> None:
+def add_lazy_loading(html_file: str):
     """Add lazy loading and WebP support to images in HTML file."""
     try:
         with open(html_file, "r", encoding="utf-8") as f:
@@ -98,7 +102,9 @@ def process_templates(template_dir: str = "src/dojopool/templates") -> None:
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Process all templates
     process_templates()

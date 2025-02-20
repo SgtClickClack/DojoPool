@@ -1,15 +1,22 @@
 """Maps routes module."""
 
-from flask import Blueprint, jsonify, render_template
+from typing import Union
 
-from ..config.maps import maps_config
+from flask import Blueprint, Response, jsonify, render_template
+
+from dojopool.core.config import maps_config
 
 bp = Blueprint("maps", __name__)
 
 
 @bp.route("/map")
-def show_map():
-    """Render the map page with configuration."""
+def show_map() -> str:
+    """
+    Render the map page with configuration.
+
+    Returns:
+        Rendered HTML template
+    """
     try:
         # Get map configuration
         config = maps_config.get_frontend_config()
@@ -19,12 +26,19 @@ def show_map():
         return render_template("map.html", error=str(e))
     except Exception:
         # Handle other errors
-        return render_template("map.html", error="An error occurred loading the map configuration")
+        return render_template(
+            "map.html", error="An error occurred loading the map configuration"
+        )
 
 
 @bp.route("/api/maps/config")
 def get_map_config():
-    """Get map configuration as JSON."""
+    """
+    Get map configuration as JSON.
+
+    Returns:
+        JSON response with map configuration
+    """
     try:
         config = maps_config.get_frontend_config()
         return jsonify(config)

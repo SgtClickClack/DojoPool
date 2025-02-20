@@ -80,7 +80,10 @@ class ModelRetrainer:
         # Check performance degradation
         if "performance_threshold" in triggers:
             current_performance = self.monitor.analyze_performance(model_type)
-            if current_performance.get("accuracy", 1.0) < triggers["performance_threshold"]:
+            if (
+                current_performance.get("accuracy", 1.0)
+                < triggers["performance_threshold"]
+            ):
                 return True, "Performance below threshold"
 
         # Check time-based trigger
@@ -93,7 +96,9 @@ class ModelRetrainer:
 
         return False, "No retraining needed"
 
-    def retrain_model(self, model_type: str, training_data: List[Dict]) -> Dict[str, Any]:
+    def retrain_model(
+        self, model_type: str, training_data: List[Dict]
+    ) -> Dict[str, Any]:
         """Retrain a specific model type.
 
         Args:
@@ -145,7 +150,9 @@ class ModelRetrainer:
         self.logger.info(f"Completed retraining for {model_type} model")
         return training_record
 
-    def evaluate_model(self, model_type: str, evaluation_data: List[Dict]) -> Dict[str, Any]:
+    def evaluate_model(
+        self, model_type: str, evaluation_data: List[Dict]
+    ) -> Dict[str, Any]:
         """Evaluate model performance.
 
         Args:
@@ -158,7 +165,7 @@ class ModelRetrainer:
         X_eval, y_eval = self._prepare_training_data(model_type, evaluation_data)
         return self._evaluate_model(model_type, X_eval, y_eval)
 
-    def get_retraining_history(self, model_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_retraining_history(self, model_type: Optional[str] = None):
         """Get retraining history.
 
         Args:
@@ -171,7 +178,7 @@ class ModelRetrainer:
             return [h for h in self.history if h["model_type"] == model_type]
         return self.history
 
-    def analyze_training_trends(self, model_type: str) -> Dict[str, Any]:
+    def analyze_training_trends(self, model_type: str):
         """Analyze training performance trends.
 
         Args:
@@ -222,7 +229,7 @@ class ModelRetrainer:
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 
-    def _evaluate_model(self, model_type: str, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
+    def _evaluate_model(self, model_type: str, X: np.ndarray, y: np.ndarray):
         """Evaluate model performance."""
         if model_type == "shot":
             model = self.predictor.shot_classifier
@@ -245,7 +252,9 @@ class ModelRetrainer:
             )
             y_pred = model.predict(X)
             mse = mean_squared_error(y, y_pred)
-            scores = cross_val_score(model, X, y, cv=5, scoring="neg_mean_squared_error")
+            scores = cross_val_score(
+                model, X, y, cv=5, scoring="neg_mean_squared_error"
+            )
             return {
                 "mse": float(mse),
                 "rmse": float(np.sqrt(mse)),
@@ -264,7 +273,7 @@ class ModelRetrainer:
         # For now, returning a placeholder value
         return 100
 
-    def _get_last_training_time(self, model_type: str) -> Optional[datetime]:
+    def _get_last_training_time(self, model_type: str):
         """Get timestamp of last training for a model type."""
         history = self.get_retraining_history(model_type)
         if not history:
@@ -291,7 +300,7 @@ class ModelRetrainer:
         with open(self.config_file, "w") as f:
             json.dump(self.config, f, indent=2)
 
-    def _load_history(self) -> List[Dict[str, Any]]:
+    def _load_history(self):
         """Load training history."""
         if not self.history_file.exists():
             return []

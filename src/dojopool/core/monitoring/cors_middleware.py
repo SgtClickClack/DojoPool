@@ -1,175 +1,60 @@
-"""
-CORS (Cross-Origin Resource Sharing) middleware for Flask application.
-Handles CORS headers and preflight requests.
-"""
+"""CORS middleware module."""
 
-import re
-from functools import wraps
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
-from flask import make_response, request
-
-from . import security_config as config
+from flask import Flask, Response, request
+from flask.typing import ResponseReturnValue
 
 
-def _get_origin_response_header(request_origin: Optional[str]) -> Optional[str]:
-    """Get appropriate Origin response header based on request origin."""
-    if not request_origin:
-        return None
-
-    allowed_origins = config.CORS_CONFIG["allowed_origins"]
-
-    # Check exact matches
-    if request_origin in allowed_origins:
-        return request_origin
-
-    # Check wildcard patterns
-    for pattern in allowed_origins:
-        if "*" in pattern:
-            # Convert wildcard pattern to regex
-            regex_pattern = pattern.replace(".", r"\.").replace("*", r"[^.]+")
-            if re.match(regex_pattern, request_origin):
-                return request_origin
-
-    return None
-
-
-def cors_middleware() -> Callable:
-    """Middleware for handling CORS requests."""
-
-    def decorator(f: Callable) -> Callable:
-        @wraps(f)
-        def wrapped(*args: Any, **kwargs: Any) -> Any:
-            # Handle preflight requests
-            if request.method == "OPTIONS":
-                response = make_response()
-
-                # Get origin from request
-                request_origin = request.headers.get("Origin")
-                if allowed_origin := _get_origin_response_header(request_origin):
-                    response.headers["Access-Control-Allow-Origin"] = allowed_origin
-
-                    # Allow credentials if configured
-                    if config.CORS_CONFIG["supports_credentials"]:
-                        response.headers["Access-Control-Allow-Credentials"] = "true"
-
-                    # Set allowed methods
-                    response.headers["Access-Control-Allow-Methods"] = ", ".join(
-                        config.CORS_CONFIG["allowed_methods"]
-                    )
-
-                    # Set allowed headers
-                    if request_headers := request.headers.get("Access-Control-Request-Headers"):
-                        allowed_headers = [
-                            h
-                            for h in request_headers.split(",")
-                            if h.strip().lower()
-                            in [h.lower() for h in config.CORS_CONFIG["allowed_headers"]]
-                        ]
-                        if allowed_headers:
-                            response.headers["Access-Control-Allow-Headers"] = ", ".join(
-                                allowed_headers
-                            )
-
-                    # Set exposed headers
-                    if config.CORS_CONFIG["expose_headers"]:
-                        response.headers["Access-Control-Expose-Headers"] = ", ".join(
-                            config.CORS_CONFIG["expose_headers"]
-                        )
-
-                    # Set max age
-                    response.headers["Access-Control-Max-Age"] = str(config.CORS_CONFIG["max_age"])
-
-                return response
-
-            # Handle actual request
-            response = make_response(f(*args, **kwargs))
-
-            # Get origin from request
-            request_origin = request.headers.get("Origin")
-            if allowed_origin := _get_origin_response_header(request_origin):
-                response.headers["Access-Control-Allow-Origin"] = allowed_origin
-
-                # Allow credentials if configured
-                if config.CORS_CONFIG["supports_credentials"]:
-                    response.headers["Access-Control-Allow-Credentials"] = "true"
-
-                # Set exposed headers
-                if config.CORS_CONFIG["expose_headers"]:
-                    response.headers["Access-Control-Expose-Headers"] = ", ".join(
-                        config.CORS_CONFIG["expose_headers"]
-                    )
-
-            return response
-
-        return wrapped
-
-    return decorator
-
-
-def init_cors(app):
-    """Initialize CORS handling for the Flask application."""
-
-    @app.before_request
-    def handle_preflight():
-        """Handle CORS preflight requests."""
-        if request.method == "OPTIONS":
-            response = make_response()
-
-            # Get origin from request
-            request_origin = request.headers.get("Origin")
-            if allowed_origin := _get_origin_response_header(request_origin):
-                response.headers["Access-Control-Allow-Origin"] = allowed_origin
-
-                # Allow credentials if configured
-                if config.CORS_CONFIG["supports_credentials"]:
-                    response.headers["Access-Control-Allow-Credentials"] = "true"
-
-                # Set allowed methods
-                response.headers["Access-Control-Allow-Methods"] = ", ".join(
-                    config.CORS_CONFIG["allowed_methods"]
-                )
-
-                # Set allowed headers
-                if request_headers := request.headers.get("Access-Control-Request-Headers"):
-                    allowed_headers = [
-                        h
-                        for h in request_headers.split(",")
-                        if h.strip().lower()
-                        in [h.lower() for h in config.CORS_CONFIG["allowed_headers"]]
-                    ]
-                    if allowed_headers:
-                        response.headers["Access-Control-Allow-Headers"] = ", ".join(
-                            allowed_headers
-                        )
-
-                # Set exposed headers
-                if config.CORS_CONFIG["expose_headers"]:
-                    response.headers["Access-Control-Expose-Headers"] = ", ".join(
-                        config.CORS_CONFIG["expose_headers"]
-                    )
-
-                # Set max age
-                response.headers["Access-Control-Max-Age"] = str(config.CORS_CONFIG["max_age"])
-
-            return response
+def setup_cors(app: Flask) -> None:
+    """Set up CORS for the Flask application."""
 
     @app.after_request
-    def handle_cors(response):
-        """Handle CORS for all responses."""
-        # Get origin from request
-        request_origin = request.headers.get("Origin")
-        if allowed_origin := _get_origin_response_header(request_origin):
-            response.headers["Access-Control-Allow-Origin"] = allowed_origin
+    def after_request(response: Response):
+        """Add CORS headers to response."""
+        # Allow requests from any origin
+        response.headers.add("Access-Control-Allow-Origin", "*")
 
-            # Allow credentials if configured
-            if config.CORS_CONFIG["supports_credentials"]:
-                response.headers["Access-Control-Allow-Credentials"] = "true"
+        # Allow specific HTTP methods
+        response.headers.add(
+            "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"
+        )
 
-            # Set exposed headers
-            if config.CORS_CONFIG["expose_headers"]:
-                response.headers["Access-Control-Expose-Headers"] = ", ".join(
-                    config.CORS_CONFIG["expose_headers"]
-                )
+        # Allow specific headers
+        response.headers.add(
+            "Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key"
+        )
+
+        # Allow credentials
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+
+        # Cache preflight response for 1 hour
+        response.headers.add("Access-Control-Max-Age", "3600")
 
         return response
+
+
+def cors_preflight_handler() -> Response:
+    """Handle CORS preflight requests."""
+    response = Response()
+
+    # Allow requests from any origin
+    response.headers.add("Access-Control-Allow-Origin", "*")
+
+    # Allow specific HTTP methods
+    response.headers.add(
+        "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"
+    )
+
+    # Allow specific headers
+    response.headers.add(
+        "Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key"
+    )
+
+    # Allow credentials
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+
+    # Cache preflight response for 1 hour
+    response.headers.add("Access-Control-Max-Age", "3600")
+
+    return response

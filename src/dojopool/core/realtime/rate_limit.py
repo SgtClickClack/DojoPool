@@ -32,7 +32,7 @@ class RateLimiter:
         if self._cleanup_task is None:
             self._cleanup_task = asyncio.create_task(self._cleanup_loop(interval))
 
-    async def stop_cleanup(self) -> None:
+    async def stop_cleanup(self):
         """Stop cleanup task."""
         if self._cleanup_task is not None:
             self._cleanup_task.cancel()
@@ -42,7 +42,7 @@ class RateLimiter:
                 pass
             self._cleanup_task = None
 
-    async def _cleanup_loop(self, interval: int) -> None:
+    async def _cleanup_loop(self, interval: int):
         """Cleanup loop to remove expired requests.
 
         Args:
@@ -56,10 +56,12 @@ class RateLimiter:
                 break
             except Exception as e:
                 logger.error(
-                    "Error in rate limiter cleanup", exc_info=True, extra={"error": str(e)}
+                    "Error in rate limiter cleanup",
+                    exc_info=True,
+                    extra={"error": str(e)},
                 )
 
-    async def cleanup(self) -> None:
+    async def cleanup(self):
         """Remove expired requests."""
         now = datetime.utcnow()
         expired_keys = []
@@ -69,7 +71,9 @@ class RateLimiter:
             async with self._locks[key]:
                 # Remove expired requests
                 self._requests[key] = [
-                    req for req in requests if (now - req).total_seconds() <= 3600  # Keep last hour
+                    req
+                    for req in requests
+                    if (now - req).total_seconds() <= 3600  # Keep last hour
                 ]
 
                 # Mark key for removal if empty
@@ -103,7 +107,9 @@ class RateLimiter:
             self._requests[key].append(now)
 
             # Count requests in window
-            requests_in_window = sum(1 for req in self._requests[key] if req > window_start)
+            requests_in_window = sum(
+                1 for req in self._requests[key] if req > window_start
+            )
 
             # Check if limit exceeded
             if requests_in_window > max_requests:
@@ -139,7 +145,9 @@ class RateLimiter:
 rate_limiter = RateLimiter()
 
 
-def rate_limit(max_requests: int, time_window: timedelta, key_func: Optional[Callable] = None):
+def rate_limit(
+    max_requests: int, time_window: timedelta, key_func: Optional[Callable] = None
+):
     """Rate limiting decorator.
 
     Args:
@@ -195,6 +203,6 @@ async def start_rate_limiter(cleanup_interval: int = 300) -> None:
     await rate_limiter.start_cleanup(cleanup_interval)
 
 
-async def stop_rate_limiter() -> None:
+async def stop_rate_limiter():
     """Stop rate limiter cleanup task."""
     await rate_limiter.stop_cleanup()

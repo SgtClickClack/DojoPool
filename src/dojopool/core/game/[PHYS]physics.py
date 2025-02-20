@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Pool game physics engine.
 
 This module handles all physics calculations for the pool game including:
@@ -124,12 +126,17 @@ class PhysicsEngine:
         for i in range(len(self.balls)):
             for j in range(i + 1, len(self.balls)):
                 ball1, ball2 = self.balls[i], self.balls[j]
-                if ball1.is_active and ball2.is_active and self.detect_collision(ball1, ball2):
+                if (
+                    ball1.is_active
+                    and ball2.is_active
+                    and self.detect_collision(ball1, ball2)
+                ):
                     self.resolve_collision(ball1, ball2)
 
     def is_simulation_active(self):
         return any(
-            ball.is_active and (ball.velocity.magnitude() > 0.01 or abs(ball.spin) > 0.01)
+            ball.is_active
+            and (ball.velocity.magnitude() > 0.01 or abs(ball.spin) > 0.01)
             for ball in self.balls
         )
 
@@ -162,24 +169,28 @@ def calculate_shot(
     """
     # Convert angle and power to initial velocity vector
     initial_velocity = Vector2D(
-        power * 500 * math.cos(angle), power * 500 * math.sin(angle)  # Max speed of 500 cm/s
+        power * 500 * math.cos(angle),
+        power * 500 * math.sin(angle),  # Max speed of 500 cm/s
     )
 
     # Calculate collision normal
     collision_normal = Vector2D(
-        target_ball.position.x - cue_ball.position.x, target_ball.position.y - cue_ball.position.y
+        target_ball.position.x - cue_ball.position.x,
+        target_ball.position.y - cue_ball.position.y,
     ).normalize()
 
     # Calculate relative velocity
     relative_velocity = Vector2D(
-        initial_velocity.x - target_ball.velocity.x, initial_velocity.y - target_ball.velocity.y
+        initial_velocity.x - target_ball.velocity.x,
+        initial_velocity.y - target_ball.velocity.y,
     )
 
     # Calculate impulse
     j = (
         -(1 + 0.95)
         * (  # 0.95 is coefficient of restitution
-            relative_velocity.x * collision_normal.x + relative_velocity.y * collision_normal.y
+            relative_velocity.x * collision_normal.x
+            + relative_velocity.y * collision_normal.y
         )
         / (1 / cue_ball.mass + 1 / target_ball.mass)
     )

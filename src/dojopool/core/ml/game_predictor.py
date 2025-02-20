@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Machine learning module for game prediction and pattern analysis.
 
 This module provides ML-based predictions and pattern recognition for pool games.
@@ -125,7 +127,7 @@ class GamePredictor:
         test = self.active_tests[test_id]
         return test.get_results()
 
-    def train_models(self, training_data: List[Dict]) -> Dict[str, float]:
+    def train_models(self, training_data: List[Dict]):
         """Train prediction models on historical game data.
 
         Args:
@@ -194,7 +196,10 @@ class GamePredictor:
         # Update version metrics
         self.version_manager.update_metrics(
             shot_version,
-            {"accuracy": shot_accuracy, "training_timestamp": datetime.utcnow().isoformat()},
+            {
+                "accuracy": shot_accuracy,
+                "training_timestamp": datetime.utcnow().isoformat(),
+            },
         )
 
         self.version_manager.update_metrics(
@@ -219,7 +224,7 @@ class GamePredictor:
             },
         }
 
-    def predict_shot_success(self, shot_data: Dict) -> Dict[str, Any]:
+    def predict_shot_success(self, shot_data: Dict):
         """Predict success probability for a shot.
 
         Args:
@@ -239,7 +244,9 @@ class GamePredictor:
             # Record outcome when available
             if "result" in shot_data:
                 active_test.record_outcome(
-                    variant_id=variant_id, prediction=prediction, actual=shot_data["result"]
+                    variant_id=variant_id,
+                    prediction=prediction,
+                    actual=shot_data["result"],
                 )
 
             return prediction
@@ -303,17 +310,23 @@ class GamePredictor:
                     {
                         "shot_type": shot_type,
                         "confidence": float(prob),
-                        "difficulty": self._estimate_shot_difficulty(game_state, shot_type),
+                        "difficulty": self._estimate_shot_difficulty(
+                            game_state, shot_type
+                        ),
                     }
                 )
 
         prediction = {
-            "recommendations": sorted(recommendations, key=lambda x: x["confidence"], reverse=True),
+            "recommendations": sorted(
+                recommendations, key=lambda x: x["confidence"], reverse=True
+            ),
             "timestamp": datetime.utcnow().isoformat(),
         }
 
         # Record prediction for monitoring
-        self.monitor.record_prediction(model_type="shot", prediction=prediction, latency=latency)
+        self.monitor.record_prediction(
+            model_type="shot", prediction=prediction, latency=latency
+        )
 
         return prediction
 
@@ -353,9 +366,14 @@ class GamePredictor:
         latency = time.time() - start_time
 
         prediction = {
-            "recommended_position": {"x": float(predicted_pos[0]), "y": float(predicted_pos[1])},
+            "recommended_position": {
+                "x": float(predicted_pos[0]),
+                "y": float(predicted_pos[1]),
+            },
             "confidence": self._calculate_position_confidence(predicted_pos),
-            "alternatives": self._generate_position_alternatives(game_state, predicted_pos),
+            "alternatives": self._generate_position_alternatives(
+                game_state, predicted_pos
+            ),
         }
 
         # Record prediction for monitoring
@@ -406,7 +424,9 @@ class GamePredictor:
         Args:
             path: Save directory path
         """
-        if not all([self.shot_classifier, self.success_predictor, self.position_predictor]):
+        if not all(
+            [self.shot_classifier, self.success_predictor, self.position_predictor]
+        ):
             raise ValueError("Models not trained")
 
         # Save current versions
@@ -422,7 +442,7 @@ class GamePredictor:
         """
         self._load_active_versions()
 
-    def get_model_versions(self) -> Dict[str, List[Dict[str, Any]]]:
+    def get_model_versions(self):
         """Get all model versions.
 
         Returns:
@@ -440,7 +460,7 @@ class GamePredictor:
 
     def compare_model_versions(
         self, model_type: str, version_id_1: str, version_id_2: str
-    ) -> Dict[str, Any]:
+    ):
         """Compare two versions of a model type.
 
         Args:
@@ -453,7 +473,7 @@ class GamePredictor:
         """
         return self.version_manager.compare_versions(version_id_1, version_id_2)
 
-    def _prepare_shot_data(self, training_data: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+    def _prepare_shot_data(self, training_data: List[Dict]):
         """Prepare data for shot type classification."""
         features = []
         labels = []
@@ -465,7 +485,9 @@ class GamePredictor:
 
         return np.array(features), np.array(labels)
 
-    def _prepare_success_data(self, training_data: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+    def _prepare_success_data(
+        self, training_data: List[Dict]
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Prepare data for success prediction."""
         features = []
         labels = []
@@ -477,7 +499,7 @@ class GamePredictor:
 
         return np.array(features), np.array(labels)
 
-    def _prepare_position_data(self, training_data: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+    def _prepare_position_data(self, training_data: List[Dict]):
         """Prepare data for position prediction."""
         features = []
         targets = []
@@ -490,7 +512,7 @@ class GamePredictor:
 
         return np.array(features), np.array(targets)
 
-    def _extract_shot_features(self, shot: Dict) -> List[float]:
+    def _extract_shot_features(self, shot: Dict):
         """Extract numerical features from shot data."""
         return [
             shot.get("power", 0),
@@ -501,11 +523,12 @@ class GamePredictor:
             shot.get("difficulty", 0),
         ]
 
-    def _extract_game_state_features(self, game_state: Dict) -> List[float]:
+    def _extract_game_state_features(self, game_state: Dict):
         """Extract numerical features from game state."""
         features = [
             len(game_state.get("remaining_balls", [])) / 15,  # Normalize ball count
-            game_state.get("score", {}).get("difference", 0) / 10,  # Normalize score diff
+            game_state.get("score", {}).get("difference", 0)
+            / 10,  # Normalize score diff
             1.0 if game_state.get("phase") == "endgame" else 0.0,
             len(game_state.get("called_shots", [])) / 10,  # Normalize called shots
         ]
@@ -514,7 +537,10 @@ class GamePredictor:
         if "ball_positions" in game_state:
             ball_pos = game_state["ball_positions"]
             features.extend(
-                [ball_pos.get("cue_ball", {}).get("x", 0), ball_pos.get("cue_ball", {}).get("y", 0)]
+                [
+                    ball_pos.get("cue_ball", {}).get("x", 0),
+                    ball_pos.get("cue_ball", {}).get("y", 0),
+                ]
             )
 
         return features
@@ -533,7 +559,7 @@ class GamePredictor:
 
         return {name: float(imp) for name, imp in zip(feature_names, importance)}
 
-    def _estimate_shot_difficulty(self, game_state: Dict, shot_type: str) -> float:
+    def _estimate_shot_difficulty(self, game_state: Dict, shot_type: str):
         """Estimate difficulty of a shot type in current state."""
         features = self._extract_game_state_features(game_state)
 
@@ -571,7 +597,10 @@ class GamePredictor:
                 if confidence > 0.3:  # Only include reasonable alternatives
                     alternatives.append(
                         {
-                            "position": {"x": float(alt_pos[0]), "y": float(alt_pos[1])},
+                            "position": {
+                                "x": float(alt_pos[0]),
+                                "y": float(alt_pos[1]),
+                            },
                             "confidence": confidence,
                         }
                     )
@@ -594,17 +623,21 @@ class GamePredictor:
     def _identify_sequence_pattern(self, sequence: List[Dict]) -> Dict[str, Any]:
         """Identify pattern in a shot sequence."""
         features = [self._extract_shot_features(shot) for shot in sequence]
-        success_rate = sum(1 for s in sequence if s.get("result") == "success") / len(sequence)
+        success_rate = sum(1 for s in sequence if s.get("result") == "success") / len(
+            sequence
+        )
 
         return {
             "shots": sequence,
             "length": len(sequence),
             "success_rate": success_rate,
             "pattern_type": self._classify_pattern_type(features),
-            "significance": self._calculate_pattern_significance(features, success_rate),
+            "significance": self._calculate_pattern_significance(
+                features, success_rate
+            ),
         }
 
-    def _classify_pattern_type(self, features: List[List[float]]) -> str:
+    def _classify_pattern_type(self, features: List[List[float]]):
         """Classify type of shot pattern."""
         feature_array = np.array(features)
 
@@ -638,7 +671,7 @@ class GamePredictor:
         """
         return self.monitor.get_monitoring_dashboard()
 
-    def check_model_health(self) -> Dict[str, Any]:
+    def check_model_health(self):
         """Check health of all models.
 
         Returns:
@@ -646,8 +679,12 @@ class GamePredictor:
         """
         health_status = {
             "shot_classifier": self._check_model_health(self.shot_classifier, "shot"),
-            "success_predictor": self._check_model_health(self.success_predictor, "success"),
-            "position_predictor": self._check_model_health(self.position_predictor, "position"),
+            "success_predictor": self._check_model_health(
+                self.success_predictor, "success"
+            ),
+            "position_predictor": self._check_model_health(
+                self.position_predictor, "position"
+            ),
             "overall_status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),
         }
@@ -668,7 +705,7 @@ class GamePredictor:
 
         return health_status
 
-    def _check_model_health(self, model: Any, model_type: str) -> Dict[str, Any]:
+    def _check_model_health(self, model: Any, model_type: str):
         """Check health of a specific model.
 
         Args:

@@ -1,14 +1,14 @@
 """Frontend performance testing script using Playwright."""
 
-from typing import Dict, List, Optional
 import asyncio
 import json
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, Optional
 
-from playwright.async_api import async_playwright, Browser, Page, Response
 import pytest
+from playwright.async_api import Browser, Page, Response, async_playwright
 
 
 class PerformanceMetrics:
@@ -33,7 +33,7 @@ class PerformanceMetrics:
         if name in self.metrics:
             self.metrics[name].append(value)
 
-    def get_summary(self) -> Dict[str, Dict[str, float]]:
+    def get_summary(self):
         """Get summary statistics for all metrics."""
         summary = {}
         for name, values in self.metrics.items():
@@ -47,7 +47,7 @@ class PerformanceMetrics:
         return summary
 
 
-async def measure_page_performance(page: Page, url: str) -> Dict[str, float]:
+async def measure_page_performance(page: Page, url: str):
     """Measure performance metrics for a page."""
     # Enable performance metrics
     await page.route("**/*", lambda route: route.continue_())
@@ -93,9 +93,16 @@ async def measure_page_performance(page: Page, url: str) -> Dict[str, float]:
         "lcp": web_vitals.get("lcp", 0),
         "cls": cls,
         "js_heap_size": next(
-            (m["value"] for m in perf_metrics["metrics"] if m["name"] == "JSHeapUsedSize"), 0
+            (
+                m["value"]
+                for m in perf_metrics["metrics"]
+                if m["name"] == "JSHeapUsedSize"
+            ),
+            0,
         ),
-        "dom_nodes": next((m["value"] for m in perf_metrics["metrics"] if m["name"] == "Nodes"), 0),
+        "dom_nodes": next(
+            (m["value"] for m in perf_metrics["metrics"] if m["name"] == "Nodes"), 0
+        ),
     }
 
     return metrics
@@ -119,7 +126,11 @@ async def run_performance_test(base_url: str, routes: List[str]) -> None:
         )
 
         # Create context with mobile device simulation
-        devices = [playwright.devices["Pixel 5"], playwright.devices["iPhone 12"], None]  # Desktop
+        devices = [
+            playwright.devices["Pixel 5"],
+            playwright.devices["iPhone 12"],
+            None,
+        ]  # Desktop
 
         for device in devices:
             context = await browser.new_context(
@@ -215,4 +226,6 @@ if __name__ == "__main__":
     # Routes to test
     test_routes = ["/", "/rankings", "/game/new", "/profile", "/venues", "/tournaments"]
 
-    asyncio.run(run_performance_test(base_url="http://localhost:3000", routes=test_routes))
+    asyncio.run(
+        run_performance_test(base_url="http://localhost:3000", routes=test_routes)
+    )

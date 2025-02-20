@@ -14,7 +14,9 @@ class WinCondition(Enum):
     POINTS_TARGET = "points_target"  # Reached target points (for points-based games)
     FRAMES_TARGET = "frames_target"  # Won required number of frames
     OPPONENT_FORFEIT = "opponent_forfeit"  # Opponent forfeited the game
-    SPECIAL_RULE = "special_rule"  # Special winning condition (e.g., three consecutive fouls)
+    SPECIAL_RULE = (
+        "special_rule"  # Special winning condition (e.g., three consecutive fouls)
+    )
 
 
 @dataclass
@@ -108,7 +110,9 @@ class WinDetector:
         current_player = state["current_player"]
 
         # Check if 8-ball was pocketed
-        eight_ball_pocketed = any(b["number"] == 8 and b.get("is_pocketed") for b in state["balls"])
+        eight_ball_pocketed = any(
+            b["number"] == 8 and b.get("is_pocketed") for b in state["balls"]
+        )
 
         if eight_ball_pocketed:
             # Check if it was on the break
@@ -129,7 +133,11 @@ class WinDetector:
                 b
                 for b in state["balls"]
                 if not b.get("is_pocketed")
-                and (b["number"] <= 7 if player_group == "solids" else 8 < b["number"] <= 15)
+                and (
+                    b["number"] <= 7
+                    if player_group == "solids"
+                    else 8 < b["number"] <= 15
+                )
             ]
 
             if not player_balls:  # All balls of group were pocketed
@@ -176,7 +184,9 @@ class WinDetector:
         current_player = state["current_player"]
 
         # Check if 9-ball was pocketed
-        nine_ball_pocketed = any(b["number"] == 9 and b.get("is_pocketed") for b in state["balls"])
+        nine_ball_pocketed = any(
+            b["number"] == 9 and b.get("is_pocketed") for b in state["balls"]
+        )
 
         if nine_ball_pocketed:
             # Check if it was on the break

@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 class StableDiffusionModel:
     """Stable Diffusion model for avatar generation."""
 
-    def __init__(self, model_id: str = "runwayml/stable-diffusion-v1-5", device: str = "cuda"):
+    def __init__(
+        self, model_id: str = "runwayml/stable-diffusion-v1-5", device: str = "cuda"
+    ):
         self.model_id = model_id
         self.device = device if torch.cuda.is_available() else "cpu"
         self.txt2img_pipe = None
@@ -29,13 +31,15 @@ class StableDiffusionModel:
         try:
             # Initialize text-to-image pipeline
             self.txt2img_pipe = StableDiffusionPipeline.from_pretrained(
-                self.model_id, torch_dtype=torch.float16 if self.device == "cuda" else torch.float32
+                self.model_id,
+                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
             )
             self.txt2img_pipe.to(self.device)
 
             # Initialize image-to-image pipeline
             self.img2img_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-                self.model_id, torch_dtype=torch.float16 if self.device == "cuda" else torch.float32
+                self.model_id,
+                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
             )
             self.img2img_pipe.to(self.device)
 
@@ -69,7 +73,9 @@ class StableDiffusionModel:
             # Set generation parameters
             height = height or self.default_height
             width = width or self.default_width
-            num_inference_steps = num_inference_steps or self.default_num_inference_steps
+            num_inference_steps = (
+                num_inference_steps or self.default_num_inference_steps
+            )
             guidance_scale = guidance_scale or self.default_guidance_scale
 
             # Set random seed if provided
@@ -105,7 +111,7 @@ class StableDiffusionModel:
         num_inference_steps: Optional[int] = None,
         guidance_scale: Optional[float] = None,
         seed: Optional[int] = None,
-    ) -> Optional[Image.Image]:
+    ):
         """Transform an existing image using a text prompt."""
         try:
             if not self.img2img_pipe:
@@ -126,7 +132,9 @@ class StableDiffusionModel:
                 )
 
             # Set generation parameters
-            num_inference_steps = num_inference_steps or self.default_num_inference_steps
+            num_inference_steps = (
+                num_inference_steps or self.default_num_inference_steps
+            )
             guidance_scale = guidance_scale or self.default_guidance_scale
 
             # Set random seed if provided

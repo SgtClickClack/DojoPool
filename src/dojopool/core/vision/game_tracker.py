@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Game-specific vision tracking implementation."""
 
 import logging
@@ -36,9 +38,13 @@ class GameTracker:
             table_corners = np.array(corners["table"], dtype=np.float32)
 
             # Calculate perspective transform matrix
-            table_rect = np.array([[0, 0], [1000, 0], [1000, 500], [0, 500]], dtype=np.float32)
+            table_rect = np.array(
+                [[0, 0], [1000, 0], [1000, 500], [0, 500]], dtype=np.float32
+            )
 
-            self.calibration_matrix = cv2.getPerspectiveTransform(table_corners, table_rect)
+            self.calibration_matrix = cv2.getPerspectiveTransform(
+                table_corners, table_rect
+            )
 
             # Store pocket locations
             self.pocket_locations = corners.get("pockets", [])
@@ -51,7 +57,7 @@ class GameTracker:
 
     def detect_shot(
         self, frame: np.ndarray, ball_positions: Dict[int, Dict[str, float]]
-    ) -> Optional[Dict]:
+    ):
         """Detect if a shot has been taken.
 
         Args:
@@ -170,7 +176,7 @@ class GameTracker:
 
         return foul_data
 
-    def transform_coordinates(self, point: Tuple[float, float]) -> Tuple[float, float]:
+    def transform_coordinates(self, point: Tuple[float, float]):
         """Transform coordinates using calibration matrix.
 
         Args:
@@ -183,6 +189,7 @@ class GameTracker:
             return point
 
         transformed = cv2.perspectiveTransform(
-            np.array([[[point[0], point[1]]]], dtype=np.float32), self.calibration_matrix
+            np.array([[[point[0], point[1]]]], dtype=np.float32),
+            self.calibration_matrix,
         )
         return (transformed[0][0][0], transformed[0][0][1])

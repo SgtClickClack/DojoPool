@@ -3,7 +3,13 @@
 This module contains the Player model for tracking player information.
 """
 
-from sqlalchemy import JSON
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Set, Union
+from uuid import UUID
+
+from sqlalchemy import JSON, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .base import TimestampedModel, db
@@ -12,39 +18,41 @@ from .base import TimestampedModel, db
 class Player(TimestampedModel):
     """Player model for storing player data."""
 
-    __tablename__ = "player"
+    __tablename__: str = "player"
     __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
 
     # Authentication fields
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    email: Any = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash: Any = db.Column(db.String(128))
 
     # Profile fields
     first_name = db.Column(db.String(50))
-    last_name = db.Column(db.String(50))
-    avatar_url = db.Column(db.String(255))
+    last_name: Any = db.Column(db.String(50))
+    avatar_url: Any = db.Column(db.String(255))
 
     # Game-related fields
     skill_level = db.Column(db.Float, default=0.0)  # 0.0 to 1.0
-    experience_points = db.Column(db.Integer, default=0)
-    rank = db.Column(db.String(50), default="beginner")
+    experience_points: Any = db.Column(db.Integer, default=0)
+    rank: Any = db.Column(db.String(50), default="beginner")
 
     # JSON fields
     stats = db.Column(JSON, default={})
-    preferences = db.Column(JSON, default={})
-    achievements = db.Column(JSON, default=[])
+    preferences: Any = db.Column(JSON, default={})
+    achievements: Any = db.Column(JSON, default=[])
 
     # Status fields
     is_active = db.Column(db.Boolean, default=True)
-    last_login = db.Column(db.DateTime)
+    last_login: Any = db.Column(db.DateTime)
 
     # Relationships
-    current_status = db.relationship("PlayerStatus", uselist=False, back_populates="player")
+    current_status: Any = db.relationship(
+        "PlayerStatus", uselist=False, back_populates="player"
+    )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialize player with default values."""
         super(Player, self).__init__(**kwargs)
         self.stats = self.stats or {
@@ -75,15 +83,15 @@ class Player(TimestampedModel):
         raise AttributeError("password is not a readable attribute")
 
     @password.setter
-    def password(self, password):
+    def password(self, password: str):
         """Set password."""
         self.password_hash = generate_password_hash(password)
 
-    def verify_password(self, password):
+    def verify_password(self, password: str):
         """Check if password matches."""
         return check_password_hash(self.password_hash, password)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Convert player to dictionary."""
         base_dict = super().to_dict()
         player_dict = {
@@ -109,4 +117,4 @@ class Player(TimestampedModel):
         return f"<Player {self.username}>"
 
 
-__all__ = ["Player"]
+__all__: List[str] = ["Player"]

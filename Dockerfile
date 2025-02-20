@@ -1,67 +1,24 @@
-# Build stage
-FROM node:18-alpine AS frontend-build
-ARG SKIP_FRONTEND_BUILD=false
-WORKDIR /app/frontend
-COPY src/dojopool/frontend/package*.json ./
-RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then npm install ; fi
-COPY src/dojopool/frontend .
-RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then npm run build ; fi
+# Use an official lightweight Python image.
+FROM python:3.10-slim
 
-# Python build stage
-FROM python:3.11-slim AS backend-build
+# Environment variables to prevent Python from writing pyc files and buffering output.
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set the working directory inside the container.
 WORKDIR /app
 
-# Install system dependencies for psycopg2
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
+# Copy dependency definitions.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Final stage
-FROM python:3.11-slim
-WORKDIR /app
+# Install dependencies.
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
-    supervisor \
-    curl \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+# Copy the rest of the application code.
+COPY . .
 
-# Install Python packages
-RUN pip install --no-cache-dir gunicorn celery
-
-# Create necessary directories with proper permissions
-RUN mkdir -p /var/run/supervisor /var/log/supervisor /var/log/nginx \
-    && touch /var/log/nginx/access.log /var/log/nginx/error.log \
-    && chown -R www-data:www-data /var/run/supervisor /var/log/supervisor /var/log/nginx
-
-# Copy built frontend
-COPY --from=frontend-build /app/frontend/build /app/static
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy Python packages and application code
-COPY --from=backend-build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --chown=www-data:www-data src/dojopool /app/dojopool
-COPY --chown=www-data:www-data config /app/config
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Set environment variables
-ENV PYTHONPATH=/app/src
-ENV FLASK_APP=dojopool
-ENV FLASK_ENV=production
-ENV STATIC_FOLDER=/app/static
-
-# Set minimal required permissions
-RUN chmod 755 /app/dojopool/app.py
-
-# Expose ports
+# Expose the port that the app runs on.
 EXPOSE 5000
 
-# Start services using supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 
+# Run the application using Waitress.
+CMD ["python", "-m", "waitress", "--listen=0.0.0.0:5000", "src/dojopool/main/routes.py"]

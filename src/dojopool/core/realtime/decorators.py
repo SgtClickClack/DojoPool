@@ -24,7 +24,7 @@ def event_handler(event_type: str, requires_auth: bool = False) -> Callable:
         Callable: Decorator function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @functools.wraps(f)
         async def wrapper(socket, data: Dict[str, Any], *args, **kwargs):
             try:
@@ -32,7 +32,8 @@ def event_handler(event_type: str, requires_auth: bool = False) -> Callable:
                 if requires_auth:
                     if not hasattr(socket, "authenticated") or not socket.authenticated:
                         error = format_error_response(
-                            ErrorCodes.AUTH_REQUIRED, "Authentication required for this operation"
+                            ErrorCodes.AUTH_REQUIRED,
+                            "Authentication required for this operation",
                         )
                         await socket.emit("error", error)
                         return
@@ -40,7 +41,9 @@ def event_handler(event_type: str, requires_auth: bool = False) -> Callable:
                 # Validate event data
                 validation_error = validate_event_data(event_type, data)
                 if validation_error:
-                    error = format_error_response(ErrorCodes.VALIDATION_ERROR, validation_error)
+                    error = format_error_response(
+                        ErrorCodes.VALIDATION_ERROR, validation_error
+                    )
                     await socket.emit("error", error)
                     return
 
@@ -49,7 +52,9 @@ def event_handler(event_type: str, requires_auth: bool = False) -> Callable:
 
             except Exception as e:
                 logger.error(
-                    f"Error handling event {event_type}", exc_info=True, extra={"data": data}
+                    f"Error handling event {event_type}",
+                    exc_info=True,
+                    extra={"data": data},
                 )
                 error = format_error_response(
                     ErrorCodes.SERVER_ERROR,
@@ -63,7 +68,7 @@ def event_handler(event_type: str, requires_auth: bool = False) -> Callable:
     return decorator
 
 
-def require_auth(f: Callable) -> Callable:
+def require_auth(f: Callable):
     """Decorator to require authentication for WebSocket events.
 
     Args:
@@ -85,7 +90,7 @@ def require_auth(f: Callable) -> Callable:
     return wrapper
 
 
-def validate_event(event_type: str) -> Callable:
+def validate_event(event_type: str):
     """Decorator to validate WebSocket event data.
 
     Args:
@@ -116,7 +121,7 @@ def validate_event(event_type: str) -> Callable:
 
 def rate_limit(
     max_requests: int, time_window: timedelta, error_message: Optional[str] = None
-) -> Callable:
+):
     """Decorator to apply rate limiting to WebSocket events.
 
     Args:
@@ -128,7 +133,7 @@ def rate_limit(
         Callable: Decorator function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         # Store request timestamps per client
         request_history: Dict[str, list] = {}
 
@@ -155,7 +160,9 @@ def rate_limit(
                     {
                         "max_requests": max_requests,
                         "time_window": time_window.total_seconds(),
-                        "retry_after": window_start + time_window.total_seconds() - current_time,
+                        "retry_after": window_start
+                        + time_window.total_seconds()
+                        - current_time,
                     },
                 )
                 return socket.emit("error", error)
@@ -180,12 +187,14 @@ def validate_room_access(room_type: str) -> Callable:
         Callable: Decorator function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @functools.wraps(f)
         def wrapper(socket, data: Dict[str, Any], *args, **kwargs):
             room_id = data.get("room_id")
             if not room_id:
-                error = format_error_response(ErrorCodes.VALIDATION_ERROR, "Room ID is required")
+                error = format_error_response(
+                    ErrorCodes.VALIDATION_ERROR, "Room ID is required"
+                )
                 return socket.emit("error", error)
 
             # Get room configuration
@@ -193,20 +202,25 @@ def validate_room_access(room_type: str) -> Callable:
 
             # Check if room exists
             if not hasattr(socket, "rooms") or room_id not in socket.rooms:
-                error = format_error_response(ErrorCodes.ROOM_NOT_FOUND, "Room not found")
+                error = format_error_response(
+                    ErrorCodes.ROOM_NOT_FOUND, "Room not found"
+                )
                 return socket.emit("error", error)
 
             # Check room capacity
             room = socket.rooms[room_id]
             if len(room.members) >= room_config["max_members"]:
-                error = format_error_response(ErrorCodes.ROOM_FULL, "Room is at maximum capacity")
+                error = format_error_response(
+                    ErrorCodes.ROOM_FULL, "Room is at maximum capacity"
+                )
                 return socket.emit("error", error)
 
             # Check authentication if required
             if room_config["requires_auth"]:
                 if not hasattr(socket, "authenticated") or not socket.authenticated:
                     error = format_error_response(
-                        ErrorCodes.AUTH_REQUIRED, "Authentication required for room access"
+                        ErrorCodes.AUTH_REQUIRED,
+                        "Authentication required for room access",
                     )
                     return socket.emit("error", error)
 
@@ -227,7 +241,7 @@ def log_event(event_type: str) -> Callable:
         Callable: Decorator function
     """
 
-    def decorator(f: Callable) -> Callable:
+    def decorator(f: Callable):
         @functools.wraps(f)
         def wrapper(socket, *args, **kwargs):
             start_time = time.time()
@@ -292,7 +306,7 @@ def handle_errors(f: Callable) -> Callable:
     return wrapper
 
 
-def measure_latency(f: Callable) -> Callable:
+def measure_latency(f: Callable):
     """Decorator to measure WebSocket event latency.
 
     Args:

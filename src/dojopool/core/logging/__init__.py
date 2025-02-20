@@ -6,23 +6,20 @@ This package provides logging functionality.
 import json
 import logging
 import os
+from logging import Formatter
 from logging.handlers import RotatingFileHandler
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-from flask import has_request_context, request
+from flask import Request, Response, current_app, has_request_context, request
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 
-class RequestFormatter(logging.Formatter):
+class RequestFormatter(Formatter):
     """Custom formatter that includes request information."""
 
-    def format(self, record):
-        """Format log record with request information.
-
-        Args:
-            record: Log record
-
-        Returns:
-            str: Formatted log message
-        """
+    def format(self, record: logging.LogRecord) -> str:
+        """Format the specified record as text."""
         if has_request_context():
             record.url = request.url
             record.remote_addr = request.remote_addr
@@ -48,7 +45,9 @@ def setup_logging(app):
         os.makedirs("logs")
 
     # Configure file handler
-    file_handler = RotatingFileHandler("logs/dojopool.log", maxBytes=10240, backupCount=10)
+    file_handler: RotatingFileHandler = RotatingFileHandler(
+        "logs/dojopool.log", maxBytes=10240, backupCount=10
+    )
     file_handler.setFormatter(
         RequestFormatter(
             "[%(asctime)s] %(remote_addr)s - %(method)s %(url)s\n"
@@ -58,9 +57,11 @@ def setup_logging(app):
     file_handler.setLevel(logging.INFO)
 
     # Configure JSON handler for structured logging
-    json_handler = RotatingFileHandler("logs/dojopool.json", maxBytes=10240, backupCount=10)
+    json_handler: RotatingFileHandler = RotatingFileHandler(
+        "logs/dojopool.json", maxBytes=10240, backupCount=10
+    )
     json_handler.setFormatter(
-        logging.Formatter(
+        Formatter(
             lambda x: json.dumps(
                 {
                     "timestamp": x.asctime,
@@ -90,6 +91,6 @@ def setup_logging(app):
 
 
 # Create logger instance
-logger = logging.getLogger("dojopool")
+logger: Any = logging.getLogger("dojopool")
 
-__all__ = ["logger", "setup_logging"]
+__all__: List[Any] = ["logger", "setup_logging"]

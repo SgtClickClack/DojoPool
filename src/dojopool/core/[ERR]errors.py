@@ -3,10 +3,12 @@
 This module contains custom exceptions and error handlers for the application.
 """
 
-from typing import Tuple, Union
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union, cast
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
+from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import HTTPException
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from dojopool.core.extensions import db
 
@@ -14,14 +16,14 @@ from dojopool.core.extensions import db
 class DojoPoolError(Exception):
     """Base exception class for DojoPool application."""
 
-    def __init__(self, message: str, status_code: int = 500):
+    def __init__(self, message: str, status_code: int = 500) -> None:
         super().__init__(message)
         self.message = message
         self.status_code = status_code
 
 
 class ValidationError(DojoPoolError):
-    """Raised when data validation fails."""
+    """Raised when validation fails."""
 
     def __init__(self, message: str):
         super().__init__(message, status_code=400)
@@ -42,66 +44,62 @@ class AuthorizationError(DojoPoolError):
 
 
 class ResourceNotFoundError(DojoPoolError):
-    """Raised when a requested resource is not found."""
+    """Raised when a resource is not found."""
 
-    def __init__(self, message: str):
+    def __init__(self, message: str) -> None:
         super().__init__(message, status_code=404)
 
 
 class APIError(DojoPoolError):
-    """Raised when an API request fails."""
+    """Raised when an API error occurs."""
 
     def __init__(self, message: str, status_code: int = 500):
         super().__init__(message, status_code=status_code)
 
 
-def handle_error(error: Union[HTTPException, DojoPoolError]) -> Tuple[Union[str, dict], int]:
+def handle_error(
+    error: Union[HTTPException, DojoPoolError],
+):
     """Handle errors and return appropriate response.
 
     Args:
-        error: The error to handle.
+        error: The error to handle
 
     Returns:
-        Tuple containing the response and status code.
+        A Flask response with error details
     """
-    if hasattr(error, "status_code"):
-        status_code = error.status_code
-    elif hasattr(error, "code"):
-        status_code = error.code
-    else:
-        status_code = 500
-
-    if request.is_json or request.path.startswith("/api/"):
-        return jsonify({"error": str(error), "status_code": status_code}), status_code
-
-    return render_template("error.html", error=error), status_code
+    if isinstance(error, HTTPException):
+        return jsonify({"error": error.description}), error.code
+    return jsonify({"error": error.message}), error.status_code
 
 
-def register_error_handlers(app: Flask) -> None:
-    """Register error handlers for the application.
+def register_error_handlers(app: Flask):
+    """Register error handlers with the Flask application.
 
     Args:
-        app: Flask application instance.
+        app: The Flask application instance
     """
 
     @app.errorhandler(DojoPoolError)
-    def handle_dojopool_error(error: DojoPoolError):
-        """Handle custom DojoPool errors."""
+    def handle_dojopool_error(error: DojoPoolError) -> ResponseReturnValue:
+        """Handle DojoPool application errors."""
         return handle_error(error)
 
     @app.errorhandler(404)
-    def not_found_error(error):
+    def not_found_error(error: HTTPException):
         """Handle 404 errors."""
-        return handle_error(error)
+        return render_template("errors/404.html"), 404
 
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(error: Exception):
         """Handle 500 errors."""
-        db.session.rollback()
-        return handle_error(error)
+        if db is not None and db.session is not None:
+            db.session.rollback()
+        return render_template("errors/500.html"), 500
 
     @app.errorhandler(Exception)
     def handle_unexpected_error(error: Exception):
         """Handle unexpected errors."""
-        app.logger.error(f"Unexpected error: {error}", exc_info=True)
-        return handle_error(error)
+        if db is not None and db.session is not None:
+            db.session.rollback()
+        return jsonify({"error": "An unexpected error occurred"}), 500

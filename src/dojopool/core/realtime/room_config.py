@@ -94,7 +94,7 @@ def get_room_config(room_type: str) -> Dict[str, Any]:
     return ROOM_CONFIGS[room_type]
 
 
-def validate_room_metadata(room_type: str, metadata: Dict[str, Any]) -> None:
+def validate_room_metadata(room_type: str, metadata: Dict[str, Any]):
     """Validate room metadata against schema.
 
     Args:
@@ -125,7 +125,7 @@ def validate_room_metadata(room_type: str, metadata: Dict[str, Any]) -> None:
                 raise ValueError(f"Field {field} must be a list")
 
 
-def get_default_metadata(room_type: str) -> Dict[str, Any]:
+def get_default_metadata(room_type: str):
     """Get default metadata for a room type.
 
     Args:

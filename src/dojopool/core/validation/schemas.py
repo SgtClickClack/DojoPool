@@ -65,7 +65,9 @@ class GameScoreSchema(Schema):
 
     player_id = fields.Integer(required=True, validate=validate.Range(min=1))
     score = fields.Integer(required=True, validate=validate.Range(min=0))
-    game_type = fields.String(validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"]))
+    game_type = fields.String(
+        validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"])
+    )
     timestamp = fields.DateTime(default=datetime.utcnow)
 
 
@@ -90,7 +92,9 @@ class PlayerHandicapSchema(Schema):
 
     player_id = fields.Integer(required=True, validate=validate.Range(min=1))
     handicap = fields.Float(required=True, validate=validate.Range(min=0, max=10))
-    game_type = fields.String(validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"]))
+    game_type = fields.String(
+        validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"])
+    )
     last_updated = fields.DateTime(default=datetime.utcnow)
 
 
@@ -105,7 +109,9 @@ class TournamentSchema(Schema):
     max_players = fields.Integer(validate=validate.Range(min=2, max=64))
     entry_fee = fields.Float(validate=validate.Range(min=0))
     prize_pool = fields.Float(validate=validate.Range(min=0))
-    game_type = fields.String(validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"]))
+    game_type = fields.String(
+        validate=validate.OneOf(["8ball", "9ball", "straight", "rotation"])
+    )
     format = fields.String(validate=validate.OneOf(["single", "double", "round_robin"]))
     status = fields.String(
         validate=validate.OneOf(["draft", "open", "closed", "in_progress", "completed"])

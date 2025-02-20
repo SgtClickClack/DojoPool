@@ -59,7 +59,9 @@ def login() -> Union[str, Response]:
             return render_template("auth/login.html", form=form)
 
         if user.is_locked():
-            flash("Your account is temporarily locked. Please try again later.", "error")
+            flash(
+                "Your account is temporarily locked. Please try again later.", "error"
+            )
             return render_template("auth/login.html", form=form)
 
         # Log in user
@@ -78,7 +80,7 @@ def login() -> Union[str, Response]:
 
 @auth.route("/logout")
 @login_required
-def logout() -> Response:
+def logout():
     """Handle user logout.
 
     Returns:
@@ -91,7 +93,7 @@ def logout() -> Response:
 
 
 @auth.route("/register", methods=["GET", "POST"])
-def register() -> Union[str, Response]:
+def register():
     """Handle user registration.
 
     Returns:
@@ -191,7 +193,9 @@ def reset_password_request() -> Union[str, Response]:
                 token=token,
             )
         flash(
-            "If an account exists with that email, a password reset link " "has been sent.", "info"
+            "If an account exists with that email, a password reset link "
+            "has been sent.",
+            "info",
         )
         return redirect(url_for("auth.login"))
 
@@ -269,7 +273,9 @@ def change_email_request() -> Union[str, Response]:
             flash("Invalid password.", "error")
             return render_template("auth/change_email.html", form=form)
 
-        token = generate_token(current_user.id, "change_email", new_email=form.email.data.lower())
+        token = generate_token(
+            current_user.id, "change_email", new_email=form.email.data.lower()
+        )
         send_email(
             to=form.email.data.lower(),
             subject="Confirm Your New Email",

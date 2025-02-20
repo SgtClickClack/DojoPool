@@ -3,10 +3,10 @@ Drill recommender system for the DojoPool AI coaching system.
 Suggests personalized practice drills based on player performance and skill level.
 """
 
-from typing import Dict, List, Optional
+import random
 from dataclasses import dataclass
 from datetime import datetime
-import random
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -157,11 +157,15 @@ class DrillRecommender:
         """Get a specific drill by ID."""
         return self.drills.get(drill_id)
 
-    def get_drills_by_focus(self, focus_area: str) -> List[Drill]:
+    def get_drills_by_focus(self, focus_area: str) :
         """Get all drills for a specific focus area."""
-        return [drill for drill in self.drills.values() if focus_area in drill.focus_areas]
+        return [
+            drill for drill in self.drills.values() if focus_area in drill.focus_areas
+        ]
 
-    def get_progressive_sequence(self, focus_area: str, start_difficulty: float) -> List[Drill]:
+    def get_progressive_sequence(
+        self, focus_area: str, start_difficulty: float
+    ) :
         """
         Get a progressive sequence of drills for a focus area.
         Starts at given difficulty and progressively gets harder.
@@ -169,7 +173,9 @@ class DrillRecommender:
         area_drills = self.get_drills_by_focus(focus_area)
 
         # Sort by difficulty
-        sorted_drills = sorted(area_drills, key=lambda d: abs(d.difficulty - start_difficulty))
+        sorted_drills = sorted(
+            area_drills, key=lambda d: abs(d.difficulty - start_difficulty)
+        )
 
         return sorted_drills[:5]  # Return top 5 progressive drills
 
@@ -197,7 +203,9 @@ class DrillRecommender:
         if variety_preference > 0.7:
             # Add some drills from non-focus areas for variety
             other_areas = list(
-                set(area for drill in self.drills.values() for area in drill.focus_areas)
+                set(
+                    area for drill in self.drills.values() for area in drill.focus_areas
+                )
                 - set(focus_areas)
             )
 

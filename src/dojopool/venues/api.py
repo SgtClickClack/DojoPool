@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from dojopool.auth import get_current_user, require_venue_access
-from dojopool.venues.dashboard import VenueDashboard, VenueAnalytics
+from dojopool.venues.dashboard import VenueAnalytics, VenueDashboard
 
 router = APIRouter(prefix="/api/venues", tags=["venues"])
 
@@ -72,7 +72,9 @@ class EventReportResponse(BaseModel):
 
 # Dashboard Endpoints
 @router.get("/{venue_id}/dashboard", response_model=DashboardSummaryResponse)
-async def get_dashboard_summary(venue_id: str, current_user=Depends(get_current_user)) -> Dict:
+async def get_dashboard_summary(
+    venue_id: str, current_user=Depends(get_current_user)
+) -> Dict:
     """Get venue dashboard summary."""
     require_venue_access(current_user, venue_id)
 
@@ -105,7 +107,9 @@ async def get_revenue_report(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/{venue_id}/analytics/utilization", response_model=UtilizationReportResponse)
+@router.get(
+    "/{venue_id}/analytics/utilization", response_model=UtilizationReportResponse
+)
 async def get_utilization_report(
     venue_id: str,
     start_date: datetime = Query(...),

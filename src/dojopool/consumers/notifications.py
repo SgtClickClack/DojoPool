@@ -1,8 +1,12 @@
+from flask_caching import Cache
+from flask_caching import Cache
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+
 from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
-from ..models.social import Message, Friendship, UserAchievement
+
+from ..models.social import Friendship, Message, UserAchievement
 
 
 class NotificationConsumer(AsyncWebsocketConsumer):
@@ -40,9 +44,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_unread_counts(self):
         """Get counts of unread messages and pending requests"""
-        unread_messages = Message.objects.filter(receiver=self.user, is_read=False).count()
+        unread_messages = Message.objects.filter(
+            receiver=self.user, is_read=False
+        ).count()
 
-        pending_requests = Friendship.objects.filter(receiver=self.user, status="pending").count()
+        pending_requests = Friendship.objects.filter(
+            receiver=self.user, status="pending"
+        ).count()
 
         return {
             "type": "counts_update",
@@ -68,12 +76,16 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     # Notification handlers
     async def new_message(self, event):
         """Handle new message notification"""
-        await self.send(text_data=json.dumps({"type": "new_message", "message": event["message"]}))
+        await self.send(
+            text_data=json.dumps({"type": "new_message", "message": event["message"]})
+        )
 
     async def friend_request(self, event):
         """Handle new friend request notification"""
         await self.send(
-            text_data=json.dumps({"type": "friend_request", "request": event["request"]})
+            text_data=json.dumps(
+                {"type": "friend_request", "request": event["request"]}
+            )
         )
 
     async def achievement_unlocked(self, event):

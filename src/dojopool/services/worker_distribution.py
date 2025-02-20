@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 import asyncio
 import logging
 from dataclasses import dataclass
@@ -108,7 +112,9 @@ class WorkerDistributionOptimizer:
         self.worker_metrics[worker_id] = metrics
         self._update_worker_load(worker_id)
 
-    def record_task_completion(self, task: Task, worker_id: str, duration: float, success: bool):
+    def record_task_completion(
+        self, task: Task, worker_id: str, duration: float, success: bool
+    ):
         """Record task completion metrics."""
         self.task_history.append(
             {
@@ -129,10 +135,16 @@ class WorkerDistributionOptimizer:
         if worker_id in self.worker_metrics:
             metrics = self.worker_metrics[worker_id]
             metrics.avg_task_time = np.mean(
-                [task["duration"] for task in self.task_history if task["worker_id"] == worker_id]
+                [
+                    task["duration"]
+                    for task in self.task_history
+                    if task["worker_id"] == worker_id
+                ]
             )
 
-    def get_optimal_worker(self, task: Task, available_workers: List[str]) -> Optional[str]:
+    def get_optimal_worker(
+        self, task: Task, available_workers: List[str]
+    ) -> Optional[str]:
         """Get the optimal worker for a task based on current strategy."""
         if not available_workers:
             return None
@@ -150,19 +162,33 @@ class WorkerDistributionOptimizer:
                     available_workers,
                     key=lambda w: (
                         self.worker_loads.get(w, 0.0),
-                        self.worker_metrics[w].error_rate if w in self.worker_metrics else 1.0,
+                        (
+                            self.worker_metrics[w].error_rate
+                            if w in self.worker_metrics
+                            else 1.0
+                        ),
                     ),
                 )
             else:
                 # Use least loaded worker
-                return min(available_workers, key=lambda w: self.worker_loads.get(w, 0.0))
+                return min(
+                    available_workers, key=lambda w: self.worker_loads.get(w, 0.0)
+                )
 
         else:  # RESOURCE_AWARE
             return min(
                 available_workers,
                 key=lambda w: (
-                    self.worker_metrics[w].cpu_usage if w in self.worker_metrics else 1.0,
-                    self.worker_metrics[w].memory_usage if w in self.worker_metrics else 1.0,
+                    (
+                        self.worker_metrics[w].cpu_usage
+                        if w in self.worker_metrics
+                        else 1.0
+                    ),
+                    (
+                        self.worker_metrics[w].memory_usage
+                        if w in self.worker_metrics
+                        else 1.0
+                    ),
                     self.worker_loads.get(w, 0.0),
                 ),
             )
@@ -177,12 +203,14 @@ class WorkerDistributionOptimizer:
         ]
 
         for worker_id in self.worker_metrics:
-            worker_history = [task for task in recent_history if task["worker_id"] == worker_id]
+            worker_history = [
+                task for task in recent_history if task["worker_id"] == worker_id
+            ]
 
             if worker_history:
-                success_rate = sum(1 for task in worker_history if task["success"]) / len(
-                    worker_history
-                )
+                success_rate = sum(
+                    1 for task in worker_history if task["success"]
+                ) / len(worker_history)
                 avg_duration = np.mean([task["duration"] for task in worker_history])
 
                 metrics = self.worker_metrics[worker_id]
@@ -234,7 +262,9 @@ class WorkerDistributionOptimizer:
         for worker1, worker2, _load_diff in imbalances:
             # Update distribution strategy to prefer the less loaded worker
             if self.worker_loads[worker1] > self.worker_loads[worker2]:
-                self.worker_loads[worker1] *= 0.9  # Reduce load score to encourage task assignment
+                self.worker_loads[
+                    worker1
+                ] *= 0.9  # Reduce load score to encourage task assignment
             else:
                 self.worker_loads[worker2] *= 0.9
 
@@ -264,7 +294,9 @@ class WorkerDistributionOptimizer:
             TaskPriority.CRITICAL.value, {"success": 0, "total": 0}
         )["success"] / max(
             1,
-            priority_success.get(TaskPriority.CRITICAL.value, {"success": 0, "total": 0})["total"],
+            priority_success.get(
+                TaskPriority.CRITICAL.value, {"success": 0, "total": 0}
+            )["total"],
         )
 
         if critical_success_rate < 0.95:  # Less than 95% success for critical tasks
@@ -286,7 +318,9 @@ class WorkerDistributionOptimizer:
             self.strategy = DistributionStrategy.RESOURCE_AWARE
         elif load_variance > self.rebalance_threshold:
             self.strategy = DistributionStrategy.LEAST_LOADED
-        elif any(m.error_rate > self.error_threshold for m in self.worker_metrics.values()):
+        elif any(
+            m.error_rate > self.error_threshold for m in self.worker_metrics.values()
+        ):
             self.strategy = DistributionStrategy.PRIORITY_BASED
         else:
             self.strategy = DistributionStrategy.ROUND_ROBIN
@@ -310,13 +344,15 @@ class WorkerDistributionOptimizer:
             "task_history_size": len(self.task_history),
         }
 
-    def get_recommendations(self) -> List[str]:
+    def get_recommendations(self):
         """Get distribution optimization recommendations."""
         recommendations = []
 
         # Check worker loads
         overloaded_workers = [
-            worker_id for worker_id, load in self.worker_loads.items() if load > self.load_threshold
+            worker_id
+            for worker_id, load in self.worker_loads.items()
+            if load > self.load_threshold
         ]
         if overloaded_workers:
             recommendations.append(

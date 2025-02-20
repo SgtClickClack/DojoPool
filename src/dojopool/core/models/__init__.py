@@ -1,5 +1,6 @@
 """Core models package."""
 
-from ...models import User, Role, Game, Tournament, TournamentGame, Venue, Match
+from .notification import Notification, NotificationType
+from .notification_preference import NotificationPreference
 
-__all__ = ["User", "Role", "Game", "Tournament", "TournamentGame", "Venue", "Match"]
+__all__ = ["Notification", "NotificationType", "NotificationPreference"]

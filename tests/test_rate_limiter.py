@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import pytest
 import redis
 
-from src.dojopool.core.exceptions import RateLimitError
-from src.dojopool.core.rate_limiter import (
+from dojopool.core.exceptions import RateLimitError
+from dojopool.core.rate_limiter import (
     FixedWindowStrategy,
     RateLimiter,
     SlidingWindowStrategy,
@@ -163,10 +163,14 @@ def test_rate_limiter_namespace_isolation(redis_client):
 
     # Create two limiters with different namespaces
     limiter1 = RateLimiter(
-        redis_client, FixedWindowStrategy(max_requests=1, time_window=60), namespace="ns1"
+        redis_client,
+        FixedWindowStrategy(max_requests=1, time_window=60),
+        namespace="ns1",
     )
     limiter2 = RateLimiter(
-        redis_client, FixedWindowStrategy(max_requests=1, time_window=60), namespace="ns2"
+        redis_client,
+        FixedWindowStrategy(max_requests=1, time_window=60),
+        namespace="ns2",
     )
 
     # Use up limit in first namespace
@@ -184,7 +188,9 @@ def test_rate_limiter_expiry(redis_client):
 
     # Create limiter with short window
     limiter = RateLimiter(
-        redis_client, FixedWindowStrategy(max_requests=1, time_window=1), namespace="test_expiry"
+        redis_client,
+        FixedWindowStrategy(max_requests=1, time_window=1),
+        namespace="test_expiry",
     )
 
     # Use up limit
@@ -208,7 +214,9 @@ def test_rate_limiter_redis_errors(redis_client):
     mock_redis.pipeline.side_effect = redis.RedisError("Test error")
 
     limiter = RateLimiter(
-        mock_redis, FixedWindowStrategy(max_requests=1, time_window=60), namespace="test_errors"
+        mock_redis,
+        FixedWindowStrategy(max_requests=1, time_window=60),
+        namespace="test_errors",
     )
 
     # Should handle Redis errors gracefully

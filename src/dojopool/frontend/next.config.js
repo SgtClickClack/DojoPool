@@ -10,18 +10,8 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: true,
-    optimizeImages: true,
-    optimizeFonts: true,
     scrollRestoration: true,
     workerThreads: true,
-    modularizeImports: {
-      '@mui/material': {
-        transform: '@mui/material/{{member}}',
-      },
-      '@mui/icons-material': {
-        transform: '@mui/icons-material/{{member}}',
-      },
-    },
   },
   webpack: (config, { isServer, dev }) => {
     // Optimize chunks
@@ -133,13 +123,6 @@ const nextConfig = {
   },
   // Configure build output
   output: 'standalone',
-  // Enable progressive web app features
-  pwa: {
-    dest: 'public',
-    register: true,
-    skipWaiting: true,
-    disable: process.env.NODE_ENV === 'development',
-  },
 };
 
 module.exports = nextConfig; 

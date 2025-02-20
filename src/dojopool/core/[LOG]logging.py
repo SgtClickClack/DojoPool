@@ -7,22 +7,25 @@ It sets up different handlers and formatters based on the environment.
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
 from flask import Flask, has_request_context, request
 from flask.logging import default_handler
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 
 class RequestFormatter(logging.Formatter):
     """Custom formatter that includes request information."""
 
-    def format(self, record):
-        """Format log record with request information.
+    def format(self, record: logging.LogRecord) -> str:
+        """Format the log record with request information.
 
         Args:
-            record: Log record to format.
+            record: The log record to format
 
         Returns:
-            str: Formatted log record.
+            The formatted log message
         """
         if has_request_context():
             record.url = request.url
@@ -36,71 +39,52 @@ class RequestFormatter(logging.Formatter):
         return super().format(record)
 
 
-def create_logs_dir(app: Flask) -> Path:
+def create_logs_dir(app: Flask):
     """Create logs directory if it doesn't exist.
 
     Args:
-        app: Flask application instance.
+        app: The Flask application instance
 
     Returns:
-        Path: Path to logs directory.
+        The path to the logs directory
     """
-    logs_dir = Path(app.root_path).parent / "logs"
-    logs_dir.mkdir(exist_ok=True)
+    logs_dir = Path(app.instance_path) / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
     return logs_dir
 
 
-def configure_logging(app: Flask) -> None:
+def configure_logging(app: Flask):
     """Configure logging for the application.
 
     Args:
-        app: Flask application instance.
+        app: The Flask application instance
     """
     # Remove default handler
     app.logger.removeHandler(default_handler)
 
-    # Set log level
-    app.logger.setLevel(app.config.get("LOG_LEVEL", "INFO"))
+    # Create logs directory
+    logs_dir = create_logs_dir(app)
 
-    # Create formatters
-    console_formatter = RequestFormatter(
+    # Create file handler
+    file_handler = RotatingFileHandler(
+        logs_dir / "dojopool.log", maxBytes=10485760, backupCount=10  # 10MB
+    )
+
+    # Create formatter
+    formatter = RequestFormatter(
         "[%(asctime)s] %(remote_addr)s - %(method)s %(url)s\n"
-        "%(levelname)s in %(module)s: %(message)s"
+        "%(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
     )
 
-    file_formatter = RequestFormatter(
-        "%(asctime)s - %(remote_addr)s - %(method)s %(url)s - "
-        "%(levelname)s - %(module)s - %(message)s"
-    )
+    # Set formatter
+    file_handler.setFormatter(formatter)
 
-    # Create console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(console_formatter)
-    console_handler.setLevel(logging.INFO)
-    app.logger.addHandler(console_handler)
+    # Set level
+    file_handler.setLevel(logging.INFO)
 
-    # Create file handlers in production
-    if not app.debug and not app.testing:
-        logs_dir = create_logs_dir(app)
-
-        # Error logs
-        error_log = logs_dir / "error.log"
-        error_file_handler = RotatingFileHandler(
-            error_log, maxBytes=10485760, backupCount=10  # 10MB
-        )
-        error_file_handler.setLevel(logging.ERROR)
-        error_file_handler.setFormatter(file_formatter)
-        app.logger.addHandler(error_file_handler)
-
-        # Info logs
-        info_log = logs_dir / "info.log"
-        info_file_handler = RotatingFileHandler(info_log, maxBytes=10485760, backupCount=10)  # 10MB
-        info_file_handler.setLevel(logging.INFO)
-        info_file_handler.setFormatter(file_formatter)
-        app.logger.addHandler(info_file_handler)
-
-        # Log startup
-        app.logger.info("DojoPool startup")
+    # Add handler
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
 
     # Log application startup
-    app.logger.info(f'DojoPool starting up in {app.config["ENV"]} mode')
+    app.logger.info("DojoPool startup")

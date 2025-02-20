@@ -20,7 +20,9 @@ SUSPICIOUS_PATTERNS: Dict[str, Pattern] = {
     "xss": re.compile(r"(?i)(<script|javascript:|on\w+\s*=|\balert\s*\(|\beval\s*\()"),
     "path_traversal": re.compile(r"(?i)(\.\.\/|\.\.\\|~\/|\x00)"),
     "command_injection": re.compile(r"(?i)(&|\||;|\$\(|\`|\bsh\b|\bbash\b|\bcmd\b)"),
-    "file_inclusion": re.compile(r"(?i)(php://|zip://|phar://|file://|https?://|ftp://)"),
+    "file_inclusion": re.compile(
+        r"(?i)(php://|zip://|phar://|file://|https?://|ftp://)"
+    ),
 }
 
 # Protected paths that require additional security checks
@@ -93,7 +95,14 @@ LOGGING_CONFIG = {
     "backup_count": 10,
     "include_request_body": False,
     "mask_sensitive_data": True,
-    "sensitive_fields": ["password", "token", "api_key", "secret", "credit_card", "ssn"],
+    "sensitive_fields": [
+        "password",
+        "token",
+        "api_key",
+        "secret",
+        "credit_card",
+        "ssn",
+    ],
 }
 
 # Headers security configuration

@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Event management service module."""
 
 from datetime import datetime
@@ -37,7 +39,7 @@ class EventManagementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def update_event(self, event_id: str, data: Dict) -> Dict:
+    def update_event(self, event_id: str, data: Dict):
         """Update event details"""
         try:
             event = Event.query.get(event_id)
@@ -62,7 +64,9 @@ class EventManagementService:
             if "end_time" in data:
                 event.end_time = datetime.fromisoformat(data["end_time"])
             if "registration_deadline" in data:
-                event.registration_deadline = datetime.fromisoformat(data["registration_deadline"])
+                event.registration_deadline = datetime.fromisoformat(
+                    data["registration_deadline"]
+                )
 
             event.updated_at = datetime.utcnow()
             db.session.commit()
@@ -72,7 +76,7 @@ class EventManagementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def delete_event(self, event_id: str) -> Dict:
+    def delete_event(self, event_id: str):
         """Delete an event"""
         try:
             event = Event.query.get(event_id)
@@ -87,7 +91,7 @@ class EventManagementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def get_event_details(self, event_id: str) -> Dict:
+    def get_event_details(self, event_id: str):
         """Get event details"""
         try:
             event = Event.query.get(event_id)
@@ -107,7 +111,9 @@ class EventManagementService:
             if "venue_id" in query:
                 events_query = events_query.filter(Event.venue_id == query["venue_id"])
             if "event_type" in query:
-                events_query = events_query.filter(Event.event_type == query["event_type"])
+                events_query = events_query.filter(
+                    Event.event_type == query["event_type"]
+                )
             if "status" in query:
                 events_query = events_query.filter(Event.status == query["status"])
             if "start_date" in query:
@@ -131,12 +137,17 @@ class EventManagementService:
                 return {"error": "Event not found"}
 
             # Check if registration is still open
-            if event.registration_deadline and datetime.utcnow() > event.registration_deadline:
+            if (
+                event.registration_deadline
+                and datetime.utcnow() > event.registration_deadline
+            ):
                 return {"error": "Registration deadline has passed"}
 
             # Check if event is full
             if event.max_participants:
-                current_participants = EventParticipant.query.filter_by(event_id=event_id).count()
+                current_participants = EventParticipant.query.filter_by(
+                    event_id=event_id
+                ).count()
                 if current_participants >= event.max_participants:
                     return {"error": "Event is full"}
 
@@ -182,7 +193,9 @@ class EventManagementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def update_participant_status(self, event_id: str, user_id: str, status: str) -> Dict:
+    def update_participant_status(
+        self, event_id: str, user_id: str, status: str
+    ) -> Dict:
         """Update participant status"""
         try:
             participant = EventParticipant.query.filter_by(
@@ -205,15 +218,17 @@ class EventManagementService:
             db.session.rollback()
             return {"error": str(e)}
 
-    def get_event_participants(self, event_id: str) -> Dict:
+    def get_event_participants(self, event_id: str):
         """Get list of event participants"""
         try:
             participants = EventParticipant.query.filter_by(event_id=event_id).all()
-            return {"participants": [participant.to_dict() for participant in participants]}
+            return {
+                "participants": [participant.to_dict() for participant in participants]
+            }
         except Exception as e:
             return {"error": str(e)}
 
-    def update_event_status(self, event_id: str, status: str) -> Dict:
+    def update_event_status(self, event_id: str, status: str):
         """Update event status"""
         try:
             event = Event.query.get(event_id)

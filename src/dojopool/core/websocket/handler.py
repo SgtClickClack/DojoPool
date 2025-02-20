@@ -26,7 +26,11 @@ class WebSocketManager:
         self.redis_client = get_redis_client()
 
     async def connect(
-        self, websocket: WebSocket, game_id: str, player_id: str, is_spectator: bool = False
+        self,
+        websocket: WebSocket,
+        game_id: str,
+        player_id: str,
+        is_spectator: bool = False,
     ):
         await websocket.accept()
 
@@ -42,7 +46,9 @@ class WebSocketManager:
             self.active_connections[game_id].add(connection)
 
             # Broadcast connection status to players and spectators
-            status = ConnectionStatus(game_id=game_id, player_id=player_id, status="connected")
+            status = ConnectionStatus(
+                game_id=game_id, player_id=player_id, status="connected"
+            )
             await self._broadcast_all(game_id, status.dict())
 
         # Load and send initial game state
@@ -54,13 +60,17 @@ class WebSocketManager:
         # Remove from active players
         if game_id in self.active_connections:
             self.active_connections[game_id] = {
-                conn for conn in self.active_connections[game_id] if conn.websocket != websocket
+                conn
+                for conn in self.active_connections[game_id]
+                if conn.websocket != websocket
             }
             if not self.active_connections[game_id]:
                 del self.active_connections[game_id]
 
             # Broadcast disconnection status
-            status = ConnectionStatus(game_id=game_id, player_id=player_id, status="disconnected")
+            status = ConnectionStatus(
+                game_id=game_id, player_id=player_id, status="disconnected"
+            )
             asyncio.create_task(self._broadcast_all(game_id, status.dict()))
 
         # Remove from spectators
@@ -95,7 +105,9 @@ class WebSocketManager:
                 except WebSocketDisconnect:
                     disconnected.add(connection)
                 except Exception as e:
-                    logger.error(f"Error broadcasting to {connection.player_id}: {str(e)}")
+                    logger.error(
+                        f"Error broadcasting to {connection.player_id}: {str(e)}"
+                    )
                     disconnected.add(connection)
 
             # Clean up disconnected connections
@@ -134,7 +146,10 @@ class WebSocketManager:
                 return
 
             # Validate action (except for chat messages)
-            if action.action_type != "chat" and game_state.current_player != action.player_id:
+            if (
+                action.action_type != "chat"
+                and game_state.current_player != action.player_id
+            ):
                 await self.send_error(action.game_id, action.player_id, "Not your turn")
                 return
 
@@ -227,14 +242,20 @@ class WebSocketManager:
             update_type="shot",
             data={
                 "shot": shot_data,
-                "balls_remaining": self._calculate_remaining_balls(game_state, shot_data),
+                "balls_remaining": self._calculate_remaining_balls(
+                    game_state, shot_data
+                ),
                 "next_player": self._determine_next_player(game_state, shot_data),
             },
         )
         await self.update_game_state(action.game_id, update)
 
-    async def _handle_position_update(self, game_state: GameState, action: PlayerAction):
-        update = GameUpdate(game_id=action.game_id, update_type="position", data=action.data)
+    async def _handle_position_update(
+        self, game_state: GameState, action: PlayerAction
+    ):
+        update = GameUpdate(
+            game_id=action.game_id, update_type="position", data=action.data
+        )
         await self._broadcast_all(action.game_id, update.dict())
 
     async def _handle_chat(self, action: PlayerAction):
@@ -245,15 +266,15 @@ class WebSocketManager:
         )
         await self._broadcast_all(action.game_id, chat_message.dict())
 
-    def _validate_shot(self, game_state: GameState, shot_data: dict) -> bool:
+    def _validate_shot(self, game_state: GameState, shot_data: dict):
         # Implement shot validation logic
         return True
 
-    def _calculate_remaining_balls(self, game_state: GameState, shot_data: dict) -> List[int]:
+    def _calculate_remaining_balls(self, game_state: GameState, shot_data: dict):
         # Implement remaining balls calculation
         return game_state.balls_remaining
 
-    def _determine_next_player(self, game_state: GameState, shot_data: dict) -> str:
+    def _determine_next_player(self, game_state: GameState, shot_data: dict):
         # Implement next player determination logic
         return (
             game_state.player2_id

@@ -36,19 +36,39 @@ SKILL_LEVELS = {
 PLAY_STYLES = {
     "aggressive": {
         "description": "Prefers high-risk, high-reward shots",
-        "compatibility": {"aggressive": 0.8, "defensive": 0.6, "balanced": 0.9, "strategic": 0.7},
+        "compatibility": {
+            "aggressive": 0.8,
+            "defensive": 0.6,
+            "balanced": 0.9,
+            "strategic": 0.7,
+        },
     },
     "defensive": {
         "description": "Focuses on safety plays and position",
-        "compatibility": {"aggressive": 0.6, "defensive": 0.7, "balanced": 0.8, "strategic": 0.9},
+        "compatibility": {
+            "aggressive": 0.6,
+            "defensive": 0.7,
+            "balanced": 0.8,
+            "strategic": 0.9,
+        },
     },
     "balanced": {
         "description": "Adapts style based on situation",
-        "compatibility": {"aggressive": 0.9, "defensive": 0.8, "balanced": 0.9, "strategic": 0.8},
+        "compatibility": {
+            "aggressive": 0.9,
+            "defensive": 0.8,
+            "balanced": 0.9,
+            "strategic": 0.8,
+        },
     },
     "strategic": {
         "description": "Emphasizes planning and control",
-        "compatibility": {"aggressive": 0.7, "defensive": 0.9, "balanced": 0.8, "strategic": 0.8},
+        "compatibility": {
+            "aggressive": 0.7,
+            "defensive": 0.9,
+            "balanced": 0.8,
+            "strategic": 0.8,
+        },
     },
 }
 
@@ -92,7 +112,10 @@ QUEUE_SETTINGS = {
 PREFERENCES = {
     "required_fields": {"game_type", "available_times"},
     "game_types": {
-        "eight_ball": {"description": "Standard 8-ball pool", "duration": 45},  # minutes
+        "eight_ball": {
+            "description": "Standard 8-ball pool",
+            "duration": 45,
+        },  # minutes
         "nine_ball": {"description": "9-ball pool", "duration": 30},  # minutes
         "straight_pool": {"description": "Continuous pool", "duration": 60},  # minutes
     },

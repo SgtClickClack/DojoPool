@@ -10,16 +10,22 @@ from prometheus_client import Counter, Gauge, Histogram
 
 # Metrics
 PREDICTION_DURATION = Histogram(
-    "ai_prediction_duration_seconds", "Time spent processing predictions", ["model_type"]
+    "ai_prediction_duration_seconds",
+    "Time spent processing predictions",
+    ["model_type"],
 )
 
 PREDICTION_ERRORS = Counter(
     "ai_prediction_errors_total", "Total number of prediction errors", ["error_type"]
 )
 
-CACHE_HITS = Counter("ai_cache_hits_total", "Total number of cache hits", ["cache_type"])
+CACHE_HITS = Counter(
+    "ai_cache_hits_total", "Total number of cache hits", ["cache_type"]
+)
 
-MODEL_LOAD_TIME = Gauge("ai_model_load_time_seconds", "Time taken to load models", ["model_type"])
+MODEL_LOAD_TIME = Gauge(
+    "ai_model_load_time_seconds", "Time taken to load models", ["model_type"]
+)
 
 
 @dataclass
@@ -43,7 +49,11 @@ class AIMonitor:
         self.error_counts: Dict[str, int] = {}
 
     def record_prediction(
-        self, model_type: str, duration: float, error: Optional[str] = None, cache_hit: bool = False
+        self,
+        model_type: str,
+        duration: float,
+        error: Optional[str] = None,
+        cache_hit: bool = False,
     ):
         """Record metrics for a prediction.
 
@@ -89,9 +99,11 @@ class AIMonitor:
         Returns:
             List of recent prediction metrics
         """
-        return sorted(self.recent_predictions, key=lambda x: x.timestamp, reverse=True)[:limit]
+        return sorted(self.recent_predictions, key=lambda x: x.timestamp, reverse=True)[
+            :limit
+        ]
 
-    def get_error_summary(self) -> Dict[str, Any]:
+    def get_error_summary(self):
         """Get summary of prediction errors.
 
         Returns:
@@ -103,7 +115,9 @@ class AIMonitor:
         return {
             "total_predictions": total_predictions,
             "total_errors": total_errors,
-            "error_rate": total_errors / total_predictions if total_predictions > 0 else 0,
+            "error_rate": (
+                total_errors / total_predictions if total_predictions > 0 else 0
+            ),
             "error_counts": self.error_counts.copy(),
         }
 
@@ -151,4 +165,6 @@ class AIMetricsTimer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Record metrics on exit."""
         duration = time.time() - self.start_time
-        self.monitor.record_prediction(self.model_type, duration, str(exc_val) if exc_val else None)
+        self.monitor.record_prediction(
+            self.model_type, duration, str(exc_val) if exc_val else None
+        )

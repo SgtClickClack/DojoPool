@@ -1,8 +1,11 @@
-"""Authentication routes."""
-
 from flask import Blueprint
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 auth_bp = Blueprint("auth", __name__)
 
-from .views import init_oauth  # noqa
-from . import views  # noqa
+
+# Define your authentication routes below.
+# For example:
+@auth_bp.route("/login")
+def login():
+    return "Login Page"

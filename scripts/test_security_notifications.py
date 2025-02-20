@@ -1,41 +1,37 @@
 #!/usr/bin/env python3
 """Test script for security notification channels."""
 
-import os
-import sys
 import json
-import requests
+import os
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import sys
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+import requests
+
 
 def test_slack_notification():
     """Test Slack notification channel."""
-    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
     if not webhook_url:
         print("❌ SLACK_WEBHOOK_URL not set")
         return False
 
     payload = {
-        "attachments": [{
-            "color": "#36a64f",
-            "title": "[TEST] Security Notification System",
-            "text": "This is a test notification from the DojoPool security monitoring system.",
-            "fields": [
-                {
-                    "title": "Environment",
-                    "value": "Testing",
-                    "short": True
-                },
-                {
-                    "title": "Status",
-                    "value": "Operational",
-                    "short": True
-                }
-            ],
-            "footer": f"Test performed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        }]
+        "attachments": [
+            {
+                "color": "#36a64f",
+                "title": "[TEST] Security Notification System",
+                "text": "This is a test notification from the DojoPool security monitoring system.",
+                "fields": [
+                    {"title": "Environment", "value": "Testing", "short": True},
+                    {"title": "Status", "value": "Operational", "short": True},
+                ],
+                "footer": f"Test performed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            }
+        ]
     }
 
     try:
@@ -47,22 +43,27 @@ def test_slack_notification():
         print(f"❌ Failed to send Slack notification: {str(e)}")
         return False
 
+
 def test_email_notification():
     """Test email notification channel."""
     required_vars = [
-        'SMTP_HOST', 'SMTP_PORT', 'SMTP_FROM', 
-        'SMTP_USER', 'SMTP_PASSWORD', 'SECURITY_EMAIL_TO'
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_FROM",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
+        "SECURITY_EMAIL_TO",
     ]
-    
+
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     if missing_vars:
         print(f"❌ Missing environment variables: {', '.join(missing_vars)}")
         return False
 
     msg = MIMEMultipart()
-    msg['Subject'] = '[TEST] DojoPool Security Notification'
-    msg['From'] = os.getenv('SMTP_FROM')
-    msg['To'] = os.getenv('SECURITY_EMAIL_TO')
+    msg["Subject"] = "[TEST] DojoPool Security Notification"
+    msg["From"] = os.getenv("SMTP_FROM")
+    msg["To"] = os.getenv("SECURITY_EMAIL_TO")
 
     html = """
     <h2>Security Notification System Test</h2>
@@ -72,14 +73,18 @@ def test_email_notification():
         <li><strong>Status:</strong> Operational</li>
         <li><strong>Time:</strong> {time}</li>
     </ul>
-    """.format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    """.format(
+        time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
 
-    msg.attach(MIMEText(html, 'html'))
+    msg.attach(MIMEText(html, "html"))
 
     try:
-        with smtplib.SMTP(os.getenv('SMTP_HOST'), int(os.getenv('SMTP_PORT'))) as server:
+        with smtplib.SMTP(
+            os.getenv("SMTP_HOST"), int(os.getenv("SMTP_PORT"))
+        ) as server:
             server.starttls()
-            server.login(os.getenv('SMTP_USER'), os.getenv('SMTP_PASSWORD'))
+            server.login(os.getenv("SMTP_USER"), os.getenv("SMTP_PASSWORD"))
             server.send_message(msg)
         print("✅ Email notification sent successfully")
         return True
@@ -87,9 +92,10 @@ def test_email_notification():
         print(f"❌ Failed to send email notification: {str(e)}")
         return False
 
+
 def test_pagerduty_notification():
     """Test PagerDuty notification channel."""
-    routing_key = os.getenv('PAGERDUTY_SECURITY_KEY')
+    routing_key = os.getenv("PAGERDUTY_SECURITY_KEY")
     if not routing_key:
         print("❌ PAGERDUTY_SECURITY_KEY not set")
         return False
@@ -105,16 +111,16 @@ def test_pagerduty_notification():
             "custom_details": {
                 "environment": "Testing",
                 "status": "Operational",
-                "time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
-        }
+                "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            },
+        },
     }
 
     try:
         response = requests.post(
-            'https://events.pagerduty.com/v2/enqueue',
+            "https://events.pagerduty.com/v2/enqueue",
             json=payload,
-            headers={'Content-Type': 'application/json'}
+            headers={"Content-Type": "application/json"},
         )
         response.raise_for_status()
         print("✅ PagerDuty notification sent successfully")
@@ -122,6 +128,7 @@ def test_pagerduty_notification():
     except Exception as e:
         print(f"❌ Failed to send PagerDuty notification: {str(e)}")
         return False
+
 
 def main():
     """Main function to test all notification channels."""
@@ -131,7 +138,7 @@ def main():
     results = {
         "Slack": test_slack_notification(),
         "Email": test_email_notification(),
-        "PagerDuty": test_pagerduty_notification()
+        "PagerDuty": test_pagerduty_notification(),
     }
 
     print("\n📊 Test Results Summary")
@@ -143,5 +150,6 @@ def main():
     if not all(results.values()):
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    main() 
+    main()

@@ -75,7 +75,9 @@ class NarrativeGenerationService:
 
         # Generate narrative components
         intro = self._generate_match_intro(player1, player2, match)
-        highlights = self._generate_match_highlights(shots, player1, player2, detail_level)
+        highlights = self._generate_match_highlights(
+            shots, player1, player2, detail_level
+        )
         summary = self._generate_match_summary(match, shots, player1, player2)
         stats = self._generate_match_statistics(shots, player1, player2)
 
@@ -86,7 +88,7 @@ class NarrativeGenerationService:
             "statistics": stats,
         }
 
-    def generate_live_update(self, match_id: str, shot: Shot) -> Dict[str, Any]:
+    def generate_live_update(self, match_id: str, shot: Shot):
         """
         Generate a narrative update for a live shot
         """
@@ -106,17 +108,24 @@ class NarrativeGenerationService:
             "match_id": match_id,
             "shot_id": str(shot._id),
             "timestamp": datetime.utcnow(),
-            "narrative": {"description": shot_description, "context": context if context else None},
+            "narrative": {
+                "description": shot_description,
+                "context": context if context else None,
+            },
             "analysis": shot_analysis,
         }
 
-    def _generate_match_intro(self, player1: Player, player2: Player, match: Match) -> str:
+    def _generate_match_intro(self, player1: Player, player2: Player, match: Match):
         """
         Generate the match introduction narrative
         """
         # Get player performance data
-        p1_performance = self.performance_tracking.track_player_performance(str(player1._id))
-        p2_performance = self.performance_tracking.track_player_performance(str(player2._id))
+        p1_performance = self.performance_tracking.track_player_performance(
+            str(player1._id)
+        )
+        p2_performance = self.performance_tracking.track_player_performance(
+            str(player2._id)
+        )
 
         # Determine match intensity based on player ratings
         if "error" not in p1_performance and "error" not in p2_performance:
@@ -136,7 +145,9 @@ class NarrativeGenerationService:
         # Select and format intro template
         template = random.choice(self.narrative_templates["match_intro"])
         return template.format(
-            player1=player1.username, player2=player2.username, match_intensity=match_intensity
+            player1=player1.username,
+            player2=player2.username,
+            match_intensity=match_intensity,
         )
 
     def _generate_match_highlights(
@@ -156,8 +167,12 @@ class NarrativeGenerationService:
             highlight_count = min(3, len(shots))
 
         # Sort shots by effectiveness
-        analyzed_shots = [(shot, self.shot_analysis.analyze_shot(shot.to_dict())) for shot in shots]
-        sorted_shots = sorted(analyzed_shots, key=lambda x: x[1]["effectiveness"], reverse=True)
+        analyzed_shots = [
+            (shot, self.shot_analysis.analyze_shot(shot.to_dict())) for shot in shots
+        ]
+        sorted_shots = sorted(
+            analyzed_shots, key=lambda x: x[1]["effectiveness"], reverse=True
+        )
 
         # Generate highlights for most effective shots
         for shot, analysis in sorted_shots[:highlight_count]:
@@ -175,7 +190,7 @@ class NarrativeGenerationService:
 
     def _generate_shot_description(
         self, shot: Shot, analysis: Dict[str, Any], player: Player
-    ) -> str:
+    ):
         """
         Generate a description for a single shot
         """
@@ -206,7 +221,9 @@ class NarrativeGenerationService:
 
         return f"{player.username} {result} {action} in {difficulty_modifier} attempt"
 
-    def _generate_shot_context(self, shot: Shot, analysis: Dict[str, Any]) -> Optional[str]:
+    def _generate_shot_context(
+        self, shot: Shot, analysis: Dict[str, Any]
+    ) -> Optional[str]:
         """
         Generate contextual information for a shot if significant
         """
@@ -286,7 +303,7 @@ class NarrativeGenerationService:
             "shot_distribution": self._calculate_shot_distribution(shots),
         }
 
-    def _calculate_player_stats(self, shots: List[Shot]) -> Dict[str, Any]:
+    def _calculate_player_stats(self, shots: List[Shot]):
         """
         Calculate detailed statistics for a player's shots
         """
@@ -297,7 +314,9 @@ class NarrativeGenerationService:
         successful_shots = sum(1 for s in shots if s.result)
 
         difficulties = [
-            self.shot_analysis._calculate_difficulty(s.power, s.angle, s.spin, s.english)
+            self.shot_analysis._calculate_difficulty(
+                s.power, s.angle, s.spin, s.english
+            )
             for s in shots
         ]
 
@@ -307,7 +326,7 @@ class NarrativeGenerationService:
             "average_difficulty": sum(difficulties) / total_shots,
         }
 
-    def _calculate_match_pace(self, shots: List[Shot]) -> str:
+    def _calculate_match_pace(self, shots: List[Shot]):
         """
         Calculate the pace of the match
         """
@@ -316,7 +335,9 @@ class NarrativeGenerationService:
 
         # Calculate average time between shots
         shot_times = [s.timestamp for s in shots]
-        time_diffs = [(t2 - t1).total_seconds() for t1, t2 in zip(shot_times[:-1], shot_times[1:])]
+        time_diffs = [
+            (t2 - t1).total_seconds() for t1, t2 in zip(shot_times[:-1], shot_times[1:])
+        ]
         avg_time = sum(time_diffs) / len(time_diffs)
 
         if avg_time < 20:
@@ -334,12 +355,16 @@ class NarrativeGenerationService:
         total_shots = len(shots)
 
         for shot in shots:
-            shot_type = self.shot_analysis._determine_shot_type(shot.power, shot.spin, shot.result)
+            shot_type = self.shot_analysis._determine_shot_type(
+                shot.power, shot.spin, shot.result
+            )
             shot_types[shot_type] = shot_types.get(shot_type, 0) + 1
 
-        return {shot_type: count / total_shots for shot_type, count in shot_types.items()}
+        return {
+            shot_type: count / total_shots for shot_type, count in shot_types.items()
+        }
 
-    def _determine_shot_significance(self, analysis: Dict[str, Any]) -> str:
+    def _determine_shot_significance(self, analysis: Dict[str, Any]):
         """
         Determine the significance of a shot based on its analysis
         """

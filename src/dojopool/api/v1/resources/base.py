@@ -3,13 +3,19 @@
 This module provides base classes for API resources with common functionality.
 """
 
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from flask import request
+from flask import current_app, request
 from flask_restful import Resource
 from marshmallow import Schema, ValidationError
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-from src.core.exceptions import APIError, AuthenticationError, AuthorizationError, NotFoundError
+from dojopool.core.exceptions import (
+    APIError,
+    AuthenticationError,
+    AuthorizationError,
+    NotFoundError,
+)
 
 
 class BaseResource(Resource):
@@ -17,7 +23,7 @@ class BaseResource(Resource):
 
     schema: Optional[Schema] = None
 
-    def dispatch_request(self, *args: Any, **kwargs: Any) -> Any:
+    def dispatch_request(self, *args: Any, **kwargs: Any):
         """Dispatch the request.
 
         Args:
@@ -45,22 +51,26 @@ class BaseResource(Resource):
         except Exception:
             return {"message": "Internal server error"}, 500
 
-    def get_json_data(self) -> Dict[str, Any]:
+    def get_json_data(self):
         """Get and validate JSON data from request.
 
         Returns:
             Dict[str, Any]: Validated data.
 
         Raises:
-            ValidationError: If validation fails.
+            APIError: If validation fails.
         """
         if not request.is_json:
-            raise ValidationError("Content-Type must be application/json")
+            raise APIError("Content-Type must be application/json")
 
-        data = request.get_json()
+        data: Any = request.get_json()
+        if not data:
+            raise APIError("No JSON data provided")
 
         if self.schema:
-            return self.schema.load(data)
+            errors: Any = self.schema.validate(data)
+            if errors:
+                raise APIError(f"Validation error: {errors}")
 
         return data
 
@@ -74,13 +84,15 @@ class BaseResource(Resource):
         Returns:
             Dict[str, Any]: Paginated response.
         """
-        page = request.args.get("page", 1, type=int)
-        per_page = min(request.args.get("per_page", 20, type=int), 100)
+        page: Any = request.args.get("page", 1, type=int, type=str)
+        per_page: Any = min(request.args.get("per_page", 20, type=int, type=str), 100)
 
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination: Any = query.paginate(page=page, per_page=per_page, error_out=False)
 
-        schema = schema or self.schema
-        items = schema.dump(pagination.items, many=True) if schema else pagination.items
+        schema: Any = schema or self.schema
+        items: Any = (
+            schema.dump(pagination.items, many=True) if schema else pagination.items
+        )
 
         return {
             "items": items,
@@ -96,46 +108,33 @@ class BaseResource(Resource):
 
     def success_response(
         self,
-        data: Optional[Union[Dict[str, Any], list]] = None,
-        message: Optional[str] = None,
+        message: str,
+        data: Optional[Dict[str, Any]] = None,
         status_code: int = 200,
-    ) -> Tuple[Dict[str, Any], int]:
+    ):
         """Create a success response.
 
         Args:
-            data: Response data.
             message: Success message.
+            data: Response data.
             status_code: HTTP status code.
 
         Returns:
             Tuple[Dict[str, Any], int]: Response tuple.
         """
-        response = {}
-
+        response: Dict[Any, Any] = {"success": True, "message": message}
         if data is not None:
             response["data"] = data
-
-        if message is not None:
-            response["message"] = message
-
         return response, status_code
 
-    def error_response(
-        self, message: str, errors: Optional[Dict[str, Any]] = None, status_code: int = 400
-    ) -> Tuple[Dict[str, Any], int]:
+    def error_response(self, message: str, status_code: int = 400):
         """Create an error response.
 
         Args:
             message: Error message.
-            errors: Detailed errors.
             status_code: HTTP status code.
 
         Returns:
-            Tuple[Dict[str, Any], int]: Response tuple.
+            Tuple[Dict[str, str], int]: Response tuple.
         """
-        response = {"message": message}
-
-        if errors is not None:
-            response["errors"] = errors
-
-        return response, status_code
+        return {"success": False, "message": message}, status_code

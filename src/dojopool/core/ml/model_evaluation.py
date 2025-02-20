@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Automated model evaluation system.
 
 This module provides comprehensive model evaluation and testing capabilities.
@@ -97,7 +99,9 @@ class ModelEvaluator:
         cv_results = self._perform_cross_validation(model_type, model, X_train, y_train)
 
         # Learning curves
-        learning_curves = self._generate_learning_curves(model_type, model, X_train, y_train)
+        learning_curves = self._generate_learning_curves(
+            model_type, model, X_train, y_train
+        )
 
         # Feature importance
         feature_importance = self._analyze_feature_importance(model_type, model)
@@ -106,7 +110,9 @@ class ModelEvaluator:
         error_analysis = self._perform_error_analysis(model_type, model, X_test, y_test)
 
         # Model complexity analysis
-        complexity_analysis = self._analyze_model_complexity(model_type, model, X_train, y_train)
+        complexity_analysis = self._analyze_model_complexity(
+            model_type, model, X_train, y_train
+        )
 
         # Generate visualizations
         self._generate_evaluation_plots(
@@ -173,11 +179,15 @@ class ModelEvaluator:
 
         # Calculate improvements
         if len(comparison["versions"]) > 1:
-            comparison["improvements"] = self._calculate_improvements(comparison["versions"])
+            comparison["improvements"] = self._calculate_improvements(
+                comparison["versions"]
+            )
 
         return comparison
 
-    def get_evaluation_history(self, model_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_evaluation_history(
+        self, model_type: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """Get evaluation history.
 
         Args:
@@ -196,7 +206,7 @@ class ModelEvaluator:
 
         return sorted(history, key=lambda x: x["timestamp"], reverse=True)
 
-    def analyze_evaluation_trends(self, model_type: str) -> Dict[str, Any]:
+    def analyze_evaluation_trends(self, model_type: str):
         """Analyze evaluation performance trends.
 
         Args:
@@ -228,7 +238,10 @@ class ModelEvaluator:
             "first_evaluation": timestamps[0].isoformat(),
             "last_evaluation": timestamps[-1].isoformat(),
             "trends": trends,
-            "metrics_history": {"timestamps": [t.isoformat() for t in timestamps], **metrics},
+            "metrics_history": {
+                "timestamps": [t.isoformat() for t in timestamps],
+                **metrics,
+            },
         }
 
     def _evaluate_basic_metrics(
@@ -255,12 +268,14 @@ class ModelEvaluator:
 
     def _perform_cross_validation(
         self, model_type: str, model: Any, X: np.ndarray, y: np.ndarray
-    ) -> Dict[str, Any]:
+    ):
         """Perform cross-validation."""
         cv = StratifiedKFold(n_splits=5) if model_type == "shot" else KFold(n_splits=5)
 
         scoring = "accuracy" if model_type == "shot" else "neg_mean_squared_error"
-        cv_results = cross_validate(model, X, y, cv=cv, scoring=scoring, return_train_score=True)
+        cv_results = cross_validate(
+            model, X, y, cv=cv, scoring=scoring, return_train_score=True
+        )
 
         return {
             "mean_score": float(cv_results["test_score"].mean()),
@@ -290,7 +305,7 @@ class ModelEvaluator:
             "test_scores_std": test_scores.std(axis=1).tolist(),
         }
 
-    def _analyze_feature_importance(self, model_type: str, model: Any) -> Dict[str, Any]:
+    def _analyze_feature_importance(self, model_type: str, model: Any):
         """Analyze feature importance."""
         if hasattr(model, "feature_importances_"):
             importances = model.feature_importances_
@@ -395,7 +410,9 @@ class ModelEvaluator:
             plt.xlabel("Predicted label")
             plt.ylabel("True label")
             plt.title(f"Confusion Matrix - {model_type.capitalize()} Model")
-            plt.savefig(self.plots_dir / f"confusion_matrix_{model_type}_{timestamp}.png")
+            plt.savefig(
+                self.plots_dir / f"confusion_matrix_{model_type}_{timestamp}.png"
+            )
             plt.close()
         else:
             plt.figure(figsize=(8, 6))
@@ -403,24 +420,30 @@ class ModelEvaluator:
             plt.xlabel("Error")
             plt.ylabel("Frequency")
             plt.title(f"Error Distribution - {model_type.capitalize()} Model")
-            plt.savefig(self.plots_dir / f"error_distribution_{model_type}_{timestamp}.png")
+            plt.savefig(
+                self.plots_dir / f"error_distribution_{model_type}_{timestamp}.png"
+            )
             plt.close()
 
-    def _prepare_data(self, model_type: str, data: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+    def _prepare_data(
+        self, model_type: str, data: List[Dict]
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Prepare data for evaluation."""
         return self.retrainer._prepare_training_data(model_type, data)
 
-    def _get_model(self, model_type: str) -> Any:
+    def _get_model(self, model_type: str):
         """Get model instance."""
         versions = self.version_manager.list_versions(status="active")
-        version = next((v for v in versions if v["metadata"]["model_type"] == model_type), None)
+        version = next(
+            (v for v in versions if v["metadata"]["model_type"] == model_type), None
+        )
 
         if not version:
             raise ValueError(f"No active version found for {model_type} model")
 
         return self.version_manager.load_version(version["id"])
 
-    def _calculate_improvements(self, versions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _calculate_improvements(self, versions: List[Dict[str, Any]]):
         """Calculate improvements between versions."""
         improvements = {}
 

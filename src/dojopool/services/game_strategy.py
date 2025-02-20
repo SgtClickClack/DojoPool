@@ -6,10 +6,9 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from models.game_state import GameState
 from models.player import Player
-from tensorflow.keras.models import load_model
-
 from services.shot_analysis import ShotAnalysis
 from src.core.config import AI_CONFIG
+from tensorflow.keras.models import load_model
 
 
 @dataclass
@@ -55,7 +54,9 @@ class GameStrategy:
         self.position_weight = 0.6  # Weight for position play importance
         self.safety_threshold = 0.4  # Threshold for considering safety play
 
-    async def analyze_position(self, game_state: GameState, player: Player) -> PositionAnalysis:
+    async def analyze_position(
+        self, game_state: GameState, player: Player
+    ) -> PositionAnalysis:
         """Analyze the current table position.
 
         Args:
@@ -86,7 +87,9 @@ class GameStrategy:
         )
 
         # Calculate strategic value
-        strategic_value = self._calculate_strategic_value(position_quality, risk_reward, game_state)
+        strategic_value = self._calculate_strategic_value(
+            position_quality, risk_reward, game_state
+        )
 
         return PositionAnalysis(
             difficulty=float(predictions[0]),
@@ -118,7 +121,9 @@ class GameStrategy:
             position_analysis = await self.analyze_position(game_state, player)
 
         # Extract strategy features
-        features = self._extract_strategy_features(game_state, position_analysis, player)
+        features = self._extract_strategy_features(
+            game_state, position_analysis, player
+        )
 
         # Get model predictions
         predictions = self.strategy_predictor.predict(features)
@@ -140,7 +145,9 @@ class GameStrategy:
         safety_plan = self._consider_safety_play(position_analysis, game_state)
 
         # Calculate success probability
-        success_prob = self._calculate_success_probability(recommended_shot, player, game_state)
+        success_prob = self._calculate_success_probability(
+            recommended_shot, player, game_state
+        )
 
         # Calculate confidence score
         confidence = self._calculate_confidence_score(
@@ -148,7 +155,9 @@ class GameStrategy:
         )
 
         # Generate strategic notes
-        notes = self._generate_strategic_notes(recommended_shot, position_analysis, game_state)
+        notes = self._generate_strategic_notes(
+            recommended_shot, position_analysis, game_state
+        )
 
         return StrategyRecommendation(
             recommended_shot=recommended_shot,
@@ -166,7 +175,9 @@ class GameStrategy:
 
         # Ball positions
         for ball in game_state.balls:
-            features.extend([ball.x / game_state.table_width, ball.y / game_state.table_length])
+            features.extend(
+                [ball.x / game_state.table_width, ball.y / game_state.table_length]
+            )
 
         # Cue ball position
         features.extend(
@@ -186,7 +197,9 @@ class GameStrategy:
 
         return np.array(features).reshape(1, -1)
 
-    def _generate_shot_options(self, game_state: GameState, player: Player) -> List[Dict[str, Any]]:
+    def _generate_shot_options(
+        self, game_state: GameState, player: Player
+    ) -> List[Dict[str, Any]]:
         """Generate possible shots for the current position."""
         options = []
 
@@ -210,7 +223,7 @@ class GameStrategy:
 
     def _calculate_position_quality(
         self, game_state: GameState, shot_options: List[Dict[str, Any]]
-    ) -> float:
+    ):
         """Calculate the quality of the current position."""
         if not shot_options:
             return 0.0
@@ -250,8 +263,11 @@ class GameStrategy:
         return options
 
     def _calculate_risk_reward(
-        self, shot_options: List[Dict[str, Any]], position_quality: float, score_difference: int
-    ) -> float:
+        self,
+        shot_options: List[Dict[str, Any]],
+        position_quality: float,
+        score_difference: int,
+    ):
         """Calculate risk vs reward ratio."""
         if not shot_options:
             return 0.0
@@ -314,13 +330,20 @@ class GameStrategy:
 
         # Player features
         features.extend(
-            [player.skill_level / 100, player.consistency / 100, player.risk_tolerance / 100]
+            [
+                player.skill_level / 100,
+                player.consistency / 100,
+                player.risk_tolerance / 100,
+            ]
         )
 
         return np.array(features).reshape(1, -1)
 
     def _select_optimal_shot(
-        self, shot_options: List[Dict[str, Any]], predictions: np.ndarray, game_state: GameState
+        self,
+        shot_options: List[Dict[str, Any]],
+        predictions: np.ndarray,
+        game_state: GameState,
     ) -> Dict[str, Any]:
         """Select the optimal shot based on strategy predictions."""
         if not shot_options:
@@ -369,7 +392,9 @@ class GameStrategy:
         # Sort by score
         scored_alternatives = []
         for shot in alternatives:
-            score = self._calculate_alternative_score(shot, recommended_shot, game_state)
+            score = self._calculate_alternative_score(
+                shot, recommended_shot, game_state
+            )
             scored_alternatives.append((score, shot))
 
         # Sort and return top 3 alternatives
@@ -378,7 +403,7 @@ class GameStrategy:
 
     def _generate_position_plan(
         self, recommended_shot: Dict[str, Any], game_state: GameState
-    ) -> List[Dict[str, Any]]:
+    ):
         """Generate a plan for position play."""
         if not recommended_shot:
             return []
@@ -412,7 +437,7 @@ class GameStrategy:
 
     def _consider_safety_play(
         self, position_analysis: PositionAnalysis, game_state: GameState
-    ) -> Optional[Dict[str, Any]]:
+    ):
         """Consider whether to recommend a safety play."""
         # Check if safety threshold is met
         if (
@@ -466,7 +491,10 @@ class GameStrategy:
         return max(0.0, min(1.0, probability))
 
     def _calculate_confidence_score(
-        self, shot: Dict[str, Any], position_analysis: PositionAnalysis, success_probability: float
+        self,
+        shot: Dict[str, Any],
+        position_analysis: PositionAnalysis,
+        success_probability: float,
     ) -> float:
         """Calculate confidence in the recommendation."""
         if not shot:
@@ -477,7 +505,9 @@ class GameStrategy:
             success_probability,
             position_analysis.position_quality,
             1 - position_analysis.difficulty,  # Lower difficulty = higher confidence
-            min(1.0, len(position_analysis.shot_options) / 3),  # More options = higher confidence
+            min(
+                1.0, len(position_analysis.shot_options) / 3
+            ),  # More options = higher confidence
         ]
 
         # Calculate weighted average
@@ -487,7 +517,10 @@ class GameStrategy:
         return max(0.0, min(1.0, confidence))
 
     def _generate_strategic_notes(
-        self, shot: Dict[str, Any], position_analysis: PositionAnalysis, game_state: GameState
+        self,
+        shot: Dict[str, Any],
+        position_analysis: PositionAnalysis,
+        game_state: GameState,
     ) -> List[str]:
         """Generate strategic insights and notes."""
         notes = []
@@ -518,26 +551,24 @@ class GameStrategy:
 
         return notes
 
-    def _analyze_direct_shot(self, target: Any, game_state: GameState) -> Optional[Dict[str, Any]]:
+    def _analyze_direct_shot(
+        self, target: Any, game_state: GameState
+    ) -> Optional[Dict[str, Any]]:
         """Analyze possibility of direct shot."""
         # Implementation would include geometry calculations
         pass
 
-    def _analyze_bank_shot(self, target: Any, game_state: GameState) -> Optional[Dict[str, Any]]:
+    def _analyze_bank_shot(self, target: Any, game_state: GameState):
         """Analyze possibility of bank shot."""
         # Implementation would include geometry calculations
         pass
 
-    def _analyze_combination_shots(
-        self, target: Any, game_state: GameState
-    ) -> List[Dict[str, Any]]:
+    def _analyze_combination_shots(self, target: Any, game_state: GameState):
         """Analyze possible combination shots."""
         # Implementation would include geometry calculations
         pass
 
-    def _filter_options_by_skill(
-        self, options: List[Dict[str, Any]], player: Player
-    ) -> List[Dict[str, Any]]:
+    def _filter_options_by_skill(self, options: List[Dict[str, Any]], player: Player):
         """Filter shot options based on player skill level."""
         # Implementation would include skill-based filtering
         pass
@@ -547,17 +578,17 @@ class GameStrategy:
         # Implementation would include position analysis
         pass
 
-    def _analyze_basic_safety(self, game_state: GameState) -> Optional[Dict[str, Any]]:
+    def _analyze_basic_safety(self, game_state: GameState):
         """Analyze basic safety options."""
         # Implementation would include safety analysis
         pass
 
-    def _analyze_bank_safety(self, game_state: GameState) -> Optional[Dict[str, Any]]:
+    def _analyze_bank_safety(self, game_state: GameState):
         """Analyze bank safety options."""
         # Implementation would include bank safety analysis
         pass
 
-    def _analyze_snooker_options(self, game_state: GameState) -> List[Dict[str, Any]]:
+    def _analyze_snooker_options(self, game_state: GameState):
         """Analyze possible snooker opportunities."""
         # Implementation would include snooker analysis
         pass
@@ -567,49 +598,53 @@ class GameStrategy:
         # Implementation would include game state analysis
         pass
 
-    def _get_situation_factor(self, game_state: GameState) -> float:
+    def _get_situation_factor(self, game_state: GameState):
         """Get factor based on game situation."""
         # Implementation would include situation analysis
         pass
 
-    def _get_risk_factor(self, game_state: GameState) -> float:
+    def _get_risk_factor(self, game_state: GameState):
         """Get factor based on risk assessment."""
         # Implementation would include risk analysis
         pass
 
     def _calculate_alternative_score(
         self, shot: Dict[str, Any], recommended: Dict[str, Any], game_state: GameState
-    ) -> float:
+    ):
         """Calculate score for alternative shot."""
         # Implementation would include scoring logic
         pass
 
-    def _predict_next_position(self, shot: Dict[str, Any], game_state: GameState) -> Any:
+    def _predict_next_position(
+        self, shot: Dict[str, Any], game_state: GameState
+    ) -> Any:
         """Predict position after shot."""
         # Implementation would include position prediction
         pass
 
-    def _predict_next_options(self, position: Any) -> List[Dict[str, Any]]:
+    def _predict_next_options(self, position: Any):
         """Predict available options from position."""
         # Implementation would include options analysis
         pass
 
-    def _predict_future_position(self, current: Dict[str, Any], game_state: GameState) -> Any:
+    def _predict_future_position(self, current: Dict[str, Any], game_state: GameState):
         """Predict future position possibilities."""
         # Implementation would include future position analysis
         pass
 
-    def _calculate_safety_score(self, safety: Dict[str, Any], game_state: GameState) -> float:
+    def _calculate_safety_score(self, safety: Dict[str, Any], game_state: GameState):
         """Calculate score for a safety shot."""
         # Implementation would include safety scoring
         pass
 
-    def _generate_safety_reasoning(self, safety: Dict[str, Any], game_state: GameState) -> str:
+    def _generate_safety_reasoning(
+        self, safety: Dict[str, Any], game_state: GameState
+    ) -> str:
         """Generate reasoning for safety shot."""
         # Implementation would include reasoning logic
         pass
 
-    def _calculate_pressure_factor(self, game_state: GameState) -> float:
+    def _calculate_pressure_factor(self, game_state: GameState):
         """Calculate factor based on game pressure."""
         # Implementation would include pressure analysis
         pass

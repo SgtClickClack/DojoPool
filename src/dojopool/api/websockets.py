@@ -1,4 +1,5 @@
-from fastapi import APIRouter, WebSocket, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket
+
 from ..core.auth import get_current_user, require_admin
 from ..core.ranking.realtime_service import realtime_ranking_service
 from ..models.user import User
@@ -34,7 +35,9 @@ async def rankings_websocket(
                 data = await websocket.receive_text()
 
                 # Echo back to confirm connection
-                await websocket.send_text(f"Connected to ranking updates for user {user_id}")
+                await websocket.send_text(
+                    f"Connected to ranking updates for user {user_id}"
+                )
             except Exception:
                 break
     finally:

@@ -1,98 +1,103 @@
+"""Health check module for monitoring system health."""
+
+import logging
 import os
-from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 import psutil
-from flask import Blueprint, jsonify
-from redis import Redis
-from sqlalchemy import text
+from flask import Blueprint, current_app, jsonify
+from werkzeug.wrappers import Response
 
-from ..core.auth.models import db
-from ..core.config import Config
+from dojopool.core.extensions import cache, db
 
-health_bp = Blueprint("health", __name__)
+logger = logging.getLogger(__name__)
+bp = Blueprint("health", __name__)
 
 
-def check_database():
-    """Check database connection."""
+@bp.route("/health")
+def health_check() -> Response:
+    """Check system health.
+
+    Returns:
+        Health check response
+    """
     try:
-        db.session.execute(text("SELECT 1"))
-        return True, "Database is healthy"
+        # Check database connection
+        db.session.execute("SELECT 1")
+
+        # Check Redis connection
+        cache.ping()
+
+        # Check disk usage
+        disk = psutil.disk_usage("/")
+        if disk.percent >= 90:  # More than 90% used
+            raise RuntimeError("Disk usage critical")
+
+        # Check memory usage
+        memory = psutil.virtual_memory()
+        if memory.percent >= 90:  # More than 90% used
+            raise RuntimeError("Memory usage critical")
+
+        # Check CPU usage
+        cpu_percent = psutil.cpu_percent(interval=1)
+        if cpu_percent >= 90:  # More than 90% used
+            raise RuntimeError("CPU usage critical")
+
+        return jsonify({"status": "healthy", "message": "All systems operational"}), 200
+
     except Exception as e:
-        return False, f"Database error: {str(e)}"
+        logger.error(f"Health check failed: {str(e)}")
+        return jsonify({"status": "unhealthy", "message": str(e)}), 503
 
 
-def check_redis():
-    """Check Redis connection."""
+@bp.route("/metrics")
+def metrics() -> Response:
+    """Get system metrics.
+
+    Returns:
+        System metrics response
+    """
     try:
-        redis = Redis.from_url(Config.REDIS_URL)
-        redis.ping()
-        return True, "Redis is healthy"
+        # Get system metrics
+        disk = psutil.disk_usage("/")
+        memory = psutil.virtual_memory()
+        cpu_percent = psutil.cpu_percent(interval=1)
+
+        # Get process metrics
+        process = psutil.Process(os.getpid())
+        process_memory = process.memory_info()
+
+        return (
+            jsonify(
+                {
+                    "system": {
+                        "disk": {
+                            "total": disk.total,
+                            "used": disk.used,
+                            "free": disk.free,
+                            "percent": disk.percent,
+                        },
+                        "memory": {
+                            "total": memory.total,
+                            "available": memory.available,
+                            "used": memory.used,
+                            "percent": memory.percent,
+                        },
+                        "cpu": {"percent": cpu_percent},
+                    },
+                    "process": {
+                        "memory": {
+                            "rss": process_memory.rss,
+                            "vms": process_memory.vms,
+                        },
+                        "cpu_percent": process.cpu_percent(),
+                        "threads": process.num_threads(),
+                    },
+                }
+            ),
+            200,
+        )
+
     except Exception as e:
-        return False, f"Redis error: {str(e)}"
-
-
-def check_disk_space():
-    """Check available disk space."""
-    disk = psutil.disk_usage("/")
-    if disk.percent < 90:  # Less than 90% used
-        return True, f"Disk usage: {disk.percent}%"
-    return False, f"Disk usage critical: {disk.percent}%"
-
-
-def check_memory():
-    """Check memory usage."""
-    memory = psutil.virtual_memory()
-    if memory.percent < 90:  # Less than 90% used
-        return True, f"Memory usage: {memory.percent}%"
-    return False, f"Memory usage critical: {memory.percent}%"
-
-
-@health_bp.route("/health")
-def health_check():
-    """Health check endpoint."""
-    checks = {
-        "database": check_database(),
-        "redis": check_redis(),
-        "disk": check_disk_space(),
-        "memory": check_memory(),
-        "timestamp": datetime.utcnow().isoformat(),
-    }
-
-    all_healthy = all(check[0] for check in checks.values() if isinstance(check, tuple))
-
-    response = {
-        "status": "healthy" if all_healthy else "unhealthy",
-        "checks": {
-            name: (
-                {"status": "healthy" if check[0] else "unhealthy", "message": check[1]}
-                if isinstance(check, tuple)
-                else check
-            )
-            for name, check in checks.items()
-        },
-    }
-
-    return jsonify(response), 200 if all_healthy else 503
-
-
-@health_bp.route("/metrics")
-def metrics():
-    """Prometheus metrics endpoint."""
-    memory = psutil.virtual_memory()
-    disk = psutil.disk_usage("/")
-
-    metrics_text = f"""
-# HELP dojopool_memory_usage_percent Memory usage percentage
-# TYPE dojopool_memory_usage_percent gauge
-dojopool_memory_usage_percent {memory.percent}
-
-# HELP dojopool_disk_usage_percent Disk usage percentage
-# TYPE dojopool_disk_usage_percent gauge
-dojopool_disk_usage_percent {disk.percent}
-
-# HELP dojopool_process_cpu_percent Process CPU usage percentage
-# TYPE dojopool_process_cpu_percent gauge
-dojopool_process_cpu_percent {psutil.Process(os.getpid()).cpu_percent()}
-"""
-
-    return metrics_text, 200, {"Content-Type": "text/plain"}
+        logger.error(f"Metrics collection failed: {str(e)}")
+        return jsonify({"error": "Failed to collect metrics", "message": str(e)}), 500

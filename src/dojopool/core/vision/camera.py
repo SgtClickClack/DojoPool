@@ -26,7 +26,10 @@ class PoolTableCalibration:
     def __init__(self):
         self.corners: List[Tuple[int, int]] = []
         self.homography_matrix: Optional[np.ndarray] = None
-        self.table_dimensions: Tuple[float, float] = (2.54, 1.27)  # Standard table in meters
+        self.table_dimensions: Tuple[float, float] = (
+            2.54,
+            1.27,
+        )  # Standard table in meters
 
     def add_corner(self, x: int, y: int):
         """Add a corner point during calibration."""
@@ -99,7 +102,7 @@ class PoolCamera:
             logger.error(f"Camera initialization failed: {str(e)}")
             return False
 
-    def get_camera_info(self) -> dict:
+    def get_camera_info(self):
         """Get current camera settings."""
         if not self.camera:
             return {}
@@ -112,7 +115,7 @@ class PoolCamera:
             "gain": self.camera.get(cv2.CAP_PROP_GAIN),
         }
 
-    def capture_frame(self) -> Optional[np.ndarray]:
+    def capture_frame(self):
         """Capture a single frame from the camera."""
         if not self.is_running:
             return None
@@ -129,7 +132,7 @@ class PoolCamera:
         self.calibration = PoolTableCalibration()
         logger.info("Starting table calibration")
 
-    def add_calibration_point(self, x: int, y: int) -> bool:
+    def add_calibration_point(self, x: int, y: int):
         """Add a calibration point for table corners."""
         success = self.calibration.add_corner(x, y)
         if success:
@@ -143,7 +146,7 @@ class PoolCamera:
         """Check if table is calibrated."""
         return self.calibration.homography_matrix is not None
 
-    def preprocess_frame(self, frame: np.ndarray) -> np.ndarray:
+    def preprocess_frame(self, frame: np.ndarray):
         """Preprocess frame for ball detection."""
         # Convert to grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """
 Metrics tracking module for A/B testing.
 Provides functionality to record and analyze metrics.
@@ -33,7 +37,7 @@ class MetricValue:
 class MetricDefinition:
     """Definition of a metric."""
 
-    def __init__(self, name: str, type: MetricType, description: Optional[str] = None) -> None:
+    def __init__(self, name: str, type: MetricType, description: Optional[str] = None):
         self.name = name
         self.type = type
         self.description = description
@@ -42,7 +46,7 @@ class MetricDefinition:
 class MetricsManager:
     """Manages metrics collection and analysis."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         """Initialize metrics manager."""
         self._metrics: Dict[str, List[MetricValue]] = {}
         self._definitions: Dict[str, MetricDefinition] = {}
@@ -66,7 +70,9 @@ class MetricsManager:
         """
         # Validate metric type
         if not isinstance(type, MetricType):
-            raise ValueError(f"Invalid metric type: {type}. Must be a MetricType enum value.")
+            raise ValueError(
+                f"Invalid metric type: {type}. Must be a MetricType enum value."
+            )
 
         # Generate metric ID from name
         metric_id = name.lower().replace(" ", "_")
@@ -88,7 +94,7 @@ class MetricsManager:
         tags: Optional[Set[str]] = None,
         metadata: Optional[Dict[str, Any]] = None,
         timestamp: Optional[datetime] = None,
-    ) -> None:
+    ):
         """
         Record a metric value.
 
@@ -122,7 +128,9 @@ class MetricsManager:
 
             # Prepare metadata
             combined_metadata = metadata or {}
-            combined_metadata.update({"experiment_id": experiment_id, "variant_id": variant_id})
+            combined_metadata.update(
+                {"experiment_id": experiment_id, "variant_id": variant_id}
+            )
 
             # Create metric value
             metric_value = MetricValue(
@@ -145,7 +153,7 @@ class MetricsManager:
         tags: Optional[Set[str]] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-    ) -> List[float]:
+    ):
         """
         Get values for a metric with optional filtering.
 
@@ -246,7 +254,10 @@ class MetricsManager:
                             "max": max(values),
                             "mean": mean,
                             "total": sum(values),
-                            "stddev": (sum((x - mean) ** 2 for x in values) / len(values)) ** 0.5,
+                            "stddev": (
+                                sum((x - mean) ** 2 for x in values) / len(values)
+                            )
+                            ** 0.5,
                         }
                     )
                 elif metric_type == MetricType.CONVERSION:

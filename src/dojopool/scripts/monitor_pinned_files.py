@@ -1,3 +1,5 @@
+import gc
+import gc
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -181,7 +183,9 @@ class PinnedFileMonitor:
                 path: {
                     "exists": file.exists,
                     "status": file.status,
-                    "last_modified": file.last_modified.isoformat() if file.last_modified else None,
+                    "last_modified": (
+                        file.last_modified.isoformat() if file.last_modified else None
+                    ),
                     "priority": file.priority,
                     "update_frequency": file.update_frequency,
                     "purpose": file.purpose,

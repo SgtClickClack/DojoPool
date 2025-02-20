@@ -1,8 +1,9 @@
 """Tests for shot physics calculations."""
 
-import pytest
 import numpy as np
-from .shot_physics import Vector2D, Ball, Table, ShotPhysics, CollisionType
+import pytest
+
+from .shot_physics import Ball, CollisionType, ShotPhysics, Table, Vector2D
 
 
 @pytest.fixture
@@ -12,13 +13,13 @@ def physics() -> ShotPhysics:
 
 
 @pytest.fixture
-def table() -> Table:
+def table():
     """Create a standard pool table."""
     return Table()
 
 
 @pytest.fixture
-def stationary_balls() -> List[Ball]:
+def stationary_balls():
     """Create a set of stationary balls."""
     return [
         Ball(position=Vector2D(0.5, 0.5), velocity=Vector2D(0, 0)),  # Cue ball
@@ -30,7 +31,7 @@ def stationary_balls() -> List[Ball]:
 class TestVector2D:
     """Test 2D vector operations."""
 
-    def test_vector_operations(self) -> None:
+    def test_vector_operations(self):
         """Test basic vector operations."""
         v1 = Vector2D(1, 2)
         v2 = Vector2D(3, 4)
@@ -75,7 +76,7 @@ class TestVector2D:
 class TestBallPhysics:
     """Test ball physics calculations."""
 
-    def test_ball_collision_prediction(self, physics: ShotPhysics) -> None:
+    def test_ball_collision_prediction(self, physics: ShotPhysics):
         """Test ball collision prediction."""
         ball1 = Ball(position=Vector2D(0, 0), velocity=Vector2D(1, 0))
         ball2 = Ball(position=Vector2D(0.1, 0), velocity=Vector2D(0, 0))
@@ -97,7 +98,7 @@ class TestBallPhysics:
         assert point is None
         assert ctype == CollisionType.NONE
 
-    def test_collision_velocities(self, physics: ShotPhysics) -> None:
+    def test_collision_velocities(self, physics: ShotPhysics):
         """Test post-collision velocity calculations."""
         # Head-on collision
         ball1 = Ball(position=Vector2D(0, 0), velocity=Vector2D(1, 0))
@@ -182,6 +183,8 @@ class TestShotSimulation:
 
         # Harder angled shot
         object_ball.position = Vector2D(1.0, 0.75)
-        harder_difficulty = physics.calculate_shot_difficulty(cue_ball, object_ball, target)
+        harder_difficulty = physics.calculate_shot_difficulty(
+            cue_ball, object_ball, target
+        )
 
         assert harder_difficulty > difficulty

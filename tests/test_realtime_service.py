@@ -14,7 +14,8 @@ async def test_update_rankings() -> None:
     # Our dummy fetch returns a fixed list [5, 4, 3, 2, 1]
     assert service.rankings == [5, 4, 3, 2, 1]
 
-def test_get_top_rankings() -> None:
+
+def test_get_top_rankings():
     service = RealtimeService()
     service.rankings = [100, 90, 80, 70, 60]
     top3 = service.get_top_rankings(0, 3)

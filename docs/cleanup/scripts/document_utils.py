@@ -74,7 +74,7 @@ class UtilityAnalyzer:
                         decorators.append(decorator.func.id)
         return decorators
 
-    def analyze_function(self, node: ast.FunctionDef) -> FunctionInfo:
+    def analyze_function(self, node: ast.FunctionDef) :
         """Analyze a function node and return its information."""
         docstring = ast.get_docstring(node)
         params = [arg.arg for arg in node.args.args]
@@ -232,7 +232,9 @@ class UtilityAnalyzer:
                     f"- Consider breaking down large function `{func.name}` ({func.line_count} lines)"
                 )
             if not func.docstring:
-                recommendations.append(f"- Add documentation for function `{func.name}`")
+                recommendations.append(
+                    f"- Add documentation for function `{func.name}`"
+                )
 
         for cls in analysis["classes"]:
             if not cls.docstring:
@@ -288,7 +290,9 @@ def main():
     root_dir = str(Path.cwd())
     analyzer = UtilityAnalyzer(root_dir)
     analyzer.analyze_all()
-    print("Analysis complete. Check docs/cleanup/utils_documentation/ for detailed documentation.")
+    print(
+        "Analysis complete. Check docs/cleanup/utils_documentation/ for detailed documentation."
+    )
 
 
 if __name__ == "__main__":

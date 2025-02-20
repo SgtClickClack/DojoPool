@@ -2,6 +2,12 @@
 
 from flask import Blueprint
 
-narrative_bp = Blueprint("narrative", __name__)
+narrative_bp: Blueprint = Blueprint("narrative", __name__)
+
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import Request, Response, current_app
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from . import views  # noqa

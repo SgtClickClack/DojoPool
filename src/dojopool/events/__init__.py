@@ -2,7 +2,6 @@
 
 from flask_login import current_user
 from flask_socketio import emit, join_room, leave_room
-
 from src.extensions import socketio
 from src.models import Notification, NotificationType
 
@@ -30,4 +29,8 @@ def handle_read_notification(data):
         notification = Notification.query.get(notification_id)
         if notification and notification.user_id == current_user.id:
             notification.mark_as_read()
-            emit("notification_updated", notification.to_dict(), room=f"user_{current_user.id}")
+            emit(
+                "notification_updated",
+                notification.to_dict(),
+                room=f"user_{current_user.id}",
+            )

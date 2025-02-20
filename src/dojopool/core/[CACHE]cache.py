@@ -1,3 +1,5 @@
+import gc
+import gc
 """Cache management system with advanced invalidation and memory optimization."""
 
 import json
@@ -27,13 +29,13 @@ class CacheInvalidationStrategy:
         self.access_counts[key] = self.access_counts.get(key, 0) + 1
         self.last_accessed[key] = time.time()
 
-    def add_dependency(self, key: str, depends_on: str) -> None:
+    def add_dependency(self, key: str, depends_on: str):
         """Add a dependency between cache keys."""
         if key not in self.dependencies:
             self.dependencies[key] = set()
         self.dependencies[key].add(depends_on)
 
-    def get_dependent_keys(self, key: str) -> Set[str]:
+    def get_dependent_keys(self, key: str):
         """Get all keys that depend on the given key."""
         dependent_keys = set()
         for k, deps in self.dependencies.items():
@@ -42,7 +44,7 @@ class CacheInvalidationStrategy:
                 dependent_keys.update(self.get_dependent_keys(k))
         return dependent_keys
 
-    def should_invalidate(self, key: str, age: float, access_count: int) -> bool:
+    def should_invalidate(self, key: str, age: float, access_count: int):
         """Determine if a cache entry should be invalidated."""
         if age > 24 * 3600:  # Older than 24 hours
             return access_count < 10  # Invalidate if rarely accessed
@@ -68,17 +70,17 @@ class MemoryOptimizer:
         except (TypeError, ValueError):
             return sys.getsizeof(str(value))
 
-    def can_store(self, size: int) -> bool:
+    def can_store(self, size: int):
         """Check if there's enough memory to store an item."""
         return self.current_memory + size <= self.max_memory
 
-    def register_item(self, key: str, value: Any) -> None:
+    def register_item(self, key: str, value: Any):
         """Register a new cached item."""
         size = self.estimate_size(value)
         self.item_sizes[key] = size
         self.current_memory += size
 
-    def unregister_item(self, key: str) -> None:
+    def unregister_item(self, key: str):
         """Unregister a cached item."""
         if key in self.item_sizes:
             self.current_memory -= self.item_sizes[key]
@@ -154,10 +156,12 @@ class CacheManager:
         """Schedule periodic maintenance tasks."""
         import threading
 
-        maintenance_thread = threading.Thread(target=self._maintenance_task, daemon=True)
+        maintenance_thread = threading.Thread(
+            target=self._maintenance_task, daemon=True
+        )
         maintenance_thread.start()
 
-    def _maintenance_task(self) -> None:
+    def _maintenance_task(self):
         """Periodic maintenance task."""
         while True:
             try:
@@ -167,7 +171,7 @@ class CacheManager:
             except Exception as e:
                 logger.error(f"Maintenance task error: {e}")
 
-    def _cleanup_expired(self) -> None:
+    def _cleanup_expired(self):
         """Clean up expired cache entries."""
         now = time.time()
         keys_to_remove = []
@@ -179,7 +183,7 @@ class CacheManager:
         for key in keys_to_remove:
             self.invalidate(key)
 
-    def _optimize_memory(self) -> None:
+    def _optimize_memory(self):
         """Optimize memory usage."""
         if not self.enable_local_cache:
             return
@@ -213,7 +217,11 @@ class CacheManager:
             ttl = ttl or self.default_ttl
             expiry = time.time() + ttl
 
-            data = {"value": value, "expiry": expiry, "dependencies": dependencies or []}
+            data = {
+                "value": value,
+                "expiry": expiry,
+                "dependencies": dependencies or [],
+            }
 
             self.redis.setex(key, ttl, json.dumps(data))
 
@@ -230,7 +238,7 @@ class CacheManager:
         except RedisError as e:
             logger.error(f"Redis error while setting key {key}: {e}")
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str):
         """Get a cache entry."""
         try:
             # Check local cache first
@@ -294,7 +302,7 @@ class CacheManager:
         except RedisError as e:
             logger.error(f"Redis error while invalidating key {key}: {e}")
 
-    def clear(self) -> None:
+    def clear(self):
         """Clear all cache entries."""
         try:
             self.redis.flushdb()
@@ -306,7 +314,7 @@ class CacheManager:
         except RedisError as e:
             logger.error(f"Redis error while clearing cache: {e}")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self):
         """Get cache statistics."""
         return {
             **self.stats,
@@ -318,7 +326,9 @@ class CacheManager:
 
 
 def cached(
-    ttl: Optional[int] = None, key_prefix: str = "", dependencies: Optional[List[str]] = None
+    ttl: Optional[int] = None,
+    key_prefix: str = "",
+    dependencies: Optional[List[str]] = None,
 ):
     """Decorator for caching function results."""
 
@@ -338,7 +348,9 @@ def cached(
 
             # Call function and cache result
             result = func(self, *args, **kwargs)
-            self.cache_manager.set(cache_key, result, ttl=ttl, dependencies=dependencies)
+            self.cache_manager.set(
+                cache_key, result, ttl=ttl, dependencies=dependencies
+            )
             return result
 
         return wrapper

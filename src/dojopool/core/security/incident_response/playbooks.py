@@ -29,7 +29,7 @@ class ResponseAction:
 class BlockIPAction(ResponseAction):
     """Action to block malicious IP addresses."""
 
-    async def execute(self) -> bool:
+    async def execute(self):
         """Block malicious IP address."""
         try:
             if not self.incident.source_ip:
@@ -60,7 +60,7 @@ class BlockIPAction(ResponseAction):
 class IsolateSystemAction(ResponseAction):
     """Action to isolate affected systems."""
 
-    async def execute(self) -> bool:
+    async def execute(self):
         """Isolate affected systems."""
         try:
             if not self.incident.affected_systems:
@@ -72,7 +72,8 @@ class IsolateSystemAction(ResponseAction):
             for system in self.incident.affected_systems:
                 # Isolate system by restricting network access
                 await firewall.isolate_system(
-                    system, reason=f"Isolated due to {self.incident.incident_type.value} incident"
+                    system,
+                    reason=f"Isolated due to {self.incident.incident_type.value} incident",
                 )
                 isolated_systems.append(system)
 
@@ -91,7 +92,7 @@ class IsolateSystemAction(ResponseAction):
 class ScanSystemsAction(ResponseAction):
     """Action to scan affected systems."""
 
-    async def execute(self) -> bool:
+    async def execute(self):
         """Scan affected systems."""
         try:
             if not self.incident.affected_systems:
@@ -99,7 +100,8 @@ class ScanSystemsAction(ResponseAction):
 
             scanner = ScannerManager()
             scan_results = await scanner.scan_targets(
-                self.incident.affected_systems, scan_types=["infrastructure", "web", "container"]
+                self.incident.affected_systems,
+                scan_types=["infrastructure", "web", "container"],
             )
 
             for finding in scan_results:
@@ -133,7 +135,10 @@ class CollectForensicsAction(ResponseAction):
                     self.incident.add_evidence(
                         evidence_type="system_logs",
                         content=logs,
-                        metadata={"system": system, "timestamp": datetime.now().isoformat()},
+                        metadata={
+                            "system": system,
+                            "timestamp": datetime.now().isoformat(),
+                        },
                     )
 
                 # Collect process information
@@ -142,7 +147,10 @@ class CollectForensicsAction(ResponseAction):
                     self.incident.add_evidence(
                         evidence_type="process_info",
                         content=processes,
-                        metadata={"system": system, "timestamp": datetime.now().isoformat()},
+                        metadata={
+                            "system": system,
+                            "timestamp": datetime.now().isoformat(),
+                        },
                     )
 
                 # Collect network connections
@@ -151,7 +159,10 @@ class CollectForensicsAction(ResponseAction):
                     self.incident.add_evidence(
                         evidence_type="network_connections",
                         content=connections,
-                        metadata={"system": system, "timestamp": datetime.now().isoformat()},
+                        metadata={
+                            "system": system,
+                            "timestamp": datetime.now().isoformat(),
+                        },
                     )
 
             self.incident.add_action(
@@ -165,17 +176,17 @@ class CollectForensicsAction(ResponseAction):
             self.logger.error(f"Error collecting forensics: {str(e)}")
             return False
 
-    async def _collect_system_logs(self, system: str) -> Optional[Dict[str, Any]]:
+    async def _collect_system_logs(self, system: str):
         """Collect system logs."""
         # Implementation depends on system logging infrastructure
         pass
 
-    async def _collect_process_info(self, system: str) -> Optional[Dict[str, Any]]:
+    async def _collect_process_info(self, system: str):
         """Collect process information."""
         # Implementation depends on system monitoring infrastructure
         pass
 
-    async def _collect_network_info(self, system: str) -> Optional[Dict[str, Any]]:
+    async def _collect_network_info(self, system: str):
         """Collect network connection information."""
         # Implementation depends on network monitoring infrastructure
         pass
@@ -198,7 +209,9 @@ class IncidentPlaybook:
                 if not success:
                     self.logger.warning(f"Action {action.__class__.__name__} failed")
             except Exception as e:
-                self.logger.error(f"Error executing action {action.__class__.__name__}: {str(e)}")
+                self.logger.error(
+                    f"Error executing action {action.__class__.__name__}: {str(e)}"
+                )
 
 
 class IntrusionPlaybook(IncidentPlaybook):
@@ -263,7 +276,7 @@ class PlaybookManager:
             IncidentType.DOS: DosPlaybook,
         }
 
-    async def execute_playbook(self, incident: SecurityIncident) -> None:
+    async def execute_playbook(self, incident: SecurityIncident):
         """Execute appropriate playbook for incident."""
         try:
             # Get appropriate playbook
@@ -279,7 +292,9 @@ class PlaybookManager:
             await playbook.execute()
 
             # Update incident status
-            incident.update_status(IncidentStatus.CONTAINED, "Automated response playbook executed")
+            incident.update_status(
+                IncidentStatus.CONTAINED, "Automated response playbook executed"
+            )
 
         except Exception as e:
             self.logger.error(f"Error executing playbook: {str(e)}")

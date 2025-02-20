@@ -1,3 +1,5 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 import json
 import logging
 from datetime import datetime
@@ -72,8 +74,12 @@ def update_performance_metrics(metrics_file: str = "performance_metrics.json") -
 
         # Calculate metrics
         total_images = len(image_usage)
-        lazy_loading_count = sum(1 for data in image_usage.values() if data["has_lazy_loading"])
-        responsive_count = sum(1 for data in image_usage.values() if data["has_responsive"])
+        lazy_loading_count = sum(
+            1 for data in image_usage.values() if data["has_lazy_loading"]
+        )
+        responsive_count = sum(
+            1 for data in image_usage.values() if data["has_responsive"]
+        )
         webp_count = sum(1 for data in image_usage.values() if data["has_webp"])
         avif_count = sum(1 for data in image_usage.values() if data["has_avif"])
         preloaded_count = sum(1 for data in image_usage.values() if data["preloaded"])
@@ -89,8 +95,12 @@ def update_performance_metrics(metrics_file: str = "performance_metrics.json") -
         new_metrics = {
             "timestamp": datetime.now().isoformat(),
             "total_images": total_images,
-            "lazy_loading_rate": lazy_loading_count / total_images if total_images > 0 else 0,
-            "responsive_image_rate": responsive_count / total_images if total_images > 0 else 0,
+            "lazy_loading_rate": (
+                lazy_loading_count / total_images if total_images > 0 else 0
+            ),
+            "responsive_image_rate": (
+                responsive_count / total_images if total_images > 0 else 0
+            ),
             "webp_adoption_rate": webp_count / total_images if total_images > 0 else 0,
             "avif_adoption_rate": avif_count / total_images if total_images > 0 else 0,
             "preloaded_images": preloaded_count,
@@ -117,7 +127,9 @@ def update_performance_metrics(metrics_file: str = "performance_metrics.json") -
         logger.info(f"Lazy loading rate: {new_metrics['lazy_loading_rate']:.2%}")
         logger.info(f"WebP adoption rate: {new_metrics['webp_adoption_rate']:.2%}")
         logger.info(f"AVIF adoption rate: {new_metrics['avif_adoption_rate']:.2%}")
-        logger.info(f"Responsive image rate: {new_metrics['responsive_image_rate']:.2%}")
+        logger.info(
+            f"Responsive image rate: {new_metrics['responsive_image_rate']:.2%}"
+        )
         logger.info(f"Preloaded images: {new_metrics['preloaded_images']}")
 
     except Exception as e:
@@ -126,7 +138,9 @@ def update_performance_metrics(metrics_file: str = "performance_metrics.json") -
 
 if __name__ == "__main__":
     # Set up logging
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     # Update metrics
     update_performance_metrics()

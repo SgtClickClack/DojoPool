@@ -2,7 +2,7 @@
 Monitoring utilities and base Prometheus metrics.
 """
 
-from prometheus_client import Counter, Histogram, CollectorRegistry
+from prometheus_client import CollectorRegistry, Counter, Histogram
 
 # Create a custom registry
 REGISTRY = CollectorRegistry()
@@ -16,7 +16,10 @@ REQUEST_COUNT = Counter(
 )
 
 REQUEST_LATENCY = Histogram(
-    "app_request_latency_seconds", "Request Latency", ["method", "endpoint"], registry=REGISTRY
+    "app_request_latency_seconds",
+    "Request Latency",
+    ["method", "endpoint"],
+    registry=REGISTRY,
 )
 
 # Image processing metrics
@@ -35,15 +38,23 @@ IMAGE_PROCESSING_DURATION = Histogram(
 )
 
 IMAGE_SIZE_REDUCTION = Histogram(
-    "app_image_size_reduction_bytes", "Image Size Reduction", ["format"], registry=REGISTRY
+    "app_image_size_reduction_bytes",
+    "Image Size Reduction",
+    ["format"],
+    registry=REGISTRY,
 )
 
 # Memory usage metrics
-MEMORY_USAGE = Histogram("app_memory_usage_bytes", "Memory Usage", ["component"], registry=REGISTRY)
+MEMORY_USAGE = Histogram(
+    "app_memory_usage_bytes", "Memory Usage", ["component"], registry=REGISTRY
+)
 
 # Error metrics
 ERROR_COUNT = Counter(
-    "app_error_count_total", "Total Error Count", ["severity", "component"], registry=REGISTRY
+    "app_error_count_total",
+    "Total Error Count",
+    ["severity", "component"],
+    registry=REGISTRY,
 )
 
 ERROR_HANDLING_DURATION = Histogram(
@@ -64,11 +75,17 @@ CACHE_MISS_COUNT = Counter(
 
 # Database metrics
 DB_QUERY_DURATION = Histogram(
-    "app_db_query_duration_seconds", "Database Query Duration", ["query_type"], registry=REGISTRY
+    "app_db_query_duration_seconds",
+    "Database Query Duration",
+    ["query_type"],
+    registry=REGISTRY,
 )
 
 DB_CONNECTION_COUNT = Counter(
-    "app_db_connection_total", "Database Connection Count", ["status"], registry=REGISTRY
+    "app_db_connection_total",
+    "Database Connection Count",
+    ["status"],
+    registry=REGISTRY,
 )
 
 # System metrics
@@ -77,12 +94,18 @@ SYSTEM_CPU_USAGE = Histogram(
 )
 
 SYSTEM_DISK_USAGE = Histogram(
-    "app_system_disk_usage_bytes", "System Disk Usage", ["mount_point"], registry=REGISTRY
+    "app_system_disk_usage_bytes",
+    "System Disk Usage",
+    ["mount_point"],
+    registry=REGISTRY,
 )
 
 # Network metrics
 NETWORK_IO = Counter(
-    "app_network_io_bytes_total", "Network IO", ["direction"], registry=REGISTRY  # in/out
+    "app_network_io_bytes_total",
+    "Network IO",
+    ["direction"],
+    registry=REGISTRY,  # in/out
 )
 
 NETWORK_LATENCY = Histogram(

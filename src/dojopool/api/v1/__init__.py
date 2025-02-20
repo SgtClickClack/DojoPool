@@ -3,8 +3,12 @@
 This module initializes the v1 API blueprint and registers all v1 routes.
 """
 
-from flask import Blueprint
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import Blueprint, Request, Response, current_app
+from flask.typing import ResponseReturnValue
 from flask_restful import Api
+from werkzeug.wrappers import Response as WerkzeugResponse
 
 from .resources.auth import (
     LoginResource,
@@ -16,14 +20,14 @@ from .resources.auth import (
 from .resources.games import GameListResource, GameResource, GameStatsResource
 from .resources.tournaments import (
     TournamentListResource,
+    TournamentParticipantResource,
     TournamentResource,
-    TournamentStandingsResource,
 )
 from .resources.users import UserListResource, UserProfileResource, UserResource
 
 # Create blueprint
-api_v1_bp = Blueprint("api_v1", __name__)
-api = Api(api_v1_bp)
+api_v1_bp: Blueprint = Blueprint("api_v1", __name__)
+api: Api = Api(api_v1_bp)
 
 # Auth routes
 api.add_resource(LoginResource, "/auth/login")
@@ -45,4 +49,6 @@ api.add_resource(GameStatsResource, "/games/<int:game_id>/stats")
 # Tournament routes
 api.add_resource(TournamentResource, "/tournaments/<int:tournament_id>")
 api.add_resource(TournamentListResource, "/tournaments")
-api.add_resource(TournamentStandingsResource, "/tournaments/<int:tournament_id>/standings")
+api.add_resource(
+    TournamentParticipantResource, "/tournaments/<int:tournament_id>/participants"
+)

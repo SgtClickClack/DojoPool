@@ -14,10 +14,11 @@ from typing import Any, Dict, List
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 if not logger.hasHandlers():
     logger.addHandler(handler)
+
 
 class LegacyLeaderboard:
     def __init__(self) -> None:
@@ -27,7 +28,7 @@ class LegacyLeaderboard:
         self.leaderboard: List[Dict[str, Any]] = []
         logger.debug("Initialized empty leaderboard.")
 
-    async def update_leaderboard(self) -> None:
+    async def update_leaderboard(self):
         """
         Asynchronously updates the leaderboard.
         Simulates an update using an asynchronous delay, then sorts the leaderboard.
@@ -48,7 +49,7 @@ class LegacyLeaderboard:
             logger.error("Failed to update leaderboard: %s", e)
             raise
 
-    def get_leaderboard(self, count: int) -> List[Dict[str, Any]]:
+    def get_leaderboard(self, count: int):
         """
         Returns the top 'count' entries from the leaderboard, sorted by score in descending order.
 
@@ -67,7 +68,7 @@ class LegacyLeaderboard:
             logger.error("Error retrieving leaderboard slice: %s", e)
             raise
 
-    def add_score(self, player: str, score: int) -> None:
+    def add_score(self, player: str, score: int):
         """
         Adds or updates a player's score in the leaderboard. If the player already exists,
         their score is updated; otherwise, a new entry is added. The leaderboard is then sorted.
@@ -77,7 +78,9 @@ class LegacyLeaderboard:
             score (int): The player's score.
         """
         try:
-            logger.debug("Adding or updating score for player '%s' with score %d.", player, score)
+            logger.debug(
+                "Adding or updating score for player '%s' with score %d.", player, score
+            )
             # Update existing entry if found
             found = False
             for entry in self.leaderboard:
@@ -105,8 +108,10 @@ class LegacyLeaderboard:
             logger.error("Error resetting leaderboard: %s", e)
             raise
 
+
 if __name__ == "__main__":
-    async def main() -> None:
+
+    async def main():
         leaderboard = LegacyLeaderboard()
 
         # Update leaderboard asynchronously

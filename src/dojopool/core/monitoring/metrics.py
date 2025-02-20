@@ -34,7 +34,7 @@ class MetricsSnapshot:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "MetricsSnapshot":
+    def from_dict(cls, data: Dict):
         """Create snapshot from dictionary.
 
         Args:

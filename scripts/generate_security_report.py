@@ -16,20 +16,18 @@ from typing import Dict, List, Optional
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("security_report.log"),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler("security_report.log"), logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
+
 
 class SecurityReportGenerator:
     def __init__(self, root_dir: str | Path):
         self.root_dir = Path(root_dir)
         self.report_dir = self.root_dir / "reports" / "security"
         self.report_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Initialize report data structure
         self.report_data = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -39,7 +37,7 @@ class SecurityReportGenerator:
             "configuration_check": {},
             "dependency_analysis": {},
             "certificate_status": {},
-            "recommendations": []
+            "recommendations": [],
         }
 
     def collect_vulnerability_scan_results(self) -> None:
@@ -69,27 +67,33 @@ class SecurityReportGenerator:
     def collect_security_audit_results(self) -> None:
         """Collect results from security audits."""
         try:
-            audit_report = self.root_dir / "docs" / "cleanup" / "security_audit_report.md"
+            audit_report = (
+                self.root_dir / "docs" / "cleanup" / "security_audit_report.md"
+            )
             if audit_report.exists():
                 with open(audit_report) as f:
                     self.report_data["security_audit"]["report"] = f.read()
 
             # Collect results from automated security checks
-            security_reports_dir = self.root_dir / "docs" / "cleanup" / "security_reports"
+            security_reports_dir = (
+                self.root_dir / "docs" / "cleanup" / "security_reports"
+            )
             if security_reports_dir.exists():
                 latest_report = max(
                     security_reports_dir.glob("security_check_*_summary.json"),
                     key=lambda x: x.stat().st_mtime,
-                    default=None
+                    default=None,
                 )
                 if latest_report:
                     with open(latest_report) as f:
-                        self.report_data["security_audit"]["automated_checks"] = json.load(f)
+                        self.report_data["security_audit"]["automated_checks"] = (
+                            json.load(f)
+                        )
 
         except Exception as e:
             logger.error(f"Error collecting security audit results: {e}")
 
-    def analyze_dependencies(self) -> None:
+    def analyze_dependencies(self) :
         """Analyze project dependencies for security issues."""
         try:
             # Check pip-audit results
@@ -99,7 +103,9 @@ class SecurityReportGenerator:
                     self.report_data["dependency_analysis"]["pip_audit"] = f.read()
 
             # Check OWASP Dependency Check results
-            dependency_check = self.root_dir / "reports" / "dependency-check-report.json"
+            dependency_check = (
+                self.root_dir / "reports" / "dependency-check-report.json"
+            )
             if dependency_check.exists():
                 with open(dependency_check) as f:
                     self.report_data["dependency_analysis"]["owasp"] = json.load(f)
@@ -115,14 +121,16 @@ class SecurityReportGenerator:
                 "ssl",
                 "deployment/ssl",
                 "deployment/nginx/test/ssl/certs",
-                "nginx/ssl"
+                "nginx/ssl",
             ]
 
             cert_status = {}
             for cert_path in cert_paths:
                 full_path = self.root_dir / cert_path
                 if full_path.exists():
-                    certs = list(full_path.glob("*.crt")) + list(full_path.glob("*.pem"))
+                    certs = list(full_path.glob("*.crt")) + list(
+                        full_path.glob("*.pem")
+                    )
                     for cert in certs:
                         cert_status[str(cert.relative_to(self.root_dir))] = {
                             "last_modified": datetime.fromtimestamp(
@@ -135,30 +143,38 @@ class SecurityReportGenerator:
         except Exception as e:
             logger.error(f"Error checking certificate status: {e}")
 
-    def generate_recommendations(self) -> None:
+    def generate_recommendations(self) :
         """Generate security recommendations based on findings."""
         recommendations = []
 
         # Check vulnerability findings
         if self.report_data.get("vulnerability_scan", {}).get("bandit"):
-            vuln_count = len(self.report_data["vulnerability_scan"]["bandit"].get("results", []))
+            vuln_count = len(
+                self.report_data["vulnerability_scan"]["bandit"].get("results", [])
+            )
             if vuln_count > 0:
-                recommendations.append({
-                    "priority": "high",
-                    "category": "vulnerabilities",
-                    "description": f"Address {vuln_count} security vulnerabilities found by Bandit"
-                })
+                recommendations.append(
+                    {
+                        "priority": "high",
+                        "category": "vulnerabilities",
+                        "description": f"Address {vuln_count} security vulnerabilities found by Bandit",
+                    }
+                )
 
         # Check certificate age
-        for cert_path, cert_info in self.report_data.get("certificate_status", {}).items():
+        for cert_path, cert_info in self.report_data.get(
+            "certificate_status", {}
+        ).items():
             cert_date = datetime.fromisoformat(cert_info["last_modified"])
             age_days = (datetime.now(timezone.utc) - cert_date).days
             if age_days > 60:
-                recommendations.append({
-                    "priority": "medium",
-                    "category": "certificates",
-                    "description": f"Certificate {cert_path} is {age_days} days old. Consider rotation."
-                })
+                recommendations.append(
+                    {
+                        "priority": "medium",
+                        "category": "certificates",
+                        "description": f"Certificate {cert_path} is {age_days} days old. Consider rotation.",
+                    }
+                )
 
         self.report_data["recommendations"] = recommendations
 
@@ -171,12 +187,14 @@ class SecurityReportGenerator:
             "medium_issues": 0,
             "low_issues": 0,
             "certificates_expiring_soon": 0,
-            "recommendation_count": len(self.report_data["recommendations"])
+            "recommendation_count": len(self.report_data["recommendations"]),
         }
 
         # Count vulnerabilities
         if "bandit" in self.report_data.get("vulnerability_scan", {}):
-            results = self.report_data["vulnerability_scan"]["bandit"].get("results", [])
+            results = self.report_data["vulnerability_scan"]["bandit"].get(
+                "results", []
+            )
             summary["total_vulnerabilities"] += len(results)
             for result in results:
                 severity = result.get("issue_severity", "").lower()
@@ -189,7 +207,7 @@ class SecurityReportGenerator:
 
         self.report_data["summary"] = summary
 
-    def generate_report(self) -> None:
+    def generate_report(self) :
         """Generate the comprehensive security report."""
         try:
             logger.info("Collecting vulnerability scan results...")
@@ -213,14 +231,14 @@ class SecurityReportGenerator:
             # Save the report
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             report_file = self.report_dir / f"security_report_{timestamp}.json"
-            
+
             with open(report_file, "w") as f:
                 json.dump(self.report_data, f, indent=2)
 
             # Generate HTML report
             html_report = self.generate_html_report()
             html_file = self.report_dir / f"security_report_{timestamp}.html"
-            
+
             with open(html_file, "w") as f:
                 f.write(html_report)
 
@@ -231,7 +249,7 @@ class SecurityReportGenerator:
             logger.error(f"Error generating report: {e}")
             raise
 
-    def generate_html_report(self) -> str:
+    def generate_html_report(self) :
         """Generate an HTML version of the security report."""
         html = f"""
         <!DOCTYPE html>
@@ -301,4 +319,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

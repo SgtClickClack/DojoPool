@@ -1,7 +1,6 @@
 from typing import Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException
-
 from services.auto_scaling import AutoScalingService
 from services.system_optimization import SystemOptimizationService
 from utils.auth import get_current_admin_user
@@ -21,21 +20,23 @@ async def get_system_metrics() -> Dict:
 
 @router.get("/performance", dependencies=[Depends(get_current_admin_user)])
 @rate_limit(max_requests=60, window_seconds=60)
-async def get_performance_analysis() -> Dict:
+async def get_performance_analysis():
     """Get system performance analysis."""
     return system_optimization.analyze_performance()
 
 
-@router.get("/optimization/recommendations", dependencies=[Depends(get_current_admin_user)])
+@router.get(
+    "/optimization/recommendations", dependencies=[Depends(get_current_admin_user)]
+)
 @rate_limit(max_requests=60, window_seconds=60)
-async def get_optimization_recommendations() -> List[Dict]:
+async def get_optimization_recommendations():
     """Get system optimization recommendations."""
     return system_optimization.get_optimization_recommendations()
 
 
 @router.get("/scaling/needs", dependencies=[Depends(get_current_admin_user)])
 @rate_limit(max_requests=60, window_seconds=60)
-async def get_scaling_needs() -> Dict:
+async def get_scaling_needs():
     """Get current scaling needs."""
     metrics = system_optimization.collect_system_metrics()
     return auto_scaling.evaluate_scaling_needs(metrics)
@@ -50,14 +51,14 @@ async def get_scaling_recommendations() -> List[Dict]:
 
 @router.get("/scaling/history", dependencies=[Depends(get_current_admin_user)])
 @rate_limit(max_requests=60, window_seconds=60)
-async def get_scaling_history() -> List[Dict]:
+async def get_scaling_history():
     """Get scaling decision history."""
     return auto_scaling.get_scaling_history()
 
 
 @router.post("/optimization/apply", dependencies=[Depends(get_current_admin_user)])
 @rate_limit(max_requests=10, window_seconds=60)
-async def apply_optimization(recommendation_id: str) -> Dict:
+async def apply_optimization(recommendation_id: str):
     """Apply an optimization recommendation."""
     try:
         # Here you would implement the logic to apply the optimization
@@ -68,12 +69,14 @@ async def apply_optimization(recommendation_id: str) -> Dict:
             "message": f"Optimization {recommendation_id} applied successfully",
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to apply optimization: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to apply optimization: {str(e)}"
+        )
 
 
 @router.post("/scaling/apply", dependencies=[Depends(get_current_admin_user)])
 @rate_limit(max_requests=10, window_seconds=60)
-async def apply_scaling(action: Dict) -> Dict:
+async def apply_scaling(action: Dict):
     """Apply a scaling action."""
     try:
         # Here you would implement the logic to apply the scaling action
@@ -84,4 +87,6 @@ async def apply_scaling(action: Dict) -> Dict:
             "message": f'Scaling action {action["type"]} applied successfully',
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to apply scaling action: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to apply scaling action: {str(e)}"
+        )

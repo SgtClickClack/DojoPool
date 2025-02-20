@@ -1,9 +1,13 @@
 """Avatar API routes."""
 
-from flask import Blueprint, jsonify
-from flask_login import login_required
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-avatar_bp = Blueprint("avatar", __name__, url_prefix="/avatar")
+from flask import Blueprint, Request, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from flask_login import login_required
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+avatar_bp: Blueprint = Blueprint("avatar", __name__, url_prefix="/avatar")
 
 
 @avatar_bp.route("/", methods=["GET"])

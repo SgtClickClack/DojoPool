@@ -10,7 +10,9 @@ class DevelopmentConfig(Config):
 
     DEBUG = True
     DEVELOPMENT = True
-    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@localhost:5432/dojopool_dev"
+    SQLALCHEMY_DATABASE_URI = (
+        "postgresql://postgres:postgres@localhost:5432/dojopool_dev"
+    )
 
     # Disable CSRF in development for easier testing
     WTF_CSRF_ENABLED = False

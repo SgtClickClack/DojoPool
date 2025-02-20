@@ -1,102 +1,95 @@
-"""Monitoring module for DojoPool."""
+"""Monitoring module for application performance and health."""
 
-import json
 import logging
+import os
 import threading
 import time
-import traceback
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from functools import wraps
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import psutil
-from flask import current_app, request
+from flask import Blueprint, current_app, jsonify
+from werkzeug.wrappers import Response
+
+from dojopool.core.extensions import cache, db
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class MetricData:
-    """Metric data structure."""
+    """Data class for storing metric information."""
 
-    value: float
     timestamp: datetime
+    value: float
     tags: Dict[str, str]
 
 
 class PerformanceMonitor:
-    """Monitors application performance."""
+    """Monitor application performance metrics."""
 
-    def __init__(self, redis_client=None):
-        """Initialize PerformanceMonitor.
-
-        Args:
-            redis_client: Optional Redis client for metric storage
-        """
-        self.redis_client = redis_client
+    def __init__(self) -> None:
+        """Initialize performance monitor."""
         self.metrics: Dict[str, List[MetricData]] = {}
         self._lock = threading.Lock()
 
-    def record_metric(self, name: str, value: float, tags: Optional[Dict[str, str]] = None):
-        """Record a metric.
+    def record_metric(
+        self, name: str, value: float, tags: Optional[Dict[str, str]] = None
+    ):
+        """Record a metric value.
 
         Args:
             name: Metric name
             value: Metric value
             tags: Optional metric tags
         """
-        metric = MetricData(value=value, timestamp=datetime.utcnow(), tags=tags or {})
-
         with self._lock:
             if name not in self.metrics:
                 self.metrics[name] = []
-            self.metrics[name].append(metric)
+            self.metrics[name].append(
+                MetricData(timestamp=datetime.utcnow(), value=value, tags=tags or {})
+            )
 
-        # Store in Redis if available
-        if self.redis_client:
-            key = f"metric:{name}:{datetime.utcnow().isoformat()}"
-            data = {"value": value, "timestamp": datetime.utcnow().isoformat(), "tags": tags or {}}
-            self.redis_client.setex(key, 86400, json.dumps(data))  # Expire after 24h
-
-    def get_metrics(self, name: str, start_time: Optional[datetime] = None) -> List[MetricData]:
-        """Get metrics for a given name.
+    def get_metrics(
+        self,
+        name: str,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        tags: Optional[Dict[str, str]] = None,
+    ):
+        """Get metrics within a time range.
 
         Args:
             name: Metric name
-            start_time: Optional start time filter
+            start_time: Start of time range
+            end_time: End of time range
+            tags: Filter by tags
 
         Returns:
             List of metric data
         """
-        with self._lock:
-            metrics = self.metrics.get(name, [])
-            if start_time:
-                metrics = [m for m in metrics if m.timestamp >= start_time]
-            return metrics
+        if name not in self.metrics:
+            return []
 
-    def clear_old_metrics(self, max_age: timedelta):
-        """Clear metrics older than max_age.
+        metrics = self.metrics[name]
+        if start_time:
+            metrics = [m for m in metrics if m.timestamp >= start_time]
+        if end_time:
+            metrics = [m for m in metrics if m.timestamp <= end_time]
+        if tags:
+            metrics = [
+                m for m in metrics if all(m.tags.get(k) == v for k, v in tags.items())
+            ]
 
-        Args:
-            max_age: Maximum age of metrics to keep
-        """
-        cutoff = datetime.utcnow() - max_age
-        with self._lock:
-            for name in self.metrics:
-                self.metrics[name] = [m for m in self.metrics[name] if m.timestamp >= cutoff]
+        return metrics
 
 
 class ErrorTracker:
-    """Tracks application errors."""
+    """Track application errors."""
 
-    def __init__(self, redis_client=None):
-        """Initialize ErrorTracker.
-
-        Args:
-            redis_client: Optional Redis client for error storage
-        """
-        self.redis_client = redis_client
+    def __init__(self) -> None:
+        """Initialize error tracker."""
         self.errors: List[Dict[str, Any]] = []
         self._lock = threading.Lock()
 
@@ -104,284 +97,272 @@ class ErrorTracker:
         """Record an error.
 
         Args:
-            error: Exception object
-            context: Optional error context
+            error: The error that occurred
+            context: Additional context about the error
         """
-        error_data = {
-            "type": type(error).__name__,
-            "message": str(error),
-            "traceback": traceback.format_exc(),
-            "timestamp": datetime.utcnow().isoformat(),
-            "context": context or {},
-        }
-
         with self._lock:
-            self.errors.append(error_data)
+            self.errors.append(
+                {
+                    "timestamp": datetime.utcnow(),
+                    "error_type": type(error).__name__,
+                    "message": str(error),
+                    "context": context or {},
+                }
+            )
 
-        # Store in Redis if available
-        if self.redis_client:
-            key = f"error:{datetime.utcnow().isoformat()}"
-            self.redis_client.setex(key, 86400, json.dumps(error_data))  # Expire after 24h
-
-        logger.error(
-            f"Error tracked: {error_data['type']} - {error_data['message']}",
-            extra={"error_data": error_data},
-        )
-
-    def get_recent_errors(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Get recent errors.
+    def get_recent_errors(self, limit: int = 100):
+        """Get most recent errors.
 
         Args:
             limit: Maximum number of errors to return
 
         Returns:
-            List of error data
+            List of recent errors
         """
         with self._lock:
-            return sorted(self.errors, key=lambda x: x["timestamp"], reverse=True)[:limit]
-
-    def clear_old_errors(self, max_age: timedelta):
-        """Clear errors older than max_age.
-
-        Args:
-            max_age: Maximum age of errors to keep
-        """
-        cutoff = datetime.utcnow() - max_age
-        with self._lock:
-            self.errors = [
-                e for e in self.errors if datetime.fromisoformat(e["timestamp"]) >= cutoff
+            return sorted(self.errors, key=lambda x: x["timestamp"], reverse=True)[
+                :limit
             ]
 
 
 class HealthChecker:
-    """System health checker."""
+    """Check application health status."""
 
-    def __init__(self, checks: Optional[Dict[str, Callable[[], bool]]] = None):
-        """Initialize HealthChecker.
-
-        Args:
-            checks: Dictionary of health check functions
-        """
-        self.checks = checks or {}
+    def __init__(self):
+        """Initialize health checker."""
         self.results: Dict[str, Dict[str, Any]] = {}
         self._lock = threading.Lock()
 
-    def add_check(self, name: str, check_func: Callable[[], bool]):
+    def add_check(
+        self,
+        name: str,
+        check_func: Callable[[], bool],
+        description: Optional[str] = None,
+    ) -> None:
         """Add a health check.
 
         Args:
             name: Check name
-            check_func: Check function
+            check_func: Function that returns health status
+            description: Optional check description
         """
-        self.checks[name] = check_func
+        with self._lock:
+            self.results[name] = {
+                "check_func": check_func,
+                "description": description,
+                "last_run": None,
+                "status": None,
+                "message": None,
+            }
 
-    def run_checks(self) -> Dict[str, Dict[str, Any]]:
+    def run_checks(self):
         """Run all health checks.
 
         Returns:
             Dictionary of check results
         """
         with self._lock:
-            for name, check_func in self.checks.items():
+            for name, check in self.results.items():
                 try:
-                    start_time = time.time()
-                    success = check_func()
-                    duration = time.time() - start_time
-
-                    self.results[name] = {
-                        "success": success,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "duration": duration,
-                    }
+                    status = check["check_func"]()
+                    check["status"] = status
+                    check["message"] = None
                 except Exception as e:
-                    logger.error(f"Health check '{name}' failed: {str(e)}")
-                    self.results[name] = {
-                        "success": False,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "error": str(e),
-                    }
+                    check["status"] = False
+                    check["message"] = str(e)
+                check["last_run"] = datetime.utcnow()
 
-            return self.results
+            return {
+                name: {
+                    "status": check["status"],
+                    "message": check["message"],
+                    "last_run": check["last_run"],
+                    "description": check["description"],
+                }
+                for name, check in self.results.items()
+            }
 
-    def is_healthy(self) -> bool:
+    def is_healthy(self):
         """Check if all health checks pass.
 
         Returns:
-            True if all checks pass
+            True if all checks pass, False otherwise
         """
-        return all(result.get("success", False) for result in self.results.values())
+        results = self.run_checks()
+        return all(check["status"] for check in results.values())
 
 
-class SystemMetrics:
-    """System metrics collector."""
+def get_cpu_usage():
+    """Get current CPU usage.
 
-    @staticmethod
-    def get_cpu_usage() -> float:
-        """Get CPU usage percentage.
-
-        Returns:
-            CPU usage percentage
-        """
-        return psutil.cpu_percent(interval=1)
-
-    @staticmethod
-    def get_memory_usage() -> Dict[str, float]:
-        """Get memory usage statistics.
-
-        Returns:
-            Dictionary of memory statistics
-        """
-        mem = psutil.virtual_memory()
-        return {
-            "total": mem.total,
-            "available": mem.available,
-            "used": mem.used,
-            "percent": mem.percent,
-        }
-
-    @staticmethod
-    def get_disk_usage() -> Dict[str, float]:
-        """Get disk usage statistics.
-
-        Returns:
-            Dictionary of disk statistics
-        """
-        disk = psutil.disk_usage("/")
-        return {"total": disk.total, "used": disk.used, "free": disk.free, "percent": disk.percent}
-
-    @staticmethod
-    def get_network_io() -> Dict[str, float]:
-        """Get network I/O statistics.
-
-        Returns:
-            Dictionary of network statistics
-        """
-        net = psutil.net_io_counters()
-        return {
-            "bytes_sent": net.bytes_sent,
-            "bytes_recv": net.bytes_recv,
-            "packets_sent": net.packets_sent,
-            "packets_recv": net.packets_recv,
-        }
+    Returns:
+        CPU usage percentage
+    """
+    return psutil.cpu_percent(interval=1)
 
 
-def monitor_performance(name: str):
-    """Decorator to monitor function performance.
+def get_memory_usage() -> Dict[str, float]:
+    """Get current memory usage.
+
+    Returns:
+        Dictionary of memory usage statistics
+    """
+    mem = psutil.virtual_memory()
+    return {
+        "total": mem.total / (1024 * 1024 * 1024),  # GB
+        "available": mem.available / (1024 * 1024 * 1024),  # GB
+        "percent": mem.percent,
+    }
+
+
+def get_disk_usage():
+    """Get current disk usage.
+
+    Returns:
+        Dictionary of disk usage statistics
+    """
+    disk = psutil.disk_usage("/")
+    return {
+        "total": disk.total / (1024 * 1024 * 1024),  # GB
+        "used": disk.used / (1024 * 1024 * 1024),  # GB
+        "free": disk.free / (1024 * 1024 * 1024),  # GB
+        "percent": disk.percent,
+    }
+
+
+def get_network_io():
+    """Get current network I/O statistics.
+
+    Returns:
+        Dictionary of network I/O statistics
+    """
+    net = psutil.net_io_counters()
+    return {
+        "bytes_sent": net.bytes_sent / (1024 * 1024),  # MB
+        "bytes_recv": net.bytes_recv / (1024 * 1024),  # MB
+        "packets_sent": net.packets_sent,
+        "packets_recv": net.packets_recv,
+        "errin": net.errin,
+        "errout": net.errout,
+    }
+
+
+def track_performance(metric_name: str, tags: Optional[Dict[str, str]] = None):
+    """Decorator to track function performance.
 
     Args:
-        name: Metric name
+        metric_name: Name of the metric to record
+        tags: Optional tags to add to the metric
 
     Returns:
         Decorated function
     """
 
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any):
             start_time = time.time()
-            try:
-                result = func(*args, **kwargs)
-                duration = time.time() - start_time
+            result = func(*args, **kwargs)
+            duration = time.time() - start_time
 
-                # Record metric
-                if hasattr(current_app, "performance_monitor"):
-                    tags = {
-                        "endpoint": request.endpoint or "unknown",
-                        "method": request.method,
-                        "status": "success",
-                    }
-                    current_app.performance_monitor.record_metric(name, duration, tags)
+            monitor = current_app.extensions.get("performance_monitor")
+            if monitor:
+                monitor.record_metric(metric_name, duration, tags)
 
-                return result
-
-            except Exception as e:
-                duration = time.time() - start_time
-
-                # Record error metric
-                if hasattr(current_app, "performance_monitor"):
-                    tags = {
-                        "endpoint": request.endpoint or "unknown",
-                        "method": request.method,
-                        "status": "error",
-                        "error_type": type(e).__name__,
-                    }
-                    current_app.performance_monitor.record_metric(name, duration, tags)
-
-                raise
+            return result
 
         return wrapper
 
     return decorator
 
 
-def track_error(func):
+def track_error(func: Callable) -> Callable:
     """Decorator to track function errors.
 
     Args:
-        func: Function to decorate
+        func: Function to track
 
     Returns:
         Decorated function
     """
 
-    @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            # Record error
-            if hasattr(current_app, "error_tracker"):
-                context = {
-                    "endpoint": request.endpoint or "unknown",
-                    "method": request.method,
-                    "args": str(args),
-                    "kwargs": str(kwargs),
-                }
-                current_app.error_tracker.record_error(e, context)
+            tracker = current_app.extensions.get("error_tracker")
+            if tracker:
+                tracker.record_error(
+                    e,
+                    {
+                        "function": func.__name__,
+                        "args": str(args),
+                        "kwargs": str(kwargs),
+                    },
+                )
             raise
 
     return wrapper
 
 
-def init_monitoring(app, redis_client=None):
-    """Initialize monitoring for Flask application.
+def init_monitoring(app: Any, redis_client: Optional[Any] = None):
+    """Initialize application monitoring.
 
     Args:
         app: Flask application instance
-        redis_client: Optional Redis client
+        redis_client: Optional Redis client for caching
     """
-    # Initialize components
-    app.performance_monitor = PerformanceMonitor(redis_client)
-    app.error_tracker = ErrorTracker(redis_client)
-    app.health_checker = HealthChecker()
+    # Initialize monitors
+    app.extensions["performance_monitor"] = PerformanceMonitor()
+    app.extensions["error_tracker"] = ErrorTracker()
+    app.extensions["health_checker"] = HealthChecker()
 
-    # Add default health checks
-    app.health_checker.add_check("redis", lambda: bool(redis_client and redis_client.ping()))
-    app.health_checker.add_check("database", lambda: bool(app.db and app.db.is_connected()))
+    # Add health checks
+    health_checker = app.extensions["health_checker"]
+    health_checker.add_check(
+        "redis",
+        lambda: bool(redis_client and redis_client.ping()),
+        "Check Redis connection",
+    )
+    health_checker.add_check(
+        "database",
+        lambda: bool(db and db.session.is_active),
+        "Check database connection",
+    )
 
-    # Start metric cleanup task
+    # Start cleanup thread
     def cleanup_metrics():
         while True:
-            app.performance_monitor.clear_old_metrics(timedelta(days=7))
-            app.error_tracker.clear_old_errors(timedelta(days=30))
             time.sleep(3600)  # Run every hour
+            monitor = app.extensions["performance_monitor"]
+            # Keep last 24 hours of metrics
+            cutoff = datetime.utcnow() - timedelta(hours=24)
+            for name in monitor.metrics:
+                monitor.metrics[name] = [
+                    m for m in monitor.metrics[name] if m.timestamp >= cutoff
+                ]
 
     cleanup_thread = threading.Thread(target=cleanup_metrics, daemon=True)
     cleanup_thread.start()
 
-    # Add monitoring endpoints
-    @app.route("/health")
-    def health_check():
-        results = app.health_checker.run_checks()
-        status = 200 if app.health_checker.is_healthy() else 503
-        return {"status": "healthy" if status == 200 else "unhealthy", "checks": results}, status
 
-    @app.route("/metrics")
-    def metrics():
-        system_metrics = {
-            "cpu": SystemMetrics.get_cpu_usage(),
-            "memory": SystemMetrics.get_memory_usage(),
-            "disk": SystemMetrics.get_disk_usage(),
-            "network": SystemMetrics.get_network_io(),
-        }
-        return {"system": system_metrics}
+bp = Blueprint("monitoring", __name__)
+
+
+@bp.route("/health")
+def health_check() -> Response:
+    """Health check endpoint.
+
+    Returns:
+        Health check response
+    """
+    checker = current_app.extensions["health_checker"]
+    status = 200 if checker.is_healthy() else 503
+    return (
+        jsonify(
+            {
+                "status": "healthy" if status == 200 else "unhealthy",
+                "checks": checker.run_checks(),
+            }
+        ),
+        status,
+    )

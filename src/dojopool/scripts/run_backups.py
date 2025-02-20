@@ -23,7 +23,9 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(backup_settings.BACKUP_ROOT_DIR / "logs" / "backup_scheduler.log"),
+        logging.FileHandler(
+            backup_settings.BACKUP_ROOT_DIR / "logs" / "backup_scheduler.log"
+        ),
         logging.StreamHandler(sys.stdout),
     ],
 )
@@ -51,7 +53,9 @@ def main():
     # Schedule database backups
     if backup_settings.DB_BACKUP_ENABLED:
         schedule.every().day.at("00:00").do(run_backup_job)
-        logger.info(f"Scheduled database backups: {backup_settings.DB_BACKUP_FREQUENCY}")
+        logger.info(
+            f"Scheduled database backups: {backup_settings.DB_BACKUP_FREQUENCY}"
+        )
 
     # Schedule file backups
     if backup_settings.FILE_BACKUP_ENABLED:

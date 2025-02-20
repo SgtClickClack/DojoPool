@@ -5,8 +5,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.dojopool.core.monitoring.metrics_monitor import AlertSeverity
-from src.dojopool.core.monitoring.performance import PerformanceMetrics, PerformanceMonitor
+from dojopool.core.monitoring.metrics_monitor import AlertSeverity
+from dojopool.core.monitoring.performance import (
+    PerformanceMetrics,
+    PerformanceMonitor,
+)
 
 
 @pytest.fixture
@@ -91,7 +94,9 @@ def test_alert_thresholds(monitor):
 def test_threshold_alerts(mock_add_alert, monitor, mock_psutil):
     """Test threshold-based alerting."""
     # Set low thresholds to trigger alerts
-    monitor.alert_thresholds.update({"cpu_usage": 40.0, "memory_usage": 50.0, "disk_usage": 60.0})
+    monitor.alert_thresholds.update(
+        {"cpu_usage": 40.0, "memory_usage": 50.0, "disk_usage": 60.0}
+    )
 
     monitor._process_metrics(monitor._collect_metrics())
 

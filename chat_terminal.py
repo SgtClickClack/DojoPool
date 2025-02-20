@@ -1,13 +1,14 @@
-import os
-import requests
-from dotenv import load_dotenv
-from typing import Optional, Dict, List, Any, Tuple
 import glob
-from pathlib import Path
 import json
-from datetime import datetime
+import os
 import re
 import traceback
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import requests
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
@@ -57,7 +58,9 @@ class ChatTerminal:
 
         # Use preferred provider from .env or first available
         preferred_provider = os.getenv("PREFERRED_AI_PROVIDER", "openai")
-        self.current_model = self.models.get(preferred_provider) or next(iter(self.models.values()))
+        self.current_model = self.models.get(preferred_provider) or next(
+            iter(self.models.values())
+        )
 
         print(f"Available models: {', '.join(self.models.keys())}")
         print(f"Using {self.current_model.name} as default model")
@@ -73,7 +76,7 @@ When analyzing code, consider:
 4. Security considerations
 5. Architecture and design patterns"""
 
-    def save_session(self) -> None:
+    def save_session(self):
         """Save the current session to a file."""
         session_data = {
             "timestamp": datetime.now().isoformat(),
@@ -83,7 +86,7 @@ When analyzing code, consider:
         with open(self.session_file, "w") as f:
             json.dump(session_data, f, indent=2)
 
-    def load_session(self) -> bool:
+    def load_session(self) :
         """Load a previous session if it exists."""
         try:
             if os.path.exists(self.session_file):
@@ -105,13 +108,15 @@ When analyzing code, consider:
                 for file in files:
                     if re.search(pattern, file, re.IGNORECASE):
                         matches.append(
-                            os.path.relpath(os.path.join(root, file), self.workspace_path)
+                            os.path.relpath(
+                                os.path.join(root, file), self.workspace_path
+                            )
                         )
         except Exception as e:
             print(f"Error searching files: {str(e)}")
         return matches
 
-    def analyze_file(self, file_path: str) -> Optional[Dict[str, Any]]:
+    def analyze_file(self, file_path: str) :
         """Analyze a file and return insights."""
         try:
             content = self.read_file(file_path)
@@ -122,7 +127,9 @@ When analyzing code, consider:
             file_info = {
                 "path": file_path,
                 "size": os.path.getsize(file_path),
-                "last_modified": datetime.fromtimestamp(os.path.getmtime(file_path)).isoformat(),
+                "last_modified": datetime.fromtimestamp(
+                    os.path.getmtime(file_path)
+                ).isoformat(),
                 "extension": os.path.splitext(file_path)[1],
                 "lines": len(content.splitlines()),
             }
@@ -146,7 +153,7 @@ Provide analysis on:
             print(f"Error analyzing file: {str(e)}")
             return None
 
-    def read_file(self, file_path: str) -> Optional[str]:
+    def read_file(self, file_path: str) :
         """Read contents of a file in the workspace."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
@@ -158,14 +165,16 @@ Provide analysis on:
     def list_workspace_files(self, pattern: str = "**/*") -> List[str]:
         """List all files in workspace matching the pattern."""
         files = []
-        for file in glob.glob(os.path.join(self.workspace_path, pattern), recursive=True):
+        for file in glob.glob(
+            os.path.join(self.workspace_path, pattern), recursive=True
+        ):
             if os.path.isfile(file) and not any(
                 p in file for p in [".git", "__pycache__", "node_modules"]
             ):
                 files.append(os.path.relpath(file, self.workspace_path))
         return files
 
-    def get_workspace_context(self, query: str) -> str:
+    def get_workspace_context(self, query: str) :
         """Get relevant workspace context based on the query."""
         context = "Workspace files:\n"
 
@@ -198,7 +207,7 @@ Provide analysis on:
 
     def format_openai_messages(
         self, message: str, workspace_context: str = ""
-    ) -> List[Dict[str, str]]:
+    ) :
         """Format messages for OpenAI API."""
         messages = [{"role": "system", "content": self.system_prompt}]
 
@@ -283,7 +292,9 @@ Provide analysis on:
             if response.status_code == 200:
                 result = response.json()
                 if self.current_model.name == "OpenAI":
-                    assistant_response = result["choices"][0]["message"]["content"].strip()
+                    assistant_response = result["choices"][0]["message"][
+                        "content"
+                    ].strip()
                 else:
                     assistant_response = result["choices"][0]["text"].strip()
 
@@ -308,7 +319,9 @@ Provide analysis on:
         if self.load_session():
             print("Previous session loaded!")
 
-        print(f"Welcome to the AI Chat Terminal! Current model: {self.current_model.name}")
+        print(
+            f"Welcome to the AI Chat Terminal! Current model: {self.current_model.name}"
+        )
         print("Type 'exit' to end the conversation")
         print("Type 'clear' to clear conversation history")
         print("Type 'model goose' or 'model openai' to switch models")
@@ -338,7 +351,9 @@ Provide analysis on:
                 if self.switch_model(model):
                     print(f"\nSwitched to {self.current_model.name}")
                 else:
-                    print(f"\nInvalid model. Available models: {', '.join(self.models.keys())}")
+                    print(
+                        f"\nInvalid model. Available models: {', '.join(self.models.keys())}"
+                    )
                 continue
 
             if user_input.lower() == "files":

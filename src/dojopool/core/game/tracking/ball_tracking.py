@@ -1,3 +1,7 @@
+from multiprocessing import Pool
+import gc
+from multiprocessing import Pool
+import gc
 """Ball tracking module for monitoring ball positions and movements."""
 
 import math
@@ -30,7 +34,9 @@ class BallTracker:
             table_dimensions: Table dimensions in cm (length, width)
         """
         self.table_length, self.table_width = table_dimensions
-        self.trajectories: Dict[int, List[BallTrajectory]] = {}  # shot_id -> trajectories
+        self.trajectories: Dict[int, List[BallTrajectory]] = (
+            {}
+        )  # shot_id -> trajectories
         self.current_positions: Dict[int, Ball] = {}  # ball_number -> Ball
         self.pocketed_balls: Set[int] = set()
         self.last_update = datetime.utcnow()
@@ -147,7 +153,7 @@ class BallTracker:
         """
         return self.trajectories.pop(shot_id, [])
 
-    def get_ball_position(self, ball_number: int) -> Optional[Point]:
+    def get_ball_position(self, ball_number: int):
         """Get current position of a ball.
 
         Args:
@@ -160,7 +166,7 @@ class BallTracker:
             return None
         return self.current_positions.get(ball_number, None)
 
-    def get_ball_velocity(self, ball_number: int) -> Optional[Point]:
+    def get_ball_velocity(self, ball_number: int):
         """Get current velocity of a ball.
 
         Args:
@@ -174,7 +180,9 @@ class BallTracker:
         ball = self.current_positions.get(ball_number)
         return ball.velocity if ball else None
 
-    def _check_rail_contact(self, old_pos: Point, new_pos: Point, threshold: float = 2.0) -> bool:
+    def _check_rail_contact(
+        self, old_pos: Point, new_pos: Point, threshold: float = 2.0
+    ):
         """Check if ball contacted a rail between positions.
 
         Args:
@@ -253,7 +261,7 @@ class BallTracker:
 
         return collisions
 
-    def _detect_fouls(self, frame_data: Dict) -> List[Dict]:
+    def _detect_fouls(self, frame_data: Dict):
         """Detect fouls from frame data.
 
         Args:
@@ -270,12 +278,14 @@ class BallTracker:
 
         # Check for no rail contact after object ball hit
         if frame_data.get("shot_complete"):
-            if not frame_data.get("rail_contact") and not frame_data.get("ball_pocketed"):
+            if not frame_data.get("rail_contact") and not frame_data.get(
+                "ball_pocketed"
+            ):
                 fouls.append({"type": "no_rail", "time": self.last_update.isoformat()})
 
         return fouls
 
-    def get_shot_statistics(self, shot_id: int) -> Dict:
+    def get_shot_statistics(self, shot_id: int):
         """Calculate statistics for a shot.
 
         Args:

@@ -35,7 +35,9 @@ REDIS_CONFIG = {
 }
 
 # Use appropriate config based on environment
-active_redis_config = REDIS_CONFIG["production" if ENV == "production" else "development"]
+active_redis_config = REDIS_CONFIG[
+    "production" if ENV == "production" else "development"
+]
 
 # Cache Settings
 CACHE_CONFIG = {

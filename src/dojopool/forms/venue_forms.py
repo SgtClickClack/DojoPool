@@ -1,4 +1,9 @@
 from flask_wtf import FlaskForm
+from src.utils.validators import (
+    validate_coordinates,
+    validate_phone,
+    validate_postal_code,
+)
 from wtforms import (
     FileField,
     FloatField,
@@ -18,22 +23,26 @@ from wtforms.validators import (
     ValidationError,
 )
 
-from src.utils.validators import validate_coordinates, validate_phone, validate_postal_code
-
 
 class VenueForm(FlaskForm):
     """Form for creating and editing venues."""
 
     # Basic Information
-    name = StringField("Venue Name", validators=[DataRequired(), Length(min=2, max=100)])
+    name = StringField(
+        "Venue Name", validators=[DataRequired(), Length(min=2, max=100)]
+    )
     description = TextAreaField("Description", validators=[Optional()])
 
     # Location
-    address = StringField("Street Address", validators=[DataRequired(), Length(max=200)])
+    address = StringField(
+        "Street Address", validators=[DataRequired(), Length(max=200)]
+    )
     city = StringField("City", validators=[DataRequired(), Length(max=100)])
     state = StringField("State", validators=[DataRequired(), Length(max=100)])
     country = StringField("Country", validators=[DataRequired(), Length(max=100)])
-    postal_code = StringField("Postal Code", validators=[DataRequired(), Length(max=20)])
+    postal_code = StringField(
+        "Postal Code", validators=[DataRequired(), Length(max=20)]
+    )
     latitude = FloatField("Latitude", validators=[Optional()])
     longitude = FloatField("Longitude", validators=[Optional()])
 
@@ -70,7 +79,9 @@ class VenueForm(FlaskForm):
     )
 
     # Tables and Pricing
-    tables = IntegerField("Number of Tables", validators=[DataRequired(), NumberRange(min=1)])
+    tables = IntegerField(
+        "Number of Tables", validators=[DataRequired(), NumberRange(min=1)]
+    )
     per_hour = FloatField("Price per Hour", validators=[Optional(), NumberRange(min=0)])
     per_game = FloatField("Price per Game", validators=[Optional(), NumberRange(min=0)])
 
@@ -132,8 +143,12 @@ class VenueSearchForm(FlaskForm):
             ("lessons", "Lessons"),
         ],
     )
-    min_tables = IntegerField("Minimum Tables", validators=[Optional(), NumberRange(min=1)])
-    min_rating = FloatField("Minimum Rating", validators=[Optional(), NumberRange(min=0, max=5)])
+    min_tables = IntegerField(
+        "Minimum Tables", validators=[Optional(), NumberRange(min=1)]
+    )
+    min_rating = FloatField(
+        "Minimum Rating", validators=[Optional(), NumberRange(min=0, max=5)]
+    )
     radius = IntegerField(
         "Search Radius (km)", validators=[Optional(), NumberRange(min=1, max=100)]
     )

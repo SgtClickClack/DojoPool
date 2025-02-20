@@ -1,3 +1,5 @@
+import gc
+import gc
 import io
 import logging
 import os
@@ -16,9 +18,7 @@ class ImageCompressionService:
         """Initialize the image compression service with configuration."""
         self.config = config if config is not None else DEFAULT_COMPRESSION_CONFIG
 
-    def _calculate_new_dimensions(
-        self, width: int, height: int, max_dimension: int
-    ) -> Tuple[int, int]:
+    def _calculate_new_dimensions(self, width: int, height: int, max_dimension: int):
         """Calculate new dimensions maintaining aspect ratio."""
         if width <= max_dimension and height <= max_dimension:
             return width, height
@@ -51,7 +51,9 @@ class ImageCompressionService:
 
         # Resize if needed
         if new_width != img.width or new_height != img.height:
-            variant_img = variant_img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            variant_img = variant_img.resize(
+                (new_width, new_height), Image.Resampling.LANCZOS
+            )
 
         # Convert RGBA to RGB if JPEG output is requested
         if output_format == "JPEG" and variant_img.mode == "RGBA":
@@ -65,7 +67,10 @@ class ImageCompressionService:
         # Save with appropriate format and settings
         if output_format == "JPEG":
             variant_img.save(
-                output_buffer, format="JPEG", quality=variant_config["jpeg_quality"], optimize=True
+                output_buffer,
+                format="JPEG",
+                quality=variant_config["jpeg_quality"],
+                optimize=True,
             )
         else:  # WebP
             variant_img.save(
@@ -78,9 +83,7 @@ class ImageCompressionService:
 
         return output_buffer.getvalue()
 
-    def compress_image(
-        self, input_path: str, output_dir: str, filename: str
-    ) -> Dict[str, Dict[str, str]]:
+    def compress_image(self, input_path: str, output_dir: str, filename: str):
         """
         Compress an image file with all configured size variants.
 
@@ -97,7 +100,9 @@ class ImageCompressionService:
         try:
             with Image.open(input_path) as img:
                 # Process each size variant
-                for variant_name, variant_config in self.config["size_variants"].items():
+                for variant_name, variant_config in self.config[
+                    "size_variants"
+                ].items():
                     result[variant_name] = {}
 
                     # Create variant subdirectory if configured
@@ -133,9 +138,7 @@ class ImageCompressionService:
             logger.error(f"Error compressing image {input_path}: {str(e)}")
             raise
 
-    def _process_image_chunk(
-        self, chunk: List[Tuple[str, str, str]]
-    ) -> List[Dict[str, Dict[str, str]]]:
+    def _process_image_chunk(self, chunk: List[Tuple[str, str, str]]):
         """Process a chunk of images."""
         results = []
         for input_path, output_dir, filename in chunk:
@@ -148,9 +151,7 @@ class ImageCompressionService:
                 results.append(None)
         return results
 
-    def batch_compress_directory(
-        self, input_dir: str, output_dir: str
-    ) -> List[Dict[str, Dict[str, str]]]:
+    def batch_compress_directory(self, input_dir: str, output_dir: str):
         """
         Compress all images in a directory using parallel processing.
 

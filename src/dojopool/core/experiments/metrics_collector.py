@@ -1,3 +1,5 @@
+import gc
+import gc
 """Metrics collection system for A/B testing experiments."""
 
 import logging
@@ -80,7 +82,7 @@ class MetricsCollector:
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
         attributes: Optional[Dict[str, str]] = None,
-    ) -> List[MetricEvent]:
+    ):
         """Get metric events matching the specified criteria.
 
         Args:
@@ -109,7 +111,9 @@ class MetricsCollector:
             events = [e for e in events if e.timestamp <= end_time]
         if attributes:
             events = [
-                e for e in events if all(e.attributes.get(k) == v for k, v in attributes.items())
+                e
+                for e in events
+                if all(e.attributes.get(k) == v for k, v in attributes.items())
             ]
 
         return sorted(events, key=lambda e: e.timestamp)
@@ -155,7 +159,7 @@ class MetricsCollector:
 
     def clear_metrics(
         self, experiment_id: Optional[str] = None, metric_name: Optional[str] = None
-    ) -> None:
+    ):
         """Clear stored metrics.
 
         Args:

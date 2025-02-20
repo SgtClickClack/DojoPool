@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
@@ -25,11 +27,11 @@ class SponsorshipService:
         db.session.commit()
         return sponsor
 
-    def get_sponsor(self, sponsor_id: int) -> Optional[Sponsor]:
+    def get_sponsor(self, sponsor_id: int):
         """Get a sponsor by ID."""
         return Sponsor.query.get(sponsor_id)
 
-    def update_sponsor(self, sponsor_id: int, data: Dict) -> Optional[Sponsor]:
+    def update_sponsor(self, sponsor_id: int, data: Dict):
         """Update a sponsor's information."""
         sponsor = self.get_sponsor(sponsor_id)
         if not sponsor:
@@ -42,7 +44,7 @@ class SponsorshipService:
         db.session.commit()
         return sponsor
 
-    def create_sponsorship_tier(self, data: Dict) -> SponsorshipTier:
+    def create_sponsorship_tier(self, data: Dict):
         """Create a new sponsorship tier."""
         tier = SponsorshipTier(
             name=data["name"],
@@ -61,7 +63,7 @@ class SponsorshipService:
         """Get all active sponsorship tiers."""
         return SponsorshipTier.query.filter_by(is_active=True).all()
 
-    def create_sponsorship_deal(self, data: Dict) -> Optional[SponsorshipDeal]:
+    def create_sponsorship_deal(self, data: Dict):
         """Create a new sponsorship deal."""
         # Validate tier availability
         tier = SponsorshipTier.query.get(data["tier_id"])
@@ -69,7 +71,9 @@ class SponsorshipService:
             return None
 
         if tier.max_sponsors:
-            active_deals = SponsorshipDeal.query.filter_by(tier_id=tier.id, status="active").count()
+            active_deals = SponsorshipDeal.query.filter_by(
+                tier_id=tier.id, status="active"
+            ).count()
             if active_deals >= tier.max_sponsors:
                 return None
 
@@ -98,14 +102,16 @@ class SponsorshipService:
         db.session.commit()
         return deal
 
-    def get_active_deals(self, sponsor_id: Optional[int] = None) -> List[SponsorshipDeal]:
+    def get_active_deals(
+        self, sponsor_id: Optional[int] = None
+    ) -> List[SponsorshipDeal]:
         """Get all active sponsorship deals, optionally filtered by sponsor."""
         query = SponsorshipDeal.query.filter_by(status="active")
         if sponsor_id:
             query = query.filter_by(sponsor_id=sponsor_id)
         return query.all()
 
-    def process_payment_success(self, payment_id: str) -> None:
+    def process_payment_success(self, payment_id: str):
         """Process a successful sponsorship payment."""
         deal = SponsorshipDeal.query.filter_by(stripe_payment_id=payment_id).first()
         if deal and deal.payment_status == "pending":
@@ -113,7 +119,7 @@ class SponsorshipService:
             deal.status = "active"
             db.session.commit()
 
-    def process_payment_failure(self, payment_id: str) -> None:
+    def process_payment_failure(self, payment_id: str):
         """Process a failed sponsorship payment."""
         deal = SponsorshipDeal.query.filter_by(stripe_payment_id=payment_id).first()
         if deal and deal.payment_status == "pending":
@@ -121,7 +127,7 @@ class SponsorshipService:
             deal.status = "cancelled"
             db.session.commit()
 
-    def check_expired_deals(self) -> None:
+    def check_expired_deals(self):
         """Check and update expired sponsorship deals."""
         now = datetime.utcnow()
         expired_deals = SponsorshipDeal.query.filter(

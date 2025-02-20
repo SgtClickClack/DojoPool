@@ -1,11 +1,12 @@
 """Tests for the ball tracking module."""
 
+from unittest.mock import Mock, patch
+
 import cv2
 import numpy as np
 import pytest
-from unittest.mock import Mock, patch
 
-from dojopool.core.vision.ball_tracker import BallTracker, Ball
+from dojopool.core.vision.ball_tracker import Ball, BallTracker
 
 
 @pytest.fixture
@@ -22,7 +23,9 @@ def sample_frame():
 @pytest.fixture
 def tracker():
     """Create a ball tracker instance."""
-    return BallTracker(ball_diameter_mm=40.0, min_confidence=0.5)  # Smaller for test image
+    return BallTracker(
+        ball_diameter_mm=40.0, min_confidence=0.5
+    )  # Smaller for test image
 
 
 def test_ball_tracker_initialization():
@@ -85,7 +88,13 @@ def test_no_balls_detected(mock_hough_circles, tracker, sample_frame):
 
 def test_ball_dataclass():
     """Test Ball dataclass functionality."""
-    ball = Ball(id=0, position=(100.0, 200.0), confidence=0.9, color=(255, 255, 255), radius=20.0)
+    ball = Ball(
+        id=0,
+        position=(100.0, 200.0),
+        confidence=0.9,
+        color=(255, 255, 255),
+        radius=20.0,
+    )
     assert ball.id == 0
     assert ball.position == (100.0, 200.0)
     assert ball.confidence == 0.9

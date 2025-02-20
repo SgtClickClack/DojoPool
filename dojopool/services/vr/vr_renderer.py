@@ -3,8 +3,9 @@ VR rendering service for DojoPool.
 Handles graphics, shaders, and visual effects for the VR system.
 """
 
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -76,7 +77,7 @@ class VRRenderer:
         eye_poses: Tuple[Tuple[float, float, float], Tuple[float, float, float]],
         scene_objects: List[Dict],
         frame_timing: float,
-    ) -> bool:
+    ) :
         """Render a single frame for both eyes."""
         try:
             # Update view matrices
@@ -106,8 +107,13 @@ class VRRenderer:
         self.materials[material_id] = properties
 
     def create_texture(
-        self, texture_id: str, width: int, height: int, data: bytes, format: int = GL_RGBA
-    ) -> bool:
+        self,
+        texture_id: str,
+        width: int,
+        height: int,
+        data: bytes,
+        format: int = GL_RGBA,
+    ) :
         """Create a new texture."""
         try:
             # Generate texture
@@ -115,13 +121,25 @@ class VRRenderer:
             glBindTexture(GL_TEXTURE_2D, tex_id)
 
             # Set texture parameters
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+            glTexParameteri(
+                GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR
+            )
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
             # Upload texture data
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data)
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                format,
+                width,
+                height,
+                0,
+                format,
+                GL_UNSIGNED_BYTE,
+                data,
+            )
 
             # Generate mipmaps
             glGenerateMipmap(GL_TEXTURE_2D)
@@ -132,7 +150,7 @@ class VRRenderer:
             print(f"Texture creation failed: {str(e)}")
             return False
 
-    def cleanup(self) -> None:
+    def cleanup(self) :
         """Clean up OpenGL resources."""
         # Delete shaders
         for shader_id in self.shaders.values():
@@ -146,7 +164,7 @@ class VRRenderer:
         for fbo_id in self.frame_buffers.values():
             glDeleteFramebuffers(1, [fbo_id])
 
-    def _init_default_materials(self) -> None:
+    def _init_default_materials(self) :
         """Initialize default materials."""
         self.materials = {
             "table_felt": MaterialProperties(
@@ -186,7 +204,7 @@ class VRRenderer:
             self._get_post_vertex_shader(), self._get_post_fragment_shader()
         )
 
-    def _init_render_targets(self) -> None:
+    def _init_render_targets(self) :
         """Initialize render targets for both eyes."""
         width, height = self.config.resolution
 
@@ -194,7 +212,9 @@ class VRRenderer:
             # Create color buffer
             color_tex = glGenTextures(1)
             glBindTexture(GL_TEXTURE_2D, color_tex)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, None)
+            glTexImage2D(
+                GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, None
+            )
 
             # Create depth buffer
             depth_tex = glGenTextures(1)
@@ -217,13 +237,15 @@ class VRRenderer:
             glFramebufferTexture2D(
                 GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_tex, 0
             )
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex, 0)
+            glFramebufferTexture2D(
+                GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex, 0
+            )
 
             self.frame_buffers[f"{eye}_color"] = color_tex
             self.frame_buffers[f"{eye}_depth"] = depth_tex
             self.frame_buffers[f"{eye}_fbo"] = fbo
 
-    def _compile_shader_program(self, vertex_source: str, fragment_source: str) -> int:
+    def _compile_shader_program(self, vertex_source: str, fragment_source: str) :
         """Compile and link a shader program."""
         # Compile vertex shader
         vertex_shader = glCreateShader(GL_VERTEX_SHADER)
@@ -247,7 +269,7 @@ class VRRenderer:
 
         return program
 
-    def _get_pbr_vertex_shader(self) -> str:
+    def _get_pbr_vertex_shader(self) :
         """Get PBR vertex shader source."""
         return """
             #version 430
@@ -341,7 +363,7 @@ class VRRenderer:
         # Placeholder implementation returns identity matrices
         return np.eye(4), np.eye(4)
 
-    def _render_eye(self, view_matrix: np.ndarray, scene_objects: List[Dict]) -> None:
+    def _render_eye(self, view_matrix: np.ndarray, scene_objects: List[Dict]) :
         """Render scene for one eye."""
         # Clear buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -355,14 +377,16 @@ class VRRenderer:
         # Render each object
         for obj in scene_objects:
             # Set material properties
-            material = self.materials.get(obj["material"], self.materials["ball_plastic"])
+            material = self.materials.get(
+                obj["material"], self.materials["ball_plastic"]
+            )
             # (Implementation would set material uniforms)
 
             # Draw object
             # (Implementation would bind geometry and issue draw calls)
             pass
 
-    def _apply_post_processing(self) -> None:
+    def _apply_post_processing(self) :
         """Apply post-processing effects."""
         # Bind post-processing shader
         glUseProgram(self.shaders["post"])
@@ -371,7 +395,7 @@ class VRRenderer:
         # (Implementation would render full-screen quad with effects)
         pass
 
-    def _present_frame(self) -> None:
+    def _present_frame(self):
         """Present the rendered frame to the VR display."""
         # In real implementation, would use VR SDK to present frame
         pass

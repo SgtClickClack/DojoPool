@@ -1,8 +1,10 @@
 """Tests for messaging system."""
 
-import pytest
 from datetime import datetime, timedelta
-from .messaging import MessageManager, MessageType, Message, Challenge
+
+import pytest
+
+from .messaging import Challenge, Message, MessageManager, MessageType
 
 
 @pytest.fixture
@@ -14,7 +16,7 @@ def message_manager() -> MessageManager:
 class TestMessaging:
     """Test messaging functionality."""
 
-    def test_send_direct_message(self, message_manager: MessageManager) -> None:
+    def test_send_direct_message(self, message_manager: MessageManager):
         """Test sending direct messages."""
         message = message_manager.send_message(
             sender_id="player1",
@@ -34,7 +36,7 @@ class TestMessaging:
         assert len(messages) == 1
         assert messages[0].message_id == message.message_id
 
-    def test_clan_messages(self, message_manager: MessageManager) -> None:
+    def test_clan_messages(self, message_manager: MessageManager):
         """Test clan messaging."""
         # Send multiple clan messages
         message1 = message_manager.send_message(
@@ -57,7 +59,7 @@ class TestMessaging:
         assert messages[0].message_id == message2.message_id  # Most recent first
         assert messages[1].message_id == message1.message_id
 
-    def test_message_filtering(self, message_manager: MessageManager) -> None:
+    def test_message_filtering(self, message_manager: MessageManager):
         """Test message filtering options."""
         # Send different types of messages
         message_manager.send_message(
@@ -107,7 +109,7 @@ class TestMessaging:
         unread = message_manager.get_player_messages("player2", unread_only=True)
         assert len(unread) == 0
 
-    def test_challenge_system(self, message_manager: MessageManager) -> None:
+    def test_challenge_system(self, message_manager: MessageManager):
         """Test challenge system."""
         # Send challenge
         challenge = message_manager.send_challenge(
@@ -167,6 +169,11 @@ class TestMessaging:
 
         # Try to complete pending challenge
         challenge = message_manager.send_challenge(
-            challenger_id="player1", challenged_id="player2", game_type="8-ball", race_to=5
+            challenger_id="player1",
+            challenged_id="player2",
+            game_type="8-ball",
+            race_to=5,
         )
-        assert not message_manager.complete_challenge(challenge.challenge_id, "result123")
+        assert not message_manager.complete_challenge(
+            challenge.challenge_id, "result123"
+        )

@@ -8,7 +8,13 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Dict
 
-from .config import MetricsConfig, RateLimitConfig, RoomConfig, SecurityConfig, WebSocketConfig
+from .config import (
+    MetricsConfig,
+    RateLimitConfig,
+    RoomConfig,
+    SecurityConfig,
+    WebSocketConfig,
+)
 
 
 @dataclass
@@ -92,7 +98,9 @@ class EnvironmentConfig:
             "host": "0.0.0.0",
             "port": int(os.getenv("PORT", 5000)),
             "debug": False,
-            "cors_allowed_origins": os.getenv("CORS_ORIGINS", "https://staging.example.com"),
+            "cors_allowed_origins": os.getenv(
+                "CORS_ORIGINS", "https://staging.example.com"
+            ),
             "rate_limits": {
                 "join_game": RateLimitConfig(
                     max_requests=30,
@@ -114,7 +122,9 @@ class EnvironmentConfig:
                 max_payload_size=2 * 1024 * 1024,  # 2MB
                 max_connections_per_user=3,
                 token_expiry=timedelta(days=1),
-                allowed_origins=[os.getenv("CORS_ORIGINS", "https://staging.example.com")],
+                allowed_origins=[
+                    os.getenv("CORS_ORIGINS", "https://staging.example.com")
+                ],
             ),
             "metrics_config": MetricsConfig(
                 enabled=True,

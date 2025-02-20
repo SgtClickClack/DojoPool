@@ -1,3 +1,5 @@
+import gc
+import gc
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
@@ -34,25 +36,35 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+async def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     """
     Get the current authenticated user and verify they are active
     """
     if not current_user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
     return current_user
 
 
-async def get_current_admin_user(current_user: User = Depends(get_current_user)) -> User:
+async def get_current_admin_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     """
     Get the current authenticated user and verify they are an admin
     """
     if not current_user.is_staff:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough privileges")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not enough privileges"
+        )
     return current_user
 
 
-async def get_optional_user(token: Optional[str] = Depends(oauth2_scheme)) -> Optional[User]:
+async def get_optional_user(
+    token: Optional[str] = Depends(oauth2_scheme),
+) -> Optional[User]:
     """
     Get the current user if authenticated, otherwise return None
     """

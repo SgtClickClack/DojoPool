@@ -1,9 +1,13 @@
+import gc
+import gc
 """Tests for pool game rule enforcement system."""
 
-import pytest
 from datetime import datetime, timedelta
-from .rule_enforcer import GameType, FoulType, GameState, RuleViolation, RuleEnforcer
-from .game_tracker import Shot, BallPosition
+
+import pytest
+
+from .game_tracker import BallPosition, Shot
+from .rule_enforcer import FoulType, GameState, GameType, RuleEnforcer, RuleViolation
 
 
 @pytest.fixture
@@ -27,7 +31,7 @@ def sample_shot() -> Shot:
 
 
 @pytest.fixture
-def eight_ball_enforcer() -> RuleEnforcer:
+def eight_ball_enforcer():
     """Create an 8-ball rule enforcer."""
     return RuleEnforcer(GameType.EIGHT_BALL)
 
@@ -83,7 +87,7 @@ class TestRuleEnforcer:
 
     def test_wrong_ball_first_violation(
         self, nine_ball_enforcer: RuleEnforcer, sample_shot: Shot
-    ) -> None:
+    ):
         """Test wrong ball first violation in 9-ball."""
         # Modify shot to hit wrong ball first
         shot = Shot(
@@ -91,7 +95,9 @@ class TestRuleEnforcer:
                 **sample_shot.__dict__,
                 "ball_positions": [
                     BallPosition(0, 0.5, 0.5, 0.9, datetime.now()),  # Cue ball
-                    BallPosition(2, 1.0, 0.5, 0.9, datetime.now()),  # Hit 2 ball instead of 1
+                    BallPosition(
+                        2, 1.0, 0.5, 0.9, datetime.now()
+                    ),  # Hit 2 ball instead of 1
                 ],
             }
         )
@@ -99,15 +105,19 @@ class TestRuleEnforcer:
         violations = nine_ball_enforcer.process_shot(shot)
         assert any(v.foul_type == FoulType.WRONG_BALL_FIRST for v in violations)
 
-    def test_scratch_violation(self, eight_ball_enforcer: RuleEnforcer, sample_shot: Shot) -> None:
+    def test_scratch_violation(
+        self, eight_ball_enforcer: RuleEnforcer, sample_shot: Shot
+    ) -> None:
         """Test scratch (pocketed cue ball) violation."""
         # Modify shot to include pocketed cue ball
-        shot = Shot(**{**sample_shot.__dict__, "pocketed_balls": {0}})  # Cue ball pocketed
+        shot = Shot(
+            **{**sample_shot.__dict__, "pocketed_balls": {0}}
+        )  # Cue ball pocketed
 
         violations = eight_ball_enforcer.process_shot(shot)
         assert any(v.foul_type == FoulType.SCRATCH for v in violations)
 
-    def test_eight_ball_win_condition(self, eight_ball_enforcer: RuleEnforcer) -> None:
+    def test_eight_ball_win_condition(self, eight_ball_enforcer: RuleEnforcer):
         """Test winning condition in 8-ball."""
         # Set up near-win state
         state = eight_ball_enforcer.get_state()
@@ -141,7 +151,7 @@ class TestRuleEnforcer:
 
     def test_eight_ball_group_assignment(
         self, eight_ball_enforcer: RuleEnforcer, sample_shot: Shot
-    ) -> None:
+    ):
         """Test group assignment after first pocket in 8-ball."""
         # Create shot that pockets a solid
         shot = Shot(**{**sample_shot.__dict__, "pocketed_balls": {1}})  # Pocket a solid

@@ -1,20 +1,21 @@
 """Database initialization script with secure file permissions."""
 
 import os
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 from typing import Optional
 
 from dojopool.utils.file_permissions import (
     SECURE_DIR_MODE,
     SECURE_FILE_MODE,
     create_secure_directory,
-    create_secure_file
+    create_secure_file,
 )
 
-def init_db(instance_dir: Optional[str] = None, db_name: str = 'dojopool.db') -> None:
+
+def init_db(instance_dir: Optional[str] = None, db_name: str = "dojopool.db") -> None:
     """Initialize the SQLite database with secure permissions.
-    
+
     Args:
         instance_dir: Optional instance directory path (default: current directory)
         db_name: Database filename (default: dojopool.db)
@@ -23,21 +24,22 @@ def init_db(instance_dir: Optional[str] = None, db_name: str = 'dojopool.db') ->
     if instance_dir is None:
         instance_dir = os.getcwd()
     instance_path = Path(instance_dir)
-    
+
     # Create instance directory with secure permissions
     create_secure_directory(instance_path, mode=SECURE_DIR_MODE)
-    
+
     # Create database file with secure permissions
     db_path = instance_path / db_name
     create_secure_file(db_path, mode=SECURE_FILE_MODE)
-    
+
     # Initialize database schema
     with sqlite3.connect(db_path) as conn:
         # Enable foreign key support
-        conn.execute('PRAGMA foreign_keys = ON')
-        
+        conn.execute("PRAGMA foreign_keys = ON")
+
         # Create tables
-        conn.executescript('''
+        conn.executescript(
+            """
             -- Users table
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,10 +113,12 @@ def init_db(instance_dir: Optional[str] = None, db_name: str = 'dojopool.db') ->
                 FOREIGN KEY (user_id) REFERENCES users (id),
                 FOREIGN KEY (achievement_id) REFERENCES achievements (id)
             );
-        ''')
-        
+        """
+        )
+
         # Create indexes
-        conn.executescript('''
+        conn.executescript(
+            """
             CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
             CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
             CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
@@ -122,7 +126,9 @@ def init_db(instance_dir: Optional[str] = None, db_name: str = 'dojopool.db') ->
             CREATE INDEX IF NOT EXISTS idx_games_players ON games(player1_id, player2_id);
             CREATE INDEX IF NOT EXISTS idx_games_venue ON games(venue_id);
             CREATE INDEX IF NOT EXISTS idx_player_stats_rating ON player_stats(rating DESC);
-        ''')
+        """
+        )
 
-if __name__ == '__main__':
-    init_db() 
+
+if __name__ == "__main__":
+    init_db()

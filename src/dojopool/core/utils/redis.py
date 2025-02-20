@@ -55,7 +55,7 @@ class RedisCache:
             print(f"Redis get error: {str(e)}")
             return None
 
-    async def set(self, key: str, value: str, expire: int = None) -> bool:
+    async def set(self, key: str, value: str, expire: int = None):
         """Set a value in Redis with optional expiration in seconds"""
         try:
             return await self.redis.set(key, value, ex=expire)
@@ -63,7 +63,7 @@ class RedisCache:
             print(f"Redis set error: {str(e)}")
             return False
 
-    async def delete(self, key: str) -> bool:
+    async def delete(self, key: str):
         """Delete a key from Redis"""
         try:
             return await self.redis.delete(key) > 0
@@ -87,7 +87,7 @@ class RedisCache:
             print(f"Redis expire error: {str(e)}")
             return False
 
-    async def ttl(self, key: str) -> int:
+    async def ttl(self, key: str):
         """Get remaining time to live for a key in seconds"""
         try:
             return await self.redis.ttl(key)
@@ -103,7 +103,7 @@ class RedisCache:
             print(f"Redis incr error: {str(e)}")
             return None
 
-    async def decr(self, key: str) -> Optional[int]:
+    async def decr(self, key: str):
         """Decrement a counter"""
         try:
             return await self.redis.decr(key)
@@ -111,7 +111,7 @@ class RedisCache:
             print(f"Redis decr error: {str(e)}")
             return None
 
-    async def hget(self, name: str, key: str) -> Optional[str]:
+    async def hget(self, name: str, key: str):
         """Get a value from a hash"""
         try:
             return await self.redis.hget(name, key)
@@ -119,7 +119,7 @@ class RedisCache:
             print(f"Redis hget error: {str(e)}")
             return None
 
-    async def hset(self, name: str, key: str, value: str) -> bool:
+    async def hset(self, name: str, key: str, value: str):
         """Set a value in a hash"""
         try:
             return await self.redis.hset(name, key, value) > 0

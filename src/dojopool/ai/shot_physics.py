@@ -1,9 +1,12 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Physics calculations for pool shots."""
 
-import numpy as np
-from typing import List, Tuple, Optional
 from dataclasses import dataclass
 from enum import Enum
+from typing import List, Optional, Tuple
+
+import numpy as np
 
 
 class CollisionType(Enum):
@@ -25,22 +28,22 @@ class Vector2D:
     def __add__(self, other: "Vector2D") -> "Vector2D":
         return Vector2D(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: "Vector2D") -> "Vector2D":
+    def __sub__(self, other: "Vector2D"):
         return Vector2D(self.x - other.x, self.y - other.y)
 
     def __mul__(self, scalar: float) -> "Vector2D":
         return Vector2D(self.x * scalar, self.y * scalar)
 
-    def magnitude(self) -> float:
+    def magnitude(self):
         return np.sqrt(self.x * self.x + self.y * self.y)
 
-    def normalize(self) -> "Vector2D":
+    def normalize(self):
         mag = self.magnitude()
         if mag == 0:
             return Vector2D(0, 0)
         return Vector2D(self.x / mag, self.y / mag)
 
-    def dot(self, other: "Vector2D") -> float:
+    def dot(self, other: "Vector2D"):
         return self.x * other.x + self.y * other.y
 
     def angle(self, other: "Vector2D") -> float:
@@ -89,14 +92,12 @@ class Table:
 class ShotPhysics:
     """Calculate shot physics and trajectories."""
 
-    def __init__(self, table: Optional[Table] = None) -> None:
+    def __init__(self, table: Optional[Table] = None):
         """Initialize physics calculator."""
         self.table = table or Table()
         self.g = 9.81  # m/s^2
 
-    def predict_collision(
-        self, ball1: Ball, ball2: Ball, dt: float = 0.001
-    ) -> Tuple[Optional[Vector2D], CollisionType]:
+    def predict_collision(self, ball1: Ball, ball2: Ball, dt: float = 0.001):
         """Predict collision point and type between two balls."""
         # Get relative position and velocity
         rel_pos = ball2.position - ball1.position
@@ -189,7 +190,7 @@ class ShotPhysics:
 
         return None, False
 
-    def calculate_rail_bounce(self, ball: Ball, hit_vertical: bool) -> Vector2D:
+    def calculate_rail_bounce(self, ball: Ball, hit_vertical: bool):
         """Calculate velocity after rail bounce."""
         e = self.table.rail_elasticity
         if hit_vertical:
@@ -255,7 +256,9 @@ class ShotPhysics:
             # Check ball collisions
             for i, ball1 in enumerate(balls):
                 for ball2 in balls[i + 1 :]:
-                    collision_point, collision_type = self.predict_collision(ball1, ball2)
+                    collision_point, collision_type = self.predict_collision(
+                        ball1, ball2
+                    )
                     if collision_point:
                         v1, v2 = self.calculate_post_collision_velocities(ball1, ball2)
                         ball1.velocity = v1
@@ -268,7 +271,8 @@ class ShotPhysics:
                     ball.position = rail_pos
                     ball.velocity = self.calculate_rail_bounce(
                         ball,
-                        hit_vertical=rail_pos.x in (ball.radius, self.table.width - ball.radius),
+                        hit_vertical=rail_pos.x
+                        in (ball.radius, self.table.width - ball.radius),
                     )
                 else:
                     ball.position = ball.position + ball.velocity * 0.001

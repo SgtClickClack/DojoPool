@@ -1,10 +1,18 @@
-import pytest
-from django.test import TestCase
-from django.contrib.auth.models import User
-from django.utils import timezone
-from ..models.game_analysis import GameAnalysis, ShotAnalysis, PerformanceInsight
-import numpy as np
+from flask_caching import cached
+from multiprocessing import Pool
+import gc
+from flask_caching import cached
+from multiprocessing import Pool
+import gc
 from datetime import timedelta
+
+import numpy as np
+import pytest
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.utils import timezone
+
+from ..models.game_analysis import GameAnalysis, PerformanceInsight, ShotAnalysis
 
 
 class TestGameAnalysis(TestCase):
@@ -111,10 +119,14 @@ class TestGameAnalysis(TestCase):
                 )
 
         # Get recent games
-        recent_games = GameAnalysis.objects.filter(player1=self.player1).order_by("-created_at")[:5]
+        recent_games = GameAnalysis.objects.filter(player1=self.player1).order_by(
+            "-created_at"
+        )[:5]
 
         # Generate insights
-        insights = PerformanceInsight.generate_insights(self.player1, list(recent_games))
+        insights = PerformanceInsight.generate_insights(
+            self.player1, list(recent_games)
+        )
 
         self.assertTrue(len(insights) > 0)
         for insight in insights:
@@ -128,7 +140,9 @@ class TestGameAnalysis(TestCase):
             self.assertTrue(0 <= insight.confidence <= 1)
 
     def test_shot_pattern_analysis(self):
-        recent_games = GameAnalysis.objects.filter(player1=self.player1).order_by("-created_at")[:5]
+        recent_games = GameAnalysis.objects.filter(player1=self.player1).order_by(
+            "-created_at"
+        )[:5]
 
         patterns = PerformanceInsight._analyze_shot_patterns(list(recent_games))
 
@@ -148,7 +162,9 @@ class TestGameAnalysis(TestCase):
             self.assertTrue(stats["success"] <= stats["total"])
 
     def test_performance_analysis(self):
-        recent_games = GameAnalysis.objects.filter(player1=self.player1).order_by("-created_at")[:5]
+        recent_games = GameAnalysis.objects.filter(player1=self.player1).order_by(
+            "-created_at"
+        )[:5]
 
         analysis = PerformanceInsight._analyze_performance(list(recent_games))
 

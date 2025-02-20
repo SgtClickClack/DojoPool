@@ -1,3 +1,5 @@
+import gc
+import gc
 #!/usr/bin/env python3
 """
 Incident Response Coordinator Script.
@@ -56,13 +58,15 @@ def create_incident(args) -> None:
         sys.exit(1)
 
 
-def update_incident(args) -> None:
+def update_incident(args):
     """Update an existing incident."""
     coordinator = IncidentResponseCoordinator()
 
     try:
         status = IncidentStatus(args.status) if args.status else None
-        resolution_steps = args.resolution_steps.split(",") if args.resolution_steps else None
+        resolution_steps = (
+            args.resolution_steps.split(",") if args.resolution_steps else None
+        )
 
         incident = coordinator.update_incident(
             incident_id=args.incident_id,
@@ -83,7 +87,7 @@ def update_incident(args) -> None:
         sys.exit(1)
 
 
-def list_incidents(args) -> None:
+def list_incidents(args):
     """List active incidents."""
     coordinator = IncidentResponseCoordinator()
 
@@ -128,7 +132,7 @@ def generate_report(args) -> None:
         sys.exit(1)
 
 
-def print_incident_details(incident) -> None:
+def print_incident_details(incident):
     """Print formatted incident details."""
     print(
         f"""
@@ -149,18 +153,24 @@ Incident Details:
 
 def main():
     """Main entry point for the incident response coordinator CLI."""
-    parser = argparse.ArgumentParser(description="Security Incident Response Coordinator")
+    parser = argparse.ArgumentParser(
+        description="Security Incident Response Coordinator"
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
     # Create incident command
     create_parser = subparsers.add_parser("create", help="Create a new incident")
-    create_parser.add_argument("--type", required=True, choices=[t.value for t in IncidentType])
+    create_parser.add_argument(
+        "--type", required=True, choices=[t.value for t in IncidentType]
+    )
     create_parser.add_argument(
         "--severity", required=True, choices=[s.value for s in IncidentSeverity]
     )
     create_parser.add_argument("--description", required=True)
-    create_parser.add_argument("--affected-systems", required=True, help="Comma-separated list")
+    create_parser.add_argument(
+        "--affected-systems", required=True, help="Comma-separated list"
+    )
     create_parser.add_argument("--detected-by", required=True)
 
     # Update incident command

@@ -60,7 +60,9 @@ class AutomatedDeployment:
         self.queue = self._load_queue()
 
         # Start scheduler thread
-        self.scheduler_thread = threading.Thread(target=self._run_scheduler, daemon=True)
+        self.scheduler_thread = threading.Thread(
+            target=self._run_scheduler, daemon=True
+        )
         self.scheduler_thread.start()
 
     def schedule_deployment(
@@ -112,7 +114,7 @@ class AutomatedDeployment:
 
         return schedule_entry
 
-    def cancel_deployment(self, schedule_id: str) -> bool:
+    def cancel_deployment(self, schedule_id: str):
         """Cancel scheduled deployment.
 
         Args:
@@ -129,7 +131,7 @@ class AutomatedDeployment:
                 return True
         return False
 
-    def get_deployment_status(self, schedule_id: str) -> Optional[Dict[str, Any]]:
+    def get_deployment_status(self, schedule_id: str):
         """Get status of scheduled deployment.
 
         Args:
@@ -143,7 +145,7 @@ class AutomatedDeployment:
                 return entry
         return None
 
-    def list_scheduled_deployments(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_scheduled_deployments(self, status: Optional[str] = None):
         """List scheduled deployments.
 
         Args:
@@ -193,7 +195,9 @@ class AutomatedDeployment:
             )
 
             # Update schedule entry
-            schedule_entry["status"] = "completed" if result["status"] == "successful" else "failed"
+            schedule_entry["status"] = (
+                "completed" if result["status"] == "successful" else "failed"
+            )
             schedule_entry["result"] = result
             schedule_entry["completed_at"] = datetime.now().isoformat()
 
@@ -230,7 +234,7 @@ class AutomatedDeployment:
 
         return config
 
-    def _load_schedule(self) -> List[Dict[str, Any]]:
+    def _load_schedule(self):
         """Load deployment schedule."""
         if self.schedule_file.exists():
             with open(self.schedule_file, "r") as f:
@@ -242,7 +246,7 @@ class AutomatedDeployment:
         with open(self.schedule_file, "w") as f:
             json.dump(self.schedule, f, indent=4)
 
-    def _load_queue(self) -> List[Dict[str, Any]]:
+    def _load_queue(self):
         """Load deployment queue."""
         if self.queue_file.exists():
             with open(self.queue_file, "r") as f:

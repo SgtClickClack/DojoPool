@@ -108,7 +108,7 @@ class EmailService:
         except Exception as e:
             raise EmailError(f"Failed to send email: {str(e)}")
 
-    def send_welcome_email(self, to: str, username: str) -> None:
+    def send_welcome_email(self, to: str, username: str):
         """Send welcome email.
 
         Args:
@@ -125,7 +125,7 @@ class EmailService:
             context={"username": username},
         )
 
-    def send_password_reset_email(self, to: str, reset_token: str) -> None:
+    def send_password_reset_email(self, to: str, reset_token: str):
         """Send password reset email.
 
         Args:
@@ -142,7 +142,7 @@ class EmailService:
             context={"reset_token": reset_token},
         )
 
-    def send_verification_email(self, to: str, verification_token: str) -> None:
+    def send_verification_email(self, to: str, verification_token: str):
         """Send email verification email.
 
         Args:

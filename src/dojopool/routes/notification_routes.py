@@ -1,11 +1,22 @@
 """Notification routes module."""
 
-from flask import Blueprint, jsonify, render_template, request
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import (
+    Blueprint,
+    Request,
+    Response,
+    current_app,
+    jsonify,
+    render_template,
+    request,
+)
+from flask.typing import ResponseReturnValue
 from flask_login import current_user, login_required
-
 from src.services.notification_service import NotificationService
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-notification_bp = Blueprint("notification", __name__)
+notification_bp: Blueprint = Blueprint("notification", __name__)
 
 
 @notification_bp.route("/notifications")
@@ -17,12 +28,12 @@ def notifications_page():
 
 @notification_bp.route("/api/notifications/")
 @login_required
-def get_notifications():
+def get_notifications() -> Response:
     """Get user notifications with pagination and filtering."""
-    page = request.args.get("page", 1, type=int)
-    notification_type = request.args.get("type", "all")
-    status = request.args.get("status", "all")
-    time_filter = request.args.get("time", "all")
+    page = request.args.get("page", 1, type=int, type=str)
+    notification_type: Any = request.args.get("type", "all", type=str)
+    status: Any = request.args.get("status", "all", type=str)
+    time_filter: Any = request.args.get("time", "all", type=str)
 
     notifications, has_more = NotificationService.get_user_notifications(
         current_user.id,
@@ -32,7 +43,9 @@ def get_notifications():
         time_filter=time_filter,
     )
 
-    return jsonify({"notifications": [n.to_dict() for n in notifications], "has_more": has_more})
+    return jsonify(
+        {"notifications": [n.to_dict() for n in notifications], "has_more": has_more}
+    )
 
 
 @notification_bp.route("/api/notifications/unread-count")
@@ -43,7 +56,9 @@ def get_unread_count():
     return jsonify({"count": count})
 
 
-@notification_bp.route("/api/notifications/<int:notification_id>/read", methods=["POST"])
+@notification_bp.route(
+    "/api/notifications/<int -> Response -> Any:notification_id>/read", methods=["POST"]
+)
 @login_required
 def mark_as_read(notification_id):
     """Mark a specific notification as read."""
@@ -81,12 +96,14 @@ def delete_notification(notification_id):
 def notification_settings():
     """Get or update notification settings."""
     if request.method == "GET":
-        settings = NotificationService.get_notification_settings(current_user.id)
+        settings: Any = NotificationService.get_notification_settings(current_user.id)
         return jsonify(settings)
     else:
-        data = request.get_json()
+        data: Any = request.get_json()
         try:
-            settings = NotificationService.update_notification_settings(current_user.id, data)
+            settings: Any = NotificationService.update_notification_settings(
+                current_user.id, data
+            )
             return jsonify(settings)
         except Exception as e:
             return jsonify({"error": str(e)}), 400

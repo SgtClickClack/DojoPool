@@ -50,7 +50,7 @@ class ExperimentAnalyzer:
 
     def _calculate_confidence_interval(
         self, mean: float, std_dev: float, sample_size: int
-    ) -> Tuple[float, float]:
+    ):
         """Calculate confidence interval for the mean."""
         z_score = float(stats.norm.ppf((1 + self.confidence_level) / 2))
         margin_error = z_score * (std_dev / np.sqrt(sample_size))
@@ -60,10 +60,13 @@ class ExperimentAnalyzer:
         self, baseline_rate: float, minimum_detectable_effect: float
     ) -> int:
         """Calculate minimum sample size needed for statistical significance."""
-        effect_size = minimum_detectable_effect / np.sqrt(2 * baseline_rate * (1 - baseline_rate))
+        effect_size = minimum_detectable_effect / np.sqrt(
+            2 * baseline_rate * (1 - baseline_rate)
+        )
         return int(
             np.ceil(
-                stats.norm.ppf(self.power) + stats.norm.ppf(self.confidence_level) / effect_size**2
+                stats.norm.ppf(self.power)
+                + stats.norm.ppf(self.confidence_level) / effect_size**2
             )
         )
 
@@ -137,7 +140,10 @@ class ExperimentAnalyzer:
 
             # Calculate achieved power
             effect_size = (
-                abs(control_results.mean_value - max(vr.mean_value for vr in variant_results))
+                abs(
+                    control_results.mean_value
+                    - max(vr.mean_value for vr in variant_results)
+                )
                 / control_results.std_dev
             )
 

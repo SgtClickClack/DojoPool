@@ -1,3 +1,5 @@
+import gc
+import gc
 """Results dashboard for A/B testing experiments."""
 
 from datetime import datetime, timedelta
@@ -45,7 +47,7 @@ class ResultsDashboard:
         save_path: Optional[str] = None,
         export_formats: Optional[List[str]] = None,
         max_points: int = 10000,
-    ) -> go.Figure:
+    ):
         """Create a summary dashboard with key metrics and visualizations.
 
         Args:
@@ -74,7 +76,9 @@ class ResultsDashboard:
         control_metrics = {e.metric_name for e in control_events}
         variant_metrics = {e.metric_name for e in variant_events}
         if metric_name not in control_metrics or metric_name not in variant_metrics:
-            raise ValueError(f"Metric '{metric_name}' not found in both control and variant events")
+            raise ValueError(
+                f"Metric '{metric_name}' not found in both control and variant events"
+            )
 
         # Validate time window format
         if time_window:
@@ -86,7 +90,9 @@ class ResultsDashboard:
                 value = int(time_window[:-1])
                 unit = time_window[-1].upper()
                 if unit not in {"D", "H"}:
-                    raise ValueError("time_window unit must be 'D' for days or 'H' for hours")
+                    raise ValueError(
+                        "time_window unit must be 'D' for days or 'H' for hours"
+                    )
                 if value <= 0:
                     raise ValueError("time_window value must be positive")
             except ValueError as e:
@@ -119,7 +125,9 @@ class ResultsDashboard:
                     control_events, variant_events, time_window
                 )
                 if not control_events or not variant_events:
-                    raise ValueError(f"No events found in specified time window: {time_window}")
+                    raise ValueError(
+                        f"No events found in specified time window: {time_window}"
+                    )
             except Exception as e:
                 raise ValueError(f"Error filtering events by time window: {str(e)}")
 
@@ -128,7 +136,9 @@ class ResultsDashboard:
         viz_variant = self._optimize_data(variant_events, max_points)
 
         # Use full dataset for statistical calculations
-        result = self.analyzer.analyze_metric(control_events, variant_events, metric_name)
+        result = self.analyzer.analyze_metric(
+            control_events, variant_events, metric_name
+        )
 
         # Create subplot figure
         fig = make_subplots(
@@ -188,27 +198,45 @@ class ResultsDashboard:
             for segment in segments:
                 try:
                     # Check if segment has enough data
-                    segment_values = {e.attributes.get(segment) for e in viz_control + viz_variant}
+                    segment_values = {
+                        e.attributes.get(segment) for e in viz_control + viz_variant
+                    }
                     segment_values.discard(None)
                     if len(segment_values) < 2:
                         segment_errors[segment] = "Insufficient unique values"
-                        print(f"Warning: Segment '{segment}' has insufficient unique values")
+                        print(
+                            f"Warning: Segment '{segment}' has insufficient unique values"
+                        )
                         continue
 
                     # Check minimum group sizes
                     min_events = min(
                         min(
-                            len([e for e in viz_control if e.attributes.get(segment) == val])
+                            len(
+                                [
+                                    e
+                                    for e in viz_control
+                                    if e.attributes.get(segment) == val
+                                ]
+                            )
                             for val in segment_values
                         ),
                         min(
-                            len([e for e in viz_variant if e.attributes.get(segment) == val])
+                            len(
+                                [
+                                    e
+                                    for e in viz_variant
+                                    if e.attributes.get(segment) == val
+                                ]
+                            )
                             for val in segment_values
                         ),
                     )
                     if min_events < 30:
                         segment_errors[segment] = "Groups with fewer than 30 events"
-                        print(f"Warning: Segment '{segment}' has groups with fewer than 30 events")
+                        print(
+                            f"Warning: Segment '{segment}' has groups with fewer than 30 events"
+                        )
 
                     segment_analysis = self.analyzer.analyze_segments(
                         viz_control, viz_variant, metric_name, segment
@@ -258,7 +286,9 @@ class ResultsDashboard:
                         col=1,
                     )
             else:
-                error_summary = "<br>".join(f"{s}: {e}" for s, e in segment_errors.items())
+                error_summary = "<br>".join(
+                    f"{s}: {e}" for s, e in segment_errors.items()
+                )
                 fig.add_annotation(
                     text=f"No valid segments for analysis:<br>{error_summary}",
                     xref="x3",
@@ -343,7 +373,9 @@ class ResultsDashboard:
         control_metrics = {e.metric_name for e in control_events}
         variant_metrics = {e.metric_name for e in variant_events}
         if metric_name not in control_metrics or metric_name not in variant_metrics:
-            raise ValueError(f"Metric '{metric_name}' not found in both control and variant events")
+            raise ValueError(
+                f"Metric '{metric_name}' not found in both control and variant events"
+            )
 
         # Validate segment keys
         if not segment_keys:
@@ -394,7 +426,10 @@ class ResultsDashboard:
             raise ValueError(f"Error creating segment visualization: {str(e)}")
 
     def _filter_time_window(
-        self, control_events: List[MetricEvent], variant_events: List[MetricEvent], window: str
+        self,
+        control_events: List[MetricEvent],
+        variant_events: List[MetricEvent],
+        window: str,
     ) -> Tuple[List[MetricEvent], List[MetricEvent]]:
         """Filter events by time window.
 
@@ -411,7 +446,9 @@ class ResultsDashboard:
         """
         # Validate window format
         if not isinstance(window, str) or len(window) < 2:
-            raise ValueError("Window must be a string in format '<number><unit>' (e.g., '7D')")
+            raise ValueError(
+                "Window must be a string in format '<number><unit>' (e.g., '7D')"
+            )
 
         try:
             value = int(window[:-1])
@@ -460,7 +497,11 @@ class ResultsDashboard:
 
         return go.Table(
             header={"values": headers, "fill_color": "paleturquoise", "align": "left"},
-            cells={"values": list(zip(*cells)), "fill_color": "lavender", "align": "left"},
+            cells={
+                "values": list(zip(*cells)),
+                "fill_color": "lavender",
+                "align": "left",
+            },
         )
 
     def _export_dashboard(
@@ -507,7 +548,9 @@ class ResultsDashboard:
                         fig.write_image(path)
                     except ValueError as e:
                         if "kaleido" in str(e).lower():
-                            print(f"Warning: {fmt} export requires kaleido package. Skipping.")
+                            print(
+                                f"Warning: {fmt} export requires kaleido package. Skipping."
+                            )
                             continue
                         raise
 
@@ -529,10 +572,12 @@ class ResultsDashboard:
         control_events: List[MetricEvent],
         variant_events: List[MetricEvent],
         window: str = "1D",
-    ) -> go.Figure:
+    ):
         """Create time series visualization of metric values."""
 
-        def process_events(events: List[MetricEvent]) -> Tuple[List[datetime], List[float]]:
+        def process_events(
+            events: List[MetricEvent],
+        ):
             # Sort events by timestamp
             sorted_events = sorted(events, key=lambda x: x.timestamp)
             timestamps = [e.timestamp for e in sorted_events]
@@ -540,7 +585,9 @@ class ResultsDashboard:
 
             # Calculate rolling average
             if len(values) > 1:
-                values = np.convolve(values, np.ones(min(len(values), 7)) / 7, mode="valid")
+                values = np.convolve(
+                    values, np.ones(min(len(values), 7)) / 7, mode="valid"
+                )
                 timestamps = timestamps[: len(values)]
 
             return timestamps, list(values)
@@ -551,15 +598,24 @@ class ResultsDashboard:
         fig = go.Figure()
 
         fig.add_trace(
-            go.Scatter(x=control_times, y=control_values, name="Control", line={"color": "blue"})
+            go.Scatter(
+                x=control_times,
+                y=control_values,
+                name="Control",
+                line={"color": "blue"},
+            )
         )
 
         fig.add_trace(
-            go.Scatter(x=variant_times, y=variant_values, name="Variant", line={"color": "red"})
+            go.Scatter(
+                x=variant_times, y=variant_values, name="Variant", line={"color": "red"}
+            )
         )
 
         fig.update_layout(
-            xaxis_title="Time", yaxis_title="Value (7-day rolling average)", showlegend=True
+            xaxis_title="Time",
+            yaxis_title="Value (7-day rolling average)",
+            showlegend=True,
         )
 
         return fig

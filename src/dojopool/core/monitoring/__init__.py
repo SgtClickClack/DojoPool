@@ -1,6 +1,6 @@
 """DojoPool system monitoring package."""
 
-from .metrics import MetricsSnapshot
 from .collectors import MetricsCollector
+from .metrics import MetricsSnapshot
 
 __all__ = ["MetricsSnapshot", "MetricsCollector"]

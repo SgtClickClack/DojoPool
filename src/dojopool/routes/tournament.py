@@ -1,38 +1,42 @@
-"""Routes for tournament management and bracket operations."""
+"""Tournament routes module."""
 
-from flask import Blueprint, g, jsonify, request
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
+
+from flask import Blueprint, Request, Response, current_app, g, jsonify, request
+from flask.typing import ResponseReturnValue
 from flask_login import current_user, login_required
 from marshmallow import ValidationError
+from werkzeug.wrappers import Response as WerkzeugResponse
 
-from dojopool.core.auth import login_required
-from dojopool.schemas.tournament import (
+from ..core.auth import login_required
+from ..schemas.tournament import (
     TournamentMatchSchema,
     TournamentParticipantSchema,
     TournamentSchema,
 )
-from dojopool.services.prize_service import PrizeService
-from dojopool.services.tournament_service import TournamentService
+from ..services.prize_service import PrizeService
+from ..services.tournament_service import TournamentService
 
-bp = Blueprint("tournament", __name__, url_prefix="/api/tournaments")
-tournament_service = TournamentService()
-prize_service = PrizeService()
+bp: Blueprint = Blueprint("tournament", __name__, url_prefix="/api/tournaments")
+tournament_service: TournamentService = TournamentService()
+prize_service: PrizeService = PrizeService()
 
 
 @bp.route("/", methods=["GET"])
-def get_tournaments():
+def get_tournaments() -> Response:
     """Get list of tournaments with optional filtering."""
     try:
-        limit = int(request.args.get("limit", 10))
-        offset = int(request.args.get("offset", 0))
-        filters = {
-            "venue_id": request.args.get("venue_id", type=int),
-            "status": request.args.get("status"),
+        limit = int(request.args.get("limit", 10, type=str))
+        offset: Any = int(request.args.get("offset", 0, type=str))
+        filters: Dict[Any, Any] = {
+            "venue_id": request.args.get("venue_id", type=int, type=str),
+            "status": request.args.get("status", type=str),
         }
 
         # Remove None values
-        filters = {k: v for k, v in filters.items() if v is not None}
+        filters: Dict[Any, Any] = {k: v for k, v in filters.items() if v is not None}
 
-        tournaments = tournament_service.get_tournaments(
+        tournaments: Any = tournament_service.get_tournaments(
             limit=limit, offset=offset, filters=filters
         )
         return jsonify(TournamentSchema(many=True).dump(tournaments))
@@ -44,7 +48,7 @@ def get_tournaments():
 @bp.route("/<int:tournament_id>", methods=["GET"])
 def get_tournament(tournament_id):
     """Get tournament details by ID."""
-    tournament = tournament_service.get_tournament(tournament_id)
+    tournament: Any = tournament_service.get_tournament(tournament_id)
     if not tournament:
         return jsonify({"error": "Tournament not found"}), 404
 
@@ -53,11 +57,11 @@ def get_tournament(tournament_id):
 
 @bp.route("/", methods=["POST"])
 @login_required
-def create_tournament():
+def create_tournament() -> Response:
     """Create a new tournament."""
     try:
-        data = TournamentSchema().load(request.get_json())
-        tournament = tournament_service.create_tournament(data)
+        data: Any = TournamentSchema().load(request.get_json())
+        tournament: Any = tournament_service.create_tournament(data)
         return jsonify(TournamentSchema().dump(tournament)), 201
 
     except ValidationError as e:
@@ -71,8 +75,8 @@ def create_tournament():
 def update_tournament(tournament_id):
     """Update tournament details."""
     try:
-        data = TournamentSchema().load(request.get_json(), partial=True)
-        tournament = tournament_service.update_tournament(tournament_id, data)
+        data: Any = TournamentSchema().load(request.get_json(), partial=True)
+        tournament: Any = tournament_service.update_tournament(tournament_id, data)
 
         if not tournament:
             return jsonify({"error": "Tournament not found"}), 404
@@ -90,8 +94,8 @@ def update_tournament(tournament_id):
 def register_participant(tournament_id):
     """Register for a tournament."""
     try:
-        participant = tournament_service.register_participant(
-            tournament_id=tournament_id, user_id=g.user.id
+        participant: Any = tournament_service.register_participant(
+            tournament_id=tournament_id, user_id=getattr(g, "user", None).id
         )
         return jsonify(TournamentParticipantSchema().dump(participant)), 201
 
@@ -106,7 +110,7 @@ def register_participant(tournament_id):
 def generate_bracket(tournament_id):
     """Generate tournament bracket."""
     try:
-        bracket_data = tournament_service.generate_bracket(tournament_id)
+        bracket_data: Any = tournament_service.generate_bracket(tournament_id)
         return jsonify(bracket_data)
 
     except ValueError as e:
@@ -119,8 +123,8 @@ def generate_bracket(tournament_id):
 def get_matches(tournament_id):
     """Get tournament matches."""
     try:
-        round_number = request.args.get("round", type=int)
-        matches = tournament_service.get_tournament_matches(
+        round_number = request.args.get("round", type=int, type=str)
+        matches: Any = tournament_service.get_tournament_matches(
             tournament_id=tournament_id, round_number=round_number
         )
         return jsonify(TournamentMatchSchema(many=True).dump(matches))
@@ -134,8 +138,8 @@ def get_matches(tournament_id):
 def update_match(match_id):
     """Update match details and progress tournament."""
     try:
-        data = TournamentMatchSchema().load(request.get_json(), partial=True)
-        match = tournament_service.update_match(match_id, data)
+        data: Any = TournamentMatchSchema().load(request.get_json(), partial=True)
+        match: Any = tournament_service.update_match(match_id, data)
 
         if not match:
             return jsonify({"error": "Match not found"}), 404
@@ -148,11 +152,14 @@ def update_match(match_id):
         return jsonify({"error": str(e)}), 400
 
 
-@bp.route("/<int:tournament_id>/participants/<int:participant_id>/matches", methods=["GET"])
+@bp.route(
+    "/<int -> Response -> Any:tournament_id>/participants/<int:participant_id>/matches",
+    methods=["GET"],
+)
 def get_participant_matches(tournament_id, participant_id):
     """Get matches for a participant in a tournament."""
     try:
-        matches = tournament_service.get_participant_matches(
+        matches: Any = tournament_service.get_participant_matches(
             tournament_id=tournament_id, participant_id=participant_id
         )
         return jsonify(TournamentMatchSchema(many=True).dump(matches))
@@ -165,21 +172,25 @@ def get_participant_matches(tournament_id, participant_id):
 @login_required
 def get_unclaimed_prizes():
     """Get unclaimed prizes for current user."""
-    limit = request.args.get("limit", 10, type=int)
-    offset = request.args.get("offset", 0, type=int)
+    limit = request.args.get("limit", 10, type=int, type=str)
+    offset: Any = request.args.get("offset", 0, type=int, type=str)
 
-    prizes = prize_service.get_unclaimed_prizes(current_user.id, limit=limit, offset=offset)
+    prizes: Any = prize_service.get_unclaimed_prizes(
+        current_user.id, limit=limit, offset=offset
+    )
     return jsonify(prizes)
 
 
 @bp.route("/prizes/history", methods=["GET"])
 @login_required
-def get_prize_history():
+def get_prize_history() -> Response:
     """Get prize history for current user."""
-    limit = request.args.get("limit", 10, type=int)
-    offset = request.args.get("offset", 0, type=int)
+    limit = request.args.get("limit", 10, type=int, type=str)
+    offset: Any = request.args.get("offset", 0, type=int, type=str)
 
-    prizes = prize_service.get_prize_history(current_user.id, limit=limit, offset=offset)
+    prizes: Any = prize_service.get_prize_history(
+        current_user.id, limit=limit, offset=offset
+    )
     return jsonify(prizes)
 
 
@@ -187,9 +198,9 @@ def get_prize_history():
 @login_required
 def claim_prize():
     """Claim a prize."""
-    data = request.get_json()
-    participant_id = data.get("participant_id")
-    tournament_id = data.get("tournament_id")
+    data: Any = request.get_json()
+    participant_id: Any = data.get("participant_id")
+    tournament_id: Any = data.get("tournament_id")
 
     if not participant_id or not tournament_id:
         return jsonify({"error": "Missing required fields"}), 400
@@ -208,7 +219,7 @@ def configure_prize_rule(tournament_id):
     if not current_user.is_admin:
         return jsonify({"error": "Unauthorized"}), 403
 
-    data = request.get_json()
+    data: Any = request.get_json()
     if not isinstance(data, dict):
         return jsonify({"error": "Invalid distribution data"}), 400
 

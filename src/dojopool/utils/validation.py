@@ -1,8 +1,8 @@
 """Validation utilities for request data."""
 
-from typing import Any, Dict, List, Optional
-from datetime import datetime
 import re
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 def validate_request_data(
@@ -18,7 +18,11 @@ def validate_request_data(
         Dict with validation result
     """
     if not data:
-        return {"status": "error", "error": "No data provided", "code": "VALIDATION_ERROR"}
+        return {
+            "status": "error",
+            "error": "No data provided",
+            "code": "VALIDATION_ERROR",
+        }
 
     missing_fields = [field for field in required_fields if field not in data]
 
@@ -32,7 +36,7 @@ def validate_request_data(
     return {"status": "success"}
 
 
-def validate_match_data(data: Dict[str, Any]) -> Dict[str, Any]:
+def validate_match_data(data: Dict[str, Any]):
     """
     Validate match data
     """
@@ -135,18 +139,24 @@ def validate_offline_sync_data(data: Dict[str, Any]) -> Dict[str, Any]:
     for shot in data["shots"]:
         shot_validation = validate_shot_data(shot)
         if shot_validation.get("error"):
-            return {"error": f"Invalid shot data: {shot_validation['error']}", "invalid_shot": shot}
+            return {
+                "error": f"Invalid shot data: {shot_validation['error']}",
+                "invalid_shot": shot,
+            }
 
     for checkin in data["checkins"]:
         if "venue_id" not in checkin:
-            return {"error": "Missing venue_id in checkin data", "invalid_checkin": checkin}
+            return {
+                "error": "Missing venue_id in checkin data",
+                "invalid_checkin": checkin,
+            }
 
     return {"valid": True}
 
 
 def validate_location_data(
     lat: Optional[float], lng: Optional[float], radius: Optional[float] = None
-) -> Dict[str, Any]:
+):
     """
     Validate location data
     """
@@ -178,7 +188,7 @@ def validate_timestamp(timestamp: str) -> Dict[str, Any]:
         return {"error": "Invalid timestamp format"}
 
 
-def validate_power_up_data(data: dict) -> tuple[bool, str]:
+def validate_power_up_data(data: dict):
     """Validate power-up data.
 
     Args:

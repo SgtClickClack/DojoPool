@@ -1,21 +1,25 @@
 """Venues API routes."""
 
-from flask import Blueprint, jsonify
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Union
 
-venues_bp = Blueprint("venues", __name__, url_prefix="/venues")
+from flask import Blueprint, Request, Response, current_app, jsonify
+from flask.typing import ResponseReturnValue
+from werkzeug.wrappers import Response as WerkzeugResponse
+
+venues_bp: Blueprint = Blueprint("venues", __name__, url_prefix="/venues")
 
 
 @venues_bp.route("/", methods=["GET"])
 def get_venues():
     """Get list of venues."""
-    # TODO: Implement venue retrieval
+    # TODO -> Response -> Any: Implement venue retrieval
     return jsonify({"venues": []})
 
 
 @venues_bp.route("/<venue_id>", methods=["GET"])
 def get_venue(venue_id):
     """Get venue details."""
-    # TODO: Implement venue details retrieval
+    # TODO -> Response -> Any: Implement venue details retrieval
     return jsonify({"venue": {}})
 
 

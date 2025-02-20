@@ -34,8 +34,12 @@ class RoomLogger:
             datefmt="%Y-%m-%dT%H:%M:%S",
         )
 
-        self.events_logger = self._setup_logger("room_events", self.events_log, formatter)
-        self.access_logger = self._setup_logger("room_access", self.access_log, formatter)
+        self.events_logger = self._setup_logger(
+            "room_events", self.events_log, formatter
+        )
+        self.access_logger = self._setup_logger(
+            "room_access", self.access_log, formatter
+        )
         self.error_logger = self._setup_logger("room_errors", self.error_log, formatter)
         self.audit_logger = self._setup_logger("room_audit", self.audit_log, formatter)
 
@@ -56,7 +60,9 @@ class RoomLogger:
         logger.setLevel(logging.INFO)
 
         # Add rotating file handler
-        handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)  # 10MB
+        handler = RotatingFileHandler(
+            log_file, maxBytes=10 * 1024 * 1024, backupCount=5
+        )  # 10MB
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
@@ -68,7 +74,7 @@ class RoomLogger:
         room_id: str,
         user_id: Optional[str] = None,
         data: Optional[Dict[str, Any]] = None,
-    ) -> None:
+    ):
         """Log room event.
 
         Args:
@@ -92,7 +98,7 @@ class RoomLogger:
         user_id: Optional[str] = None,
         success: bool = True,
         details: Optional[Dict[str, Any]] = None,
-    ) -> None:
+    ):
         """Log room access attempt.
 
         Args:
@@ -118,7 +124,7 @@ class RoomLogger:
         user_id: Optional[str] = None,
         error: Optional[Exception] = None,
         details: Optional[Dict[str, Any]] = None,
-    ) -> None:
+    ):
         """Log room error.
 
         Args:
@@ -138,7 +144,11 @@ class RoomLogger:
         self.error_logger.error(message)
 
     def log_room_audit(
-        self, action: str, room_id: str, user_id: str, details: Optional[Dict[str, Any]] = None
+        self,
+        action: str,
+        room_id: str,
+        user_id: str,
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log room audit event.
 
@@ -162,7 +172,7 @@ class RoomLogger:
         event_type: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-    ) -> List[Dict[str, Any]]:
+    ):
         """Get room events from log.
 
         Args:
@@ -190,7 +200,7 @@ class RoomLogger:
         user_id: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-    ) -> List[Dict[str, Any]]:
+    ):
         """Get room access logs.
 
         Args:
@@ -219,7 +229,7 @@ class RoomLogger:
         action: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-    ) -> List[Dict[str, Any]]:
+    ):
         """Get room audit logs.
 
         Args:

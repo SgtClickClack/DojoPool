@@ -1,10 +1,13 @@
+from multiprocessing import Pool
+from multiprocessing import Pool
 """Validation metrics monitoring integration."""
 
-from typing import Dict, Any, List
-from datetime import datetime, timedelta
 import json
-from pathlib import Path
 import logging
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List
+
 from ..validation.validators import VenueValidator
 
 logger = logging.getLogger(__name__)
@@ -34,7 +37,7 @@ class ValidationMetricsMonitor:
         """Collect current validation metrics."""
         return VenueValidator.get_metrics()
 
-    def save_metrics_snapshot(self) -> None:
+    def save_metrics_snapshot(self):
         """Save current metrics to a timestamped file."""
         metrics = self.collect_metrics()
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -45,7 +48,7 @@ class ValidationMetricsMonitor:
 
         logger.info(f"Saved metrics snapshot to {file_path}")
 
-    def get_validation_trends(self, hours: int = 24) -> Dict[str, List[Dict[str, Any]]]:
+    def get_validation_trends(self, hours: int = 24):
         """Get validation trends over the specified time period."""
         trends: Dict[str, List[Dict[str, Any]]] = {}
         cutoff_time = datetime.now() - timedelta(hours=hours)

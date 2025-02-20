@@ -58,7 +58,7 @@ class PlayerStatus(TimestampedModel):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-    def update_status(self, status: str, activity: str = None) -> None:
+    def update_status(self, status: str, activity: str = None):
         """Update player status."""
         self.status = status
         self.last_active = datetime.utcnow()
@@ -66,13 +66,13 @@ class PlayerStatus(TimestampedModel):
             self.current_activity = activity
         db.session.commit()
 
-    def set_availability(self, available: bool) -> None:
+    def set_availability(self, available: bool):
         """Set player availability."""
         self.is_available = available
         self.last_active = datetime.utcnow()
         db.session.commit()
 
-    def set_busy(self, busy: bool) -> None:
+    def set_busy(self, busy: bool):
         """Set player busy status."""
         self.is_busy = busy
         self.last_active = datetime.utcnow()
@@ -84,7 +84,7 @@ class PlayerStatus(TimestampedModel):
         self.last_active = datetime.utcnow()
         db.session.commit()
 
-    def set_custom_status(self, status: str) -> None:
+    def set_custom_status(self, status: str):
         """Set custom status message."""
         self.custom_status = status
         self.last_active = datetime.utcnow()

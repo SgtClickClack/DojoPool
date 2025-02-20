@@ -1,3 +1,5 @@
+from flask_caching import Cache
+from flask_caching import Cache
 """Notification models module.
 
 This module provides notification-related models.
@@ -5,12 +7,31 @@ This module provides notification-related models.
 
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from sqlalchemy import Index
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+)
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import (
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...core.database import db
-from ...core.events import emit_event
+from ..extensions import db
 from .base import BaseModel
+
+# Re-export the models
+__all__ = ["Notification", "NotificationType"]
+
+# Move NotificationPreference to a new file to avoid circular dependencies
+from .notification_preference import NotificationPreference
 
 
 class NotificationType(Enum):
@@ -41,71 +62,82 @@ class Notification(BaseModel):
     )
 
     # Basic fields
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    type = db.Column(db.Enum(NotificationType), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    message = db.Column(db.Text, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    type: Mapped[NotificationType] = mapped_column(
+        SQLEnum(NotificationType), nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Additional data
-    data = db.Column(db.JSON)  # Store any additional notification data
-    action_url = db.Column(db.String(200))  # URL to redirect when clicked
-    icon = db.Column(db.String(50))  # Icon identifier
+    data: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSON
+    )  # Store any additional notification data
+    action_url: Mapped[Optional[str]] = mapped_column(
+        String(200)
+    )  # URL to redirect when clicked
+    icon: Mapped[Optional[str]] = mapped_column(String(50))  # Icon identifier
 
     # Status
-    is_read = db.Column(db.Boolean, default=False)
-    is_archived = db.Column(db.Boolean, default=False)
-    read_at = db.Column(db.DateTime)
-
-    # Metadata
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False)
+    read_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
     # Relationships
-    user = db.relationship("User", backref=db.backref("notifications", lazy="dynamic"))
+    user: Mapped["User"] = relationship("User", back_populates="notifications")
 
-    def __repr__(self):
-        return f"<Notification {self.id}:{self.type}>"
+    def __repr__(self) -> str:
+        return f"<Notification {self.id} for user {self.user_id}>"
 
-    def mark_as_read(self):
+    def mark_as_read(self) -> None:
         """Mark notification as read."""
-        if not self.is_read:
-            self.is_read = True
-            self.read_at = datetime.utcnow()
-            db.session.commit()
+        self.is_read = True
+        self.read_at = datetime.utcnow()
+        db.session.commit()
 
     def mark_as_unread(self):
         """Mark notification as unread."""
-        if self.is_read:
-            self.is_read = False
-            self.read_at = None
-            db.session.commit()
+        self.is_read = False
+        self.read_at = None
+        db.session.commit()
 
     def archive(self):
-        """Archive notification."""
+        """Archive the notification."""
         self.is_archived = True
         db.session.commit()
 
     def unarchive(self):
-        """Unarchive notification."""
+        """Unarchive the notification."""
         self.is_archived = False
         db.session.commit()
 
     @classmethod
-    def create(cls, user_id, type, title, message, data=None, action_url=None, icon=None):
+    def create(
+        cls,
+        user_id: int,
+        type: NotificationType,
+        title: str,
+        message: str,
+        data: Optional[Dict[str, Any]] = None,
+        action_url: Optional[str] = None,
+        icon: Optional[str] = None,
+    ) -> "Notification":
         """Create a new notification.
 
         Args:
-            user_id: User ID
-            type: Notification type
+            user_id: ID of the user to notify
+            type: Type of notification
             title: Notification title
             message: Notification message
             data: Optional additional data
-            action_url: Optional action URL
+            action_url: Optional URL to redirect when clicked
             icon: Optional icon identifier
 
         Returns:
-            Notification: Created notification
+            Created notification instance
         """
         notification = cls(
             user_id=user_id,
@@ -119,36 +151,33 @@ class Notification(BaseModel):
         db.session.add(notification)
         db.session.commit()
 
-        # Emit real-time event
-        emit_event("notification", {"user_id": user_id, "notification": notification.to_dict()})
-
         return notification
 
     @classmethod
-    def get_unread_count(cls, user_id):
+    def get_unread_count(cls, user_id: int):
         """Get count of unread notifications.
 
         Args:
             user_id: User ID
 
         Returns:
-            int: Number of unread notifications
+            Number of unread notifications
         """
-        return cls.query.filter_by(user_id=user_id, is_read=False, is_archived=False).count()
+        return cls.query.filter_by(user_id=user_id, is_read=False).count()
 
     @classmethod
-    def get_recent(cls, user_id, limit=20):
-        """Get recent notifications.
+    def get_recent(cls, user_id: int, limit: int = 20):
+        """Get recent notifications for a user.
 
         Args:
             user_id: User ID
-            limit: Maximum number of notifications
+            limit: Maximum number of notifications to return
 
         Returns:
-            list: Recent notifications
+            List of recent notifications
         """
         return (
-            cls.query.filter_by(user_id=user_id, is_archived=False)
+            cls.query.filter_by(user_id=user_id)
             .order_by(cls.created_at.desc())
             .limit(limit)
             .all()
@@ -158,73 +187,19 @@ class Notification(BaseModel):
         """Convert notification to dictionary.
 
         Returns:
-            dict: Notification data
+            Dictionary representation of notification
         """
         return {
             "id": self.id,
-            "type": self.type,
+            "type": self.type.value,
             "title": self.title,
             "message": self.message,
             "data": self.data,
             "action_url": self.action_url,
             "icon": self.icon,
             "is_read": self.is_read,
-            "created_at": self.created_at.isoformat(),
+            "is_archived": self.is_archived,
             "read_at": self.read_at.isoformat() if self.read_at else None,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
-
-
-class NotificationPreference(BaseModel):
-    """Notification preference model."""
-
-    __tablename__ = "notification_preferences"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    notification_type = db.Column(
-        db.String(50), nullable=False
-    )  # achievement, tournament, friend_request, etc.
-    email_enabled = db.Column(db.Boolean, default=True)
-    push_enabled = db.Column(db.Boolean, default=True)
-    sms_enabled = db.Column(db.Boolean, default=False)
-    quiet_hours_start = db.Column(db.Time)
-    quiet_hours_end = db.Column(db.Time)
-
-    # Relationships
-    user = db.relationship("User", backref=db.backref("notification_preferences", lazy="dynamic"))
-
-    def __repr__(self):
-        return f"<NotificationPreference {self.user_id}:{self.notification_type}>"
-
-    def enable_all(self):
-        """Enable all notification channels."""
-        self.email_enabled = True
-        self.push_enabled = True
-        self.sms_enabled = True
-        db.session.commit()
-
-    def disable_all(self):
-        """Disable all notification channels."""
-        self.email_enabled = False
-        self.push_enabled = False
-        self.sms_enabled = False
-        db.session.commit()
-
-    def is_quiet_hours(self, current_time=None):
-        """Check if current time is within quiet hours.
-
-        Args:
-            current_time: Time to check (defaults to current time)
-
-        Returns:
-            bool: True if within quiet hours
-        """
-        if not self.quiet_hours_start or not self.quiet_hours_end:
-            return False
-
-        current_time = current_time or datetime.now().time()
-        if self.quiet_hours_start <= self.quiet_hours_end:
-            return self.quiet_hours_start <= current_time <= self.quiet_hours_end
-        else:  # Handles case where quiet hours span midnight
-            return current_time >= self.quiet_hours_start or current_time <= self.quiet_hours_end
