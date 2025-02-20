@@ -19,30 +19,72 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
-.env
+
+# Virtual Environment
 venv/
+venv311/
 ENV/
+env/
+env.bak/
+venv.bak/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+monkeytype.sqlite3
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-.npm
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
+.next/
 
-# IDEs and editors
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
+# Misc
 .DS_Store
 Thumbs.db
+*.bak
+*.tmp
+*.temp
