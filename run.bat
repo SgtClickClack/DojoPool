@@ -1,0 +1,3 @@
+@echo off
+echo Starting DojoPool server...
+python server.py 

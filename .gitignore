@@ -19,92 +19,103 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.monkeytype.sqlite3
 
 # Virtual Environment
 venv/
 venv311/
-ENV/
 env/
-env.bak/
-venv.bak/
+ENV/
 
-# IDE
+# IDEs and editors
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 .project
-.pydevproject
-.settings
+.settings/
+.classpath
 
-# Logs and databases
-*.log
-*.sqlite3
-*.db
-monkeytype.sqlite3
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Testing
-.coverage
-htmlcov/
-.tox/
-.pytest_cache/
-coverage.xml
-*.cover
-.hypothesis/
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Node
+# Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .next/
+.nuxt/
+.cache/
+.parcel-cache/
 
-# Misc
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+logs/
+data/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-*.bak
-*.tmp
-*.temp
 
 # Project specific
-[SRV]*
-fix_imports.py
-get-pip.py
-minimal.py
-path/
-rc/
-run.bat
-run_server.ps1
-sortImports.py
-start.py
-test_*
-theme/
-tournament_round.py
-utils/
 wrk/
-**/automation/
-**/backup_config.pyi
-**/input_validation.pyi
+rc/
+path/
+theme/
+uploads/
+__mocks__/
+__tests__/
+public/
+maintenance.log
+dojopool.log
+test.db
+monkeytype.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Frontend build
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Documentation build
+docs/_build/
+site/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock

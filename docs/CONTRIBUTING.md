@@ -1,216 +1,141 @@
 # Contributing to DojoPool
 
-## Table of Contents
-1. [Getting Started](#getting-started)
-2. [Development Setup](#development-setup)
-3. [Code Style](#code-style)
-4. [Testing](#testing)
-5. [Performance](#performance)
-6. [Accessibility](#accessibility)
-7. [Security](#security)
-8. [Documentation](#documentation)
-9. [Pull Request Process](#pull-request-process)
+First off, thank you for considering contributing to DojoPool! It's people like you that make DojoPool such a great tool.
 
-## Getting Started
+## Code of Conduct
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm (v7 or higher)
-- Git
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
-### Installation
-1. Fork the repository
-2. Clone your fork:
+## How Can I Contribute?
+
+### Reporting Bugs
+
+Before creating bug reports, please check the issue list as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible:
+
+* Use a clear and descriptive title
+* Describe the exact steps which reproduce the problem
+* Provide specific examples to demonstrate the steps
+* Describe the behavior you observed after following the steps
+* Explain which behavior you expected to see instead and why
+* Include screenshots and animated GIFs if possible
+
+### Suggesting Enhancements
+
+Enhancement suggestions are tracked as GitHub issues. Create an issue and provide the following information:
+
+* Use a clear and descriptive title
+* Provide a step-by-step description of the suggested enhancement
+* Provide specific examples to demonstrate the steps
+* Describe the current behavior and explain which behavior you expected to see instead
+* Explain why this enhancement would be useful
+
+### Pull Requests
+
+* Fill in the required template
+* Do not include issue numbers in the PR title
+* Follow the Python style guide
+* Include thoughtfully-worded, well-structured tests
+* Document new code
+* End all files with a newline
+
+## Development Process
+
+1. Fork the repo
+2. Create a new branch from `develop`:
    ```bash
-   git clone https://github.com/your-username/dojopool.git
+   git checkout develop
+   git checkout -b feature/my-feature
    ```
-3. Install dependencies:
+3. Make your changes
+4. Run the tests:
    ```bash
+   pytest
+   ```
+5. Run the linters:
+   ```bash
+   black .
+   ruff check .
+   mypy src/dojopool
+   ```
+6. Commit your changes:
+   ```bash
+   git add .
+   git commit -m "feat: add some feature"
+   ```
+7. Push to your fork:
+   ```bash
+   git push origin feature/my-feature
+   ```
+8. Create a Pull Request
+
+## Commit Message Guidelines
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+* feat: A new feature
+* fix: A bug fix
+* docs: Documentation only changes
+* style: Changes that do not affect the meaning of the code
+* refactor: A code change that neither fixes a bug nor adds a feature
+* perf: A code change that improves performance
+* test: Adding missing tests or correcting existing tests
+* chore: Changes to the build process or auxiliary tools
+
+## Setting Up Development Environment
+
+1. Install Python 3.9 or higher
+2. Install Node.js 16 or higher
+3. Clone your fork:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/DojoPool.git
+   cd DojoPool
+   ```
+4. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+5. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   ```
+6. Install frontend dependencies:
+   ```bash
+   cd src/dojopool/frontend
    npm install
    ```
-4. Set up environment variables:
+7. Set up pre-commit hooks:
    ```bash
-   cp .env.example .env
+   pre-commit install
    ```
-
-## Development Setup
-
-### Running the Development Server
-```bash
-npm run dev
-```
-
-### Building for Production
-```bash
-npm run build
-```
-
-### Running Tests
-```bash
-npm run test        # Run unit tests
-npm run test:e2e    # Run end-to-end tests
-npm run test:a11y   # Run accessibility tests
-```
 
 ## Code Style
 
-We use ESLint and Prettier for code formatting. Our style guide extends from:
-- Airbnb JavaScript Style Guide
-- React/JSX Style Guide
-- TypeScript ESLint Recommended
-
-### Running Linter
-```bash
-npm run lint        # Check code style
-npm run lint:fix    # Fix code style issues
-```
-
-### Key Style Points
-- Use TypeScript for type safety
-- Follow functional programming principles
-- Use React hooks for state management
-- Write meaningful component and function names
-- Keep components small and focused
-- Use proper prop types and interfaces
+* Python: Follow PEP 8 and use Black for formatting
+* JavaScript/TypeScript: Follow the project's ESLint configuration
+* Use type hints in Python code
+* Write docstrings for all public functions
+* Keep functions small and focused
+* Use meaningful variable names
 
 ## Testing
 
-### Unit Tests
-- Write tests for all new features
-- Maintain 80% or higher coverage
-- Follow the AAA pattern (Arrange, Act, Assert)
-- Use meaningful test descriptions
-- Mock external dependencies
-
-### Integration Tests
-- Test component interactions
-- Verify data flow
-- Test error scenarios
-- Check boundary conditions
-
-### Accessibility Tests
-- Run axe-core tests
-- Test with screen readers
-- Verify keyboard navigation
-- Check color contrast
-- Test with different viewport sizes
-
-## Performance
-
-### Monitoring
-- Use the PerformanceMonitor service
-- Track Core Web Vitals
-- Monitor memory usage
-- Check network performance
-- Profile render times
-
-### Optimization
-- Lazy load components
-- Optimize images
-- Minimize bundle size
-- Use proper caching
-- Implement code splitting
-
-## Accessibility
-
-### Requirements
-- Follow WCAG 2.1 Level AA guidelines
-- Use semantic HTML
-- Provide proper ARIA labels
-- Ensure keyboard navigation
-- Support screen readers
-- Maintain proper color contrast
-
-### Testing Tools
-- axe-core
-- WAVE
-- Lighthouse
-- VoiceOver/NVDA
-- Color contrast analyzers
-
-## Security
-
-### Guidelines
-- Follow OWASP security practices
-- Implement proper authentication
-- Use CSRF protection
-- Validate user input
-- Sanitize data output
-- Use secure dependencies
-
-### Testing
-- Run security audits
-- Perform penetration testing
-- Check for vulnerabilities
-- Review access controls
-- Validate data encryption
+* Write unit tests for all new code
+* Maintain or increase the test coverage
+* Use pytest fixtures appropriately
+* Mock external services
+* Test edge cases
 
 ## Documentation
 
-### Code Documentation
-- Write clear comments
-- Document complex logic
-- Explain business rules
-- Provide usage examples
-- Keep documentation updated
-
-### API Documentation
-- Document all endpoints
-- Provide request/response examples
-- List error codes
-- Explain authentication
-- Include rate limits
-
-## Pull Request Process
-
-1. Create a feature branch:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. Make your changes:
-   - Write code
-   - Add tests
-   - Update documentation
-   - Run linter
-   - Run tests
-
-3. Commit your changes:
-   ```bash
-   git commit -m "feat: add your feature description"
-   ```
-   Follow [Conventional Commits](https://www.conventionalcommits.org/) specification.
-
-4. Push to your fork:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-5. Create a Pull Request:
-   - Use the PR template
-   - Link related issues
-   - Provide clear description
-   - Add screenshots if relevant
-   - Request reviews
-
-### PR Checklist
-- [ ] Code follows style guide
-- [ ] Tests are passing
-- [ ] Documentation is updated
-- [ ] Accessibility is verified
-- [ ] Performance is optimized
-- [ ] Security is reviewed
-- [ ] Changes are tested
-- [ ] PR is linked to issue
-
-### Review Process
-1. Automated checks must pass
-2. Two approvals required
-3. All comments addressed
-4. Documentation updated
-5. Tests added/updated
-6. Performance verified
+* Update the README.md if needed
+* Add JSDoc comments for JavaScript/TypeScript
+* Update API documentation
+* Include docstrings for Python functions
+* Document complex algorithms
+* Update changelog
 
 ## Questions?
 
-Join our [Discord channel](https://discord.gg/dojopool) for help and discussions. 
+Feel free to contact the development team if you have any questions. 
