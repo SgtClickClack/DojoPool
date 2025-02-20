@@ -1,0 +1,6 @@
+# Development dependencies
+mypy>=1.7.0
+types-redis>=4.6.0.20240106
+types-Flask>=1.1.6
+types-Werkzeug>=1.0.9
+types-SQLAlchemy>=1.4.53.38
