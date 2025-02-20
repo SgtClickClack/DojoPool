@@ -1,0 +1,32 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# they will be requested for review when someone opens a pull request.
+*       @SgtClickClack
+
+# Core application code
+/src/dojopool/core/           @SgtClickClack
+/src/dojopool/models/         @SgtClickClack
+/src/dojopool/services/       @SgtClickClack
+
+# Frontend code
+/src/dojopool/frontend/       @SgtClickClack
+
+# API and routes
+/src/dojopool/api/            @SgtClickClack
+/src/dojopool/routes/         @SgtClickClack
+
+# Tests
+/src/dojopool/tests/          @SgtClickClack
+
+# Documentation
+/docs/                        @SgtClickClack
+*.md                         @SgtClickClack
+
+# Configuration files
+*.yml                        @SgtClickClack
+*.json                       @SgtClickClack
+requirements*.txt            @SgtClickClack
+
+# Security-related files
+/src/dojopool/core/security/ @SgtClickClack
+SECURITY.md                  @SgtClickClack 
