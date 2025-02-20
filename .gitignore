@@ -88,3 +88,23 @@ Thumbs.db
 *.bak
 *.tmp
 *.temp
+
+# Project specific
+[SRV]*
+fix_imports.py
+get-pip.py
+minimal.py
+path/
+rc/
+run.bat
+run_server.ps1
+sortImports.py
+start.py
+test_*
+theme/
+tournament_round.py
+utils/
+wrk/
+**/automation/
+**/backup_config.pyi
+**/input_validation.pyi
