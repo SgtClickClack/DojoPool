@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Matchmaking - DojoPool{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Find a Match</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Available Players</h5>
+                    <div class="list-group">
+                        {% for player in available_players %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ player.username }}</h6>
+                                <small class="text-muted">Rating: {{ player.global_rating }}</small>
+                            </div>
+                            <form method="POST" action="{{ url_for('game.send_challenge', player_id=player.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-primary btn-sm">Challenge</button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item">
+                            <p class="mb-0">No players available for matching right now.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Match</h5>
+                    <form method="POST" action="{{ url_for('game.quick_match') }}">
+                        <div class="mb-3">
+                            <label for="game_type" class="form-label">Game Type</label>
+                            <select class="form-select" id="game_type" name="game_type" required>
+                                <option value="8ball">8-Ball</option>
+                                <option value="9ball">9-Ball</option>
+                                <option value="straight">Straight Pool</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Find Quick Match</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Challenges</h5>
+                    <div class="list-group">
+                        {% for challenge in pending_challenges %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ challenge.challenger.username }}</h6>
+                                <small class="text-muted">{{ challenge.game_type }}</small>
+                            </div>
+                            <div>
+                                <form method="POST" action="{{ url_for('game.accept_challenge', challenge_id=challenge.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('game.decline_challenge', challenge_id=challenge.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item">
+                            <p class="mb-0">No pending challenges.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh the page every 30 seconds to update available players
+setTimeout(function() {
+    window.location.reload();
+}, 30000);
+</script>
+{% endblock %} 

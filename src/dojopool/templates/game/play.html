@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Game #{{ game.id }} - DojoPool{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Game Info -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Game Info</h5>
+                    <div class="game-info">
+                        <p><strong>Type:</strong> {{ game.game_type }}</p>
+                        <p><strong>Venue:</strong> {{ game.venue.name }}</p>
+                        <p><strong>Table:</strong> {{ game.table.name }}</p>
+                        <p><strong>Status:</strong> <span class="badge bg-primary">{{ game.status }}</span></p>
+                    </div>
+
+                    <hr>
+
+                    <div class="players">
+                        <div class="player mb-3">
+                            <h6>Player 1</h6>
+                            <p class="mb-1">{{ game.player.username }}</p>
+                            <p class="mb-0">Score: <span id="player1-score">{{ game.player_score }}</span></p>
+                        </div>
+
+                        <div class="player">
+                            <h6>Player 2</h6>
+                            <p class="mb-1">{{ game.opponent.username }}</p>
+                            <p class="mb-0">Score: <span id="player2-score">{{ game.opponent_score }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Controls</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success" id="score-point">Score Point</button>
+                        <button class="btn btn-warning" id="foul">Call Foul</button>
+                        <button class="btn btn-danger" id="end-game">End Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game View -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h4>Current Turn: <span id="current-player">{{ current_player.username }}</span></h4>
+                    </div>
+
+                    <div class="game-view" style="min-height: 400px; background: #0a4d2e; border-radius: 10px; position: relative;">
+                        <!-- Placeholder for the game view -->
+                        <div class="text-center text-white p-5">
+                            <h5>Game View</h5>
+                            <p>AI-powered shot tracking will appear here</p>
+                        </div>
+                    </div>
+
+                    <div class="shot-info mt-3">
+                        <h5>Last Shot</h5>
+                        <div id="last-shot-info">
+                            <p>Waiting for shot...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats & Chat -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Game Stats</h5>
+                    <div class="stats">
+                        <p><strong>Shots Taken:</strong> <span id="shots-taken">0</span></p>
+                        <p><strong>Accuracy:</strong> <span id="accuracy">0%</span></p>
+                        <p><strong>Duration:</strong> <span id="game-duration">00:00</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Game Chat</h5>
+                    <div class="chat-messages" style="height: 200px; overflow-y: auto;">
+                        <div id="messages">
+                            <!-- Chat messages will appear here -->
+                        </div>
+                    </div>
+                    <div class="chat-input mt-2">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="message-input" placeholder="Type a message...">
+                            <button class="btn btn-primary" id="send-message">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Basic game functionality
+document.getElementById('score-point').addEventListener('click', function() {
+    fetch('/game/{{ game.id }}/score', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            points: 1
+        })
+    }).then(response => response.json())
+      .then(data => {
+          document.getElementById('player1-score').textContent = data.player_score;
+          document.getElementById('player2-score').textContent = data.opponent_score;
+      });
+});
+
+// Game timer
+let seconds = 0;
+setInterval(function() {
+    seconds++;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    document.getElementById('game-duration').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}, 1000);
+
+// Chat functionality
+document.getElementById('send-message').addEventListener('click', function() {
+    const input = document.getElementById('message-input');
+    const message = input.value.trim();
+    if (message) {
+        const messages = document.getElementById('messages');
+        messages.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+        input.value = '';
+        messages.scrollTop = messages.scrollHeight;
+    }
+});
+</script>
+{% endblock %} 

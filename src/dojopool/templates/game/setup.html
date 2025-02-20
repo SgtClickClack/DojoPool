@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Game Setup - DojoPool{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Game Setup</h2>
+    <form method="POST" action="{{ url_for('game.create_game') }}">
+        <div class="mb-3">
+            <label for="game_type" class="form-label">Game Type</label>
+            <select class="form-select" id="game_type" name="game_type" required>
+                <option value="8ball">8-Ball</option>
+                <option value="9ball">9-Ball</option>
+                <option value="straight">Straight Pool</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="opponent_type" class="form-label">Opponent</label>
+            <select class="form-select" id="opponent_type" name="opponent_type" required>
+                <option value="player">Another Player</option>
+                <option value="ai">AI Opponent</option>
+                <option value="practice">Practice Mode</option>
+            </select>
+        </div>
+
+        <div class="mb-3" id="opponent_section" style="display: none;">
+            <label for="opponent_id" class="form-label">Select Opponent</label>
+            <select class="form-select" id="opponent_id" name="opponent_id">
+                {% for player in available_players %}
+                <option value="{{ player.id }}">{{ player.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="venue_id" class="form-label">Venue</label>
+            <select class="form-select" id="venue_id" name="venue_id" required>
+                {% for venue in venues %}
+                <option value="{{ venue.id }}">{{ venue.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="is_ranked" name="is_ranked" checked>
+                <label class="form-check-label" for="is_ranked">
+                    Ranked Game
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Game</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('opponent_type').addEventListener('change', function() {
+    const opponentSection = document.getElementById('opponent_section');
+    opponentSection.style.display = this.value === 'player' ? 'block' : 'none';
+});
+</script>
+{% endblock %} 
