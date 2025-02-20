@@ -1,0 +1,78 @@
+# Version control
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv
+*.egg-info
+.mypy_cache
+.pytest_cache
+.coverage
+htmlcov
+
+# Node.js
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.next
+.vercel
+
+# Development
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# Logs and temporary files
+*.log
+logs/
+cursor_optimizer.log
+monitor.log
+context_updates.log
+cursor_analysis.json
+context_validation.yaml
+context_updates.yaml
+
+# Test files
+tests/
+cypress/
+load-tests/
+__tests__/
+__mocks__/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Mobile app
+DojoPoolMobile/
+
+# Analysis and reports
+.lighthouse/
+.kics/
+.percy.yml
+.nycrc
+.coverage
+suppression.xml
+
+# Environment files
+.env.local
+.env.development
+.env.test
+
+# Keep production files
+!.env.production
+
+# Build artifacts
+dist/
+build/
+*.egg-info/ 
