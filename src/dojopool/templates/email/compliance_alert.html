@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DojoPool Compliance Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #ff9800;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #fff3e0;
+            border-radius: 5px;
+        }
+        .score.critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .score.warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        .score.good {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .check {
+            background-color: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .check.failed {
+            border-left: 4px solid #f44336;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .summary-table th,
+        .summary-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .summary-table th {
+            background-color: #f5f5f5;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Compliance Alert</h1>
+    </div>
+    
+    <div class="content">
+        <div class="score {% if score < 70 %}critical{% elif score < 90 %}warning{% else %}good{% endif %}">
+            Compliance Score: {{ "%.1f"|format(score) }}%
+        </div>
+        
+        <div class="summary">
+            <h2>Compliance Summary</h2>
+            <table class="summary-table">
+                <tr>
+                    <th>Total Checks</th>
+                    <td>{{ summary.total_checks }}</td>
+                </tr>
+                <tr>
+                    <th>Passed Checks</th>
+                    <td>{{ summary.passed_checks }}</td>
+                </tr>
+                <tr>
+                    <th>Failed Checks</th>
+                    <td>{{ summary.failed_checks }}</td>
+                </tr>
+                <tr>
+                    <th>Previous Score</th>
+                    <td>{{ "%.1f"|format(summary.previous_score) }}%</td>
+                </tr>
+                <tr>
+                    <th>Score Change</th>
+                    <td>{{ "%+.1f"|format(score - summary.previous_score) }}%</td>
+                </tr>
+            </table>
+        </div>
+        
+        {% if failed_checks %}
+        <h2>Failed Compliance Checks</h2>
+        {% for check in failed_checks %}
+        <div class="check failed">
+            <h3>{{ check.title }}</h3>
+            <table class="summary-table">
+                <tr>
+                    <th>Category</th>
+                    <td>{{ check.category }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>{{ check.description }}</td>
+                </tr>
+                <tr>
+                    <th>Impact</th>
+                    <td>{{ check.impact }}</td>
+                </tr>
+                <tr>
+                    <th>Remediation</th>
+                    <td>{{ check.remediation }}</td>
+                </tr>
+                {% if check.deadline %}
+                <tr>
+                    <th>Remediation Deadline</th>
+                    <td>{{ check.deadline }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No compliance checks failed in this assessment.</p>
+        {% endif %}
+        
+        <p><strong>Environment:</strong> {{ environment }}</p>
+        <p><strong>Timestamp:</strong> {{ timestamp }}</p>
+    </div>
+    
+    <div class="footer">
+        <p>This is an automated compliance alert from DojoPool Security Monitoring System.</p>
+        <p>For questions about compliance requirements, please contact the security team.</p>
+    </div>
+</body>
+</html> 

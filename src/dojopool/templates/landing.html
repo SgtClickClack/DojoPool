@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DojoPool - Next Generation Pool Gaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="DojoPool Logo" class="logo-img">
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="#features">Features</a>
+            <a href="#venues">Venues</a>
+            <a href="#about">About</a>
+            <a href="/auth/login" class="login-btn">Login</a>
+        </div>
+    </nav>
+
+    <div class="landing-container">
+        <section class="hero-section">
+            <div class="container">
+                <h1 class="neon-text">Welcome to <span class="accent">DojoPool</span></h1>
+                <div class="hero-text">
+                    <p>Experience pool gaming like never before with AI-powered tracking, real-time analytics, and competitive rankings.</p>
+                    <a href="/auth/register" class="cta-button">Join the Revolution</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features-section">
+            <div class="container">
+                <h2 class="section-title neon-text">Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>AI Shot Tracking</h3>
+                        <p>Real-time shot analysis and tracking powered by advanced computer vision.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Analytics Dashboard</h3>
+                        <p>Detailed performance metrics and insights to improve your game.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <h3>Tournaments</h3>
+                        <p>Compete in local and global tournaments with real-time rankings.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>Dojo Coins</h3>
+                        <p>Earn rewards and unlock exclusive content as you play.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="venues" class="venue-section">
+            <div class="container">
+                <h2 class="section-title neon-text">Find a Dojo</h2>
+                <div class="map-container">
+                    <div class="venue-info">
+                        <h3>Dojos Near You</h3>
+                        <p>Discover DojoPool-enabled venues in your area and start your journey.</p>
+                        <a href="/venues/map" class="venue-link">View All Venues</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="network-status">
+        <span class="status-text">Server Status: Online</span>
+    </div>
+
+    <script>
+        // Add loading animation to feature icons
+        document.querySelectorAll('.feature-icon').forEach(icon => {
+            icon.classList.add('loading');
+            setTimeout(() => {
+                icon.classList.remove('loading');
+                icon.classList.add('loaded');
+            }, 500);
+        });
+
+        // Show network status
+        const networkStatus = document.querySelector('.network-status');
+        networkStatus.classList.add('visible', 'high');
+    </script>
+</body>
+</html>
