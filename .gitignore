@@ -37,7 +37,11 @@ ENV/
 
 # IDEs and editors
 .idea/
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
 *.swp
 *.swo
 *~
