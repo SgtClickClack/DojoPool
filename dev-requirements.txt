@@ -1,6 +1,33 @@
 # Development dependencies
-mypy>=1.7.0
-types-redis>=4.6.0.20240106
-types-Flask>=1.1.6
-types-Werkzeug>=1.0.9
-types-SQLAlchemy>=1.4.53.38
+mypy>=1.8.0
+black==24.2.0  # Code formatting
+isort==5.13.2  # Import sorting
+flake8==7.0.0  # Code linting
+pytest==8.0.1  # Testing
+pytest-cov==4.1.0  # Test coverage
+pytest-mock==3.12.0  # Mocking in tests
+pytest-asyncio==0.23.5  # Async testing
+
+# Type stubs
+types-redis>=5.0.0
+types-Flask>=3.0.0
+types-Werkzeug>=3.0.0
+types-SQLAlchemy>=2.0.0
+types-requests>=2.31.0
+types-python-jose>=3.3.0
+types-passlib>=1.7.4
+types-PyYAML>=6.0.0
+
+# Security tools
+bandit==1.7.7  # Security static analysis
+safety==2.3.5  # Dependency security checking
+detect-secrets==1.4.0  # Secrets detection
+pip-audit==2.7.2  # Dependency auditing
+owasp-dependency-check==0.4.4  # OWASP dependency checking
+semgrep==1.60.1  # Pattern-based security scanning
+pytest-security==0.8.0  # Security testing
+
+# Documentation
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+sphinx-autodoc-typehints==2.0.1
