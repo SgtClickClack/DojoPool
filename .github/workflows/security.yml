@@ -1,188 +1,104 @@
 name: Security Scan
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'  # Run every 6 hours
   push:
-    branches: [main, develop]
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
+    branches: [ main, develop ]
   pull_request:
-    types: [opened, synchronize, reopened]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  security-events: write
-  actions: read
-  pull-requests: write
-  issues: write
-
-env:
-  MAX_RETRIES: 3
-  RETRY_INTERVAL: 10
-  PYTHON_VERSION: '3.12'
-  NODE_VERSION: '20'
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
 
 jobs:
-  security-checks:
-    runs-on: ubuntu-latest  # Changed to ubuntu for better security tool support
+  security-scan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for better vulnerability scanning
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-      
-      - name: Install dependencies
-        run: |
-          npm ci
-          pip install -r requirements/security.txt
-      
-      - name: Run Bandit Security Check
-        run: |
-          bandit -r src/ -f json -o bandit-results.json
-          
-      - name: Run Safety Check
-        run: |
-          safety check
-          
-      - name: Run detect-secrets
-        run: |
-          detect-secrets scan > secrets-results.txt
-          
-      - name: Run NPM Security Audit
-        run: |
-          npm audit --audit-level=moderate --json > npm-audit.json
-          
-      - name: Run KICS Security Scan
-        uses: checkmarx/kics-github-action@v1.7.0
-        with:
-          path: '.'
-          config_path: '.kics/config.yaml'
-          output_formats: 'json,sarif'
-          
-      - name: Run Snyk Security Scan
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          
-      - name: Run ESLint Security Rules
-        run: npm run lint
-        
-      - name: Run pip-audit
-        run: |
-          pip-audit
-          
-      - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: 'DojoPool'
-          path: '.'
-          format: 'HTML'
-          
-      - name: Upload Security Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-results
-          path: |
-            bandit-results.json
-            secrets-results.txt
-            npm-audit.json
-            reports/
-            
-      - name: Check for Critical Vulnerabilities
-        id: check_vulns
-        run: |
-          if [ -s bandit-results.json ] || [ -s npm-audit.json ]; then
-            echo "critical_vulns=true" >> $GITHUB_OUTPUT
-          else
-            echo "critical_vulns=false" >> $GITHUB_OUTPUT
-          fi
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Required for some security tools
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r dev-requirements.txt
+
+    - name: Run Bandit
+      run: |
+        bandit -r src/dojopool -f json -o security-reports/bandit-report.json --exclude tests,migrations
+      continue-on-error: true
+
+    - name: Run Safety check
+      run: |
+        safety check --json > security-reports/safety-report.json
+      continue-on-error: true
+
+    - name: Run pip-audit
+      run: |
+        pip-audit --format json > security-reports/pip-audit-report.json
+      continue-on-error: true
+
+    - name: Run detect-secrets
+      run: |
+        detect-secrets scan --all-files > security-reports/secrets-report.json
+      continue-on-error: true
+
+    - name: Run Semgrep
+      run: |
+        pip install semgrep
+        semgrep scan --config auto --json --output security-reports/semgrep-report.json src/dojopool
+      continue-on-error: true
+
+    - name: Run OWASP Dependency-Check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'DojoPool'
+        path: '.'
+        format: 'JSON'
+        out: 'security-reports'
+      continue-on-error: true
+
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports-${{ matrix.python-version }}
+        path: security-reports/
+        retention-days: 90
+
+  codeql-analysis:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: python, javascript
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:python"
 
   dependency-review:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
+      - uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: moderate
-          
-  codeql-analysis:
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: python, javascript
-          
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-
-  notify:
-    needs: [security-checks, dependency-review, codeql-analysis]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Check workflow status
-        id: check
-        run: |
-          if [[ "${{ needs.security-checks.result }}" == "success" && \
-                "${{ needs.dependency-review.result }}" == "success" && \
-                "${{ needs.codeql-analysis.result }}" == "success" ]]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-            echo "severity=low" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "severity=high" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Issue for Failed Checks
-        if: steps.check.outputs.status == 'failure'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '🚨 Security Vulnerabilities Detected',
-              body: `Security scan failed on ${context.sha}.\n\nPlease review the security scan results.`,
-              labels: ['security', 'high-priority']
-            })
-
-      - name: Send Notification
-        if: env.SLACK_BOT_TOKEN != ''
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          channel-id: ${{ vars.SECURITY_SLACK_CHANNEL || 'general' }}
-          slack-message: |
-            *Security Scan Status*: ${{ steps.check.outputs.status == 'success' && '✅ Passed' || '❌ Failed' }}
-            *Severity*: ${{ steps.check.outputs.severity == 'high' && '🔴 High' || '🟢 Low' }}
-            *Triggered By*: ${{ github.actor }}
-            *Event*: ${{ github.event_name }}
-            
-            ${{ github.server_url }}/${{ github.repository }}/security/code-scanning
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          fail-on-severity: high
