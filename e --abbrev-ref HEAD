@@ -1,0 +1,17 @@
+  backup_master[m
+  dev[m
+  feature/core-game-templates[m
+  feature/dashboard-page[m
+  feature/google-auth-page[m
+  feature/landing-page[m
+  feature/modern-ui[m
+  feature/modern-ui-landing-page[m
+  fix/ci-security-updates[m
+  fix/dependency-updates[m
+  fix/major-version-updates[m
+  fix/remove-canvas-dependency[m
+  fix/security-updates[m
+  fix/workflow-optimizations[m
+  main[m
+  master[m
+* [32mupgrade-next-pwa[m

@@ -2,7 +2,7 @@
     "name": "DojoPool",
     "short_name": "DojoPool",
     "description": "The ultimate pool gaming platform that bridges physical and digital gameplay",
-    "start_url": "/",
+    "start_url": "/?source=pwa",
     "display": "standalone",
     "background_color": "#121212",
     "theme_color": "#2196F3",
@@ -11,21 +11,39 @@
     "categories": ["games", "sports", "entertainment"],
     "icons": [
         {
-            "src": "favicon.ico",
+            "src": "/favicon.ico",
             "sizes": "64x64",
             "type": "image/x-icon"
         },
         {
-            "src": "logo192.png",
+            "src": "/icons/icon-192x192.png",
             "type": "image/png",
             "sizes": "192x192",
-            "purpose": "any maskable"
+            "purpose": "any"
         },
         {
-            "src": "logo512.png",
+            "src": "/icons/icon-512x512.png",
             "type": "image/png",
             "sizes": "512x512",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/maskable-icon.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icons/apple-touch-icon.png",
+            "type": "image/png",
+            "sizes": "180x180",
+            "purpose": "any"
+        },
+        {
+            "src": "/logo.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
         }
     ],
     "shortcuts": [
@@ -33,21 +51,21 @@
             "name": "New Game",
             "short_name": "Play",
             "description": "Start a new pool game",
-            "url": "/game/new",
+            "url": "/game/new?source=pwa",
             "icons": [{ "src": "/icons/play.png", "sizes": "192x192" }]
         },
         {
             "name": "Tournaments",
             "short_name": "Tournaments",
             "description": "View active tournaments",
-            "url": "/tournaments",
+            "url": "/tournaments?source=pwa",
             "icons": [{ "src": "/icons/tournament.png", "sizes": "192x192" }]
         },
         {
             "name": "Profile",
             "short_name": "Profile",
             "description": "View your profile",
-            "url": "/profile",
+            "url": "/profile?source=pwa",
             "icons": [{ "src": "/icons/profile.png", "sizes": "192x192" }]
         }
     ],
@@ -137,5 +155,12 @@
     "note_taking": {
         "new_note_url": "/notes/new",
         "launch_types": ["create-new-note"]
-    }
+    },
+    "offline_enabled": true,
+    "gcm_sender_id": "103953800507",
+    "background_sync": {
+        "periodic": true,
+        "sync_intervals": [30]
+    },
+    "id": "com.dojopool.app"
 }
