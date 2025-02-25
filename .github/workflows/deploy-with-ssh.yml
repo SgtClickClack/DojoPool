@@ -1,0 +1,147 @@
+name: Deploy with SSH
+
+on:
+  push:
+    branches:
+      - main
+      - production
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: ${{ github.event.inputs.environment == 'staging' && 'https://staging.dojopool.com' || 'https://dojopool.com' }}
+
+    steps:
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_KEY }}
+          known_hosts: 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
+          
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for tags and history
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          if [ -f dev-requirements.txt ]; then
+            pip install -r dev-requirements.txt
+          fi
+          npm ci
+
+      - name: Run tests
+        run: |
+          if [ -d __tests__ ]; then
+            npm run test
+          fi
+          if [ -d tests ]; then
+            pytest
+          fi
+
+      - name: Build application
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to Server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+        run: |
+          # Create deployment directory with timestamp
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          DEPLOY_DIR="${DEPLOY_PATH}/${TIMESTAMP}"
+          
+          # SSH into server and prepare directories
+          ssh ${DEPLOY_USER}@${DEPLOY_HOST} "mkdir -p ${DEPLOY_DIR}"
+          
+          # Copy files
+          rsync -avz --exclude 'node_modules' --exclude '.git' --exclude 'venv' --exclude 'venv311' ./ ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_DIR}/
+          
+          # Set up environment on remote server
+          ssh ${DEPLOY_USER}@${DEPLOY_HOST} "cd ${DEPLOY_DIR} && \
+            # Install dependencies on server
+            python -m venv venv && \
+            source venv/bin/activate && \
+            pip install -r requirements.txt && \
+            npm ci && \
+            
+            # Set up symlink to current deployment
+            ln -sfn ${DEPLOY_DIR} ${DEPLOY_PATH}/current && \
+            
+            # Restart services
+            sudo systemctl restart dojopool-${ENVIRONMENT}"
+      
+      - name: Deploy frontend to S3 (if applicable)
+        if: ${{ vars.ENABLE_S3_DEPLOY == 'true' }}
+        run: |
+          aws s3 sync .next/static/ s3://${{ secrets.S3_FRONTEND_BUCKET }}/_next/static/ --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync public/ s3://${{ secrets.S3_FRONTEND_BUCKET }}/public/ --cache-control "public, max-age=31536000, immutable"
+          aws s3 cp .next/server/pages/ s3://${{ secrets.S3_FRONTEND_BUCKET }}/pages/ --recursive
+
+      - name: Invalidate CloudFront cache (if applicable)
+        if: ${{ vars.ENABLE_CLOUDFRONT == 'true' }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+
+      - name: Create Sentry release (if applicable)
+        if: ${{ vars.ENABLE_SENTRY == 'true' }}
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: dojopool
+          SENTRY_PROJECT: api
+        with:
+          environment: ${{ github.event.inputs.environment || 'production' }}
+          version: ${{ github.ref_name }}
+
+      - name: Notify deployment status
+        if: ${{ always() && vars.ENABLE_SLACK == 'true' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 
