@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "jest"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@jest/types",
+      "./"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@jest/types": ["node_modules/@jest/types", "jest-types.d.ts"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "jest-types.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+} 

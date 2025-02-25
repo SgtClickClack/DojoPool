@@ -1,0 +1,19 @@
+{
+  "name": "@dojopool/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "python manage.py runserver",
+    "start": "python run_server.py",
+    "test": "python manage.py test",
+    "migrate": "python manage.py migrate",
+    "makemigrations": "python manage.py makemigrations",
+    "clean": "rimraf __pycache__ *.pyc"
+  },
+  "dependencies": {
+    "@dojopool/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5"
+  }
+} 

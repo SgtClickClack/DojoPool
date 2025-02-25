@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -18,8 +19,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import DojoMap from '../components/DojoMap/DojoMap';
-import { AnimatedAvatar } from '../components/Avatar';
+import DojoMap from '../packages/frontend/src/components/DojoMap/[MAP]DojoMap';
 
 interface LeaderboardEntry {
   userId: number;
@@ -167,7 +167,7 @@ const DojoDiscovery: React.FC = () => {
                   {leaderboard.map((entry) => (
                     <LeaderboardItem key={entry.userId}>
                       <ListItemAvatar>
-                        <AnimatedAvatar src={entry.avatar} animation="pulse" />
+                        <Avatar src={entry.avatar} />
                       </ListItemAvatar>
                       <ListItemText primary={entry.username} secondary={`Rank #${entry.rank}`} />
                       <Typography variant="body2">{entry.score} pts</Typography>

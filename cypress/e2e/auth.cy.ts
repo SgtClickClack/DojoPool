@@ -1,13 +1,28 @@
 describe('Authentication', () => {
   beforeEach(() => {
-    cy.visit('/auth/signin');
+    cy.visit('/login');
   });
 
-  it('should sign in with email and password', () => {
+  it('should sign in successfully', () => {
     cy.get('[data-testid="email-input"]').type('test@example.com');
     cy.get('[data-testid="password-input"]').type('password123');
-    cy.get('[data-testid="signin-button"]').click();
-    cy.url().should('eq', Cypress.config().baseUrl + '/dashboard');
+    cy.get('[data-testid="login-button"]').click();
+    cy.url().should('include', '/dashboard');
+  });
+
+  it('should show error for invalid credentials', () => {
+    cy.get('[data-testid="email-input"]').type('wrong@example.com');
+    cy.get('[data-testid="password-input"]').type('wrongpassword');
+    cy.get('[data-testid="login-button"]').click();
+    cy.get('[data-testid="error-message"]').should('be.visible');
+  });
+
+  it('should sign out', () => {
+    cy.login('test@example.com', 'password123');
+    cy.visit('/dashboard');
+    cy.get('[data-testid="user-menu"]').click();
+    cy.get('[data-testid="signout-button"]').click();
+    cy.url().should('include', '/login');
   });
 
   it('should sign up with email and password', () => {
@@ -65,21 +80,6 @@ describe('Authentication', () => {
     cy.get('[data-testid="email-input"]').type('test@example.com');
     cy.get('[data-testid="reset-button"]').click();
     cy.get('[data-testid="success-message"]').should('be.visible');
-  });
-
-  it('should sign out', () => {
-    cy.login();
-    cy.visit('/dashboard');
-    cy.get('[data-testid="user-menu"]').click();
-    cy.get('[data-testid="signout-button"]').click();
-    cy.url().should('eq', Cypress.config().baseUrl + '/auth/signin');
-  });
-
-  it('should handle invalid credentials', () => {
-    cy.get('[data-testid="email-input"]').type('invalid@example.com');
-    cy.get('[data-testid="password-input"]').type('wrongpassword');
-    cy.get('[data-testid="signin-button"]').click();
-    cy.get('[data-testid="error-message"]').should('be.visible');
   });
 
   it('should validate email format', () => {

@@ -1,0 +1,70 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run MonkeyType on app.py",
+            "type": "shell",
+            "command": "monkeytype run -m src.dojopool.app",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Flask App with Waitress",
+            "type": "shell",
+            "command": "waitress-serve --port=8080 src.dojopool.app:app",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run MonkeyType on Tests",
+            "type": "shell",
+            "command": "monkeytype run pytest src/dojopool/tests/",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Apply MonkeyType Annotations",
+            "type": "shell",
+            "command": "monkeytype apply src.dojopool.app",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "List MonkeyType Stubs",
+            "type": "shell",
+            "command": "monkeytype list-modules",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+} 

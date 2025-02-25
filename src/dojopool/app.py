@@ -8,6 +8,9 @@ from flask import Flask
 from flask_cors import CORS
 
 from .core.extensions import db, login_manager, migrate
+from .core.security.headers import apply_security_headers
+from .core.security.rate_limiter import rate_limiter
+from .core.security.audit import security_logger
 from .models.user import User
 
 @login_manager.user_loader
@@ -43,6 +46,14 @@ def create_app(config: Optional[Dict[str, Any]] = None) -> Flask:
             "SQLALCHEMY_TRACK_MODIFICATIONS": False,
             "TEMPLATES_AUTO_RELOAD": True,
             "DEBUG": os.getenv("FLASK_ENV", "development") == "development",
+            # Security settings
+            "SESSION_COOKIE_SECURE": True,
+            "SESSION_COOKIE_HTTPONLY": True,
+            "SESSION_COOKIE_SAMESITE": "Lax",
+            "PERMANENT_SESSION_LIFETIME": 3600,  # 1 hour
+            "REMEMBER_COOKIE_SECURE": True,
+            "REMEMBER_COOKIE_HTTPONLY": True,
+            "REMEMBER_COOKIE_DURATION": 2592000,  # 30 days
         }
     )
 
@@ -59,6 +70,17 @@ def create_app(config: Optional[Dict[str, Any]] = None) -> Flask:
     # Configure login manager
     login_manager.login_view = "auth.login"
     login_manager.login_message_category = "info"
+    login_manager.session_protection = "strong"
+
+    # Apply security headers
+    @app.after_request
+    def add_security_headers(response):
+        return apply_security_headers(response)
+
+    # Log all requests
+    @app.before_request
+    def log_request():
+        security_logger.log_event("http_request")
 
     with app.app_context():
         # Import routes here to avoid circular imports

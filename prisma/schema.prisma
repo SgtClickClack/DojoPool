@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  password      String
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  player1_games Game[]    @relation("Player1Games")
+  player2_games Game[]    @relation("Player2Games")
+  venues        Venue[]
+}
+
+model Venue {
+  id          String    @id @default(uuid())
+  name        String
+  address     String
+  city        String
+  state       String
+  country     String
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  owner_id    String
+  owner       User      @relation(fields: [owner_id], references: [id])
+  games       Game[]
+}
+
+model Game {
+  id          String    @id @default(uuid())
+  game_type   String    // 'casual', 'ranked', 'tournament'
+  status      String    // 'pending', 'in_progress', 'completed'
+  player1_id  String
+  player2_id  String
+  venue_id    String
+  start_time  DateTime
+  end_time    DateTime?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  player1     User      @relation("Player1Games", fields: [player1_id], references: [id])
+  player2     User      @relation("Player2Games", fields: [player2_id], references: [id])
+  venue       Venue     @relation(fields: [venue_id], references: [id])
+  frames      Frame[]
+  shots       Shot[]
+}
+
+model Frame {
+  id          String    @id @default(uuid())
+  game_id     String
+  frame_number Int
+  player1_score Int
+  player2_score Int
+  winner_id   String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  game        Game      @relation(fields: [game_id], references: [id])
+}
+
+model Shot {
+  id          String    @id @default(uuid())
+  game_id     String
+  player_id   String
+  shot_type   String    // 'break', 'normal', 'bank', 'jump', etc.
+  is_success  Boolean
+  created_at  DateTime  @default(now())
+  game        Game      @relation(fields: [game_id], references: [id])
+} 

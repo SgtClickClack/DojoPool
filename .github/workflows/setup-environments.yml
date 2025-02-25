@@ -1,0 +1,68 @@
+name: Setup Environments
+
+on:
+  push:
+    paths:
+      - '.github/environments.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  environments: write
+  deployments: write
+
+jobs:
+  setup-environments:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load environments config
+        id: config
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const yaml = require('js-yaml');
+            const fs = require('fs');
+            const config = yaml.load(fs.readFileSync('.github/environments.yml', 'utf8'));
+            return config.environments;
+
+      - name: Create/Update Environments
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const environments = ${{ steps.config.outputs.result }};
+            
+            for (const [name, config] of Object.entries(environments)) {
+              try {
+                // Create or update environment
+                await github.rest.repos.createOrUpdateEnvironment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  environment_name: name,
+                  deployment_branch_policy: config.deployment_branch_policy,
+                  reviewers: config.required_reviewers.map(reviewer => ({
+                    type: 'User',
+                    id: reviewer
+                  }))
+                });
+                
+                // Set environment variables
+                if (config.environment_variables) {
+                  for (const [key, value] of Object.entries(config.environment_variables)) {
+                    await github.rest.actions.createOrUpdateEnvironmentSecret({
+                      repository_id: context.repo.id,
+                      environment_name: name,
+                      secret_name: key,
+                      encrypted_value: value
+                    });
+                  }
+                }
+                
+                console.log(`✅ Successfully configured environment: ${name}`);
+              } catch (error) {
+                console.error(`❌ Error configuring environment ${name}:`, error);
+                throw error;
+              }
+            } 

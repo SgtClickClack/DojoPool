@@ -3,10 +3,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '../../theme';
 
 // Custom render function that includes providers
-export const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
+const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+  return (
     <ThemeProvider theme={theme}>
-      {ui}
+      {children}
     </ThemeProvider>
   );
 };

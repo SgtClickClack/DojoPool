@@ -1,0 +1,224 @@
+{
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    
+    "python.languageServer": "Pylance",
+    "python.analysis.indexing": true,
+    "python.analysis.completeFunctionParens": true,
+    
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length", "100"],
+    
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll": "explicit"
+        },
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.rulers": [100],
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": true
+    },
+    
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.mypy_cache": true,
+        "**/.ruff_cache": true,
+        "**/*.pyc": true
+    },
+    
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    
+    // Mypy extension settings
+    "mypy-type-checker.enabled": true,
+    "mypy-type-checker.args": [
+        "--ignore-missing-imports",
+        "--follow-imports=silent",
+        "--show-column-numbers",
+        "--no-pretty",
+        "--config-file",
+        "pyproject.toml"
+    ],
+    
+    // Python environment settings
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+    "python.envFile": "${workspaceFolder}/.env",
+    
+    // Search paths
+    "python.analysis.extraPaths": ["${workspaceFolder}/src"],
+    
+    // File associations
+    "files.associations": {
+        "*.py": "python",
+        "pyproject.toml": "toml",
+        "requirements*.txt": "pip-requirements"
+    },
+    
+    // Language server plugins
+    "pylint.enabled": true,
+    "mypy-type-checker.enabled": true,
+    "ruff.enabled": true,
+    
+    // LSP settings
+    "pylsp.plugins.ruff.enabled": true,
+    "pylsp.plugins.black.enabled": true,
+    "pylsp.plugins.pycodestyle.enabled": false,
+    "pylsp.plugins.mccabe.enabled": false,
+    "pylsp.plugins.pyflakes.enabled": false,
+    "pylsp.plugins.flake8.enabled": false,
+    
+    // Ruff settings
+    "ruff.organizeImports": true,
+    "ruff.fixAll": true,
+    "ruff.codeAction.fixViolation": {
+        "enable": true
+    },
+    "ruff.args": [
+        "--config=pyproject.toml"
+    ],
+
+    // Additional Pylance settings to improve stability
+    "python.analysis.memory.keepAlive": true,
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "*",
+            "depth": 2
+        }
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportGeneralTypeIssues": "none",
+        "reportOptionalMemberAccess": "none"
+    },
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.diagnosticPublishDelay": 1000,
+    "python.analysis.logLevel": "Information",
+    
+    // TypeScript settings
+    "npm.packageManager": "npm",
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "python.pythonPath": "venv\\Scripts\\python.exe",
+    
+    // Environment variables
+    "terminal.integrated.env.windows": {
+        "OPENAI_API_KEY": "sk-proj-01234567890123456789012345678901",
+        "PREFERRED_AI_PROVIDER": "openai",
+        "VIRTUAL_ENV": "C:/Users/JR/Documents/DojoPool/DojoPoolCombined/venv",
+        "VIRTUAL_ENV_PROMPT": "venv",
+        "PERFORMANCE_MONITORING": "true",
+        "PERFORMANCE_LOG_LEVEL": "info",
+        "PERFORMANCE_METRICS_INTERVAL": "60",
+        "NODE_ENV": "development",
+        "DEBUG": "true",
+        "ENABLE_TELEMETRY": "false",
+        "SECURE_MODE": "true",
+        "PYTHONPATH": "${workspaceFolder}/src"
+    },
+    
+    // Performance optimizations
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/env/**": true,
+        "**/venv/**": true,
+        "**/.hg/store/**": true,
+        "**/__pycache__/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.mypy_cache/**": true,
+        "**/.ruff_cache/**": true,
+        "**/dist/**": true,
+        "**/build/**": true
+    },
+    
+    // Editor performance
+    "editor.maxTokenizationLineLength": 10000,
+    "editor.unfoldOnClickAfterEndOfLine": false,
+    "editor.renderControlCharacters": false,
+    "editor.hideCursorInOverviewRuler": true,
+    "editor.scrollBeyondLastLine": false,
+    "editor.minimap.enabled": false,
+    "editor.bracketPairColorization.enabled": false,
+    "editor.guides.bracketPairs": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": true,
+    "editor.suggest.showWords": false,
+    "editor.hover.delay": 1000,
+    "editor.quickSuggestionsDelay": 200,
+    
+    // Workbench performance
+    "workbench.enablePreview": false,
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "workbench.editor.limit.enabled": true,
+    "workbench.editor.limit.value": 10,
+    "workbench.editor.limit.perEditorGroup": true,
+    "workbench.list.smoothScrolling": false,
+    "workbench.reduceMotion": "on",
+    
+    // Search performance
+    "search.followSymlinks": false,
+    "search.maxResults": 2000,
+    
+    // Python performance
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.indexing": false,
+    "python.analysis.autoSearchPaths": false,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportGeneralTypeIssues": "none",
+        "reportOptionalMemberAccess": "none",
+        "reportUnusedImport": "none",
+        "reportMissingImports": "none"
+    },
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "*",
+            "depth": 1
+        }
+    ],
+    
+    // File handling
+    "files.restoreUndoStack": false,
+    "files.saveConflictResolution": "overwriteFileOnDisk",
+    
+    // Extensions
+    "extensions.autoUpdate": false,
+    "extensions.ignoreRecommendations": true,
+    
+    // Telemetry
+    "telemetry.telemetryLevel": "off",
+    "workbench.enableExperiments": false,
+    "workbench.settings.enableNaturalLanguageSearch": false,
+    
+    // Linting settings
+    "python.linting.enabled": true,
+    "python.linting.lintOnSave": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--config-file",
+        "pyproject.toml"
+    ],
+    
+    // Black formatter settings
+    "black-formatter.args": [
+        "--config",
+        "pyproject.toml"
+    ],
+    "python.linting.pylintEnabled": false
+} 

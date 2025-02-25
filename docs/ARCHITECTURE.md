@@ -1,313 +1,173 @@
-# DojoPool Architecture Guide
+# DojoPool Architecture
 
 ## System Overview
 
-### High-Level Architecture
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Client Layer  │────▶│  Service Layer  │────▶│    Data Layer   │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-     Frontend            Backend Services         Data Storage
-```
+DojoPool is built using a microservices architecture, with each component designed to be scalable and maintainable. The system is deployed on AWS using containerized services managed by ECS.
 
-### Technology Stack
-- Frontend: React, TypeScript, Material-UI
-- Backend: Flask, Python 3.9+
-- Database: PostgreSQL 13+
-- Cache: Redis 6+
-- WebSocket: Socket.IO
-- Container: Docker
-- CI/CD: GitHub Actions
+## Architecture Diagram
 
-## Component Architecture
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Web["Web App (React)"]
+        Mobile["Mobile App (React Native)"]
+    end
 
-### Frontend Architecture
-```
-src/frontend/
-├── components/       # Reusable UI components
-├── pages/           # Route-specific views
-├── hooks/           # Custom React hooks
-├── services/        # API integration
-├── store/           # State management
-├── utils/           # Helper functions
-└── types/           # TypeScript definitions
-```
+    subgraph "CDN Layer"
+        CF["CloudFront"]
+    end
 
-#### Key Components
-1. **Core Components**
-   - Authentication
-   - Game Interface
-   - Tournament Brackets
-   - Venue Management
-   - Real-time Updates
+    subgraph "Load Balancer"
+        ALB["Application Load Balancer"]
+    end
 
-2. **State Management**
-   - Redux for global state
-   - React Query for API state
-   - Context for theme/localization
+    subgraph "Application Layer"
+        API["API Service (Flask)"]
+        GameEngine["Game Engine Service"]
+        MatchMaker["Matchmaking Service"]
+        Analytics["Analytics Service"]
+    end
 
-3. **Performance Optimizations**
-   - Code splitting
-   - Lazy loading
-   - Service Worker caching
-   - WebSocket connection pooling
+    subgraph "Data Layer"
+        RDS["PostgreSQL (RDS)"]
+        Redis["Redis Cache"]
+        S3["S3 Storage"]
+    end
 
-### Backend Architecture
-```
-src/
-├── api/            # REST API endpoints
-├── models/         # Database models
-├── services/       # Business logic
-├── tasks/          # Background jobs
-├── utils/          # Helper functions
-└── websockets/     # Real-time handlers
-```
+    subgraph "Monitoring"
+        Prometheus["Prometheus"]
+        Grafana["Grafana"]
+        Fluentd["Fluentd"]
+        ES["Elasticsearch"]
+    end
 
-#### Service Layer
-1. **Core Services**
-   - UserService
-   - GameService
-   - TournamentService
-   - VenueService
-   - NotificationService
+    Web --> CF
+    Mobile --> CF
+    CF --> ALB
+    ALB --> API
+    ALB --> GameEngine
+    ALB --> MatchMaker
+    ALB --> Analytics
 
-2. **Support Services**
-   - AuthenticationService
-   - CacheService
-   - QueueService
-   - LoggingService
-   - MonitoringService
+    API --> RDS
+    API --> Redis
+    GameEngine --> RDS
+    GameEngine --> Redis
+    MatchMaker --> Redis
+    Analytics --> RDS
+    Analytics --> S3
 
-3. **Background Tasks**
-   - Match scheduling
-   - Tournament progression
-   - Notification delivery
-   - Data analytics
-   - System maintenance
+    API --> Fluentd
+    GameEngine --> Fluentd
+    MatchMaker --> Fluentd
+    Analytics --> Fluentd
 
-### Data Architecture
-
-#### Database Schema
-```sql
--- Core Tables
-Users(id, username, email, ...)
-Games(id, type, status, ...)
-Tournaments(id, name, format, ...)
-Venues(id, name, location, ...)
-
--- Relationship Tables
-GamePlayers(game_id, user_id, role, ...)
-TournamentParticipants(tournament_id, user_id, ...)
-VenueManagers(venue_id, user_id, ...)
-
--- Support Tables
-Notifications(id, user_id, type, ...)
-Rankings(user_id, score, history, ...)
-Analytics(id, type, data, ...)
+    Fluentd --> ES
+    Prometheus --> Grafana
 ```
 
-#### Caching Strategy
-1. **Redis Caching**
-   - Session data
-   - Game state
-   - Tournament brackets
-   - User preferences
-   - API responses
+## Component Description
 
-2. **Cache Invalidation**
-   - Time-based expiration
-   - Event-based invalidation
-   - Cascade updates
-   - Version tagging
+### Client Layer
+- **Web Application**: React-based SPA providing the main user interface
+- **Mobile Application**: React Native app for iOS and Android
 
-## System Integration
+### CDN Layer
+- **CloudFront**: Distributes static content and provides DDoS protection
 
-### API Integration
-```
-┌────────────┐     ┌────────────┐     ┌────────────┐
-│   Client   │────▶│    API     │────▶│  Service   │
-│            │◀────│  Gateway   │◀────│   Layer    │
-└────────────┘     └────────────┘     └────────────┘
-```
+### Load Balancer
+- **Application Load Balancer**: Routes traffic to appropriate services
 
-1. **REST API**
-   - Resource-based endpoints
-   - JWT authentication
+### Application Layer
+- **API Service**: Main application backend handling user requests
+- **Game Engine**: Processes game logic and real-time updates
+- **Matchmaker**: Handles player matchmaking and game session creation
+- **Analytics**: Processes game data and generates insights
+
+### Data Layer
+- **PostgreSQL**: Primary database for user and game data
+- **Redis**: Caching and real-time data storage
+- **S3**: Object storage for media and backups
+
+### Monitoring Stack
+- **Prometheus**: Metrics collection and alerting
+- **Grafana**: Metrics visualization and dashboards
+- **Fluentd**: Log aggregation
+- **Elasticsearch**: Log storage and search
+
+## Security Measures
+
+1. **Network Security**
+   - VPC with public and private subnets
+   - Security groups and NACLs
+   - WAF for web application protection
+
+2. **Application Security**
+   - JWT-based authentication
    - Rate limiting
-   - Response caching
+   - Input validation
+   - HTTPS everywhere
 
-2. **WebSocket API**
-   - Real-time game updates
-   - Chat functionality
-   - Notifications
-   - Status updates
+3. **Data Security**
+   - Encryption at rest
+   - Encryption in transit
+   - Regular backups
+   - Access control policies
 
-### External Integrations
-1. **Payment Processing**
-   - Stripe integration
-   - Payment verification
-   - Refund handling
-   - Subscription management
+## Scalability
 
-2. **Analytics Services**
-   - Google Analytics
-   - Error tracking
-   - Performance monitoring
-   - User behavior analysis
+The system is designed to scale horizontally:
 
-## Deployment Architecture
+1. **Application Layer**
+   - Auto-scaling groups for all services
+   - Container-based deployment
+   - Stateless application design
 
-### Production Environment
-```
-┌─────────────────┐
-│   Load Balancer │
-└───────┬─────────┘
-        │
-┌───────┴─────────┐
-│  API Instances  │
-└───────┬─────────┘
-        │
-┌───────┴─────────┐
-│ Service Layer   │
-└───────┬─────────┘
-        │
-┌───────┴─────────┐
-│  Data Storage   │
-└─────────────────┘
-```
+2. **Data Layer**
+   - Read replicas for PostgreSQL
+   - Redis cluster for caching
+   - S3 for static content
 
-### Scaling Strategy
-1. **Horizontal Scaling**
-   - Auto-scaling groups
-   - Load balancing
-   - Session management
-   - Database replication
+3. **CDN**
+   - Global edge locations
+   - Cache optimization
+   - Dynamic content acceleration
 
-2. **Vertical Scaling**
-   - Resource optimization
-   - Performance tuning
-   - Capacity planning
-   - Cost management
+## Monitoring and Observability
 
-## Security Architecture
-
-### Authentication Flow
-```
-┌────────────┐     ┌────────────┐     ┌────────────┐
-│   Client   │────▶│    Auth    │────▶│   Token    │
-│            │◀────│  Service   │◀────│  Validator  │
-└────────────┘     └────────────┘     └────────────┘
-```
-
-### Authorization Levels
-1. **User Roles**
-   - Player
-   - Venue Manager
-   - Tournament Organizer
-   - Administrator
-   - System Service
-
-2. **Permission System**
-   - Resource-based access
-   - Role-based access
-   - Action-based permissions
-   - Scope limitations
-
-## Monitoring Architecture
-
-### Metrics Collection
-1. **Application Metrics**
-   - Request latency
-   - Error rates
-   - Resource usage
+1. **Metrics**
+   - Application metrics
+   - Infrastructure metrics
    - Business metrics
+   - Custom game metrics
 
-2. **Infrastructure Metrics**
-   - Server health
-   - Database performance
-   - Cache hit rates
-   - Network status
-
-### Logging Strategy
-1. **Log Levels**
-   - ERROR: System failures
-   - WARN: Potential issues
-   - INFO: State changes
-   - DEBUG: Detailed flow
-
-2. **Log Management**
+2. **Logging**
    - Centralized logging
-   - Log rotation
-   - Search capabilities
-   - Alert integration
+   - Log retention policies
+   - Log-based alerts
 
-## Disaster Recovery
+3. **Alerting**
+   - Service health alerts
+   - Performance alerts
+   - Security alerts
+   - Business metric alerts
 
-### Backup Strategy
-1. **Data Backups**
-   - Database snapshots
-   - File system backups
-   - Configuration backups
-   - Code repositories
+## Deployment Strategy
 
-2. **Recovery Procedures**
-   - System restoration
-   - Data recovery
-   - Service continuity
-   - Incident response
+1. **CI/CD Pipeline**
+   - Automated testing
+   - Staging environment
+   - Blue-green deployments
+   - Rollback capabilities
 
-### High Availability
-1. **Redundancy**
-   - Multiple instances
-   - Database replicas
-   - Geographic distribution
-   - Failover systems
-
-2. **Fault Tolerance**
-   - Circuit breakers
-   - Retry mechanisms
-   - Graceful degradation
-   - Error handling
-
-## Development Architecture
-
-### Development Environment
-1. **Local Setup**
-   - Docker containers
-   - Development database
-   - Mock services
-   - Hot reloading
-
-2. **Testing Environment**
-   - Unit testing
-   - Integration testing
-   - End-to-end testing
-   - Performance testing
-
-### CI/CD Pipeline
-1. **Build Process**
-   - Code compilation
-   - Asset bundling
-   - Dependency resolution
-   - Version control
-
-2. **Deployment Process**
-   - Environment promotion
+2. **Infrastructure as Code**
+   - Terraform for infrastructure
+   - Docker for containers
    - Configuration management
-   - Release automation
-   - Rollback procedures
 
-## Future Considerations
-
-### Scalability
-- Microservices migration
-- Serverless functions
-- Edge computing
-- Global distribution
-
-### Technology Evolution
-- Framework updates
-- Security enhancements
-- Performance improvements
-- Feature additions
+3. **Environment Management**
+   - Development
+   - Staging
+   - Production
+   - Disaster recovery
 ``` 

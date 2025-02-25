@@ -1,0 +1,47 @@
+environments:
+  development:
+    branch_policies:
+      - develop
+      - feature/*
+    deployment_branch_policy: null
+    required_reviewers: []
+    environment_variables:
+      DEBUG: true
+      FLASK_ENV: development
+
+  staging:
+    branch_policies:
+      - develop
+      - release/*
+    deployment_branch_policy:
+      protected_branches: true
+      custom_branches: false
+    required_reviewers:
+      - SgtClickClack
+    environment_variables:
+      FLASK_ENV: staging
+    url: https://staging.dojopool.com
+
+  production:
+    branch_policies:
+      - main
+    deployment_branch_policy:
+      protected_branches: true
+      custom_branches: false
+    required_reviewers:
+      - SgtClickClack
+    environment_variables:
+      FLASK_ENV: production
+    url: https://dojopool.com
+
+  analysis:
+    branch_policies:
+      - main
+      - develop
+      - feature/*
+    deployment_branch_policy: null
+    required_reviewers: []
+    environment_variables:
+      SONAR_ORGANIZATION: sgtclickclack
+      SONAR_PROJECT_KEY: SgtClickClack_DojoPool
+    url: https://sonarcloud.io/summary/new_code?id=SgtClickClack_DojoPool 

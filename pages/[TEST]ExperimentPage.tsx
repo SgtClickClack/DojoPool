@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import React, { useState } from 'react';
 import { ExperimentDashboard } from '../components/ExperimentDashboard';
 
@@ -29,7 +30,7 @@ const SAMPLE_EXPERIMENTS: ExperimentInfo[] = [
     }
 ];
 
-export const ExperimentPage: React.FC = () => {
+const ExperimentPage: React.FC = () => {
     const [selectedExperiment, setSelectedExperiment] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -220,4 +221,6 @@ export const ExperimentPage: React.FC = () => {
       `}</style>
         </div>
     );
-}; 
+};
+
+export default ExperimentPage;

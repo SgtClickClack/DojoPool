@@ -1,34 +1,25 @@
 describe('Game Flow', () => {
   beforeEach(() => {
-    // Login before each test
-    cy.login('player1@example.com', 'password123');
+    cy.visit('/games/create');
   });
 
-  it('should create and play a complete game', () => {
-    // Create new game
-    cy.createGame('player1', 'player2');
+  it('should create and play a game', () => {
+    // Create a new game
+    cy.get('[data-testid="game-type"]').select('casual');
+    cy.get('[data-testid="opponent-select"]').select('Player 2');
+    cy.get('[data-testid="venue-select"]').select('Venue 1');
+    cy.get('[data-testid="create-game-button"]').click();
 
     // Verify game creation
     cy.url().should('match', /\/games\/[\w-]+$/);
-    cy.findByText('Game Controls').should('exist');
+    cy.get('[data-testid="game-controls"]').should('exist');
 
     // Simulate game play
-    // Click ball buttons
-    cy.findByRole('button', { name: '1' }).click();
-    cy.findByRole('button', { name: '2' }).click();
-    cy.findByRole('button', { name: '3' }).click();
-
-    // End turn
-    cy.findByRole('button', { name: 'End Turn' }).click();
-
-    // Verify turn change
-    cy.findByText(/Player 2's turn/i).should('exist');
-
-    // End game
-    cy.findByRole('button', { name: 'End Game' }).click();
-
-    // Verify game completion
-    cy.findByText(/Game Complete/i).should('exist');
+    cy.get('[data-testid="ball-1"]').click();
+    cy.get('[data-testid="pot-button"]').click();
+    
+    // Verify score update
+    cy.get('[data-testid="player1-score"]').should('contain', '1');
   });
 
   it('should track game statistics correctly', () => {

@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - src/**
-      - package.json
+      - ge.json
       - package-lock.json
       - docker/**
       - docker-compose.prod.yml

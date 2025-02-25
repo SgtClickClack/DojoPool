@@ -1,4 +1,6 @@
 import { BaseManager } from './base-manager';
+import { Theme } from '@mui/material/styles';
+import { ReactNode } from 'react';
 
 // Types
 export interface WorkerMemoryStats {
@@ -138,5 +140,6 @@ export class WorkerMemoryMonitor extends BaseManager<WorkerMemoryMonitor> {
         this.workers.clear();
         this.onCleanup();
     }
-} 
-} 
+}
+
+export default WorkerMemoryMonitor; 

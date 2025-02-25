@@ -1,0 +1,74 @@
+name: Automated Dependency Updates
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs weekly on Sunday at midnight
+  workflow_dispatch:      # Allows manual triggering
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Check for outdated dependencies
+        id: outdated
+        run: |
+          echo "UPDATES_NEEDED=$(npm outdated --json | jq 'length')" >> $GITHUB_ENV
+        continue-on-error: true
+          
+      - name: Create update branch
+        if: env.UPDATES_NEEDED != '0'
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git checkout -b deps/automated-updates-$(date +'%Y-%m-%d')
+          
+      - name: Update dependencies
+        if: env.UPDATES_NEEDED != '0'
+        run: |
+          # Update dependencies while keeping package-lock.json
+          npm update
+          
+          # Update to latest versions (including major versions)
+          npx npm-check-updates -u
+          npm install
+          
+      - name: Run tests
+        if: env.UPDATES_NEEDED != '0'
+        run: |
+          npm run test
+          npm run build
+        
+      - name: Create Pull Request
+        if: env.UPDATES_NEEDED != '0'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: '📦 Automated Dependency Updates'
+          body: |
+            Automated dependency updates via GitHub Actions
+            
+            Changes made:
+            ```
+            $(npm outdated --json | jq -r 'to_entries | .[] | "\(.key): \(.value.current) -> \(.value.latest)"')
+            ```
+            
+            - [x] Dependencies updated
+            - [x] Tests passed
+            - [x] Build successful
+          branch: deps/automated-updates-$(date +'%Y-%m-%d')
+          commit-message: 'build(deps): update dependencies'
+          labels: dependencies
+          
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          git checkout main
+          git branch -D deps/automated-updates-$(date +'%Y-%m-%d') || true 

@@ -1,1 +1,357 @@
- 
+openapi: 3.0.3
+info:
+  title: DojoPool API
+  description: |
+    DojoPool API provides endpoints for managing pool games, tournaments, venues, and user interactions.
+    The API follows RESTful principles and uses JWT for authentication.
+  version: 1.0.0
+  contact:
+    name: DojoPool Team
+    url: https://github.com/SgtClickClack/DojoPool
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Development server
+  - url: https://api.dojopool.com/v1
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: HTTP status code
+          example: 400
+        message:
+          type: string
+          description: Error message
+          example: "Invalid request"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+    Game:
+      type: object
+      required:
+        - id
+        - player_id
+        - game_type
+        - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique game identifier
+        player_id:
+          type: integer
+          format: int64
+          description: ID of the player who created the game
+        opponent_id:
+          type: integer
+          format: int64
+          description: ID of the opponent player
+          nullable: true
+        game_type:
+          type: string
+          enum: [8ball, 9ball, straight, one_pocket, bank_pool, snooker]
+          description: Type of pool game
+        status:
+          type: string
+          enum: [pending, active, completed, cancelled]
+          description: Current game status
+        winner_id:
+          type: integer
+          format: int64
+          description: ID of the winning player
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: Game creation timestamp
+
+    User:
+      type: object
+      required:
+        - id
+        - username
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique user identifier
+        username:
+          type: string
+          description: User's display name
+        email:
+          type: string
+          format: email
+          description: User's email address
+        profile_picture:
+          type: string
+          format: uri
+          description: URL to user's profile picture
+          nullable: true
+        global_rating:
+          type: number
+          format: float
+          description: User's global rating
+          default: 1000.0
+        rank_tier:
+          type: string
+          description: User's rank tier
+          nullable: true
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      summary: Authenticate user and get token
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    example: "bearer"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /game/session:
+    post:
+      summary: Create a new game session
+      tags: [Game]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - game_type
+                - opponent_id
+                - venue_id
+              properties:
+                game_type:
+                  type: string
+                  enum: [8ball, 9ball, straight]
+                opponent_id:
+                  type: integer
+                  format: int64
+                venue_id:
+                  type: integer
+                  format: int64
+      responses:
+        '201':
+          description: Game session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /game/session/{session_id}:
+    get:
+      summary: Get game session details
+      tags: [Game]
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Game session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /game/matchmaking:
+    get:
+      summary: Check matchmaking status
+      tags: [Matchmaking]
+      parameters:
+        - name: game_type
+          in: query
+          schema:
+            type: string
+            enum: [8ball, 9ball, straight]
+        - name: skill_range
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 500
+      responses:
+        '200':
+          description: Available players and matches
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available_players:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+
+  /game/{game_id}/play:
+    get:
+      summary: Get active game state
+      tags: [Game]
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Current game state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /game/{game_id}/score:
+    post:
+      summary: Update game score
+      tags: [Game]
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - points
+                - player_id
+              properties:
+                points:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                player_id:
+                  type: integer
+                  format: int64
+      responses:
+        '200':
+          description: Score updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Invalid score update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
