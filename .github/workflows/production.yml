@@ -46,13 +46,77 @@ jobs:
     strategy:
       fail-fast: false
 
+  sync-repositories:
+    name: Synchronize Repositories
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Sync with origin
+        run: |
+          echo "Fetching latest changes from origin..."
+          git fetch origin --prune
+          
+          # Check if we need to pull
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/$(git branch --show-current))" ]; then
+            echo "Pulling latest changes from origin..."
+            git pull origin $(git branch --show-current)
+          else
+            echo "Already up to date with origin."
+          fi
+
+      - name: Set up SSH for repository access
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SHA256:ZcGu67b2GJ/pGGkFQjwfchHOUEDdiEQMGvEUmVcmzfs }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          
+      - name: Set up remote for Cursor
+        run: |
+          # Only add if not already present
+          if ! git remote | grep -q "cursor"; then
+            git remote add cursor git@github.com:SgtClickClack/dojopool.git
+          else
+            git remote set-url cursor git@github.com:SgtClickClack/dojopool.git
+          fi
+          git fetch cursor --prune
+
+      - name: Synchronize with Cursor
+        run: |
+          # Push to Cursor
+          echo "Synchronizing with Cursor..."
+          git push cursor $(git branch --show-current)
+
+      - name: Push any local changes back to origin
+        run: |
+          # Check if we have any unpushed changes
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/$(git branch --show-current))" ]; then
+            echo "Pushing changes to origin..."
+            git push origin $(git branch --show-current)
+          else
+            echo "No changes to push to origin."
+          fi
+
   security:
     uses: ./.github/workflows/security.yml
     if: github.event_name == 'push'
+    needs: sync-repositories
 
   deploy:
     name: Deploy to Production
-    needs: [validate, security]
+    needs: [validate, security, sync-repositories]
     if: success() || inputs.force_deploy
     runs-on: ubuntu-latest
     timeout-minutes: 60
