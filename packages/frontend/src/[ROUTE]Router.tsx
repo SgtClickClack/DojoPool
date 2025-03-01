@@ -14,6 +14,7 @@ const Settings = React.lazy(() => import('./components/Settings/[UI]Settings').t
 const NotFound = React.lazy(() => import('./components/Common/[UI]NotFound').then(module => ({ default: module.NotFound })));
 const VenueRoutes = React.lazy(() => import('./routes/[ROUTE]VenueRoutes'));
 const TournamentRoutes = React.lazy(() => import('./routes/[ROUTE]TournamentRoutes'));
+const Bridge = React.lazy(() => import('./pages/BridgePage'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -76,6 +77,13 @@ export const Router: React.FC = () => {
                                             <Route path="/" element={<Dashboard />} />
                                             <Route path="/profile" element={<Profile />} />
                                             <Route path="/settings" element={<Settings />} />
+                                            
+                                            {/* Bridge route */}
+                                            <Route path="/bridge" element={
+                                                <Suspense fallback={<LoadingFallback />}>
+                                                    <Bridge />
+                                                </Suspense>
+                                            } />
                                             
                                             {/* Venue routes */}
                                             <Route 

@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { useAuth } from '../../contexts/AuthContext';
 import NotificationCenter from './[NOTIFY]NotificationCenter';
 import notificationService from '../../services/[NET]notification';
@@ -36,6 +37,7 @@ const publicPages = [
 const userPages = [
   { title: 'Profile', path: '/profile' },
   { title: 'Settings', path: '/settings' },
+  { title: 'Bridge', path: '/bridge', icon: <SwapHorizIcon /> },
 ];
 
 const Navbar = () => {
@@ -117,6 +119,7 @@ const Navbar = () => {
                 to={page.path}
                 onClick={handleDrawerToggle}
               >
+                {page.icon && <ListItemIcon>{page.icon}</ListItemIcon>}
                 <ListItemText primary={page.title} />
               </ListItem>
             ))}

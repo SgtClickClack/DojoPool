@@ -1,334 +1,388 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Card,
-  Tabs,
+  Box,
+  Typography,
+  Chip,
+  Divider,
+  Grid,
+  CircularProgress,
+  Dialog,
+  Alert,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Tooltip,
   Button,
-  Space,
-  Tag,
-  Table,
-  Modal,
-  Form,
-  Input,
-  InputNumber,
-  message,
-  Descriptions,
-  Timeline,
-  Select,
-} from 'antd';
+  Card,
+  CardContent
+} from '@mui/material';
 import {
-  TrophyOutlined,
-  TeamOutlined,
-  FieldTimeOutlined,
-  DollarOutlined,
-  EditOutlined,
-} from '@ant-design/icons';
-import moment from 'moment';
+  Event as EventIcon,
+  EmojiEvents as TrophyIcon,
+  People as PeopleIcon,
+  AttachMoney as MoneyIcon,
+  AccountBalanceWallet as WalletIcon,
+  LinkOff as LinkOffIcon
+} from '@mui/icons-material';
+import { formatDistanceToNow } from 'date-fns';
 
-import {
-  Tournament,
-  TournamentMatch,
-  TournamentParticipant,
-  TournamentStatus,
-  MatchStatus,
-} from '../../types/tournament';
-import {
-  getTournament,
-  getTournamentMatches,
-  updateMatch,
-  registerForTournament,
-  generateBracket,
-} from '../../api/tournaments';
+import { Tournament, TournamentMatch } from '../../types/tournament';
 import { useAuth } from '../../hooks/useAuth';
-import TournamentBracket from './TournamentBracket';
-import MatchStats from './MatchStats';
+import { TournamentRegistration } from './TournamentRegistration';
+import { crossChainTournamentService } from '../../services/crossChainTournamentService';
+import { useWallet } from '../../hooks/useWallet';
 
-const { TabPane } = Tabs;
-const { Option } = Select;
+// Chain icons
+import EthereumIcon from '../../assets/icons/ethereum.svg';
+import SolanaIcon from '../../assets/icons/solana.svg';
 
 interface ParamsType {
+  [key: string]: string | undefined;
   id: string;
-  [key: string]: string;
 }
 
-const TournamentDetail: React.FC = () => {
+interface TournamentDetailProps {
+  tournamentId: string;
+  onRegister?: () => void;
+}
+
+const TournamentDetail: React.FC<TournamentDetailProps> = ({
+  tournamentId,
+  onRegister
+}) => {
   const { id } = useParams<ParamsType>();
   const navigate = useNavigate();
-  const [tournament, setTournament] = useState<Tournament>();
+  const [tournament, setTournament] = useState<any>(null);
   const [matches, setMatches] = useState<TournamentMatch[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<TournamentMatch>();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { isAuthenticated, isAdmin } = useAuth();
-  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [showRegistrationModal, setShowRegistrationModal] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Wallet hook
+  const { walletAddress, isConnected, connectWallet } = useWallet();
 
   useEffect(() => {
-    if (id) {
-      fetchTournament();
-      fetchMatches();
-    }
-  }, [id]);
+    // Fetch tournament data
+    const fetchTournament = async () => {
+      try {
+        setLoading(true);
+        // In a real implementation, this would be an API call
+        const tournamentData = await crossChainTournamentService.getTournamentDetails(id || tournamentId);
+        setTournament(tournamentData);
+        
+        // Fetch matches for this tournament
+        // This would be another API call in a real implementation
+        setMatches([]);
+      } catch (error) {
+        console.error('Error fetching tournament:', error);
+        setError('Failed to load tournament details');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchTournament = async () => {
+    fetchTournament();
+  }, [id, tournamentId]);
+
+  // Format entry fee with chain information
+  const formatEntryFee = () => {
+    if (!tournament || !tournament.entryFees) return 'N/A';
+    
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+          <img src={EthereumIcon} alt="ETH" width={16} height={16} style={{ marginRight: '4px' }} />
+          <Typography variant="body2">{tournament.entryFees.ethereum} ETH</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <img src={SolanaIcon} alt="SOL" width={16} height={16} style={{ marginRight: '4px' }} />
+          <Typography variant="body2">{tournament.entryFees.solana} SOL</Typography>
+        </Box>
+      </Box>
+    );
+  };
+
+  // Handle registration button click
+  const handleRegisterClick = () => {
+    // Check if any wallet is connected
+    if (!isConnected('ethereum') && !isConnected('solana')) {
+      // If tournament is on Ethereum, connect Ethereum wallet first
+      if (tournament?.nativeChain === 'ethereum') {
+        connectWallet('ethereum');
+      }
+      // If tournament is on Solana, connect Solana wallet first
+      else if (tournament?.nativeChain === 'solana') {
+        connectWallet('solana');
+      }
+    } else {
+      setShowRegistrationModal(true);
+    }
+  };
+  
+  // Handle registration completion
+  const handleRegistrationSuccess = () => {
+    setShowRegistrationModal(false);
+    if (onRegister) {
+      onRegister();
+    }
+    // Refresh tournament details to update participant count
+    loadTournament();
+  };
+  
+  // Handle registration modal close
+  const handleRegistrationCancel = () => {
+    setShowRegistrationModal(false);
+  };
+  
+  // Load tournament details function for refreshing after registration
+  const loadTournament = async () => {
     try {
       setLoading(true);
-      const data = await getTournament(parseInt(id));
-      setTournament(data);
-    } catch (error) {
-      console.error('Error fetching tournament:', error);
-      message.error('Failed to load tournament details');
+      const details = await crossChainTournamentService.getTournamentDetails(id || tournamentId);
+      setTournament(details);
+    } catch (err) {
+      console.error('Error reloading tournament details:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchMatches = async () => {
-    try {
-      const data = await getTournamentMatches(parseInt(id));
-      setMatches(data);
-    } catch (error) {
-      console.error('Error fetching matches:', error);
-      message.error('Failed to load tournament matches');
-    }
-  };
-
-  const handleRegister = async () => {
-    try {
-      await registerForTournament(parseInt(id));
-      message.success('Successfully registered for tournament');
-      fetchTournament();
-    } catch (error) {
-      console.error('Error registering for tournament:', error);
-      message.error('Failed to register for tournament');
-    }
-  };
-
-  const handleGenerateBracket = async () => {
-    try {
-      await generateBracket(parseInt(id));
-      message.success('Tournament bracket generated successfully');
-      fetchTournament();
-      fetchMatches();
-    } catch (error) {
-      console.error('Error generating bracket:', error);
-      message.error('Failed to generate tournament bracket');
-    }
-  };
-
-  const handleUpdateMatch = async (values: any) => {
-    if (!selectedMatch) return;
-
-    try {
-      await updateMatch(selectedMatch.id, values);
-      message.success('Match updated successfully');
-      setIsModalVisible(false);
-      fetchMatches();
-    } catch (error) {
-      console.error('Error updating match:', error);
-      message.error('Failed to update match');
-    }
-  };
-
-  const matchColumns = [
-    {
-      title: 'Round',
-      dataIndex: 'round_number',
-      key: 'round_number',
-    },
-    {
-      title: 'Match',
-      dataIndex: 'match_number',
-      key: 'match_number',
-    },
-    {
-      title: 'Player 1',
-      dataIndex: 'player1',
-      key: 'player1',
-      render: (player: TournamentParticipant) => (player ? player.username : 'TBD'),
-    },
-    {
-      title: 'Player 2',
-      dataIndex: 'player2',
-      key: 'player2',
-      render: (player: TournamentParticipant) => (player ? player.username : 'TBD'),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: MatchStatus) => (
-        <Tag
-          color={
-            status === 'completed'
-              ? 'success'
-              : status === 'in_progress'
-                ? 'processing'
-                : status === 'walkover'
-                  ? 'warning'
-                  : status === 'cancelled'
-                    ? 'error'
-                    : 'default'
-          }
-        >
-          {status.toUpperCase()}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record: TournamentMatch) => (
-        <Space>
-          {isAdmin && record.status !== 'completed' && (
-            <Button
-              type="primary"
-              onClick={() => {
-                setSelectedMatch(record);
-                setIsModalVisible(true);
-              }}
-            >
-              Update
-            </Button>
-          )}
-        </Space>
-      ),
-    },
-  ];
-
-  if (!tournament) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  const totalRounds = tournament.bracket_data?.rounds || 0;
+  if (error || !tournament) {
+    return (
+      <Alert severity="error">
+        {error || 'Tournament not found'}
+      </Alert>
+    );
+  }
+
+  // Calculate registration status
+  const isRegistrationOpen = tournament.status === 'registration_open';
+  const isFull = tournament.currentParticipants >= tournament.maxParticipants;
+  const userCanRegister = isRegistrationOpen && !isFull;
+  
+  // Determine if user is already registered
+  const isUserRegistered = tournament.participants?.some(
+    (p: any) => p.ethereumAddress === walletAddress.ethereum || p.solanaAddress === walletAddress.solana
+  );
 
   return (
-    <div className="tournament-detail">
-      <Card loading={loading}>
-        <div className="tournament-detail__header">
-          <Space align="start" size="large">
-            <div>
-              <h1>{tournament.name}</h1>
-              <Tag
-                color={
-                  tournament.status === 'completed'
-                    ? 'success'
-                    : tournament.status === 'in_progress'
-                      ? 'processing'
-                      : tournament.status === 'registration'
-                        ? 'warning'
-                        : tournament.status === 'cancelled'
-                          ? 'error'
-                          : 'default'
-                }
-              >
-                {tournament.status.toUpperCase()}
-              </Tag>
-            </div>
-            <Space>
-              {isAuthenticated && tournament.status === 'registration' && (
-                <Button type="primary" onClick={handleRegister}>
-                  Register
-                </Button>
-              )}
-              {isAdmin && tournament.status === 'registration' && (
-                <Button type="primary" onClick={handleGenerateBracket}>
-                  Generate Bracket
-                </Button>
-              )}
-            </Space>
-          </Space>
-        </div>
-
-        <Descriptions column={2}>
-          <Descriptions.Item label="Format">{tournament.format}</Descriptions.Item>
-          <Descriptions.Item label="Start Date">
-            {moment(tournament.start_date).format('MMM D, YYYY')}
-          </Descriptions.Item>
-          <Descriptions.Item label="Entry Fee">
-            ${tournament.entry_fee.toFixed(2)}
-          </Descriptions.Item>
-          <Descriptions.Item label="Prize Pool">
-            ${tournament.prize_pool.toFixed(2)}
-          </Descriptions.Item>
-          {tournament.registration_deadline && (
-            <Descriptions.Item label="Registration Deadline">
-              {moment(tournament.registration_deadline).format('MMM D, YYYY')}
-            </Descriptions.Item>
-          )}
-          {tournament.max_participants && (
-            <Descriptions.Item label="Max Participants">
-              {tournament.max_participants}
-            </Descriptions.Item>
-          )}
-        </Descriptions>
-
-        {tournament.rules && (
-          <div className="tournament-detail__rules">
-            <h3>Rules</h3>
-            <p>{tournament.rules}</p>
-          </div>
-        )}
-
-        <Tabs defaultActiveKey="matches">
-          <TabPane tab="Matches" key="matches">
-            <Table columns={matchColumns} dataSource={matches} rowKey="id" pagination={false} />
-          </TabPane>
-          <TabPane tab="Bracket" key="bracket">
-            {matches.length > 0 && totalRounds > 0 ? (
-              <TournamentBracket matches={matches} totalRounds={totalRounds} />
+    <Box>
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h4" component="h1">
+              {tournament.name}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Tooltip title={`This tournament is based on the ${tournament.nativeChain === 'ethereum' ? 'Ethereum' : 'Solana'} blockchain`}>
+                <Chip 
+                  icon={
+                    tournament.nativeChain === 'ethereum'
+                      ? <img src={EthereumIcon} alt="ETH" width={20} height={20} />
+                      : <img src={SolanaIcon} alt="SOL" width={20} height={20} />
+                  }
+                  label={tournament.nativeChain === 'ethereum' ? 'Ethereum' : 'Solana'}
+                  color={tournament.nativeChain === 'ethereum' ? 'primary' : 'secondary'}
+                  sx={{ mr: 1 }}
+                />
+              </Tooltip>
+              
+              <Chip 
+                label={tournament.status === 'registration_open' ? 'Registration Open' : tournament.status.replace('_', ' ')}
+                color={tournament.status === 'registration_open' ? 'success' : 'default'}
+              />
+            </Box>
+          </Box>
+          
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            {tournament.description}
+          </Typography>
+          
+          <Divider sx={{ mb: 3 }} />
+          
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <EventIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Start Time" 
+                    secondary={tournament.startTime ? new Date(tournament.startTime).toLocaleString() : 'TBD'} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon>
+                    <PeopleIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Participants" 
+                    secondary={`${tournament.currentParticipants} / ${tournament.maxParticipants}`} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon>
+                    <TrophyIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Format" 
+                    secondary={tournament.format || 'Standard'} 
+                  />
+                </ListItem>
+              </List>
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <MoneyIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Entry Fee" 
+                    secondary={formatEntryFee()} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon>
+                    <TrophyIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Prize Pool" 
+                    secondary={`${tournament.prizePool} DOJO`} 
+                  />
+                </ListItem>
+                
+                <ListItem>
+                  <ListItemIcon>
+                    <WalletIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Cross-Chain Support" 
+                    secondary={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Tooltip title="Pay with Ethereum">
+                          <img src={EthereumIcon} alt="ETH" width={20} height={20} style={{ marginRight: '8px' }} />
+                        </Tooltip>
+                        <Tooltip title="Pay with Solana">
+                          <img src={SolanaIcon} alt="SOL" width={20} height={20} />
+                        </Tooltip>
+                      </Box>
+                    } 
+                  />
+                </ListItem>
+              </List>
+            </Grid>
+          </Grid>
+          
+          <Divider sx={{ my: 3 }} />
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="subtitle1">
+              {isRegistrationOpen 
+                ? `Registration closes ${tournament.registrationCloseTime ? formatDistanceToNow(new Date(tournament.registrationCloseTime), { addSuffix: true }) : 'soon'}`
+                : tournament.status === 'ongoing'
+                ? 'Tournament is in progress'
+                : tournament.status === 'completed'
+                ? 'Tournament is completed'
+                : 'Registration is closed'
+              }
+            </Typography>
+            
+            {isUserRegistered ? (
+              <Chip 
+                label="You are registered" 
+                color="success" 
+                icon={<EventIcon />} 
+              />
             ) : (
-              <div>No bracket data available</div>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleRegisterClick}
+                disabled={!userCanRegister}
+                startIcon={(!isConnected('ethereum') && !isConnected('solana')) ? <LinkOffIcon /> : null}
+              >
+                {!userCanRegister 
+                  ? isFull ? 'Tournament Full' : 'Registration Closed'
+                  : (!isConnected('ethereum') && !isConnected('solana'))
+                  ? 'Connect Wallet to Register'
+                  : 'Register Now'
+                }
+              </Button>
             )}
-          </TabPane>
-          <TabPane tab="Statistics" key="stats">
-            {tournament.participants.map((participant) => (
-              <Card key={participant.id} title={participant.username} style={{ marginBottom: 16 }}>
-                <MatchStats participantId={participant.id} />
-              </Card>
-            ))}
-          </TabPane>
-        </Tabs>
+          </Box>
+        </CardContent>
       </Card>
-
-      <Modal
-        title="Update Match"
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
+      
+      {/* Tournament Details Sections */}
+      {tournament.rules && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Typography variant="h5" component="h2" gutterBottom>
+              Tournament Rules
+            </Typography>
+            <Typography variant="body1">
+              {tournament.rules}
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
+      
+      {tournament.prizes && tournament.prizes.length > 0 && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent>
+            <Typography variant="h5" component="h2" gutterBottom>
+              Prize Distribution
+            </Typography>
+            <List>
+              {tournament.prizes.map((prize: any, index: number) => (
+                <ListItem key={index}>
+                  <ListItemIcon>
+                    <TrophyIcon color={index === 0 ? 'primary' : 'inherit'} />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={`${index + 1}${index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'} Place`} 
+                    secondary={`${prize.amount} ${prize.currency}`} 
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Registration Modal */}
+      <Dialog 
+        open={showRegistrationModal} 
+        onClose={handleRegistrationCancel}
+        maxWidth="sm"
+        fullWidth
       >
-        <Form
-          form={form}
-          onFinish={handleUpdateMatch}
-          initialValues={selectedMatch}
-          layout="vertical"
-        >
-          <Form.Item name="winner_id" label="Winner" rules={[{ required: true }]}>
-            <Select placeholder="Select winner">
-              {selectedMatch?.player1 && (
-                <Option value={selectedMatch.player1.id}>{selectedMatch.player1.username}</Option>
-              )}
-              {selectedMatch?.player2 && (
-                <Option value={selectedMatch.player2.id}>{selectedMatch.player2.username}</Option>
-              )}
-            </Select>
-          </Form.Item>
-          <Form.Item name="score" label="Score">
-            <Input placeholder="e.g., 2-1" />
-          </Form.Item>
-          <Form.Item name="table_number" label="Table Number">
-            <InputNumber min={1} />
-          </Form.Item>
-          <Form.Item name="notes" label="Notes">
-            <Input.TextArea />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Update
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+        <TournamentRegistration 
+          tournamentId={id || tournamentId}
+          onSuccess={handleRegistrationSuccess}
+          onCancel={handleRegistrationCancel}
+        />
+      </Dialog>
+    </Box>
   );
 };
 
