@@ -1,0 +1,15 @@
+{
+  "template": "Create a tournament announcement video for the following pool tournament:\n\nTournament: {tournament_name}\nDate: {tournament_date}\nLocation: {tournament_location}\nPrize Pool: {prize_pool}\nEntry Fee: {entry_fee}\n\nThe video should:\n- Begin with an exciting tournament logo reveal\n- Show highlights from previous tournaments\n- Feature the venue where it will be held\n- Include text overlays with key information\n- End with registration details\n- {special_instructions}",
+  "category": "tournament_announcement",
+  "style": "dramatic",
+  "complexity": "standard",
+  "default_params": {
+    "tournament_name": "Championship Series",
+    "tournament_date": "Next Weekend",
+    "tournament_location": "Main Street Pool Hall",
+    "prize_pool": "$1,000",
+    "entry_fee": "$50",
+    "special_instructions": ""
+  },
+  "vram_requirement_mb": 2048
+} 
