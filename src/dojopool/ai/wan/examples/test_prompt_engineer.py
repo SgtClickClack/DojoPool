@@ -23,6 +23,7 @@ from dojopool.ai.wan.prompt_engineer import (
     PromptConfig,
     PromptEngineer,
     PromptStyle,
+    PromptTemplate,
 )
 
 # Configure logging
@@ -51,8 +52,44 @@ def test_prompt_engineer():
     # Create the prompt engineer
     prompt_engineer = PromptEngineer(
         config=config,
-        templates_dir="./templates"
+        templates_dir="../templates"
     )
+
+    # Create a custom tournament announcement template
+    tournament_template = PromptTemplate(
+        template="""
+Create a tournament announcement video for the following pool tournament:
+
+Tournament: {tournament_name}
+Date: {tournament_date}
+Location: {tournament_location}
+Prize Pool: {prize_pool}
+Entry Fee: {entry_fee}
+
+The video should:
+- Begin with an exciting tournament logo reveal
+- Show highlights from previous tournaments
+- Feature the venue where it will be held
+- Include text overlays with key information
+- End with registration details
+- {special_instructions}
+        """.strip(),
+        category=PromptCategory.TOURNAMENT_ANNOUNCEMENT,
+        style=PromptStyle.DRAMATIC,
+        complexity=PromptComplexity.STANDARD,
+        default_params={
+            "tournament_name": "Championship Series",
+            "tournament_date": "Next Weekend",
+            "tournament_location": "Main Street Pool Hall",
+            "prize_pool": "$1,000",
+            "entry_fee": "$50",
+            "special_instructions": ""
+        },
+        vram_requirement_mb=2048
+    )
+
+    # Add the template to the prompt engineer
+    prompt_engineer.templates["tournament_announcement_dramatic"] = tournament_template
 
     # Test 1: Generate a match highlight prompt
     logger.info("Test 1: Generate a match highlight prompt")
