@@ -85,7 +85,7 @@
     "@babel/preset-env": "7.26.7",
     "@babel/preset-react": "7.26.3",
     "@babel/preset-typescript": "7.26.0",
-    "@babel/runtime": "7.26.7",
+    "@babel/runtime": "7.26.10",
     "@cypress/code-coverage": "3.13.11",
     "@lhci/cli": "0.14.0",
     "@testing-library/cypress": "10.0.3",
