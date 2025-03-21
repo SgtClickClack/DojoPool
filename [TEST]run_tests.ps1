@@ -1,10 +1,11 @@
 # Install test dependencies
 Write-Host "Installing test dependencies..."
-python -m pip install -r test-requirements.txt
+$env:PYTHONPATH = "src"
+py -m pip install -r test-requirements.txt
 
 # Run tests with coverage
 Write-Host "`nRunning tests with coverage..."
-python -m pytest src/core/matchmaking/tests/run_tests.py -v --cov=src/core/matchmaking --cov-report=term-missing --cov-report=html
+py -m pytest src/dojopool/core/matchmaking/tests/run_tests.py -v --cov=src/dojopool/core/matchmaking --cov-report=term-missing --cov-report=html
 
 # Check test result
 if ($LASTEXITCODE -eq 0) {

@@ -129,3 +129,26 @@ yarn-error.log*
 
 # Production environment
 .env.production
+
+# Large files and performance
+context_validation.yaml
+context_updates.yaml
+*.large.yaml
+*.large.json
+performance.log
+security_*.log
+cursor_*.log
+context_*.log
+
+# IDE indexing
+.cursor/
+.vscode/
+.idea/
+*.iml
+.history/
+
+# Temporary and cache files
+.cache/
+*.cache
+.temp/
+.tmp/

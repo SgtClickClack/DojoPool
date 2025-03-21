@@ -111,7 +111,7 @@ def restart_cursor():
     
     # Start a new Cursor instance
     try:
-        subprocess.Popen(['cursor'])
+        subprocess.Popen(['C:\\Users\\malli\\AppData\\Local\\Programs\\cursor\\Cursor.exe'])
         return True
     except Exception as e:
         print(f"❌ Error restarting Cursor: {str(e)}")
@@ -211,4 +211,14 @@ def optimize_cursor():
             print("Invalid choice")
 
 if __name__ == "__main__":
-    optimize_cursor() 
+    print("Starting Cursor optimization...")
+    success = optimize_cursor_config()
+    if success:
+        print("Optimization applied successfully.")
+    else:
+        print("Optimization failed.")
+    restart_success = restart_cursor()
+    if restart_success:
+        print("Cursor restarted successfully.")
+    else:
+        print("Failed to restart Cursor.") 
