@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+      devDependencies:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "typescript"
+        versions: ["5.0.0"]
+      - dependency-name: "react"
+        versions: ["18.0.0"] 
