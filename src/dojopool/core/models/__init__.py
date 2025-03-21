@@ -1,5 +1,6 @@
 """Core models package."""
 
-from ...models import User, Role, Game, Tournament, TournamentGame, Venue, Match
+from .tournament import Tournament, TournamentGame
+from .base import BaseModel
 
-__all__ = ["User", "Role", "Game", "Tournament", "TournamentGame", "Venue", "Match"]
+__all__ = ["Tournament", "TournamentGame", "BaseModel"]

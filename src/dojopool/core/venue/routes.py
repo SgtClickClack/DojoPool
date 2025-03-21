@@ -8,16 +8,17 @@ from typing import Dict, List, Optional
 from flask import Blueprint, jsonify, request, send_file, Response
 from flask_login import current_user, login_required
 
-from ..auth import require_permissions
-from .models import venue_manager, PoolTable, Venue, VenueStaff
-from .qr import qr_manager, QRCodeManager
+from ...core.auth.dependencies import check_permissions
+from ...core.extensions import db
+from ...core.monitoring.metrics_monitor import metrics_monitor
+from .models import PoolTable, Venue, VenueStaff, TableStatus
+from .qr import qr_manager
 from .qr_alerts import AlertSeverity, qr_alerts
 from .qr_export import qr_export
 from .qr_stats import qr_stats
 from .rate_limit import rate_limit
 
 venue_bp = Blueprint("venue", __name__)
-qr_manager = QRCodeManager()
 
 
 def validate_venue_access(f):
@@ -25,7 +26,7 @@ def validate_venue_access(f):
 
     @wraps(f)
     def decorated_function(venue_id, *args, **kwargs):
-        venue = venue_manager.get_venue(venue_id)
+        venue = Venue.query.get_or_404(venue_id)
         if not venue:
             return jsonify({"error": "Venue not found"}), 404
         return f(venue_id, *args, **kwargs)
@@ -56,7 +57,12 @@ def list_venues() -> Response:
             ]
         )
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="list_venues").inc()
+        metrics_monitor.record_error(
+            game_id="list_venues",
+            error_type="api_error",
+            message=f"Error listing venues: {str(e)}",
+            details={},
+        )
         return jsonify({"error": str(e)}), 500
 
 
@@ -96,7 +102,12 @@ def get_venue(venue_id: int) -> Response:
             }
         )
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="get_venue").inc()
+        metrics_monitor.record_error(
+            game_id="get_venue",
+            error_type="api_error",
+            message=f"Error getting venue details: {str(e)}",
+            details={"venue_id": venue_id},
+        )
         return jsonify({"error": str(e)}), 500
 
 
@@ -126,7 +137,12 @@ def list_tables(venue_id: int) -> Response:
             ]
         )
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="list_tables").inc()
+        metrics_monitor.record_error(
+            game_id="list_tables",
+            error_type="api_error",
+            message=f"Error listing tables: {str(e)}",
+            details={"venue_id": venue_id},
+        )
         return jsonify({"error": str(e)}), 500
 
 
@@ -150,20 +166,27 @@ def get_table_qr(venue_id: int, table_id: int) -> Response:
         # Generate QR code
         qr_image = qr_manager.generate_table_qr(table_id, venue_id)
 
-        # Convert to response
-        response = Response()
-        response.mimetype = "image/png"
-        qr_image.save(response.stream, "PNG")
-        return response
+        # Convert to bytes
+        img_bytes = BytesIO()
+        qr_image.save(img_bytes, format='PNG')
+        img_bytes.seek(0)
+
+        # Return as response
+        return send_file(img_bytes, mimetype='image/png')
 
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="get_table_qr").inc()
+        metrics_monitor.record_error(
+            game_id="get_table_qr",
+            error_type="api_error",
+            message=f"Error getting table QR code: {str(e)}",
+            details={"venue_id": venue_id, "table_id": table_id},
+        )
         return jsonify({"error": str(e)}), 500
 
 
 @venue_bp.route("/venues/<int:venue_id>/tables/<int:table_id>/status", methods=["PUT"])
 @login_required
-@require_permissions(["manage_tables"])
+@check_permissions("manage_tables")
 def update_table_status(venue_id: int, table_id: int) -> Response:
     """Update table status.
 
@@ -183,8 +206,9 @@ def update_table_status(venue_id: int, table_id: int) -> Response:
         if "status" not in data:
             return jsonify({"error": "Status not provided"}), 400
 
-        table.status = data["status"]
+        table.status = TableStatus(data["status"])
         table.updated_at = datetime.utcnow()
+        db.session.commit()
 
         return jsonify(
             {
@@ -196,13 +220,18 @@ def update_table_status(venue_id: int, table_id: int) -> Response:
         )
 
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="update_table_status").inc()
+        metrics_monitor.record_error(
+            game_id=str(table_id),
+            error_type="api_error",
+            message=f"Error updating table status: {str(e)}",
+            details={"venue_id": venue_id, "table_id": table_id},
+        )
         return jsonify({"error": str(e)}), 500
 
 
 @venue_bp.route("/venues/<int:venue_id>/staff", methods=["GET"])
 @login_required
-@require_permissions(["manage_staff"])
+@check_permissions("manage_staff")
 def list_staff(venue_id: int) -> Response:
     """List venue staff.
 
@@ -228,13 +257,18 @@ def list_staff(venue_id: int) -> Response:
             ]
         )
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="list_staff").inc()
+        metrics_monitor.record_error(
+            game_id="list_staff",
+            error_type="api_error",
+            message=f"Error listing staff: {str(e)}",
+            details={"venue_id": venue_id},
+        )
         return jsonify({"error": str(e)}), 500
 
 
 @venue_bp.route("/venues/<int:venue_id>/staff", methods=["POST"])
 @login_required
-@require_permissions(["manage_staff"])
+@check_permissions("manage_staff")
 def add_staff(venue_id: int) -> Response:
     """Add staff member to venue.
 
@@ -265,7 +299,12 @@ def add_staff(venue_id: int) -> Response:
         )
 
     except Exception as e:
-        metrics.API_ERRORS.labels(endpoint="add_staff").inc()
+        metrics_monitor.record_error(
+            game_id="add_staff",
+            error_type="api_error",
+            message=f"Error adding staff: {str(e)}",
+            details={"venue_id": venue_id},
+        )
         return jsonify({"error": str(e)}), 500
 
 

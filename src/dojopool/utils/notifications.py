@@ -4,7 +4,7 @@ from functools import wraps
 from flask_login import current_user
 from flask_socketio import join_room, leave_room
 
-from src.extensions import cache, socketio
+from dojopool.extensions import cache, socketio
 
 
 class NotificationManager:
