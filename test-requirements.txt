@@ -1,0 +1,17 @@
+pytest
+pytest-cov
+Flask
+Flask-SQLAlchemy
+Flask-Caching
+Flask-Cors
+Flask-Login
+Flask-Mail
+Flask-Marshmallow
+Flask-Migrate
+Flask-SocketIO
+Django
+psutil
+redis
+joblib
+aiohttp
+aiosmtplib 

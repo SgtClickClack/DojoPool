@@ -9,10 +9,10 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from ..monitoring import MetricsSnapshot
-from ..threat_detection.finding import ThreatFinding
+from dojopool.core.monitoring import MetricsSnapshot
+from ..threat_detection import ThreatFinding
 from ..vulnerability_scanner.base import VulnerabilityFinding
-from ....core.extensions import db
+from dojopool.core.extensions import db
 
 
 class IncidentType(str, Enum):
@@ -64,6 +64,7 @@ class SecurityIncident:
         source_ip: Optional[str] = None,
         affected_systems: Optional[List[str]] = None,
         indicators: Optional[List[str]] = None,
+        details: Optional[Dict[str, Any]] = None,
     ):
         """Initialize security incident."""
         self.id = str(uuid.uuid4())
@@ -75,6 +76,7 @@ class SecurityIncident:
         self.source_ip = source_ip
         self.affected_systems = affected_systems or []
         self.indicators = indicators or []
+        self.details = details or {}
 
         # Timestamps
         self.created_at = datetime.now()
@@ -184,10 +186,31 @@ class SecurityIncident:
             "evidence": self.evidence,
             "related_incidents": self.related_incidents,
             "metrics_snapshots": [snapshot.to_dict() for snapshot in self.metrics_snapshots],
-            "threat_findings": [finding.to_dict() for finding in self.threat_findings],
-            "vulnerability_findings": [
-                finding.to_dict() for finding in self.vulnerability_findings
-            ],
+            "threat_findings": [{
+                "timestamp": finding.timestamp.isoformat(),
+                "threat_type": finding.threat_type,
+                "severity": finding.severity,
+                "source_ip": finding.source_ip,
+                "details": finding.details,
+                "anomaly_score": finding.anomaly_score,
+                "confidence": finding.confidence,
+                "automated_response": finding.automated_response
+            } for finding in self.threat_findings],
+            "vulnerability_findings": [{
+                "timestamp": finding.timestamp.isoformat(),
+                "severity": finding.severity,
+                "title": finding.title,
+                "description": finding.description,
+                "vulnerability_type": finding.vulnerability_type,
+                "affected_component": finding.affected_component,
+                "evidence": finding.evidence,
+                "remediation": finding.remediation,
+                "cwe_id": finding.cwe_id,
+                "cvss_score": finding.cvss_score,
+                "references": finding.references,
+                "tags": finding.tags,
+                "metadata": finding.metadata
+            } for finding in self.vulnerability_findings],
         }
 
     @classmethod
@@ -201,6 +224,7 @@ class SecurityIncident:
             source_ip=data.get("source_ip"),
             affected_systems=data.get("affected_systems", []),
             indicators=data.get("indicators", []),
+            details=data.get("details", {}),
         )
 
         # Restore fields
@@ -217,9 +241,37 @@ class SecurityIncident:
 
         # Restore findings
         for finding_data in data["threat_findings"]:
-            incident.threat_findings.append(ThreatFinding.from_dict(finding_data))
+            finding = ThreatFinding(
+                timestamp=datetime.fromisoformat(finding_data["timestamp"]),
+                title=finding_data.get("title", ""),
+                description=finding_data.get("description", ""),
+                threat_type=finding_data["threat_type"],
+                source_ip=finding_data["source_ip"],
+                affected_systems=finding_data.get("affected_systems", []),
+                indicators=finding_data.get("indicators", []),
+                confidence=finding_data["confidence"],
+                automated_response=finding_data.get("automated_response"),
+                details=finding_data.get("details", {})
+            )
+            incident.threat_findings.append(finding)
+
         for finding_data in data["vulnerability_findings"]:
-            incident.vulnerability_findings.append(VulnerabilityFinding.from_dict(finding_data))
+            finding = VulnerabilityFinding(
+                timestamp=datetime.fromisoformat(finding_data["timestamp"]),
+                severity=finding_data["severity"],
+                title=finding_data["title"],
+                description=finding_data["description"],
+                vulnerability_type=finding_data["vulnerability_type"],
+                affected_component=finding_data["affected_component"],
+                evidence=finding_data["evidence"],
+                remediation=finding_data["remediation"],
+                cwe_id=finding_data.get("cwe_id"),
+                cvss_score=finding_data.get("cvss_score"),
+                references=finding_data.get("references"),
+                tags=finding_data.get("tags"),
+                metadata=finding_data.get("metadata")
+            )
+            incident.vulnerability_findings.append(finding)
 
         return incident
 

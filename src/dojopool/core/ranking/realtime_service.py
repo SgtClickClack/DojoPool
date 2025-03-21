@@ -5,20 +5,18 @@ import asyncio
 import zlib
 from fastapi import WebSocket
 from ...extensions import cache_service
+from .types import (
+    WebSocketSet,
+    UserID,
+    Stats,
+    RateLimits,
+    BatchSettings,
+    MessageQueue,
+    UpdateTimes,
+    ConnectionTokens,
+    RankingEntry,
+)
 from .global_ranking import GlobalRankingService
-
-# Type aliases for better readability and type safety
-WebSocketSet = Set[WebSocket]
-UserID = int
-Stats = Dict[str, Union[int, str, Set[int], Dict[str, Any], None]]
-RateLimits = Dict[str, float]
-BatchSettings = Dict[str, Union[int, float]]
-MessageQueue = List[Dict[str, Any]]
-HeartbeatTasks = Dict[int, Set[asyncio.Task[None]]]
-BatchTasks = Dict[int, asyncio.Task[None]]
-UpdateTimes = Dict[int, float]
-ConnectionTokens = Dict[int, str]
-
 
 class RealTimeRankingService:
     def __init__(self) -> None:
@@ -53,7 +51,7 @@ class RealTimeRankingService:
         }
         self._last_update_time: UpdateTimes = {}
         self._last_broadcast_time: float = 0.0
-        self._heartbeat_tasks: HeartbeatTasks = {}
+        self._heartbeat_tasks: Dict[UserID, Set[asyncio.Task[None]]] = {}
         self._connection_tokens: ConnectionTokens = {}
         self.batch_settings: BatchSettings = {
             "max_batch_size": 100,
@@ -61,7 +59,7 @@ class RealTimeRankingService:
             "compression_threshold": 1024,
         }
         self._message_queues: Dict[UserID, MessageQueue] = {}
-        self._batch_tasks: BatchTasks = {}
+        self._batch_tasks: Dict[UserID, asyncio.Task[None]] = {}
 
     def _get_stat(self, key: str, default: Any = 0) -> Any:
         """Safely get a stat value with proper type casting."""

@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Any
 from ...extensions import db
 from ...models.game import Game, GameType
 from ...models.user import User
+from ...core.models.tournament import Tournament
 
 from .config import GLOBAL_RANKING_CONFIG
 from .global_ranking import GlobalRankingService

@@ -1,16 +1,16 @@
 import asyncio
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Callable
 
 from sqlalchemy import or_, text
 
 from ...extensions import cache_service, db, db_service
 from ...models.game import Game
-from ...models.tournament import Tournament
 from ...models.user import User
+from ..models.tournament import Tournament
 from .config import GLOBAL_RANKING_CONFIG
+from .types import RankingEntry
 
 logger = logging.getLogger(__name__)
 
@@ -18,22 +18,6 @@ logger = logging.getLogger(__name__)
 _game_cache: Dict[str, Dict[str, Any]] = {}
 _tournament_cache: Dict[str, Dict[str, Any]] = {}
 _opponent_cache: Dict[str, Dict[str, Any]] = {}
-
-@dataclass
-class RankingEntry:
-    """Represents a player's ranking entry."""
-
-    user_id: int
-    rating: float
-    rank: int
-    change_24h: float
-    games_played: int
-    wins: int
-    losses: int
-    streak: int
-    last_game: datetime
-    title: Optional[str]
-
 
 class GlobalRankingService:
     """Service for managing global player rankings."""

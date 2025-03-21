@@ -6,7 +6,7 @@ from ..core.extensions import db
 from .user import User
 from .role import Role
 from .game import Game
-from .tournament import Tournament, TournamentGame
+from ..core.models.tournament import Tournament, TournamentGame
 from .venue import Venue
 from .match import Match
 

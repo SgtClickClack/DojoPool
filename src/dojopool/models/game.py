@@ -7,11 +7,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils import timezone
-
 from ..core.extensions import db
 from .achievements import Achievement, UserAchievement
 from .social import UserProfile
@@ -120,7 +115,8 @@ class Game(db.Model):
             if self.created_at:
                 self.duration = self.completed_at - self.created_at
 
-            self.save()
+            db.session.add(self)
+            db.session.commit()
 
             # Update player stats
             self._update_player_stats()
@@ -131,20 +127,21 @@ class Game(db.Model):
     def _update_player_stats(self):
         """Update player statistics."""
         for player in [self.player1, self.player2]:
-            profile = UserProfile.objects.get(user=player)
+            profile = UserProfile.query.filter_by(user=player).first()
             profile.total_matches += 1
 
             if player.id == self.winner_id:
                 profile.wins += 1
 
-            profile.save()
+            db.session.add(profile)
+        db.session.commit()
 
     def _check_achievements(self):
         """Check and award achievements based on game results."""
-        winner_profile = UserProfile.objects.get(user=self.winner)
-        loser_profile = UserProfile.objects.get(
+        winner_profile = UserProfile.query.filter_by(user=self.winner).first()
+        loser_profile = UserProfile.query.filter_by(
             user=self.player2 if self.winner == self.player1 else self.player1
-        )
+        ).first()
 
         # Check win streak
         self._check_win_streak(winner_profile)
@@ -164,11 +161,11 @@ class Game(db.Model):
 
     def _check_win_streak(self, profile):
         """Check and award win streak achievements."""
-        recent_games = Game.objects.filter(
-            models.Q(player1=profile.user) | models.Q(player2=profile.user),
-            status="completed",
-            completed_at__lte=timezone.now(),
-        ).order_by("-completed_at")[:10]
+        recent_games = Game.query.filter(
+            (Game.player1_id == profile.user.id) | (Game.player2_id == profile.user.id),
+            Game.status == GameStatus.COMPLETED,
+            Game.completed_at <= datetime.utcnow()
+        ).order_by(Game.completed_at.desc()).limit(10).all()
 
         streak = 0
         for game in recent_games:
@@ -192,15 +189,20 @@ class Game(db.Model):
     def _award_achievement(self, profile, achievement_code):
         """Award an achievement to a player."""
         try:
-            achievement = Achievement.objects.get(code=achievement_code)
-            user_achievement, created = UserAchievement.objects.get_or_create(
+            achievement = Achievement.query.filter_by(code=achievement_code).first()
+            user_achievement = UserAchievement.query.filter_by(
                 user=profile, achievement=achievement
-            )
+            ).first()
+
+            if not user_achievement:
+                user_achievement = UserAchievement(user=profile, achievement=achievement)
+                db.session.add(user_achievement)
 
             if not user_achievement.is_unlocked:
                 user_achievement.unlock()
-        except Achievement.DoesNotExist:
-            pass
+                db.session.commit()
+        except Exception as e:
+            db.session.rollback()
 
     def cancel_game(self):
         """Cancel the game."""
@@ -220,25 +222,30 @@ class Game(db.Model):
         """
         return f"{self.player1_id} vs {self.player2_id}"
 
-    def add_player(self, player: User) -> None:
+    def add_player(self, player) -> None:
         """
         Adds a player to the game.
 
         Args:
-            player (User): The user instance to add.
+            player: The user instance to add.
         """
-        self.players.add(player)
-        self.save()
+        if not hasattr(self, 'players'):
+            self.players = []
+        self.players.append(player)
+        db.session.add(self)
+        db.session.commit()
 
-    def remove_player(self, player: User) -> None:
+    def remove_player(self, player) -> None:
         """
         Removes a player from the game.
 
         Args:
-            player (User): The user instance to remove.
+            player: The user instance to remove.
         """
-        self.players.remove(player)
-        self.save()
+        if hasattr(self, 'players') and player in self.players:
+            self.players.remove(player)
+            db.session.add(self)
+            db.session.commit()
 
 
 class GameSession(db.Model):
@@ -261,32 +268,29 @@ class GameSession(db.Model):
     user = db.relationship("User", backref=db.backref("game_sessions", lazy="dynamic"))
 
     def __init__(self, user_id: int, start_time: Optional[datetime] = None, status: str = "active"):
-        """Initialize a game session."""
+        """Initialize game session."""
         self.user_id = user_id
         self.start_time = start_time or datetime.utcnow()
         self.status = status
 
     def save(self):
-        """Save the session to the database."""
+        """Save game session."""
         db.session.add(self)
         db.session.commit()
 
     def end(self, score: Optional[int] = None):
-        """End the game session."""
+        """End game session."""
         self.end_time = datetime.utcnow()
-        self.status = "completed"
-        if score is not None:
-            self.score = score
-        db.session.commit()
+        self.status = "ended"
+        self.save()
 
     def cancel(self):
-        """Cancel the game session."""
-        self.end_time = datetime.utcnow()
+        """Cancel game session."""
         self.status = "cancelled"
-        db.session.commit()
+        self.save()
 
     def to_dict(self):
-        """Convert the session to a dictionary."""
+        """Convert game session to dictionary."""
         return {
             "id": self.id,
             "game_id": self.game_id,
@@ -317,46 +321,56 @@ class GameComment(db.Model):
     user = db.relationship("User", backref="comments")
 
     def __repr__(self):
-        """Represent comment as string."""
-        return f"<GameComment {self.id}: {self.game_id} - {self.user_id}>"
+        """Represent game comment as string."""
+        return f"<GameComment {self.id}: {self.user_id} on {self.game_id}>"
 
 
-@receiver(post_save, sender=Game)
-def game_completed_notification(sender, instance, created, **kwargs):
-    """Send notifications when a game is completed."""
-    if not created and instance.status == "completed" and instance.completed_at == timezone.now():
-        # Send WebSocket notifications to both players
-        from asgiref.sync import async_to_sync
-        from channels.layers import get_channel_layer
+def game_completed_notification(game):
+    """Send notification when game is completed."""
+    from ..core.utils.notifications import send_notification
 
-        channel_layer = get_channel_layer()
+    if game.status == GameStatus.COMPLETED:
+        winner = game.winner
+        loser = game.player2 if game.winner == game.player1 else game.player1
 
-        for player in [instance.player1, instance.player2]:
-            async_to_sync(channel_layer.group_send)(
-                f"notifications_group_{player.id}",
-                {
-                    "type": "game_completed",
-                    "game": {
-                        "id": instance.id,
-                        "opponent": (
-                            instance.player2.username
-                            if player == instance.player1
-                            else instance.player1.username
-                        ),
-                        "result": "victory" if player == instance.winner else "defeat",
-                        "score": f"{instance.player1_score}-{instance.player2_score}",
-                    },
-                },
-            )
+        # Notify winner
+        send_notification(
+            "game_completed",
+            {
+                "title": "Game Completed - Victory!",
+                "message": f"Congratulations! You won against {loser.username}",
+                "game_id": game.id,
+                "score": game.score,
+            },
+            winner.id,
+        )
+
+        # Notify loser
+        send_notification(
+            "game_completed",
+            {
+                "title": "Game Completed",
+                "message": f"Game finished. {winner.username} won.",
+                "game_id": game.id,
+                "score": game.score,
+            },
+            loser.id,
+        )
+
 
 def get_game_details(game_id: int) -> Dict[str, Any]:
-    """
-    Retrieve game details (dummy implementation).
-
-    Args:
-        game_id (int): The game ID.
-    
-    Returns:
-        Dict[str, Any]: Game details.
-    """
-    return {"id": game_id, "title": "Dummy Game"}
+    """Get detailed game information."""
+    game = Game.query.get_or_404(game_id)
+    return {
+        "id": game.id,
+        "player1": game.player1.username,
+        "player2": game.player2.username,
+        "game_type": game.game_type.value,
+        "game_mode": game.game_mode.value,
+        "status": game.status.value,
+        "winner": game.winner.username if game.winner else None,
+        "score": game.score,
+        "created_at": game.created_at.isoformat(),
+        "started_at": game.started_at.isoformat() if game.started_at else None,
+        "completed_at": game.completed_at.isoformat() if game.completed_at else None,
+    }

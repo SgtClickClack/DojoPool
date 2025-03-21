@@ -10,25 +10,33 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import aiohttp
 import aiosmtplib
+from prometheus_client import Counter, Histogram
 
-from ... import config
-from ..monitoring import MetricsCollector
-from ..threat_detection.detector import ThreatDetector
-from ..vulnerability_scanner.manager import ScannerManager
+from dojopool.core.monitoring import MetricsSnapshot, MetricsCollector
+from dojopool.core.security.threat_detection import ThreatFinding
+from dojopool.core.security.vulnerability_scanner import VulnerabilityFinding, ScannerManager
 from .incident import IncidentSeverity, IncidentStatus, IncidentType, SecurityIncident
 from .playbooks import PlaybookManager
-from ....core.extensions import db
-from ....core.monitoring import MetricsSnapshot, metrics
-from ....utils.notifications import NotificationManager
-from ..threat_detection.finding import ThreatFinding
-from ..vulnerability_scanner.base import VulnerabilityFinding
+from dojopool.utils.notifications import NotificationManager
 
 logger = logging.getLogger(__name__)
 
+# Prometheus metrics
+INCIDENTS_TOTAL = Counter(
+    'incidents_total',
+    'Total number of security incidents',
+    ['type', 'severity']
+)
+
+INCIDENT_ERRORS = Counter(
+    'incident_errors',
+    'Total number of errors in incident handling',
+    ['operation']
+)
 
 class IncidentManager:
     """Manager for security incidents."""
@@ -45,8 +53,8 @@ class IncidentManager:
             storage_path.mkdir(parents=True, exist_ok=True)
 
         self.notification_manager = NotificationManager()
-        self._active_incidents: Dict[int, SecurityIncident] = {}
-        self._monitoring_tasks: Dict[int, asyncio.Task] = {}
+        self._active_incidents: Dict[str, SecurityIncident] = {}
+        self._monitoring_tasks: Dict[str, asyncio.Task] = {}
 
         # Track incident statistics
         self.stats = {
@@ -116,11 +124,11 @@ class IncidentManager:
 
             # Add metrics snapshot
             if metrics_snapshot:
-                incident.metrics_snapshot = metrics_snapshot.to_dict()
+                incident.add_metrics_snapshot(metrics_snapshot)
 
-            # Save to database
-            db.session.add(incident)
-            db.session.commit()
+            # Save to storage
+            if self.storage_path:
+                await self._save_incident(incident)
 
             # Start monitoring if high severity
             if severity in [IncidentSeverity.CRITICAL, IncidentSeverity.HIGH]:
@@ -130,18 +138,18 @@ class IncidentManager:
             await self._notify_incident_created(incident)
 
             # Track metrics
-            metrics.INCIDENTS_TOTAL.labels(type=incident_type.value, severity=severity.value).inc()
+            INCIDENTS_TOTAL.labels(type=incident_type.value, severity=severity.value).inc()
 
             return incident
 
         except Exception as e:
             logger.error(f"Failed to create incident: {str(e)}")
-            metrics.INCIDENT_ERRORS.labels(operation="create").inc()
+            INCIDENT_ERRORS.labels(operation="create").inc()
             raise
 
     async def update_incident(
         self,
-        incident_id: int,
+        incident_id: str,
         status: Optional[IncidentStatus] = None,
         comment: Optional[str] = None,
     ) -> SecurityIncident:
@@ -160,13 +168,13 @@ class IncidentManager:
             if not incident:
                 raise ValueError(f"Incident {incident_id} not found")
 
-            # Convert string enum if needed
-            if isinstance(status, str):
-                status = IncidentStatus(status)
-
-            # Update status
-            incident.update_status(status, comment)
-            db.session.commit()
+            # Update status if provided
+            if status is not None:
+                incident.update_status(status, comment or "Status updated")
+            
+            # Save to storage
+            if self.storage_path:
+                await self._save_incident(incident)
 
             # Stop monitoring if resolved
             if status in [IncidentStatus.RESOLVED, IncidentStatus.CLOSED]:
@@ -179,10 +187,10 @@ class IncidentManager:
 
         except Exception as e:
             logger.error(f"Failed to update incident status: {str(e)}")
-            metrics.INCIDENT_ERRORS.labels(operation="update_status").inc()
+            INCIDENT_ERRORS.labels(operation="update_status").inc()
             raise
 
-    async def get_incident(self, incident_id: int) -> Optional[SecurityIncident]:
+    async def get_incident(self, incident_id: str) -> Optional[SecurityIncident]:
         """Get incident by ID.
 
         Args:
@@ -192,10 +200,25 @@ class IncidentManager:
             Optional[SecurityIncident]: Incident if found
         """
         try:
-            return SecurityIncident.query.get(incident_id)
+            # Check active incidents first
+            if incident_id in self._active_incidents:
+                return self._active_incidents[incident_id]
+
+            # Try to load from storage
+            if self.storage_path:
+                file_path = self.storage_path / f"incident_{incident_id}.json"
+                if file_path.exists():
+                    with open(file_path) as f:
+                        data = json.load(f)
+                        incident = SecurityIncident.from_dict(data)
+                        self._active_incidents[incident_id] = incident
+                        return incident
+
+            return None
+
         except Exception as e:
             logger.error(f"Failed to get incident: {str(e)}")
-            metrics.INCIDENT_ERRORS.labels(operation="get").inc()
+            INCIDENT_ERRORS.labels(operation="get").inc()
             raise
 
     async def get_active_incidents(
@@ -220,6 +243,9 @@ class IncidentManager:
     async def _load_incidents(self) -> None:
         """Load incidents from storage."""
         try:
+            if not self.storage_path:
+                return
+
             for file in self.storage_path.glob("*.json"):
                 with open(file) as f:
                     data = json.load(f)
@@ -247,11 +273,15 @@ class IncidentManager:
     async def _save_incident(self, incident: SecurityIncident) -> None:
         """Save incident to storage."""
         try:
+            if not self.storage_path:
+                return
+
             file_path = self.storage_path / f"incident_{incident.id}.json"
             with open(file_path, "w") as f:
                 json.dump(incident.to_dict(), f, indent=2)
+
         except Exception as e:
-            self.logger.error(f"Error saving incident {incident.id}: {str(e)}")
+            self.logger.error(f"Error saving incident: {str(e)}")
 
     async def _monitor_incidents(self) -> None:
         """Monitor active incidents."""
@@ -329,19 +359,18 @@ class IncidentManager:
         return False
 
     async def _notify_incident_created(self, incident: SecurityIncident) -> None:
-        """Send notification for new incident.
+        """Send notification for incident creation.
 
         Args:
             incident: Created incident
         """
-        await self.notification_manager.send_notification(
-            "security",
-            "incident_created",
-            {
-                "incident_id": incident.id,
-                "title": incident.title,
-                "severity": incident.severity.value,
-                "type": incident.incident_type.value,
+        self.notification_manager.emit_notification(
+            user_id=incident.assigned_to or "all",
+            notification_type="incident_created",
+            data={
+                "title": f"New Security Incident: {incident.title}",
+                "message": f"Severity: {incident.severity.value}\nType: {incident.incident_type.value}",
+                "incident": incident.to_dict(),
             },
         )
 
@@ -351,18 +380,17 @@ class IncidentManager:
         Args:
             incident: Updated incident
         """
-        await self.notification_manager.send_notification(
-            "security",
-            "incident_updated",
-            {
-                "incident_id": incident.id,
-                "title": incident.title,
-                "status": incident.status.value,
-                "notes": incident.resolution_notes,
+        self.notification_manager.emit_notification(
+            user_id=incident.assigned_to or "all",
+            notification_type="incident_status_updated",
+            data={
+                "title": f"Incident Status Updated: {incident.title}",
+                "message": f"New Status: {incident.status.value}",
+                "incident": incident.to_dict(),
             },
         )
 
-    async def start_monitoring(self, incident_id: int) -> None:
+    async def start_monitoring(self, incident_id: str) -> None:
         """Start monitoring an incident.
 
         Args:
@@ -374,7 +402,7 @@ class IncidentManager:
         task = asyncio.create_task(self._monitor_incident(incident_id))
         self._monitoring_tasks[incident_id] = task
 
-    async def stop_monitoring(self, incident_id: int) -> None:
+    async def stop_monitoring(self, incident_id: str) -> None:
         """Stop monitoring an incident.
 
         Args:
@@ -388,36 +416,46 @@ class IncidentManager:
             except asyncio.CancelledError:
                 pass
 
-    async def _monitor_incident(self, incident_id: int) -> None:
+    async def _monitor_incident(self, incident_id: str) -> None:
         """Monitor an incident for changes and updates.
 
         Args:
             incident_id: ID of the incident to monitor
         """
         try:
-            while True:
-                incident = await self.get_incident(incident_id)
-                if not incident:
-                    break
+            incident = await self.get_incident(incident_id)
+            if not incident:
+                return
+
+            while incident.status not in [IncidentStatus.RESOLVED, IncidentStatus.CLOSED]:
+                # Collect metrics
+                metrics_snapshot = self.metrics_collector.collect()
+                incident.add_metrics_snapshot(metrics_snapshot)
 
                 # Check for related threats
                 threats = await self._check_related_threats(incident)
-                if threats:
-                    for threat in threats:
-                        await self.add_finding(incident_id, threat)
+                for threat in threats:
+                    incident.add_threat_finding(threat)
 
-                # Update metrics
-                metrics.ACTIVE_INCIDENTS.labels(severity=incident.severity.value).inc()
+                # Check for vulnerabilities
+                vulnerabilities = await self._check_vulnerabilities(incident)
+                for vuln in vulnerabilities:
+                    incident.add_vulnerability_finding(vuln)
+
+                # Save updates
+                await self._save_incident(incident)
+
+                # Send notifications
+                await self._notify_incident_updated(incident)
 
                 await asyncio.sleep(60)  # Check every minute
 
-        except asyncio.CancelledError:
-            pass
         except Exception as e:
             logger.error(f"Error monitoring incident {incident_id}: {str(e)}")
-            metrics.INCIDENT_ERRORS.labels(operation="monitor").inc()
+            INCIDENT_ERRORS.labels(operation="monitor").inc()
         finally:
-            metrics.ACTIVE_INCIDENTS.labels(severity=incident.severity.value).dec()
+            if incident_id in self._monitoring_tasks:
+                del self._monitoring_tasks[incident_id]
 
     async def _check_related_threats(self, incident: SecurityIncident) -> List[ThreatFinding]:
         """Check for threats related to an incident.
@@ -431,7 +469,35 @@ class IncidentManager:
         # TODO: Implement threat correlation logic
         return []
 
-    async def add_evidence(self, incident_id: int, evidence_data: Dict) -> SecurityIncident:
+    async def _check_vulnerabilities(self, incident: SecurityIncident) -> List[VulnerabilityFinding]:
+        """Check for vulnerabilities related to an incident.
+
+        Args:
+            incident: Incident to check
+
+        Returns:
+            List[VulnerabilityFinding]: List of related vulnerabilities
+        """
+        # TODO: Implement vulnerability correlation logic
+        return []
+
+    async def _notify_incident_updated(self, incident: SecurityIncident) -> None:
+        """Send notification for incident update.
+
+        Args:
+            incident: Updated incident
+        """
+        self.notification_manager.emit_notification(
+            user_id=incident.assigned_to or "all",
+            notification_type="incident_updated",
+            data={
+                "title": f"Incident Updated: {incident.title}",
+                "message": f"Status: {incident.status.value}\nSeverity: {incident.severity.value}",
+                "incident": incident.to_dict(),
+            },
+        )
+
+    async def add_evidence(self, incident_id: str, evidence_data: Dict) -> SecurityIncident:
         """Add evidence to an incident.
 
         Args:
@@ -453,11 +519,11 @@ class IncidentManager:
 
         except Exception as e:
             logger.error(f"Failed to add evidence: {str(e)}")
-            metrics.INCIDENT_ERRORS.labels(operation="add_evidence").inc()
+            INCIDENT_ERRORS.labels(operation="add_evidence").inc()
             raise
 
     async def add_finding(
-        self, incident_id: int, finding: Union[ThreatFinding, VulnerabilityFinding]
+        self, incident_id: str, finding: Union[ThreatFinding, VulnerabilityFinding]
     ) -> SecurityIncident:
         """Add a finding to an incident.
 
@@ -486,5 +552,5 @@ class IncidentManager:
 
         except Exception as e:
             logger.error(f"Failed to add finding: {str(e)}")
-            metrics.INCIDENT_ERRORS.labels(operation="add_finding").inc()
+            INCIDENT_ERRORS.labels(operation="add_finding").inc()
             raise
