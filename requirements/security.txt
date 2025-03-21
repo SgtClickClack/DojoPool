@@ -13,8 +13,12 @@ Flask-Login==0.6.2
 PyJWT==2.8.0
 
 # Cryptography
-cryptography==41.0.4
+cryptography>=42.0.0
 itsdangerous==2.1.2
+pyOpenSSL>=24.0.0
+certifi>=2024.2.2
+urllib3>=2.2.0
+requests>=2.31.0
 
 # Rate limiting
 Flask-Limiter==3.5.0
