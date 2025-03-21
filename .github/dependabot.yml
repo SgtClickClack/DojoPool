@@ -3,24 +3,36 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
+    open-pull-requests-limit: 10
+    versioning-strategy: auto
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "fix"
+      include: "scope"
+    groups:
+      security-patches:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+          - "minor"
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
       - "security"
     commit-message:
-      prefix: "chore"
-      include: "scope"
-    groups:
-      dependencies:
-        patterns:
-          - "*"
-      devDependencies:
-        patterns:
-          - "*"
-    ignore:
-      - dependency-name: "typescript"
-        versions: ["5.0.0"]
-      - dependency-name: "react"
-        versions: ["18.0.0"] 
+      prefix: "fix"
+      include: "scope" 
