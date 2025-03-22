@@ -1,76 +1,75 @@
-name: Performance Tests
+name: Performance Testing
+
 on:
   push:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
-    branches:
-    - main
+    branches: [ main ]
   pull_request:
-    branches:
-    - main
+    branches: [ main ]
   schedule:
-  - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # Daily at midnight UTC
 
 jobs:
   performance:
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
+    
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: npm
+        cache: 'npm'
+        
     - name: Install dependencies
       run: npm ci
-    - name: Install Cypress
-      run: npx cypress install
+      
     - name: Run performance tests
-      run: |
-        npx cypress run --spec "cypress/e2e/performance/**/*.cy.ts" --browser chrome --headless
-      env:
-        CYPRESS_PERFORMANCE_MODE: true
-        CYPRESS_RECORD_KEY: ${{secrets.CYPRESS_RECORD_KEY}}
-    - name: Generate performance report
-      run: node scripts/generate-performance-report.js
+      run: npm run test:perf
+      
+    - name: Check performance budgets
+      run: npm run perf:check
+      
     - name: Upload performance results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
-        name: performance-report
-        path: cypress/reports/performance
-        retention-days: 90
-    - name: Check performance thresholds
-      run: |
-        node scripts/check-performance-thresholds.js
-      env:
-        FAIL_ON_THRESHOLD_BREACH: true
-    - name: Comment PR with performance results
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
+        name: performance-results
+        path: performance-results/
+        
+    - name: Check for regressions
+      run: npm run perf:regression
+      
+    - name: Report status
+      if: always()
+      uses: actions/github-script@v6
       with:
         script: |
           const fs = require('fs');
-          const report = JSON.parse(fs.readFileSync('cypress/reports/performance/report.json', 'utf8'));
-
-          const summary = `## Performance Test Results
-
-          - Total Tests: ${report.summary.totalTests}
-          - Passed: ${report.summary.passedTests}
-          - Failed: ${report.summary.failedTests}
-          - Average Score: ${report.summary.averageScore.toFixed(2)}%
-
-          ${report.summary.failedTests > 0 ? '### Failed Metrics\n\n' + report.metrics
-            .filter(m => !m.passed)
-            .map(m => `- ${m.name}: ${m.value}${m.unit} (Threshold: ${m.threshold}${m.unit})`)
-            .join('\n') : ''}\n`;
-
-          github.rest.issues.createComment({
+          const results = JSON.parse(fs.readFileSync('performance-results/summary.json', 'utf8'));
+          
+          const formatMetric = (value) => {
+            return value.toFixed(2);
+          };
+          
+          let summary = '## Performance Test Results\n\n';
+          summary += '| Metric | Value | Budget | Status |\n';
+          summary += '|--------|--------|--------|--------|\n';
+          
+          for (const metric of results.metrics) {
+            const status = metric.value <= metric.budget ? '✅' : '❌';
+            summary += `| ${metric.name} | ${formatMetric(metric.value)}ms | ${formatMetric(metric.budget)}ms | ${status} |\n`;
+          }
+          
+          if (results.regressions.length > 0) {
+            summary += '\n### Performance Regressions Detected\n\n';
+            for (const regression of results.regressions) {
+              summary += `- ${regression.metric}: ${formatMetric(regression.difference)}ms slower\n`;
+            }
+          }
+          
+          await github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
-            repo: context.repo.repo,
+            repo: context.repo.name,
             body: summary
           });

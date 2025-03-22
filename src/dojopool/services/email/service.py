@@ -1,21 +1,20 @@
 """Email service module."""
 
 import time
+import os
 from typing import Optional
 
 from flask import current_app
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import Mail, Email, To, Content
+
+class EmailError(Exception):
+    """Custom exception for email-related errors."""
+    pass
 
 # Constants
 MAX_RETRIES = 3
 RETRY_DELAY = 1  # seconds
-
-
-class EmailError(Exception):
-    """Custom exception for email-related errors."""
-
-    pass
 
 
 class EmailTemplate:
@@ -86,9 +85,14 @@ class EmailService:
 
     def __init__(self, api_key: Optional[str] = None, sender_email: Optional[str] = None):
         """Initialize email service."""
-        self.api_key = api_key
-        self.sender_email = sender_email
-        self.client = None
+        self.api_key = api_key or os.getenv('SENDGRID_API_KEY')
+        self.sender_email = sender_email or os.getenv('SENDGRID_SENDER_EMAIL')
+        if not self.api_key or not self.sender_email:
+            raise EmailError("SendGrid API key and sender email are required")
+        self.client = SendGridAPIClient(self.api_key)
+        self.verification_attempts = {}
+        self.max_attempts = 3
+        self.cooldown_period = 3600  # 1 hour in seconds
 
     def init_app(self, app):
         """Initialize with Flask application."""
@@ -109,35 +113,52 @@ class EmailService:
         if not re.match(pattern, email):
             raise ValueError(f"Invalid email address: {email}")
 
-    def _send(self, to_email: str, subject: str, content: str, retries: int = MAX_RETRIES) -> bool:
-        """Send email with retry mechanism."""
-        if not self.is_configured():
-            raise EmailError("Email service not properly configured")
-
-        self._validate_email(to_email)
-
-        message = Mail(
-            from_email=self.sender_email, to_emails=to_email, subject=subject, html_content=content
-        )
-
-        for attempt in range(retries):
-            try:
-                self.client.send(message)
-                return True
-            except Exception as e:
-                if attempt == retries - 1:
-                    raise EmailError(f"Failed to send email after {retries} attempts: {str(e)}")
-                time.sleep(RETRY_DELAY)
-
+    def _check_rate_limit(self, email: str) -> bool:
+        """Check if email verification is rate limited."""
+        now = time.time()
+        if email in self.verification_attempts:
+            attempts = self.verification_attempts[email]
+            if attempts['count'] >= self.max_attempts:
+                if now - attempts['last_attempt'] < self.cooldown_period:
+                    return True
+                else:
+                    # Reset after cooldown period
+                    self.verification_attempts[email] = {
+                        'count': 0,
+                        'last_attempt': now
+                    }
+            else:
+                attempts['count'] += 1
+                attempts['last_attempt'] = now
+        else:
+            self.verification_attempts[email] = {
+                'count': 1,
+                'last_attempt': now
+            }
         return False
+
+    def _send(self, to_email: str, subject: str, content: str) -> bool:
+        """Send email using SendGrid."""
+        try:
+            from_email = Email(self.sender_email)
+            to_email = To(to_email)
+            content = Content("text/html", content)
+            mail = Mail(from_email, to_email, subject, content)
+            response = self.client.send(mail)
+            return response.status_code == 202
+        except Exception as e:
+            raise EmailError(f"Failed to send email: {str(e)}")
 
     def send_verification_email(self, user) -> bool:
         """Send email verification link."""
         try:
+            if self._check_rate_limit(user.email):
+                raise EmailError("Too many verification attempts. Please try again later.")
+
             content = EmailTemplate.render(
                 EmailTemplate.VERIFICATION,
                 username=user.username,
-                verification_link=f"http://localhost:5000/auth/verify/{user.get_verification_token()}",
+                verification_link=f"{current_app.config['SITE_URL']}/auth/verify/{user.get_verification_token()}",
             )
             return self._send(user.email, "Verify Your Email - DojoPool", content)
         except Exception as e:

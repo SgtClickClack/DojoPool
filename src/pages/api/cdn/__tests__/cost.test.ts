@@ -1,0 +1,126 @@
+import { createMocks } from 'node-mocks-http';
+import handler from '../cost';
+import { getCurrentUser } from '../../../../dojopool/services/auth/session';
+import { CDNCostOptimizer } from '../../../../dojopool/services/cdn/cost_optimizer';
+
+// Mock the auth and cost optimizer modules
+jest.mock('../../../../dojopool/services/auth/session');
+jest.mock('../../../../dojopool/services/cdn/cost_optimizer');
+
+describe('CDN Cost API', () => {
+  const mockUser = {
+    id: '1',
+    email: 'test@example.com',
+    role: 'admin'
+  };
+
+  const mockCostReport = {
+    optimization: {
+      optimized: true,
+      costs: {
+        total_cost: 1000.0,
+        bandwidth_cost: 600.0,
+        request_cost: 400.0
+      },
+      savings: 200.0,
+      optimization_time: 1.5,
+      timestamp: new Date().toISOString()
+    },
+    usage: {
+      hourly_usage: Array.from({ length: 24 }, (_, i) => ({ hour: i, value: 100 })),
+      daily_usage: { '2024-01-01': 2400 },
+      weekly_usage: { '2024-W01': 16800 }
+    },
+    projections: {
+      daily: { '2024-01-02': 2500 },
+      weekly: { '2024-W02': 17500 },
+      monthly: { '2024-01': 70000 }
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return 401 for unauthenticated requests', async () => {
+    (getCurrentUser as jest.Mock).mockResolvedValue(null);
+
+    const { req, res } = createMocks({
+      method: 'GET'
+    });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(401);
+    expect(JSON.parse(res._getData())).toEqual({
+      error: 'Unauthorized'
+    });
+  });
+
+  it('should return 405 for non-GET requests', async () => {
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+
+    const { req, res } = createMocks({
+      method: 'POST'
+    });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(405);
+    expect(JSON.parse(res._getData())).toEqual({
+      error: 'Method not allowed'
+    });
+  });
+
+  it('should return cost report for authenticated GET requests', async () => {
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+    (CDNCostOptimizer.prototype.generate_cost_report as jest.Mock).mockResolvedValue(mockCostReport);
+
+    const { req, res } = createMocks({
+      method: 'GET'
+    });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(200);
+    expect(JSON.parse(res._getData())).toEqual(mockCostReport);
+  });
+
+  it('should handle errors gracefully', async () => {
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+    (CDNCostOptimizer.prototype.generate_cost_report as jest.Mock).mockRejectedValue(
+      new Error('Failed to generate cost report')
+    );
+
+    const { req, res } = createMocks({
+      method: 'GET'
+    });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(500);
+    expect(JSON.parse(res._getData())).toEqual({
+      error: 'Failed to generate cost report'
+    });
+  });
+
+  it('should validate user role', async () => {
+    const nonAdminUser = {
+      ...mockUser,
+      role: 'user'
+    };
+    (getCurrentUser as jest.Mock).mockResolvedValue(nonAdminUser);
+
+    const { req, res } = createMocks({
+      method: 'GET'
+    });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(403);
+    expect(JSON.parse(res._getData())).toEqual({
+      error: 'Insufficient permissions'
+    });
+  });
+}); 

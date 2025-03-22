@@ -42,31 +42,57 @@ class TournamentFormat(str, Enum):
 
 
 class Tournament(db.Model):
-    """Tournament model."""
+    """Model for managing tournaments."""
 
-    __tablename__ = "tournaments"
+    __tablename__ = 'tournaments'
 
-    id = db.Column(db.Integer, primary_key=True)  # type: int
-    name = db.Column(db.String(100), nullable=False)  # type: str
-    description = db.Column(db.Text, nullable=True)  # type: Optional[str]
-    start_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # type: datetime
-    end_date = db.Column(db.DateTime, nullable=True)  # type: Optional[datetime]
-    registration_deadline = db.Column(db.DateTime)
-    max_participants = db.Column(db.Integer, default=32)
-    entry_fee = db.Column(db.Float, default=0.0)
-    prize_pool = db.Column(db.Float, default=0.0)
-    status = db.Column(db.Enum(TournamentStatus), nullable=False, default=TournamentStatus.PENDING)
-    format = db.Column(db.Enum(TournamentFormat), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"))
-    organizer_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
+    organizer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
+    registration_deadline = db.Column(db.DateTime, nullable=False)
+    max_participants = db.Column(db.Integer, nullable=False)
+    entry_fee = db.Column(db.Float, nullable=False)
+    prize_pool = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), default='draft')  # draft, open, closed, in_progress, completed
+    format = db.Column(db.String(50), nullable=False)  # single_elimination, double_elimination, round_robin
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
-    venue = relationship("Venue", backref="tournaments")
-    organizer = relationship("User", backref="organized_tournaments", foreign_keys=[organizer_id])
-    participants = relationship("User", secondary="tournament_participants", backref="tournaments")
-    matches = relationship("TournamentGame", backref="tournament", lazy="dynamic")
+    venue = db.relationship('Venue', backref=db.backref('tournaments', lazy=True))
+    organizer = db.relationship('User', backref=db.backref('organized_tournaments', lazy=True))
+    participants = db.relationship('TournamentParticipant', backref='tournament', lazy=True)
+    matches = db.relationship('TournamentMatch', backref='tournament', lazy=True)
+
+    def __repr__(self):
+        return f'<Tournament {self.name}>'
+
+    def to_dict(self):
+        """Convert tournament to dictionary."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'venue_id': self.venue_id,
+            'organizer_id': self.organizer_id,
+            'start_date': self.start_date.isoformat(),
+            'end_date': self.end_date.isoformat(),
+            'registration_deadline': self.registration_deadline.isoformat(),
+            'max_participants': self.max_participants,
+            'entry_fee': self.entry_fee,
+            'prize_pool': self.prize_pool,
+            'status': self.status,
+            'format': self.format,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'participant_count': len(self.participants),
+            'venue': self.venue.to_dict() if self.venue else None,
+            'organizer': self.organizer.to_dict() if self.organizer else None
+        }
 
     @hybrid_property
     def is_active(self) -> bool:
@@ -115,7 +141,7 @@ class Tournament(db.Model):
         return None
 
     def _calculate_single_elim_placement(
-        self, user_id: int, matches: List["TournamentGame"]
+        self, user_id: int, matches: List["TournamentMatch"]
     ) -> int:
         """Calculate placement in single elimination tournament."""
         if not matches:
@@ -125,11 +151,11 @@ class Tournament(db.Model):
         elimination_round = 0
         for match in matches:
             if match.loser_id == user_id:
-                elimination_round = match.round_number
+                elimination_round = match.round
                 break
 
         # Calculate placement based on elimination round
-        total_rounds = max(m.round_number for m in matches)
+        total_rounds = max(m.round for m in matches)
         if elimination_round == 0:  # Won tournament
             return 1
         elif elimination_round == total_rounds:  # Runner up
@@ -139,7 +165,7 @@ class Tournament(db.Model):
             return 2 ** (total_rounds - elimination_round + 1)
 
     def _calculate_double_elim_placement(
-        self, user_id: int, matches: List["TournamentGame"]
+        self, user_id: int, matches: List["TournamentMatch"]
     ) -> int:
         """Calculate placement in double elimination tournament."""
         if not matches:
@@ -151,14 +177,14 @@ class Tournament(db.Model):
             return 1
         elif loss_count == 1:  # Lost in winners bracket
             final_match = next(
-                (m for m in matches if m.round_number == max(m.round_number for m in matches)), None
+                (m for m in matches if m.round == max(m.round for m in matches)), None
             )
             return 2 if final_match and final_match.loser_id == user_id else 3
         else:  # Lost in losers bracket
             return loss_count + 1
 
     def _calculate_round_robin_placement(
-        self, user_id: int, matches: List["TournamentGame"]
+        self, user_id: int, matches: List["TournamentMatch"]
     ) -> int:
         """Calculate placement in round robin tournament."""
         if not matches:
@@ -183,111 +209,82 @@ class Tournament(db.Model):
 
         return len(sorted_players)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert tournament to dictionary."""
-        return {
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "start_date": self.start_date.isoformat() if self.start_date else None,
-            "end_date": self.end_date.isoformat() if self.end_date else None,
-            "max_participants": self.max_participants,
-            "entry_fee": self.entry_fee,
-            "prize_pool": self.prize_pool,
-            "status": self.status,
-            "format": self.format,
-            "participant_count": self.participant_count,
-            "is_active": self.is_active,
-            "is_completed": self.is_completed,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }
 
-    def __repr__(self) -> str:
-        """
-        Returns a string representation of the Tournament.
+class TournamentParticipant(db.Model):
+    """Model for tournament participants."""
 
-        Returns:
-            str: A summary representation of the tournament.
-        """
-        return f"<Tournament {self.name}>"
+    __tablename__ = 'tournament_participants'
 
-
-class TournamentGame(db.Model):
-    """Model for games played within tournaments."""
-
-    __tablename__ = "tournament_games"
-
-    id = Column(Integer, primary_key=True)
-    tournament_id = Column(Integer, ForeignKey("tournaments.id"), nullable=False)
-    round_number = Column(Integer, nullable=False)
-    match_number = Column(Integer, nullable=False)
-    player1_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    player2_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    winner_id = Column(Integer, ForeignKey("users.id"))
-    loser_id = Column(Integer, ForeignKey("users.id"))
-    score = Column(String(20))  # e.g., "7-5"
-    status = Column(String(20), default="pending")  # pending, in_progress, completed
-    start_time = Column(DateTime)
-    end_time = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    status = db.Column(db.String(50), default='registered')  # registered, checked_in, eliminated
+    seed = db.Column(db.Integer, nullable=True)
+    payment_status = db.Column(db.String(50), default='pending')  # pending, paid, refunded
 
     # Relationships
-    tournament = relationship("Tournament", back_populates="matches")
-    player1 = relationship("User", foreign_keys=[player1_id])
-    player2 = relationship("User", foreign_keys=[player2_id])
-    winner = relationship("User", foreign_keys=[winner_id])
-    loser = relationship("User", foreign_keys=[loser_id])
+    user = db.relationship('User', backref=db.backref('tournament_participations', lazy=True))
 
-    @hybrid_property
-    def duration(self) -> Optional[float]:
-        """Get game duration in seconds."""
-        if self.start_time and self.end_time:
-            return (self.end_time - self.start_time).total_seconds()
-        return None
+    def __repr__(self):
+        return f'<TournamentParticipant {self.user_id} in Tournament {self.tournament_id}>'
 
-    @hybrid_property
-    def is_completed(self) -> bool:
-        """Check if game is completed."""
-        return self.status == "completed"
-
-    def start(self) -> None:
-        """Start the game."""
-        if self.status == "pending":
-            self.status = "in_progress"
-            self.start_time = datetime.utcnow()
-
-    def complete(self, winner_id: int, score: str) -> None:
-        """Complete the game with results."""
-        if self.status != "completed":
-            self.winner_id = winner_id
-            self.loser_id = self.player2_id if winner_id == self.player1_id else self.player1_id
-            self.score = score
-            self.status = "completed"
-            self.end_time = datetime.utcnow()
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert game to dictionary."""
+    def to_dict(self):
+        """Convert participant to dictionary."""
         return {
-            "id": self.id,
-            "tournament_id": self.tournament_id,
-            "round_number": self.round_number,
-            "match_number": self.match_number,
-            "player1_id": self.player1_id,
-            "player2_id": self.player2_id,
-            "winner_id": self.winner_id,
-            "loser_id": self.loser_id,
-            "score": self.score,
-            "status": self.status,
-            "start_time": self.start_time.isoformat() if self.start_time else None,
-            "end_time": self.end_time.isoformat() if self.end_time else None,
-            "duration": self.duration,
-            "is_completed": self.is_completed,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            'id': self.id,
+            'tournament_id': self.tournament_id,
+            'user_id': self.user_id,
+            'registration_date': self.registration_date.isoformat(),
+            'status': self.status,
+            'seed': self.seed,
+            'payment_status': self.payment_status,
+            'user': self.user.to_dict() if self.user else None
         }
 
-    def __repr__(self) -> str:
-        """String representation."""
-        return f"<TournamentGame {self.id}: {self.player1_id} vs {self.player2_id}>"
+
+class TournamentMatch(db.Model):
+    """Model for tournament matches."""
+
+    __tablename__ = 'tournament_matches'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
+    round = db.Column(db.Integer, nullable=False)
+    match_number = db.Column(db.Integer, nullable=False)
+    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    status = db.Column(db.String(50), default='scheduled')  # scheduled, in_progress, completed
+    start_time = db.Column(db.DateTime, nullable=True)
+    end_time = db.Column(db.DateTime, nullable=True)
+    score = db.Column(db.String(50), nullable=True)  # Format: "7-5, 6-4"
+    table_number = db.Column(db.Integer, nullable=True)
+
+    # Relationships
+    player1 = db.relationship('User', foreign_keys=[player1_id], backref=db.backref('matches_as_player1', lazy=True))
+    player2 = db.relationship('User', foreign_keys=[player2_id], backref=db.backref('matches_as_player2', lazy=True))
+    winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('matches_won', lazy=True))
+
+    def __repr__(self):
+        return f'<TournamentMatch {self.match_number} in Round {self.round}>'
+
+    def to_dict(self):
+        """Convert match to dictionary."""
+        return {
+            'id': self.id,
+            'tournament_id': self.tournament_id,
+            'round': self.round,
+            'match_number': self.match_number,
+            'player1_id': self.player1_id,
+            'player2_id': self.player2_id,
+            'winner_id': self.winner_id,
+            'status': self.status,
+            'start_time': self.start_time.isoformat() if self.start_time else None,
+            'end_time': self.end_time.isoformat() if self.end_time else None,
+            'score': self.score,
+            'table_number': self.table_number,
+            'player1': self.player1.to_dict() if self.player1 else None,
+            'player2': self.player2.to_dict() if self.player2 else None,
+            'winner': self.winner.to_dict() if self.winner else None
+        }

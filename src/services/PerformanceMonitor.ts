@@ -1,53 +1,68 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface PerformanceMetrics {
-    timeToFirstByte: number;
-    firstContentfulPaint: number;
-    domInteractive: number;
-    domComplete: number;
+    fps: number;
+    memoryUsage: number;
+    responseTime: number;
     loadTime: number;
-    resourceTiming: ResourceTiming[];
-    memoryUsage?: {
-        jsHeapSizeLimit: number;
-        totalJSHeapSize: number;
-        usedJSHeapSize: number;
-    };
-    longTasks: PerformanceEntry[];
-    networkInfo?: {
-        downlink: number;
-        effectiveType: string;
-        rtt: number;
-        saveData: boolean;
+    networkLatency: number;
+    resourceUtilization: {
+        cpu: number;
+        memory: number;
+        gpu?: number;
     };
 }
 
-interface ResourceTiming {
-    name: string;
-    initiatorType: string;
-    duration: number;
-    transferSize: number;
-    encodedBodySize: number;
-    decodedBodySize: number;
+interface PerformanceThresholds {
+    minFps: number;
+    maxResponseTime: number;
+    maxLoadTime: number;
+    maxNetworkLatency: number;
+    maxMemoryUsage: number;
+}
+
+// Extended Performance interface to include memory
+interface ExtendedPerformance extends Performance {
+    memory?: {
+        usedJSHeapSize: number;
+        jsHeapSizeLimit: number;
+    };
 }
 
 class PerformanceMonitor {
     private static instance: PerformanceMonitor;
-    private metrics: PerformanceMetrics = {
-        timeToFirstByte: 0,
-        firstContentfulPaint: 0,
-        domInteractive: 0,
-        domComplete: 0,
-        loadTime: 0,
-        resourceTiming: [],
-        longTasks: []
-    };
-    private observers: Map<string, PerformanceObserver> = new Map();
-    private callbacks: ((metrics: PerformanceMetrics) => void)[] = [];
+    private metrics: PerformanceMetrics;
+    private thresholds: PerformanceThresholds;
+    private observers: ((metrics: PerformanceMetrics) => void)[];
+    private frameCount: number;
+    private lastFrameTime: number;
+    private monitoringInterval: NodeJS.Timeout | null;
 
     private constructor() {
-        this.initializeObservers();
-        this.collectInitialMetrics();
-        this.setupNetworkMonitoring();
+        this.metrics = {
+            fps: 0,
+            memoryUsage: 0,
+            responseTime: 0,
+            loadTime: 0,
+            networkLatency: 0,
+            resourceUtilization: {
+                cpu: 0,
+                memory: 0,
+            },
+        };
+
+        this.thresholds = {
+            minFps: 30,
+            maxResponseTime: 100,
+            maxLoadTime: 2000,
+            maxNetworkLatency: 50,
+            maxMemoryUsage: 500,
+        };
+
+        this.observers = [];
+        this.frameCount = 0;
+        this.lastFrameTime = performance.now();
+        this.monitoringInterval = null;
     }
 
     public static getInstance(): PerformanceMonitor {
@@ -57,137 +72,169 @@ class PerformanceMonitor {
         return PerformanceMonitor.instance;
     }
 
-    private initializeObservers() {
-        // Paint timing observer
-        if (PerformanceObserver.supportedEntryTypes.includes('paint')) {
-            const paintObserver = new PerformanceObserver((entries) => {
-                entries.getEntries().forEach((entry) => {
-                    if (entry.name === 'first-contentful-paint') {
-                        this.metrics.firstContentfulPaint = entry.startTime;
-                        this.notifySubscribers();
-                    }
-                });
-            });
-            paintObserver.observe({ entryTypes: ['paint'] });
-            this.observers.set('paint', paintObserver);
-        }
+    public startMonitoring(): void {
+        if (this.monitoringInterval) return;
 
-        // Long tasks observer
-        if (PerformanceObserver.supportedEntryTypes.includes('longtask')) {
-            const longTaskObserver = new PerformanceObserver((entries) => {
-                const longTasks = entries.getEntries();
-                this.metrics.longTasks = [...this.metrics.longTasks, ...longTasks];
-                this.notifySubscribers();
-            });
-            longTaskObserver.observe({ entryTypes: ['longtask'] });
-            this.observers.set('longtask', longTaskObserver);
-        }
+        // Monitor FPS
+        const measureFPS = () => {
+            const currentTime = performance.now();
+            const elapsed = currentTime - this.lastFrameTime;
+            this.frameCount++;
 
-        // Resource timing observer
-        if (PerformanceObserver.supportedEntryTypes.includes('resource')) {
-            const resourceObserver = new PerformanceObserver((entries) => {
-                const resources = entries.getEntries().map(entry => ({
-                    name: entry.name,
-                    initiatorType: entry.initiatorType,
-                    duration: entry.duration,
-                    transferSize: (entry as PerformanceResourceTiming).transferSize,
-                    encodedBodySize: (entry as PerformanceResourceTiming).encodedBodySize,
-                    decodedBodySize: (entry as PerformanceResourceTiming).decodedBodySize
-                }));
-                this.metrics.resourceTiming = [...this.metrics.resourceTiming, ...resources];
-                this.notifySubscribers();
-            });
-            resourceObserver.observe({ entryTypes: ['resource'] });
-            this.observers.set('resource', resourceObserver);
-        }
-    }
-
-    private collectInitialMetrics() {
-        // Navigation timing
-        const navigationTiming = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-        if (navigationTiming) {
-            this.metrics.timeToFirstByte = navigationTiming.responseStart - navigationTiming.requestStart;
-            this.metrics.domInteractive = navigationTiming.domInteractive;
-            this.metrics.domComplete = navigationTiming.domComplete;
-            this.metrics.loadTime = navigationTiming.loadEventEnd - navigationTiming.loadEventStart;
-        }
-
-        // Memory info
-        if ((performance as any).memory) {
-            this.metrics.memoryUsage = {
-                jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit,
-                totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
-                usedJSHeapSize: (performance as any).memory.usedJSHeapSize
-            };
-        }
-    }
-
-    private setupNetworkMonitoring() {
-        if ('connection' in navigator) {
-            const connection = (navigator as any).connection;
-            if (connection) {
-                const updateNetworkInfo = () => {
-                    this.metrics.networkInfo = {
-                        downlink: connection.downlink,
-                        effectiveType: connection.effectiveType,
-                        rtt: connection.rtt,
-                        saveData: connection.saveData
-                    };
-                    this.notifySubscribers();
-                };
-
-                connection.addEventListener('change', updateNetworkInfo);
-                updateNetworkInfo();
+            if (elapsed >= 1000) {
+                this.metrics.fps = Math.round((this.frameCount * 1000) / elapsed);
+                this.frameCount = 0;
+                this.lastFrameTime = currentTime;
             }
+
+            requestAnimationFrame(measureFPS);
+        };
+
+        requestAnimationFrame(measureFPS);
+
+        // Monitor other metrics
+        this.monitoringInterval = setInterval(() => {
+            this.updateMetrics();
+            this.notifyObservers();
+            this.checkThresholds();
+        }, 1000);
+    }
+
+    public stopMonitoring(): void {
+        if (this.monitoringInterval) {
+            clearInterval(this.monitoringInterval);
+            this.monitoringInterval = null;
         }
     }
 
-    public subscribe(callback: (metrics: PerformanceMetrics) => void) {
-        this.callbacks.push(callback);
-        callback(this.metrics); // Initial callback with current metrics
+    public subscribe(callback: (metrics: PerformanceMetrics) => void): () => void {
+        this.observers.push(callback);
         return () => {
-            this.callbacks = this.callbacks.filter(cb => cb !== callback);
+            this.observers = this.observers.filter(observer => observer !== callback);
         };
     }
 
-    private notifySubscribers() {
-        this.callbacks.forEach(callback => callback(this.metrics));
+    public setThresholds(thresholds: Partial<PerformanceThresholds>): void {
+        this.thresholds = { ...this.thresholds, ...thresholds };
     }
 
     public getMetrics(): PerformanceMetrics {
         return { ...this.metrics };
     }
 
-    public clearMetrics() {
-        this.metrics = {
-            timeToFirstByte: 0,
-            firstContentfulPaint: 0,
-            domInteractive: 0,
-            domComplete: 0,
-            loadTime: 0,
-            resourceTiming: [],
-            longTasks: []
-        };
-        this.notifySubscribers();
+    private updateMetrics(): void {
+        // Update memory usage
+        const extendedPerformance = performance as ExtendedPerformance;
+        if (extendedPerformance.memory) {
+            this.metrics.memoryUsage = Math.round(
+                extendedPerformance.memory.usedJSHeapSize / (1024 * 1024)
+            );
+        }
+
+        // Update response time using Navigation Timing API
+        const navigationTiming = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        if (navigationTiming) {
+            this.metrics.responseTime = navigationTiming.responseEnd - navigationTiming.requestStart;
+            this.metrics.loadTime = navigationTiming.loadEventEnd;
+        }
+
+        // Update network latency using Resource Timing API
+        const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+        if (resources.length > 0) {
+            const latencies = resources.map(
+                resource => resource.responseEnd - resource.requestStart
+            );
+            this.metrics.networkLatency = Math.round(
+                latencies.reduce((a, b) => a + b) / latencies.length
+            );
+        }
+
+        // Update resource utilization
+        this.updateResourceUtilization();
     }
 
-    public disconnect() {
-        this.observers.forEach(observer => observer.disconnect());
-        this.observers.clear();
-        this.callbacks = [];
+    private updateResourceUtilization(): void {
+        // CPU usage estimation based on frame time
+        const frameTime = performance.now() - this.lastFrameTime;
+        const cpuUsage = Math.min(100, (frameTime / (1000 / 60)) * 100);
+        this.metrics.resourceUtilization.cpu = Math.round(cpuUsage);
+
+        // Memory usage percentage
+        const extendedPerformance = performance as ExtendedPerformance;
+        if (extendedPerformance.memory) {
+            const memoryUsage =
+                (extendedPerformance.memory.usedJSHeapSize /
+                    extendedPerformance.memory.jsHeapSizeLimit) *
+                100;
+            this.metrics.resourceUtilization.memory = Math.round(memoryUsage);
+        }
+
+        // GPU utilization (if available through WebGL)
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl');
+            if (gl) {
+                const extension = gl.getExtension('WEBGL_debug_renderer_info');
+                if (extension) {
+                    this.metrics.resourceUtilization.gpu = 0; // Placeholder for actual GPU metrics
+                }
+            }
+        } catch (error) {
+            console.warn('GPU metrics not available:', error);
+        }
+    }
+
+    private checkThresholds(): void {
+        if (this.metrics.fps < this.thresholds.minFps) {
+            console.warn('FPS below threshold:', this.metrics.fps);
+        }
+        if (this.metrics.responseTime > this.thresholds.maxResponseTime) {
+            console.warn('Response time above threshold:', this.metrics.responseTime);
+        }
+        if (this.metrics.loadTime > this.thresholds.maxLoadTime) {
+            console.warn('Load time above threshold:', this.metrics.loadTime);
+        }
+        if (this.metrics.networkLatency > this.thresholds.maxNetworkLatency) {
+            console.warn('Network latency above threshold:', this.metrics.networkLatency);
+        }
+        if (this.metrics.memoryUsage > this.thresholds.maxMemoryUsage) {
+            console.warn('Memory usage above threshold:', this.metrics.memoryUsage);
+        }
+    }
+
+    private notifyObservers(): void {
+        this.observers.forEach(observer => observer(this.getMetrics()));
     }
 }
 
 // React hook for using performance monitoring
 export const usePerformanceMonitoring = (
-    callback: (metrics: PerformanceMetrics) => void
+    callback?: (metrics: PerformanceMetrics) => void
 ) => {
+    const monitor = PerformanceMonitor.getInstance();
+    const unsubscribeRef = useRef<(() => void) | null>(null);
+
     useEffect(() => {
-        const monitor = PerformanceMonitor.getInstance();
-        return monitor.subscribe(callback);
+        monitor.startMonitoring();
+
+        if (callback) {
+            unsubscribeRef.current = monitor.subscribe(callback);
+        }
+
+        return () => {
+            if (unsubscribeRef.current) {
+                unsubscribeRef.current();
+            }
+            monitor.stopMonitoring();
+        };
     }, [callback]);
 
-    return PerformanceMonitor.getInstance();
+    return {
+        getMetrics: () => monitor.getMetrics(),
+        setThresholds: (thresholds: Partial<PerformanceThresholds>) =>
+            monitor.setThresholds(thresholds),
+    };
 };
 
+export type { PerformanceMetrics, PerformanceThresholds };
 export default PerformanceMonitor; 
