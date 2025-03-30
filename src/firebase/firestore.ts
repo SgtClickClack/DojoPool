@@ -7,16 +7,27 @@ import {
   where,
   orderBy,
   limit,
+  startAfter,
   addDoc,
   updateDoc,
   deleteDoc,
   serverTimestamp,
   DocumentData,
-  QueryConstraint
+  QueryConstraint,
+  startAt,
+  endAt,
+  getCountFromServer
 } from 'firebase/firestore';
 import { db } from './config';
 
-// Generic CRUD operations
+// Cache configuration
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_SIZE = 100; // Maximum number of documents to cache
+
+// In-memory cache
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+// Generic CRUD operations with caching
 export const createDocument = async (collectionName: string, data: any) => {
   try {
     const docRef = await addDoc(collection(db, collectionName), {
@@ -32,11 +43,20 @@ export const createDocument = async (collectionName: string, data: any) => {
 
 export const getDocument = async (collectionName: string, documentId: string) => {
   try {
+    const cacheKey = `${collectionName}/${documentId}`;
+    const cached = cache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return { success: true, data: cached.data, fromCache: true };
+    }
+
     const docRef = doc(db, collectionName, documentId);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+      const data = { id: docSnap.id, ...docSnap.data() };
+      cache.set(cacheKey, { data, timestamp: Date.now() });
+      return { success: true, data, fromCache: false };
     } else {
       return { success: false, error: 'Document not found' };
     }
@@ -68,18 +88,35 @@ export const deleteDocument = async (collectionName: string, documentId: string)
   }
 };
 
-// Query operations
+// Optimized query operations with pagination
 export const queryDocuments = async (
   collectionName: string,
   constraints: QueryConstraint[] = [],
-  limitCount: number = 10
+  pageSize: number = 10,
+  lastDoc?: DocumentData
 ) => {
   try {
-    const q = query(
+    const cacheKey = `${collectionName}/${JSON.stringify(constraints)}`;
+    const cached = cache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return { 
+        success: true, 
+        data: cached.data, 
+        fromCache: true,
+        hasMore: cached.data.length === pageSize
+      };
+    }
+
+    let q = query(
       collection(db, collectionName),
       ...constraints,
-      limit(limitCount)
+      limit(pageSize)
     );
+
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
     
     const querySnapshot = await getDocs(q);
     const documents = querySnapshot.docs.map(doc => ({
@@ -87,9 +124,52 @@ export const queryDocuments = async (
       ...doc.data()
     }));
     
-    return { success: true, data: documents };
+    // Cache the results
+    cache.set(cacheKey, { data: documents, timestamp: Date.now() });
+    
+    // Clean up old cache entries if needed
+    if (cache.size > CACHE_SIZE) {
+      const oldestKey = Array.from(cache.entries())
+        .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0][0];
+      cache.delete(oldestKey);
+    }
+
+    return { 
+      success: true, 
+      data: documents,
+      fromCache: false,
+      hasMore: documents.length === pageSize,
+      lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1]
+    };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+};
+
+// Count documents with optimized query
+export const countDocuments = async (
+  collectionName: string,
+  constraints: QueryConstraint[] = []
+) => {
+  try {
+    const q = query(
+      collection(db, collectionName),
+      ...constraints
+    );
+    
+    const snapshot = await getCountFromServer(q);
+    return { success: true, count: snapshot.data().count };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Clear cache for a specific collection
+export const clearCache = (collectionName: string) => {
+  for (const key of cache.keys()) {
+    if (key.startsWith(collectionName)) {
+      cache.delete(key);
+    }
   }
 };
 

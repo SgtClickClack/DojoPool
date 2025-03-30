@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -16,15 +16,38 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication
+// Initialize Firebase Authentication with optimized settings
 const auth = getAuth(app);
-auth.settings.appVerificationDisabledForTesting = false; // Enable reCAPTCHA in production
-auth.settings.recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+auth.settings.appVerificationDisabledForTesting = false;
 
-// Initialize Firestore
+// Initialize Firestore with performance optimizations
 const db = getFirestore(app);
+if (typeof window !== 'undefined') {
+  enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+    } else if (err.code === 'unimplemented') {
+      console.warn('The current browser does not support persistence.');
+    }
+  });
+}
 
-// Initialize Storage
+// Initialize Storage with optimized settings
 const storage = getStorage(app);
+storage.maxUploadRetryTime = 60000; // 1 minute
+storage.maxOperationRetryTime = 60000; // 1 minute
+
+// Development mode optimizations
+if (process.env.NODE_ENV === 'development') {
+  // Disable analytics in development
+  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID) {
+    (window as any)[`ga-disable-${process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}`] = true;
+  }
+  
+  // Enable debug logging
+  if (process.env.NEXT_PUBLIC_FIREBASE_DEBUG === 'true') {
+    console.log('Firebase Debug Mode Enabled');
+  }
+}
 
 export { app, auth, db, storage }; 
