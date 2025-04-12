@@ -9,6 +9,9 @@ interface AlertItemProps {
   alert: Alert;
   style?: React.CSSProperties;
   onHeightChange?: (height: number) => void;
+  onAcknowledge?: (id: string) => void;
+  onViewDetails?: (id: string) => void;
+  onClose?: (id: string) => void;
 }
 
 const getAlertColor = (type: AlertType): ChipProps['color'] => {
@@ -35,7 +38,14 @@ const getStatusColor = (status: AlertStatus): ChipProps['color'] => {
   }
 };
 
-export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChange }: AlertItemProps) => {
+export const AlertItemOptimized = React.memo(({ 
+  alert, 
+  style = {}, 
+  onHeightChange,
+  onAcknowledge,
+  onViewDetails,
+  onClose 
+}: AlertItemProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const boxRef = useRef<HTMLDivElement>(null);
@@ -69,16 +79,23 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
   // Handle keyboard navigation
   const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
-      // Trigger alert action if needed
       event.preventDefault();
+      if (event.currentTarget.getAttribute('data-action') === 'acknowledge' && onAcknowledge) {
+        onAcknowledge(alert.id);
+      } else if (event.currentTarget.getAttribute('data-action') === 'view' && onViewDetails) {
+        onViewDetails(alert.id);
+      } else if (event.currentTarget.getAttribute('data-action') === 'close' && onClose) {
+        onClose(alert.id);
+      }
     }
-  }, []);
+  }, [alert.id, onAcknowledge, onViewDetails, onClose]);
 
   return (
     <Box
       ref={boxRef}
       role="article"
       aria-label={`${alert.type} alert: ${alert.message}`}
+      aria-describedby={`alert-${alert.id}-timestamp alert-${alert.id}-status`}
       tabIndex={0}
       onKeyPress={handleKeyPress}
       sx={{
@@ -107,6 +124,7 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
               variant="body1"
               component="h3"
               sx={{ fontWeight: 'medium' }}
+              id={`alert-${alert.id}-message`}
             >
               {alert.message}
             </Typography>
@@ -121,6 +139,7 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
               label={alert.status}
               color={metadata.statusColor}
               aria-label={`Alert status: ${alert.status}`}
+              id={`alert-${alert.id}-status`}
             />
           </Box>
           <Typography
@@ -128,6 +147,7 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
             color="text.secondary"
             component="time"
             dateTime={new Date(alert.timestamp).toISOString()}
+            id={`alert-${alert.id}-timestamp`}
           >
             {metadata.timestamp}
           </Typography>
@@ -152,8 +172,10 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
             <Tooltip title="Acknowledge alert">
               <IconButton
                 size="small"
-                onClick={() => {/* Acknowledge handler */}}
+                onClick={() => onAcknowledge?.(alert.id)}
                 aria-label="Acknowledge alert"
+                data-action="acknowledge"
+                tabIndex={0}
               >
                 <CheckCircleOutline />
               </IconButton>
@@ -161,8 +183,10 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
             <Tooltip title="View alert details">
               <IconButton
                 size="small"
-                onClick={() => {/* View details handler */}}
+                onClick={() => onViewDetails?.(alert.id)}
                 aria-label="View alert details"
+                data-action="view"
+                tabIndex={0}
               >
                 <InfoOutlined />
               </IconButton>
@@ -170,8 +194,10 @@ export const AlertItemOptimized = React.memo(({ alert, style = {}, onHeightChang
             <Tooltip title="Close alert">
               <IconButton
                 size="small"
-                onClick={() => {/* Close handler */}}
+                onClick={() => onClose?.(alert.id)}
                 aria-label="Close alert"
+                data-action="close"
+                tabIndex={0}
               >
                 <CloseOutlined />
               </IconButton>

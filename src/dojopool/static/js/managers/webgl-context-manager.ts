@@ -132,6 +132,13 @@ interface QualityLevel {
     readonly powerPreference: WebGLContextAttributes['powerPreference'];
 }
 
+export interface WebGLContextManager {
+    getContext(): WebGLRenderingContext | WebGL2RenderingContext | null;
+    getQualityLevel(): number;
+    addContextListener(listener: (event: { type: string }) => void): void;
+    removeContextListener(listener: (event: { type: string }) => void): void;
+}
+
 export class WebGLContextManager extends BaseManager<WebGLContextManager> {
     private static readonly CONTEXT_RECOVERY_DELAY = 1000; // 1 second
     private static readonly MAX_RECOVERY_ATTEMPTS = 5;

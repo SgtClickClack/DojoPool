@@ -1,256 +1,375 @@
 # DojoPool User Guide
 
 ## Table of Contents
-- [Getting Started](#getting-started)
-- [Account Management](#account-management)
-- [Game Modes](#game-modes)
-- [Tournament System](#tournament-system)
-- [Ranking System](#ranking-system)
-- [Venue Integration](#venue-integration)
-- [Mobile Features](#mobile-features)
-- [Troubleshooting](#troubleshooting)
+1. [Getting Started](#getting-started)
+2. [Account Management](#account-management)
+3. [Game Features](#game-features)
+4. [Tournament System](#tournament-system)
+5. [Social Features](#social-features)
+6. [Venue Management](#venue-management)
+7. [Settings and Preferences](#settings-and-preferences)
+8. [Troubleshooting](#troubleshooting)
 
 ## Getting Started
 
-### Installation
-1. Download DojoPool from:
-   - [App Store](https://apps.apple.com/app/dojopool)
-   - [Google Play](https://play.google.com/store/apps/details?id=com.dojopool.app)
-   - [Web App](https://dojopool.com)
+### Creating an Account
+1. Visit the DojoPool website
+2. Click "Sign Up" in the top right corner
+3. Enter your email and create a password
+4. Complete your profile information
+5. Verify your email address
 
-2. Progressive Web App:
-   - Visit dojopool.com in your browser
-   - Click "Add to Home Screen"
-   - Enjoy native-like experience
-
-### First Steps
-1. Create an account
-2. Complete your profile
-3. Find nearby venues
-4. Join or create a game
+### First-Time Setup
+1. Complete your profile
+2. Set up your avatar
+3. Configure notification preferences
+4. Connect social accounts (optional)
+5. Set your preferred venues
 
 ## Account Management
 
-### Profile Setup
-- Upload profile picture
-- Set skill level
-- Add preferred venues
-- Configure notifications
+### Profile Management
+- Update personal information
+- Change profile picture
+- Manage privacy settings
+- View game statistics
+- Track achievements
 
-### Privacy Settings
-- Profile visibility
-- Match history privacy
-- Location sharing
-- Contact preferences
+### Security
+- Change password
+- Enable two-factor authentication
+- Manage connected devices
+- View login history
+- Set up security questions
 
-### Notifications
-- Game invites
-- Tournament updates
-- Venue announcements
-- Achievement alerts
+## Game Features
 
-## Game Modes
+### Starting a Game
+1. Select "New Game" from the dashboard
+2. Choose game type (8-ball, 9-ball, etc.)
+3. Select opponent(s)
+4. Set game parameters
+5. Start the game
 
-### Quick Match
-1. Open the app
-2. Click "Quick Match"
-3. Select venue
-4. Choose game type
-5. Wait for opponent or join existing game
+### Game Interface
+- Real-time shot tracking
+- Score display
+- Player statistics
+- Game history
+- Chat functionality
 
-### Practice Mode
-- Solo practice tracking
-- Shot analysis
-- Performance metrics
-- Training recommendations
-
-### Tournament Play
-1. Browse tournaments
-2. Check eligibility
-3. Register and pay entry
-4. View bracket and schedule
-5. Compete and track progress
-
-### Spectator Mode
-- Watch live games
-- View professional matches
-- Access match statistics
-- Interact with other spectators
+### Game Types
+- 8-Ball
+- 9-Ball
+- Straight Pool
+- One Pocket
+- Bank Pool
 
 ## Tournament System
 
-### Types of Tournaments
-- Single Elimination
-- Double Elimination
-- Round Robin
-- League Play
+### Joining Tournaments
+1. Browse available tournaments
+2. Check eligibility requirements
+3. Register for tournament
+4. Pay entry fee (if applicable)
+5. Receive confirmation
 
 ### Tournament Features
-- Automatic bracketing
-- Real-time updates
-- Prize pool tracking
-- Player statistics
+- Bracket visualization
+- Match scheduling
+- Results tracking
+- Prize distribution
+- Statistics and analytics
 
-### Organizing Tournaments
-1. Select tournament type
-2. Set rules and format
-3. Configure entry fees
-4. Define prize structure
-5. Manage registrations
+## Social Features
 
-## Ranking System
+### Friends System
+- Add/remove friends
+- Send friend requests
+- Block users
+- View friend activity
+- Share achievements
 
-### How Rankings Work
-- Match outcomes
-- Opponent skill levels
-- Tournament performance
-- Consistency factors
+### Activity Feed
+- Recent games
+- Tournament updates
+- Friend activity
+- Achievement unlocks
+- Venue check-ins
 
-### Ranking Tiers
-- Bronze (0-1000)
-- Silver (1001-2000)
-- Gold (2001-3000)
-- Platinum (3001+)
+### Social Sharing
+- Share game highlights
+- Post tournament results
+- Share achievements
+- Invite friends to games
+- Connect social media
 
-### Improving Your Rank
-- Win matches
-- Enter tournaments
-- Complete challenges
-- Maintain consistency
-
-## Venue Integration
+## Venue Management
 
 ### Finding Venues
-- Map view
-- List view
-- Search filters
-- Favorites
+- Search by location
+- Filter by amenities
+- View table availability
+- Check ratings and reviews
+- See upcoming events
 
 ### Venue Features
-- Table availability
-- Operating hours
-- Pricing
-- Amenities
+- Table booking
+- Check-in system
+- Venue statistics
+- Event calendar
+- Special offers
 
-### Booking Tables
-1. Select venue
-2. Choose date/time
-3. Pick table
-4. Confirm booking
-5. Share with opponent
+## Settings and Preferences
 
-## Mobile Features
+### Notification Settings
+- Game invites
+- Tournament updates
+- Friend requests
+- Achievement unlocks
+- Venue promotions
 
-### Offline Mode
-- View match history
-- Access statistics
-- Review tutorials
-- Practice tracking
+### Privacy Settings
+- Profile visibility
+- Activity sharing
+- Friend list visibility
+- Game history privacy
+- Location sharing
 
-### Real-time Features
-- Live match updates
-- Chat system
-- Push notifications
-- Location services
-
-### Performance Tools
-- Shot tracking
-- Game analysis
-- Progress charts
-- Achievement system
+### Game Preferences
+- Default game type
+- Preferred rules
+- Table preferences
+- Opponent settings
+- Chat preferences
 
 ## Troubleshooting
 
 ### Common Issues
+1. Login Problems
+   - Reset password
+   - Check email verification
+   - Clear browser cache
+   - Try different browser
 
-#### Connection Problems
-1. Check internet connection
-2. Verify app permissions
-3. Clear cache
-4. Restart app
+2. Game Connection Issues
+   - Check internet connection
+   - Refresh the page
+   - Restart the game
+   - Contact support
 
-#### Game Issues
-1. Verify venue check-in
-2. Check match settings
-3. Contact venue staff
-4. Report technical issues
+3. Payment Issues
+   - Check payment method
+   - Verify transaction history
+   - Contact support
+   - Check bank statements
 
-#### Account Problems
-1. Password reset
-2. Email verification
-3. Profile updates
-4. Payment issues
+### Support Channels
+- In-app support chat
+- Email support
+- Community forums
+- FAQ section
+- Social media support
 
-### Getting Help
-- In-app support
-- Email: support@dojopool.com
-- Discord community
-- Help center
+## Mobile App Features
 
-## Tips and Tricks
+### App Installation
+1. Download from App Store/Play Store
+2. Install the application
+3. Log in or create account
+4. Complete setup
+5. Enable notifications
 
-### For Beginners
-- Tutorial system
-- Practice modes
-- Skill assessments
-- Beginner tournaments
+### Mobile-Specific Features
+- QR code check-in
+- Mobile camera integration
+- Push notifications
+- Offline mode
+- Mobile-optimized interface
 
-### Advanced Features
-- Statistics analysis
-- Performance tracking
-- Custom tournaments
-- Professional tools
+## Advanced Features
 
-### Social Features
-- Friend system
-- Team creation
-- Chat functions
-- Community events
+### AI Shot Analysis
+- Shot tracking
+- Performance analysis
+- Improvement suggestions
+- Skill assessment
+- Training recommendations
 
-## Safety and Fair Play
+### Statistics and Analytics
+- Game performance
+- Tournament history
+- Skill progression
+- Achievement tracking
+- Social engagement
 
-### Fair Play Rules
-- Sportsmanship guidelines
-- Anti-cheating measures
-- Reporting system
-- Appeal process
+## Best Practices
 
-### Safety Guidelines
-- COVID-19 protocols
-- Venue safety rules
-- Equipment handling
-- Emergency procedures
+### Game Etiquette
+- Respect opponents
+- Follow rules
+- Maintain sportsmanship
+- Report issues
+- Provide feedback
 
-## Updates and Changes
+### Security Tips
+- Use strong passwords
+- Enable 2FA
+- Log out when finished
+- Don't share credentials
+- Report suspicious activity
 
-### App Updates
+## System Requirements
+
+### Web Browser
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Opera (latest)
+
+### Mobile Devices
+- iOS 14+
+- Android 10+
+- 2GB RAM minimum
+- Stable internet connection
+- Camera (for QR features)
+
+## Performance Tips
+
+### Optimizing Experience
+- Clear browser cache
+- Update browser
+- Check internet speed
+- Close background apps
+- Use recommended settings
+
+### Troubleshooting Performance
+- Check system requirements
+- Update device software
+- Clear app cache
+- Restart device
+- Contact support
+
+## Updates and Maintenance
+
+### System Updates
 - Regular feature updates
 - Security patches
 - Performance improvements
 - Bug fixes
+- New game types
 
-### Feature Requests
-- Suggestion system
-- Community voting
+### Maintenance Schedule
+- Weekly updates
+- Monthly feature releases
+- Quarterly major updates
+- Emergency patches
+- Scheduled maintenance
+
+## Contact Information
+
+### Support
+- Email: support@dojopool.com
+- Phone: (555) 123-4567
+- Live Chat: Available 24/7
+- Social Media: @DojoPool
+
+### Business Hours
+- Monday-Friday: 9AM-6PM EST
+- Saturday: 10AM-4PM EST
+- Sunday: Closed
+- Emergency Support: 24/7
+
+## Legal Information
+
+### Terms of Service
+- User agreement
+- Privacy policy
+- Code of conduct
+- Refund policy
+- Dispute resolution
+
+### Data Protection
+- GDPR compliance
+- Data encryption
+- Privacy controls
+- Data retention
+- User rights
+
+## Community Guidelines
+
+### Behavior Standards
+- Respect others
+- No harassment
+- Fair play
+- Sportsmanship
+- Positive engagement
+
+### Content Rules
+- Appropriate language
+- No spam
+- Respect copyright
+- No illegal content
+- Community standards
+
+## Feedback and Improvement
+
+### Reporting Issues
+- Bug reports
+- Feature requests
+- Performance issues
+- Security concerns
+- User experience feedback
+
+### Community Contributions
 - Beta testing
-- Feedback channels
+- Feature suggestions
+- Content creation
+- Community moderation
+- User guides
 
-## Appendix
+## Additional Resources
 
-### Glossary
-- Common terms
-- Game rules
-- Technical terms
-- Abbreviations
-
-### Resources
+### Learning Materials
 - Tutorial videos
-- Strategy guides
-- Community forums
-- Support articles
+- Game guides
+- Strategy tips
+- Rule explanations
+- Training resources
 
-### Contact Information
-- Support team
-- Regional offices
-- Social media
-- Development team 
+### Community Resources
+- Forums
+- Discord server
+- Social media groups
+- Local meetups
+- Tournaments
+
+## Version History
+
+### Current Version
+- Version: 1.0.0
+- Release Date: 2024-01-16
+- Features: Initial release
+- Improvements: N/A
+- Known Issues: None
+
+### Previous Versions
+- Beta 0.9.0
+- Alpha 0.8.0
+- Pre-release 0.7.0
+
+## Future Roadmap
+
+### Upcoming Features
+- AI coaching
+- Virtual tournaments
+- Enhanced social features
+- Mobile improvements
+- Venue partnerships
+
+### Development Timeline
+- Q1 2024: Mobile optimization
+- Q2 2024: AI features
+- Q3 2024: Social enhancements
+- Q4 2024: Venue integration 

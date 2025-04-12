@@ -1,5 +1,258 @@
 # DojoPool API Documentation
 
+## Base URL
+```
+http://localhost:8000/api
+```
+
+## Authentication
+
+### Login
+- **Endpoint**: `/auth/login`
+- **Method**: POST
+- **Description**: Authenticate a user and receive a JWT token
+- **Request Body**:
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "token": "string",
+    "user": {
+      "id": "string",
+      "email": "string",
+      "name": "string"
+    }
+  }
+  ```
+
+### Register
+- **Endpoint**: `/auth/register`
+- **Method**: POST
+- **Description**: Create a new user account
+- **Request Body**:
+  ```json
+  {
+    "email": "string",
+    "password": "string",
+    "name": "string"
+  }
+  ```
+- **Response**: User object
+
+### Get Profile
+- **Endpoint**: `/auth/profile`
+- **Method**: GET
+- **Description**: Get the authenticated user's profile
+- **Response**: User profile object
+
+### Forgot Password
+- **Endpoint**: `/auth/forgot-password`
+- **Method**: POST
+- **Description**: Request a password reset
+- **Request Body**:
+  ```json
+  {
+    "email": "string"
+  }
+  ```
+
+### Reset Password
+- **Endpoint**: `/auth/reset-password`
+- **Method**: POST
+- **Description**: Reset password using token
+- **Request Body**:
+  ```json
+  {
+    "token": "string",
+    "password": "string"
+  }
+  ```
+
+## User Management
+
+### Create User
+- **Endpoint**: `/users`
+- **Method**: POST
+- **Description**: Create a new user
+- **Request Body**:
+  ```json
+  {
+    "email": "string",
+    "password": "string"
+  }
+  ```
+- **Response**: User object
+
+### Get User by Email
+- **Endpoint**: `/users/email/{email}`
+- **Method**: GET
+- **Description**: Get user by email address
+- **Response**: User object
+
+### Get User by ID
+- **Endpoint**: `/users/{id}`
+- **Method**: GET
+- **Description**: Get user by ID
+- **Response**: User object
+
+### Update User
+- **Endpoint**: `/users/{id}`
+- **Method**: PATCH
+- **Description**: Update user information
+- **Request Body**: Partial User object
+- **Response**: Updated User object
+
+### Delete User
+- **Endpoint**: `/users/{id}`
+- **Method**: DELETE
+- **Description**: Delete a user
+- **Response**: Deleted User object
+
+## Venue Management
+
+### Get Venues
+- **Endpoint**: `/venues`
+- **Method**: GET
+- **Description**: Get list of all venues
+- **Response**: Array of Venue objects
+
+### Get Venue Details
+- **Endpoint**: `/venues/{venueId}`
+- **Method**: GET
+- **Description**: Get detailed information about a venue
+- **Response**: Venue object
+
+## Game Management
+
+### Get Games
+- **Endpoint**: `/games`
+- **Method**: GET
+- **Description**: Get list of all games
+- **Response**: Array of Game objects
+
+### Get Game Details
+- **Endpoint**: `/games/{gameId}`
+- **Method**: GET
+- **Description**: Get detailed information about a game
+- **Response**: Game object
+
+### Create Game
+- **Endpoint**: `/games`
+- **Method**: POST
+- **Description**: Create a new game
+- **Request Body**: Game data
+- **Response**: Created Game object
+
+### Join Game
+- **Endpoint**: `/games/{gameId}/join`
+- **Method**: POST
+- **Description**: Join an existing game
+- **Response**: Updated Game object
+
+### Leave Game
+- **Endpoint**: `/games/{gameId}/leave`
+- **Method**: POST
+- **Description**: Leave a game
+- **Response**: Updated Game object
+
+### Update Game Status
+- **Endpoint**: `/games/{gameId}/status`
+- **Method**: PATCH
+- **Description**: Update game status
+- **Request Body**:
+  ```json
+  {
+    "status": "string"
+  }
+  ```
+- **Response**: Updated Game object
+
+## Leaderboard
+
+### Get Leaderboard
+- **Endpoint**: `/leaderboard`
+- **Method**: GET
+- **Description**: Get current leaderboard standings
+- **Response**: Array of LeaderboardEntry objects
+
+## Profile Management
+
+### Update Profile
+- **Endpoint**: `/profile`
+- **Method**: PATCH
+- **Description**: Update user profile information
+- **Request Body**: Profile data
+- **Response**: Updated Profile object
+
+## Error Responses
+
+All endpoints may return the following error responses:
+
+```json
+{
+  "error": {
+    "code": "string",
+    "message": "string",
+    "details": {}
+  }
+}
+```
+
+Common error codes:
+- `400`: Bad Request
+- `401`: Unauthorized
+- `403`: Forbidden
+- `404`: Not Found
+- `500`: Internal Server Error
+
+## Rate Limiting
+
+- Rate limit: 100 requests per 15-minute window
+- Headers included in response:
+  - `X-RateLimit-Limit`: Maximum requests per window
+  - `X-RateLimit-Remaining`: Remaining requests in current window
+  - `X-RateLimit-Reset`: Time when the rate limit resets
+
+## Security
+
+- All endpoints require authentication unless specified otherwise
+- JWT tokens must be included in the `Authorization` header:
+  ```
+  Authorization: Bearer <token>
+  ```
+- CSRF protection is implemented for all state-changing requests
+- Secure cookies are used for session management
+
+## WebSocket Events
+
+The following WebSocket events are available:
+
+### Game Events
+- `game:update`: Game state updates
+- `game:join`: Player joined game
+- `game:leave`: Player left game
+- `game:status`: Game status changes
+
+### User Events
+- `user:status`: User status updates
+- `user:profile`: Profile updates
+
+### Venue Events
+- `venue:status`: Venue status updates
+- `venue:table`: Table status updates
+
+## Performance Metrics
+
+- Authentication Response Time: <100ms
+- API Response Time: <200ms
+- WebSocket Message Processing: <20ms
+- Real-time Update Latency: <50ms
+
 ## System Integration API
 
 The DojoPool system provides a comprehensive API for managing and monitoring integrated WebGL context, memory, worker pool, and texture systems.

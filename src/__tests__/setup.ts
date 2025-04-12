@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom';
-import { TextEncoder, TextDecoder } from 'util';
+import { TextEncoder, TextDecoder as NodeTextDecoder } from 'util';
 import { MockWebSocket } from './utils/testUtils';
+import { configure } from '@testing-library/react';
+import { jest, afterEach } from '@jest/globals';
 
 // TextEncoder/TextDecoder polyfills
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
 
 // Mock localStorage
 const localStorageMock = {
@@ -34,16 +35,12 @@ Object.defineProperty(window, 'WebSocket', { value: MockWebSocket });
 
 // Mock ResizeObserver
 class ResizeObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
 }
 
-Object.defineProperty(window, 'ResizeObserver', {
-  writable: true,
-  configurable: true,
-  value: ResizeObserver,
-});
+window.ResizeObserver = ResizeObserver;
 
 // Mock IntersectionObserver
 class IntersectionObserver {
@@ -61,7 +58,7 @@ Object.defineProperty(window, 'IntersectionObserver', {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -75,8 +72,8 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock performance.now
 const mockPerformanceNow = jest.fn(() => Date.now());
-const mockRequestAnimationFrame = jest.fn(cb => setTimeout(cb, 0));
-const mockCancelAnimationFrame = jest.fn(id => clearTimeout(id));
+const mockRequestAnimationFrame = jest.fn((callback: FrameRequestCallback) => setTimeout(() => callback(performance.now()), 0));
+const mockCancelAnimationFrame = jest.fn((id: number) => clearTimeout(id));
 
 global.requestAnimationFrame = mockRequestAnimationFrame;
 global.cancelAnimationFrame = mockCancelAnimationFrame;
@@ -108,4 +105,39 @@ afterEach(() => {
 });
 
 // Global test timeout
-jest.setTimeout(10000); 
+jest.setTimeout(10000);
+
+// Configure testing-library
+configure({
+  testIdAttribute: 'data-testid',
+});
+
+// Add any global test utilities or mocks here
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+// Add TextDecoder mock
+class MockTextDecoder implements TextDecoder {
+  encoding: string;
+  fatal: boolean;
+  ignoreBOM: boolean;
+
+  constructor() {
+    this.encoding = 'utf-8';
+    this.fatal = false;
+    this.ignoreBOM = false;
+  }
+  
+  decode(input?: BufferSource): string {
+    if (!input) return '';
+    if (input instanceof ArrayBuffer) {
+      return new NodeTextDecoder().decode(input);
+    }
+    return '';
+  }
+}
+
+global.TextDecoder = MockTextDecoder as unknown as typeof TextDecoder; 

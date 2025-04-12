@@ -1,0 +1,183 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+DojoPool Platform - Comprehensive Context Report
+1. Core Concept
+DojoPool is an innovative platform that merges physical pool gaming with digital technology, creating a hybrid gaming experience enhanced by AI and blockchain technology. The platform transforms traditional pool venues into "Dojos" - smart, connected gaming spaces.
+2. Technical Architecture
+2.1 Frontend Architecture
+Framework: React/TypeScript
+Key Components:
+Tournament management interface
+Real-time game tracking UI
+Player profiles and avatars
+Venue dashboard
+Analytics visualization
+Social features
+2.2 Backend Services
+Core Services:
+text
+Apply
+  /services/
+  ├── analytics/        # Venue and game analytics
+  ├── avatar/          # Player avatar system
+  ├── commentary/      # AI-enhanced match commentary
+  ├── diception/       # AI ball tracking
+  ├── figurine/        # Physical-digital avatar bridge
+  ├── gameSession/     # Game state management
+  ├── tournament/      # Tournament organization
+  ├── wallet/          # Cryptocurrency integration
+  └── vision/          # Computer vision processing
+2.3 AI Integration
+Diception AI System
+Advanced ball tracking
+3D position detection
+Multi-camera support
+Mobile device compatibility
+Sky-T1 AI Referee
+Rule interpretation
+Foul detection
+Decision explanation
+Strategy analysis
+Wan 2.1 Content Generation
+Match highlight videos
+Tournament promotional content
+Educational content
+Real-time visualization
+AudioCraft Integration
+Match soundscapes
+Dynamic commentary
+Environmental effects
+Venue-specific audio
+3. Feature Sets
+3.1 Core Gaming Features
+Game Tracking
+Real-time shot tracking
+Score management
+Foul detection
+Rule enforcement
+Tournament System
+Tournament creation and management
+Bracket generation
+Real-time updates
+Prize pool management
+Cross-chain tournament support
+Player Progression
+Skill rating system
+Achievement tracking
+Ranking system
+Performance analytics
+3.2 Digital Identity System
+Avatar System
+Photo-to-anime conversion
+Customization options
+Achievement-based evolution
+Social integration
+Figurine Bridge
+Digital-to-physical conversion
+Physical merchandise integration
+NFT ownership tracking
+Customization interface
+3.3 Social Features
+Community
+Friend system
+Messaging
+Social media integration
+Activity feed
+Content Sharing
+Match highlights
+Achievement sharing
+Tournament announcements
+Tutorial content
+3.4 Venue Integration
+Smart Venue Features
+QR code check-in
+Geolocation verification
+Table usage tracking
+Revenue analytics
+Venue Dashboard
+Real-time analytics
+Tournament management
+Player tracking
+Revenue reporting
+3.5 Blockchain Integration
+Wallet System
+Multi-chain support (Ethereum, Solana)
+Dojo Coin (ERC-20)
+Hardware wallet integration
+Transaction tracking
+NFT System
+Avatar NFTs
+Tournament trophies
+Special items
+Cross-chain bridging
+4. AI-Enhanced Features
+4.1 Game Enhancement
+AI Referee
+Rule interpretation
+Foul detection
+Decision explanation
+Strategy analysis
+Match Commentary
+Real-time analysis
+Multi-style commentary
+Player-specific insights
+Technical analysis
+4.2 Content Generation
+Video Content
+Match highlights
+Tutorial content
+Promotional material
+Tournament recaps
+Audio Content
+Dynamic soundscapes
+Match commentary
+Environmental effects
+Venue-specific audio
+5. Integration Points
+5.1 External Systems
+Blockchain Networks
+Ethereum
+Solana
+Cross-chain bridges
+AI Services
+Diception
+Sky-T1
+Wan 2.1
+AudioCraft
+5.2 Hardware Integration
+Venue Hardware
+Camera systems
+Sensors
+Display systems
+Audio systems
+User Devices
+Mobile apps
+Hardware wallets
+AR devices
+Physical figurines
+6. Development Status
+Phase 1 (MVP): Completed
+Phase 2 (Enhanced Experience): In Progress
+Core features implemented
+AI integration ongoing
+Social features in development
+Phase 3 & 4: Planned
+Advanced features
+Global scaling
+Franchise system
+7. Monitoring and Performance
+System Monitoring
+Performance tracking
+Error logging
+Usage analytics
+Health checks
+AI Performance
+Model accuracy tracking
+Processing speed
+Resource usage
+Quality assurance
+This context report provides a comprehensive overview of the DojoPool platform's features, architecture, and development status. The platform represents a sophisticated blend of physical gaming, digital technology, and AI enhancement, creating a unique gaming experience for players and venues alike.

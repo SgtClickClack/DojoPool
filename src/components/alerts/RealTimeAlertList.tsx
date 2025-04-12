@@ -15,6 +15,15 @@ interface AlertListData {
   onFlag: (id: string) => void;
 }
 
+interface WebSocketMessage {
+  type: string;
+  payload: Alert;
+}
+
+interface WebSocketError {
+  message: string;
+}
+
 const getAlertColor = (type: string) => {
   switch (type) {
     case 'ERROR':
@@ -43,275 +52,226 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const Row = React.memo(({ data, index, style }: ListChildComponentProps<AlertListData>) => {
+const AlertItem = React.memo(({ 
+  data, 
+  index, 
+  style 
+}: ListChildComponentProps<AlertListData>) => {
+  const { alerts, onAcknowledge, onDismiss, onFlag } = data;
+  const alert = alerts[index];
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const alert = data.alerts[index];
-  if (!alert) return null;
 
-  const alertType = alert.type.toLowerCase();
-  const severity = alertType === 'error' || alertType === 'warning' || alertType === 'info' || alertType === 'success'
-    ? alertType as 'error' | 'warning' | 'info' | 'success'
-    : 'info';
+  const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (event.currentTarget.getAttribute('data-action') === 'acknowledge') {
+        onAcknowledge(alert.id);
+      } else if (event.currentTarget.getAttribute('data-action') === 'dismiss') {
+        onDismiss(alert.id);
+      } else if (event.currentTarget.getAttribute('data-action') === 'flag') {
+        onFlag(alert.id);
+      }
+    }
+  }, [alert.id, onAcknowledge, onDismiss, onFlag]);
 
   return (
     <Box 
-      role="article"
-      aria-label={`Alert ${alert.message}`}
       style={style}
-      sx={{
-        p: { xs: 0.5, sm: 1 },
-        '&:hover': {
-          backgroundColor: 'action.hover',
-        },
-      }}
+      role="listitem"
+      aria-label={`Alert ${index + 1} of ${alerts.length}`}
     >
-      <MuiAlert 
-        severity={severity}
-        icon={false}
-        sx={{ width: '100%' }}
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 2, 
+          mb: 2,
+          '&:focus-within': {
+            outline: `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: '2px'
+          }
+        }}
+        tabIndex={0}
       >
         <Box 
-          display="flex" 
-          flexDirection={isMobile ? 'column' : 'row'} 
-          justifyContent="space-between" 
-          alignItems={isMobile ? 'flex-start' : 'center'}
-          gap={isMobile ? 1 : 0}
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            mb: 1
+          }}
         >
-          <Box flex={1}>
+          <Box>
             <Typography 
-              variant={isMobile ? 'body1' : 'subtitle1'} 
-              component="div"
-              sx={{ 
-                wordBreak: 'break-word',
-                fontSize: { xs: '0.875rem', sm: '1rem' }
-              }}
+              variant="h6" 
+              component="h3"
+              id={`alert-title-${alert.id}`}
             >
-              {alert.message}
+              {alert.title}
             </Typography>
-            <Box 
-              display="flex" 
-              gap={0.5} 
-              mt={0.5}
-              flexWrap="wrap"
-              alignItems="center"
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              id={`alert-timestamp-${alert.id}`}
             >
-              <Chip 
-                size="small" 
-                label={alert.type} 
-                sx={{ 
-                  backgroundColor: getAlertColor(alert.type),
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }} 
-              />
-              <Chip 
-                size="small" 
-                label={alert.status} 
-                sx={{ 
-                  backgroundColor: getStatusColor(alert.status),
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                }} 
-              />
-              <Typography 
-                component="time" 
-                dateTime={alert.timestamp}
-                variant="caption"
-                sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
-              >
-                {new Date(alert.timestamp).toLocaleString()}
-              </Typography>
-            </Box>
+              {new Date(alert.timestamp).toLocaleString()}
+            </Typography>
           </Box>
-          <Box sx={{ mt: isMobile ? 1 : 0, width: isMobile ? '100%' : 'auto' }}>
-            <AlertActions alert={alert} isMobile={isMobile} />
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Chip 
+              label={alert.type} 
+              size="small"
+              color={alert.type === 'error' ? 'error' : 
+                     alert.type === 'warning' ? 'warning' : 
+                     alert.type === 'success' ? 'success' : 'default'}
+              aria-label={`Alert type: ${alert.type}`}
+            />
+            <Chip 
+              label={alert.status} 
+              size="small"
+              color={alert.status === 'open' ? 'primary' : 
+                     alert.status === 'acknowledged' ? 'info' : 'default'}
+              aria-label={`Alert status: ${alert.status}`}
+            />
           </Box>
         </Box>
-      </MuiAlert>
+
+        <Typography 
+          variant="body1"
+          id={`alert-message-${alert.id}`}
+          aria-labelledby={`alert-title-${alert.id}`}
+        >
+          {alert.message}
+        </Typography>
+
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            mt: 2,
+            flexWrap: isMobile ? 'wrap' : 'nowrap'
+          }}
+        >
+          <AlertActions
+            alert={alert}
+            onAcknowledge={onAcknowledge}
+            onDismiss={onDismiss}
+            onFlag={onFlag}
+            onKeyPress={handleKeyPress}
+          />
+        </Box>
+      </Paper>
     </Box>
   );
-}, (prevProps, nextProps) => {
-  const prevAlert = prevProps.data.alerts[prevProps.index];
-  const nextAlert = nextProps.data.alerts[nextProps.index];
-  return prevAlert?.id === nextAlert?.id && 
-         prevAlert?.status === nextAlert?.status &&
-         prevAlert?.type === nextAlert?.type &&
-         prevAlert?.message === nextAlert?.message;
 });
 
-Row.displayName = 'Row';
+AlertItem.displayName = 'AlertItem';
 
 export const RealTimeAlertList: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { isConnected, connectionStatus, reconnectAttempt, send } = useWebSocketWithReconnect({
-    initialDelay: 1000,
-    maxDelay: 15000,
-    maxAttempts: 5
-  });
+  const listRef = useRef<FixedSizeList>(null);
   const [alerts, setAlerts] = React.useState<Alert[]>([]);
-  const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
-  const [showOfflineNotification, setShowOfflineNotification] = React.useState(false);
-  const [showMemoryWarning, setShowMemoryWarning] = React.useState(false);
-  const offlineStorage = useMemo(() => OfflineStorageService.getInstance(), []);
-  const memoryProfiler = useMemo(() => MemoryProfilerService.getInstance(), []);
-  const alertsRef = useRef<Alert[]>([]);
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    open: false,
+    message: '',
+    severity: 'info'
+  });
 
-  useEffect(() => {
-    alertsRef.current = alerts;
-  }, [alerts]);
-
-  useEffect(() => {
-    const cleanup = memoryProfiler.addListener((stats) => {
-      const { warning, critical } = memoryProfiler.checkMemoryUsage();
-      if (warning || critical) {
-        setShowMemoryWarning(true);
-        if (critical) {
-          setAlerts(prev => prev.slice(-50));
+  const {
+    connect,
+    disconnect,
+    isConnected,
+    connectionStatus,
+    reconnectAttempt
+  } = useWebSocketWithReconnect({
+    endpoint: process.env.NEXT_PUBLIC_WS_URL || 'wss://api.dojopool.com/ws',
+    onMessage: (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data) as WebSocketMessage;
+        if (data.type === 'alert') {
+          setAlerts(prev => [data.payload, ...prev]);
+          setSnackbar({
+            open: true,
+            message: 'New alert received',
+            severity: 'info'
+          });
         }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
       }
-    });
-
-    memoryProfiler.startProfiling();
-
-    return () => {
-      cleanup();
-      memoryProfiler.stopProfiling();
-    };
-  }, []);
-
-  const batchUpdateTimeout = useRef<number | null>(null);
-  const pendingUpdates = useRef<Array<{ alert: Alert; type: 'add' | 'update' | 'delete' }>>([]);
-
-  const processBatchUpdates = useCallback(() => {
-    if (pendingUpdates.current.length === 0) return;
-
-    setAlerts(prev => {
-      const updates = pendingUpdates.current;
-      pendingUpdates.current = [];
-
-      return updates.reduce((acc, { alert, type }) => {
-        switch (type) {
-          case 'add':
-            return [alert, ...acc];
-          case 'update':
-            return acc.map(a => a.id === alert.id ? alert : a);
-          case 'delete':
-            return acc.filter(a => a.id !== alert.id);
-          default:
-            return acc;
-        }
-      }, [...prev]);
-    });
-  }, []);
-
-  const queueUpdate = useCallback((update: { alert: Alert; type: 'add' | 'update' | 'delete' }) => {
-    pendingUpdates.current.push(update);
-
-    if (batchUpdateTimeout.current !== null) {
-      window.clearTimeout(batchUpdateTimeout.current);
-    }
-
-    batchUpdateTimeout.current = window.setTimeout(() => {
-      processBatchUpdates();
-      batchUpdateTimeout.current = null;
-    }, 100);
-  }, [processBatchUpdates]);
-
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOffline(false);
-      syncOfflineActions();
-    };
-
-    const handleOffline = () => {
-      setIsOffline(true);
-      setShowOfflineNotification(true);
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  useEffect(() => {
-    const loadCachedAlerts = async () => {
-      if (!isConnected) {
-        const cachedAlerts = await offlineStorage.getCachedAlerts();
-        if (cachedAlerts.length > 0) {
-          setAlerts(cachedAlerts);
-        }
-      }
-    };
-
-    loadCachedAlerts();
-  }, [isConnected]);
-
-  useEffect(() => {
-    if (isConnected && alerts.length > 0) {
-      offlineStorage.cacheAlerts(alerts);
-    }
-  }, [isConnected, alerts]);
-
-  const syncOfflineActions = async () => {
-    if (isConnected) {
-      const queuedActions = await offlineStorage.getQueuedActions();
-      for (const action of queuedActions) {
-        send({ type: `alert.${action.type}`, data: { id: action.alertId } });
-      }
-      await offlineStorage.clearQueuedActions();
-    }
-  };
-
-  const handleAlertAction = async (type: 'acknowledge' | 'dismiss' | 'flag', id: string) => {
-    if (isConnected) {
-      send({ type: `alert.${type}`, data: { id } });
-    } else {
-      await offlineStorage.queueAction({
-        type,
-        alertId: id,
-        timestamp: Date.now()
+    },
+    onError: (error: WebSocketError) => {
+      console.error('WebSocket error:', error);
+      setSnackbar({
+        open: true,
+        message: 'Connection error. Attempting to reconnect...',
+        severity: 'error'
       });
-      setAlerts(prev => prev.map(alert => 
-        alert.id === id 
-          ? { ...alert, status: type === 'acknowledge' ? 'ACKNOWLEDGED' : type === 'dismiss' ? 'DISMISSED' : alert.status }
-          : alert
-      ));
-      setShowOfflineNotification(true);
+    },
+    onReconnect: () => {
+      setSnackbar({
+        open: true,
+        message: 'Reconnected successfully',
+        severity: 'success'
+      });
     }
-  };
+  });
+
+  useEffect(() => {
+    connect();
+    return () => disconnect();
+  }, [connect, disconnect]);
 
   const handleAcknowledge = useCallback((id: string) => {
-    handleAlertAction('acknowledge', id);
-  }, [isConnected]);
+    setAlerts(prev => 
+      prev.map(alert => 
+        alert.id === id 
+          ? { ...alert, status: 'acknowledged' as AlertStatus }
+          : alert
+      )
+    );
+    setSnackbar({
+      open: true,
+      message: 'Alert acknowledged',
+      severity: 'success'
+    });
+  }, []);
 
   const handleDismiss = useCallback((id: string) => {
-    handleAlertAction('dismiss', id);
-  }, [isConnected]);
+    setAlerts(prev => prev.filter(alert => alert.id !== id));
+    setSnackbar({
+      open: true,
+      message: 'Alert dismissed',
+      severity: 'success'
+    });
+  }, []);
 
   const handleFlag = useCallback((id: string) => {
-    handleAlertAction('flag', id);
-  }, [isConnected]);
+    setAlerts(prev => 
+      prev.map(alert => 
+        alert.id === id 
+          ? { ...alert, isFlagged: !alert.isFlagged }
+          : alert
+      )
+    );
+    setSnackbar({
+      open: true,
+      message: 'Alert flag toggled',
+      severity: 'info'
+    });
+  }, []);
 
-  useEffect(() => {
-    const handleAlertUpdate = (data: { alert: Alert; type: 'add' | 'update' | 'delete' }) => {
-      queueUpdate(data);
-    };
-
-    const subscription = send({ type: 'subscribe', channel: 'alerts' });
-    
-    return () => {
-      if (subscription && typeof subscription === 'function') {
-        subscription();
-      }
-      if (batchUpdateTimeout.current !== null) {
-        window.clearTimeout(batchUpdateTimeout.current);
-      }
-    };
-  }, [send, queueUpdate]);
+  const listData = useMemo<AlertListData>(() => ({
+    alerts,
+    onAcknowledge: handleAcknowledge,
+    onDismiss: handleDismiss,
+    onFlag: handleFlag
+  }), [alerts, handleAcknowledge, handleDismiss, handleFlag]);
 
   if (connectionStatus === 'reconnecting') {
     return (
@@ -320,11 +280,12 @@ export const RealTimeAlertList: React.FC = () => {
         sx={{ height: '100%', p: 2 }}
         role="status"
         aria-label="Reconnecting to alert system"
+        aria-live="polite"
       >
         <Typography gutterBottom>
           Reconnecting to alert system... (Attempt {reconnectAttempt})
         </Typography>
-        <LinearProgress />
+        <LinearProgress aria-label="Reconnection progress" />
       </Paper>
     );
   }
@@ -336,6 +297,7 @@ export const RealTimeAlertList: React.FC = () => {
         sx={{ height: '100%', p: 2 }}
         role="status"
         aria-label="Disconnected from alert system"
+        aria-live="polite"
       >
         <Typography color="error">
           Disconnected from alert system. Please check your connection.
@@ -345,94 +307,43 @@ export const RealTimeAlertList: React.FC = () => {
   }
 
   return (
-    <>
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          height: '100%', 
-          overflow: 'hidden',
-          borderRadius: { xs: 0, sm: 1 }
-        }}
-        role="region"
-        aria-label="Real-time alerts"
-      >
-        {connectionStatus === 'reconnecting' ? (
-          <Box p={isMobile ? 1 : 2}>
-            <Typography 
-              gutterBottom
-              sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
-            >
-              Reconnecting to alert system... (Attempt {reconnectAttempt})
-            </Typography>
-            <LinearProgress />
-          </Box>
-        ) : !isConnected && !isOffline ? (
-          <Box p={isMobile ? 1 : 2}>
-            <Typography 
-              color="error"
-              sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
-            >
-              Disconnected from alert system. Please check your connection.
-            </Typography>
-          </Box>
-        ) : (
-          <FixedSizeList
-            height={isMobile ? window.innerHeight - 56 : 400}
-            width="100%"
-            itemCount={alerts.length}
-            itemSize={isMobile ? 140 : 100}
-            itemData={{
-              alerts,
-              onAcknowledge: handleAcknowledge,
-              onDismiss: handleDismiss,
-              onFlag: handleFlag
-            }}
-          >
-            {Row}
-          </FixedSizeList>
-        )}
-      </Paper>
+    <Box 
+      sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      role="region"
+      aria-label="Real-time alert list"
+    >
+      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+        <FixedSizeList
+          ref={listRef}
+          height={400}
+          width="100%"
+          itemCount={alerts.length}
+          itemSize={150}
+          itemData={listData}
+          overscanCount={5}
+          role="list"
+          aria-label="List of alerts"
+        >
+          {AlertItem}
+        </FixedSizeList>
+      </Box>
+
       <Snackbar
-        open={showOfflineNotification}
+        open={snackbar.open}
         autoHideDuration={6000}
-        onClose={() => setShowOfflineNotification(false)}
-        anchorOrigin={{ 
-          vertical: isMobile ? 'top' : 'bottom', 
-          horizontal: 'center' 
-        }}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <MuiAlert 
-          elevation={6} 
-          variant="filled" 
-          severity="warning"
-          onClose={() => setShowOfflineNotification(false)}
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
+          onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          variant="filled"
+          role="alert"
+          aria-live="polite"
         >
-          {isOffline 
-            ? "You're offline. Actions will be synced when connection is restored."
-            : "Connection restored. Syncing offline actions..."}
+          {snackbar.message}
         </MuiAlert>
       </Snackbar>
-      <Snackbar
-        open={showMemoryWarning}
-        autoHideDuration={6000}
-        onClose={() => setShowMemoryWarning(false)}
-        anchorOrigin={{ 
-          vertical: isMobile ? 'top' : 'bottom', 
-          horizontal: 'center' 
-        }}
-      >
-        <MuiAlert 
-          elevation={6} 
-          variant="filled" 
-          severity="warning"
-          onClose={() => setShowMemoryWarning(false)}
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-        >
-          High memory usage detected. Some older alerts may be cleared to improve performance.
-        </MuiAlert>
-      </Snackbar>
-    </>
+    </Box>
   );
-}; 
 }; 

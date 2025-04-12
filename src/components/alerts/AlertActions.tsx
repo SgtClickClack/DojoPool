@@ -1,78 +1,87 @@
 import React from 'react';
-import { Box, IconButton, Tooltip } from '@mui/material';
-import DoneIcon from '@mui/icons-material/Done';
-import CloseIcon from '@mui/icons-material/Close';
-import FlagIcon from '@mui/icons-material/Flag';
-import { Alert } from '../../types/alert';
+import { Button, Box } from '@mui/material';
+import { Alert, AlertStatus } from '../../types/alert';
 
 interface AlertActionsProps {
   alert: Alert;
-  isMobile?: boolean;
+  onAcknowledge: (id: string) => void;
+  onDismiss: (id: string) => void;
+  onFlag: (id: string) => void;
+  isLoading: boolean;
 }
 
-export const AlertActions: React.FC<AlertActionsProps> = ({ alert, isMobile = false }) => {
-  const buttonSize = isMobile ? 'small' : 'medium';
-  const iconSize = isMobile ? 'small' : 'medium';
+export const AlertActions: React.FC<AlertActionsProps> = ({
+  alert,
+  onAcknowledge,
+  onDismiss,
+  onFlag,
+  isLoading
+}) => {
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (event.currentTarget.getAttribute('data-action') === 'acknowledge') {
+        onAcknowledge(alert.id);
+      } else if (event.currentTarget.getAttribute('data-action') === 'dismiss') {
+        onDismiss(alert.id);
+      } else if (event.currentTarget.getAttribute('data-action') === 'flag') {
+        onFlag(alert.id);
+      }
+    }
+  };
 
   const handleAcknowledge = () => {
-    // TODO: Implement acknowledge action
+    onAcknowledge(alert.id);
   };
 
   const handleDismiss = () => {
-    // TODO: Implement dismiss action
+    onDismiss(alert.id);
   };
 
   const handleFlag = () => {
-    // TODO: Implement flag action
+    onFlag(alert.id);
   };
 
   return (
-    <Box 
-      display="flex" 
-      gap={isMobile ? 0.5 : 1}
-      justifyContent={isMobile ? 'flex-end' : 'flex-start'}
-      sx={{ 
-        '& .MuiIconButton-root': {
-          p: isMobile ? 0.5 : 1
-        }
-      }}
-    >
-      {alert.status === 'ACTIVE' && (
-        <Tooltip title="Acknowledge">
-          <IconButton
-            aria-label="Acknowledge alert"
-            color="primary"
-            size={buttonSize}
-            onClick={handleAcknowledge}
-          >
-            <DoneIcon fontSize={iconSize} />
-          </IconButton>
-        </Tooltip>
+    <Box sx={{ display: 'flex', gap: 1 }}>
+      {alert.status === 'open' && (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={handleAcknowledge}
+          onKeyPress={handleKeyPress}
+          data-action="acknowledge"
+          disabled={isLoading}
+          aria-label="Acknowledge alert"
+        >
+          Acknowledge
+        </Button>
       )}
-      {alert.status !== 'DISMISSED' && (
-        <Tooltip title="Dismiss">
-          <IconButton
-            aria-label="Dismiss alert"
-            color="error"
-            size={buttonSize}
-            onClick={handleDismiss}
-          >
-            <CloseIcon fontSize={iconSize} />
-          </IconButton>
-        </Tooltip>
-      )}
-      {alert.status !== 'DISMISSED' && (
-        <Tooltip title="Flag for review">
-          <IconButton
-            aria-label="Flag alert for review"
-            color="warning"
-            size={buttonSize}
-            onClick={handleFlag}
-          >
-            <FlagIcon fontSize={iconSize} />
-          </IconButton>
-        </Tooltip>
-      )}
+      <Button
+        variant="outlined"
+        color="secondary"
+        size="small"
+        onClick={handleDismiss}
+        onKeyPress={handleKeyPress}
+        data-action="dismiss"
+        disabled={isLoading}
+        aria-label="Dismiss alert"
+      >
+        Dismiss
+      </Button>
+      <Button
+        variant="outlined"
+        color="error"
+        size="small"
+        onClick={handleFlag}
+        onKeyPress={handleKeyPress}
+        data-action="flag"
+        disabled={isLoading}
+        aria-label={alert.isFlagged ? "Unflag alert" : "Flag alert"}
+      >
+        {alert.isFlagged ? 'Unflag' : 'Flag'}
+      </Button>
     </Box>
   );
 }; 

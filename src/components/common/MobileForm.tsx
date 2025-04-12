@@ -30,7 +30,8 @@ import {
     ModalHeader,
     ModalBody,
     ModalCloseButton,
-    useToast
+    useToast,
+    VisuallyHidden
 } from '@chakra-ui/react';
 import { FaEye, FaEyeSlash, FaCalendar, FaClock } from 'react-icons/fa';
 
@@ -56,15 +57,43 @@ interface FormField {
 interface MobileFormProps {
     fields: FormField[];
     onSubmit: (values: Record<string, any>) => void;
-    submitLabel?: string;
+    submitText?: string;
+    resetText?: string;
     isLoading?: boolean;
+    error?: string;
+    successMessage?: string;
+    onSuccess?: () => void;
+    onError?: (error: string) => void;
+    validateOnChange?: boolean;
+    validateOnBlur?: boolean;
+    showReset?: boolean;
+    showSubmit?: boolean;
+    submitButtonProps?: any;
+    resetButtonProps?: any;
+    formProps?: any;
+    fieldProps?: any;
+    formId?: string;
 }
 
 const MobileForm: React.FC<MobileFormProps> = ({
     fields,
     onSubmit,
-    submitLabel = 'Submit',
-    isLoading = false
+    submitText = 'Submit',
+    resetText = 'Reset',
+    isLoading = false,
+    error,
+    successMessage,
+    onSuccess,
+    onError,
+    validateOnChange = true,
+    validateOnBlur = true,
+    showReset = true,
+    showSubmit = true,
+    submitButtonProps,
+    resetButtonProps,
+    formProps,
+    fieldProps,
+    formId = 'mobile-form'
 }) => {
     const [values, setValues] = useState<Record<string, any>>(() => {
         const initialValues: Record<string, any> = {};
@@ -161,93 +190,207 @@ const MobileForm: React.FC<MobileFormProps> = ({
         }
     };
 
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const field = fields.find(f => f.name === e.target.name);
+        if (field && validateOnBlur) {
+            const error = validateField(field, e.target.value);
+            setErrors(prev => ({
+                ...prev,
+                [field.name]: error || ''
+            }));
+        }
+    };
+
+    const handleReset = () => {
+        setValues(() => {
+            const initialValues: Record<string, any> = {};
+            fields.forEach(field => {
+                initialValues[field.name] = field.defaultValue || '';
+            });
+            return initialValues;
+        });
+        setErrors({});
+    };
+
     const renderField = (field: FormField) => {
         const error = errors[field.name];
-        
+        const isInvalid = !!error;
+        const isRequired = field.validation?.required;
+        const fieldId = `${formId}-${field.name}`;
+        const helperId = `${fieldId}-helper`;
+        const errorId = `${fieldId}-error`;
+
+        const commonProps = {
+            id: fieldId,
+            name: field.name,
+            value: values[field.name] || '',
+            onChange: handleChange,
+            onBlur: handleBlur,
+            isInvalid,
+            'aria-invalid': isInvalid,
+            'aria-describedby': `${helperId} ${isInvalid ? errorId : ''}`,
+            'aria-required': isRequired,
+            ...fieldProps
+        };
+
         switch (field.type) {
+            case 'text':
+            case 'email':
             case 'password':
                 return (
-                    <InputGroup size={inputSize}>
-                        <Input
-                            type={showPassword[field.name] ? 'text' : 'password'}
-                            value={values[field.name]}
-                            onChange={e => handleChange(field.name, e.target.value)}
-                            placeholder={field.placeholder}
-                            isInvalid={!!error}
-                        />
-                        <InputRightElement>
-                            <IconButton
-                                aria-label={showPassword[field.name] ? 'Hide password' : 'Show password'}
-                                icon={showPassword[field.name] ? <FaEyeSlash /> : <FaEye />}
-                                variant="ghost"
-                                onClick={() => setShowPassword(prev => ({
-                                    ...prev,
-                                    [field.name]: !prev[field.name]
-                                }))}
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <FormLabel htmlFor={fieldId}>{field.label}</FormLabel>
+                        <InputGroup>
+                            <Input
+                                type={field.type}
+                                placeholder={field.placeholder}
+                                {...commonProps}
                             />
-                        </InputRightElement>
-                    </InputGroup>
+                            {field.type === 'password' && (
+                                <InputRightElement>
+                                    <IconButton
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                        icon={showPassword ? <FaEyeSlash /> : <FaEye />}
+                                        variant="ghost"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        tabIndex={-1}
+                                    />
+                                </InputRightElement>
+                            )}
+                        </InputGroup>
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
                 );
-            
-            case 'select':
-                return (
-                    <Select
-                        value={values[field.name]}
-                        onChange={e => handleChange(field.name, e.target.value)}
-                        placeholder={field.placeholder}
-                        isInvalid={!!error}
-                        size={inputSize}
-                    >
-                        {field.options?.map(option => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </Select>
-                );
-            
-            case 'textarea':
-                return (
-                    <Textarea
-                        value={values[field.name]}
-                        onChange={e => handleChange(field.name, e.target.value)}
-                        placeholder={field.placeholder}
-                        isInvalid={!!error}
-                        size={inputSize}
-                    />
-                );
-            
+
             case 'number':
                 return (
-                    <NumberInput
-                        value={values[field.name]}
-                        onChange={value => handleChange(field.name, value)}
-                        min={field.validation?.min}
-                        max={field.validation?.max}
-                        isInvalid={!!error}
-                        size={inputSize}
-                    >
-                        <NumberInputField placeholder={field.placeholder} />
-                        <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                        </NumberInputStepper>
-                    </NumberInput>
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <FormLabel htmlFor={fieldId}>{field.label}</FormLabel>
+                        <NumberInput
+                            value={values[field.name]}
+                            onChange={(value) => handleChange({ target: { name: field.name, value } })}
+                            min={field.validation?.min}
+                            max={field.validation?.max}
+                            {...commonProps}
+                        >
+                            <NumberInputField id={fieldId} />
+                            <NumberInputStepper>
+                                <NumberIncrementStepper aria-label="Increase value" />
+                                <NumberDecrementStepper aria-label="Decrease value" />
+                            </NumberInputStepper>
+                        </NumberInput>
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
                 );
-            
+
+            case 'select':
+                return (
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <FormLabel htmlFor={fieldId}>{field.label}</FormLabel>
+                        <Select
+                            placeholder={field.placeholder || 'Select an option'}
+                            {...commonProps}
+                        >
+                            {field.options?.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </Select>
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
+                );
+
+            case 'textarea':
+                return (
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <FormLabel htmlFor={fieldId}>{field.label}</FormLabel>
+                        <Textarea
+                            placeholder={field.placeholder}
+                            {...commonProps}
+                        />
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
+                );
+
+            case 'switch':
+                return (
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <HStack>
+                            <Switch
+                                id={fieldId}
+                                isChecked={values[field.name]}
+                                onChange={(e) => handleChange({ target: { name: field.name, value: e.target.checked } })}
+                                {...commonProps}
+                            />
+                            <FormLabel htmlFor={fieldId} mb="0">
+                                {field.label}
+                            </FormLabel>
+                        </HStack>
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
+                );
+
             case 'date':
                 return (
-                    <>
-                        <InputGroup size={inputSize}>
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <FormLabel htmlFor={fieldId}>{field.label}</FormLabel>
+                        <InputGroup>
                             <Input
                                 value={values[field.name]}
                                 placeholder={field.placeholder || 'Select date'}
-                                isInvalid={!!error}
+                                isInvalid={isInvalid}
                                 readOnly
                                 onClick={() => {
                                     setActiveField(field.name);
                                     onDatePickerOpen();
                                 }}
+                                {...commonProps}
                             />
                             <InputRightElement>
                                 <IconButton
@@ -258,35 +401,52 @@ const MobileForm: React.FC<MobileFormProps> = ({
                                         setActiveField(field.name);
                                         onDatePickerOpen();
                                     }}
+                                    tabIndex={-1}
                                 />
                             </InputRightElement>
                         </InputGroup>
-                        <Modal isOpen={isDatePickerOpen && activeField === field.name} onClose={onDatePickerClose}>
+                        <Modal 
+                            isOpen={isDatePickerOpen && activeField === field.name} 
+                            onClose={onDatePickerClose}
+                            aria-labelledby={`${fieldId}-modal-title`}
+                        >
                             <ModalOverlay />
                             <ModalContent>
-                                <ModalHeader>Select Date</ModalHeader>
+                                <ModalHeader id={`${fieldId}-modal-title`}>Select Date</ModalHeader>
                                 <ModalCloseButton />
                                 <ModalBody>
                                     {/* Implement mobile-friendly date picker */}
                                 </ModalBody>
                             </ModalContent>
                         </Modal>
-                    </>
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
                 );
-            
+
             case 'time':
                 return (
-                    <>
-                        <InputGroup size={inputSize}>
+                    <FormControl isInvalid={isInvalid} isRequired={isRequired}>
+                        <FormLabel htmlFor={fieldId}>{field.label}</FormLabel>
+                        <InputGroup>
                             <Input
                                 value={values[field.name]}
                                 placeholder={field.placeholder || 'Select time'}
-                                isInvalid={!!error}
+                                isInvalid={isInvalid}
                                 readOnly
                                 onClick={() => {
                                     setActiveField(field.name);
                                     onTimePickerOpen();
                                 }}
+                                {...commonProps}
                             />
                             <InputRightElement>
                                 <IconButton
@@ -297,42 +457,39 @@ const MobileForm: React.FC<MobileFormProps> = ({
                                         setActiveField(field.name);
                                         onTimePickerOpen();
                                     }}
+                                    tabIndex={-1}
                                 />
                             </InputRightElement>
                         </InputGroup>
-                        <Modal isOpen={isTimePickerOpen && activeField === field.name} onClose={onTimePickerClose}>
+                        <Modal 
+                            isOpen={isTimePickerOpen && activeField === field.name} 
+                            onClose={onTimePickerClose}
+                            aria-labelledby={`${fieldId}-modal-title`}
+                        >
                             <ModalOverlay />
                             <ModalContent>
-                                <ModalHeader>Select Time</ModalHeader>
+                                <ModalHeader id={`${fieldId}-modal-title`}>Select Time</ModalHeader>
                                 <ModalCloseButton />
                                 <ModalBody>
                                     {/* Implement mobile-friendly time picker */}
                                 </ModalBody>
                             </ModalContent>
                         </Modal>
-                    </>
+                        {field.helperText && (
+                            <FormHelperText id={helperId}>
+                                {field.helperText}
+                            </FormHelperText>
+                        )}
+                        {isInvalid && (
+                            <FormErrorMessage id={errorId}>
+                                {error}
+                            </FormErrorMessage>
+                        )}
+                    </FormControl>
                 );
-            
-            case 'switch':
-                return (
-                    <Switch
-                        isChecked={values[field.name]}
-                        onChange={e => handleChange(field.name, e.target.checked)}
-                        size={inputSize === 'lg' ? 'lg' : 'md'}
-                    />
-                );
-            
+
             default:
-                return (
-                    <Input
-                        type={field.type}
-                        value={values[field.name]}
-                        onChange={e => handleChange(field.name, e.target.value)}
-                        placeholder={field.placeholder}
-                        isInvalid={!!error}
-                        size={inputSize}
-                    />
-                );
+                return null;
         }
     };
 
@@ -340,35 +497,58 @@ const MobileForm: React.FC<MobileFormProps> = ({
         <Box
             as="form"
             onSubmit={handleSubmit}
-            bg={bgColor}
-            borderWidth={1}
-            borderColor={borderColor}
-            borderRadius="lg"
-            p={6}
+            id={formId}
+            role="form"
+            aria-label="Mobile form"
+            {...formProps}
         >
-            <VStack spacing={6} align="stretch">
-                {fields.map(field => (
-                    <FormControl key={field.name} isInvalid={!!errors[field.name]}>
-                        <FormLabel>{field.label}</FormLabel>
+            <VStack spacing={4} align="stretch">
+                {fields.map((field) => (
+                    <Box key={field.name}>
                         {renderField(field)}
-                        {field.helperText && !errors[field.name] && (
-                            <FormHelperText>{field.helperText}</FormHelperText>
-                        )}
-                        {errors[field.name] && (
-                            <FormErrorMessage>{errors[field.name]}</FormErrorMessage>
-                        )}
-                    </FormControl>
+                    </Box>
                 ))}
-                
-                <Button
-                    type="submit"
-                    colorScheme="blue"
-                    size={inputSize}
-                    isLoading={isLoading}
-                    loadingText="Submitting"
-                >
-                    {submitLabel}
-                </Button>
+
+                {(showSubmit || showReset) && (
+                    <HStack spacing={4} justify="flex-end">
+                        {showReset && (
+                            <Button
+                                type="button"
+                                onClick={handleReset}
+                                isDisabled={isLoading}
+                                {...resetButtonProps}
+                            >
+                                {resetText}
+                            </Button>
+                        )}
+                        {showSubmit && (
+                            <Button
+                                type="submit"
+                                colorScheme="blue"
+                                isLoading={isLoading}
+                                {...submitButtonProps}
+                            >
+                                {submitText}
+                            </Button>
+                        )}
+                    </HStack>
+                )}
+
+                {error && (
+                    <Alert status="error" role="alert">
+                        <AlertIcon />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
+
+                {successMessage && (
+                    <Alert status="success" role="alert">
+                        <AlertIcon />
+                        <AlertTitle>Success</AlertTitle>
+                        <AlertDescription>{successMessage}</AlertDescription>
+                    </Alert>
+                )}
             </VStack>
         </Box>
     );

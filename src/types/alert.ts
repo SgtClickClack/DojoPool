@@ -1,15 +1,24 @@
-export type AlertType = 'ERROR' | 'WARNING' | 'SUCCESS' | 'INFO';
-export type AlertStatus = 'ACTIVE' | 'ACKNOWLEDGED' | 'DISMISSED' | 'RESOLVED';
+export enum AlertType {
+    ERROR = 'error',
+    WARNING = 'warning',
+    SUCCESS = 'success',
+    INFO = 'info'
+}
+
+export enum AlertStatus {
+    OPEN = 'open',
+    ACKNOWLEDGED = 'acknowledged',
+    DISMISSED = 'dismissed'
+}
 
 export interface Alert {
-  id: string;
-  type: AlertType;
-  status: AlertStatus;
-  message: string;
-  timestamp: string;
-  impactScore: number;
-  source: string;
-  metadata?: Record<string, any>;
+    id: string;
+    type: AlertType;
+    status: AlertStatus;
+    message: string;
+    timestamp: string;
+    isFlagged: boolean;
+    metadata?: Record<string, any>;
 }
 
 export interface AlertUpdate {

@@ -1,18 +1,14 @@
 import React, { Component, ErrorInfo } from 'react';
 import {
     Box,
-    VStack,
-    Heading,
-    Text,
+    Typography,
     Button,
-    Icon,
-    useColorModeValue,
-    Code,
+    Alert,
+    AlertTitle,
     Collapse,
-    useDisclosure
-} from '@chakra-ui/react';
-import { FaExclamationTriangle, FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+    IconButton
+} from '@mui/material';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
 
 interface Props {
     children: React.ReactNode;
@@ -24,20 +20,23 @@ interface State {
     hasError: boolean;
     error: Error | null;
     errorInfo: ErrorInfo | null;
+    expanded: boolean;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
     public state: State = {
         hasError: false,
         error: null,
-        errorInfo: null
+        errorInfo: null,
+        expanded: false
     };
 
     public static getDerivedStateFromError(error: Error): State {
         return {
             hasError: true,
             error,
-            errorInfo: null
+            errorInfo: null,
+            expanded: false
         };
     }
 
@@ -55,129 +54,76 @@ class ErrorBoundary extends Component<Props, State> {
         console.error('Error caught by ErrorBoundary:', error, errorInfo);
     }
 
+    private handleExpand = () => {
+        this.setState(prev => ({ expanded: !prev.expanded }));
+    };
+
+    private handleReload = () => {
+        window.location.reload();
+    };
+
     public render() {
         if (this.state.hasError) {
             if (this.props.fallback) {
                 return this.props.fallback;
             }
 
-            return <ErrorFallback error={this.state.error} errorInfo={this.state.errorInfo} />;
+            return (
+                <Box sx={{ p: 2 }}>
+                    <Alert 
+                        severity="error"
+                        action={
+                            <Button 
+                                color="inherit" 
+                                size="small"
+                                onClick={this.handleReload}
+                            >
+                                RELOAD PAGE
+                            </Button>
+                        }
+                    >
+                        <AlertTitle>Something went wrong</AlertTitle>
+                        {this.state.error?.message || 'An unexpected error occurred'}
+                    </Alert>
+
+                    {this.state.errorInfo && (
+                        <Box sx={{ mt: 2 }}>
+                            <Box 
+                                sx={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center',
+                                    cursor: 'pointer',
+                                    '&:hover': { opacity: 0.8 }
+                                }}
+                                onClick={this.handleExpand}
+                            >
+                                <Typography variant="body2" color="text.secondary">
+                                    Show error details
+                                </Typography>
+                                <IconButton size="small">
+                                    {this.state.expanded ? <ExpandLess /> : <ExpandMore />}
+                                </IconButton>
+                            </Box>
+                            <Collapse in={this.state.expanded}>
+                                <Box 
+                                    component="pre" 
+                                    sx={{ 
+                                        mt: 1, 
+                                        p: 1, 
+                                        bgcolor: 'background.paper',
+                                        borderRadius: 1,
+                                        overflow: 'auto'
+                                    }}
+                                >
+                                    {this.state.errorInfo.componentStack}
+                                </Box>
+                            </Collapse>
+                        </Box>
+                    )}
+                </Box>
+            );
         }
 
         return this.props.children;
     }
-}
-
-interface ErrorFallbackProps {
-    error: Error | null;
-    errorInfo: ErrorInfo | null;
-}
-
-const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, errorInfo }) => {
-    const { isOpen, onToggle } = useDisclosure();
-    const bgColor = useColorModeValue('white', 'gray.800');
-    const borderColor = useColorModeValue('red.500', 'red.300');
-    const textColor = useColorModeValue('gray.600', 'gray.400');
-
-    const handleRefresh = () => {
-        window.location.reload();
-    };
-
-    return (
-        <Box
-            as={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            p={8}
-            bg={bgColor}
-            borderWidth={2}
-            borderColor={borderColor}
-            borderRadius="lg"
-            maxW="600px"
-            mx="auto"
-            my={8}
-        >
-            <VStack spacing={6} align="stretch">
-                <VStack spacing={2} align="center">
-                    <Icon
-                        as={FaExclamationTriangle}
-                        w={12}
-                        h={12}
-                        color="red.500"
-                        as={motion.svg}
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 10, -10, 0]
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            repeatType: "reverse"
-                        }}
-                    />
-                    <Heading size="lg" textAlign="center">
-                        Oops! Something went wrong
-                    </Heading>
-                    <Text color={textColor} textAlign="center">
-                        Don't worry, we're on it. In the meantime, you can:
-                    </Text>
-                </VStack>
-
-                <Button
-                    colorScheme="blue"
-                    size="lg"
-                    onClick={handleRefresh}
-                    as={motion.button}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    Refresh the page
-                </Button>
-
-                {(error || errorInfo) && (
-                    <Box>
-                        <Button
-                            variant="ghost"
-                            rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
-                            onClick={onToggle}
-                            width="100%"
-                            justifyContent="space-between"
-                        >
-                            Technical Details
-                        </Button>
-                        <Collapse in={isOpen}>
-                            <VStack spacing={4} mt={4} align="stretch">
-                                {error && (
-                                    <Box>
-                                        <Text fontWeight="bold" mb={2}>
-                                            Error:
-                                        </Text>
-                                        <Code p={4} borderRadius="md" width="100%">
-                                            {error.toString()}
-                                        </Code>
-                                    </Box>
-                                )}
-                                {errorInfo && (
-                                    <Box>
-                                        <Text fontWeight="bold" mb={2}>
-                                            Component Stack:
-                                        </Text>
-                                        <Code p={4} borderRadius="md" width="100%" whiteSpace="pre-wrap">
-                                            {errorInfo.componentStack}
-                                        </Code>
-                                    </Box>
-                                )}
-                            </VStack>
-                        </Collapse>
-                    </Box>
-                )}
-
-                <Text fontSize="sm" color={textColor} textAlign="center">
-                    If the problem persists, please contact support.
-                </Text>
-            </VStack>
-        </Box>
-    );
-};
-
-export default ErrorBoundary; 
+} 

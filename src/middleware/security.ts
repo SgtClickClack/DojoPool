@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { nanoid } from 'nanoid';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 interface SecurityConfig {
   enableCSP?: boolean;
@@ -20,6 +22,36 @@ const defaultConfig: SecurityConfig = {
   enableReferrerPolicy: true,
   csrfProtection: true,
 };
+
+// Rate limiting configuration
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Security headers configuration
+const securityHeaders = helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xssProtection: true,
+  noSniff: true,
+  hidePoweredBy: true,
+});
 
 export const securityMiddleware = (config: SecurityConfig = defaultConfig) => {
   return async (req: NextApiRequest, res: NextApiResponse, next: () => void) => {
@@ -112,43 +144,30 @@ export const securityMiddleware = (config: SecurityConfig = defaultConfig) => {
   };
 };
 
-// Rate limiting middleware
-const rateLimit = new Map<string, { count: number; resetTime: number }>();
-
-export const rateLimitMiddleware = (
-  limit: number = 100,
-  windowMs: number = 15 * 60 * 1000 // 15 minutes
-) => {
-  return (req: NextApiRequest, res: NextApiResponse, next: () => void) => {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const key = `${ip}:${req.method}:${req.url}`;
-    const now = Date.now();
-
-    const rateLimitInfo = rateLimit.get(key) || { count: 0, resetTime: now + windowMs };
-
-    // Reset if window has expired
-    if (now > rateLimitInfo.resetTime) {
-      rateLimitInfo.count = 0;
-      rateLimitInfo.resetTime = now + windowMs;
+// Middleware function to apply security measures
+export function applySecurity(req: NextApiRequest, res: NextApiResponse) {
+  // Apply rate limiting
+  limiter(req, res, (err) => {
+    if (err) {
+      return res.status(429).json({ error: 'Too many requests' });
     }
+  });
 
-    rateLimitInfo.count++;
-    rateLimit.set(key, rateLimitInfo);
+  // Apply security headers
+  securityHeaders(req, res, () => {});
+}
 
-    res.setHeader('X-RateLimit-Limit', limit);
-    res.setHeader('X-RateLimit-Remaining', Math.max(0, limit - rateLimitInfo.count));
-    res.setHeader('X-RateLimit-Reset', Math.ceil(rateLimitInfo.resetTime / 1000));
-
-    if (rateLimitInfo.count > limit) {
-      return res.status(429).json({
-        error: 'Too many requests',
-        retryAfter: Math.ceil((rateLimitInfo.resetTime - now) / 1000)
-      });
+// Input validation middleware
+export function validateInput(schema: any) {
+  return async (req: NextApiRequest, res: NextApiResponse, next: Function) => {
+    try {
+      await schema.parseAsync(req.body);
+      next();
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid input data' });
     }
-
-    next();
   };
-};
+}
 
 // Input sanitization middleware
 export const sanitizeInputMiddleware = (req: NextApiRequest, _res: NextApiResponse, next: () => void) => {

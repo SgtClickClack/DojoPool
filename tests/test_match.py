@@ -4,35 +4,58 @@ Unit tests for the Match Module.
 
 from datetime import datetime
 import pytest
-from dojopool.models.match import Match
-
-# Dummy user class for testing purposes.
-class DummyUser:
-    def __init__(self, username: str) -> None:
-        self.username = username
-
-@pytest.fixture
-def dummy_users():
-    user1 = DummyUser("Alice")
-    user2 = DummyUser("Bob")
-    return user1, user2
+from flask import Flask
+from src.dojopool.models.match import Match
+from src.dojopool.core.database.models import User
+from src.dojopool.core.extensions import db
+from src.dojopool.core.config.testing import TestingConfig
 
 @pytest.fixture
-def dummy_match(dummy_users):
-    user1, user2 = dummy_users
-    match = Match()
-    # Simulate a Match instance with dummy user objects.
-    # Note: In a real test with Flask-SQLAlchemy, these would be actual model instances.
-    match.id = 1
-    match.player1 = user1
-    match.player2 = user2
-    match.player1_score = 5
-    match.player2_score = 3
-    match.played_at = datetime(2023, 1, 1)
-    return match
+def app():
+    """Create a Flask application for testing."""
+    app = Flask(__name__)
+    app.config.from_object(TestingConfig)
+    db.init_app(app)
+    
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
 
-def test_match_repr(dummy_match):
-    rep = repr(dummy_match)
-    assert "Alice" in rep
-    assert "Bob" in rep
-    assert "Match" in rep 
+@pytest.fixture
+def test_users(app):
+    """Create test users."""
+    with app.app_context():
+        user1 = User(username="Alice", email="alice@test.com", password_hash="hash1")
+        user2 = User(username="Bob", email="bob@test.com", password_hash="hash2")
+        db.session.add_all([user1, user2])
+        db.session.commit()
+        return user1, user2
+
+@pytest.fixture
+def test_match(test_users, app):
+    """Create a test match."""
+    with app.app_context():
+        user1, user2 = test_users
+        match = Match()
+        match.tournament_id = 1
+        match.round = 1
+        match.match_number = 1
+        match.player1_id = user1.id
+        match.player2_id = user2.id
+        match.status = "completed"
+        match.score = "5-3"
+        match.start_time = datetime(2023, 1, 1)
+        match.end_time = datetime(2023, 1, 1, 0, 30)
+        db.session.add(match)
+        db.session.commit()
+        return match
+
+def test_match_repr(test_match, app):
+    """Test the string representation of a match."""
+    with app.app_context():
+        rep = repr(test_match)
+        assert "Alice" in rep
+        assert "Bob" in rep
+        assert "Match" in rep 
