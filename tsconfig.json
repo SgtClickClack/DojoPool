@@ -19,7 +19,8 @@
     "baseUrl": "./src",
     "paths": {
       "*": ["*", "node_modules/*"]
-    }
+    },
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"],

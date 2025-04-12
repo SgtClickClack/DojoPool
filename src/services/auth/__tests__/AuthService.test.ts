@@ -41,6 +41,20 @@ describe('AuthService', () => {
       );
       expect(token).toBe(mockToken);
     });
+
+    it('should throw error when user data is empty', () => {
+      const emptyUser = {} as User;
+      expect(() => AuthService.generateToken(emptyUser)).toThrow();
+    });
+
+    it('should throw error when user data is invalid', () => {
+      const invalidUser = {
+        id: '1',
+        email: 'invalid-email',
+        role: 'invalid-role'
+      } as User;
+      expect(() => AuthService.generateToken(invalidUser)).toThrow();
+    });
   });
 
   describe('verifyToken', () => {
@@ -62,6 +76,24 @@ describe('AuthService', () => {
       });
 
       expect(() => AuthService.verifyToken(mockToken)).toThrow('Invalid token');
+    });
+
+    it('should throw error for expired token', () => {
+      const expiredToken = 'expired.token';
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw new jwt.TokenExpiredError('Token expired', new Date());
+      });
+
+      expect(() => AuthService.verifyToken(expiredToken)).toThrow('Invalid token');
+    });
+
+    it('should throw error for malformed token', () => {
+      const malformedToken = 'malformed.token';
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw new jwt.JsonWebTokenError('Invalid token');
+      });
+
+      expect(() => AuthService.verifyToken(malformedToken)).toThrow('Invalid token');
     });
   });
 
@@ -94,6 +126,21 @@ describe('AuthService', () => {
 
       expect(result).toBeNull();
     });
+
+    it('should handle bcrypt comparison error', async () => {
+      (UserService.findUserByEmail as jest.Mock).mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockRejectedValue(new Error('Bcrypt error'));
+
+      await expect(AuthService.validateUser('test@example.com', 'password'))
+        .rejects.toThrow('Bcrypt error');
+    });
+
+    it('should handle database error', async () => {
+      (UserService.findUserByEmail as jest.Mock).mockRejectedValue(new Error('Database error'));
+
+      await expect(AuthService.validateUser('test@example.com', 'password'))
+        .rejects.toThrow('Database error');
+    });
   });
 
   describe('hashPassword', () => {
@@ -106,6 +153,19 @@ describe('AuthService', () => {
 
       expect(bcrypt.hash).toHaveBeenCalledWith(password, 10);
       expect(result).toBe(hashedPassword);
+    });
+
+    it('should handle bcrypt hashing error', async () => {
+      const password = 'password123';
+      (bcrypt.hash as jest.Mock).mockRejectedValue(new Error('Hashing error'));
+
+      await expect(AuthService.hashPassword(password))
+        .rejects.toThrow('Hashing error');
+    });
+
+    it('should handle empty password', async () => {
+      await expect(AuthService.hashPassword(''))
+        .rejects.toThrow();
     });
   });
 
@@ -143,6 +203,38 @@ describe('AuthService', () => {
       (UserService.findUserById as jest.Mock).mockResolvedValue(null);
 
       await expect(AuthService.refreshToken(oldToken)).rejects.toThrow('User not found');
+    });
+
+    it('should handle concurrent token refresh', async () => {
+      const oldToken = 'old.token';
+      const newToken = 'new.token';
+      const decodedToken = { id: mockUser.id };
+      
+      (jwt.verify as jest.Mock).mockReturnValue(decodedToken);
+      (UserService.findUserById as jest.Mock).mockResolvedValue(mockUser);
+      (jwt.sign as jest.Mock).mockReturnValue(newToken);
+
+      // Simulate concurrent token refresh
+      const results = await Promise.all([
+        AuthService.refreshToken(oldToken),
+        AuthService.refreshToken(oldToken),
+        AuthService.refreshToken(oldToken)
+      ]);
+
+      expect(results).toEqual([newToken, newToken, newToken]);
+      expect(jwt.verify).toHaveBeenCalledTimes(3);
+      expect(UserService.findUserById).toHaveBeenCalledTimes(3);
+      expect(jwt.sign).toHaveBeenCalledTimes(3);
+    });
+
+    it('should handle token verification error during refresh', async () => {
+      const invalidToken = 'invalid.token';
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw new Error('Invalid token');
+      });
+
+      await expect(AuthService.refreshToken(invalidToken))
+        .rejects.toThrow('Invalid token');
     });
   });
 }); 
