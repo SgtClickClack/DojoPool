@@ -1,13 +1,63 @@
 export interface PerformanceMetrics {
-    cpuUsage: number;
+    fps: number;
     memoryUsage: number;
-    diskUsage: number;
-    networkSent: number;
-    networkReceived: number;
-    memoryAvailable: number;
-    processCount: number;
-    threadCount: number;
+    responseTime: number;
+    loadTime: number;
+    networkLatency: number;
+    resourceUtilization: {
+        cpu: number;
+        memory: number;
+    };
+    errorCount: number;
     timestamp: Date;
+}
+
+export interface DependencyMetrics {
+    name: string;
+    version: string;
+    loadTime: number;
+    memoryUsage: number;
+    cpuUsage: number;
+    errorCount: number;
+    timestamp: Date;
+}
+
+export interface SystemMetrics {
+    cpu: {
+        usage: number;
+        cores: number;
+    };
+    memory: {
+        total: number;
+        used: number;
+        free: number;
+    };
+    network: {
+        bytesReceived: number;
+        bytesSent: number;
+    };
+    timestamp: Date;
+}
+
+export interface PerformanceIssue {
+    component: string;
+    issues: string[];
+    severity: 'warning' | 'error';
+    timestamp: Date;
+}
+
+export interface CacheEntry<T> {
+    value: T;
+    timestamp: number;
+    ttl: number;
+}
+
+export interface PerformanceThresholds {
+    minFps: number;
+    maxResponseTime: number;
+    maxLoadTime: number;
+    maxNetworkLatency: number;
+    maxMemoryUsage: number;
 }
 
 export interface MetricData {

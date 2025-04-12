@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { Request, Response, NextFunction } from 'express';
 import { doubleCsrf } from 'csrf-csrf';
 
 const {
@@ -15,14 +15,14 @@ const {
   },
   size: 64,
   ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-  getTokenFromRequest: (req: { headers: { [key: string]: string | string[] | undefined } }) => 
+  getTokenFromRequest: (req: Request) => 
     typeof req.headers['x-csrf-token'] === 'string' ? req.headers['x-csrf-token'] : undefined,
 });
 
 export function csrfProtection(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  next: () => void
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) {
   // Generate CSRF token for GET requests
   if (req.method === 'GET') {

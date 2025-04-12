@@ -1,23 +1,30 @@
-import { PerformanceMetrics } from '../types/monitoring';
+import { PerformanceMetrics, DependencyMetrics } from '../types/monitoring';
+import { SystemMetricsCollector } from '../core/monitoring/system_metrics';
+import { PerformanceMonitor } from '../core/monitoring/performance';
+import { MetricsCache } from '../core/monitoring/cache';
 
-interface DependencyMetrics {
-    name: string;
-    version: string;
-    loadTime: number;
-    memoryUsage: number;
-    cpuUsage: number;
-    errorCount: number;
-    timestamp: Date;
+interface DependencyIssue {
+    dependency: string;
+    issue: string;
+    severity: 'warning' | 'error';
 }
 
-class DependencyPerformanceMonitor {
+export class DependencyPerformanceMonitor {
     private static instance: DependencyPerformanceMonitor;
-    private metrics: Map<string, DependencyMetrics[]>;
-    private readonly MAX_HISTORY_LENGTH = 3600; // 1 hour of data at 1 second intervals
-    private updateInterval: NodeJS.Timeout | null = null;
+    private metricsCache: MetricsCache;
+    private systemMetricsCollector: SystemMetricsCollector;
+    private performanceMonitor: PerformanceMonitor;
+    private monitoringInterval: NodeJS.Timeout | null;
+    private batchSize: number;
+    private metricsBuffer: Map<string, DependencyMetrics[]>;
 
     private constructor() {
-        this.metrics = new Map();
+        this.metricsCache = new MetricsCache();
+        this.systemMetricsCollector = new SystemMetricsCollector();
+        this.performanceMonitor = new PerformanceMonitor();
+        this.monitoringInterval = null;
+        this.batchSize = 10;
+        this.metricsBuffer = new Map();
     }
 
     public static getInstance(): DependencyPerformanceMonitor {
@@ -27,147 +34,208 @@ class DependencyPerformanceMonitor {
         return DependencyPerformanceMonitor.instance;
     }
 
-    public startMonitoring(interval: number = 1000): void {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-        }
-        this.updateInterval = setInterval(() => this.updateMetrics(), interval);
+    public startMonitoring(): void {
+        if (this.monitoringInterval) return;
+
+        // Start system metrics collection
+        this.systemMetricsCollector.start();
+        this.performanceMonitor.start();
+
+        // Start dependency monitoring with batched processing
+        this.monitoringInterval = setInterval(() => {
+            this.collectDependencyMetrics();
+        }, 5000); // Collect metrics every 5 seconds
     }
 
     public stopMonitoring(): void {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-            this.updateInterval = null;
+        if (this.monitoringInterval) {
+            clearInterval(this.monitoringInterval);
+            this.monitoringInterval = null;
         }
+        this.systemMetricsCollector.stop();
+        this.performanceMonitor.stop();
+        this.flushMetricsBuffer();
     }
 
-    private updateMetrics(): void {
-        // Get all loaded dependencies
-        const dependencies = this.getLoadedDependencies();
+    private collectDependencyMetrics(): void {
+        try {
+            // Get system metrics
+            const systemMetrics = this.systemMetricsCollector.get_current_metrics();
+            
+            // Get performance metrics
+            const performanceMetrics = this.performanceMonitor.get_performance_metrics();
 
-        dependencies.forEach(dep => {
-            const metrics: DependencyMetrics = {
-                name: dep.name,
-                version: dep.version,
-                loadTime: this.measureLoadTime(dep),
-                memoryUsage: this.measureMemoryUsage(dep),
-                cpuUsage: this.measureCpuUsage(dep),
-                errorCount: this.getErrorCount(dep),
-                timestamp: new Date()
+            // Process dependencies in batches
+            const dependencies = this.getDependencies();
+            let currentBatch = 0;
+
+            const processBatch = () => {
+                const startIdx = currentBatch * this.batchSize;
+                const endIdx = Math.min(startIdx + this.batchSize, dependencies.length);
+                const batch = dependencies.slice(startIdx, endIdx);
+
+                batch.forEach(dependency => {
+                    const metrics: DependencyMetrics = {
+                        name: dependency.name,
+                        version: dependency.version,
+                        loadTime: this.calculateLoadTime(dependency),
+                        memoryUsage: this.calculateMemoryUsage(dependency, systemMetrics),
+                        cpuUsage: this.calculateCpuUsage(dependency, systemMetrics),
+                        errorCount: this.getErrorCount(dependency),
+                        timestamp: new Date()
+                    };
+
+                    // Add to buffer
+                    if (!this.metricsBuffer.has(dependency.name)) {
+                        this.metricsBuffer.set(dependency.name, []);
+                    }
+                    const dependencyMetrics = this.metricsBuffer.get(dependency.name)!;
+                    dependencyMetrics.push(metrics);
+
+                    // Check for performance issues
+                    this.checkPerformanceIssues(metrics, performanceMetrics);
+                });
+
+                // Process next batch if available
+                currentBatch++;
+                if (currentBatch * this.batchSize < dependencies.length) {
+                    setTimeout(processBatch, 0); // Yield to event loop
+                } else {
+                    this.flushMetricsBuffer();
+                }
             };
 
-            if (!this.metrics.has(dep.name)) {
-                this.metrics.set(dep.name, []);
-            }
-
-            const history = this.metrics.get(dep.name)!;
-            history.push(metrics);
-
-            // Keep only the last hour of metrics
-            if (history.length > this.MAX_HISTORY_LENGTH) {
-                history.shift();
-            }
-        });
+            processBatch();
+        } catch (error) {
+            console.error('Error collecting dependency metrics:', error);
+        }
     }
 
-    private getLoadedDependencies(): Array<{ name: string; version: string }> {
-        // Get dependencies from package.json
+    private flushMetricsBuffer(): void {
+        for (const [dependency, metrics] of this.metricsBuffer.entries()) {
+            const cacheKey = `metrics:${dependency}`;
+            const cachedMetrics = this.metricsCache.get<DependencyMetrics[]>(cacheKey) || [];
+            const updatedMetrics = [...cachedMetrics, ...metrics].slice(-100);
+            this.metricsCache.set<DependencyMetrics[]>(cacheKey, updatedMetrics, 300000);
+        }
+        this.metricsBuffer.clear();
+    }
+
+    private getDependencies(): Array<{ name: string; version: string }> {
+        // Get list of dependencies from package.json
         const packageJson = require('../../package.json');
-        const dependencies = {
-            ...packageJson.dependencies,
-            ...packageJson.devDependencies
+        return Object.entries(packageJson.dependencies || {})
+            .map(([name, version]) => ({ name, version: version as string }));
+    }
+
+    private calculateLoadTime(dependency: { name: string }): number {
+        const cacheKey = `loadTime:${dependency.name}`;
+        const cachedLoadTime = this.metricsCache.get<number>(cacheKey);
+        if (cachedLoadTime !== undefined) {
+            return cachedLoadTime;
+        }
+
+        const loadTime = 0;
+        this.metricsCache.set<number>(cacheKey, loadTime, 60000);
+        return loadTime;
+    }
+
+    private calculateMemoryUsage(dependency: { name: string }, systemMetrics: any): number {
+        const cacheKey = `memoryUsage:${dependency.name}`;
+        const cachedMemoryUsage = this.metricsCache.get<number>(cacheKey);
+        if (cachedMemoryUsage !== undefined) {
+            return cachedMemoryUsage;
+        }
+
+        const memoryUsage = 0;
+        this.metricsCache.set<number>(cacheKey, memoryUsage, 60000);
+        return memoryUsage;
+    }
+
+    private calculateCpuUsage(dependency: { name: string }, systemMetrics: any): number {
+        const cacheKey = `cpuUsage:${dependency.name}`;
+        const cachedCpuUsage = this.metricsCache.get<number>(cacheKey);
+        if (cachedCpuUsage !== undefined) {
+            return cachedCpuUsage;
+        }
+
+        const cpuUsage = 0;
+        this.metricsCache.set<number>(cacheKey, cpuUsage, 60000);
+        return cpuUsage;
+    }
+
+    private getErrorCount(dependency: { name: string }): number {
+        const cacheKey = `errorCount:${dependency.name}`;
+        const cachedErrorCount = this.metricsCache.get<number>(cacheKey);
+        if (cachedErrorCount !== undefined) {
+            return cachedErrorCount;
+        }
+
+        const errorCount = 0;
+        this.metricsCache.set<number>(cacheKey, errorCount, 60000);
+        return errorCount;
+    }
+
+    private checkPerformanceIssues(metrics: DependencyMetrics, performanceMetrics: any): void {
+        // Check for performance issues based on thresholds
+        const thresholds = {
+            loadTime: 1000, // 1 second
+            memoryUsage: 100, // 100 MB
+            cpuUsage: 50, // 50%
+            errorCount: 5 // 5 errors
         };
 
-        return Object.entries(dependencies).map(([name, version]) => ({
-            name,
-            version: version as string
-        }));
-    }
+        const issues: string[] = [];
+        if (metrics.loadTime > thresholds.loadTime) {
+            issues.push(`High load time: ${metrics.loadTime}ms`);
+        }
+        if (metrics.memoryUsage > thresholds.memoryUsage) {
+            issues.push(`High memory usage: ${metrics.memoryUsage}MB`);
+        }
+        if (metrics.cpuUsage > thresholds.cpuUsage) {
+            issues.push(`High CPU usage: ${metrics.cpuUsage}%`);
+        }
+        if (metrics.errorCount > thresholds.errorCount) {
+            issues.push(`High error count: ${metrics.errorCount}`);
+        }
 
-    private measureLoadTime(dep: { name: string }): number {
-        // Measure module load time
-        const start = performance.now();
-        try {
-            require(dep.name);
-            return performance.now() - start;
-        } catch (error) {
-            return -1; // Indicate error
+        if (issues.length > 0) {
+            // Report issues to performance monitor
+            this.performanceMonitor.reportIssue({
+                component: metrics.name,
+                issues,
+                severity: 'warning',
+                timestamp: metrics.timestamp
+            });
         }
     }
 
-    private measureMemoryUsage(dep: { name: string }): number {
-        // Get memory usage for the module
-        const memory = (performance as any).memory;
-        if (memory) {
-            return memory.usedJSHeapSize / (1024 * 1024); // Convert to MB
-        }
-        return 0;
+    public getMetrics(): Map<string, DependencyMetrics[]> {
+        return this.metricsCache.getMetrics<DependencyMetrics[]>();
     }
 
-    private measureCpuUsage(dep: { name: string }): number {
-        // Estimate CPU usage based on module activity
-        return Math.random() * 100; // Placeholder - implement actual CPU measurement
-    }
-
-    private getErrorCount(dep: { name: string }): number {
-        // Get error count for the module
-        return 0; // Placeholder - implement actual error counting
-    }
-
-    public getMetrics(dependencyName?: string): Map<string, DependencyMetrics[]> {
-        if (dependencyName) {
-            const result = new Map();
-            if (this.metrics.has(dependencyName)) {
-                result.set(dependencyName, this.metrics.get(dependencyName));
-            }
-            return result;
-        }
-        return new Map(this.metrics);
-    }
-
-    public getPerformanceIssues(): Array<{ dependency: string; issue: string; severity: 'warning' | 'error' }> {
-        const issues: Array<{ dependency: string; issue: string; severity: 'warning' | 'error' }> = [];
-
-        this.metrics.forEach((history, dependency) => {
-            const latest = history[history.length - 1];
-            if (!latest) return;
-
-            // Check for performance issues
-            if (latest.loadTime > 1000) {
-                issues.push({
-                    dependency,
-                    issue: 'High load time',
-                    severity: 'warning'
-                });
-            }
-
-            if (latest.memoryUsage > 100) {
-                issues.push({
-                    dependency,
-                    issue: 'High memory usage',
-                    severity: 'warning'
-                });
-            }
-
-            if (latest.cpuUsage > 80) {
-                issues.push({
-                    dependency,
-                    issue: 'High CPU usage',
-                    severity: 'error'
-                });
-            }
-
-            if (latest.errorCount > 10) {
-                issues.push({
-                    dependency,
-                    issue: 'High error count',
-                    severity: 'error'
-                });
-            }
+    public getPerformanceIssues(): DependencyIssue[] {
+        const issues: DependencyIssue[] = [];
+        
+        this.metricsCache.getMetrics<DependencyMetrics[]>().forEach((metrics, dependency) => {
+            metrics.forEach(metric => {
+                if (metric.errorCount > 0) {
+                    issues.push({
+                        dependency,
+                        issue: `Error count: ${metric.errorCount}`,
+                        severity: 'error'
+                    });
+                }
+                if (metric.loadTime > 1000) {
+                    issues.push({
+                        dependency,
+                        issue: `High load time: ${metric.loadTime}ms`,
+                        severity: 'warning'
+                    });
+                }
+            });
         });
 
         return issues;
     }
-}
-
-export default DependencyPerformanceMonitor; 
+} 

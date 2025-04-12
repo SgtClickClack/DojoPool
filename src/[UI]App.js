@@ -1,4 +1,4 @@
-import { ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider } from '@mui/material';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AuthProvider } from './components/auth/AuthContext';
 import Login from './components/auth/Login';
@@ -6,22 +6,13 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import ResetPassword from './components/auth/ResetPassword';
 import Signup from './components/auth/Signup';
 import Dashboard from './components/Dashboard';
-
-// Create a custom theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2', // You can customize this color
-    },
-    secondary: {
-      main: '#dc004e', // You can customize this color
-    },
-  },
-});
+import theme from '../theme';
+import './index.css';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <div className="particle-bg" />
       <Router>
         <AuthProvider>
           <Routes>

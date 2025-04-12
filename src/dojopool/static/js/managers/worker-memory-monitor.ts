@@ -38,6 +38,16 @@ export class WorkerMemoryMonitor extends BaseManager<WorkerMemoryMonitor> {
         critical: 85,
         gcTrigger: 80
     };
+    private worker: Worker;
+    private memoryThreshold: number;
+    private checkInterval: number;
+
+    constructor(worker: Worker, memoryThreshold: number = 100, checkInterval: number = 5000) {
+        super();
+        this.worker = worker;
+        this.memoryThreshold = memoryThreshold;
+        this.checkInterval = checkInterval;
+    }
 
     public registerWorker(workerId: string, worker: Worker): void {
         if (this.workers.has(workerId)) {
@@ -138,5 +148,15 @@ export class WorkerMemoryMonitor extends BaseManager<WorkerMemoryMonitor> {
         this.workers.clear();
         this.onCleanup();
     }
-} 
-} 
+
+    startMonitoring(): void {
+        setInterval(() => {
+            const memoryUsage = process.memoryUsage();
+            if (memoryUsage.heapUsed > this.memoryThreshold) {
+                this.worker.postMessage({ type: 'MEMORY_WARNING', data: memoryUsage });
+            }
+        }, this.checkInterval);
+    }
+}
+
+export default WorkerMemoryMonitor; 

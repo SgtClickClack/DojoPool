@@ -3,6 +3,8 @@ import helmet from 'helmet';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { verify } from 'jsonwebtoken';
 import { Redis } from 'ioredis';
+import { doubleCsrf } from 'csrf-csrf';
+import { Request, Response, NextFunction } from 'express';
 
 // Initialize Redis client for rate limiting and session storage
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -155,11 +157,17 @@ export const authMiddleware = async (
 };
 
 // CSRF Protection middleware
-export const csrfProtection = require('csurf')({
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: true,
+export const csrfProtection = doubleCsrf({
+  getSecret: () => process.env.CSRF_SECRET || 'default-secret',
+  cookieName: '_csrf',
+  cookieOptions: {
+    sameSite: 'strict',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production'
   },
+  size: 64,
+  ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
+  getTokenFromRequest: (req: Request) => req.headers['x-csrf-token'] as string
 });
 
 // Password validation
