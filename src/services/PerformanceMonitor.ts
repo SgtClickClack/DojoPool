@@ -1,4 +1,18 @@
 import { useEffect, useRef } from 'react';
+import { performance, PerformanceObserver } from 'perf-hooks';
+import { ReportHandler } from 'web-vitals';
+import { EventEmitter } from 'events';
+
+// Types
+declare global {
+  interface Performance extends Performance {
+    memory?: {
+      jsHeapSizeLimit: number;
+      totalJSHeapSize: number;
+      usedJSHeapSize: number;
+    };
+  }
+}
 
 interface PerformanceMetrics {
     fps: number;

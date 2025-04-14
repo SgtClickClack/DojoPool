@@ -1,0 +1,3 @@
+@echo off
+echo Running network transport benchmark...
+powershell.exe -ExecutionPolicy Bypass -NoProfile -Command "& {Set-Location '%~dp0'; & '.\run-benchmark.ps1'}" 

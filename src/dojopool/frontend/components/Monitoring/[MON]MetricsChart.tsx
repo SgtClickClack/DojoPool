@@ -17,7 +17,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { MetricData, MetricsSnapshot } from '../../types/monitoring';
+import { MetricData, MetricsSnapshot, TrendAnalysis } from '../../types/monitoring';
 import { gameMetricsMonitor } from '../../utils/monitoring';
 
 interface MetricsChartProps {

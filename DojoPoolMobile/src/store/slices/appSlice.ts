@@ -1,10 +1,11 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction, ActionReducerMapBuilder } from '@reduxjs/toolkit';
 import { appApi } from '@/services/api';
+import { Venue, Game, CreateGameData } from '@/types/api';
 
 interface AppState {
-  venues: any[];
-  games: any[];
-  currentGame: any | null;
+  venues: Venue[];
+  games: Game[];
+  currentGame: Game | null;
   loading: boolean;
   error: string | null;
 }
@@ -17,60 +18,82 @@ const initialState: AppState = {
   error: null,
 };
 
-export const fetchVenues = createAsyncThunk('app/fetchVenues', async (_, { rejectWithValue }) => {
+export const fetchVenues = createAsyncThunk<
+  Venue[],
+  void,
+  { rejectValue: string }
+>('app/fetchVenues', async (_, { rejectWithValue }) => {
   try {
     const response = await appApi.getVenues();
     return response;
-  } catch (error: any) {
-    return rejectWithValue(error.message);
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 });
 
-export const fetchGames = createAsyncThunk('app/fetchGames', async (_, { rejectWithValue }) => {
+export const fetchGames = createAsyncThunk<
+  Game[],
+  void,
+  { rejectValue: string }
+>('app/fetchGames', async (_, { rejectWithValue }) => {
   try {
     const response = await appApi.getGames();
     return response;
-  } catch (error: any) {
-    return rejectWithValue(error.message);
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message);
+    }
+    return rejectWithValue('An unknown error occurred');
   }
 });
 
-export const joinGame = createAsyncThunk(
-  'app/joinGame',
-  async (gameId: string, { rejectWithValue }) => {
-    try {
-      const response = await appApi.joinGame(gameId);
-      return response;
-    } catch (error: any) {
+export const joinGame = createAsyncThunk<
+  Game,
+  string,
+  { rejectValue: string }
+>('app/joinGame', async (gameId, { rejectWithValue }) => {
+  try {
+    const response = await appApi.joinGame(gameId);
+    return response;
+  } catch (error) {
+    if (error instanceof Error) {
       return rejectWithValue(error.message);
     }
+    return rejectWithValue('An unknown error occurred');
   }
-);
+});
 
-export const createGame = createAsyncThunk(
-  'app/createGame',
-  async (gameData: any, { rejectWithValue }) => {
-    try {
-      const response = await appApi.createGame(gameData);
-      return response;
-    } catch (error: any) {
+export const createGame = createAsyncThunk<
+  Game,
+  CreateGameData,
+  { rejectValue: string }
+>('app/createGame', async (gameData, { rejectWithValue }) => {
+  try {
+    const response = await appApi.createGame(gameData);
+    return response;
+  } catch (error) {
+    if (error instanceof Error) {
       return rejectWithValue(error.message);
     }
+    return rejectWithValue('An unknown error occurred');
   }
-);
+});
 
 const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    setCurrentGame: (state, action) => {
+    setCurrentGame: (state: AppState, action: PayloadAction<Game | null>) => {
       state.currentGame = action.payload;
     },
-    resetError: (state) => {
+    resetError: (state: AppState) => {
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: (builder: ActionReducerMapBuilder<AppState>) => {
     // Fetch Venues
     builder
       .addCase(fetchVenues.pending, (state) => {
@@ -83,7 +106,7 @@ const appSlice = createSlice({
       })
       .addCase(fetchVenues.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? 'An unknown error occurred';
       });
 
     // Fetch Games
@@ -98,7 +121,7 @@ const appSlice = createSlice({
       })
       .addCase(fetchGames.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? 'An unknown error occurred';
       });
 
     // Join Game
@@ -113,7 +136,7 @@ const appSlice = createSlice({
       })
       .addCase(joinGame.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? 'An unknown error occurred';
       });
 
     // Create Game
@@ -129,7 +152,7 @@ const appSlice = createSlice({
       })
       .addCase(createGame.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? 'An unknown error occurred';
       });
   },
 });

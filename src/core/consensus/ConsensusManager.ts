@@ -1,0 +1,444 @@
+import { EventEmitter } from 'events';
+import { NetworkTransport, NetworkMessage, NetworkMessageType } from '../network/NetworkTransport';
+import { VectorClock } from '../consistency/VectorClock';
+import { StateReplicator } from '../replication/StateReplicator';
+import { 
+  ConsensusState,
+  NodeRole,
+  LogEntry,
+  ConsensusConfig,
+  AppendEntriesRequest,
+  AppendEntriesResponse,
+  RequestVoteRequest,
+  RequestVoteResponse
+} from './types';
+
+interface ConsensusEvents {
+  'state:change': (state: ConsensusState) => void;
+  'leader:elected': (leaderId: string) => void;
+  'entry:committed': (entry: LogEntry) => void;
+  'term:updated': (term: number) => void;
+}
+
+declare interface ConsensusManager {
+  on<K extends keyof ConsensusEvents>(event: K, listener: ConsensusEvents[K]): this;
+  emit<K extends keyof ConsensusEvents>(event: K, ...args: Parameters<ConsensusEvents[K]>): boolean;
+}
+
+export class ConsensusManager extends EventEmitter {
+  private config: ConsensusConfig;
+  private networkTransport: NetworkTransport;
+  private stateReplicator: StateReplicator;
+  private vectorClock: VectorClock;
+  private state: ConsensusState;
+  private role: NodeRole;
+  private currentTerm: number;
+  private votedFor: string | null;
+  private log: LogEntry[];
+  private commitIndex: number;
+  private lastApplied: number;
+  private electionTimeout: NodeJS.Timeout | null;
+  private heartbeatTimeout: NodeJS.Timeout | null;
+  private nodes: Set<string>;
+  private votes: Map<string, boolean>;
+  private leader: string | null;
+  private nextIndex: Map<string, number>;
+  private matchIndex: Map<string, number>;
+
+  constructor(
+    config: ConsensusConfig,
+    networkTransport: NetworkTransport,
+    stateReplicator: StateReplicator
+  ) {
+    super();
+    this.config = config;
+    this.networkTransport = networkTransport;
+    this.stateReplicator = stateReplicator;
+    this.vectorClock = new VectorClock();
+    this.state = ConsensusState.FOLLOWER;
+    this.role = NodeRole.FOLLOWER;
+    this.currentTerm = 0;
+    this.votedFor = null;
+    this.log = [];
+    this.commitIndex = -1;
+    this.lastApplied = -1;
+    this.electionTimeout = null;
+    this.heartbeatTimeout = null;
+    this.nodes = new Set(config.nodes);
+    this.votes = new Map();
+    this.leader = null;
+    this.nextIndex = new Map();
+    this.matchIndex = new Map();
+
+    this.setupNetworkHandlers();
+    this.resetElectionTimeout();
+  }
+
+  private setupNetworkHandlers(): void {
+    this.networkTransport.onMessage((message: NetworkMessage) => {
+      switch (message.type) {
+        case NetworkMessageType.APPEND_ENTRIES:
+          this.handleAppendEntries(message.payload as AppendEntriesRequest);
+          break;
+        case NetworkMessageType.APPEND_ENTRIES_RESPONSE:
+          this.handleAppendEntriesResponse(message.source, message.payload as AppendEntriesResponse);
+          break;
+        case NetworkMessageType.REQUEST_VOTE:
+          this.handleRequestVote(message.payload as RequestVoteRequest);
+          break;
+        case NetworkMessageType.REQUEST_VOTE_RESPONSE:
+          this.handleRequestVoteResponse(message.source, message.payload as RequestVoteResponse);
+          break;
+        case NetworkMessageType.STATE_SYNC:
+          this.handleStateSync(message);
+          break;
+      }
+    });
+
+    this.networkTransport.on('connect', (nodeId: string) => {
+      this.nodes.add(nodeId);
+      this.nextIndex.set(nodeId, this.log.length);
+      this.matchIndex.set(nodeId, -1);
+    });
+
+    this.networkTransport.on('disconnect', (nodeId: string) => {
+      this.nodes.delete(nodeId);
+      this.nextIndex.delete(nodeId);
+      this.matchIndex.delete(nodeId);
+      this.votes.delete(nodeId);
+    });
+  }
+
+  public async start(): Promise<void> {
+    await this.networkTransport.start();
+    this.resetElectionTimeout();
+  }
+
+  public async stop(): Promise<void> {
+    if (this.electionTimeout) {
+      clearTimeout(this.electionTimeout);
+      this.electionTimeout = null;
+    }
+    if (this.heartbeatTimeout) {
+      clearTimeout(this.heartbeatTimeout);
+      this.heartbeatTimeout = null;
+    }
+    await this.networkTransport.stop();
+  }
+
+  public async appendEntry(entry: Omit<LogEntry, 'term'>): Promise<void> {
+    if (this.role !== NodeRole.LEADER) {
+      throw new Error('Only leader can append entries');
+    }
+
+    const logEntry: LogEntry = {
+      ...entry,
+      term: this.currentTerm
+    };
+
+    this.log.push(logEntry);
+    this.vectorClock.increment(this.config.nodeId);
+
+    await this.broadcastAppendEntries();
+  }
+
+  private async broadcastAppendEntries(): Promise<void> {
+    for (const nodeId of this.nodes) {
+      if (nodeId === this.config.nodeId) continue;
+
+      const nextIdx = this.nextIndex.get(nodeId) || 0;
+      const prevLogIndex = nextIdx - 1;
+      const prevLogTerm = prevLogIndex >= 0 ? this.log[prevLogIndex].term : 0;
+      const entries = this.log.slice(nextIdx);
+
+      await this.networkTransport.sendMessage({
+        type: NetworkMessageType.APPEND_ENTRIES,
+        source: this.config.nodeId,
+        destination: nodeId,
+        payload: {
+          term: this.currentTerm,
+          leaderId: this.config.nodeId,
+          prevLogIndex,
+          prevLogTerm,
+          entries,
+          leaderCommit: this.commitIndex
+        },
+        timestamp: Date.now()
+      });
+    }
+  }
+
+  private async handleAppendEntries(request: AppendEntriesRequest): Promise<void> {
+    let response: AppendEntriesResponse = {
+      term: this.currentTerm,
+      success: false
+    };
+
+    if (request.term < this.currentTerm) {
+      await this.sendAppendEntriesResponse(request.leaderId, response);
+      return;
+    }
+
+    this.resetElectionTimeout();
+    this.state = ConsensusState.FOLLOWER;
+    this.currentTerm = request.term;
+
+    if (this.log.length < request.prevLogIndex ||
+        this.log[request.prevLogIndex]?.term !== request.prevLogTerm) {
+      await this.sendAppendEntriesResponse(request.leaderId, response);
+      return;
+    }
+
+    this.resetElectionTimeout();
+    this.leader = leaderId;
+
+    // Check if log contains an entry at prevLogIndex with term prevLogTerm
+    if (prevLogIndex >= 0 && (
+      prevLogIndex >= this.log.length ||
+      this.log[prevLogIndex].term !== prevLogTerm
+    )) {
+      await this.sendAppendEntriesResponse(message.source, false);
+      return;
+    }
+
+    // Remove conflicting entries and append new ones
+    this.log = this.log.slice(0, prevLogIndex + 1).concat(entries);
+
+    // Update commit index
+    if (leaderCommit > this.commitIndex) {
+      const lastNewIndex = prevLogIndex + entries.length;
+      this.commitIndex = Math.min(leaderCommit, lastNewIndex);
+      await this.applyCommittedEntries();
+    }
+
+    await this.sendAppendEntriesResponse(message.source, true);
+  }
+
+  private async handleAppendEntriesResponse(message: NetworkMessage): Promise<void> {
+    if (this.role !== NodeRole.LEADER) return;
+
+    const { success, term, matchIndex } = message.payload;
+    const nodeId = message.source;
+
+    if (term > this.currentTerm) {
+      this.updateTerm(term);
+      this.becomeFollower(null);
+      return;
+    }
+
+    if (success) {
+      this.nextIndex.set(nodeId, matchIndex + 1);
+      this.matchIndex.set(nodeId, matchIndex);
+      await this.updateCommitIndex();
+    } else {
+      // Decrement nextIndex and retry
+      const nextIdx = this.nextIndex.get(nodeId) || 0;
+      if (nextIdx > 0) {
+        this.nextIndex.set(nodeId, nextIdx - 1);
+        await this.broadcastAppendEntries();
+      }
+    }
+  }
+
+  private async handleRequestVote(message: NetworkMessage): Promise<void> {
+    const { term, candidateId, lastLogIndex, lastLogTerm } = message.payload;
+
+    let voteGranted = false;
+
+    if (term > this.currentTerm) {
+      this.updateTerm(term);
+      this.becomeFollower(null);
+    }
+
+    if (term === this.currentTerm &&
+        (this.votedFor === null || this.votedFor === candidateId) &&
+        this.isLogUpToDate(lastLogIndex, lastLogTerm)) {
+      this.votedFor = candidateId;
+      voteGranted = true;
+      this.resetElectionTimeout();
+    }
+
+    await this.networkTransport.sendMessage({
+      type: NetworkMessageType.REQUEST_VOTE_RESPONSE,
+      source: this.config.nodeId,
+      destination: message.source,
+      payload: {
+        term: this.currentTerm,
+        voteGranted
+      },
+      timestamp: Date.now()
+    });
+  }
+
+  private async handleRequestVoteResponse(message: NetworkMessage): Promise<void> {
+    if (this.role !== NodeRole.CANDIDATE) return;
+
+    const { term, voteGranted } = message.payload;
+
+    if (term > this.currentTerm) {
+      this.updateTerm(term);
+      this.becomeFollower(null);
+      return;
+    }
+
+    if (term === this.currentTerm && voteGranted) {
+      this.votes.set(message.source, true);
+
+      // Check if we have majority
+      const votesReceived = Array.from(this.votes.values()).filter(v => v).length;
+      if (votesReceived > this.nodes.size / 2) {
+        await this.becomeLeader();
+      }
+    }
+  }
+
+  private async handleStateSync(message: NetworkMessage): Promise<void> {
+    const { state, vectorClock } = message.payload;
+    await this.stateReplicator.applyState(state, vectorClock);
+  }
+
+  private async becomeLeader(): Promise<void> {
+    this.role = NodeRole.LEADER;
+    this.leader = this.config.nodeId;
+    this.state = ConsensusState.LEADER;
+
+    // Initialize nextIndex and matchIndex
+    for (const nodeId of this.nodes) {
+      this.nextIndex.set(nodeId, this.log.length);
+      this.matchIndex.set(nodeId, -1);
+    }
+
+    // Clear election timeout and start sending heartbeats
+    if (this.electionTimeout) {
+      clearTimeout(this.electionTimeout);
+      this.electionTimeout = null;
+    }
+
+    this.startHeartbeat();
+    this.emit('leader:elected', this.config.nodeId);
+  }
+
+  private becomeFollower(leaderId: string | null): void {
+    this.role = NodeRole.FOLLOWER;
+    this.state = ConsensusState.FOLLOWER;
+    this.leader = leaderId;
+    this.votes.clear();
+    this.resetElectionTimeout();
+
+    if (this.heartbeatTimeout) {
+      clearTimeout(this.heartbeatTimeout);
+      this.heartbeatTimeout = null;
+    }
+  }
+
+  private async startElection(): Promise<void> {
+    this.role = NodeRole.CANDIDATE;
+    this.state = ConsensusState.CANDIDATE;
+    this.currentTerm++;
+    this.votedFor = this.config.nodeId;
+    this.votes.clear();
+    this.votes.set(this.config.nodeId, true);
+
+    this.emit('term:updated', this.currentTerm);
+
+    // Request votes from all nodes
+    const lastLogIndex = this.log.length - 1;
+    const lastLogTerm = lastLogIndex >= 0 ? this.log[lastLogIndex].term : 0;
+
+    await this.networkTransport.broadcast({
+      type: NetworkMessageType.REQUEST_VOTE,
+      source: this.config.nodeId,
+      payload: {
+        term: this.currentTerm,
+        candidateId: this.config.nodeId,
+        lastLogIndex,
+        lastLogTerm
+      },
+      timestamp: Date.now()
+    });
+
+    this.resetElectionTimeout();
+  }
+
+  private resetElectionTimeout(): void {
+    if (this.electionTimeout) {
+      clearTimeout(this.electionTimeout);
+    }
+
+    const timeout = this.config.electionTimeoutBase +
+      Math.floor(Math.random() * this.config.electionTimeoutVariance);
+
+    this.electionTimeout = setTimeout(() => {
+      this.startElection();
+    }, timeout);
+  }
+
+  private startHeartbeat(): void {
+    this.heartbeatTimeout = setInterval(() => {
+      this.broadcastAppendEntries();
+    }, this.config.heartbeatInterval);
+  }
+
+  private async updateCommitIndex(): Promise<void> {
+    // Find the highest matchIndex that is replicated on majority of nodes
+    const matchIndexes = Array.from(this.matchIndex.values()).sort((a, b) => b - a);
+    const majorityIndex = matchIndexes[Math.floor(this.nodes.size / 2)];
+
+    if (majorityIndex > this.commitIndex && this.log[majorityIndex].term === this.currentTerm) {
+      this.commitIndex = majorityIndex;
+      await this.applyCommittedEntries();
+    }
+  }
+
+  private async applyCommittedEntries(): Promise<void> {
+    while (this.lastApplied < this.commitIndex) {
+      this.lastApplied++;
+      const entry = this.log[this.lastApplied];
+      await this.stateReplicator.applyEntry(entry);
+      this.emit('entry:committed', entry);
+    }
+  }
+
+  private updateTerm(term: number): void {
+    if (term > this.currentTerm) {
+      this.currentTerm = term;
+      this.votedFor = null;
+      this.emit('term:updated', term);
+    }
+  }
+
+  private isLogUpToDate(lastLogIndex: number, lastLogTerm: number): boolean {
+    const myLastIndex = this.log.length - 1;
+    const myLastTerm = myLastIndex >= 0 ? this.log[myLastIndex].term : 0;
+
+    if (lastLogTerm > myLastTerm) return true;
+    if (lastLogTerm === myLastTerm && lastLogIndex >= myLastIndex) return true;
+    return false;
+  }
+
+  // Public methods for monitoring and testing
+  public getState(): ConsensusState {
+    return this.state;
+  }
+
+  public getCurrentTerm(): number {
+    return this.currentTerm;
+  }
+
+  public getLeader(): string | null {
+    return this.leader;
+  }
+
+  public getNodes(): string[] {
+    return Array.from(this.nodes);
+  }
+
+  public getLastHeartbeat(nodeId: string): number {
+    return this.networkTransport.getStats().lastMessageTimestamp;
+  }
+
+  public getPendingOperations(nodeId: string): LogEntry[] {
+    const nextIdx = this.nextIndex.get(nodeId) || 0;
+    return this.log.slice(nextIdx);
+  }
+} 

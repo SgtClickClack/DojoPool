@@ -8,6 +8,15 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
     host: true,
+    cors: true,
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
   build: {
     outDir: 'dist',
@@ -24,4 +33,6 @@ export default defineConfig({
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
   },
+  root: '.',
+  publicDir: 'public',
 }); 

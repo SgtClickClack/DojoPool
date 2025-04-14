@@ -10,16 +10,14 @@ export type WebSocketMessageType =
   | 'batch'
   | 'subscribe';
 
-export interface WebSocketMessage {
-  type: WebSocketMessageType;
-  data?: any;
-  channel?: string;
-  payload?: any;
+interface WebSocketMessage<T = unknown> {
+  type: string;
+  data?: T;
 }
 
 interface BatchedMessage {
-  timestamp: number;
-  messages: WebSocketMessage[];
+  type: 'batch';
+  payload: WebSocketMessage[];
 }
 
 export class WebSocketService {
@@ -28,9 +26,10 @@ export class WebSocketService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectTimeout = 1000; // Start with 1 second
-  private listeners: Map<string, ((data: any) => void)[]> = new Map();
+  private listeners: Map<string, ((data: unknown) => void)[]> = new Map();
   private url: string;
   private messageQueue: WebSocketMessage[] = [];
+  private batchedMessages: WebSocketMessage[] = [];
   private batchTimeout: NodeJS.Timeout | null = null;
   private readonly BATCH_DELAY = 100; // Batch messages every 100ms
   private readonly MAX_BATCH_SIZE = 50; // Maximum number of messages per batch
@@ -82,12 +81,12 @@ export class WebSocketService {
     };
   }
 
-  private isBatchedMessage(message: any): message is BatchedMessage {
-    return 'timestamp' in message && Array.isArray(message.messages);
+  private isBatchedMessage(message: WebSocketMessage): message is BatchedMessage {
+    return message.type === 'batch' && Array.isArray((message as BatchedMessage).payload);
   }
 
   private handleBatchedMessage(batchedMessage: BatchedMessage): void {
-    batchedMessage.messages.forEach(message => {
+    batchedMessage.payload.forEach(message => {
       this.handleMessage(message);
     });
   }
@@ -105,27 +104,31 @@ export class WebSocketService {
   }
 
   private handleMessage(message: WebSocketMessage): void {
-    this.emit(message.type, message.payload);
+    this.emit(message.type, message.data);
   }
 
-  public on(type: string, callback: (data: any) => void): void {
-    const callbacks = this.listeners.get(type) || [];
-    callbacks.push(callback);
-    this.listeners.set(type, callbacks);
+  public on<T = unknown>(type: string, callback: (data: T) => void): void {
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, []);
+    }
+    this.listeners.get(type)?.push(callback as (data: unknown) => void);
   }
 
-  public off(type: string, callback: (data: any) => void): void {
-    const callbacks = this.listeners.get(type) || [];
-    const index = callbacks.indexOf(callback);
-    if (index !== -1) {
-      callbacks.splice(index, 1);
-      this.listeners.set(type, callbacks);
+  public off<T = unknown>(type: string, callback: (data: T) => void): void {
+    const callbacks = this.listeners.get(type);
+    if (callbacks) {
+      const index = callbacks.indexOf(callback as (data: unknown) => void);
+      if (index !== -1) {
+        callbacks.splice(index, 1);
+      }
     }
   }
 
-  private emit(type: string, data: any): void {
-    const callbacks = this.listeners.get(type) || [];
-    callbacks.forEach(callback => callback(data));
+  private emit<T = unknown>(type: string, data: T): void {
+    const callbacks = this.listeners.get(type);
+    if (callbacks) {
+      callbacks.forEach(callback => callback(data));
+    }
   }
 
   public disconnect(): void {
@@ -167,8 +170,8 @@ export class WebSocketService {
 
     if (this.ws?.readyState === WebSocket.OPEN) {
       const batchedMessage: BatchedMessage = {
-        timestamp: Date.now(),
-        messages: [...this.messageQueue]
+        type: 'batch',
+        payload: [...this.messageQueue]
       };
       this.ws.send(JSON.stringify(batchedMessage));
       this.messageQueue = [];

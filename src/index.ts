@@ -6,7 +6,7 @@ import { body, validationResult } from 'express-validator';
 import helmet from 'helmet';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Basic middleware
 app.use(express.json());

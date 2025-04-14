@@ -46,7 +46,7 @@ export interface AlertSubscription {
 export interface MetricData {
   timestamp: number;
   value: number;
-  label: string;
+  metadata?: Record<string, any>;
 }
 
 export interface ErrorData {
@@ -64,29 +64,35 @@ export interface Anomaly {
 }
 
 export interface MetricsSnapshot {
-  current: {
-    cpuUsage: number;
-    memoryUsage: number;
-    diskUsage: number;
-    networkSent: number;
-    networkReceived: number;
-    memoryAvailable: number;
-    processCount: number;
-    threadCount: number;
-  };
-  historical: {
-    cpuUsage: MetricData[];
-    memoryUsage: MetricData[];
-    diskUsage: MetricData[];
-    networkTraffic: MetricData[];
-  };
-  alerts: Alert[];
-  latencyData: MetricData[];
-  errorData: ErrorEvent[];
-  updateTimes: MetricData[];
-  successRate: MetricData[];
-  timestamp: number;
+  metricId: string;
+  data: MetricData[];
+  aggregatedValue?: number;
+  trendAnalysis?: TrendAnalysis;
 }
+
+export interface TrendAnalysis {
+  trend: 'increasing' | 'decreasing' | 'stable';
+  confidence: number;
+  forecast?: number[];
+  anomalies?: number[];
+  seasonality?: {
+    period: number;
+    strength: number;
+  };
+}
+
+export interface ChartOptions {
+  showTrendline?: boolean;
+  showForecast?: boolean;
+  showAnomalies?: boolean;
+  aggregationType?: 'sum' | 'avg' | 'min' | 'max';
+  timeRange?: {
+    start: number;
+    end: number;
+  };
+}
+
+export type ChartType = 'line' | 'bar' | 'pie';
 
 export interface PerformanceMetrics {
   cpuUsage: number;
