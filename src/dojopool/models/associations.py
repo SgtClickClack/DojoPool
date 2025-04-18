@@ -6,42 +6,42 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table
 
 from .base import db
 
-# Game-Player association table
-game_players = Table(
-    "game_players",
-    db.metadata,
-    Column("game_id", Integer, ForeignKey("games.id"), primary_key=True),
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-)
+# Game-Player association table (REMOVED in favor of full model in core/models/game.py)
+# game_players = Table(
+#     "game_players",
+#     db.metadata,
+#     Column("game_id", Integer, ForeignKey("games.id"), primary_key=True),
+#     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+# )
 
-# Tournament-Player association table
-tournament_players = Table(
-    "tournament_players",
-    db.metadata,
-    Column("tournament_id", Integer, ForeignKey("tournaments.id"), primary_key=True),
-    Column("player_id", Integer, ForeignKey("players.id"), primary_key=True),
-    Column("registration_time", DateTime, default=db.func.now()),
-    Column("status", String(20), default="registered"),
-)
+# Tournament-Player association table (REMOVED in favor of full model in core/models/tournament.py)
+# tournament_players = Table(
+#     "tournament_players",
+#     db.metadata,
+#     Column("tournament_id", Integer, ForeignKey("tournaments.id"), primary_key=True),
+#     Column("player_id", Integer, ForeignKey("players.id"), primary_key=True),
+#     Column("registration_time", DateTime, default=db.func.now()),
+#     Column("status", String(20), default="registered"),
+# )
 
-# Tournament-Match association table
-tournament_matches = Table(
-    "tournament_matches",
-    db.metadata,
-    Column("tournament_id", Integer, ForeignKey("tournaments.id"), primary_key=True),
-    Column("match_id", Integer, ForeignKey("matches.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-)
+# Removed tournament_matches association table to resolve table redefinition conflict
+# tournament_matches = Table(
+#     "tournament_matches",
+#     db.metadata,
+#     Column("tournament_id", Integer, ForeignKey("tournaments.id"), primary_key=True),
+#     Column("match_id", Integer, ForeignKey("matches.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+# )
 
-# User-Achievement association table
-user_achievements = Table(
-    "user_achievements",
-    db.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("achievement_id", Integer, ForeignKey("achievements.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-)
+# Removed user_achievements association table to resolve table redefinition conflict
+# user_achievements = Table(
+#     "user_achievements",
+#     db.metadata,
+#     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+#     Column("achievement_id", Integer, ForeignKey("achievements.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+# )
 
 # User-Role association table
 user_roles = Table(

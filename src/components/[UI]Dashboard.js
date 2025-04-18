@@ -35,7 +35,7 @@ const drawerWidth = 240;
 
 // Background images array
 const backgroundImages = [
-  '/static/images/hero-bg.jpg',
+  '/static/images/hero-bg.webp',
   '/static/images/spacetable.webp',
   '/static/images/portalball.webp',
   '/static/images/octopus.webp',
@@ -82,7 +82,7 @@ export default function Dashboard() {
       <Toolbar>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <img 
-            src="/static/images/logo.jpg" 
+            src="/static/images/logo.webp" 
             alt="DojoPool Logo" 
             style={{ 
               height: '40px', 
@@ -208,7 +208,7 @@ export default function Dashboard() {
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
             <img 
-              src="/static/images/logo.jpg" 
+              src="/static/images/logo.webp" 
               alt="DojoPool Logo" 
               style={{ 
                 height: '40px', 

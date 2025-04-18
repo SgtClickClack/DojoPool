@@ -1,25 +1,16 @@
 """Cached database queries for improved performance."""
 
-from ..core.cache import (
-    cached_game_state,
-    cached_query,
-    cached_user_data,
-    invalidate_game_cache,
-    invalidate_user_cache,
-)
 from . import db
 from .game import Game
 from .match import Match
 from .tournament import Tournament
 
 
-@cached_query(timeout=300)
 def get_active_tournaments():
     """Get all active tournaments."""
     return Tournament.query.filter_by(status="active").all()
 
 
-@cached_query(timeout=300)
 def get_recent_games(limit=10):
     """Get recently played games."""
     return (
@@ -30,7 +21,6 @@ def get_recent_games(limit=10):
     )
 
 
-@cached_user_data(timeout=300)
 def get_user_stats(user_id):
     """Get user's game statistics."""
     games_played = Game.query.filter_by(player_id=user_id).count()
@@ -40,7 +30,6 @@ def get_user_stats(user_id):
     return {"games_played": games_played, "games_won": games_won, "win_rate": round(win_rate, 2)}
 
 
-@cached_user_data(timeout=300)
 def get_user_recent_matches(user_id, limit=5):
     """Get user's recent matches."""
     return (
@@ -51,7 +40,6 @@ def get_user_recent_matches(user_id, limit=5):
     )
 
 
-@cached_game_state(timeout=60)
 def get_game_state(game_id):
     """Get current game state."""
     game = Game.query.get(game_id)
@@ -66,7 +54,7 @@ def get_game_state(game_id):
 
 
 def update_game_state(game_id, **kwargs):
-    """Update game state and invalidate cache."""
+    """Update game state."""
     game = Game.query.get(game_id)
     if not game:
         return False
@@ -76,11 +64,9 @@ def update_game_state(game_id, **kwargs):
             setattr(game, key, value)
 
     db.session.commit()
-    invalidate_game_cache(game_id)
     return True
 
 
 def update_user_stats(user_id):
-    """Update user statistics and invalidate cache."""
-    invalidate_user_cache(user_id)
-    return get_user_stats(user_id)  # This will refresh the cache
+    """Update user statistics."""
+    return get_user_stats(user_id)

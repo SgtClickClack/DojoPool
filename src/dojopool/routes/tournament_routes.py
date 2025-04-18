@@ -5,9 +5,9 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
 
-from src.models.tournament import Tournament
-from src.services.tournament_service import TournamentService
-from src.utils.validators import validate_tournament_data
+from dojopool.models.tournament import Tournament
+from dojopool.services.tournament_service import TournamentService
+from dojopool.utils.validators import validate_tournament_data
 
 bp = Blueprint("tournaments", __name__, url_prefix="/api/tournaments")
 

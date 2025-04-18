@@ -69,8 +69,6 @@ class Tournament(BaseModel):
 class TournamentParticipant(BaseModel):
     """Tournament participant model."""
 
-    __tablename__ = "tournament_participants"
-
     id = Column(Integer, primary_key=True)
     tournament_id = Column(Integer, ForeignKey("tournaments.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -131,7 +129,7 @@ class TournamentMatchPlayer(BaseModel):
     __tablename__ = "tournament_match_players"
 
     match_id = Column(Integer, ForeignKey("tournament_matches.id"), primary_key=True)
-    participant_id = Column(Integer, ForeignKey("tournament_participants.id"), primary_key=True)
+    participant_id = Column(Integer, ForeignKey("TournamentParticipant.id"), primary_key=True)
     position = Column(Integer, nullable=False)  # 1 for player 1, 2 for player 2
     score = Column(Integer)  # Individual score in the match
     notes = Column(Text)

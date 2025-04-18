@@ -4,7 +4,8 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from dojopool.core.exceptions import PreferencesError
-from dojopool.models import User, db
+from dojopool.models.user import User
+from dojopool.core.extensions import db
 
 
 class PreferencesService:

@@ -220,7 +220,7 @@ const Home = () => {
             >
               <Box
                 component="img"
-                src="/images/hero-vs.jpg"
+                src="/images/hero-vs.webp"
                 alt="Pool Game"
                 sx={{
                   maxWidth: '100%',

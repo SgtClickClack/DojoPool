@@ -8,7 +8,10 @@ import stripe
 from flask import current_app
 
 from dojopool.core.exceptions import PaymentError
-from dojopool.models import Transaction, User, Wallet, db
+from dojopool.models.transaction import Transaction
+from dojopool.models.user import User
+from dojopool.models.wallet import Wallet
+from dojopool.core.extensions import db
 
 
 class PaymentService:

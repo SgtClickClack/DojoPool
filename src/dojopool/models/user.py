@@ -50,17 +50,14 @@ class User(db.Model, UserMixin):
     rank_streak = db.Column(db.Integer, default=0)  # Track win/loss streaks
     rank_streak_type = db.Column(db.String)  # 'win' or 'loss'
     total_games = db.Column(db.Integer, default=0)
-    games_won = db.Column(db.Integer, default=0)
     tournament_wins = db.Column(db.Integer, default=0)
     tournament_placements = db.Column(db.JSON)  # Store tournament placement history
     ranking_history = db.Column(db.JSON)  # Store historical ranking data
 
     # Relationships
-    games_won = relationship("Game", foreign_keys="Game.winner_id", back_populates="winner")
-    games_lost = relationship("Game", foreign_keys="Game.loser_id", back_populates="loser")
-    tournament_participations = relationship("TournamentParticipant", back_populates="player")
+    # games_won relationship is attached after Game is imported below
     roles = relationship(
-        "Role", secondary=user_roles, lazy="subquery", backref=db.backref("users", lazy=True)
+        "dojopool.models.role.Role", secondary=user_roles, lazy="subquery", backref=db.backref("users", lazy=True)
     )
 
     def __repr__(self) -> str:
@@ -135,3 +132,21 @@ class User(db.Model, UserMixin):
     def is_active(self) -> bool:
         # Dummy implementation.
         return True
+
+# --- Explicit imports to resolve SQLAlchemy mapping ---
+from dojopool.models.game import Game
+from dojopool.models.tournament import TournamentParticipant
+from dojopool.models.role import Role
+
+# Attach tournament_participations relationship after TournamentParticipant is defined
+User.tournament_participations = relationship(
+    "dojopool.models.tournament.TournamentParticipant",
+    back_populates="user",
+    foreign_keys=[TournamentParticipant.user_id]
+)
+# Attach games_won relationship after Game is defined
+User.games_won = relationship(
+    "dojopool.models.game.Game",
+    foreign_keys=[Game.winner_id],
+    back_populates="winner"
+)

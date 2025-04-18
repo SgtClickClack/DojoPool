@@ -9,9 +9,9 @@ from typing import Dict, List, Optional, Tuple
 import logging
 from sqlalchemy import func
 
-from ..core.extensions import db
-from ..core.models.venue import Venue, PoolTable, TableStatus
-from ..core.models.game import Game
+from dojopool.core.extensions import db
+from dojopool.core.models.venue import Venue, PoolTable, TableStatus
+from dojopool.models.game import Game
 
 logger = logging.getLogger(__name__)
 

@@ -7,19 +7,11 @@ It includes full type annotations and docstrings for clarity and maintainability
 
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Float, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from enum import Enum
 from dojopool.core.extensions import db  # type: ignore
-
-# Association table for tournament participants
-tournament_participants = Table(
-    "tournament_participants",
-    db.Model.metadata,
-    Column("tournament_id", Integer, ForeignKey("tournaments.id"), primary_key=True),
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-)
 
 
 class TournamentStatus(str, Enum):
@@ -63,10 +55,9 @@ class Tournament(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
-    venue = db.relationship('Venue', backref=db.backref('tournaments', lazy=True))
-    organizer = db.relationship('User', backref=db.backref('organized_tournaments', lazy=True))
-    participants = db.relationship('TournamentParticipant', backref='tournament', lazy=True)
-    matches = db.relationship('TournamentMatch', backref='tournament', lazy=True)
+    venue = db.relationship("dojopool.models.venue.Venue", backref=db.backref("tournaments", lazy=True))
+    organizer = db.relationship("dojopool.models.user.User", backref=db.backref("organized_tournaments", lazy=True))
+    matches = db.relationship("dojopool.models.tournament.TournamentMatch", backref="tournament", lazy=True)
 
     def __repr__(self):
         return f'<Tournament {self.name}>'
@@ -224,7 +215,11 @@ class TournamentParticipant(db.Model):
     payment_status = db.Column(db.String(50), default='pending')  # pending, paid, refunded
 
     # Relationships
-    user = db.relationship('User', backref=db.backref('tournament_participations', lazy=True))
+    user = db.relationship(
+        "dojopool.models.user.User",
+        back_populates="tournament_participations",
+        foreign_keys=[user_id]
+    )
 
     def __repr__(self):
         return f'<TournamentParticipant {self.user_id} in Tournament {self.tournament_id}>'
@@ -262,9 +257,21 @@ class TournamentMatch(db.Model):
     table_number = db.Column(db.Integer, nullable=True)
 
     # Relationships
-    player1 = db.relationship('User', foreign_keys=[player1_id], backref=db.backref('matches_as_player1', lazy=True))
-    player2 = db.relationship('User', foreign_keys=[player2_id], backref=db.backref('matches_as_player2', lazy=True))
-    winner = db.relationship('User', foreign_keys=[winner_id], backref=db.backref('matches_won', lazy=True))
+    player1 = db.relationship(
+        "dojopool.models.user.User",
+        foreign_keys=[player1_id],
+        backref=db.backref("matches_as_player1", lazy=True)
+    )
+    player2 = db.relationship(
+        "dojopool.models.user.User",
+        foreign_keys=[player2_id],
+        backref=db.backref("matches_as_player2", lazy=True)
+    )
+    winner = db.relationship(
+        "dojopool.models.user.User",
+        foreign_keys=[winner_id],
+        backref=db.backref("matches_won", lazy=True)
+    )
 
     def __repr__(self):
         return f'<TournamentMatch {self.match_number} in Round {self.round}>'
@@ -288,3 +295,16 @@ class TournamentMatch(db.Model):
             'player2': self.player2.to_dict() if self.player2 else None,
             'winner': self.winner.to_dict() if self.winner else None
         }
+
+# --- Explicit imports to resolve SQLAlchemy mapping ---
+from dojopool.models.venue import Venue
+from dojopool.models.user import User
+from dojopool.models.tournament import TournamentParticipant
+
+# Attach participants relationship after TournamentParticipant is defined
+Tournament.participants = db.relationship(
+    "dojopool.models.tournament.TournamentParticipant",
+    backref="tournament",
+    lazy=True,
+    foreign_keys=[TournamentParticipant.tournament_id]
+)

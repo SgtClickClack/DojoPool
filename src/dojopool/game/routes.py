@@ -3,8 +3,8 @@
 from flask import jsonify, request
 from flask_login import current_user, login_required
 
+from dojopool.models.game import Game
 from src.core.database import db
-from src.core.models.game import Game
 
 from . import game_bp
 

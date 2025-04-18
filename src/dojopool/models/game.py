@@ -84,7 +84,7 @@ class Game(db.Model):
     # Relationships
     player1 = db.relationship("User", foreign_keys=[player1_id])
     player2 = db.relationship("User", foreign_keys=[player2_id])
-    winner = db.relationship("User", foreign_keys=[winner_id])
+    winner = db.relationship("User", foreign_keys=[winner_id], back_populates="games_won")
     shots = db.relationship("Shot", back_populates="game", lazy="dynamic")
     tournament_games = db.relationship(
         "TournamentGame", backref="game", cascade="all, delete-orphan"

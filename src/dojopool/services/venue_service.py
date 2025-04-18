@@ -3,15 +3,15 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from ..core.extensions import db
-from ..core.models.game import Game
-from ..core.models.venue import (
+from dojopool.core.extensions import db
+from dojopool.core.models.venue import (
     Venue,
     VenueCheckIn,
     VenueEvent,
     VenueEventParticipant,
     VenueLeaderboard,
 )
+from dojopool.models.game import Game
 
 
 class VenueService:

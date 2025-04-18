@@ -4,7 +4,7 @@ from flask_socketio import emit
 import os
 import json
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
@@ -13,8 +13,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
 
-from dojopool.extensions import db
-from dojopool.models import Notification, NotificationType
+from dojopool.models.notification import Notification, NotificationType
+from dojopool.core.extensions import db
+from dojopool.models.user import User
 
 
 class AlertSeverity(Enum):

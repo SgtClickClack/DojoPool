@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 from sqlalchemy import JSON
 
-from dojopool.core.database import reference_col
+from dojopool.core.database.db_utils import reference_col
 from dojopool.core.extensions import db
 
 from .base import TimestampedModel
@@ -28,7 +28,7 @@ class MarketplaceItem(TimestampedModel):
     category = db.Column(db.String(50))
     rarity = db.Column(db.String(20))
     stock = db.Column(db.Integer, default=0)
-    effects = db.Column(JSON, default=[])
+    effects = db.Column(JSON, default=list)
     preview_url = db.Column(db.String(255))
     purchase_count = db.Column(db.Integer, default=0)
 
@@ -55,82 +55,68 @@ class MarketplaceItem(TimestampedModel):
         }
 
 
-class Transaction(TimestampedModel):
-    """Transaction model."""
-
-    __tablename__ = "marketplace_transactions"
+# UNIFIED WALLET & TRANSACTION MODELS
+class Wallet(db.Model):
+    """Unified Wallet model for all payment and marketplace operations."""
+    __tablename__ = "wallets"
     __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = reference_col("users", nullable=False)
-    item_id = reference_col("marketplace_items", nullable=False)
-    quantity = db.Column(db.Integer, nullable=False, default=1)
-    price_at_purchase = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default="pending")
-    payment_method = db.Column(db.String(50))
-
-    # Relationships
-    user = db.relationship("User", backref="marketplace_transactions")
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert transaction to dictionary."""
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "item_id": self.item_id,
-            "quantity": self.quantity,
-            "price_at_purchase": self.price_at_purchase,
-            "status": self.status,
-            "payment_method": self.payment_method,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-        }
-
-
-class Wallet(TimestampedModel):
-    """Wallet model."""
-
-    __tablename__ = "user_wallets"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = reference_col("users", nullable=False, unique=True)
-    balance = db.Column(db.Float, nullable=False, default=0)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, unique=True, index=True)
+    balance = db.Column(db.Float, nullable=False, default=0.0)
     currency = db.Column(db.String(10), nullable=False, default="DP")
-    transactions = db.Column(JSON, default=[])
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     user = db.relationship("User", backref=db.backref("wallet", uselist=False))
+    transactions = db.relationship("Transaction", backref="wallet", lazy="dynamic")
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert wallet to dictionary."""
         return {
             "id": self.id,
             "user_id": self.user_id,
             "balance": self.balance,
             "currency": self.currency,
-            "transactions": self.transactions,
+            "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-    def add_transaction(self, amount: float, type: str, description: str) -> None:
-        """Add a transaction to the wallet."""
-        transaction = {
-            "amount": amount,
-            "type": type,
-            "description": description,
-            "timestamp": datetime.utcnow().isoformat(),
-        }
-        if not self.transactions:
-            self.transactions = []
-        self.transactions.append(transaction)
 
-        if type == "credit":
-            self.balance += amount
-        else:
-            self.balance -= amount
-        db.session.commit()
+class Transaction(db.Model):
+    """Unified Transaction model for all wallet/payment/marketplace operations."""
+    __tablename__ = "transactions"
+    __table_args__ = {"extend_existing": True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    wallet_id = db.Column(db.Integer, db.ForeignKey("wallets.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), nullable=False, default="DP")
+    type = db.Column(db.String(50), nullable=False)  # credit, debit, purchase, refund, etc.
+    status = db.Column(db.String(20), nullable=False, default="pending")
+    description = db.Column(db.String(255))
+    reference_id = db.Column(db.String(100))  # External payment reference or order ID
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship("User", backref="transactions")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "wallet_id": self.wallet_id,
+            "user_id": self.user_id,
+            "amount": self.amount,
+            "currency": self.currency,
+            "type": self.type,
+            "status": self.status,
+            "description": self.description,
+            "reference_id": self.reference_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 
 class UserInventory(TimestampedModel):
@@ -177,4 +163,4 @@ class UserInventory(TimestampedModel):
         db.session.commit()
 
 
-__all__ = ["MarketplaceItem", "Transaction", "Wallet", "UserInventory"]
+__all__ = ["MarketplaceItem", "Wallet", "Transaction", "UserInventory"]

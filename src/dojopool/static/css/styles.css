@@ -423,7 +423,8 @@ main {
 
 /* Base mobile-first styles */
 html {
-  -webkit-text-size-adjust: 100%;
+  font-size: 16px; /* Base font size */
+  text-size-adjust: 100%; /* Prevent text scaling on orientation change */
   -webkit-tap-highlight-color: transparent;
 }
 

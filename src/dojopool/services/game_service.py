@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Dict, Optional
 
+from dojopool.models.game import Game
 from ..core.extensions import cache, db
 from ..utils.adaptive_difficulty import AdaptiveDifficulty
 from ..utils.game_state import GameState
@@ -28,8 +29,6 @@ class GameService:
         settings = self.adaptive_difficulty.adjust_difficulty(player1_id)
 
         # Create game in database
-        from ..core.models.game import Game
-
         game = Game(
             player1_id=player1_id,
             player2_id=player2_id,
@@ -65,8 +64,6 @@ class GameService:
         if not game_state:
             raise ValueError("Game not found")
 
-        from ..core.models.game import Game
-
         game = Game.query.get(game_id)
         if not game:
             raise ValueError("Game not found")
@@ -99,8 +96,6 @@ class GameService:
 
         # Update game in database if game is over
         if result["game_over"]:
-            from ..core.models.game import Game
-
             game = Game.query.get(game_id)
             if game:
                 game.status = "completed"
@@ -137,8 +132,6 @@ class GameService:
 
         game_state.pause_game()
 
-        from ..core.models.game import Game
-
         game = Game.query.get(game_id)
         if game:
             game.status = "paused"
@@ -160,8 +153,6 @@ class GameService:
 
         game_state.resume_game()
 
-        from ..core.models.game import Game
-
         game = Game.query.get(game_id)
         if game:
             game.status = "active"
@@ -182,8 +173,6 @@ class GameService:
             raise ValueError("Game not found")
 
         game_state.cancel_game()
-
-        from ..core.models.game import Game
 
         game = Game.query.get(game_id)
         if game:
@@ -231,8 +220,6 @@ class GameService:
             return game_state
 
         # If not in cache, create from database
-        from ..core.models.game import Game
-
         game = Game.query.get(game_id)
         if not game:
             return None

@@ -51,13 +51,11 @@ def api_security_headers():
 
             # API-specific security headers
             response.headers["X-Frame-Options"] = "DENY"
-            response.headers["X-XSS-Protection"] = "1; mode=block"
             response.headers["X-Content-Type-Options"] = "nosniff"
             response.headers["Strict-Transport-Security"] = (
                 "max-age=31536000; includeSubDomains; preload"
             )
-            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-            response.headers["Pragma"] = "no-cache"
+            response.headers["Cache-Control"] = "no-cache, must-revalidate, max-age=0"
             response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
             response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
             response.headers["Cross-Origin-Resource-Policy"] = "same-origin"

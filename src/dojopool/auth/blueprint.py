@@ -34,7 +34,7 @@ class AuthBlueprint(BaseBlueprint):
             if request.method == "POST":
                 data = request.get_json()
                 email = data.get("email")
-                os.getenv("PASSWORD_28"))
+                password = data.get("password")
                 
                 with db_session() as session:
                     user = session.query(User).filter_by(email=email).first()
@@ -78,7 +78,7 @@ class AuthBlueprint(BaseBlueprint):
                 
                 user = User(
                     email=data["email"],
-                    os.getenv("PASSWORD_28")]),
+                    password=data["password"],
                     name=data.get("name", "")
                 )
                 session.add(user)

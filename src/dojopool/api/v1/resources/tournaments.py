@@ -10,11 +10,11 @@ from flask import request
 from marshmallow import Schema, ValidationError, fields, validate
 
 from src.core.exceptions import NotFoundError
-from src.core.models.game import Game
 from src.core.security import require_auth, require_roles
 from src.core.tournaments.models import Tournament, TournamentStatus, TournamentType
 
 from .base import BaseResource
+from dojopool.models.game import Game
 
 
 class TournamentSchema(Schema):

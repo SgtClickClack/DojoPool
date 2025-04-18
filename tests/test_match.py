@@ -4,7 +4,7 @@ Unit tests for the Match Module.
 
 from datetime import datetime
 import pytest
-from flask import Flask
+from src.dojopool.app import create_app
 from src.dojopool.models.match import Match
 from src.dojopool.core.database.models import User
 from src.dojopool.core.extensions import db
@@ -12,16 +12,10 @@ from src.dojopool.core.config.testing import TestingConfig
 
 @pytest.fixture
 def app():
-    """Create a Flask application for testing."""
-    app = Flask(__name__)
-    app.config.from_object(TestingConfig)
-    db.init_app(app)
-    
+    """Create a Flask application for testing using the main app factory."""
+    app = create_app(config_name="testing")
     with app.app_context():
-        db.create_all()
         yield app
-        db.session.remove()
-        db.drop_all()
 
 @pytest.fixture
 def test_users(app):

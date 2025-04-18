@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import desc, func
 
-from ..core.extensions import db
-from ..core.models.auth import User
-from ..core.models.notification import Notification
-from ..core.models.venue import Venue, VenueLeaderboard
+from dojopool.models.game import Game
+from dojopool.models.user import User
+from dojopool.core.extensions import db
+from dojopool.core.models.notification import Notification
+from dojopool.core.models.venue import Venue, VenueLeaderboard
 
 
 class LeaderboardService:

@@ -6,13 +6,6 @@ from enum import Enum
 from ..extensions import db
 from .base import BaseModel
 
-# Association table for tournament participants
-tournament_participants = db.Table(
-    "tournament_participants",
-    db.Column("tournament_id", db.Integer, db.ForeignKey("tournaments.id"), primary_key=True),
-    db.Column("user_id", db.Integer, db.ForeignKey("users.id"), primary_key=True),
-)
-
 
 class TournamentType(Enum):
     """Tournament type enumeration."""
@@ -93,7 +86,7 @@ class Tournament(BaseModel):
     matches = db.relationship("TournamentGame", back_populates="tournament")
     participants = db.relationship(
         "User",
-        secondary=tournament_participants,
+        secondary="tournament_participants",
         lazy="dynamic",
         backref=db.backref("tournaments", lazy="dynamic"),
     )

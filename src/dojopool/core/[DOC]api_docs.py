@@ -33,7 +33,7 @@ def get_api_docs():
                                     "properties": {
                                         "email": {"type": "string", "format": "email"},
                                         "username": {"type": "string", "minLength": 3},
-                                        "os.getenv("PASSWORD_32"): 8},
+                                        "password": {"type": "string", "minLength": 8},
                                         "bio": {"type": "string"},
                                         "profile_pic": {"type": "string"}
                                     }

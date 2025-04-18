@@ -1,4 +1,26 @@
+> **NOTICE (2025-04-18):**
+> This file has been split into multiple parts for easier management and navigation.
+> 
+> Please refer to the new tracking files starting at:
+> - [DEVELOPMENT_TRACKING_INDEX.md](./DEVELOPMENT_TRACKING_INDEX.md)
+> - [DEVELOPMENT_TRACKING_PART_01.md](./DEVELOPMENT_TRACKING_PART_01.md)
+> - [DEVELOPMENT_TRACKING_PART_02.md](./DEVELOPMENT_TRACKING_PART_02.md)
+> - [DEVELOPMENT_TRACKING_PART_03.md](./DEVELOPMENT_TRACKING_PART_03.md)
+> 
+> The index file lists all parts in order. Update new progress in the split files, not here.
+
 # DojoPool Development Tracking
+
+> **NOTICE (2025-04-18):**
+> This file has been split into multiple parts for easier management and navigation.
+> 
+> Please refer to the new tracking files starting at:
+> - [DEVELOPMENT_TRACKING_INDEX.md](./DEVELOPMENT_TRACKING_INDEX.md)
+> - [DEVELOPMENT_TRACKING_PART_01.md](./DEVELOPMENT_TRACKING_PART_01.md)
+> - [DEVELOPMENT_TRACKING_PART_02.md](./DEVELOPMENT_TRACKING_PART_02.md)
+> - [DEVELOPMENT_TRACKING_PART_03.md](./DEVELOPMENT_TRACKING_PART_03.md)
+> 
+> The index file lists all parts in order. Update new progress in the split files, not here.
 
 ## Project Overview
 DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experience, transforming traditional pool gaming into an immersive, tech-enhanced, AI-driven platform.
@@ -939,7 +961,7 @@ Implemented real-time metrics visualization with interactive charts and graphs.
 **Key Features:**
 - Line charts for time-series metrics
 - Automatic time range filtering
-- Warning and critical threshold lines
+- Warning and critical threshold indicators
 - Dynamic color coding based on metric values
 - Interactive tooltips with detailed values
 - Responsive chart resizing
@@ -1040,6 +1062,12 @@ Expected completion time: 1 day
 - Threshold-based alerts
 - Responsive dashboard layout
 - Comprehensive network statistics
+
+**Integration Points:**
+- Network performance collector
+- Monitoring dashboard
+- Metrics visualization system
+- Network transport layer
 
 **File Paths:**
 - /src/monitoring/dashboard/components/NetworkMetricsPanel.tsx
@@ -1156,8 +1184,8 @@ Expected completion time: 1 day
 - Real-time visualization of network performance metrics
 - Historical data tracking and visualization
 - Warning and critical threshold indicators
-- Responsive grid layout for metrics display
-- Comprehensive network health monitoring
+- Responsive dashboard layout
+- Comprehensive network statistics
 
 **Integration Points:**
 - Network performance collector
@@ -1281,3 +1309,327 @@ Implemented comprehensive performance benchmarks and stress tests for the networ
 Implement automated performance regression testing and monitoring alerts for benchmark results.
 
 Expected completion time: 2 days
+
+### 2024-07-17: Firebase Authentication Implementation
+
+Implemented core frontend authentication flow using Firebase Authentication.
+
+**Core Components Implemented:**
+- Firebase configuration (`src/config/firebase.ts`)
+- Environment variable setup (`.env`)
+- `AuthContext` for managing auth state (`src/frontend/contexts/AuthContext.tsx`)
+- Login component with email/password and Google Sign-In (`src/frontend/components/Auth/Login.tsx`)
+- Register component with email/password (`src/frontend/components/Auth/Register.tsx`)
+- Basic Dashboard component (`src/frontend/components/Dashboard/Dashboard.tsx`)
+- Routing setup in `App.tsx` (`src/frontend/App.tsx`)
+- Installed `firebase`, `@mui/material`, `@emotion/react`, `@emotion/styled`, `@mui/icons-material` dependencies
+
+**Key Features:**
+- User registration via email/password
+- User login via email/password
+- User login via Google Sign-In
+- User logout
+- Authentication state management
+- Basic routing between login, register, and dashboard
+- Modern UI using Material-UI
+
+**Integration Points:**
+- Firebase Authentication (Email/Password, Google)
+- React Router for navigation
+- Material-UI for components
+
+**File Paths:**
+- `/src/config/firebase.ts`
+- `/src/frontend/contexts/AuthContext.tsx`
+- `/src/frontend/components/Auth/Login.tsx`
+- `/src/frontend/components/Auth/Register.tsx`
+- `/src/frontend/components/Dashboard/Dashboard.tsx`
+- `/src/frontend/App.tsx`
+- `/.env`
+- `/package.json`
+
+**Next Priority Task:**
+Build out the main dashboard UI and core application features.
+
+Expected completion time: 5 days
+
+### 2024-07-18: Dashboard UI Basic Layout Implementation
+
+Implemented the basic UI structure for the main application dashboard using Material-UI components.
+
+**Core Components Implemented:**
+- `AppBar` with `Toolbar` for top navigation and user info/logout.
+- Main content `Box` using `flex` display.
+- `Container` for centering main content.
+- `CssBaseline` for consistent styling.
+
+**Key Features:**
+- Basic dashboard layout structure.
+- Top navigation bar displaying user email and sign-out button.
+- Designated main content area.
+
+**Integration Points:**
+- Material-UI components (`AppBar`, `Toolbar`, `Box`, `Container`, `CssBaseline`, `Button`, `Typography`)
+- `AuthContext` (for user email and sign out action)
+- React Router (`useNavigate` for sign out redirect)
+
+**File Paths:**
+- `DojoPool/src/frontend/components/Dashboard/Dashboard.tsx` (modified)
+
+**Next Priority Task:**
+Add core application feature components to the dashboard content area (e.g., pool creation, joining pools, viewing status).
+
+Expected completion time: 3 days
+
+### 2024-07-18: Added Placeholder Create Game Form to Dashboard
+
+Created a basic placeholder component (`CreateGameForm.tsx`) for initiating new games and integrated it into the main dashboard UI.
+
+**Core Components Implemented:**
+- `CreateGameForm.tsx`: New component with basic MUI form elements (Select for game type, TextField for opponent).
+
+**Key Features:**
+- Placeholder form structure for creating a new game.
+- Form is now visible within the main dashboard content area.
+
+**Integration Points:**
+- Imported `CreateGameForm` into `Dashboard.tsx`.
+- Placeholder state and button click handler in `CreateGameForm` (no backend connection yet).
+
+**File Paths:**
+- `DojoPool/src/frontend/components/Dashboard/CreateGameForm.tsx` (created)
+- `DojoPool/src/frontend/components/Dashboard/Dashboard.tsx` (modified)
+
+**Next Priority Task:**
+Implement the actual game creation logic within `CreateGameForm.tsx`, including state management, input validation, and connecting to the relevant backend service (e.g., `gameSession`).
+
+Expected completion time: 1 day
+
+### {datetime}: Codebase Audit & Feature Mapping Completed
+
+**Description:**
+Performed a detailed analysis of the existing DojoPool codebase (`src/frontend/`, `src/dojopool/`). Mapped components, services, models, and APIs to the features outlined in the "Dojo Pool Game Flow Instructions" document. Created a Feature Box Mapping document (v1) summarizing findings and updated `ROADMAP.md` checklists and added an Audit Summary section.
+
+**Core Components Implemented/Reviewed:**
+*   Authentication & Profile (Frontend Contexts, Backend API/Models)
+*   Dashboard Hub (Basic Frontend)
+*   Game Management (Frontend Forms/Lists, Backend API/Models)
+*   Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
+*   Map & Dojo Discovery (Backend API/Models)
+*   Venue Interaction (Backend Services/Models, Frontend Check-in UI)
+*   Tournament System (Backend API/Models)
+*   AI Services (Backend Services/Models)
+*   Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
+*   Wallet System (Multiple Backend implementations found)
+*   Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
+*   Notifications (Backend Service/Models)
+*   Social Features (Backend API/Service/Models)
+*   Marketplace (Backend API/Models)
+*   Infrastructure/Testing/Monitoring components
+
+**Key Findings & Gaps:**
+*   Generally strong backend foundation with many services and models.
+*   Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
+*   **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
+*   Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
+*   NFT implementation details are unclear.
+*   Blockchain integration is marked as TODO.
+*   Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
+
+**File Paths:**
+*   `DojoPool/src/frontend/`
+*   `DojoPool/src/dojopool/`
+*   `DojoPool/ROADMAP.md`
+*   `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
+
+**Next Priority Task:**
+Investigate and resolve the inconsistencies in the Wallet system implementation across different models (SQLAlchemy vs. potential MongoDB usage) and associated API endpoints (`/api/marketplace/wallet`). Determine the intended architecture and consolidate or refactor as needed.
+
+**Estimated Time:** 2-4 hours (Investigation & Planning)
+
+### 2024-07-26: Codebase Audit - Game Flow Feature Mapping
+
+Performed a high-level audit mapping existing codebase components to the core game flow features outlined in the ROADMAP.
+
+**Findings Summary:**
+
+*   **Physical-Digital Integration:** Basic camera setup (`physical_camera`) and table setup (`game_setup`) exist. Cue ball detection needs integration. Ball tracking (`ball_tracking`) is present but requires refinement. Shot detection (`shot_detection`) needs significant work.
+*   **Digital Platform:**
+    *   Game State (`game_state`): Partially implemented, rules need review.
+    *   Tournament System (`tournament_manager`, `src/components/TournamentDisplay.tsx`): Basic backend exists, frontend UI mostly done but needs linking and refinement. Prize distribution requires Wallet integration.
+    *   Social Features (`user_profile`, `friend_system`, `chat_service`, `achievement_system`): Basic backend structures exist for profiles, friends, chat. Frontend integration needed. Achievements backend is more advanced, frontend mostly done. Alliances/Rivalry missing.
+    *   Currency/Wallet (`wallet_models_sql`, `wallet_models_mongo`, `currency_service`): **CRITICAL ISSUE** - Conflicting data models (SQLAlchemy & MongoDB) and service logic found. Needs immediate investigation and reconciliation. Frontend UI missing. Smart contracts missing.
+*   **Analytics & AI:**
+    *   Shot Analysis (`shot_analyzer`): Partially implemented.
+    *   Performance Monitoring (`performance_tracker`): Advanced backend, frontend mostly done.
+*   **Technical Infrastructure:** Solid foundation (FastAPI, React, Docker). CI/CD needs setup. Logging/Monitoring needs implementation. Database schemas need reconciliation (see Currency/Wallet).
+*   **Venue Integration:** Basic backend models (`venue_manager`, `analytics_dashboard_backend`), but frontend UI and core revenue models are missing.
+
+**Core Components Audited:**
+
+*   `physical_camera`, `game_setup`, `ball_tracking`, `shot_detection`
+*   `game_state`, `tournament_manager`, `src/components/TournamentDisplay.tsx`, `user_profile`, `friend_system`, `chat_service`, `achievement_system`
+*   `wallet_models_sql`, `wallet_models_mongo`, `currency_service`
+*   `shot_analyzer`, `performance_tracker`
+*   `venue_manager`, `analytics_dashboard_backend`
+
+**File Paths:**
+
+*   `DojoPool/services/physical_camera.py`
+*   `DojoPool/services/game_setup.py`
+*   `DojoPool/services/ball_tracking.py`
+*   `DojoPool/services/shot_detection.py`
+*   `DojoPool/services/game_state.py`
+*   `DojoPool/services/tournament_manager.py`
+*   `DojoPool/frontend/src/components/TournamentDisplay.tsx`
+*   `DojoPool/models/user_profile.py`
+*   `DojoPool/services/friend_system.py`
+*   `DojoPool/services/chat_service.py`
+*   `DojoPool/services/achievement_system.py`
+*   `DojoPool/models/wallet_models_sql.py`
+*   `DojoPool/models/wallet_models_mongo.py`
+*   `DojoPool/services/currency_service.py`
+*   `DojoPool/services/shot_analyzer.py`
+*   `DojoPool/services/performance_tracker.py`
+*   `DojoPool/services/venue_manager.py`
+*   `DojoPool/services/analytics_dashboard_backend.py`
+
+**Next Priority Task:**
+
+Investigate and reconcile conflicting Currency/Wallet implementations (SQLAlchemy vs. MongoDB models and related services).
+
+Expected completion time: 3-5 days
+
+### 2024-07-26: Refactor Wallet/Marketplace API & Models
+
+Investigated conflicting Wallet implementations. Found duplicate SQLAlchemy models (`src/dojopool/models/marketplace.py`, `src/dojopool/core/models/payment.py`) and conflicting MongoDB usage in API routes (`src/dojopool/routes/api/marketplace.py`).
+
+**Resolution:**
+
+1.  Consolidated SQLAlchemy models: Removed duplicate definitions from `core/models/payment.py`, keeping the versions in `models/marketplace.py`.
+2.  Refactored API routes: Updated routes in `routes/api/marketplace.py` to use standard SQLAlchemy session methods for database interaction, removing MongoDB-specific calls (`find_one`, `create`, `save`, `ObjectId`). Ensured consistent use of the `Wallet` model from `models/marketplace.py`.
+
+**Core Components Modified:**
+
+*   `src/dojopool/core/models/payment.py` (Removed duplicate models)
+*   `src/dojopool/routes/api/marketplace.py` (Refactored DB interaction to SQLAlchemy)
+
+**File Paths:**
+
+*   `DojoPool/src/dojopool/core/models/payment.py`
+*   `DojoPool/src/dojopool/routes/api/marketplace.py`
+*   `DojoPool/src/dojopool/models/marketplace.py` (Now the primary source for Wallet model)
+
+**Next Priority Task:**
+
+Test the refactored Marketplace API endpoints (`/api/marketplace/*`) to ensure they function correctly with the SQLAlchemy backend. Address any issues found during testing. Verify interactions with payment processing if applicable.
+
+Expected completion time: 1-2 days (Testing & potential fixes)
+
+### {date}: Web Best Practices Audit Fixes
+
+Applied fixes based on web compatibility, performance, and security audit recommendations.
+
+**Core Components Implemented:**
+- Updated CSS for `text-size-adjust` compatibility.
+- Modified backend header middleware (`__init__.py`, `core/middleware/security.py`) to remove deprecated headers (`X-XSS-Protection`, `Pragma`) and update clickjacking protection (`X-Frame-Options` -> CSP `frame-ancestors`).
+- Adjusted `Cache-Control` for API routes to remove `no-store`.
+
+**File Paths:**
+- `DojoPool/src/dojopool/static/css/mobile.css`
+- `DojoPool/src/dojopool/static/css/styles.css`
+- `DojoPool/DojoPool/src/dojopool/static/css/mobile.css`
+- `DojoPool/DojoPool/src/dojopool/static/css/styles.css`
+- `DojoPool/src/dojopool/__init__.py`
+- `DojoPool/src/dojopool/core/middleware/security.py`
+- `DojoPool/DojoPool/src/dojopool/core/middleware/security.py`
+
+**Next Priority Task:**
+- Further investigation into centralizing HTTP header management to resolve potential conflicts from multiple setting locations.
+
+Expected completion time: Ongoing as part of general refactoring/cleanup.
+
+### 2025-04-18: Marketplace Test Suite & Model Refactor
+
+Removed all Django model code from `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py` to resolve `ModuleNotFoundError` and ensure Flask/SQLAlchemy compatibility.
+
+Audited and removed all references to non-existent cache decorators (`cached_game_state`, `cached_query`, `cached_user_data`) in `cached_queries.py`.
+
+Updated `cached_queries.py` to use only valid imports and undecorated functions, unblocking test runs.
+
+**Core Components Implemented:**
+
+*   Removed Django model code from `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py`.
+*   Removed non-existent cache decorators from `cached_queries.py`.
+*   Updated `cached_queries.py` to use only valid imports and undecorated functions.
+
+**Key Features:**
+
+*   Resolved `ModuleNotFoundError` for Django models.
+*   Removed non-existent cache decorators.
+*   Unblocked test runs.
+
+**Integration Points:**
+
+*   `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py` (Django model removal)
+*   `cached_queries.py` (cache decorator removal and update)
+
+**File Paths:**
+
+*   `/src/dojopool/social_groups.py`
+*   `/src/dojopool/rankings.py`
+*   `/src/dojopool/tournaments.py`
+*   `/src/dojopool/game_analysis.py`
+*   `/src/dojopool/cached_queries.py`
+
+**Next Priority Task:**
+
+Implement the actual game creation logic within `CreateGameForm.tsx`, including state management, input validation, and connecting to the relevant backend service (e.g., `gameSession`).
+
+Expected completion time: 1 day
+
+### 2025-04-18: Codebase Audit & Feature Mapping Summary
+
+**Description:**
+Performed a detailed analysis of the existing DojoPool codebase (`src/frontend/`, `src/dojopool/`). Mapped components, services, models, and APIs to the features outlined in the "Dojo Pool Game Flow Instructions" document. Created a Feature Box Mapping document (v1) summarizing findings and updated `ROADMAP.md` checklists and added an Audit Summary section.
+
+**Core Components Implemented/Reviewed:**
+
+*   Authentication & Profile (Frontend Contexts, Backend API/Models)
+*   Dashboard Hub (Basic Frontend)
+*   Game Management (Frontend Forms/Lists, Backend API/Models)
+*   Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
+*   Map & Dojo Discovery (Backend API/Models)
+*   Venue Interaction (Backend Services/Models, Frontend Check-in UI)
+*   Tournament System (Backend API/Models)
+*   AI Services (Backend Services/Models)
+*   Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
+*   Wallet System (Multiple Backend implementations found)
+*   Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
+*   Notifications (Backend Service/Models)
+*   Social Features (Backend API/Service/Models)
+*   Marketplace (Backend API/Models)
+*   Infrastructure/Testing/Monitoring components
+
+**Key Findings & Gaps:**
+
+*   Generally strong backend foundation with many services and models.
+*   Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
+*   **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
+*   Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
+*   NFT implementation details are unclear.
+*   Blockchain integration is marked as TODO.
+*   Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
+
+**File Paths:**
+
+*   `DojoPool/src/frontend/`
+*   `DojoPool/src/dojopool/`
+*   `DojoPool/ROADMAP.md`
+*   `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
+
+**Next Priority Task:**
+
+Investigate and resolve the inconsistencies in the Wallet system implementation across different models (SQLAlchemy vs. potential MongoDB usage) and associated API endpoints (`/api/marketplace/wallet`). Determine the intended architecture and consolidate or refactor as needed.
+
+**Estimated Time:** 2-4 hours (Investigation & Planning)

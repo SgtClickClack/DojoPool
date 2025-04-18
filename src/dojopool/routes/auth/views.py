@@ -4,10 +4,14 @@ from typing import cast
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from dojopool.core.security.tokens import generate_confirmation_token, verify_confirmation_token
-from dojopool.extensions import db
+# Split import for clarity
+from dojopool.core.security.tokens import generate_confirmation_token
+from dojopool.core.security.tokens import verify_confirmation_token
+from dojopool.extensions import db, mail
 from dojopool.models.user import User
+from dojopool.utils.email import send_email
 
 bp = Blueprint("auth", __name__)
 

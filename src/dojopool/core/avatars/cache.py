@@ -102,7 +102,8 @@ class AvatarCache:
                 'size': len(avatar_data),
                 'created_at': datetime.utcnow().isoformat(),
                 'last_accessed': datetime.utcnow().isoformat(),
-                **metadata or {}
+                # Merge optional metadata if it exists
+                **(metadata if metadata is not None else {})
             }
             
             # Store data and metadata

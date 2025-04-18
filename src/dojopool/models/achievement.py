@@ -37,8 +37,8 @@ class Achievement(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    # Relationships
-    user_achievements = db.relationship('UserAchievement', backref='achievement', lazy=True)
+    # Remove stray relationship to UserAchievement in Achievement class to avoid reference to duplicate model
+    # user_achievements = db.relationship('UserAchievement', backref='achievement', lazy=True)
 
     def __repr__(self):
         return f'<Achievement {self.name}>'
@@ -59,62 +59,63 @@ class Achievement(db.Model):
         }
 
 
-class UserAchievement(db.Model):
-    """Model for user achievements."""
-
-    __tablename__ = 'user_achievements'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    achievement_id = db.Column(db.Integer, db.ForeignKey('achievements.id'), nullable=False)
-    progress = db.Column(db.Integer, nullable=False, default=0)
-    completed = db.Column(db.Boolean, nullable=False, default=False)
-    completed_at = db.Column(db.DateTime, nullable=True)
-    metadata = db.Column(db.JSON, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    # Relationships
-    user = db.relationship('User', backref=db.backref('achievements', lazy=True))
-
-    def __repr__(self):
-        return f'<UserAchievement {self.user_id} - {self.achievement_id}>'
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert user achievement to dictionary."""
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'achievement_id': self.achievement_id,
-            'progress': self.progress,
-            'completed': self.completed,
-            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
-            'metadata': self.metadata,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
-            'achievement': self.achievement.to_dict() if self.achievement else None
-        }
-
-    def update_progress(self, progress: int, metadata: Optional[Dict[str, Any]] = None) -> bool:
-        """Update achievement progress.
-        
-        Args:
-            progress: New progress value
-            metadata: Optional metadata to store
-            
-        Returns:
-            True if achievement was completed, False otherwise
-        """
-        self.progress = progress
-        if metadata:
-            self.metadata = metadata
-
-        # Check if achievement is completed
-        if not self.completed and self.achievement.requirements:
-            required = self.achievement.requirements.get('value', 0)
-            if progress >= required:
-                self.completed = True
-                self.completed_at = datetime.utcnow()
-                return True
-
-        return False
+# Removed duplicate UserAchievement model to resolve table redefinition conflict
+# class UserAchievement(db.Model):
+#     """Model for user achievements."""
+# 
+#     __tablename__ = 'user_achievements'
+# 
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     achievement_id = db.Column(db.Integer, db.ForeignKey('achievements.id'), nullable=False)
+#     progress = db.Column(db.Integer, nullable=False, default=0)
+#     completed = db.Column(db.Boolean, nullable=False, default=False)
+#     completed_at = db.Column(db.DateTime, nullable=True)
+#     metadata = db.Column(db.JSON, nullable=True)
+#     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+#     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+# 
+#     # Relationships
+#     user = db.relationship('User', backref=db.backref('achievements', lazy=True))
+# 
+#     def __repr__(self):
+#         return f'<UserAchievement {self.user_id} - {self.achievement_id}>'
+# 
+#     def to_dict(self) -> Dict[str, Any]:
+#         """Convert user achievement to dictionary."""
+#         return {
+#             'id': self.id,
+#             'user_id': self.user_id,
+#             'achievement_id': self.achievement_id,
+#             'progress': self.progress,
+#             'completed': self.completed,
+#             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+#             'metadata': self.metadata,
+#             'created_at': self.created_at.isoformat(),
+#             'updated_at': self.updated_at.isoformat(),
+#             'achievement': self.achievement.to_dict() if self.achievement else None
+#         }
+# 
+#     def update_progress(self, progress: int, metadata: Optional[Dict[str, Any]] = None) -> bool:
+#         """Update achievement progress.
+#         
+#         Args:
+#             progress: New progress value
+#             metadata: Optional metadata to store
+#             
+#         Returns:
+#             True if achievement was completed, False otherwise
+#         """
+#         self.progress = progress
+#         if metadata:
+#             self.metadata = metadata
+# 
+#         # Check if achievement is completed
+#         if not self.completed and self.achievement.requirements:
+#             required = self.achievement.requirements.get('value', 0)
+#             if progress >= required:
+#                 self.completed = True
+#                 self.completed_at = datetime.utcnow()
+#                 return True
+# 
+#         return False

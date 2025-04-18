@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict
 
-from ..core.extensions import db
+from dojopool.core.extensions import db
 from ..core.models.reward import Achievement, UserAchievement
 
 

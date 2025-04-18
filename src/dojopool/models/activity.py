@@ -34,7 +34,7 @@ class Activity(db.Model):
     type = db.Column(db.String(50), nullable=False)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    metadata = db.Column(db.JSON, nullable=True)
+    activity_metadata = db.Column(db.JSON, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     is_public = db.Column(db.Boolean, default=True, nullable=False)
 
@@ -52,7 +52,7 @@ class Activity(db.Model):
             'type': self.type,
             'title': self.title,
             'description': self.description,
-            'metadata': self.metadata,
+            'activity_metadata': self.activity_metadata,
             'created_at': self.created_at.isoformat(),
             'is_public': self.is_public,
             'user': self.user.to_dict() if self.user else None
@@ -66,7 +66,7 @@ class Activity(db.Model):
             type=ActivityType.GAME_COMPLETED,
             title=f"Completed a game",
             description=f"Finished a game with result: {result}",
-            metadata={'game_id': game_id, 'result': result}
+            activity_metadata={'game_id': game_id, 'result': result}
         )
 
     @classmethod
@@ -77,7 +77,7 @@ class Activity(db.Model):
             type=ActivityType.TOURNAMENT_JOINED if action == 'joined' else ActivityType.TOURNAMENT_WON,
             title=f"{action.title()} a tournament",
             description=f"{action.title()} tournament #{tournament_id}",
-            metadata={'tournament_id': tournament_id, 'action': action}
+            activity_metadata={'tournament_id': tournament_id, 'action': action}
         )
 
     @classmethod
@@ -88,7 +88,7 @@ class Activity(db.Model):
             type=ActivityType.ACHIEVEMENT_EARNED,
             title=f"Earned achievement: {name}",
             description=f"Unlocked new achievement: {name}",
-            metadata={'achievement_id': achievement_id, 'name': name}
+            activity_metadata={'achievement_id': achievement_id, 'name': name}
         )
 
     @classmethod
@@ -99,7 +99,7 @@ class Activity(db.Model):
             type=ActivityType.FRIEND_ADDED,
             title=f"{action.title()} a friend",
             description=f"{action.title()} user #{friend_id} as a friend",
-            metadata={'friend_id': friend_id, 'action': action}
+            activity_metadata={'friend_id': friend_id, 'action': action}
         )
 
     @classmethod
@@ -110,7 +110,7 @@ class Activity(db.Model):
             type=ActivityType.PROFILE_UPDATED,
             title="Updated profile",
             description=f"Updated {field} in profile",
-            metadata={'field': field}
+            activity_metadata={'field': field}
         )
 
     @classmethod
@@ -121,7 +121,7 @@ class Activity(db.Model):
             type=ActivityType.SHOT_ANALYZED,
             title="Analyzed shot",
             description=f"Received shot analysis with accuracy: {analysis.get('accuracy', 0)}%",
-            metadata={'shot_id': shot_id, 'analysis': analysis}
+            activity_metadata={'shot_id': shot_id, 'analysis': analysis}
         )
 
     @classmethod
@@ -132,5 +132,5 @@ class Activity(db.Model):
             type=ActivityType.VENUE_VISITED,
             title=f"{action.title()} a venue",
             description=f"{action.title()} venue #{venue_id}",
-            metadata={'venue_id': venue_id, 'action': action}
+            activity_metadata={'venue_id': venue_id, 'action': action}
         ) 

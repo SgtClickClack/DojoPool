@@ -76,10 +76,10 @@ class Venue(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    checkins = relationship("VenueCheckIn", back_populates="venue")
-    operating_hours = relationship("VenueOperatingHours", back_populates="venue")
-    amenities = relationship("VenueAmenity", back_populates="venue")
-    leaderboard_entries = relationship("VenueLeaderboard", back_populates="venue")
+    checkins = relationship("dojopool.models.venue_checkin.VenueCheckIn", back_populates="venue")
+    operating_hours = relationship("dojopool.models.venue_operating_hours.VenueOperatingHours", back_populates="venue")
+    amenities = relationship("dojopool.models.venue_amenity.VenueAmenity", back_populates="venue")
+    leaderboard_entries = relationship("dojopool.models.venue_leaderboard.VenueLeaderboard", back_populates="venue")
 
     # Validation
     validator_class = VenueValidator
@@ -224,3 +224,6 @@ class Venue(db.Model):
         Performs a simple case-insensitive search on the venue name.
         """
         return query.lower() in self.name.lower()
+
+# --- Explicit imports to resolve SQLAlchemy mapping ---
+# (No explicit imports needed for VenueCheckIn, VenueOperatingHours, VenueAmenity, VenueLeaderboard as these are defined in this file or do not exist as separate modules)

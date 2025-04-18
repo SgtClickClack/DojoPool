@@ -5,7 +5,7 @@ from geoalchemy2 import Geography
 from sqlalchemy import func
 
 from src.core.database import db
-from src.models.game import Game
+from dojopool.models.game import Game
 from src.models.venue import Venue
 from src.models.venue_checkin import VenueCheckin
 

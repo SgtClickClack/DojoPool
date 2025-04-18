@@ -2,8 +2,8 @@
 
 from datetime import datetime, timedelta
 
-from ..core.extensions import cache
-from ..core.models.game import Game
+from dojopool.models.game import Game
+from dojopool.core.extensions import cache
 
 
 class MatchmakingSystem:

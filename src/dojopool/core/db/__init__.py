@@ -1,8 +1,6 @@
 """Database management module."""
 
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from dojopool.core.extensions import db
 
 from .manager import DatabaseManager
 from .migrations import MigrationManager

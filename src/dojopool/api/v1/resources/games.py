@@ -12,7 +12,7 @@ from marshmallow import Schema, ValidationError, fields, validate, validates_sch
 
 from src.core.auth.models import User
 from src.core.exceptions import AuthorizationError, NotFoundError
-from src.core.models.game import Game, GameStatus, GameType
+from dojopool.models.game import Game, GameStatus, GameType
 from src.core.security import require_auth, require_roles
 from src.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
 from src.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS

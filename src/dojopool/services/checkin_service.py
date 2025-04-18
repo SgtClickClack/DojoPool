@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy import func
 
-from ..core.extensions import db
-from ..core.models.auth import User
+from ..models.user import User
 from ..core.models.notification import Notification
 from ..core.models.venue import Venue, VenueCheckIn
+from ..core.database import db
 
 
 class CheckInService:

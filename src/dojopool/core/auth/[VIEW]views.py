@@ -52,7 +52,7 @@ def register():
         user = auth_service.register(
             username=data['username'],
             email=data['email'],
-            os.getenv("PASSWORD_36")]
+            password=data['password']
         )
         
         if wants_json_response():
@@ -96,7 +96,7 @@ def login():
     try:
         user = auth_service.authenticate(
             email=data['email'],
-            os.getenv("PASSWORD_36")],
+            password=data['password'],
             totp_token=data.get('totp_token')
         )
         
@@ -189,7 +189,7 @@ def reset_password(token):
         data = request.form
     
     try:
-        auth_service.reset_os.getenv("PASSWORD_36")])
+        auth_service.reset_password(token=token, new_password=data['new_password'])
         
         if wants_json_response():
             return jsonify({'message': 'Password reset successfully'})

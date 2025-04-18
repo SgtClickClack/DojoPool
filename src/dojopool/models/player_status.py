@@ -6,7 +6,7 @@ This module contains the PlayerStatus model for tracking player status in games 
 from datetime import datetime
 from typing import Any, Dict
 
-from dojopool.core.database import reference_col
+from dojopool.core.database.db_utils import reference_col
 from dojopool.core.extensions import db
 
 from .base import TimestampedModel

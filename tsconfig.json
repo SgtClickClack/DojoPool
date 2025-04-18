@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -10,19 +10,19 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": false,
-    "noEmit": false,
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx",
-    "outDir": "./dist",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "*": ["*", "node_modules/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src", "vite.config.ts"],
   "exclude": ["node_modules"],
+  "references": [{ "path": "./tsconfig.node.json" }],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

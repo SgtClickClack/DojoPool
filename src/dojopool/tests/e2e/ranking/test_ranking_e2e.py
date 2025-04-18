@@ -6,7 +6,7 @@ from dojopool.core.ranking.config import GLOBAL_RANKING_CONFIG
 from dojopool.models.user import User
 from dojopool.models.game import Game
 from dojopool.models.tournament import Tournament
-from dojopool.database import db
+from dojopool.core.extensions import db
 
 
 @pytest.fixture(autouse=True)

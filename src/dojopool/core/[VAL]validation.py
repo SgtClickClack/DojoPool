@@ -211,7 +211,8 @@ class InputValidator:
             if not self.base.validate_email(validated['email']):
                 raise ValidationError('Invalid email format')
                 
-            os.getenv("PASSWORD_33")])
+            # Call password validation
+            password_validation = self.base.validate_password(validated.get('password', ''))
             if not all(password_validation.values()):
                 raise ValidationError('Password does not meet requirements')
                 

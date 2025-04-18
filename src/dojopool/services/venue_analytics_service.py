@@ -10,11 +10,11 @@ import logging
 from sqlalchemy import func, and_, extract
 from sqlalchemy.sql import text
 
-from ..core.extensions import db
-from ..core.models.venue import Venue, PoolTable, TableStatus
-from ..core.models.game import Game
-from ..core.models.maintenance import Maintenance
-from ..core.models.revenue import Revenue
+from dojopool.core.extensions import db
+from dojopool.core.models.venue import Venue, PoolTable, TableStatus
+from dojopool.core.models.maintenance import Maintenance
+from dojopool.core.models.revenue import Revenue
+from dojopool.models.game import Game
 
 logger = logging.getLogger(__name__)
 

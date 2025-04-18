@@ -12,7 +12,8 @@ from dojopool.core.security import (
     generate_password_hash,
     verify_token,
 )
-from dojopool.models import User, db
+from dojopool.models.user import User
+from dojopool.core.extensions import db
 
 
 class AuthService:

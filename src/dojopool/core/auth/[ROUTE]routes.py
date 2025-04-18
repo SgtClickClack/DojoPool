@@ -40,7 +40,8 @@ def register():
         is_active=True,
         created_at=datetime.utcnow()
     )
-    user.set_os.getenv("PASSWORD_34")])
+    # Set the user's password using the provided data
+    user.set_password(data['password'])
     
     try:
         db.session.add(user)
@@ -79,7 +80,8 @@ def login():
     
     # Find user
     user = User.query.filter_by(username=data['username']).first()
-    if not user or not user.check_os.getenv("PASSWORD_34")]):
+    # Check the user exists and the provided password is correct
+    if not user or not user.check_password(data['password']):
         return jsonify({
             'status': 'error',
             'message': 'Invalid username or password'

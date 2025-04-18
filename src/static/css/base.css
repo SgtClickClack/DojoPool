@@ -24,7 +24,7 @@ body {
     width: 100%;
     height: 100%;
     background-color: var(--background-color);
-    background-image: url('../images/hero-vs.jpg');
+    background-image: url('../images/hero-vs.webp');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

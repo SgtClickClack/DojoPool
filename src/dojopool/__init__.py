@@ -11,17 +11,19 @@ __version__ = "0.1.0"
 
 from dojopool.core.extensions import init_extensions
 
-def create_app() -> Flask:
+def create_app(config_name=None, test_config=None) -> Flask:
     """
     Create and configure the DojoPool Flask application.
+
+    Args:
+        config_name (str, optional): The configuration name to use.
+        test_config (dict, optional): Any test overrides for app.config.
 
     Returns:
         Flask: The configured Flask application.
     """
-    app = Flask(__name__)
-    app.config.from_object("dojopool.config.Config")
-    init_extensions(app)
-    return app
+    from dojopool.app import create_app as real_create_app
+    return real_create_app(config_name=config_name, test_config=test_config)
 
 def setup_security_headers(app):
     """Setup security headers for Flask application."""
@@ -30,12 +32,8 @@ def setup_security_headers(app):
     def add_security_headers(response):
         # HSTS
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        # Prevent clickjacking
-        response.headers["X-Frame-Options"] = "DENY"
         # Prevent MIME type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
-        # XSS protection
-        response.headers["X-XSS-Protection"] = "1; mode=block"
         # Content Security Policy
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
@@ -43,7 +41,7 @@ def setup_security_headers(app):
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "img-src 'self' data: https:; "
             "font-src 'self' https://fonts.gstatic.com; "
-            "frame-src 'none'; "
+            "frame-ancestors 'self'; "
             "object-src 'none'"
         )
         # Referrer Policy

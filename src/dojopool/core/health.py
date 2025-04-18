@@ -6,7 +6,8 @@ from flask import Blueprint, jsonify
 from redis import Redis
 from sqlalchemy import text
 
-from ..core.auth.models import db
+# Import db from the central extensions module
+from ..extensions import db
 from ..core.config import Config
 
 health_bp = Blueprint("health", __name__)

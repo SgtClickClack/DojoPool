@@ -22,8 +22,8 @@ class VenueCheckIn(db.Model):
     game_type = Column(String(50))  # e.g., "8-ball", "9-ball", etc.
 
     # Relationships
-    venue = relationship("Venue", back_populates="checkins")
-    user = relationship("User", backref="venue_checkins")
+    venue = relationship("dojopool.models.venue.Venue", back_populates="checkins", foreign_keys=[venue_id])
+    user = relationship("dojopool.models.user.User", backref="venue_checkins", foreign_keys=[user_id])
 
     def __repr__(self):
         return f"<VenueCheckIn {self.user_id} at {self.venue_id}>"
@@ -35,3 +35,6 @@ class VenueCheckIn(db.Model):
             return None
         delta = self.checked_out_at - self.checked_in_at
         return int(delta.total_seconds() / 60)
+
+# --- Explicit imports to resolve SQLAlchemy mapping ---
+# (No explicit imports needed for Venue or User as these are defined in separate files and are not needed for mapping here)

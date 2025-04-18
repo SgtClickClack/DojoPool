@@ -1,5 +1,5 @@
 """Database package initialization."""
 
-from .database import db, reference_col
+from .db_utils import db, reference_col
 
 __all__ = ["db", "reference_col"]

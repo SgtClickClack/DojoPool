@@ -6,22 +6,23 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy import func
 
 from dojopool.core.exceptions import TournamentError
-from dojopool.models import (
-    Game,
-    GameType,
-    Tournament,
-    TournamentBracket,
-    TournamentBracketType,
-    TournamentFormat,
-    TournamentGame,
-    TournamentPlayer,
-    TournamentRound,
-    TournamentRoundType,
-    TournamentStatus,
-    TournamentType,
-    User,
-    db,
-)
+from dojopool.models.user import User
+from dojopool.models.role import Role
+from dojopool.models.game import Game
+from dojopool.models.tournament import Tournament
+from dojopool.models.venue import Venue
+from dojopool.models.match import Match
+from dojopool.models.tournament_bracket import TournamentBracket
+from dojopool.models.tournament_bracket_type import TournamentBracketType
+from dojopool.models.tournament_format import TournamentFormat
+from dojopool.models.tournament_game import TournamentGame
+from dojopool.models.tournament_player import TournamentPlayer
+from dojopool.models.tournament_round import TournamentRound
+from dojopool.models.tournament_round_type import TournamentRoundType
+from dojopool.models.tournament_status import TournamentStatus
+from dojopool.models.tournament_type import TournamentType
+from dojopool.models.game_type import GameType
+from dojopool.core.extensions import db
 
 
 class TournamentService:

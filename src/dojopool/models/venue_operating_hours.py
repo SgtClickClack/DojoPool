@@ -29,7 +29,7 @@ class VenueOperatingHours(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    venue = relationship("Venue", back_populates="operating_hours")
+    venue = relationship("dojopool.models.venue.Venue", back_populates="operating_hours", foreign_keys=[venue_id])
 
     # Validation
     validator_class = VenueValidator
@@ -154,3 +154,6 @@ class VenueOperatingHours(db.Model):
             "special_hours": hours.special_hours,
             "notes": hours.notes,
         }
+
+# --- Explicit imports to resolve SQLAlchemy mapping ---
+# (No explicit import needed for Venue as it is defined in a separate file and is not needed for mapping here)

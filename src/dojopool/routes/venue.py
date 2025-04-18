@@ -5,9 +5,10 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, render_template, request
 from flask_login import current_user, login_required
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 
+from ..models.user import User
 from ..core.database import db
-from ..core.models.auth import User
 from ..core.models.tournament import Tournament
 from ..core.models.venue import Venue, VenueCheckIn
 from ..services.checkin_service import CheckInService

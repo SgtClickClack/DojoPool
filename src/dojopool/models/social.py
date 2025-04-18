@@ -133,21 +133,22 @@ class Achievement(db.Model):
         return self.name
 
 
-class UserAchievement(db.Model):
-    __tablename__ = "user_achievements"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user_profiles.id"), nullable=False)
-    achievement_id = db.Column(db.Integer, db.ForeignKey("achievements.id"), nullable=False)
-    earned_at = db.Column(db.DateTime, default=func.now())
-
-    # Relationships
-    user = relationship("UserProfile", back_populates="achievements")
-    achievement = relationship("Achievement")
-
-    def __str__(self):
-        return f"{self.user.user.username} - {self.achievement.name}"
+# Removed duplicate UserAchievement model to resolve table redefinition conflict
+# class UserAchievement(db.Model):
+#     __tablename__ = "user_achievements"
+#     __table_args__ = {"extend_existing": True}
+# 
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey("user_profiles.id"), nullable=False)
+#     achievement_id = db.Column(db.Integer, db.ForeignKey("achievements.id"), nullable=False)
+#     earned_at = db.Column(db.DateTime, default=func.now())
+# 
+#     # Relationships
+#     user = relationship("UserProfile", back_populates="achievements")
+#     achievement = relationship("Achievement")
+# 
+#     def __str__(self):
+#         return f"{self.user.user.username} - {self.achievement.name}"
 
 
 class SocialProfile(db.Model):
