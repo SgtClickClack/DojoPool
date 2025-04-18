@@ -12,7 +12,7 @@ from docx import Document
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Define workspace paths
 workspace1 = r"C:\Users\JR\Documents\DojoPool\DojoPoolCombined\Dojo_Pool_fresh"
@@ -21,23 +21,26 @@ workspace3 = r"C:\Users\JR\Documents\DojoPool\DojoPoolCombined\Dojo Pool"  # Ass
 combined_workspace = r"C:\Users\JR\Documents\DojoPool\DojoPoolCombined\combined"
 
 # Path to store processed files
-processed_files_path = os.path.join(combined_workspace, 'processed_files.json')
+processed_files_path = os.path.join(combined_workspace, "processed_files.json")
+
 
 def load_processed_files():
     """
     Load the set of processed files from a JSON file.
     """
     if os.path.exists(processed_files_path):
-        with open(processed_files_path, 'r') as f:
+        with open(processed_files_path, "r") as f:
             return set(json.load(f))
     return set()
+
 
 def save_processed_files(processed_files):
     """
     Save the set of processed files to a JSON file.
     """
-    with open(processed_files_path, 'w') as f:
+    with open(processed_files_path, "w") as f:
         json.dump(list(processed_files), f)
+
 
 def list_files_in_workspace(workspace):
     """
@@ -65,6 +68,7 @@ def list_files_in_workspace(workspace):
     except Exception as e:
         logging.error(f"Error accessing {workspace}: {e}")
 
+
 def process_files(workspace, processed_files):
     """
     Process files in the specified workspace, avoiding duplicates.
@@ -88,19 +92,19 @@ def process_files(workspace, processed_files):
             file_path = os.path.join(workspace, file)
 
             # Determine file type and process accordingly
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 logging.info(f"Processing Python file: {file}")
                 try:
-                    with open(file_path, 'r') as f:
-                        content = f.read()
+                    with open(file_path, "r") as f:
+                        f.read()
                     # Add your processing logic here
                 except Exception as e:
                     logging.error(f"Failed to process {file}: {e}")
-            elif file.endswith('.docx'):
+            elif file.endswith(".docx"):
                 logging.info(f"Processing document file: {file}")
                 try:
                     doc = Document(file_path)
-                    text = '\n'.join([para.text for para in doc.paragraphs])
+                    text = "\n".join([para.text for para in doc.paragraphs])
                     logging.info(f"Extracted text from {file}:")
                     logging.info(text)
                     # Add your processing logic here
@@ -112,6 +116,7 @@ def process_files(workspace, processed_files):
 
     except Exception as e:
         logging.error(f"Error processing files in {workspace}: {e}")
+
 
 def main():
     """
@@ -126,11 +131,10 @@ def main():
     # Save the updated set of processed files
     save_processed_files(processed_files)
 
+
 class APIHandler:
-    rate_limits = {
-        'places': {'limit': 5, 'reset_time': 3600}  # 5 requests per hour
-    }
-    
+    rate_limits = {"places": {"limit": 5, "reset_time": 3600}}  # 5 requests per hour
+
     def __init__(self):
         self.requests = {}
 
@@ -141,29 +145,35 @@ class APIHandler:
                 current_time = time.time()
                 if key not in self.requests:
                     self.requests[key] = []
-                
+
                 # Remove expired requests
-                self.requests[key] = [t for t in self.requests[key] if t > current_time - self.rate_limits[key]['reset_time']]
-                
-                if len(self.requests[key]) >= self.rate_limits[key]['limit']:
+                self.requests[key] = [
+                    t
+                    for t in self.requests[key]
+                    if t > current_time - self.rate_limits[key]["reset_time"]
+                ]
+
+                if len(self.requests[key]) >= self.rate_limits[key]["limit"]:
                     raise Exception("Rate limit exceeded for places API")
-                
+
                 self.requests[key].append(current_time)
                 return await func(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
     def generate_jwt(self, avatar_name):
         secret = os.getenv("JWT_SECRET")
         if not secret:
             return None
-        
+
         try:
             payload = {
-                'avatar_name': avatar_name,
-                'exp': datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+                "avatar_name": avatar_name,
+                "exp": datetime.utcnow() + timedelta(hours=1),  # Token valid for 1 hour
             }
-            token = jwt.encode(payload, secret, algorithm='HS256')
+            token = jwt.encode(payload, secret, algorithm="HS256")
             return token
         except Exception as e:
             logging.error(f"Error generating JWT: {str(e)}")
@@ -173,9 +183,9 @@ class APIHandler:
         secret = os.getenv("JWT_SECRET")
         if not secret:
             return None
-        
+
         try:
-            payload = jwt.decode(token, secret, algorithms=['HS256'])
+            payload = jwt.decode(token, secret, algorithms=["HS256"])
             return payload
         except jwt.ExpiredSignatureError:
             logging.warning("JWT token has expired.")
@@ -183,6 +193,7 @@ class APIHandler:
         except jwt.InvalidTokenError:
             logging.warning("Invalid JWT token.")
             return None
+
 
 if __name__ == "__main__":
     main()

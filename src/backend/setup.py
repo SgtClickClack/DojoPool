@@ -5,14 +5,14 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        'pytest',
-        'pytest-asyncio',
-        'pytest-cov',
-        'pytest-mock',
-        'aiohttp',
-        'motor',
-        'pymongo',
-        'python-dotenv',
-        'PyJWT'
-    ]
-) 
+        "pytest",
+        "pytest-asyncio",
+        "pytest-cov",
+        "pytest-mock",
+        "aiohttp",
+        "motor",
+        "pymongo",
+        "python-dotenv",
+        "PyJWT",
+    ],
+)

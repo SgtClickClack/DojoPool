@@ -1,5 +1,5 @@
 from typing import Dict, Set
-from datetime import datetime
+
 
 class SpectatorSystem:
     def __init__(self):

@@ -6,10 +6,10 @@ from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 def run_git_command(command, check=True):
     """Run a git command and return the output."""
@@ -25,11 +25,12 @@ def run_git_command(command, check=True):
         logger.error(f"Error running git command: {str(e)}")
         return None
 
+
 def setup_git_auth():
     """Set up Git with authentication and clean up repository."""
     try:
         # Initialize repository if needed
-        if not Path('.git').exists():
+        if not Path(".git").exists():
             logger.info("Initializing Git repository...")
             run_git_command("git init")
 
@@ -44,9 +45,9 @@ def setup_git_auth():
             ["git", "config", "--global", "user.name", "Replit User"],
             ["git", "config", "--global", "init.defaultBranch", "main"],
             ["git", "config", "--global", "credential.helper", "store"],
-            ["git", "config", "--global", "core.excludesFile", ".gitignore"]
+            ["git", "config", "--global", "core.excludesFile", ".gitignore"],
         ]
-        
+
         for config in git_configs:
             if run_git_command(config) is None:
                 return False
@@ -57,15 +58,15 @@ def setup_git_auth():
         run_git_command(f"git checkout -b {backup_branch}", check=False)
 
         # Remove problematic configurations
-        if Path('.gitmodules').exists():
-            os.remove('.gitmodules')
+        if Path(".gitmodules").exists():
+            os.remove(".gitmodules")
             logger.info("Removed .gitmodules file")
 
         # Clean and reset repository
         run_git_command("git rm -rf --cached .", check=False)
         run_git_command("git gc --prune=now", check=False)
         run_git_command("git remote prune origin", check=False)
-        
+
         # Create comprehensive .gitignore
         gitignore_content = """
 # Python
@@ -123,39 +124,42 @@ node_modules/
 .coverage
 htmlcov/
 """
-        with open('.gitignore', 'w') as f:
+        with open(".gitignore", "w") as f:
             f.write(gitignore_content.strip())
         logger.info("Updated .gitignore file")
 
         # Add all files
         logger.info("Adding all files...")
         run_git_command("git add -A")
-        
+
         # Create commit if there are changes
         status = run_git_command("git status --porcelain")
         if status:
             logger.info("Creating commit with changes...")
-            run_git_command(['git', 'commit', '-m', "Configure Git settings and clean up repository"])
+            run_git_command(
+                ["git", "commit", "-m", "Configure Git settings and clean up repository"]
+            )
 
         # Ensure we're on main branch
         current_branch = run_git_command("git rev-parse --abbrev-ref HEAD")
         if current_branch != "main":
             run_git_command("git checkout -b main", check=False)
-        
+
         # Clean up old branches except the latest backup
         branches = run_git_command("git branch")
         if branches:
-            for branch in branches.split('\n'):
-                branch = branch.strip('* ')
-                if branch != 'main' and branch != backup_branch:
+            for branch in branches.split("\n"):
+                branch = branch.strip("* ")
+                if branch != "main" and branch != backup_branch:
                     run_git_command(f"git branch -D {branch}", check=False)
 
         logger.info("Git configuration completed successfully")
         return True
-        
+
     except Exception as e:
         logger.error(f"Error during git setup: {str(e)}")
         return False
+
 
 if __name__ == "__main__":
     success = setup_git_auth()
