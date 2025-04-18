@@ -16,7 +16,7 @@ from dojopool.core.monitoring.security_monitor import (
 )
 from dojopool.core.security import security_config as config
 from dojopool.core.security.threat_detection import ThreatDetector
-from tests.security.test_threat_detection_integration import MockRequest
+from .test_threat_detection_integration import MockRequest
 
 
 @pytest.fixture

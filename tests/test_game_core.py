@@ -2,8 +2,8 @@
 
 import pytest
 
-from src.dojopool.core.exceptions import GameStateError, RuleViolationError
-from src.dojopool.models.game import Game, GameStatus as GameState, Shot
+from dojopool.core.exceptions import GameStateError, RuleViolationError
+from dojopool.models.game import Game, GameStatus as GameState, Shot
 
 
 @pytest.fixture

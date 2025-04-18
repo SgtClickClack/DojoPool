@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.dojopool.core.monitoring.metrics_monitor import (
+from dojopool.core.monitoring.metrics_monitor import (
     AlertSeverity,
     GameMetricsMonitor,
 )

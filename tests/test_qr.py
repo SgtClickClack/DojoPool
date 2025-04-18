@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.dojopool.core.venue.models import PoolTable
-from src.dojopool.core.venue.qr import QRCodeManager
+from dojopool.core.venue.models import PoolTable
+from dojopool.core.venue.qr import QRCodeManager
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ def test_generate_table_qr(mock_qrcode, qr_manager, mock_table, mock_venue_id):
 
 def test_verify_valid_qr_code(qr_manager, sample_qr_data, mock_table, mock_venue_id):
     """Test verification of valid QR code."""
-    with patch("src.dojopool.core.venue.models.venue_manager") as mock_manager:
+    with patch("dojopool.core.venue.models.venue_manager") as mock_manager:
         # Setup mocks
         mock_manager.tables.get.return_value = mock_table
         mock_manager.get_venue.return_value = {"id": mock_venue_id}
@@ -128,7 +128,7 @@ def test_verify_expired_code(qr_manager, sample_qr_data):
 
 def test_verify_nonexistent_table(qr_manager, sample_qr_data):
     """Test verification with nonexistent table."""
-    with patch("src.dojopool.core.venue.models.venue_manager") as mock_manager:
+    with patch("dojopool.core.venue.models.venue_manager") as mock_manager:
         mock_manager.tables.get.return_value = None
         result = qr_manager.verify_qr_code(sample_qr_data)
         assert result["valid"] is False
@@ -137,7 +137,7 @@ def test_verify_nonexistent_table(qr_manager, sample_qr_data):
 
 def test_verify_nonexistent_venue(qr_manager, sample_qr_data, mock_table):
     """Test verification with nonexistent venue."""
-    with patch("src.dojopool.core.venue.models.venue_manager") as mock_manager:
+    with patch("dojopool.core.venue.models.venue_manager") as mock_manager:
         mock_manager.tables.get.return_value = mock_table
         mock_manager.get_venue.return_value = None
         result = qr_manager.verify_qr_code(sample_qr_data)

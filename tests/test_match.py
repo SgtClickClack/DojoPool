@@ -4,11 +4,11 @@ Unit tests for the Match Module.
 
 from datetime import datetime
 import pytest
-from src.dojopool.app import create_app
-from src.dojopool.models.match import Match
-from src.dojopool.core.database.models import User
-from src.dojopool.core.extensions import db
-from src.dojopool.core.config.testing import TestingConfig
+from dojopool.app import create_app
+from dojopool.models.match import Match
+from dojopool.core.database.models import User
+from dojopool.core.extensions import db
+from dojopool.core.config.testing import TestingConfig
 
 @pytest.fixture
 def app():

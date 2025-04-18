@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import pytest
 import redis
 
-from src.dojopool.core.exceptions import RateLimitError
-from src.dojopool.core.rate_limiter import (
+from dojopool.core.exceptions import RateLimitError
+from dojopool.core.rate_limiter import (
     FixedWindowStrategy,
     RateLimiter,
     SlidingWindowStrategy,

@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.dojopool.core.monitoring.metrics_monitor import AlertSeverity
-from src.dojopool.core.monitoring.performance import PerformanceMetrics, PerformanceMonitor
+from dojopool.core.monitoring.metrics_monitor import AlertSeverity
+from dojopool.core.monitoring.performance import PerformanceMetrics, PerformanceMonitor
 
 
 @pytest.fixture
@@ -87,7 +87,7 @@ def test_alert_thresholds(monitor):
     assert "invalid_metric" not in monitor.alert_thresholds
 
 
-@patch("src.dojopool.core.monitoring.metrics_monitor.metrics_monitor.add_alert")
+@patch("dojopool.core.monitoring.metrics_monitor.metrics_monitor.add_alert")
 def test_threshold_alerts(mock_add_alert, monitor, mock_psutil):
     """Test threshold-based alerting."""
     # Set low thresholds to trigger alerts
@@ -147,7 +147,7 @@ def test_error_handling(monitor):
     """Test error handling in monitoring loop."""
     with (
         patch(
-            "src.dojopool.core.monitoring.metrics_monitor.metrics_monitor.add_alert"
+            "dojopool.core.monitoring.metrics_monitor.metrics_monitor.add_alert"
         ) as mock_add_alert,
         patch.object(monitor, "_collect_metrics", side_effect=Exception("Test error")),
     ):

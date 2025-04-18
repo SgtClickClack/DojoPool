@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.dojopool.core.monitoring.metrics_monitor import (
+from dojopool.core.monitoring.metrics_monitor import (
     Alert,
     AlertSeverity,
     GameMetrics,
@@ -17,7 +17,7 @@ from src.dojopool.core.monitoring.metrics_monitor import (
 @pytest.fixture
 def app():
     """Create test app."""
-    from src.dojopool.app import create_app
+    from dojopool.app import create_app
 
     app = create_app("testing")
     return app

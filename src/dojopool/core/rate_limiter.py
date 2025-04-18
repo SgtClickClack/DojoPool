@@ -3,10 +3,13 @@
 import time
 from datetime import datetime
 from typing import Any, Dict
+import logging
+import math
+import uuid
 
 import redis
 
-from src.dojopool.core.exceptions import RateLimitError
+from dojopool.core.exceptions import RateLimitError
 
 
 class RateLimitStrategy:
@@ -22,7 +25,7 @@ class RateLimitStrategy:
         self.max_requests = max_requests
         self.time_window = time_window
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
+    def should_allow(self, current_count: int, elapsed_time: float, cost: int = 1) -> bool:
         """Check if request should be allowed."""
         raise NotImplementedError
 
@@ -30,15 +33,15 @@ class RateLimitStrategy:
 class FixedWindowStrategy(RateLimitStrategy):
     """Fixed window rate limiting strategy."""
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
-        """Check if request should be allowed based on fixed window."""
-        return current_count < self.max_requests
+    def should_allow(self, current_count: int, elapsed_time: float, cost: int = 1) -> bool:
+        logging.debug(f"[FixedWindow] current_count={current_count}, elapsed_time={elapsed_time}, cost={cost}, max_requests={self.max_requests}")
+        return (current_count + cost) <= self.max_requests
 
 
 class SlidingWindowStrategy(RateLimitStrategy):
     """Sliding window rate limiting strategy."""
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
+    def should_allow(self, current_count: int, elapsed_time: float, cost: int = 1) -> bool:
         """Check if request should be allowed based on sliding window."""
         rate = current_count / max(elapsed_time, 1)
         return rate <= (self.max_requests / self.time_window)
@@ -58,10 +61,15 @@ class TokenBucketStrategy(RateLimitStrategy):
         super().__init__(max_requests, time_window)
         self.refill_rate = refill_rate
 
-    def should_allow(self, current_count: int, elapsed_time: float) -> bool:
-        """Check if request should be allowed based on token bucket."""
-        tokens = min(self.max_requests, current_count + (elapsed_time * self.refill_rate))
-        return tokens >= 1
+    def should_allow(self, current_count: int, elapsed_time: float, cost: int = 1) -> bool:
+        tokens_refilled = math.floor(elapsed_time * self.refill_rate)
+        if current_count >= self.max_requests:
+            # Only allow if the bucket is fully refilled
+            return tokens_refilled >= self.max_requests
+        else:
+            tokens_available = self.max_requests - current_count + tokens_refilled
+            tokens_available = min(self.max_requests, max(0, tokens_available))
+            return tokens_available >= cost
 
 
 class RateLimiter:
@@ -100,44 +108,49 @@ class RateLimiter:
             RateLimitError: If request is not allowed and raise_on_limit is True
         """
         key = self._get_key(identifier)
-        pipe = self.redis.pipeline()
-
         now = time.time()
         window_start = now - self.strategy.time_window
 
-        # Clean old requests
-        pipe.zremrangebyscore(key, 0, window_start)
+        # Step 1: Clean old requests
+        self.redis.zremrangebyscore(key, 0, window_start)
 
-        # Get current request count
+        # Step 2: Get current request count and earliest timestamp
+        pipe = self.redis.pipeline()
         pipe.zcard(key)
+        pipe.zrange(key, 0, 0, withscores=True)
+        results = pipe.execute()
+        current_count = results[0]
+        earliest = results[1][0][1] if results[1] else now - self.strategy.time_window
+        elapsed_time = now - earliest
 
-        # Add new request
-        pipe.zadd(key, {str(now): now})
+        logging.debug(f"[RateLimiter] key={key}, now={now}, window_start={window_start}, current_count={current_count}, earliest={earliest}, elapsed_time={elapsed_time}, cost={cost}")
 
-        # Set expiry
-        pipe.expire(key, self.strategy.time_window)
+        if isinstance(self.strategy, TokenBucketStrategy):
+            is_allowed = self.strategy.should_allow(current_count=current_count, elapsed_time=elapsed_time, cost=cost)
+        else:
+            # For fixed/sliding window, check allowance BEFORE adding new requests
+            is_allowed = self.strategy.should_allow(current_count=current_count, elapsed_time=self.strategy.time_window, cost=cost)
+            if not is_allowed:
+                if raise_on_limit:
+                    reset_time = datetime.fromtimestamp(window_start + self.strategy.time_window)
+                    raise RateLimitError(
+                        message="Rate limit exceeded",
+                        details={
+                            "limit": self.strategy.max_requests,
+                            "remaining": max(0, self.strategy.max_requests - current_count),
+                            "reset_time": reset_time.isoformat(),
+                            "retry_after": int(reset_time.timestamp() - now),
+                        },
+                    )
+                else:
+                    return False
 
-        # Execute pipeline
-        _, current_count, _, _ = pipe.execute()
-
-        # Check if allowed
-        is_allowed = self.strategy.should_allow(
-            current_count=current_count, elapsed_time=self.strategy.time_window
-        )
-
-        if not is_allowed and raise_on_limit:
-            reset_time = datetime.fromtimestamp(window_start + self.strategy.time_window)
-            raise RateLimitError(
-                message="Rate limit exceeded",
-                details={
-                    "limit": self.strategy.max_requests,
-                    "remaining": max(0, self.strategy.max_requests - current_count),
-                    "reset_time": reset_time.isoformat(),
-                    "retry_after": int(reset_time.timestamp() - now),
-                },
-            )
-
-        return is_allowed
+        # Only add new requests for cost if allowed
+        for i in range(cost):
+            unique_member = f"{now}-{uuid.uuid4()}"
+            self.redis.zadd(key, {unique_member: now})
+        self.redis.expire(key, self.strategy.time_window)
+        return True
 
     def get_limit_info(self, identifier: str) -> Dict[str, Any]:
         """Get rate limit information.
