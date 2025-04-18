@@ -18,4 +18,4 @@ discovery:
   networkIdleTimeout: 100
 upload:
   files: "cypress/screenshots/**/*.png"
-  stripStyles: false 
+  stripStyles: false

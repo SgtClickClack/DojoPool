@@ -1,15 +1,15 @@
-import { Alert } from '../types/alert';
+import { Alert } from "../types/alert";
 
 interface QueuedAction {
-  type: 'acknowledge' | 'dismiss' | 'flag';
+  type: "acknowledge" | "dismiss" | "flag";
   alertId: string;
   timestamp: number;
 }
 
 export class OfflineStorageService {
   private static instance: OfflineStorageService;
-  private readonly ALERTS_KEY = 'cached_alerts';
-  private readonly ACTIONS_QUEUE_KEY = 'queued_actions';
+  private readonly ALERTS_KEY = "cached_alerts";
+  private readonly ACTIONS_QUEUE_KEY = "queued_actions";
   private readonly MAX_CACHED_ALERTS = 100;
 
   private constructor() {}
@@ -26,7 +26,7 @@ export class OfflineStorageService {
       const limitedAlerts = alerts.slice(0, this.MAX_CACHED_ALERTS);
       await this.setItem(this.ALERTS_KEY, limitedAlerts);
     } catch (error) {
-      console.error('Error caching alerts:', error);
+      console.error("Error caching alerts:", error);
     }
   }
 
@@ -35,7 +35,7 @@ export class OfflineStorageService {
       const alerts = await this.getItem<Alert[]>(this.ALERTS_KEY);
       return alerts || [];
     } catch (error) {
-      console.error('Error retrieving cached alerts:', error);
+      console.error("Error retrieving cached alerts:", error);
       return [];
     }
   }
@@ -46,16 +46,18 @@ export class OfflineStorageService {
       queue.push(action);
       await this.setItem(this.ACTIONS_QUEUE_KEY, queue);
     } catch (error) {
-      console.error('Error queuing action:', error);
+      console.error("Error queuing action:", error);
     }
   }
 
   public async getQueuedActions(): Promise<QueuedAction[]> {
     try {
-      const actions = await this.getItem<QueuedAction[]>(this.ACTIONS_QUEUE_KEY);
+      const actions = await this.getItem<QueuedAction[]>(
+        this.ACTIONS_QUEUE_KEY,
+      );
       return actions || [];
     } catch (error) {
-      console.error('Error retrieving queued actions:', error);
+      console.error("Error retrieving queued actions:", error);
       return [];
     }
   }
@@ -64,7 +66,7 @@ export class OfflineStorageService {
     try {
       await this.removeItem(this.ACTIONS_QUEUE_KEY);
     } catch (error) {
-      console.error('Error clearing queued actions:', error);
+      console.error("Error clearing queued actions:", error);
     }
   }
 
@@ -96,4 +98,4 @@ export class OfflineStorageService {
       throw error;
     }
   }
-} 
+}

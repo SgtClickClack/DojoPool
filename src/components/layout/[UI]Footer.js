@@ -1,30 +1,38 @@
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import { Box, Container, Grid, IconButton, Link, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import {
+  Box,
+  Container,
+  Grid,
+  IconButton,
+  Link,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Footer = () => {
   const footerLinks = {
     Company: [
-      { text: 'About Us', path: '/about' },
-      { text: 'Contact', path: '/contact' },
-      { text: 'Careers', path: '/careers' },
-      { text: 'Blog', path: '/blog' },
+      { text: "About Us", path: "/about" },
+      { text: "Contact", path: "/contact" },
+      { text: "Careers", path: "/careers" },
+      { text: "Blog", path: "/blog" },
     ],
     Resources: [
-      { text: 'Documentation', path: '/docs' },
-      { text: 'Support', path: '/support' },
-      { text: 'Terms of Service', path: '/terms' },
-      { text: 'Privacy Policy', path: '/privacy' },
+      { text: "Documentation", path: "/docs" },
+      { text: "Support", path: "/support" },
+      { text: "Terms of Service", path: "/terms" },
+      { text: "Privacy Policy", path: "/privacy" },
     ],
     Features: [
-      { text: 'Marketplace', path: '/marketplace' },
-      { text: 'Training', path: '/training' },
-      { text: 'Analytics', path: '/analytics' },
-      { text: 'Community', path: '/community' },
+      { text: "Marketplace", path: "/marketplace" },
+      { text: "Training", path: "/training" },
+      { text: "Analytics", path: "/analytics" },
+      { text: "Community", path: "/community" },
     ],
   };
 
@@ -34,25 +42,28 @@ const Footer = () => {
       sx={{
         py: 6,
         px: 2,
-        mt: 'auto',
-        backgroundColor: 'background.paper',
-        borderTop: '1px solid',
-        borderColor: 'divider',
+        mt: "auto",
+        backgroundColor: "background.paper",
+        borderTop: "1px solid",
+        borderColor: "divider",
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
             <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <SportsEsportsIcon sx={{ mr: 1, color: 'primary.main' }} className="neon-text" />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <SportsEsportsIcon
+                  sx={{ mr: 1, color: "primary.main" }}
+                  className="neon-text"
+                />
                 <Typography
                   variant="h6"
                   component={RouterLink}
                   to="/"
                   sx={{
-                    color: 'text.primary',
-                    textDecoration: 'none',
+                    color: "text.primary",
+                    textDecoration: "none",
                     fontWeight: 700,
                   }}
                   className="neon-text"
@@ -61,8 +72,8 @@ const Footer = () => {
                 </Typography>
               </Box>
               <Typography variant="body2" color="text.secondary">
-                Elevate your pool game with AI-powered training, analytics, and a vibrant community
-                of players.
+                Elevate your pool game with AI-powered training, analytics, and
+                a vibrant community of players.
               </Typography>
             </Box>
             <Stack direction="row" spacing={1}>
@@ -126,10 +137,10 @@ const Footer = () => {
                     component={RouterLink}
                     to={link.path}
                     sx={{
-                      color: 'text.secondary',
-                      textDecoration: 'none',
-                      '&:hover': {
-                        color: 'primary.main',
+                      color: "text.secondary",
+                      textDecoration: "none",
+                      "&:hover": {
+                        color: "primary.main",
                       },
                     }}
                   >
@@ -145,9 +156,9 @@ const Footer = () => {
           sx={{
             mt: 8,
             pt: 3,
-            borderTop: '1px solid',
-            borderColor: 'divider',
-            textAlign: 'center',
+            borderTop: "1px solid",
+            borderColor: "divider",
+            textAlign: "center",
           }}
         >
           <Typography variant="body2" color="text.secondary">

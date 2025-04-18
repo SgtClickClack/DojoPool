@@ -4,9 +4,9 @@
  * @returns True if the email is valid, false otherwise.
  */
 export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 /**
  * Validates a password.
@@ -20,11 +20,11 @@ export const validateEmail = (email: string): boolean => {
  * @returns True if the password meets all requirements, false otherwise.
  */
 export const validatePassword = (password: string): boolean => {
-  const minLength = 8
-  const hasUpperCase = /[A-Z]/.test(password)
-  const hasLowerCase = /[a-z]/.test(password)
-  const hasNumbers = /\d/.test(password)
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
   return (
     password.length >= minLength &&
@@ -32,8 +32,8 @@ export const validatePassword = (password: string): boolean => {
     hasLowerCase &&
     hasNumbers &&
     hasSpecialChar
-  )
-}
+  );
+};
 
 /**
  * Validates a username.
@@ -45,6 +45,6 @@ export const validatePassword = (password: string): boolean => {
  * @returns True if the username meets all requirements, false otherwise.
  */
 export const validateUsername = (username: string): boolean => {
-  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]{2,19}$/
-  return usernameRegex.test(username)
-} 
+  const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]{2,19}$/;
+  return usernameRegex.test(username);
+};

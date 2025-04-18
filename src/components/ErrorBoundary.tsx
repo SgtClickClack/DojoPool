@@ -1,7 +1,7 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Box, Button, Typography, Container, Paper } from '@mui/material';
-import { ErrorOutline as ErrorIcon } from '@mui/icons-material';
-import { logError } from '../services/ErrorLoggingService';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Box, Button, Typography, Container, Paper } from "@mui/material";
+import { ErrorOutline as ErrorIcon } from "@mui/icons-material";
+import { logError } from "../services/ErrorLoggingService";
 
 interface Props {
   children: ReactNode;
@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     };
   }
 
@@ -29,14 +29,14 @@ export class ErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorInfo: null
+      errorInfo: null,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
 
     // Log error to service
@@ -52,7 +52,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
     });
   };
 
@@ -69,9 +69,9 @@ export class ErrorBoundary extends Component<Props, State> {
             sx={{
               p: 4,
               mt: 4,
-              textAlign: 'center',
-              backgroundColor: 'error.light',
-              color: 'error.contrastText'
+              textAlign: "center",
+              backgroundColor: "error.light",
+              color: "error.contrastText",
             }}
           >
             <ErrorIcon sx={{ fontSize: 64, mb: 2 }} />
@@ -79,20 +79,20 @@ export class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </Typography>
             <Typography variant="body1" sx={{ mb: 3 }}>
-              {this.state.error?.message || 'An unexpected error occurred'}
+              {this.state.error?.message || "An unexpected error occurred"}
             </Typography>
-            {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+            {process.env.NODE_ENV === "development" && this.state.errorInfo && (
               <Box
                 component="pre"
                 sx={{
                   mt: 2,
                   p: 2,
-                  bgcolor: 'background.paper',
-                  color: 'text.primary',
+                  bgcolor: "background.paper",
+                  color: "text.primary",
                   borderRadius: 1,
-                  overflow: 'auto',
-                  maxHeight: '200px',
-                  textAlign: 'left'
+                  overflow: "auto",
+                  maxHeight: "200px",
+                  textAlign: "left",
                 }}
               >
                 <code>{this.state.errorInfo.componentStack}</code>
@@ -118,7 +118,7 @@ export class ErrorBoundary extends Component<Props, State> {
 // Higher-order component for easy wrapping
 export const withErrorBoundary = <P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<Props, 'children'>
+  errorBoundaryProps?: Omit<Props, "children">,
 ) => {
   return function WithErrorBoundaryWrapper(props: P) {
     return (
@@ -127,4 +127,4 @@ export const withErrorBoundary = <P extends object>(
       </ErrorBoundary>
     );
   };
-}; 
+};

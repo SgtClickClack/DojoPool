@@ -1,5 +1,9 @@
-import { PrismaClient } from '@prisma/client';
-import { Tournament, TournamentState, TournamentType } from '../../types/tournament';
+import { PrismaClient } from "@prisma/client";
+import {
+  Tournament,
+  TournamentState,
+  TournamentType,
+} from "../../types/tournament";
 
 const prisma = new PrismaClient();
 
@@ -12,7 +16,7 @@ export class TournamentService {
     venueId: string,
     organizerId: string,
     maxParticipants: number,
-    entryFee: number
+    entryFee: number,
   ): Promise<Tournament> {
     return prisma.tournament.create({
       data: {
@@ -37,7 +41,10 @@ export class TournamentService {
     });
   }
 
-  static async updateTournamentState(id: string, state: TournamentState): Promise<Tournament> {
+  static async updateTournamentState(
+    id: string,
+    state: TournamentState,
+  ): Promise<Tournament> {
     return prisma.tournament.update({
       where: { id },
       data: {
@@ -47,7 +54,10 @@ export class TournamentService {
     });
   }
 
-  static async addParticipant(tournamentId: string, playerId: string): Promise<Tournament> {
+  static async addParticipant(
+    tournamentId: string,
+    playerId: string,
+  ): Promise<Tournament> {
     return prisma.tournament.update({
       where: { id: tournamentId },
       data: {
@@ -59,7 +69,10 @@ export class TournamentService {
     });
   }
 
-  static async removeParticipant(tournamentId: string, playerId: string): Promise<Tournament> {
+  static async removeParticipant(
+    tournamentId: string,
+    playerId: string,
+  ): Promise<Tournament> {
     return prisma.tournament.update({
       where: { id: tournamentId },
       data: {
@@ -80,12 +93,14 @@ export class TournamentService {
         },
       },
       orderBy: {
-        startDate: 'asc',
+        startDate: "asc",
       },
     });
   }
 
-  static async getTournamentsForPlayer(playerId: string): Promise<Tournament[]> {
+  static async getTournamentsForPlayer(
+    playerId: string,
+  ): Promise<Tournament[]> {
     return prisma.tournament.findMany({
       where: {
         participants: {
@@ -93,7 +108,7 @@ export class TournamentService {
         },
       },
       orderBy: {
-        startDate: 'desc',
+        startDate: "desc",
       },
     });
   }
@@ -101,7 +116,7 @@ export class TournamentService {
   static async updateTournamentResults(
     tournamentId: string,
     winnerId: string,
-    runnerUpId: string
+    runnerUpId: string,
   ): Promise<Tournament> {
     return prisma.tournament.update({
       where: { id: tournamentId },
@@ -114,4 +129,4 @@ export class TournamentService {
       },
     });
   }
-} 
+}

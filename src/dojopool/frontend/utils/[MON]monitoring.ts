@@ -1,5 +1,5 @@
-import { MONITORING_CONFIG } from '../../constants';
-import { DataCompressor } from './dataCompressor';
+import { MONITORING_CONFIG } from "../../constants";
+import { DataCompressor } from "./dataCompressor";
 
 interface MetricValue {
   value: number;
@@ -39,7 +39,11 @@ interface GameMetrics {
   safetyIncidents: {
     total: number;
     byType: Map<string, number>;
-    recentIncidents: Array<{ type: string; details: string; timestamp: number }>;
+    recentIncidents: Array<{
+      type: string;
+      details: string;
+      timestamp: number;
+    }>;
   };
   [key: string]: any; // Allow additional string-indexed properties
 }
@@ -56,7 +60,7 @@ interface Archive {
 
 interface Alert {
   id: string;
-  severity: 'info' | 'warning' | 'error';
+  severity: "info" | "warning" | "error";
   message: string;
   timestamp: number;
   acknowledged: boolean;
@@ -76,7 +80,11 @@ export class GameMetricsMonitor {
   private safetyIncidents = {
     total: 0,
     byType: new Map<string, number>(),
-    recentIncidents: [] as Array<{ type: string; details: string; timestamp: number }>
+    recentIncidents: [] as Array<{
+      type: string;
+      details: string;
+      timestamp: number;
+    }>,
   };
   private metrics: GameMetrics = {
     activePlayers: 0,
@@ -89,7 +97,7 @@ export class GameMetricsMonitor {
     playerProgress: {},
     completedClues: 0,
     clueDiscoveryRate: 0,
-    safetyIncidents: this.safetyIncidents
+    safetyIncidents: this.safetyIncidents,
   };
 
   private constructor() {
@@ -136,41 +144,60 @@ export class GameMetricsMonitor {
       this.metrics.clueDiscoveryRate = 1; // First clue, set rate to 1 per second
     } else {
       const timeDiff = Math.max(now - this.lastClueTime, 1); // Ensure at least 1ms difference
-      this.metrics.clueDiscoveryRate = (this.metrics.completedClues * 1000) / timeDiff; // clues per second
+      this.metrics.clueDiscoveryRate =
+        (this.metrics.completedClues * 1000) / timeDiff; // clues per second
       this.lastClueTime = now;
     }
     this.updatePlayerProgress();
   }
 
-  public recordGameCompletion(playerId: string, score: number, time: number): void {
+  public recordGameCompletion(
+    playerId: string,
+    score: number,
+    time: number,
+  ): void {
     this.metrics.totalGamesCompleted++;
-    this.metrics.completionRate = this.metrics.totalGamesCompleted / (this.metrics.activeGames || 1);
-    this.metrics.averageCompletionTime = (this.metrics.averageCompletionTime * (this.metrics.totalGamesCompleted - 1) + time) / this.metrics.totalGamesCompleted;
-    this.metrics.averageScore = (this.metrics.averageScore * (this.metrics.totalGamesCompleted - 1) + score) / this.metrics.totalGamesCompleted;
+    this.metrics.completionRate =
+      this.metrics.totalGamesCompleted / (this.metrics.activeGames || 1);
+    this.metrics.averageCompletionTime =
+      (this.metrics.averageCompletionTime *
+        (this.metrics.totalGamesCompleted - 1) +
+        time) /
+      this.metrics.totalGamesCompleted;
+    this.metrics.averageScore =
+      (this.metrics.averageScore * (this.metrics.totalGamesCompleted - 1) +
+        score) /
+      this.metrics.totalGamesCompleted;
   }
 
   public recordSafetyIncident(type: string, details: string): void {
     const incident = {
       type,
       details,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     this.safetyIncidents.total++;
-    this.safetyIncidents.byType.set(type, (this.safetyIncidents.byType.get(type) || 0) + 1);
+    this.safetyIncidents.byType.set(
+      type,
+      (this.safetyIncidents.byType.get(type) || 0) + 1,
+    );
     this.safetyIncidents.recentIncidents.unshift(incident);
     if (this.safetyIncidents.recentIncidents.length > 50) {
       this.safetyIncidents.recentIncidents.pop();
     }
   }
 
-  public addAlert(severity: 'info' | 'warning' | 'error', message: string): Alert {
+  public addAlert(
+    severity: "info" | "warning" | "error",
+    message: string,
+  ): Alert {
     const alert: Alert = {
       id: Math.random().toString(36).substr(2, 9),
       severity,
       message,
       timestamp: Date.now(),
       acknowledged: false,
-      details: {}
+      details: {},
     };
     this.alerts.push(alert);
     this.notifySubscribers(alert);
@@ -178,7 +205,7 @@ export class GameMetricsMonitor {
   }
 
   public acknowledgeAlert(alertId: string, note?: string): void {
-    const alert = this.alerts.find(a => a.id === alertId);
+    const alert = this.alerts.find((a) => a.id === alertId);
     if (alert) {
       alert.acknowledged = true;
       if (note) {
@@ -187,13 +214,17 @@ export class GameMetricsMonitor {
     }
   }
 
-  public getAlerts(filter?: { severity?: 'info' | 'warning' | 'error', acknowledged?: boolean, limit?: number }): Alert[] {
+  public getAlerts(filter?: {
+    severity?: "info" | "warning" | "error";
+    acknowledged?: boolean;
+    limit?: number;
+  }): Alert[] {
     let filtered = this.alerts;
     if (filter?.severity) {
-      filtered = filtered.filter(a => a.severity === filter.severity);
+      filtered = filtered.filter((a) => a.severity === filter.severity);
     }
     if (filter?.acknowledged !== undefined) {
-      filtered = filtered.filter(a => a.acknowledged === filter.acknowledged);
+      filtered = filtered.filter((a) => a.acknowledged === filter.acknowledged);
     }
     if (filter?.limit) {
       filtered = filtered.slice(0, filter.limit);
@@ -204,7 +235,9 @@ export class GameMetricsMonitor {
   public subscribeToAlerts(callback: (alert: Alert) => void): () => void {
     this.alertSubscribers.push(callback);
     return () => {
-      this.alertSubscribers = this.alertSubscribers.filter(cb => cb !== callback);
+      this.alertSubscribers = this.alertSubscribers.filter(
+        (cb) => cb !== callback,
+      );
     };
   }
 
@@ -218,15 +251,18 @@ export class GameMetricsMonitor {
       data: metrics,
       metadata: {
         timestamp: Date.now(),
-        dataType: 'game-metrics'
-      }
+        dataType: "game-metrics",
+      },
     };
     await this.dataCompressor.archiveData(archiveKey, archiveData);
   }
 
-  public async getHistoricalMetrics(startDate: Date, endDate: Date): Promise<GameMetrics[]> {
+  public async getHistoricalMetrics(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<GameMetrics[]> {
     const archives = await this.dataCompressor.listArchives();
-    const relevantArchives = archives.filter(archive => {
+    const relevantArchives = archives.filter((archive) => {
       const timestamp = archive.metadata.timestamp;
       return timestamp >= startDate.getTime() && timestamp <= endDate.getTime();
     });
@@ -242,18 +278,25 @@ export class GameMetricsMonitor {
     return historicalMetrics;
   }
 
-  public async getMetricsSnapshot(): Promise<{ current: GameMetrics; historical: { weeklyTrend: GameMetrics[] } }> {
+  public async getMetricsSnapshot(): Promise<{
+    current: GameMetrics;
+    historical: { weeklyTrend: GameMetrics[] };
+  }> {
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const weeklyTrend = await this.getHistoricalMetrics(weekAgo, now);
 
     return {
       current: this.getMetrics(),
-      historical: { weeklyTrend }
+      historical: { weeklyTrend },
     };
   }
 
-  public getArchiveStats(): { totalSize: number; oldestDate: Date; compressionRatio: number } {
+  public getArchiveStats(): {
+    totalSize: number;
+    oldestDate: Date;
+    compressionRatio: number;
+  } {
     return this.dataCompressor.getArchiveStats();
   }
 
@@ -267,7 +310,7 @@ export class GameMetricsMonitor {
   }
 
   private notifySubscribers(alert: Alert): void {
-    this.alertSubscribers.forEach(callback => callback(alert));
+    this.alertSubscribers.forEach((callback) => callback(alert));
   }
 
   public reset(): void {
@@ -289,7 +332,7 @@ export class GameMetricsMonitor {
       playerProgress: {},
       completedClues: 0,
       clueDiscoveryRate: 0,
-      safetyIncidents: this.safetyIncidents
+      safetyIncidents: this.safetyIncidents,
     };
   }
 
@@ -298,13 +341,16 @@ export class GameMetricsMonitor {
   }
 
   public recordScore(score: number): void {
-    this.metrics.averageScore = (this.metrics.averageScore * this.metrics.totalGamesCompleted + score) / (this.metrics.totalGamesCompleted + 1);
+    this.metrics.averageScore =
+      (this.metrics.averageScore * this.metrics.totalGamesCompleted + score) /
+      (this.metrics.totalGamesCompleted + 1);
   }
 }
 
 export class ErrorTracker {
   private static instance: ErrorTracker;
-  private errors: Map<string, { error: Error; context: ErrorContext }[]> = new Map();
+  private errors: Map<string, { error: Error; context: ErrorContext }[]> =
+    new Map();
   private errorStats: ErrorStats = {
     total: 0,
     byComponent: new Map(),
@@ -324,7 +370,7 @@ export class ErrorTracker {
   }
 
   trackError(error: Error, context: ErrorContext): void {
-    const { component = 'unknown' } = context;
+    const { component = "unknown" } = context;
 
     if (!this.errors.has(component)) {
       this.errors.set(component, []);
@@ -337,7 +383,7 @@ export class ErrorTracker {
     this.errorStats.total++;
     this.errorStats.byComponent.set(
       component,
-      (this.errorStats.byComponent.get(component) || 0) + 1
+      (this.errorStats.byComponent.get(component) || 0) + 1,
     );
 
     // Add to recent errors
@@ -370,8 +416,11 @@ export class ErrorTracker {
 
     // Calculate error rates per component
     Array.from(this.errors).forEach(([component, errors]) => {
-      const recentErrors = errors.filter(({ context }) => context.timestamp > hourAgo);
-      this.errorStats.errorRates[component] = (recentErrors.length / 3600) * 1000; // errors per hour
+      const recentErrors = errors.filter(
+        ({ context }) => context.timestamp > hourAgo,
+      );
+      this.errorStats.errorRates[component] =
+        (recentErrors.length / 3600) * 1000; // errors per hour
     });
   }
 }
@@ -392,7 +441,7 @@ export class AuditLogger {
     return AuditLogger.instance;
   }
 
-  log(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
+  log(message: string, level: "info" | "warning" | "error" = "info"): void {
     this.logs.push({
       message,
       timestamp: Date.now(),
@@ -429,7 +478,10 @@ export class RetryMechanism {
     return RetryMechanism.instance;
   }
 
-  async retry<T>(operation: () => Promise<T>, maxAttempts = this.maxRetries): Promise<T> {
+  async retry<T>(
+    operation: () => Promise<T>,
+    maxAttempts = this.maxRetries,
+  ): Promise<T> {
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -443,7 +495,7 @@ export class RetryMechanism {
       }
     }
 
-    throw lastError || new Error('Operation failed after maximum retries');
+    throw lastError || new Error("Operation failed after maximum retries");
   }
 
   private delay(ms: number): Promise<void> {

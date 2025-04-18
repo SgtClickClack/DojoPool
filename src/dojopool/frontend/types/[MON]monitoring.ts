@@ -1,8 +1,8 @@
 export interface ErrorEvent {
   id: string;
   timestamp: number;
-  type: 'validation' | 'connection' | 'system' | 'boundary';
-  severity: 'error' | 'warning' | 'info';
+  type: "validation" | "connection" | "system" | "boundary";
+  severity: "error" | "warning" | "info";
   message: string;
   playerId?: string;
   details?: Record<string, any>;
@@ -16,7 +16,7 @@ export interface MetricData {
 
 export interface Alert {
   id: string;
-  severity: 'error' | 'warning' | 'info';
+  severity: "error" | "warning" | "info";
   message: string;
   timestamp: number;
   acknowledged: boolean;

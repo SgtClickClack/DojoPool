@@ -1,5 +1,5 @@
-import stateService from './state';
-import analyticsService from './analytics';
+import stateService from "./state";
+import analyticsService from "./analytics";
 
 interface KeyBinding {
   id: string;
@@ -41,9 +41,9 @@ class KeyboardService {
   }
 
   private setupEventListeners(): void {
-    window.addEventListener('keydown', this.handleKeyDown.bind(this));
-    window.addEventListener('keyup', this.handleKeyUp.bind(this));
-    window.addEventListener('blur', this.handleBlur.bind(this));
+    window.addEventListener("keydown", this.handleKeyDown.bind(this));
+    window.addEventListener("keyup", this.handleKeyUp.bind(this));
+    window.addEventListener("blur", this.handleBlur.bind(this));
   }
 
   private handleKeyDown(event: KeyboardEvent): void {
@@ -66,7 +66,7 @@ class KeyboardService {
 
     // Find and execute matching bindings
     const combo = this.getKeyCombo();
-    const sequence = this.state.recordedSequence.join(' ');
+    const sequence = this.state.recordedSequence.join(" ");
     this.executeBinding(combo, sequence, event);
 
     // Notify listeners
@@ -74,8 +74,8 @@ class KeyboardService {
 
     // Track key press in analytics
     analyticsService.trackUserEvent({
-      type: 'key_pressed',
-      userId: 'system',
+      type: "key_pressed",
+      userId: "system",
       details: {
         key: combo,
         sequence,
@@ -96,20 +96,20 @@ class KeyboardService {
   private normalizeKey(key: string): string {
     // Normalize key names for consistency
     switch (key) {
-      case ' ':
-        return 'Space';
-      case 'Escape':
-        return 'Esc';
-      case 'Control':
-        return 'Ctrl';
-      case 'ArrowUp':
-        return 'Up';
-      case 'ArrowDown':
-        return 'Down';
-      case 'ArrowLeft':
-        return 'Left';
-      case 'ArrowRight':
-        return 'Right';
+      case " ":
+        return "Space";
+      case "Escape":
+        return "Esc";
+      case "Control":
+        return "Ctrl";
+      case "ArrowUp":
+        return "Up";
+      case "ArrowDown":
+        return "Down";
+      case "ArrowLeft":
+        return "Left";
+      case "ArrowRight":
+        return "Right";
       default:
         return key.length === 1 ? key.toUpperCase() : key;
     }
@@ -117,24 +117,30 @@ class KeyboardService {
 
   private getKeyCombo(): string {
     const modifiers: string[] = [];
-    if (this.state.pressedKeys.has('Ctrl')) modifiers.push('Ctrl');
-    if (this.state.pressedKeys.has('Shift')) modifiers.push('Shift');
-    if (this.state.pressedKeys.has('Alt')) modifiers.push('Alt');
-    if (this.state.pressedKeys.has('Meta')) modifiers.push('Meta');
+    if (this.state.pressedKeys.has("Ctrl")) modifiers.push("Ctrl");
+    if (this.state.pressedKeys.has("Shift")) modifiers.push("Shift");
+    if (this.state.pressedKeys.has("Alt")) modifiers.push("Alt");
+    if (this.state.pressedKeys.has("Meta")) modifiers.push("Meta");
 
     const keys = Array.from(this.state.pressedKeys).filter(
-      (key) => !['Ctrl', 'Shift', 'Alt', 'Meta'].includes(key)
+      (key) => !["Ctrl", "Shift", "Alt", "Meta"].includes(key),
     );
 
-    return [...modifiers, ...keys].join('+');
+    return [...modifiers, ...keys].join("+");
   }
 
-  private executeBinding(combo: string, sequence: string, event: KeyboardEvent): void {
+  private executeBinding(
+    combo: string,
+    sequence: string,
+    event: KeyboardEvent,
+  ): void {
     for (const binding of this.state.bindings.values()) {
       if (binding.disabled) continue;
 
       const bindingCombo = this.buildBindingCombo(binding);
-      const isMatch = binding.key.includes(' ') ? sequence === binding.key : combo === bindingCombo;
+      const isMatch = binding.key.includes(" ")
+        ? sequence === binding.key
+        : combo === bindingCombo;
 
       if (isMatch) {
         if (binding.preventDefault) {
@@ -146,8 +152,8 @@ class KeyboardService {
 
         // Track binding execution in analytics
         analyticsService.trackUserEvent({
-          type: 'keyboard_binding_executed',
-          userId: 'system',
+          type: "keyboard_binding_executed",
+          userId: "system",
           details: {
             bindingId: binding.id,
             combo,
@@ -164,11 +170,11 @@ class KeyboardService {
 
   private buildBindingCombo(binding: KeyBinding): string {
     const modifiers: string[] = [];
-    if (binding.ctrl) modifiers.push('Ctrl');
-    if (binding.shift) modifiers.push('Shift');
-    if (binding.alt) modifiers.push('Alt');
-    if (binding.meta) modifiers.push('Meta');
-    return [...modifiers, binding.key].join('+');
+    if (binding.ctrl) modifiers.push("Ctrl");
+    if (binding.shift) modifiers.push("Shift");
+    if (binding.alt) modifiers.push("Alt");
+    if (binding.meta) modifiers.push("Meta");
+    return [...modifiers, binding.key].join("+");
   }
 
   public bind(binding: KeyBinding): void {
@@ -180,8 +186,8 @@ class KeyboardService {
 
     // Track binding registration in analytics
     analyticsService.trackUserEvent({
-      type: 'keyboard_binding_registered',
-      userId: 'system',
+      type: "keyboard_binding_registered",
+      userId: "system",
       details: {
         bindingId: binding.id,
         category: binding.category,
@@ -195,8 +201,8 @@ class KeyboardService {
 
     // Track binding removal in analytics
     analyticsService.trackUserEvent({
-      type: 'keyboard_binding_unregistered',
-      userId: 'system',
+      type: "keyboard_binding_unregistered",
+      userId: "system",
       details: {
         bindingId: id,
         timestamp: new Date().toISOString(),
@@ -214,7 +220,7 @@ class KeyboardService {
 
   public getBindingsByCategory(category: string): KeyBinding[] {
     return Array.from(this.state.bindings.values()).filter(
-      (binding) => binding.category === category
+      (binding) => binding.category === category,
     );
   }
 

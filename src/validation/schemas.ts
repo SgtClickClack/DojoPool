@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Profile update schema
 export const profileUpdateSchema = z.object({
@@ -36,4 +36,4 @@ export const passwordResetSchema = z.object({
 export const passwordUpdateSchema = z.object({
   currentPassword: z.string().min(8).max(100),
   newPassword: z.string().min(8).max(100),
-}); 
+});

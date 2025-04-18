@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Share } from '../../types/share';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useState } from "react";
+import { Share } from "../../types/share";
+import { formatDistanceToNow } from "date-fns";
 import {
   Card,
   CardHeader,
@@ -11,16 +11,16 @@ import {
   Menu,
   MenuItem,
   Chip,
-  Box
-} from '@mui/material';
+  Box,
+} from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
   Share as ShareIcon,
   Delete as DeleteIcon,
   Facebook as FacebookIcon,
   Twitter as TwitterIcon,
-  LinkedIn as LinkedInIcon
-} from '@mui/icons-material';
+  LinkedIn as LinkedInIcon,
+} from "@mui/icons-material";
 
 interface ShareCardProps {
   share: Share;
@@ -54,17 +54,17 @@ export const ShareCard: React.FC<ShareCardProps> = ({ share, onDelete }) => {
   const handleSocialShare = (platform: string) => {
     const shareData = {
       title: share.title,
-      description: share.description || '',
-      url: window.location.origin + `/share/${share.id}`
+      description: share.description || "",
+      url: window.location.origin + `/share/${share.id}`,
     };
 
     const shareUrls = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`,
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.title)}&url=${encodeURIComponent(shareData.url)}`,
-      linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(shareData.title)}`
+      linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(shareData.title)}`,
     };
 
-    window.open(shareUrls[platform as keyof typeof shareUrls], '_blank');
+    window.open(shareUrls[platform as keyof typeof shareUrls], "_blank");
     setShowShareMenu(false);
   };
 
@@ -77,7 +77,7 @@ export const ShareCard: React.FC<ShareCardProps> = ({ share, onDelete }) => {
           </IconButton>
         }
         title={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="h6">{share.title}</Typography>
             <Chip
               label={share.content_type}
@@ -87,7 +87,9 @@ export const ShareCard: React.FC<ShareCardProps> = ({ share, onDelete }) => {
             />
           </Box>
         }
-        subheader={formatDistanceToNow(new Date(share.created_at), { addSuffix: true })}
+        subheader={formatDistanceToNow(new Date(share.created_at), {
+          addSuffix: true,
+        })}
       />
       <CardContent>
         {share.description && (
@@ -134,16 +136,16 @@ export const ShareCard: React.FC<ShareCardProps> = ({ share, onDelete }) => {
         open={showShareMenu}
         onClose={() => setShowShareMenu(false)}
       >
-        <MenuItem onClick={() => handleSocialShare('facebook')}>
+        <MenuItem onClick={() => handleSocialShare("facebook")}>
           <FacebookIcon sx={{ mr: 1 }} /> Facebook
         </MenuItem>
-        <MenuItem onClick={() => handleSocialShare('twitter')}>
+        <MenuItem onClick={() => handleSocialShare("twitter")}>
           <TwitterIcon sx={{ mr: 1 }} /> Twitter
         </MenuItem>
-        <MenuItem onClick={() => handleSocialShare('linkedin')}>
+        <MenuItem onClick={() => handleSocialShare("linkedin")}>
           <LinkedInIcon sx={{ mr: 1 }} /> LinkedIn
         </MenuItem>
       </Menu>
     </Card>
   );
-}; 
+};

@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 declare global {
   interface Window {
@@ -15,7 +15,7 @@ window.ResizeObserver = jest.fn().mockImplementation(() => ({
 }));
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query: string) => ({
     matches: false,
@@ -27,4 +27,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-}); 
+});

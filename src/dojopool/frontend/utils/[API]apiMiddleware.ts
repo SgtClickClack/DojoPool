@@ -1,6 +1,6 @@
-import { RateLimiter } from './rateLimiter';
-import { AuthManager } from './auth';
-import { AuditLogger } from './auditLogger';
+import { RateLimiter } from "./rateLimiter";
+import { AuthManager } from "./auth";
+import { AuditLogger } from "./auditLogger";
 
 interface ApiMiddlewareConfig {
   rateLimits: {
@@ -45,7 +45,7 @@ const DEFAULT_CONFIG: ApiMiddlewareConfig = {
     requireAuth: true,
     validateContentType: true,
     validateOrigin: true,
-    allowedOrigins: ['http://localhost:3000'],
+    allowedOrigins: ["http://localhost:3000"],
   },
   audit: {
     enabled: true,
@@ -79,7 +79,7 @@ export class ApiMiddleware {
 
   private mergeConfig(
     base: ApiMiddlewareConfig,
-    override: Partial<ApiMiddlewareConfig>
+    override: Partial<ApiMiddlewareConfig>,
   ): ApiMiddlewareConfig {
     return {
       ...base,
@@ -103,20 +103,25 @@ export class ApiMiddleware {
       audit: {
         ...base.audit,
         ...override.audit,
-        excludePaths: [...(base.audit.excludePaths || []), ...(override.audit?.excludePaths || [])],
+        excludePaths: [
+          ...(base.audit.excludePaths || []),
+          ...(override.audit?.excludePaths || []),
+        ],
       },
     };
   }
 
   private setupRateLimits(): void {
     // Set default rate limit
-    this.rateLimiter.setConfig('default', this.config.rateLimits.default);
+    this.rateLimiter.setConfig("default", this.config.rateLimits.default);
 
     // Set endpoint-specific rate limits
     if (this.config.rateLimits.endpoints) {
-      Object.entries(this.config.rateLimits.endpoints).forEach(([endpoint, config]) => {
-        this.rateLimiter.setConfig(endpoint, config);
-      });
+      Object.entries(this.config.rateLimits.endpoints).forEach(
+        ([endpoint, config]) => {
+          this.rateLimiter.setConfig(endpoint, config);
+        },
+      );
     }
   }
 
@@ -129,8 +134,8 @@ export class ApiMiddleware {
     if (!this.config.security.allowedOrigins?.length) return true;
 
     return this.config.security.allowedOrigins.some((allowed) => {
-      if (allowed.includes('*')) {
-        const pattern = new RegExp('^' + allowed.replace(/\*/g, '.*') + '$');
+      if (allowed.includes("*")) {
+        const pattern = new RegExp("^" + allowed.replace(/\*/g, ".*") + "$");
         return pattern.test(origin);
       }
       return allowed === origin;
@@ -142,9 +147,9 @@ export class ApiMiddleware {
 
     // Add more content types as needed
     const validTypes = [
-      'application/json',
-      'application/x-www-form-urlencoded',
-      'multipart/form-data',
+      "application/json",
+      "application/x-www-form-urlencoded",
+      "multipart/form-data",
     ];
 
     return validTypes.some((type) => contentType.includes(type));
@@ -154,7 +159,9 @@ export class ApiMiddleware {
     if (!this.config.audit.enabled) return false;
     if (!this.config.audit.excludePaths?.length) return true;
 
-    return !this.config.audit.excludePaths.some((excluded) => path.startsWith(excluded));
+    return !this.config.audit.excludePaths.some((excluded) =>
+      path.startsWith(excluded),
+    );
   }
 
   async processRequest(request: {
@@ -173,12 +180,15 @@ export class ApiMiddleware {
     try {
       // 1. Origin validation
       if (request.origin && !this.validateOrigin(request.origin)) {
-        throw new Error('Invalid origin');
+        throw new Error("Invalid origin");
       }
 
       // 2. Content-Type validation
-      if (request.contentType && !this.validateContentType(request.contentType)) {
-        throw new Error('Invalid content type');
+      if (
+        request.contentType &&
+        !this.validateContentType(request.contentType)
+      ) {
+        throw new Error("Invalid content type");
       }
 
       // 3. Authentication check
@@ -186,26 +196,26 @@ export class ApiMiddleware {
       if (this.config.security.requireAuth) {
         const user = await this.authManager.getAuthenticatedUser();
         if (!user) {
-          throw new Error('Authentication required');
+          throw new Error("Authentication required");
         }
         userId = user.id;
 
         // Role/permission check
         if (this.config.security.requiredRoles?.length) {
           const hasRole = this.config.security.requiredRoles.some((role) =>
-            this.authManager.hasRole(role as any)
+            this.authManager.hasRole(role as any),
           );
           if (!hasRole) {
-            throw new Error('Insufficient roles');
+            throw new Error("Insufficient roles");
           }
         }
 
         if (this.config.security.requiredPermissions?.length) {
-          const hasPermission = this.config.security.requiredPermissions.every((permission) =>
-            this.authManager.hasPermission(permission)
+          const hasPermission = this.config.security.requiredPermissions.every(
+            (permission) => this.authManager.hasPermission(permission),
           );
           if (!hasPermission) {
-            throw new Error('Insufficient permissions');
+            throw new Error("Insufficient permissions");
           }
         }
       }
@@ -217,7 +227,7 @@ export class ApiMiddleware {
       if (!rateLimitResult.allowed) {
         return {
           allowed: false,
-          error: 'Rate limit exceeded',
+          error: "Rate limit exceeded",
           retryAfter: rateLimitResult.retryAfter,
         };
       }
@@ -232,20 +242,25 @@ export class ApiMiddleware {
           body: this.config.audit.logBody ? request.body : undefined,
         };
 
-        await this.auditLogger.logDataAccess(request.method, request.path, auditDetails);
+        await this.auditLogger.logDataAccess(
+          request.method,
+          request.path,
+          auditDetails,
+        );
       }
 
       return { allowed: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
 
       // Log security-related errors
       if (
-        errorMessage.includes('Invalid') ||
-        errorMessage.includes('Authentication') ||
-        errorMessage.includes('Insufficient')
+        errorMessage.includes("Invalid") ||
+        errorMessage.includes("Authentication") ||
+        errorMessage.includes("Insufficient")
       ) {
-        await this.auditLogger.logSecurity('access_denied', request.path, {
+        await this.auditLogger.logSecurity("access_denied", request.path, {
           reason: errorMessage,
           method: request.method,
           origin: request.origin,
@@ -283,7 +298,10 @@ export class ApiMiddleware {
     };
 
     // Get rate limit stats
-    const endpoints = ['default', ...Object.keys(this.config.rateLimits.endpoints || {})];
+    const endpoints = [
+      "default",
+      ...Object.keys(this.config.rateLimits.endpoints || {}),
+    ];
 
     endpoints.forEach((endpoint) => {
       const limitStats = this.rateLimiter.getStats(endpoint);

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button, Box } from '@mui/material';
-import { Alert, AlertStatus } from '../../types/alert';
+import React from "react";
+import { Button, Box } from "@mui/material";
+import { Alert, AlertStatus } from "../../types/alert";
 
 interface AlertActionsProps {
   alert: Alert;
@@ -15,16 +15,18 @@ export const AlertActions: React.FC<AlertActionsProps> = ({
   onAcknowledge,
   onDismiss,
   onFlag,
-  isLoading
+  isLoading,
 }) => {
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      if (event.currentTarget.getAttribute('data-action') === 'acknowledge') {
+      if (event.currentTarget.getAttribute("data-action") === "acknowledge") {
         onAcknowledge(alert.id);
-      } else if (event.currentTarget.getAttribute('data-action') === 'dismiss') {
+      } else if (
+        event.currentTarget.getAttribute("data-action") === "dismiss"
+      ) {
         onDismiss(alert.id);
-      } else if (event.currentTarget.getAttribute('data-action') === 'flag') {
+      } else if (event.currentTarget.getAttribute("data-action") === "flag") {
         onFlag(alert.id);
       }
     }
@@ -43,8 +45,8 @@ export const AlertActions: React.FC<AlertActionsProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 1 }}>
-      {alert.status === 'open' && (
+    <Box sx={{ display: "flex", gap: 1 }}>
+      {alert.status === "open" && (
         <Button
           variant="contained"
           color="primary"
@@ -80,8 +82,8 @@ export const AlertActions: React.FC<AlertActionsProps> = ({
         disabled={isLoading}
         aria-label={alert.isFlagged ? "Unflag alert" : "Flag alert"}
       >
-        {alert.isFlagged ? 'Unflag' : 'Flag'}
+        {alert.isFlagged ? "Unflag" : "Flag"}
       </Button>
     </Box>
   );
-}; 
+};

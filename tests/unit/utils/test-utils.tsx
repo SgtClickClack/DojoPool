@@ -1,8 +1,8 @@
-import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material/styles';
-import { createTheme } from '@mui/material/styles';
-import userEvent from '@testing-library/user-event';
+import React from "react";
+import { render, RenderOptions } from "@testing-library/react";
+import { ThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
+import userEvent from "@testing-library/user-event";
 
 // Create a theme instance
 const theme = createTheme({
@@ -12,14 +12,10 @@ const theme = createTheme({
 // Custom render function
 const customRender = (
   ui: React.ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
+  options?: Omit<RenderOptions, "wrapper">,
 ) => {
   const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-    return (
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
-    );
+    return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
   };
 
   return {
@@ -38,7 +34,7 @@ const waitForCondition = (condition: () => boolean, timeout = 5000) => {
         resolve(true);
       } else if (Date.now() - startTime > timeout) {
         clearInterval(interval);
-        reject(new Error('Timeout waiting for condition'));
+        reject(new Error("Timeout waiting for condition"));
       }
     }, 100);
   });
@@ -56,9 +52,9 @@ const createMockResponse = (data: any, status = 200) => {
 
 // Helper to mock fetch responses
 const mockFetch = (response: any) => {
-  global.fetch = jest.fn().mockImplementation(() =>
-    Promise.resolve(createMockResponse(response))
-  );
+  global.fetch = jest
+    .fn()
+    .mockImplementation(() => Promise.resolve(createMockResponse(response)));
 };
 
 // Helper to clear all mocks
@@ -70,12 +66,12 @@ const clearAllMocks = () => {
 };
 
 // Re-export everything
-export * from '@testing-library/react';
-export { 
+export * from "@testing-library/react";
+export {
   customRender as render,
   waitForCondition,
   createMockResponse,
   mockFetch,
   clearAllMocks,
   userEvent,
-}; 
+};

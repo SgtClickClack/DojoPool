@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -12,11 +12,11 @@ import {
   Select,
   useColorModeValue,
   Divider,
-} from '@chakra-ui/react';
-import { useAuth } from '../../hooks/useAuth';
-import { useRouter } from 'next/router';
-import { AuthenticatedLayout } from '../../components/layout/AuthenticatedLayout';
-import ImageUpload from '../../components/common/ImageUpload';
+} from "@chakra-ui/react";
+import { useAuth } from "../../hooks/useAuth";
+import { useRouter } from "next/router";
+import { AuthenticatedLayout } from "../../components/layout/AuthenticatedLayout";
+import ImageUpload from "../../components/common/ImageUpload";
 
 interface ProfileData {
   playerNickname: string;
@@ -40,18 +40,18 @@ const EditProfilePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [formData, setFormData] = useState<ProfileData>({
-    playerNickname: '',
-    skillLevel: '',
-    preferredGameType: '',
-    location: '',
+    playerNickname: "",
+    skillLevel: "",
+    preferredGameType: "",
+    location: "",
   });
 
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   }, [user, loading, router]);
 
@@ -59,18 +59,18 @@ const EditProfilePage: React.FC = () => {
     if (user) {
       const fetchProfileData = async () => {
         try {
-          const data = await fetchUserProfile(user.uid) as ProfileData;
+          const data = (await fetchUserProfile(user.uid)) as ProfileData;
           setFormData({
-            playerNickname: data.playerNickname || '',
-            skillLevel: data.skillLevel || '',
-            preferredGameType: data.preferredGameType || '',
-            location: data.location || '',
+            playerNickname: data.playerNickname || "",
+            skillLevel: data.skillLevel || "",
+            preferredGameType: data.preferredGameType || "",
+            location: data.location || "",
           });
         } catch (error: any) {
           toast({
-            title: 'Error fetching profile',
+            title: "Error fetching profile",
             description: error.message,
-            status: 'error',
+            status: "error",
             duration: 5000,
             isClosable: true,
           });
@@ -81,13 +81,13 @@ const EditProfilePage: React.FC = () => {
   }, [user, toast, fetchUserProfile]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name as keyof ValidationErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -95,19 +95,19 @@ const EditProfilePage: React.FC = () => {
     const newErrors: ValidationErrors = {};
 
     if (!formData.playerNickname) {
-      newErrors.playerNickname = 'Player nickname is required';
+      newErrors.playerNickname = "Player nickname is required";
     }
 
     if (!formData.skillLevel) {
-      newErrors.skillLevel = 'Skill level is required';
+      newErrors.skillLevel = "Skill level is required";
     }
 
     if (!formData.preferredGameType) {
-      newErrors.preferredGameType = 'Preferred game type is required';
+      newErrors.preferredGameType = "Preferred game type is required";
     }
 
     if (!formData.location) {
-      newErrors.location = 'Location is required';
+      newErrors.location = "Location is required";
     }
 
     setErrors(newErrors);
@@ -116,28 +116,28 @@ const EditProfilePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!await validateForm()) return;
+    if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
       const result = await updateUserProfile(formData);
       if (result.success) {
         toast({
-          title: 'Profile updated!',
-          description: 'Your profile has been successfully updated.',
-          status: 'success',
+          title: "Profile updated!",
+          description: "Your profile has been successfully updated.",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
-        router.push('/profile');
+        router.push("/profile");
       } else {
         throw new Error(result.error);
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to update profile',
+        title: "Failed to update profile",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -238,7 +238,7 @@ const EditProfilePage: React.FC = () => {
               <Button
                 variant="ghost"
                 width="100%"
-                onClick={() => router.push('/profile')}
+                onClick={() => router.push("/profile")}
               >
                 Cancel
               </Button>
@@ -250,4 +250,4 @@ const EditProfilePage: React.FC = () => {
   );
 };
 
-export default EditProfilePage; 
+export default EditProfilePage;

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Paper } from '@mui/material';
-import useWebSocket from 'react-use-websocket';
+import React, { useEffect, useState } from "react";
+import { Box, Typography, Grid, Paper } from "@mui/material";
+import useWebSocket from "react-use-websocket";
 
 interface Shot {
   playerId: string;
-  type: 'pot' | 'miss' | 'foul';
+  type: "pot" | "miss" | "foul";
   ballNumber?: number;
   timestamp: number;
 }
@@ -32,11 +32,14 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { sendMessage, lastMessage } = useWebSocket(`ws://localhost:3000/api/games/${gameId}/live`, {
-    onError: () => setError('Connection lost. Trying to reconnect...'),
-    shouldReconnect: () => true,
-    reconnectInterval: 3000,
-  });
+  const { sendMessage, lastMessage } = useWebSocket(
+    `ws://localhost:3000/api/games/${gameId}/live`,
+    {
+      onError: () => setError("Connection lost. Trying to reconnect..."),
+      shouldReconnect: () => true,
+      reconnectInterval: 3000,
+    },
+  );
 
   useEffect(() => {
     if (lastMessage) {
@@ -44,16 +47,18 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
         const data = JSON.parse(lastMessage.data);
         setGameState(data);
       } catch (e) {
-        setError('Invalid game data received');
+        setError("Invalid game data received");
       }
     }
   }, [lastMessage]);
 
   const handleShotRecorded = (shot: Shot) => {
-    sendMessage(JSON.stringify({
-      type: 'SHOT_RECORDED',
-      payload: shot,
-    }));
+    sendMessage(
+      JSON.stringify({
+        type: "SHOT_RECORDED",
+        payload: shot,
+      }),
+    );
   };
 
   if (!gameState) {
@@ -63,7 +68,7 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
   return (
     <Box sx={{ p: 3 }}>
       {error && (
-        <Paper sx={{ p: 2, mb: 2, bgcolor: 'error.light' }}>
+        <Paper sx={{ p: 2, mb: 2, bgcolor: "error.light" }}>
           <Typography color="error">{error}</Typography>
         </Paper>
       )}
@@ -72,12 +77,13 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">
-              {gameState.player1.name} 
-              {gameState.currentPlayer === gameState.player1.id && ' (Current Turn)'}
+              {gameState.player1.name}
+              {gameState.currentPlayer === gameState.player1.id &&
+                " (Current Turn)"}
             </Typography>
             <Typography>Score: {gameState.player1.score}</Typography>
             <Typography>
-              Remaining Balls: {gameState.player1.remainingBalls.join(', ')}
+              Remaining Balls: {gameState.player1.remainingBalls.join(", ")}
             </Typography>
           </Paper>
         </Grid>
@@ -86,11 +92,12 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">
               {gameState.player2.name}
-              {gameState.currentPlayer === gameState.player2.id && ' (Current Turn)'}
+              {gameState.currentPlayer === gameState.player2.id &&
+                " (Current Turn)"}
             </Typography>
             <Typography>Score: {gameState.player2.score}</Typography>
             <Typography>
-              Remaining Balls: {gameState.player2.remainingBalls.join(', ')}
+              Remaining Balls: {gameState.player2.remainingBalls.join(", ")}
             </Typography>
           </Paper>
         </Grid>
@@ -100,8 +107,9 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6">Last Shot</Typography>
               <Typography>
-                Player: {gameState.lastShot.playerId === gameState.player1.id 
-                  ? gameState.player1.name 
+                Player:{" "}
+                {gameState.lastShot.playerId === gameState.player1.id
+                  ? gameState.player1.name
                   : gameState.player2.name}
               </Typography>
               <Typography>Type: {gameState.lastShot.type}</Typography>
@@ -114,13 +122,12 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
 
         {gameState.isGameOver && (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2, bgcolor: 'success.light' }}>
+            <Paper sx={{ p: 2, bgcolor: "success.light" }}>
               <Typography variant="h5">
-                Game Over! Winner: {
-                  gameState.player1.score > gameState.player2.score 
-                    ? gameState.player1.name 
-                    : gameState.player2.name
-                }
+                Game Over! Winner:{" "}
+                {gameState.player1.score > gameState.player2.score
+                  ? gameState.player1.name
+                  : gameState.player2.name}
               </Typography>
             </Paper>
           </Grid>
@@ -130,4 +137,4 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
   );
 };
 
-export default GameTracker; 
+export default GameTracker;

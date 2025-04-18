@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,8 +13,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-} from '@mui/material';
-import { MLService } from '../../services/ml.service';
+} from "@mui/material";
+import { MLService } from "../../services/ml.service";
 
 interface ShotPredictionProps {
   modelId: string | null;
@@ -23,15 +23,18 @@ interface ShotPredictionProps {
 
 const mlService = new MLService();
 
-const shotTypes = ['straight', 'spin', 'curve', 'lob', 'slice'];
+const shotTypes = ["straight", "spin", "curve", "lob", "slice"];
 
-export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPrediction }) => {
+export const ShotPrediction: React.FC<ShotPredictionProps> = ({
+  modelId,
+  onPrediction,
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [prediction, setPrediction] = useState<any>(null);
 
   const [shotData, setShotData] = useState({
-    type: 'straight',
+    type: "straight",
     position: { x: 0, y: 0 },
     speed: 50,
     spin: 50,
@@ -44,7 +47,7 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
     }));
   };
 
-  const handlePositionChange = (axis: 'x' | 'y', value: number) => {
+  const handlePositionChange = (axis: "x" | "y", value: number) => {
     setShotData((prev) => ({
       ...prev,
       position: {
@@ -56,7 +59,7 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
 
   const handlePredict = async () => {
     if (!modelId) {
-      setError('No model selected');
+      setError("No model selected");
       return;
     }
 
@@ -65,12 +68,15 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
       setError(null);
 
       const transformedData = mlService.transformShotData(shotData);
-      const response = await mlService.predictShotSuccess(modelId, transformedData);
+      const response = await mlService.predictShotSuccess(
+        modelId,
+        transformedData,
+      );
 
       setPrediction(response.data);
       onPrediction(response.data);
     } catch (err) {
-      setError('Failed to predict shot success');
+      setError("Failed to predict shot success");
       console.error(err);
     } finally {
       setLoading(false);
@@ -91,7 +97,7 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
               <InputLabel>Shot Type</InputLabel>
               <Select
                 value={shotData.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
+                onChange={(e) => handleInputChange("type", e.target.value)}
                 label="Shot Type"
               >
                 {shotTypes.map((type) => (
@@ -105,10 +111,14 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
 
           {/* Position X */}
           <Grid item xs={12}>
-            <Typography gutterBottom>Position X: {shotData.position.x}</Typography>
+            <Typography gutterBottom>
+              Position X: {shotData.position.x}
+            </Typography>
             <Slider
               value={shotData.position.x}
-              onChange={(_, value) => handlePositionChange('x', value as number)}
+              onChange={(_, value) =>
+                handlePositionChange("x", value as number)
+              }
               min={-100}
               max={100}
               valueLabelDisplay="auto"
@@ -117,10 +127,14 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
 
           {/* Position Y */}
           <Grid item xs={12}>
-            <Typography gutterBottom>Position Y: {shotData.position.y}</Typography>
+            <Typography gutterBottom>
+              Position Y: {shotData.position.y}
+            </Typography>
             <Slider
               value={shotData.position.y}
-              onChange={(_, value) => handlePositionChange('y', value as number)}
+              onChange={(_, value) =>
+                handlePositionChange("y", value as number)
+              }
               min={-100}
               max={100}
               valueLabelDisplay="auto"
@@ -132,7 +146,7 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
             <Typography gutterBottom>Speed: {shotData.speed}</Typography>
             <Slider
               value={shotData.speed}
-              onChange={(_, value) => handleInputChange('speed', value)}
+              onChange={(_, value) => handleInputChange("speed", value)}
               min={0}
               max={100}
               valueLabelDisplay="auto"
@@ -144,7 +158,7 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
             <Typography gutterBottom>Spin: {shotData.spin}</Typography>
             <Slider
               value={shotData.spin}
-              onChange={(_, value) => handleInputChange('spin', value)}
+              onChange={(_, value) => handleInputChange("spin", value)}
               min={0}
               max={100}
               valueLabelDisplay="auto"
@@ -160,7 +174,7 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
               disabled={loading || !modelId}
               fullWidth
             >
-              {loading ? <CircularProgress size={24} /> : 'Predict'}
+              {loading ? <CircularProgress size={24} /> : "Predict"}
             </Button>
           </Grid>
 
@@ -179,10 +193,11 @@ export const ShotPrediction: React.FC<ShotPredictionProps> = ({ modelId, onPredi
                   Prediction Results
                 </Typography>
                 <Typography>
-                  Success Probability: {(prediction.success_probability * 100).toFixed(1)}%
+                  Success Probability:{" "}
+                  {(prediction.success_probability * 100).toFixed(1)}%
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Features Used: {prediction.features_used.join(', ')}
+                  Features Used: {prediction.features_used.join(", ")}
                 </Typography>
               </Box>
             </Grid>

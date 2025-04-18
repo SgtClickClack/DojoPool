@@ -15,15 +15,14 @@ const navigationItems: Array<NavigationItem> = [
     path: '/rankings',
     requiresAuth: true
   }
+  // Add other valid navigation items here if they exist
+  // Example:
+  // {
+  //   label: 'Profile',
+  //   icon: React.createElement(AccountCircle), // Assuming AccountCircle is imported
+  //   path: '/profile',
+  //   requiresAuth: true
+  // }
 ];
 
 export default navigationItems;
-
-// ... existing menu items ...
-{
-  label: 'Rankings',
-  icon: <EmojiEvents />,
-  path: '/rankings',
-  requiresAuth: true
-},
-// ... rest of the file ... 

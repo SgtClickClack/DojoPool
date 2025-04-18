@@ -1,10 +1,17 @@
-import React, { useMemo } from 'react';
-import { Card, CardContent, Typography, Box, Skeleton, useTheme } from '@mui/material';
+import React, { useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Skeleton,
+  useTheme,
+} from "@mui/material";
 import {
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
   TrendingFlat as TrendingFlatIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface MetricsSummaryProps {
   metric: string;
@@ -13,14 +20,14 @@ interface MetricsSummaryProps {
 }
 
 const METRIC_LABELS: { [key: string]: string } = {
-  games_played: 'Games Played',
-  win_rate: 'Win Rate',
-  avg_score: 'Average Score',
-  occupancy_rate: 'Occupancy Rate',
-  revenue: 'Revenue',
-  response_time: 'Response Time',
-  error_rate: 'Error Rate',
-  cpu_usage: 'CPU Usage',
+  games_played: "Games Played",
+  win_rate: "Win Rate",
+  avg_score: "Average Score",
+  occupancy_rate: "Occupancy Rate",
+  revenue: "Revenue",
+  response_time: "Response Time",
+  error_rate: "Error Rate",
+  cpu_usage: "CPU Usage",
 };
 
 const METRIC_FORMATS: { [key: string]: (value: number) => string } = {
@@ -34,58 +41,63 @@ const METRIC_FORMATS: { [key: string]: (value: number) => string } = {
   cpu_usage: (value) => `${(value * 100).toFixed(1)}%`,
 };
 
-export const MetricsSummary: React.FC<MetricsSummaryProps> = ({ metric, data, loading }) => {
+export const MetricsSummary: React.FC<MetricsSummaryProps> = ({
+  metric,
+  data,
+  loading,
+}) => {
   const theme = useTheme();
 
-  const { currentValue, previousValue, trend, percentageChange } = useMemo(() => {
-    if (!data.length) {
+  const { currentValue, previousValue, trend, percentageChange } =
+    useMemo(() => {
+      if (!data.length) {
+        return {
+          currentValue: 0,
+          previousValue: 0,
+          trend: "flat",
+          percentageChange: 0,
+        };
+      }
+
+      // Filter data for the current metric
+      const metricData = data.filter((item) => item.metric_type === metric);
+      if (!metricData.length) {
+        return {
+          currentValue: 0,
+          previousValue: 0,
+          trend: "flat",
+          percentageChange: 0,
+        };
+      }
+
+      // Sort by date
+      const sortedData = [...metricData].sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
+
+      const currentValue = sortedData[0]?.value || 0;
+      const previousValue = sortedData[1]?.value || currentValue;
+      const percentageChange = previousValue
+        ? ((currentValue - previousValue) / previousValue) * 100
+        : 0;
+
+      let trend: "up" | "down" | "flat" = "flat";
+      if (percentageChange > 1) trend = "up";
+      else if (percentageChange < -1) trend = "down";
+
       return {
-        currentValue: 0,
-        previousValue: 0,
-        trend: 'flat',
-        percentageChange: 0,
+        currentValue,
+        previousValue,
+        trend,
+        percentageChange,
       };
-    }
-
-    // Filter data for the current metric
-    const metricData = data.filter((item) => item.metric_type === metric);
-    if (!metricData.length) {
-      return {
-        currentValue: 0,
-        previousValue: 0,
-        trend: 'flat',
-        percentageChange: 0,
-      };
-    }
-
-    // Sort by date
-    const sortedData = [...metricData].sort((a, b) => {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-
-    const currentValue = sortedData[0]?.value || 0;
-    const previousValue = sortedData[1]?.value || currentValue;
-    const percentageChange = previousValue
-      ? ((currentValue - previousValue) / previousValue) * 100
-      : 0;
-
-    let trend: 'up' | 'down' | 'flat' = 'flat';
-    if (percentageChange > 1) trend = 'up';
-    else if (percentageChange < -1) trend = 'down';
-
-    return {
-      currentValue,
-      previousValue,
-      trend,
-      percentageChange,
-    };
-  }, [data, metric]);
+    }, [data, metric]);
 
   const getTrendColor = (trend: string) => {
     switch (trend) {
-      case 'up':
+      case "up":
         return theme.palette.success.main;
-      case 'down':
+      case "down":
         return theme.palette.error.main;
       default:
         return theme.palette.text.secondary;
@@ -94,9 +106,9 @@ export const MetricsSummary: React.FC<MetricsSummaryProps> = ({ metric, data, lo
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up':
+      case "up":
         return <TrendingUpIcon sx={{ color: getTrendColor(trend) }} />;
-      case 'down':
+      case "down":
         return <TrendingDownIcon sx={{ color: getTrendColor(trend) }} />;
       default:
         return <TrendingFlatIcon sx={{ color: getTrendColor(trend) }} />;
@@ -122,11 +134,11 @@ export const MetricsSummary: React.FC<MetricsSummaryProps> = ({ metric, data, lo
           {METRIC_LABELS[metric] || metric}
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "baseline", mb: 1 }}>
           <Typography variant="h4" component="div">
             {METRIC_FORMATS[metric]?.(currentValue) || currentValue.toFixed(2)}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
             {getTrendIcon(trend)}
             <Typography
               variant="body2"

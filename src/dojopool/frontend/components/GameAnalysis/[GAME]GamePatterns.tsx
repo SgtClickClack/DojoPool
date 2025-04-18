@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Grid,
@@ -10,14 +10,19 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-} from '@mui/material';
-import { TrendingUp, LocationOn, Repeat, EmojiEvents } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+} from "@mui/material";
+import {
+  TrendingUp,
+  LocationOn,
+  Repeat,
+  EmojiEvents,
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
 
 const PatternCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
 }));
 
 interface GamePatternsProps {
@@ -41,7 +46,9 @@ interface GamePatternsProps {
 
 export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
   if (!patterns) {
-    return <Typography color="textSecondary">No pattern data available</Typography>;
+    return (
+      <Typography color="textSecondary">No pattern data available</Typography>
+    );
   }
 
   return (
@@ -57,18 +64,20 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
               </Box>
               <Box
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: 300,
-                  bgcolor: 'background.default',
+                  bgcolor: "background.default",
                   borderRadius: 1,
                   mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {/* Placeholder for shot distribution heatmap */}
-                <Typography color="textSecondary">Shot distribution heatmap</Typography>
+                <Typography color="textSecondary">
+                  Shot distribution heatmap
+                </Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
                 Analysis of shot type frequencies and spatial distribution
@@ -87,18 +96,20 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
               </Box>
               <Box
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: 300,
-                  bgcolor: 'background.default',
+                  bgcolor: "background.default",
                   borderRadius: 1,
                   mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {/* Placeholder for positioning visualization */}
-                <Typography color="textSecondary">Player positioning patterns</Typography>
+                <Typography color="textSecondary">
+                  Player positioning patterns
+                </Typography>
               </Box>
               <Typography variant="body2" color="textSecondary">
                 Analysis of player movement and positioning strategies
@@ -124,7 +135,9 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
                         secondary={sequence.description}
                       />
                     </ListItem>
-                    {index < patterns.common_sequences.length - 1 && <Divider />}
+                    {index < patterns.common_sequences.length - 1 && (
+                      <Divider />
+                    )}
                   </React.Fragment>
                 ))}
               </List>
@@ -141,17 +154,21 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
                 <Typography variant="h6">Success Patterns</Typography>
               </Box>
               <List>
-                {Object.entries(patterns.success_patterns).map(([key, value], index) => (
-                  <React.Fragment key={key}>
-                    <ListItem>
-                      <ListItemText
-                        primary={key.replace(/_/g, ' ').toUpperCase()}
-                        secondary={value}
-                      />
-                    </ListItem>
-                    {index < Object.entries(patterns.success_patterns).length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
+                {Object.entries(patterns.success_patterns).map(
+                  ([key, value], index) => (
+                    <React.Fragment key={key}>
+                      <ListItem>
+                        <ListItemText
+                          primary={key.replace(/_/g, " ").toUpperCase()}
+                          secondary={value}
+                        />
+                      </ListItem>
+                      {index <
+                        Object.entries(patterns.success_patterns).length -
+                          1 && <Divider />}
+                    </React.Fragment>
+                  ),
+                )}
               </List>
             </CardContent>
           </PatternCard>

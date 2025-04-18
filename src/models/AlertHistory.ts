@@ -1,5 +1,5 @@
-import { Schema, model, Document } from 'mongoose';
-import { AlertSeverity, AlertStatus } from '../monitoring/types';
+import { Schema, model, Document } from "mongoose";
+import { AlertSeverity, AlertStatus } from "../monitoring/types";
 
 /**
  * Interface representing an alert history document in the database.
@@ -36,11 +36,11 @@ export interface IAlertHistoryDocument extends Document {
 const alertHistorySchema = new Schema<IAlertHistoryDocument>({
   alertId: { type: String, required: true, index: true },
   timestamp: { type: Date, required: true, index: true },
-  severity: { 
-    type: String, 
+  severity: {
+    type: String,
     required: true,
     enum: Object.values(AlertSeverity),
-    index: true 
+    index: true,
   },
   message: { type: String, required: true },
   source: { type: String, required: true, index: true },
@@ -49,28 +49,34 @@ const alertHistorySchema = new Schema<IAlertHistoryDocument>({
   acknowledgedAt: { type: Date },
   resolved: { type: Boolean, default: false, index: true },
   resolvedAt: { type: Date },
-  metadata: { type: Schema.Types.Mixed }
+  metadata: { type: Schema.Types.Mixed },
 });
 
 /**
  * Pre-save middleware to automatically set timestamps when alerts are acknowledged or resolved.
  */
-alertHistorySchema.pre<IAlertHistoryDocument>('save', function(this: IAlertHistoryDocument, next: () => void): void {
-  const now = new Date();
-  
-  if (this.isNew || this.isModified('acknowledged')) {
-    if (this.acknowledged && !this.acknowledgedAt) {
-      this.acknowledgedAt = now;
-    }
-  }
-  
-  if (this.isNew || this.isModified('resolved')) {
-    if (this.resolved && !this.resolvedAt) {
-      this.resolvedAt = now;
-    }
-  }
-  
-  next();
-});
+alertHistorySchema.pre<IAlertHistoryDocument>(
+  "save",
+  function (this: IAlertHistoryDocument, next: () => void): void {
+    const now = new Date();
 
-export const AlertHistory = model<IAlertHistoryDocument>('AlertHistory', alertHistorySchema); 
+    if (this.isNew || this.isModified("acknowledged")) {
+      if (this.acknowledged && !this.acknowledgedAt) {
+        this.acknowledgedAt = now;
+      }
+    }
+
+    if (this.isNew || this.isModified("resolved")) {
+      if (this.resolved && !this.resolvedAt) {
+        this.resolvedAt = now;
+      }
+    }
+
+    next();
+  },
+);
+
+export const AlertHistory = model<IAlertHistoryDocument>(
+  "AlertHistory",
+  alertHistorySchema,
+);

@@ -1,128 +1,131 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 interface User {
-    id: string;
-    email: string;
-    name: string;
-    token: string;
+  id: string;
+  email: string;
+  name: string;
+  token: string;
 }
 
 interface AuthState {
-    user: User | null;
-    loading: boolean;
-    error: string | null;
+  user: User | null;
+  loading: boolean;
+  error: string | null;
 }
 
 export const useAuth = () => {
-    const [state, setState] = useState<AuthState>({
-        user: null,
-        loading: true,
-        error: null
-    });
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    loading: true,
+    error: null,
+  });
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            // TODO: Validate token and fetch user data
-            setState(prev => ({
-                ...prev,
-                loading: false
-            }));
-        } else {
-            setState(prev => ({
-                ...prev,
-                loading: false
-            }));
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // TODO: Validate token and fetch user data
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
+    } else {
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
+    }
+  }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      // TODO: Implement login API call
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      setState((prev) => ({
+        ...prev,
+        user: data.user,
+        loading: false,
+      }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : "An error occurred",
+        loading: false,
+      }));
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    setState((prev) => ({
+      ...prev,
+      user: null,
+    }));
+  }, []);
+
+  const getToken = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("No token found");
+    }
+    return token;
+  }, []);
+
+  const register = useCallback(
+    async (email: string, password: string, name: string) => {
+      try {
+        setState((prev) => ({ ...prev, loading: true, error: null }));
+        // TODO: Implement registration API call
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, name }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Registration failed");
         }
-    }, []);
 
-    const login = useCallback(async (email: string, password: string) => {
-        try {
-            setState(prev => ({ ...prev, loading: true, error: null }));
-            // TODO: Implement login API call
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-
-            const data = await response.json();
-            localStorage.setItem('token', data.token);
-            setState(prev => ({
-                ...prev,
-                user: data.user,
-                loading: false
-            }));
-        } catch (error) {
-            setState(prev => ({
-                ...prev,
-                error: error instanceof Error ? error.message : 'An error occurred',
-                loading: false
-            }));
-        }
-    }, []);
-
-    const logout = useCallback(() => {
-        localStorage.removeItem('token');
-        setState(prev => ({
-            ...prev,
-            user: null
+        const data = await response.json();
+        localStorage.setItem("token", data.token);
+        setState((prev) => ({
+          ...prev,
+          user: data.user,
+          loading: false,
         }));
-    }, []);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: error instanceof Error ? error.message : "An error occurred",
+          loading: false,
+        }));
+      }
+    },
+    [],
+  );
 
-    const getToken = useCallback(async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('No token found');
-        }
-        return token;
-    }, []);
-
-    const register = useCallback(async (email: string, password: string, name: string) => {
-        try {
-            setState(prev => ({ ...prev, loading: true, error: null }));
-            // TODO: Implement registration API call
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password, name })
-            });
-
-            if (!response.ok) {
-                throw new Error('Registration failed');
-            }
-
-            const data = await response.json();
-            localStorage.setItem('token', data.token);
-            setState(prev => ({
-                ...prev,
-                user: data.user,
-                loading: false
-            }));
-        } catch (error) {
-            setState(prev => ({
-                ...prev,
-                error: error instanceof Error ? error.message : 'An error occurred',
-                loading: false
-            }));
-        }
-    }, []);
-
-    return {
-        user: state.user,
-        loading: state.loading,
-        error: state.error,
-        login,
-        logout,
-        getToken,
-        register
-    };
-}; 
+  return {
+    user: state.user,
+    loading: state.loading,
+    error: state.error,
+    login,
+    logout,
+    getToken,
+    register,
+  };
+};

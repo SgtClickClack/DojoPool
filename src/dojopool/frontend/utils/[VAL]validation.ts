@@ -1,11 +1,11 @@
-import { Location } from './location';
-import { VIOLATION_THRESHOLDS } from '../../constants';
+import { Location } from "./location";
+import { VIOLATION_THRESHOLDS } from "../../constants";
 
 interface Boundary {
   id: string;
   center: Location;
   radius: number;
-  type: 'safe' | 'unsafe';
+  type: "safe" | "unsafe";
 }
 
 interface ValidationResult {
@@ -15,19 +15,25 @@ interface ValidationResult {
 }
 
 interface AutomatedResponse {
-  type: 'warning' | 'suspension' | 'ban';
+  type: "warning" | "suspension" | "ban";
   reason: string;
   duration?: number;
 }
 
 export class LocationValidator {
   private boundaries: Map<string, Boundary> = new Map();
-  private violations: Map<string, { count: number; lastViolation: number }> = new Map();
+  private violations: Map<string, { count: number; lastViolation: number }> =
+    new Map();
   private readonly VIOLATION_THRESHOLDS = VIOLATION_THRESHOLDS;
   private readonly VIOLATION_WINDOW = 3600000; // 1 hour in milliseconds
   private readonly SAFETY_BUFFER = 50; // 50 meters safety buffer
 
-  addBoundary(id: string, center: Location, radius: number, type: 'safe' | 'unsafe'): void {
+  addBoundary(
+    id: string,
+    center: Location,
+    radius: number,
+    type: "safe" | "unsafe",
+  ): void {
     this.boundaries.set(id, { id, center, radius, type });
   }
 
@@ -43,17 +49,17 @@ export class LocationValidator {
     for (const boundary of this.boundaries.values()) {
       const distance = this.calculateDistance(location, boundary.center);
       const effectiveRadius =
-        boundary.radius + (boundary.type === 'unsafe' ? this.SAFETY_BUFFER : 0);
+        boundary.radius + (boundary.type === "unsafe" ? this.SAFETY_BUFFER : 0);
 
-      if (boundary.type === 'unsafe' && distance <= effectiveRadius) {
-        const severity = distance <= boundary.radius ? 'high' : 'medium';
+      if (boundary.type === "unsafe" && distance <= effectiveRadius) {
+        const severity = distance <= boundary.radius ? "high" : "medium";
         const response = this.determineAutomatedResponse(playerId, severity);
         return {
           isValid: false,
           reason:
             distance <= boundary.radius
-              ? 'Location is in an unsafe area'
-              : 'Location is too close to an unsafe area',
+              ? "Location is in an unsafe area"
+              : "Location is too close to an unsafe area",
           automatedResponse: response,
         };
       }
@@ -66,17 +72,17 @@ export class LocationValidator {
     from: Location,
     to: Location,
     timeElapsed: number,
-    playerId?: string
+    playerId?: string,
   ): ValidationResult {
     const distance = this.calculateDistance(from, to);
     const speed = distance / (timeElapsed / 1000); // meters per second
 
     if (speed > 100) {
       // More than 100 m/s is suspicious
-      const response = this.determineAutomatedResponse(playerId, 'high');
+      const response = this.determineAutomatedResponse(playerId, "high");
       return {
         isValid: false,
-        reason: 'Movement speed exceeds reasonable limits',
+        reason: "Movement speed exceeds reasonable limits",
         automatedResponse: response,
       };
     }
@@ -86,7 +92,7 @@ export class LocationValidator {
 
   private determineAutomatedResponse(
     playerId?: string,
-    severity: 'low' | 'medium' | 'high' = 'medium'
+    severity: "low" | "medium" | "high" = "medium",
   ): AutomatedResponse | undefined {
     if (!playerId) return undefined;
 
@@ -108,26 +114,29 @@ export class LocationValidator {
 
     const recentViolations = playerViolations.count;
 
-    if (recentViolations >= this.VIOLATION_THRESHOLDS.BAN && severity === 'high') {
+    if (
+      recentViolations >= this.VIOLATION_THRESHOLDS.BAN &&
+      severity === "high"
+    ) {
       return {
-        type: 'ban',
-        reason: 'Multiple severe safety violations',
+        type: "ban",
+        reason: "Multiple severe safety violations",
         duration: 24 * 60 * 60 * 1000, // 24 hours
       };
     }
 
     if (recentViolations >= this.VIOLATION_THRESHOLDS.SUSPENSION) {
       return {
-        type: 'suspension',
-        reason: 'Repeated safety violations',
+        type: "suspension",
+        reason: "Repeated safety violations",
         duration: 60 * 60 * 1000, // 1 hour
       };
     }
 
     if (recentViolations >= this.VIOLATION_THRESHOLDS.WARNING) {
       return {
-        type: 'warning',
-        reason: 'Safety violation detected',
+        type: "warning",
+        reason: "Safety violation detected",
       };
     }
 

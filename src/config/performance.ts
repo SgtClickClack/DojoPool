@@ -1,4 +1,4 @@
-import { analytics, AnalyticsEventType } from './analytics';
+import { analytics, AnalyticsEventType } from "./analytics";
 
 // Performance thresholds
 export const performanceThresholds = {
@@ -58,7 +58,7 @@ export const performanceConfig = {
   // Alert configuration
   alerts: {
     enabled: true,
-    channels: ['email', 'slack', 'pagerduty'],
+    channels: ["email", "slack", "pagerduty"],
     cooldown: 300000, // 5 minutes between similar alerts
   },
 };
@@ -79,7 +79,7 @@ export class PerformanceMonitor {
   }
 
   private initializeMonitoring() {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       this.setupWebVitals();
       this.setupResourceMonitoring();
       this.setupErrorMonitoring();
@@ -89,7 +89,7 @@ export class PerformanceMonitor {
   }
 
   private setupWebVitals() {
-    if ('performance' in window) {
+    if ("performance" in window) {
       // Track Web Vitals
       const observer = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
@@ -97,12 +97,14 @@ export class PerformanceMonitor {
         });
       });
 
-      observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
+      observer.observe({
+        entryTypes: ["largest-contentful-paint", "first-input", "layout-shift"],
+      });
     }
   }
 
   private setupResourceMonitoring() {
-    if ('performance' in window) {
+    if ("performance" in window) {
       // Track resource timing
       const resourceObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
@@ -112,29 +114,34 @@ export class PerformanceMonitor {
         });
       });
 
-      resourceObserver.observe({ entryTypes: ['resource'] });
+      resourceObserver.observe({ entryTypes: ["resource"] });
     }
   }
 
   private setupErrorMonitoring() {
-    window.addEventListener('error', (event) => {
+    window.addEventListener("error", (event) => {
       this.trackError(event);
     });
 
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener("unhandledrejection", (event) => {
       this.trackError(event);
     });
   }
 
   private setupAPIMonitoring() {
     // Wrap fetch/XMLHttpRequest to track API performance
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const originalFetch = window.fetch;
       window.fetch = async (...args) => {
         const startTime = performance.now();
         try {
           const response = await originalFetch(...args);
-          this.trackAPIMetric(startTime, performance.now(), response.status, args[0]);
+          this.trackAPIMetric(
+            startTime,
+            performance.now(),
+            response.status,
+            args[0],
+          );
           return response;
         } catch (error) {
           this.trackAPIMetric(startTime, performance.now(), 0, args[0], error);
@@ -150,11 +157,11 @@ export class PerformanceMonitor {
     const gameLoop = () => {
       const currentTime = performance.now();
       const frameDelta = currentTime - lastFrameTime;
-      
+
       if (Math.random() < performanceConfig.sampling.game) {
-        this.trackGameMetric('frameTime', frameDelta);
+        this.trackGameMetric("frameTime", frameDelta);
       }
-      
+
       lastFrameTime = currentTime;
       requestAnimationFrame(gameLoop);
     };
@@ -197,7 +204,13 @@ export class PerformanceMonitor {
     });
   }
 
-  private trackAPIMetric(startTime: number, endTime: number, status: number, url: string, error?: any) {
+  private trackAPIMetric(
+    startTime: number,
+    endTime: number,
+    status: number,
+    url: string,
+    error?: any,
+  ) {
     analytics.trackEvent({
       type: AnalyticsEventType.API_LATENCY,
       dimensions: {
@@ -209,7 +222,7 @@ export class PerformanceMonitor {
         errorCount: error || status >= 400 ? 1 : 0,
       },
       metadata: {
-        url: typeof url === 'string' ? url : url.toString(),
+        url: typeof url === "string" ? url : url.toString(),
         status,
         error: error?.message,
       },
@@ -243,13 +256,17 @@ export class PerformanceMonitor {
       },
       metadata: {
         error: event instanceof ErrorEvent ? event.error?.stack : event.reason,
-        type: event instanceof ErrorEvent ? 'error' : 'unhandledrejection',
+        type: event instanceof ErrorEvent ? "error" : "unhandledrejection",
         url: window.location.href,
       },
     });
   }
 
-  public trackCustomMetric(name: string, value: number, metadata: Record<string, any> = {}) {
+  public trackCustomMetric(
+    name: string,
+    value: number,
+    metadata: Record<string, any> = {},
+  ) {
     analytics.trackEvent({
       type: AnalyticsEventType.API_LATENCY,
       dimensions: {
@@ -267,4 +284,4 @@ export class PerformanceMonitor {
 }
 
 // Export singleton instance
-export const performanceMonitor = PerformanceMonitor.getInstance(); 
+export const performanceMonitor = PerformanceMonitor.getInstance();

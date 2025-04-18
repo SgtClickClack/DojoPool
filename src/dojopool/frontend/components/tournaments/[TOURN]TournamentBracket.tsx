@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { Card, Tag } from 'antd';
-import { TournamentMatch, TournamentParticipant } from '../../types/tournament';
+import React, { useMemo } from "react";
+import { Card, Tag } from "antd";
+import { TournamentMatch, TournamentParticipant } from "../../types/tournament";
 
 interface Props {
   matches: TournamentMatch[];
@@ -29,13 +29,14 @@ const TournamentBracket: React.FC<Props> = ({ matches, totalRounds }) => {
         acc[match.round_number].push(match);
         return acc;
       },
-      {} as Record<number, TournamentMatch[]>
+      {} as Record<number, TournamentMatch[]>,
     );
 
     for (let round = 1; round <= totalRounds; round++) {
       const roundMatches = matchesByRound[round] || [];
       const matchesInRound = roundMatches.length;
-      const totalHeight = matchesInRound * MATCH_HEIGHT + (matchesInRound - 1) * VERTICAL_GAP;
+      const totalHeight =
+        matchesInRound * MATCH_HEIGHT + (matchesInRound - 1) * VERTICAL_GAP;
       const startY = (window.innerHeight - totalHeight) / 2;
 
       roundMatches.forEach((match, index) => {
@@ -59,25 +60,31 @@ const TournamentBracket: React.FC<Props> = ({ matches, totalRounds }) => {
     return (
       <React.Fragment key={match.id}>
         <foreignObject x={x} y={y} width={width} height={height}>
-          <Card size="small" className="tournament-bracket__match" style={{ height: '100%' }}>
+          <Card
+            size="small"
+            className="tournament-bracket__match"
+            style={{ height: "100%" }}
+          >
             <div className="tournament-bracket__players">
               <div
                 className={`tournament-bracket__player ${
-                  match.winner_id === match.player1?.id ? 'winner' : ''
+                  match.winner_id === match.player1?.id ? "winner" : ""
                 }`}
               >
-                {match.player1?.username || 'TBD'}
+                {match.player1?.username || "TBD"}
               </div>
               <div
                 className={`tournament-bracket__player ${
-                  match.winner_id === match.player2?.id ? 'winner' : ''
+                  match.winner_id === match.player2?.id ? "winner" : ""
                 }`}
               >
-                {match.player2?.username || 'TBD'}
+                {match.player2?.username || "TBD"}
               </div>
             </div>
             {match.score && (
-              <div className="tournament-bracket__score">{JSON.stringify(match.score)}</div>
+              <div className="tournament-bracket__score">
+                {JSON.stringify(match.score)}
+              </div>
             )}
           </Card>
         </foreignObject>
@@ -100,7 +107,11 @@ const TournamentBracket: React.FC<Props> = ({ matches, totalRounds }) => {
 
   return (
     <div className="tournament-bracket">
-      <svg width={svgWidth} height={svgHeight} className="tournament-bracket__svg">
+      <svg
+        width={svgWidth}
+        height={svgHeight}
+        className="tournament-bracket__svg"
+      >
         {matchNodes.map(renderMatchNode)}
       </svg>
     </div>

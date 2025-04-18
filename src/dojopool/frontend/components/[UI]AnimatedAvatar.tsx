@@ -1,16 +1,23 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import lottie from 'lottie-web';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Avatar, Box, CircularProgress, IconButton, Menu, MenuItem } from '@mui/material';
-import { PlayArrow, Pause, Loop, Stop } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import lottie from "lottie-web";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  Avatar,
+  Box,
+  CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import { PlayArrow, Pause, Loop, Stop } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
 
 interface AnimationConfig {
   name: string;
   duration: number;
   frameRate: number;
   loop: boolean;
-  trigger: 'hover' | 'click' | 'auto';
+  trigger: "hover" | "click" | "auto";
 }
 
 interface AnimatedAvatarProps {
@@ -22,23 +29,23 @@ interface AnimatedAvatarProps {
 }
 
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
-  position: 'relative',
-  cursor: 'pointer',
-  '&:hover .controls': {
+  position: "relative",
+  cursor: "pointer",
+  "&:hover .controls": {
     opacity: 1,
   },
 }));
 
 const Controls = styled(Box)(({ theme }) => ({
-  position: 'absolute',
+  position: "absolute",
   bottom: 0,
   left: 0,
   right: 0,
-  display: 'flex',
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: "flex",
+  justifyContent: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
   opacity: 0,
-  transition: 'opacity 0.2s ease-in-out',
+  transition: "opacity 0.2s ease-in-out",
   padding: theme.spacing(0.5),
 }));
 
@@ -51,44 +58,45 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
 }) => {
   const avatarRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<any>(null);
-  const [currentAnimation, setCurrentAnimation] = useState<string | null>(defaultAnimation || null);
+  const [currentAnimation, setCurrentAnimation] = useState<string | null>(
+    defaultAnimation || null,
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   // Fetch available animations
-  const { data: animations, isLoading: loadingAnimations } = useQuery<AnimationConfig[]>(
-    ['animations'],
-    async () => {
-      const response = await fetch('/api/avatars/animations');
-      if (!response.ok) throw new Error('Failed to fetch animations');
-      return response.json();
-    }
-  );
+  const { data: animations, isLoading: loadingAnimations } = useQuery<
+    AnimationConfig[]
+  >(["animations"], async () => {
+    const response = await fetch("/api/avatars/animations");
+    if (!response.ok) throw new Error("Failed to fetch animations");
+    return response.json();
+  });
 
   // Fetch user's avatar
   const { data: avatarUrl, isLoading: loadingAvatar } = useQuery<string>(
-    ['avatar', userId],
+    ["avatar", userId],
     async () => {
       const response = await fetch(`/api/avatars/user/${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch avatar');
+      if (!response.ok) throw new Error("Failed to fetch avatar");
       const blob = await response.blob();
       return URL.createObjectURL(blob);
-    }
+    },
   );
 
   // Animation mutation
   const animateMutation = useMutation(
     async ({ animation, frame }: { animation: string; frame?: number }) => {
-      const response = await fetch('/api/avatars/animate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/avatars/animate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ animation, frame }),
       });
-      if (!response.ok) throw new Error('Failed to animate avatar');
+      if (!response.ok) throw new Error("Failed to animate avatar");
       const blob = await response.blob();
       return URL.createObjectURL(blob);
-    }
+    },
   );
 
   // Load animation
@@ -104,23 +112,23 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
 
         // Get animation config
         const config = animations?.find((a) => a.name === animationName);
-        if (!config) throw new Error('Animation not found');
+        if (!config) throw new Error("Animation not found");
 
         // Create new animation
         const response = await fetch(`/api/avatars/preview/${animationName}`);
-        if (!response.ok) throw new Error('Failed to load animation');
+        if (!response.ok) throw new Error("Failed to load animation");
         const data = await response.json();
 
         animationRef.current = lottie.loadAnimation({
           container: avatarRef.current,
-          renderer: 'svg',
+          renderer: "svg",
           loop: isLooping,
           autoplay: false,
           animationData: data,
         });
 
         // Set up event listeners
-        animationRef.current.addEventListener('complete', () => {
+        animationRef.current.addEventListener("complete", () => {
           setIsPlaying(false);
           if (onAnimationComplete) {
             onAnimationComplete();
@@ -129,10 +137,10 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
 
         setCurrentAnimation(animationName);
       } catch (error) {
-        console.error('Failed to load animation:', error);
+        console.error("Failed to load animation:", error);
       }
     },
-    [animations, isLooping, onAnimationComplete]
+    [animations, isLooping, onAnimationComplete],
   );
 
   // Handle animation controls
@@ -231,14 +239,18 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
               e.stopPropagation();
               handleLoop();
             }}
-            color={isLooping ? 'primary' : 'default'}
+            color={isLooping ? "primary" : "default"}
           >
             <Loop />
           </IconButton>
         </Controls>
       </StyledAvatar>
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         {animations?.map((animation) => (
           <MenuItem
             key={animation.name}

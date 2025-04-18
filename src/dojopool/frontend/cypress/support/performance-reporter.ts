@@ -1,4 +1,4 @@
-import { performanceThresholds } from '../config/performance-thresholds';
+import { performanceThresholds } from "../config/performance-thresholds";
 
 interface PerformanceMetric {
   name: string;
@@ -31,8 +31,8 @@ class PerformanceReporter {
         totalTests: 0,
         passedTests: 0,
         failedTests: 0,
-        averageScore: 0
-      }
+        averageScore: 0,
+      },
     };
   }
 
@@ -43,7 +43,7 @@ class PerformanceReporter {
       value,
       threshold,
       unit,
-      passed
+      passed,
     };
 
     this.metrics.push(metric);
@@ -54,16 +54,16 @@ class PerformanceReporter {
     this.report.metrics = this.metrics;
     this.report.summary = {
       totalTests: this.metrics.length,
-      passedTests: this.metrics.filter(m => m.passed).length,
-      failedTests: this.metrics.filter(m => !m.passed).length,
-      averageScore: this.calculateAverageScore()
+      passedTests: this.metrics.filter((m) => m.passed).length,
+      failedTests: this.metrics.filter((m) => !m.passed).length,
+      averageScore: this.calculateAverageScore(),
     };
   }
 
   private calculateAverageScore(): number {
     if (this.metrics.length === 0) return 0;
 
-    const scores = this.metrics.map(metric => {
+    const scores = this.metrics.map((metric) => {
       if (metric.passed) return 100;
       const ratio = metric.threshold / metric.value;
       return Math.max(0, Math.min(100, ratio * 100));
@@ -82,19 +82,22 @@ class PerformanceReporter {
 
   logReport() {
     const { summary } = this.report;
-    const failedMetrics = this.metrics.filter(m => !m.passed);
+    const failedMetrics = this.metrics.filter((m) => !m.passed);
 
-    cy.task('log', '\n=== Performance Test Report ===');
-    cy.task('log', `Timestamp: ${this.report.timestamp}`);
-    cy.task('log', `Total Tests: ${summary.totalTests}`);
-    cy.task('log', `Passed: ${summary.passedTests}`);
-    cy.task('log', `Failed: ${summary.failedTests}`);
-    cy.task('log', `Average Score: ${summary.averageScore.toFixed(2)}%`);
+    cy.task("log", "\n=== Performance Test Report ===");
+    cy.task("log", `Timestamp: ${this.report.timestamp}`);
+    cy.task("log", `Total Tests: ${summary.totalTests}`);
+    cy.task("log", `Passed: ${summary.passedTests}`);
+    cy.task("log", `Failed: ${summary.failedTests}`);
+    cy.task("log", `Average Score: ${summary.averageScore.toFixed(2)}%`);
 
     if (failedMetrics.length > 0) {
-      cy.task('log', '\nFailed Metrics:');
-      failedMetrics.forEach(metric => {
-        cy.task('log', `- ${metric.name}: ${metric.value}${metric.unit} (Threshold: ${metric.threshold}${metric.unit})`);
+      cy.task("log", "\nFailed Metrics:");
+      failedMetrics.forEach((metric) => {
+        cy.task(
+          "log",
+          `- ${metric.name}: ${metric.value}${metric.unit} (Threshold: ${metric.threshold}${metric.unit})`,
+        );
       });
     }
   }
@@ -102,18 +105,18 @@ class PerformanceReporter {
   // Helper methods for common metrics
   addWebVitalMetric(name: string, value: number) {
     const threshold = performanceThresholds.webVitals[name.toLowerCase()];
-    const unit = name === 'CLS' ? '' : 'ms';
+    const unit = name === "CLS" ? "" : "ms";
     this.addMetric(name, value, threshold, unit);
   }
 
   addGameMetric(name: string, value: number) {
     const threshold = performanceThresholds.criticalPath[name];
-    this.addMetric(name, value, threshold, 'ms');
+    this.addMetric(name, value, threshold, "ms");
   }
 
   addMemoryMetric(name: string, value: number) {
     const threshold = performanceThresholds.memory[name];
-    this.addMetric(name, value, threshold, 'MB');
+    this.addMetric(name, value, threshold, "MB");
   }
 
   addNetworkMetric(name: string, value: number, unit: string) {
@@ -123,8 +126,8 @@ class PerformanceReporter {
 
   addAnimationMetric(name: string, value: number) {
     const threshold = performanceThresholds.animation[name];
-    this.addMetric(name, value, threshold, name === 'minFPS' ? 'fps' : 'ms');
+    this.addMetric(name, value, threshold, name === "minFPS" ? "fps" : "ms");
   }
 }
 
-export const performanceReporter = new PerformanceReporter(); 
+export const performanceReporter = new PerformanceReporter();

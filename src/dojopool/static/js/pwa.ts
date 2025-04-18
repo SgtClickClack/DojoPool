@@ -1,15 +1,14 @@
 // Generated type definitions
 
 class NotificationHandler {
-    // Properties and methods
+  // Properties and methods
 }
 
 class PWAManager {
-    // Properties and methods
+  // Properties and methods
 }
 
 // Type imports
-
 
 /**
  * PWA initialization and management
@@ -30,52 +29,52 @@ class NotificationHandler {
 
   async connect() {
     try {
-      this.socket = io('http://localhost:5000', {
+      this.socket = io("http://localhost:5000", {
         auth: {
           user_id: this.userId,
           token: this.token,
         },
-        transports: ['websocket'],
+        transports: ["websocket"],
         reconnection: true,
         reconnectionAttempts: this.maxReconnectAttempts,
         reconnectionDelay: this.reconnectDelay,
       });
 
-      this.socket.on('connect', () => {
+      this.socket.on("connect", () => {
         this.connected = true;
         this.reconnectAttempts = 0;
         this.updateUI();
       });
 
-      this.socket.on('message', (data) => {
+      this.socket.on("message", (data) => {
         this.handleMessage(data);
       });
 
-      this.socket.on('disconnect', () => {
+      this.socket.on("disconnect", () => {
         this.connected = false;
         this.handleDisconnect();
       });
 
-      this.socket.on('error', (error) => {
-        console.error('Socket error:', error);
+      this.socket.on("error", (error) => {
+        console.error("Socket error:", error);
         this.connected = false;
       });
     } catch (error) {
-      console.error('Failed to connect:', error);
+      console.error("Failed to connect:", error);
       this.handleDisconnect();
     }
   }
 
   handleMessage(data) {
     try {
-      if (data.type === 'notification') {
+      if (data.type === "notification") {
         this.notifications.unshift(data.payload);
         this.unreadCount++;
         this.updateUI();
         this.showNotification(data.payload);
       }
     } catch (error) {
-      console.error('Error handling message:', error);
+      console.error("Error handling message:", error);
     }
   }
 
@@ -90,14 +89,14 @@ class NotificationHandler {
 
   updateUI() {
     // Update notification badge
-    const badge: any = document.getElementById('notification-badge');
+    const badge: any = document.getElementById("notification-badge");
     if (badge) {
       badge.textContent = this.unreadCount;
-      badge.style.display = this.unreadCount > 0 ? 'block' : 'none';
+      badge.style.display = this.unreadCount > 0 ? "block" : "none";
     }
 
     // Update notification list
-    const list: any = document.getElementById('notification-list');
+    const list: any = document.getElementById("notification-list");
     if (list) {
       list.innerHTML = this.notifications
         .map(
@@ -107,41 +106,43 @@ class NotificationHandler {
                         <p>${notification.message}</p>
                         <small>${new Date(notification.timestamp).toLocaleString()}</small>
                     </div>
-                `
+                `,
         )
-        .join('');
+        .join("");
     }
 
     // Update connection status
-    const status: any = document.getElementById('connection-status');
+    const status: any = document.getElementById("connection-status");
     if (status) {
-      status.textContent = this.connected ? 'Connected' : 'Disconnected';
+      status.textContent = this.connected ? "Connected" : "Disconnected";
       status.className = this.connected
-        ? 'status-connected'
-        : 'status-disconnected';
+        ? "status-connected"
+        : "status-disconnected";
     }
   }
 
   async showNotification(notification) {
-    if (!('Notification' in window)) {
+    if (!("Notification" in window)) {
       return;
     }
 
-    if (Notification.permission === 'granted') {
+    if (Notification.permission === "granted") {
       new Notification(notification.title, {
         body: notification.message,
-        icon: '/static/images/logo.png',
+        icon: "/static/images/logo.png",
       });
-    } else if (Notification.permission !== 'denied') {
+    } else if (Notification.permission !== "denied") {
       const permission: any = await Notification.requestPermission();
-      if (permission === 'granted') {
+      if (permission === "granted") {
         this.showNotification(notification);
       }
     }
   }
 
   markAsRead(notificationId) {
-    const index: any = this.notifications.findIndex((n) => n.id === notificationId);
+    const index: any = this.notifications.findIndex(
+      (n) => n.id === notificationId,
+    );
     if (index !== -1) {
       this.notifications[index].read = true;
       this.unreadCount = Math.max(0, this.unreadCount - 1);
@@ -185,8 +186,8 @@ class PWAManager {
    */
   async init() {
     // Check if service workers are supported
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
         this.registerServiceWorker();
         this.initPushNotifications();
         this.initInstallPrompt();
@@ -202,19 +203,19 @@ class PWAManager {
   async registerServiceWorker() {
     try {
       const registration: any = await navigator.serviceWorker.register(
-        '/static/js/service-worker.js'
+        "/static/js/service-worker.js",
       );
       console.log(
-        'ServiceWorker registration successful with scope:',
-        registration.scope
+        "ServiceWorker registration successful with scope:",
+        registration.scope,
       );
 
       // Set up background sync
-      if ('sync' in registration) {
+      if ("sync" in registration) {
         this.setupBackgroundSync(registration);
       }
     } catch (err) {
-      console.error('ServiceWorker registration failed:', err);
+      console.error("ServiceWorker registration failed:", err);
     }
   }
 
@@ -223,28 +224,28 @@ class PWAManager {
    */
   async initPushNotifications() {
     try {
-      if ('Notification' in window) {
+      if ("Notification" in window) {
         const permission: any = await Notification.requestPermission();
-        if (permission === 'granted') {
+        if (permission === "granted") {
           const registration: any = await navigator.serviceWorker.ready;
           const subscription: any = await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: this.urlBase64ToUint8Array(
-              'YOUR_VAPID_PUBLIC_KEY' // Replace with your VAPID public key
+              "YOUR_VAPID_PUBLIC_KEY", // Replace with your VAPID public key
             ),
           });
           // Send subscription to server
-          await fetch('/api/push-subscription', {
-            method: 'POST',
+          await fetch("/api/push-subscription", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(subscription),
           });
         }
       }
     } catch (err) {
-      console.error('Error initializing push notifications:', err);
+      console.error("Error initializing push notifications:", err);
     }
   }
 
@@ -254,18 +255,18 @@ class PWAManager {
   initInstallPrompt() {
     let deferredPrompt;
 
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
       this.showInstallButton();
     });
 
-    window.addEventListener('appinstalled', () => {
+    window.addEventListener("appinstalled", () => {
       this.hideInstallButton();
       deferredPrompt = null;
       // Send analytics
-      if (typeof gtag === 'function') {
-        gtag('event', 'pwa_install');
+      if (typeof gtag === "function") {
+        gtag("event", "pwa_install");
       }
     });
   }
@@ -274,10 +275,10 @@ class PWAManager {
    * Show install button
    */
   showInstallButton() {
-    const installButton: any = document.getElementById('installButton');
+    const installButton: any = document.getElementById("installButton");
     if (installButton) {
-      installButton.style.display = 'block';
-      installButton.addEventListener('click', async () => {
+      installButton.style.display = "block";
+      installButton.addEventListener("click", async () => {
         if (deferredPrompt) {
           deferredPrompt.prompt();
           const { outcome } = await deferredPrompt.userChoice;
@@ -292,9 +293,9 @@ class PWAManager {
    * Hide install button
    */
   hideInstallButton() {
-    const installButton: any = document.getElementById('installButton');
+    const installButton: any = document.getElementById("installButton");
     if (installButton) {
-      installButton.style.display = 'none';
+      installButton.style.display = "none";
     }
   }
 
@@ -303,26 +304,26 @@ class PWAManager {
    */
   initConnectivityCheck() {
     const updateOnlineStatus: any = () => {
-      const condition: any = navigator.onLine ? 'online' : 'offline';
+      const condition: any = navigator.onLine ? "online" : "offline";
       document.body.dataset.connectionStatus = condition;
 
-      const statusBar: any = document.getElementById('connectionStatus');
+      const statusBar: any = document.getElementById("connectionStatus");
       if (statusBar) {
         statusBar.textContent = condition.toUpperCase();
         statusBar.className = condition;
       }
 
       // Send analytics
-      if (typeof gtag === 'function') {
-        gtag('event', 'connectivity_change', {
-          event_category: 'System',
+      if (typeof gtag === "function") {
+        gtag("event", "connectivity_change", {
+          event_category: "System",
           event_label: condition,
         });
       }
     };
 
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
+    window.addEventListener("online", updateOnlineStatus);
+    window.addEventListener("offline", updateOnlineStatus);
     updateOnlineStatus();
   }
 
@@ -330,8 +331,8 @@ class PWAManager {
    * Set up background sync
    */
   setupBackgroundSync(registration) {
-    document.addEventListener('submit', async (e) => {
-      if (e.target.dataset.offline === 'sync') {
+    document.addEventListener("submit", async (e) => {
+      if (e.target.dataset.offline === "sync") {
         e.preventDefault();
 
         if (!navigator.onLine) {
@@ -343,11 +344,11 @@ class PWAManager {
               url: e.target.action,
               payload,
             });
-            await registration.sync.register('sync-forms');
+            await registration.sync.register("sync-forms");
             this.showMessage("Form will be submitted when you're back online");
           } catch (err) {
-            console.error('Error setting up background sync:', err);
-            this.showMessage('Error saving form data for offline submission');
+            console.error("Error setting up background sync:", err);
+            this.showMessage("Error saving form data for offline submission");
           }
         }
       }
@@ -359,20 +360,20 @@ class PWAManager {
    */
   storeFormData(data) {
     return new Promise((resolve, reject) => {
-      const request: any = indexedDB.open('DojoPoolDB', 1);
+      const request: any = indexedDB.open("DojoPoolDB", 1);
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const db: any = request.result;
-        const tx: any = db.transaction('forms', 'readwrite');
-        const store: any = tx.objectStore('forms');
+        const tx: any = db.transaction("forms", "readwrite");
+        const store: any = tx.objectStore("forms");
         store.add(data).onsuccess = () => resolve();
       };
 
       request.onupgradeneeded = (e) => {
         const db: any = e.target.result;
-        if (!db.objectStoreNames.contains('forms')) {
-          db.createObjectStore('forms', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains("forms")) {
+          db.createObjectStore("forms", { keyPath: "id" });
         }
       };
     });
@@ -381,10 +382,10 @@ class PWAManager {
   /**
    * Show message to user
    */
-  showMessage(message, type = 'info') {
-    const messageContainer: any = document.getElementById('messageContainer');
+  showMessage(message, type = "info") {
+    const messageContainer: any = document.getElementById("messageContainer");
     if (messageContainer) {
-      const messageElement: any = document.createElement('div');
+      const messageElement: any = document.createElement("div");
       messageElement.className = `message ${type}`;
       messageElement.textContent = message;
       messageContainer.appendChild(messageElement);
@@ -396,10 +397,10 @@ class PWAManager {
    * Convert VAPID key to Uint8Array
    */
   urlBase64ToUint8Array(base64String) {
-    const padding: any = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const padding: any = "=".repeat((4 - (base64String.length % 4)) % 4);
     const base64: any = (base64String + padding)
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
+      .replace(/\-/g, "+")
+      .replace(/_/g, "/");
 
     const rawData: any = window.atob(base64);
     const outputArray: any = new Uint8Array(rawData.length);
@@ -411,12 +412,12 @@ class PWAManager {
   }
 
   async initializeNotifications() {
-    if ('Notification' in window) {
+    if ("Notification" in window) {
       const permission: any = await Notification.requestPermission();
-      if (permission === 'granted') {
+      if (permission === "granted") {
         // Get user data from the page
-        const userId: any = document.getElementById('user-id')?.value;
-        const token: any = document.getElementById('user-token')?.value;
+        const userId: any = document.getElementById("user-id")?.value;
+        const token: any = document.getElementById("user-token")?.value;
 
         if (userId && token) {
           this.notificationHandler = new NotificationHandler(userId, token);

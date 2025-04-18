@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useCallback } from "react";
+import axios from "axios";
 
 interface SystemStatus {
   cpu_usage: number;
@@ -30,12 +30,12 @@ interface MetricDataPoint {
 
 interface Recommendation {
   id: string;
-  type: 'cpu' | 'memory' | 'disk' | 'network';
-  priority: 'high' | 'medium' | 'low';
+  type: "cpu" | "memory" | "disk" | "network";
+  priority: "high" | "medium" | "low";
   title: string;
   description: string;
   impact: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: "pending" | "in_progress" | "completed";
 }
 
 export const usePerformanceMonitor = () => {
@@ -51,21 +51,27 @@ export const usePerformanceMonitor = () => {
       setError(null);
 
       // Fetch current system status
-      const statusResponse = await axios.get('/api/performance/status');
+      const statusResponse = await axios.get("/api/performance/status");
       setSystemStatus(statusResponse.data);
 
       // Fetch metrics history
-      const metricsResponse = await axios.get(`/api/performance/metrics?range=${timeRange}`);
+      const metricsResponse = await axios.get(
+        `/api/performance/metrics?range=${timeRange}`,
+      );
       setMetricsHistory(metricsResponse.data);
 
       // Fetch optimization recommendations
-      const recommendationsResponse = await axios.get('/api/performance/recommendations');
+      const recommendationsResponse = await axios.get(
+        "/api/performance/recommendations",
+      );
       setRecommendations(recommendationsResponse.data);
 
       setLoading(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'An error occurred while fetching performance metrics'
+        err instanceof Error
+          ? err.message
+          : "An error occurred while fetching performance metrics",
       );
       setLoading(false);
     }
@@ -80,35 +86,48 @@ export const usePerformanceMonitor = () => {
       await axios.post(`/api/performance/optimize/${recommendationId}`);
 
       // Refresh metrics after optimization
-      const statusResponse = await axios.get('/api/performance/status');
+      const statusResponse = await axios.get("/api/performance/status");
       setSystemStatus(statusResponse.data);
 
       // Update recommendation status
-      const recommendationsResponse = await axios.get('/api/performance/recommendations');
+      const recommendationsResponse = await axios.get(
+        "/api/performance/recommendations",
+      );
       setRecommendations(recommendationsResponse.data);
 
       setLoading(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'An error occurred while applying optimization'
+        err instanceof Error
+          ? err.message
+          : "An error occurred while applying optimization",
       );
       setLoading(false);
     }
   }, []);
 
-  const acknowledgeRecommendation = useCallback(async (recommendationId: string) => {
-    try {
-      await axios.post(`/api/performance/recommendations/${recommendationId}/acknowledge`);
+  const acknowledgeRecommendation = useCallback(
+    async (recommendationId: string) => {
+      try {
+        await axios.post(
+          `/api/performance/recommendations/${recommendationId}/acknowledge`,
+        );
 
-      // Refresh recommendations after acknowledgment
-      const recommendationsResponse = await axios.get('/api/performance/recommendations');
-      setRecommendations(recommendationsResponse.data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'An error occurred while acknowledging recommendation'
-      );
-    }
-  }, []);
+        // Refresh recommendations after acknowledgment
+        const recommendationsResponse = await axios.get(
+          "/api/performance/recommendations",
+        );
+        setRecommendations(recommendationsResponse.data);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "An error occurred while acknowledging recommendation",
+        );
+      }
+    },
+    [],
+  );
 
   return {
     systemStatus,

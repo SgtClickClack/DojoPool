@@ -1,4 +1,4 @@
-import { createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 
 const baseTheme = createTheme({
   breakpoints: {
@@ -12,53 +12,53 @@ const baseTheme = createTheme({
   },
   palette: {
     primary: {
-      main: '#2E7D32',
-      light: '#4CAF50',
-      dark: '#1B5E20',
+      main: "#2E7D32",
+      light: "#4CAF50",
+      dark: "#1B5E20",
     },
     secondary: {
-      main: '#FF9800',
-      light: '#FFB74D',
-      dark: '#F57C00',
+      main: "#FF9800",
+      light: "#FFB74D",
+      dark: "#F57C00",
     },
     background: {
-      default: '#F5F5F5',
-      paper: '#FFFFFF',
+      default: "#F5F5F5",
+      paper: "#FFFFFF",
     },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: '2.5rem',
+      fontSize: "2.5rem",
       fontWeight: 500,
-      '@media (max-width:600px)': {
-        fontSize: '2rem',
+      "@media (max-width:600px)": {
+        fontSize: "2rem",
       },
     },
     h2: {
-      fontSize: '2rem',
+      fontSize: "2rem",
       fontWeight: 500,
-      '@media (max-width:600px)': {
-        fontSize: '1.75rem',
+      "@media (max-width:600px)": {
+        fontSize: "1.75rem",
       },
     },
     h3: {
-      fontSize: '1.75rem',
+      fontSize: "1.75rem",
       fontWeight: 500,
-      '@media (max-width:600px)': {
-        fontSize: '1.5rem',
+      "@media (max-width:600px)": {
+        fontSize: "1.5rem",
       },
     },
     body1: {
-      fontSize: '1rem',
+      fontSize: "1rem",
       lineHeight: 1.5,
-      '@media (max-width:600px)': {
-        fontSize: '0.95rem',
+      "@media (max-width:600px)": {
+        fontSize: "0.95rem",
       },
     },
     button: {
-      '@media (max-width:600px)': {
-        fontSize: '0.875rem',
+      "@media (max-width:600px)": {
+        fontSize: "0.875rem",
       },
     },
   },
@@ -67,11 +67,11 @@ const baseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          textTransform: 'none',
+          textTransform: "none",
           fontWeight: 500,
-          padding: '8px 16px',
-          '@media (max-width:600px)': {
-            padding: '6px 12px',
+          padding: "8px 16px",
+          "@media (max-width:600px)": {
+            padding: "6px 12px",
           },
         },
       },
@@ -80,15 +80,15 @@ const baseTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         },
       },
     },
     MuiContainer: {
       styleOverrides: {
         root: {
-          '@media (max-width:600px)': {
-            padding: '0 16px',
+          "@media (max-width:600px)": {
+            padding: "0 16px",
           },
         },
       },
@@ -96,8 +96,8 @@ const baseTheme = createTheme({
     MuiToolbar: {
       styleOverrides: {
         root: {
-          '@media (max-width:600px)': {
-            minHeight: '56px',
+          "@media (max-width:600px)": {
+            minHeight: "56px",
           },
         },
       },

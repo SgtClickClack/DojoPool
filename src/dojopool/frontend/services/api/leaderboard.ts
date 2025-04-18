@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient from "./client";
 
 export interface LeaderboardEntry {
   rank: number;
@@ -10,14 +10,14 @@ export interface LeaderboardEntry {
   achievements: string[];
 }
 
-export type LeaderboardPeriod = 'all' | 'month' | 'week';
+export type LeaderboardPeriod = "all" | "month" | "week";
 
 export const leaderboardApi = {
   getLeaderboard: async (
-    period: LeaderboardPeriod = 'all',
-    limit: number = 100
+    period: LeaderboardPeriod = "all",
+    limit: number = 100,
   ): Promise<LeaderboardEntry[]> => {
-    const response = await apiClient.get<LeaderboardEntry[]>('/leaderboard', {
+    const response = await apiClient.get<LeaderboardEntry[]>("/leaderboard", {
       params: { period, limit },
     });
     return response.data;
@@ -25,7 +25,7 @@ export const leaderboardApi = {
 
   getUserRank: async (
     userId: string,
-    period: LeaderboardPeriod = 'all'
+    period: LeaderboardPeriod = "all",
   ): Promise<{
     rank: number;
     score: number;
@@ -41,10 +41,16 @@ export const leaderboardApi = {
     return response.data;
   },
 
-  getGameLeaderboard: async (gameId: string, limit: number = 10): Promise<LeaderboardEntry[]> => {
-    const response = await apiClient.get<LeaderboardEntry[]>(`/leaderboard/games/${gameId}`, {
-      params: { limit },
-    });
+  getGameLeaderboard: async (
+    gameId: string,
+    limit: number = 10,
+  ): Promise<LeaderboardEntry[]> => {
+    const response = await apiClient.get<LeaderboardEntry[]>(
+      `/leaderboard/games/${gameId}`,
+      {
+        params: { limit },
+      },
+    );
     return response.data;
   },
 };

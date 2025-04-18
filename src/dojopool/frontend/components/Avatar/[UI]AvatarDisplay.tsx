@@ -1,7 +1,7 @@
-import React from 'react';
-import { Avatar as MuiAvatar, Badge, IconButton, Tooltip } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import EditIcon from '@mui/icons-material/Edit';
+import React from "react";
+import { Avatar as MuiAvatar, Badge, IconButton, Tooltip } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import EditIcon from "@mui/icons-material/Edit";
 
 export interface AvatarDisplayProps {
   avatarUrl?: string | null;
@@ -15,40 +15,40 @@ export interface AvatarDisplayProps {
 }
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    backgroundColor: '#44b700',
-    color: '#44b700',
+  "& .MuiBadge-badge": {
+    backgroundColor: "#44b700",
+    color: "#44b700",
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    '&::after': {
-      position: 'absolute',
+    "&::after": {
+      position: "absolute",
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      animation: 'ripple 1.2s infinite ease-in-out',
-      border: '1px solid currentColor',
+      width: "100%",
+      height: "100%",
+      borderRadius: "50%",
+      animation: "ripple 1.2s infinite ease-in-out",
+      border: "1px solid currentColor",
       content: '""',
     },
   },
-  '@keyframes ripple': {
-    '0%': {
-      transform: 'scale(.8)',
+  "@keyframes ripple": {
+    "0%": {
+      transform: "scale(.8)",
       opacity: 1,
     },
-    '100%': {
-      transform: 'scale(2.4)',
+    "100%": {
+      transform: "scale(2.4)",
       opacity: 0,
     },
   },
 }));
 
 const EditBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
+  "& .MuiBadge-badge": {
     backgroundColor: theme.palette.background.paper,
     border: `2px solid ${theme.palette.background.paper}`,
     padding: 0,
-    '&:hover': {
+    "&:hover": {
       backgroundColor: theme.palette.action.hover,
     },
   },
@@ -72,7 +72,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
         width: size,
         height: size,
         fontSize: size * 0.4,
-        backgroundColor: !avatarUrl ? 'primary.main' : undefined,
+        backgroundColor: !avatarUrl ? "primary.main" : undefined,
       }}
     >
       {!avatarUrl && username.charAt(0).toUpperCase()}
@@ -83,7 +83,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   const statusAvatar = showStatus ? (
     <StyledBadge
       overlap="circular"
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       variant="dot"
       invisible={!isOnline}
     >
@@ -97,7 +97,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   const editableAvatar = editable ? (
     <EditBadge
       overlap="circular"
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       badgeContent={
         <Tooltip title="Edit Avatar">
           <IconButton
@@ -106,9 +106,9 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
             sx={{
               width: size * 0.4,
               height: size * 0.4,
-              backgroundColor: 'background.paper',
-              '&:hover': {
-                backgroundColor: 'action.hover',
+              backgroundColor: "background.paper",
+              "&:hover": {
+                backgroundColor: "action.hover",
               },
             }}
           >
@@ -124,7 +124,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   );
 
   return (
-    <div className={className} style={{ display: 'inline-block' }}>
+    <div className={className} style={{ display: "inline-block" }}>
       {editableAvatar}
     </div>
   );

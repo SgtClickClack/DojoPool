@@ -1,6 +1,6 @@
-import stateService from './state';
-import validationService from './validation';
-import analyticsService from './analytics';
+import stateService from "./state";
+import validationService from "./validation";
+import analyticsService from "./analytics";
 
 interface FormField {
   value: any;
@@ -51,7 +51,7 @@ class FormService {
             this.setErrors(formId, formErrors);
           }
         });
-      }
+      },
     );
   }
 
@@ -83,8 +83,8 @@ class FormService {
 
     // Track form registration in analytics
     analyticsService.trackUserEvent({
-      type: 'form_registered',
-      userId: 'system',
+      type: "form_registered",
+      userId: "system",
       details: {
         formId: config.id,
         timestamp: new Date().toISOString(),
@@ -104,8 +104,8 @@ class FormService {
 
     // Track form unregistration in analytics
     analyticsService.trackUserEvent({
-      type: 'form_unregistered',
-      userId: 'system',
+      type: "form_unregistered",
+      userId: "system",
       details: {
         formId,
         timestamp: new Date().toISOString(),
@@ -113,7 +113,12 @@ class FormService {
     });
   }
 
-  public setFieldValue(formId: string, name: string, value: any, validate: boolean = true): void {
+  public setFieldValue(
+    formId: string,
+    name: string,
+    value: any,
+    validate: boolean = true,
+  ): void {
     const form = this.forms.get(formId);
     const config = this.configs.get(formId);
     if (!form || !config) {
@@ -150,7 +155,11 @@ class FormService {
     }
   }
 
-  public setFieldTouched(formId: string, name: string, touched: boolean = true): void {
+  public setFieldTouched(
+    formId: string,
+    name: string,
+    touched: boolean = true,
+  ): void {
     const form = this.forms.get(formId);
     if (!form) {
       return;
@@ -194,7 +203,9 @@ class FormService {
 
     // Update form error state
     form.errors = errors;
-    form.isValid = Object.values(errors).every((fieldErrors) => fieldErrors.length === 0);
+    form.isValid = Object.values(errors).every(
+      (fieldErrors) => fieldErrors.length === 0,
+    );
 
     // Call onError callback
     config.onError?.(errors);
@@ -227,7 +238,7 @@ class FormService {
       const errors = await validationService.validateField(
         config.validationSchema,
         name,
-        field.value
+        field.value,
       );
 
       // Update field errors
@@ -242,7 +253,9 @@ class FormService {
         ...form.errors,
         [name]: errors,
       };
-      form.isValid = Object.values(form.errors).every((fieldErrors) => fieldErrors.length === 0);
+      form.isValid = Object.values(form.errors).every(
+        (fieldErrors) => fieldErrors.length === 0,
+      );
 
       // Notify listeners
       this.notifyFormListeners(formId);
@@ -267,7 +280,7 @@ class FormService {
       // Perform validation
       const result = await validationService.validate(
         config.validationSchema,
-        this.getValues(formId)
+        this.getValues(formId),
       );
 
       // Update form state
@@ -275,7 +288,7 @@ class FormService {
 
       return result.isValid;
     } catch (error) {
-      console.error('Form validation error:', error);
+      console.error("Form validation error:", error);
       return false;
     }
   }
@@ -289,8 +302,8 @@ class FormService {
 
     // Track form submission in analytics
     analyticsService.trackUserEvent({
-      type: 'form_submitted',
-      userId: 'system',
+      type: "form_submitted",
+      userId: "system",
       details: {
         formId,
         timestamp: new Date().toISOString(),
@@ -306,7 +319,7 @@ class FormService {
       // Validate form
       const isValid = await this.validateForm(formId);
       if (!isValid) {
-        throw new Error('Form validation failed');
+        throw new Error("Form validation failed");
       }
 
       // Submit form
@@ -315,7 +328,7 @@ class FormService {
       // Reset form
       this.resetForm(formId);
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error("Form submission error:", error);
       if (error instanceof Error) {
         this.setErrors(formId, {
           form: [error.message],
@@ -360,8 +373,8 @@ class FormService {
 
     // Track form reset in analytics
     analyticsService.trackUserEvent({
-      type: 'form_reset',
-      userId: 'system',
+      type: "form_reset",
+      userId: "system",
       details: {
         formId,
         timestamp: new Date().toISOString(),
@@ -396,7 +409,10 @@ class FormService {
     return this.forms.get(formId);
   }
 
-  public addFormListener(formId: string, listener: (state: FormState) => void): () => void {
+  public addFormListener(
+    formId: string,
+    listener: (state: FormState) => void,
+  ): () => void {
     const formListeners = this.listeners.get(formId);
     if (!formListeners) {
       return () => {};

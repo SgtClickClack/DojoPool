@@ -1,14 +1,14 @@
-const { join } = require('path');
-const { mkdirSync, existsSync, writeFileSync } = require('fs');
-const { execSync } = require('child_process');
+const { join } = require("path");
+const { mkdirSync, existsSync, writeFileSync } = require("fs");
+const { execSync } = require("child_process");
 
-const OUTPUT_DIR = join(process.cwd(), 'public', 'app-store-assets');
+const OUTPUT_DIR = join(process.cwd(), "public", "app-store-assets");
 
 const SCREENSHOTS = [
   // iPhone 6.5" Display
   {
-    name: 'home-screen-iphone',
-    deviceType: 'iphone',
+    name: "home-screen-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: linear-gradient(135deg, #1976d2, #64b5f6); min-height: 100vh; color: white;">
         <h1 style="font-size: 48px; margin-bottom: 20px; animation: fadeIn 1s ease-in;">Welcome to DojoPool</h1>
@@ -34,11 +34,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'game-analysis-iphone',
-    deviceType: 'iphone',
+    name: "game-analysis-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 20px;">Real-time Game Analysis</h1>
@@ -78,11 +78,11 @@ const SCREENSHOTS = [
           <button style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 8px; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">View Detailed Analysis</button>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'tournament-view-iphone',
-    deviceType: 'iphone',
+    name: "tournament-view-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 20px;">Tournaments</h1>
@@ -134,11 +134,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'profile-iphone',
-    deviceType: 'iphone',
+    name: "profile-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -195,12 +195,12 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   // iPhone SE Display
   {
-    name: 'home-screen-iphone-se',
-    deviceType: 'iphone',
+    name: "home-screen-iphone-se",
+    deviceType: "iphone",
     content: `
       <div style="padding: 30px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: linear-gradient(135deg, #1976d2, #64b5f6); min-height: 100vh; color: white;">
         <h1 style="font-size: 36px; margin-bottom: 15px; animation: fadeIn 1s ease-in;">Welcome to DojoPool</h1>
@@ -222,12 +222,12 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   // iPad 12.9" Display
   {
-    name: 'home-screen-ipad',
-    deviceType: 'ipad',
+    name: "home-screen-ipad",
+    deviceType: "ipad",
     content: `
       <div style="padding: 60px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: linear-gradient(135deg, #1976d2, #64b5f6); min-height: 100vh; color: white; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
         <div>
@@ -260,11 +260,11 @@ const SCREENSHOTS = [
           </ul>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'game-analysis-ipad',
-    deviceType: 'ipad',
+    name: "game-analysis-ipad",
+    deviceType: "ipad",
     content: `
       <div style="padding: 60px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 64px; color: #1976d2; margin-bottom: 40px;">Real-time Game Analysis</h1>
@@ -323,12 +323,12 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   // iPad Mini Display
   {
-    name: 'home-screen-ipad-mini',
-    deviceType: 'ipad',
+    name: "home-screen-ipad-mini",
+    deviceType: "ipad",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: linear-gradient(135deg, #1976d2, #64b5f6); min-height: 100vh; color: white; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center;">
         <div>
@@ -361,12 +361,12 @@ const SCREENSHOTS = [
           </ul>
         </div>
       </div>
-    `
+    `,
   },
   // Settings Screen
   {
-    name: 'settings-iphone',
-    deviceType: 'iphone',
+    name: "settings-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Settings</h1>
@@ -424,11 +424,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'training-session-iphone',
-    deviceType: 'iphone',
+    name: "training-session-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Training Session</h1>
@@ -462,11 +462,11 @@ const SCREENSHOTS = [
           <button style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 8px; font-size: 18px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Next Shot</button>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'social-community-iphone',
-    deviceType: 'iphone',
+    name: "social-community-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Community</h1>
@@ -511,11 +511,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'statistics-dashboard-iphone',
-    deviceType: 'iphone',
+    name: "statistics-dashboard-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Statistics</h1>
@@ -557,11 +557,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'coaching-tips-iphone',
-    deviceType: 'iphone',
+    name: "coaching-tips-iphone",
+    deviceType: "iphone",
     content: `
       <div style="padding: 40px; font-family: -apple-system, system-ui, BlinkMacSystemFont; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Coaching</h1>
@@ -590,11 +590,11 @@ const SCREENSHOTS = [
           <button style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 8px; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Start Practice</button>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'home-screen-android',
-    deviceType: 'android',
+    name: "home-screen-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: linear-gradient(135deg, #1976d2, #64b5f6); min-height: 100vh; color: white;">
         <h1 style="font-size: 48px; margin-bottom: 20px; animation: fadeIn 1s ease-in;">Welcome to DojoPool</h1>
@@ -620,11 +620,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'game-analysis-android',
-    deviceType: 'android',
+    name: "game-analysis-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 20px;">Real-time Game Analysis</h1>
@@ -664,11 +664,11 @@ const SCREENSHOTS = [
           <button style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 8px; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">View Detailed Analysis</button>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'training-session-android',
-    deviceType: 'android',
+    name: "training-session-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Training Session</h1>
@@ -702,11 +702,11 @@ const SCREENSHOTS = [
           <button style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 8px; font-size: 18px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Next Shot</button>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'statistics-dashboard-android',
-    deviceType: 'android',
+    name: "statistics-dashboard-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Statistics</h1>
@@ -748,11 +748,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'social-community-android',
-    deviceType: 'android',
+    name: "social-community-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Community</h1>
@@ -797,11 +797,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'coaching-tips-android',
-    deviceType: 'android',
+    name: "coaching-tips-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Coaching</h1>
@@ -830,11 +830,11 @@ const SCREENSHOTS = [
           <button style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 8px; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Start Practice</button>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'tournament-view-android',
-    deviceType: 'android',
+    name: "tournament-view-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 20px;">Tournaments</h1>
@@ -886,11 +886,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'profile-android',
-    deviceType: 'android',
+    name: "profile-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -947,11 +947,11 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
+    `,
   },
   {
-    name: 'settings-android',
-    deviceType: 'android',
+    name: "settings-android",
+    deviceType: "android",
     content: `
       <div style="padding: 40px; font-family: 'Roboto', sans-serif; background: #f5f5f5; min-height: 100vh;">
         <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px;">Settings</h1>
@@ -1009,8 +1009,8 @@ const SCREENSHOTS = [
           </div>
         </div>
       </div>
-    `
-  }
+    `,
+  },
 ];
 
 function generateScreenshots() {
@@ -1046,12 +1046,12 @@ function generateScreenshots() {
       console.log(`Generated screenshot: ${screenshot.name}`);
     }
 
-    console.log('All screenshots generated successfully!');
+    console.log("All screenshots generated successfully!");
   } catch (error) {
-    console.error('Error generating screenshots:', error);
+    console.error("Error generating screenshots:", error);
     process.exit(1);
   }
 }
 
 // Run the script
-generateScreenshots(); 
+generateScreenshots();

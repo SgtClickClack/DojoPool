@@ -1,5 +1,5 @@
-export type BackupFrequency = 'hourly' | 'daily' | 'weekly' | 'monthly';
-export type BackupType = 'database' | 'files' | 'configs';
+export type BackupFrequency = "hourly" | "daily" | "weekly" | "monthly";
+export type BackupType = "database" | "files" | "configs";
 
 export interface BackupOptions {
   type: BackupType;
@@ -20,7 +20,7 @@ export interface BackupResult {
 }
 
 export interface BackupNotification {
-  type: 'success' | 'error';
+  type: "success" | "error";
   message: string;
   details: {
     backupType: BackupType;
@@ -29,4 +29,4 @@ export interface BackupNotification {
     location?: string;
     error?: string;
   };
-} 
+}

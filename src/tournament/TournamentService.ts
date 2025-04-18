@@ -1,5 +1,11 @@
-import { Tournament, TournamentPlayer, TournamentConfig, MatchResult, TournamentFormat } from './types';
-import { TournamentFactory } from './TournamentFactory';
+import {
+  Tournament,
+  TournamentPlayer,
+  TournamentConfig,
+  MatchResult,
+  TournamentFormat,
+} from "./types";
+import { TournamentFactory } from "./TournamentFactory";
 
 interface TournamentData {
   id: string;
@@ -20,10 +26,14 @@ export class TournamentService {
   createTournament(
     format: TournamentFormat,
     players: TournamentPlayer[],
-    config: TournamentConfig
+    config: TournamentConfig,
   ): string {
     const id = this.generateTournamentId();
-    const tournament = TournamentFactory.createTournament(format, players, config);
+    const tournament = TournamentFactory.createTournament(
+      format,
+      players,
+      config,
+    );
 
     this.tournaments.set(id, {
       id,
@@ -31,7 +41,7 @@ export class TournamentService {
       config,
       players,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     return id;
@@ -61,7 +71,11 @@ export class TournamentService {
     return data.players;
   }
 
-  submitMatchResult(tournamentId: string, matchId: string, result: MatchResult): void {
+  submitMatchResult(
+    tournamentId: string,
+    matchId: string,
+    result: MatchResult,
+  ): void {
     const tournament = this.getTournament(tournamentId);
     tournament.submitMatchResult(matchId, result);
 
@@ -91,7 +105,9 @@ export class TournamentService {
   }
 
   private generateTournamentId(): string {
-    return Math.random().toString(36).substring(2, 15) + 
-           Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
   }
-} 
+}

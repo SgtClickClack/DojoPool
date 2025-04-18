@@ -1,5 +1,5 @@
-import { MetricsCollector, MetricsData } from './MetricsCollector';
-import { ConsensusProtocol } from '../../core/consensus/ConsensusProtocol';
+import { MetricsCollector, MetricsData } from "./MetricsCollector";
+import { ConsensusProtocol } from "../../core/consensus/ConsensusProtocol";
 
 interface ConsistencyMetrics extends MetricsData {
   latency: number;
@@ -25,27 +25,30 @@ export class ConsistencyMetricsCollector extends MetricsCollector<ConsistencyMet
     this.consensusProtocol = consensusProtocol;
 
     // Subscribe to consensus events
-    this.consensusProtocol.on('operationComplete', (success: boolean, latency: number) => {
-      this.operationAttempts++;
-      if (success) {
-        this.operationSuccesses++;
-        this.lastLatency = latency;
-      }
-    });
+    this.consensusProtocol.on(
+      "operationComplete",
+      (success: boolean, latency: number) => {
+        this.operationAttempts++;
+        if (success) {
+          this.operationSuccesses++;
+          this.lastLatency = latency;
+        }
+      },
+    );
 
-    this.consensusProtocol.on('sync', () => {
+    this.consensusProtocol.on("sync", () => {
       this.lastSyncTime = Date.now();
     });
 
-    this.consensusProtocol.on('nodeCountChange', (count: number) => {
+    this.consensusProtocol.on("nodeCountChange", (count: number) => {
       this.activeNodeCount = count;
     });
 
-    this.consensusProtocol.on('termChange', (gap: number) => {
+    this.consensusProtocol.on("termChange", (gap: number) => {
       this.currentTermGap = gap;
     });
 
-    this.consensusProtocol.on('pendingOperationsChange', (count: number) => {
+    this.consensusProtocol.on("pendingOperationsChange", (count: number) => {
       this.pendingOpsCount = count;
     });
   }
@@ -54,11 +57,14 @@ export class ConsistencyMetricsCollector extends MetricsCollector<ConsistencyMet
     const now = Date.now();
     const metrics: ConsistencyMetrics = {
       latency: this.lastLatency,
-      successRate: this.operationAttempts > 0 ? (this.operationSuccesses / this.operationAttempts) * 100 : 100,
+      successRate:
+        this.operationAttempts > 0
+          ? (this.operationSuccesses / this.operationAttempts) * 100
+          : 100,
       activeNodes: this.activeNodeCount,
       syncDelay: now - this.lastSyncTime,
       termGap: this.currentTermGap,
-      pendingOperations: this.pendingOpsCount
+      pendingOperations: this.pendingOpsCount,
     };
 
     this.updateMetrics(metrics);
@@ -75,4 +81,4 @@ export class ConsistencyMetricsCollector extends MetricsCollector<ConsistencyMet
     this.currentTermGap = 0;
     this.pendingOpsCount = 0;
   }
-} 
+}

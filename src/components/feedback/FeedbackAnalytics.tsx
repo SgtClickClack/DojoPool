@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
   CardContent,
   Grid,
   Typography,
-  LinearProgress
-} from '@mui/material';
+  LinearProgress,
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -17,10 +17,10 @@ import {
   Legend,
   LineChart,
   Line,
-  ResponsiveContainer
-} from 'recharts';
-import { feedbackService } from '../../services/FeedbackService';
-import { FeedbackData } from './FeedbackForm';
+  ResponsiveContainer,
+} from "recharts";
+import { feedbackService } from "../../services/FeedbackService";
+import { FeedbackData } from "./FeedbackForm";
 
 interface AnalyticsData {
   categoryDistribution: Record<string, number>;
@@ -29,7 +29,9 @@ interface AnalyticsData {
 }
 
 export const FeedbackAnalytics: React.FC = () => {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
+    null,
+  );
   const [recentFeedback, setRecentFeedback] = useState<FeedbackData[]>([]);
   const [averageRating, setAverageRating] = useState<number>(0);
 
@@ -39,7 +41,7 @@ export const FeedbackAnalytics: React.FC = () => {
   }, []);
 
   const loadAnalytics = () => {
-    const storedAnalytics = localStorage.getItem('feedback_analytics');
+    const storedAnalytics = localStorage.getItem("feedback_analytics");
     if (storedAnalytics) {
       setAnalyticsData(JSON.parse(storedAnalytics));
     }
@@ -53,17 +55,19 @@ export const FeedbackAnalytics: React.FC = () => {
 
   const prepareCategoryData = () => {
     if (!analyticsData) return [];
-    return Object.entries(analyticsData.categoryDistribution).map(([category, count]) => ({
-      category,
-      count
-    }));
+    return Object.entries(analyticsData.categoryDistribution).map(
+      ([category, count]) => ({
+        category,
+        count,
+      }),
+    );
   };
 
   const prepareRatingTrendData = () => {
     if (!analyticsData) return [];
     return Object.entries(analyticsData.ratingTrends).map(([date, data]) => ({
       date,
-      rating: data.sum / data.count
+      rating: data.sum / data.count,
     }));
   };
 
@@ -153,8 +157,8 @@ export const FeedbackAnalytics: React.FC = () => {
                   sx={{
                     p: 2,
                     mb: 1,
-                    border: '1px solid #eee',
-                    borderRadius: 1
+                    border: "1px solid #eee",
+                    borderRadius: 1,
                   }}
                 >
                   <Typography variant="subtitle1">
@@ -174,4 +178,4 @@ export const FeedbackAnalytics: React.FC = () => {
       </Grid>
     </Box>
   );
-}; 
+};

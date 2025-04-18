@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   Tournament,
   TournamentParticipant,
@@ -6,9 +6,9 @@ import {
   TournamentFilters,
   CreateTournamentData,
   TournamentMatchUpdateData,
-} from '../types/tournament';
+} from "../types/tournament";
 
-const BASE_URL = '/api/tournaments';
+const BASE_URL = "/api/tournaments";
 
 export const getTournaments = async (params?: any) => {
   const response = await axios.get(BASE_URL, { params });
@@ -53,14 +53,19 @@ export const updateMatch = async (id: number, data: any) => {
 };
 
 export const getMatchHistory = async (participantId: number, params?: any) => {
-  const response = await axios.get(`${BASE_URL}/participants/${participantId}/matches`, {
-    params,
-  });
+  const response = await axios.get(
+    `${BASE_URL}/participants/${participantId}/matches`,
+    {
+      params,
+    },
+  );
   return response.data;
 };
 
 export const getParticipantStats = async (participantId: number) => {
-  const response = await axios.get(`${BASE_URL}/participants/${participantId}/stats`);
+  const response = await axios.get(
+    `${BASE_URL}/participants/${participantId}/stats`,
+  );
   return response.data;
 };
 
@@ -70,7 +75,10 @@ export const getTournamentStats = async (id: number) => {
 };
 
 export const recordScore = async (matchId: number, scoreData: any) => {
-  const response = await axios.post(`${BASE_URL}/matches/${matchId}/score`, scoreData);
+  const response = await axios.post(
+    `${BASE_URL}/matches/${matchId}/score`,
+    scoreData,
+  );
   return response.data;
 };
 
@@ -88,7 +96,10 @@ export const getPrizeHistory = async (userId: number, params?: any) => {
   return response.data;
 };
 
-export const claimPrize = async (participantId: number, tournamentId: number) => {
+export const claimPrize = async (
+  participantId: number,
+  tournamentId: number,
+) => {
   const response = await axios.post(`${BASE_URL}/prizes/claim`, {
     participant_id: participantId,
     tournament_id: tournamentId,
@@ -96,7 +107,13 @@ export const claimPrize = async (participantId: number, tournamentId: number) =>
   return response.data;
 };
 
-export const configurePrizeRule = async (tournamentId: number, distribution: any) => {
-  const response = await axios.post(`${BASE_URL}/${tournamentId}/prize-rule`, distribution);
+export const configurePrizeRule = async (
+  tournamentId: number,
+  distribution: any,
+) => {
+  const response = await axios.post(
+    `${BASE_URL}/${tournamentId}/prize-rule`,
+    distribution,
+  );
   return response.data;
 };

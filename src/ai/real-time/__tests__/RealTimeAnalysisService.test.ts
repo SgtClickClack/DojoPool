@@ -1,19 +1,19 @@
-import { RealTimeAnalysisService } from '../RealTimeAnalysisService';
-import { GameEvent } from '../../types/game';
+import { RealTimeAnalysisService } from "../RealTimeAnalysisService";
+import { GameEvent } from "../../types/game";
 
-describe('RealTimeAnalysisService', () => {
+describe("RealTimeAnalysisService", () => {
   let service: RealTimeAnalysisService;
   let mockEvent: GameEvent;
 
   beforeEach(() => {
     service = new RealTimeAnalysisService();
     mockEvent = {
-      playerId: 'player1',
-      shotType: 'straight',
+      playerId: "player1",
+      shotType: "straight",
       success: true,
       accuracy: 0.85,
       duration: 2000,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   });
 
@@ -21,8 +21,8 @@ describe('RealTimeAnalysisService', () => {
     service.stopProcessing();
   });
 
-  describe('Event Processing', () => {
-    it('should start and stop processing', () => {
+  describe("Event Processing", () => {
+    it("should start and stop processing", () => {
       service.startProcessing();
       expect(service.isProcessing()).toBe(true);
 
@@ -30,15 +30,15 @@ describe('RealTimeAnalysisService', () => {
       expect(service.isProcessing()).toBe(false);
     });
 
-    it('should process queued events', () => {
+    it("should process queued events", () => {
       const handler = jest.fn();
-      service.registerEventHandler('straight', handler);
+      service.registerEventHandler("straight", handler);
       service.startProcessing();
 
       service.enqueueEvent(mockEvent);
-      
+
       // Wait for processing
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(handler).toHaveBeenCalledWith(mockEvent);
           resolve(undefined);
@@ -46,13 +46,13 @@ describe('RealTimeAnalysisService', () => {
       });
     });
 
-    it('should maintain event order', () => {
+    it("should maintain event order", () => {
       const events: GameEvent[] = [];
-      const handler = jest.fn().mockImplementation(event => {
+      const handler = jest.fn().mockImplementation((event) => {
         events.push(event);
       });
 
-      service.registerEventHandler('straight', handler);
+      service.registerEventHandler("straight", handler);
       service.startProcessing();
 
       const event1 = { ...mockEvent, timestamp: 1000 };
@@ -63,7 +63,7 @@ describe('RealTimeAnalysisService', () => {
       service.enqueueEvent(event2);
       service.enqueueEvent(event3);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(events[0].timestamp).toBe(1000);
           expect(events[1].timestamp).toBe(2000);
@@ -74,20 +74,20 @@ describe('RealTimeAnalysisService', () => {
     });
   });
 
-  describe('Event Handlers', () => {
-    it('should register and unregister handlers', () => {
+  describe("Event Handlers", () => {
+    it("should register and unregister handlers", () => {
       const handler = jest.fn();
-      service.registerEventHandler('straight', handler);
+      service.registerEventHandler("straight", handler);
       service.startProcessing();
 
       service.enqueueEvent(mockEvent);
-      
-      return new Promise(resolve => {
+
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(handler).toHaveBeenCalled();
           handler.mockClear();
 
-          service.unregisterEventHandler('straight', handler);
+          service.unregisterEventHandler("straight", handler);
           service.enqueueEvent(mockEvent);
 
           setTimeout(() => {
@@ -98,17 +98,17 @@ describe('RealTimeAnalysisService', () => {
       });
     });
 
-    it('should handle multiple handlers for same event type', () => {
+    it("should handle multiple handlers for same event type", () => {
       const handler1 = jest.fn();
       const handler2 = jest.fn();
 
-      service.registerEventHandler('straight', handler1);
-      service.registerEventHandler('straight', handler2);
+      service.registerEventHandler("straight", handler1);
+      service.registerEventHandler("straight", handler2);
       service.startProcessing();
 
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(handler1).toHaveBeenCalledWith(mockEvent);
           expect(handler2).toHaveBeenCalledWith(mockEvent);
@@ -117,19 +117,19 @@ describe('RealTimeAnalysisService', () => {
       });
     });
 
-    it('should handle errors in event handlers', () => {
+    it("should handle errors in event handlers", () => {
       const errorHandler = jest.fn().mockImplementation(() => {
-        throw new Error('Test error');
+        throw new Error("Test error");
       });
       const normalHandler = jest.fn();
 
-      service.registerEventHandler('straight', errorHandler);
-      service.registerEventHandler('straight', normalHandler);
+      service.registerEventHandler("straight", errorHandler);
+      service.registerEventHandler("straight", normalHandler);
       service.startProcessing();
 
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(errorHandler).toHaveBeenCalled();
           expect(normalHandler).toHaveBeenCalled();
@@ -141,12 +141,12 @@ describe('RealTimeAnalysisService', () => {
     });
   });
 
-  describe('Performance Metrics', () => {
-    it('should track processing time', () => {
+  describe("Performance Metrics", () => {
+    it("should track processing time", () => {
       service.startProcessing();
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           const metrics = service.getPerformanceMetrics();
           expect(metrics.processingTime.length).toBeGreaterThan(0);
@@ -156,7 +156,7 @@ describe('RealTimeAnalysisService', () => {
       });
     });
 
-    it('should track queue size', () => {
+    it("should track queue size", () => {
       service.enqueueEvent(mockEvent);
       service.enqueueEvent(mockEvent);
 
@@ -165,18 +165,18 @@ describe('RealTimeAnalysisService', () => {
       expect(metrics.queueSize).toContain(2);
     });
 
-    it('should track event and error counts', () => {
+    it("should track event and error counts", () => {
       const errorHandler = jest.fn().mockImplementation(() => {
-        throw new Error('Test error');
+        throw new Error("Test error");
       });
 
-      service.registerEventHandler('straight', errorHandler);
+      service.registerEventHandler("straight", errorHandler);
       service.startProcessing();
 
       service.enqueueEvent(mockEvent);
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           const metrics = service.getPerformanceMetrics();
           expect(metrics.eventCount).toBe(2);
@@ -186,11 +186,11 @@ describe('RealTimeAnalysisService', () => {
       });
     });
 
-    it('should clear metrics', () => {
+    it("should clear metrics", () => {
       service.startProcessing();
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           service.clearMetrics();
           const metrics = service.getPerformanceMetrics();
@@ -204,23 +204,23 @@ describe('RealTimeAnalysisService', () => {
     });
   });
 
-  describe('Queue Management', () => {
-    it('should return correct queue size', () => {
+  describe("Queue Management", () => {
+    it("should return correct queue size", () => {
       expect(service.getQueueSize()).toBe(0);
-      
+
       service.enqueueEvent(mockEvent);
       expect(service.getQueueSize()).toBe(1);
-      
+
       service.enqueueEvent(mockEvent);
       expect(service.getQueueSize()).toBe(2);
     });
 
-    it('should clear queue after processing', () => {
+    it("should clear queue after processing", () => {
       service.startProcessing();
       service.enqueueEvent(mockEvent);
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(service.getQueueSize()).toBe(0);
           resolve(undefined);
@@ -229,21 +229,21 @@ describe('RealTimeAnalysisService', () => {
     });
   });
 
-  describe('Error Recovery', () => {
-    it('should continue processing after handler error', () => {
+  describe("Error Recovery", () => {
+    it("should continue processing after handler error", () => {
       const errorHandler = jest.fn().mockImplementation(() => {
-        throw new Error('Test error');
+        throw new Error("Test error");
       });
       const normalHandler = jest.fn();
 
-      service.registerEventHandler('straight', errorHandler);
-      service.registerEventHandler('straight', normalHandler);
+      service.registerEventHandler("straight", errorHandler);
+      service.registerEventHandler("straight", normalHandler);
       service.startProcessing();
 
       service.enqueueEvent(mockEvent);
       service.enqueueEvent(mockEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(normalHandler).toHaveBeenCalledTimes(2);
           const metrics = service.getPerformanceMetrics();
@@ -254,15 +254,18 @@ describe('RealTimeAnalysisService', () => {
       });
     });
 
-    it('should handle malformed events', () => {
+    it("should handle malformed events", () => {
       const handler = jest.fn();
-      service.registerEventHandler('straight', handler);
+      service.registerEventHandler("straight", handler);
       service.startProcessing();
 
-      const malformedEvent = { ...mockEvent, shotType: undefined } as unknown as GameEvent;
+      const malformedEvent = {
+        ...mockEvent,
+        shotType: undefined,
+      } as unknown as GameEvent;
       service.enqueueEvent(malformedEvent);
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(handler).not.toHaveBeenCalled();
           const metrics = service.getPerformanceMetrics();
@@ -272,4 +275,4 @@ describe('RealTimeAnalysisService', () => {
       });
     });
   });
-}); 
+});

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import QrScanner from 'qr-scanner';
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import QrScanner from "qr-scanner";
 
 interface QRScannerProps {
   onScan: (data: string) => void;
@@ -10,27 +10,27 @@ interface QRScannerProps {
 }
 
 const ScannerContainer = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  width: '100%',
-  maxWidth: '500px',
-  margin: '0 auto',
-  '& video': {
-    width: '100%',
+  position: "relative",
+  width: "100%",
+  maxWidth: "500px",
+  margin: "0 auto",
+  "& video": {
+    width: "100%",
     borderRadius: theme.shape.borderRadius,
   },
 }));
 
 const ScannerOverlay = styled(Box)(({ theme }) => ({
-  position: 'absolute',
+  position: "absolute",
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'rgba(0, 0, 0, 0.5)',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(0, 0, 0, 0.5)",
   borderRadius: theme.shape.borderRadius,
 }));
 
@@ -47,7 +47,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onError, onClose }) => {
         // Check camera permissions
         const hasCamera = await QrScanner.hasCamera();
         if (!hasCamera) {
-          throw new Error('No camera found');
+          throw new Error("No camera found");
         }
 
         // Create video element
@@ -64,7 +64,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onError, onClose }) => {
           {
             highlightScanRegion: true,
             highlightCodeOutline: true,
-          }
+          },
         );
 
         // Start scanning
@@ -73,10 +73,12 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onError, onClose }) => {
         setHasPermission(true);
         setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to initialize scanner');
+        setError(
+          err instanceof Error ? err.message : "Failed to initialize scanner",
+        );
         setIsLoading(false);
         if (onError) {
-          onError(err instanceof Error ? err.message : 'Scanner error');
+          onError(err instanceof Error ? err.message : "Scanner error");
         }
       }
     };

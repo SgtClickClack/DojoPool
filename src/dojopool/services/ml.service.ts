@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 export class MLService {
   private readonly baseUrl = `${API_BASE_URL}/api/ml`;
@@ -10,56 +10,80 @@ export class MLService {
   }
 
   async getModelMetrics(modelId: string) {
-    const response = await axios.get(`${this.baseUrl}/models/${modelId}/metrics`);
+    const response = await axios.get(
+      `${this.baseUrl}/models/${modelId}/metrics`,
+    );
     return response.data;
   }
 
-  async trainShotPredictionModel(trainingData: any[], modelType: string = 'random_forest') {
-    const response = await axios.post(`${this.baseUrl}/models/shot-prediction`, {
-      training_data: trainingData,
-      model_type: modelType,
-    });
+  async trainShotPredictionModel(
+    trainingData: any[],
+    modelType: string = "random_forest",
+  ) {
+    const response = await axios.post(
+      `${this.baseUrl}/models/shot-prediction`,
+      {
+        training_data: trainingData,
+        model_type: modelType,
+      },
+    );
     return response.data;
   }
 
-  async trainPatternRecognitionModel(trainingData: any[], sequenceLength: number = 10) {
-    const response = await axios.post(`${this.baseUrl}/models/pattern-recognition`, {
-      training_data: trainingData,
-      sequence_length: sequenceLength,
-    });
+  async trainPatternRecognitionModel(
+    trainingData: any[],
+    sequenceLength: number = 10,
+  ) {
+    const response = await axios.post(
+      `${this.baseUrl}/models/pattern-recognition`,
+      {
+        training_data: trainingData,
+        sequence_length: sequenceLength,
+      },
+    );
     return response.data;
   }
 
   async trainPerformancePredictionModel(
     trainingData: any[],
     targetMetric: string,
-    lookbackPeriod: number = 5
+    lookbackPeriod: number = 5,
   ) {
-    const response = await axios.post(`${this.baseUrl}/models/performance-prediction`, {
-      training_data: trainingData,
-      target_metric: targetMetric,
-      lookback_period: lookbackPeriod,
-    });
+    const response = await axios.post(
+      `${this.baseUrl}/models/performance-prediction`,
+      {
+        training_data: trainingData,
+        target_metric: targetMetric,
+        lookback_period: lookbackPeriod,
+      },
+    );
     return response.data;
   }
 
   async predictShotSuccess(modelId: string, shotData: any) {
-    const response = await axios.post(`${this.baseUrl}/predict/shot-success/${modelId}`, shotData);
+    const response = await axios.post(
+      `${this.baseUrl}/predict/shot-success/${modelId}`,
+      shotData,
+    );
     return response.data;
   }
 
   async predictNextPattern(modelId: string, sequenceData: any[]) {
     const response = await axios.post(
       `${this.baseUrl}/predict/next-pattern/${modelId}`,
-      sequenceData
+      sequenceData,
     );
     return response.data;
   }
 
   async detectAnomalies(data: any[], contamination: number = 0.1) {
-    const response = await axios.post(`${this.baseUrl}/detect/anomalies`, data, {
-      params: { contamination },
-    });
+    const response = await axios.post(
+      `${this.baseUrl}/detect/anomalies`,
+      data,
+      {
+        params: { contamination },
+      },
+    );
     return response.data;
   }
 

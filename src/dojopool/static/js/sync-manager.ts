@@ -4,19 +4,19 @@ interface DB {
   getSyncQueue(): Promise<SyncQueueItem[]>;
   markAsSynced(store: string, id: string): Promise<void>;
   updateSyncStatus(id: string, status: SyncStatus): Promise<void>;
-  addToSyncQueue(item: Omit<SyncQueueItem, 'id' | 'status'>): Promise<void>;
+  addToSyncQueue(item: Omit<SyncQueueItem, "id" | "status">): Promise<void>;
 }
 
 interface SyncQueueItem {
   id: string;
-  type: 'game_update' | 'player_update' | 'venue_update';
+  type: "game_update" | "player_update" | "venue_update";
   data: any;
   status: SyncStatus;
   created_at: Date;
 }
 
-type SyncStatus = 'pending' | 'completed' | 'failed';
-type NotificationType = 'success' | 'warning' | 'error';
+type SyncStatus = "pending" | "completed" | "failed";
+type NotificationType = "success" | "warning" | "error";
 
 // Remove duplicate class declaration and keep only one
 class SyncManager {
@@ -32,12 +32,12 @@ class SyncManager {
   setupSync(): void {
     // Register sync event listener
     navigator.serviceWorker.ready.then((registration) => {
-      registration.sync.register('sync-games');
+      registration.sync.register("sync-games");
     });
 
     // Listen for online/offline events
-    window.addEventListener('online', () => this.syncData());
-    window.addEventListener('offline', () => this.handleOffline());
+    window.addEventListener("online", () => this.syncData());
+    window.addEventListener("offline", () => this.handleOffline());
   }
 
   async syncData(): Promise<void> {
@@ -49,7 +49,7 @@ class SyncManager {
 
     try {
       // Get all unsynced items from different stores
-      const unsyncedGames = await this.db.getUnsynced('games');
+      const unsyncedGames = await this.db.getUnsynced("games");
       const syncQueue = await this.db.getSyncQueue();
 
       // Sync games
@@ -59,16 +59,16 @@ class SyncManager {
 
       // Process sync queue
       for (const item of syncQueue) {
-        if (item.status === 'pending') {
+        if (item.status === "pending") {
           await this.processSyncItem(item);
         }
       }
 
       // Notify success
-      this.notifySync('success', 'All data synchronized successfully');
+      this.notifySync("success", "All data synchronized successfully");
     } catch (error) {
-      console.error('Sync failed:', error);
-      this.notifySync('error', 'Failed to synchronize data');
+      console.error("Sync failed:", error);
+      this.notifySync("error", "Failed to synchronize data");
     } finally {
       this.syncInProgress = false;
     }
@@ -76,21 +76,21 @@ class SyncManager {
 
   async syncGame(game: any): Promise<boolean> {
     try {
-      const response = await fetch('/api/games', {
-        method: 'POST',
+      const response = await fetch("/api/games", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(game),
       });
 
       if (response.ok) {
-        await this.db.markAsSynced('games', game.id);
+        await this.db.markAsSynced("games", game.id);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('Failed to sync game:', error);
+      console.error("Failed to sync game:", error);
       return false;
     }
   }
@@ -100,42 +100,42 @@ class SyncManager {
       let success = false;
 
       switch (item.type) {
-        case 'game_update':
+        case "game_update":
           success = await this.handleGameUpdate(item.data);
           break;
-        case 'player_update':
+        case "player_update":
           success = await this.handlePlayerUpdate(item.data);
           break;
-        case 'venue_update':
+        case "venue_update":
           success = await this.handleVenueUpdate(item.data);
           break;
         default:
-          console.warn('Unknown sync item type:', item.type);
+          console.warn("Unknown sync item type:", item.type);
       }
 
       if (success) {
-        await this.db.updateSyncStatus(item.id, 'completed');
+        await this.db.updateSyncStatus(item.id, "completed");
       } else {
-        await this.db.updateSyncStatus(item.id, 'failed');
+        await this.db.updateSyncStatus(item.id, "failed");
       }
     } catch (error) {
-      console.error('Failed to process sync item:', error);
-      await this.db.updateSyncStatus(item.id, 'failed');
+      console.error("Failed to process sync item:", error);
+      await this.db.updateSyncStatus(item.id, "failed");
     }
   }
 
   async handleGameUpdate(data: any): Promise<boolean> {
     try {
       const response = await fetch(`/api/games/${data.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
       return response.ok;
     } catch (error) {
-      console.error('Failed to handle game update:', error);
+      console.error("Failed to handle game update:", error);
       return false;
     }
   }
@@ -143,15 +143,15 @@ class SyncManager {
   async handlePlayerUpdate(data: any): Promise<boolean> {
     try {
       const response = await fetch(`/api/players/${data.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
       return response.ok;
     } catch (error) {
-      console.error('Failed to handle player update:', error);
+      console.error("Failed to handle player update:", error);
       return false;
     }
   }
@@ -159,36 +159,36 @@ class SyncManager {
   async handleVenueUpdate(data: any): Promise<boolean> {
     try {
       const response = await fetch(`/api/venues/${data.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
       return response.ok;
     } catch (error) {
-      console.error('Failed to handle venue update:', error);
+      console.error("Failed to handle venue update:", error);
       return false;
     }
   }
 
   handleOffline(): void {
     this.notifySync(
-      'warning',
-      'You are offline. Changes will be synchronized when you are back online.'
+      "warning",
+      "You are offline. Changes will be synchronized when you are back online.",
     );
   }
 
   notifySync(type: NotificationType, message: string): void {
     // Dispatch custom event for sync notifications
-    const event = new CustomEvent('sync-notification', {
+    const event = new CustomEvent("sync-notification", {
       detail: { type, message },
     });
     window.dispatchEvent(event);
   }
 
   // Helper method to queue updates for sync
-  async queueForSync(type: SyncQueueItem['type'], data: any): Promise<void> {
+  async queueForSync(type: SyncQueueItem["type"], data: any): Promise<void> {
     await this.db.addToSyncQueue({
       type,
       data,

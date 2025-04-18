@@ -1,12 +1,12 @@
 // Theme constants
-const THEME_KEY = 'app-theme';
-const THEME_LIGHT = 'theme-light';
-const THEME_DARK = 'theme-dark';
+const THEME_KEY = "app-theme";
+const THEME_LIGHT = "theme-light";
+const THEME_DARK = "theme-dark";
 
 // Get system preference for dark mode
 const prefersDarkMode = () =>
   window.matchMedia &&
-  window.matchMedia('(prefers-color-scheme: dark)').matches;
+  window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 // Get stored theme preference
 const getStoredTheme = () => localStorage.getItem(THEME_KEY);
@@ -43,7 +43,7 @@ const toggleTheme = () => {
 const listenForThemeChanges = () => {
   if (!window.matchMedia) return;
 
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
   mediaQuery.addListener((e) => {
     if (!getStoredTheme()) {
       applyTheme(e.matches ? THEME_DARK : THEME_LIGHT);

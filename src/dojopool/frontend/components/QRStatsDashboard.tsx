@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -16,8 +16,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
-} from '@mui/material';
+  Paper,
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -28,58 +28,57 @@ import {
   Legend,
   ResponsiveContainer,
   LineChart,
-  Line
-} from 'recharts';
-import { api } from '../services/api';
+  Line,
+} from "recharts";
+import { api } from "../services/api";
 
 interface QRStatsProps {
   venueId?: string;
   tableId?: string;
-  timeRange?: number;  // Days
+  timeRange?: number; // Days
 }
 
 export const QRStatsDashboard: React.FC<QRStatsProps> = ({
   venueId,
   tableId,
-  timeRange = 30
+  timeRange = 30,
 }) => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [errorReport, setErrorReport] = useState<any>(null);
   const [selectedRange, setSelectedRange] = useState(timeRange);
-  
+
   useEffect(() => {
     loadStats();
   }, [venueId, tableId, selectedRange]);
-  
+
   const loadStats = async () => {
     try {
       setLoading(true);
-      
+
       // Load stats based on venue or table ID
       const statsResponse = venueId
         ? await api.get(`/venues/${venueId}/qr/stats?days=${selectedRange}`)
         : await api.get(`/tables/${tableId}/qr/stats?days=${selectedRange}`);
-      
+
       // Load error report
-      const errorResponse = await api.get('/qr/errors', {
+      const errorResponse = await api.get("/qr/errors", {
         params: {
           venue_id: venueId,
           table_id: tableId,
-          days: selectedRange
-        }
+          days: selectedRange,
+        },
       });
-      
+
       setStats(statsResponse.data);
       setErrorReport(errorResponse.data);
-      
     } catch (error) {
-      console.error('Error loading QR stats:', error);
+      console.error("Error loading QR stats:", error);
     } finally {
       setLoading(false);
     }
   };
-  
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={4}>
@@ -87,26 +86,26 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
       </Box>
     );
   }
-  
+
   if (!stats) {
     return (
-      <Typography color="error">
-        Failed to load QR code statistics
-      </Typography>
+      <Typography color="error">Failed to load QR code statistics</Typography>
     );
   }
-  
+
   // Prepare chart data
   const dailyData = Object.entries(stats.daily_stats).map(([date, count]) => ({
     date,
-    scans: count
+    scans: count,
   }));
-  
-  const hourlyData = Object.entries(stats.hourly_stats).map(([hour, count]) => ({
-    hour: `${hour}:00`,
-    scans: count
-  }));
-  
+
+  const hourlyData = Object.entries(stats.hourly_stats).map(
+    ([hour, count]) => ({
+      hour: `${hour}:00`,
+      scans: count,
+    }),
+  );
+
   return (
     <Box>
       {/* Time Range Selector */}
@@ -124,7 +123,7 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
           </Select>
         </FormControl>
       </Box>
-      
+
       {/* Summary Cards */}
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12} sm={6} md={3}>
@@ -133,13 +132,11 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
               <Typography color="textSecondary" gutterBottom>
                 Total Scans
               </Typography>
-              <Typography variant="h4">
-                {stats.total_scans}
-              </Typography>
+              <Typography variant="h4">{stats.total_scans}</Typography>
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -152,7 +149,7 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -165,7 +162,7 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -179,7 +176,7 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
           </Card>
         </Grid>
       </Grid>
-      
+
       {/* Charts */}
       <Grid container spacing={3} mb={3}>
         {/* Daily Scans Chart */}
@@ -209,7 +206,7 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
             </CardContent>
           </Card>
         </Grid>
-        
+
         {/* Hourly Distribution Chart */}
         <Grid item xs={12} md={6}>
           <Card>
@@ -233,7 +230,7 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
           </Card>
         </Grid>
       </Grid>
-      
+
       {/* Error Report */}
       {errorReport && errorReport.total_errors > 0 && (
         <Card>
@@ -255,11 +252,13 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
                 <TableBody>
                   {errorReport.errors.map((error: any, index: number) => (
                     <TableRow key={index}>
-                      <TableCell>{new Date(error.timestamp).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {new Date(error.timestamp).toLocaleString()}
+                      </TableCell>
                       <TableCell>{error.error_type}</TableCell>
                       <TableCell>{error.table_id}</TableCell>
                       <TableCell>{error.venue_id}</TableCell>
-                      <TableCell>{error.user_id || 'N/A'}</TableCell>
+                      <TableCell>{error.user_id || "N/A"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -270,4 +269,4 @@ export const QRStatsDashboard: React.FC<QRStatsProps> = ({
       )}
     </Box>
   );
-}; 
+};

@@ -1,4 +1,4 @@
-import analyticsService from './analytics';
+import analyticsService from "./analytics";
 
 interface PerformanceEntry {
   name: string;
@@ -32,10 +32,10 @@ class PerformanceService {
   }
 
   private initializeObservers(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     // Performance Observer for long tasks
-    if ('PerformanceObserver' in window) {
+    if ("PerformanceObserver" in window) {
       try {
         const longTaskObserver = new PerformanceObserver((list) => {
           list.getEntries().forEach((entry) => {
@@ -43,7 +43,7 @@ class PerformanceService {
           });
         });
 
-        longTaskObserver.observe({ entryTypes: ['longtask'] });
+        longTaskObserver.observe({ entryTypes: ["longtask"] });
 
         // Resource timing observer
         const resourceObserver = new PerformanceObserver((list) => {
@@ -52,7 +52,7 @@ class PerformanceService {
           });
         });
 
-        resourceObserver.observe({ entryTypes: ['resource'] });
+        resourceObserver.observe({ entryTypes: ["resource"] });
 
         // Navigation timing observer
         const navigationObserver = new PerformanceObserver((list) => {
@@ -61,11 +61,11 @@ class PerformanceService {
           });
         });
 
-        navigationObserver.observe({ entryTypes: ['navigation'] });
+        navigationObserver.observe({ entryTypes: ["navigation"] });
 
         this.isMonitoring = true;
       } catch (error) {
-        console.error('Failed to initialize performance observers:', error);
+        console.error("Failed to initialize performance observers:", error);
       }
     }
   }
@@ -85,7 +85,7 @@ class PerformanceService {
       name,
       startTime,
       duration,
-      entryType: 'measure',
+      entryType: "measure",
     };
 
     if (!this.measures.has(name)) {
@@ -137,12 +137,16 @@ class PerformanceService {
     });
   }
 
-  private reportLongTask(name: string, duration: number, category?: string): void {
+  private reportLongTask(
+    name: string,
+    duration: number,
+    category?: string,
+  ): void {
     analyticsService.trackUserEvent({
-      type: 'performance_issue',
-      userId: 'system',
+      type: "performance_issue",
+      userId: "system",
       details: {
-        type: 'long_task',
+        type: "long_task",
         name,
         duration,
         category,
@@ -152,10 +156,10 @@ class PerformanceService {
 
   private reportSlowResource(timing: ResourceTiming): void {
     analyticsService.trackUserEvent({
-      type: 'performance_issue',
-      userId: 'system',
+      type: "performance_issue",
+      userId: "system",
       details: {
-        type: 'slow_resource',
+        type: "slow_resource",
         ...timing,
       },
     });
@@ -193,9 +197,9 @@ class PerformanceService {
   }
 
   public getResourceTimings(): ResourceTiming[] {
-    if (typeof performance === 'undefined') return [];
+    if (typeof performance === "undefined") return [];
 
-    return performance.getEntriesByType('resource').map((entry) => ({
+    return performance.getEntriesByType("resource").map((entry) => ({
       name: entry.name,
       initiatorType: (entry as PerformanceResourceTiming).initiatorType,
       duration: entry.duration,

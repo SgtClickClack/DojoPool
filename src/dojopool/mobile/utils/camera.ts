@@ -1,6 +1,6 @@
-import { Camera } from 'react-native-vision-camera';
-import { Platform } from 'react-native';
-import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { Camera } from "react-native-vision-camera";
+import { Platform } from "react-native";
+import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 
 export const requestCameraPermission = async (): Promise<boolean> => {
   try {
@@ -10,7 +10,7 @@ export const requestCameraPermission = async (): Promise<boolean> => {
     });
 
     if (!permission) {
-      console.error('Platform not supported');
+      console.error("Platform not supported");
       return false;
     }
 
@@ -23,7 +23,7 @@ export const requestCameraPermission = async (): Promise<boolean> => {
 
     return result === RESULTS.GRANTED;
   } catch (error) {
-    console.error('Error requesting camera permission:', error);
+    console.error("Error requesting camera permission:", error);
     return false;
   }
 };
@@ -44,8 +44,8 @@ export const initializeCamera = async (): Promise<{
 
     const devices = await Camera.getAvailableCameraDevices();
     const sortedDevices = devices.sort((a, b) => {
-      if (a.position === 'back' && b.position !== 'back') return -1;
-      if (a.position !== 'back' && b.position === 'back') return 1;
+      if (a.position === "back" && b.position !== "back") return -1;
+      if (a.position !== "back" && b.position === "back") return 1;
       return 0;
     });
 
@@ -54,7 +54,7 @@ export const initializeCamera = async (): Promise<{
       devices: sortedDevices,
     };
   } catch (error) {
-    console.error('Error initializing camera:', error);
+    console.error("Error initializing camera:", error);
     return {
       hasPermission: false,
       devices: [],
@@ -64,18 +64,18 @@ export const initializeCamera = async (): Promise<{
 
 export const getCameraDevice = async () => {
   const { devices } = await initializeCamera();
-  return devices.find((device) => device.position === 'back') || devices[0];
+  return devices.find((device) => device.position === "back") || devices[0];
 };
 
 export const formatCameraError = (error: any): string => {
-  if (typeof error === 'string') return error;
+  if (typeof error === "string") return error;
 
   const errorMap: { [key: string]: string } = {
-    'permission-denied': 'Camera permission was denied',
-    'device-not-found': 'No camera device was found',
-    'invalid-parameter': 'Invalid camera parameters',
-    'system-error': 'System error occurred while accessing camera',
+    "permission-denied": "Camera permission was denied",
+    "device-not-found": "No camera device was found",
+    "invalid-parameter": "Invalid camera parameters",
+    "system-error": "System error occurred while accessing camera",
   };
 
-  return errorMap[error.code] || 'An unknown error occurred';
+  return errorMap[error.code] || "An unknown error occurred";
 };

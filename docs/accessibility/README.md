@@ -7,7 +7,7 @@ When including audio content, follow these guidelines:
 ```html
 <figure>
   <audio controls>
-    <source src="../../static/media/audio/podcast.mp3" type="audio/mpeg">
+    <source src="../../static/media/audio/podcast.mp3" type="audio/mpeg" />
     Your browser does not support the audio element.
   </audio>
   <figcaption>
@@ -19,6 +19,7 @@ When including audio content, follow these guidelines:
 Note: Audio files should be placed in `static/media/audio/` with their transcripts. Ensure both the audio file and transcript are present before referencing them.
 
 Key requirements:
+
 - Always include controls for audio playback
 - Provide fallback text for unsupported browsers
 - Link to a transcript of the audio content

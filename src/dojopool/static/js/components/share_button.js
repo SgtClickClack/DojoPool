@@ -2,12 +2,12 @@ class ShareButton {
   constructor(container, options = {}) {
     this.container = container;
     this.options = {
-      type: options.type || 'achievement',
+      type: options.type || "achievement",
       id: options.id,
       onShare: options.onShare || (() => {}),
-      buttonClass: options.buttonClass || 'btn-primary',
-      buttonText: options.buttonText || 'Share',
-      iconClass: options.iconClass || 'bi-share',
+      buttonClass: options.buttonClass || "btn-primary",
+      buttonText: options.buttonText || "Share",
+      iconClass: options.iconClass || "bi-share",
     };
 
     this.init();
@@ -20,7 +20,7 @@ class ShareButton {
   }
 
   createButton() {
-    this.button = document.createElement('button');
+    this.button = document.createElement("button");
     this.button.className = `btn ${this.options.buttonClass}`;
     this.button.innerHTML = `
             <i class="bi ${this.options.iconClass} me-2"></i>
@@ -30,8 +30,8 @@ class ShareButton {
   }
 
   createShareModal() {
-    this.modal = document.createElement('div');
-    this.modal.className = 'modal fade';
+    this.modal = document.createElement("div");
+    this.modal.className = "modal fade";
     this.modal.id = `shareModal_${this.options.type}_${this.options.id}`;
     this.modal.innerHTML = `
             <div class="modal-dialog">
@@ -64,10 +64,10 @@ class ShareButton {
   }
 
   bindEvents() {
-    this.button.addEventListener('click', () => this.handleShare());
+    this.button.addEventListener("click", () => this.handleShare());
 
-    this.modal.querySelectorAll('.share-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+    this.modal.querySelectorAll(".share-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         const platform = e.currentTarget.dataset.platform;
         this.shareOnPlatform(platform);
       });
@@ -77,9 +77,9 @@ class ShareButton {
   async handleShare() {
     try {
       const response = await fetch(
-        `/api/v1/social/share/${this.options.type}/${this.options.id}`
+        `/api/v1/social/share/${this.options.type}/${this.options.id}`,
       );
-      if (!response.ok) throw new Error('Failed to get share links');
+      if (!response.ok) throw new Error("Failed to get share links");
 
       const data = await response.json();
       this.shareLinks = data.share_links;
@@ -88,12 +88,12 @@ class ShareButton {
       // Call onShare callback
       this.options.onShare();
     } catch (error) {
-      console.error('Share error:', error);
+      console.error("Share error:", error);
       // Show error toast
       if (window.showToast) {
         window.showToast(
-          'error',
-          'Failed to generate share links. Please try again.'
+          "error",
+          "Failed to generate share links. Please try again.",
         );
       }
     }
@@ -103,7 +103,7 @@ class ShareButton {
     if (!this.shareLinks || !this.shareLinks[platform]) return;
 
     // Open share URL in new window
-    window.open(this.shareLinks[platform], '_blank', 'width=600,height=400');
+    window.open(this.shareLinks[platform], "_blank", "width=600,height=400");
 
     // Close modal
     this.bsModal.hide();

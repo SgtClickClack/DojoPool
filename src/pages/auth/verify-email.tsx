@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   VStack,
@@ -9,11 +9,11 @@ import {
   Icon,
   Center,
   Spinner,
-} from '@chakra-ui/react';
-import { FaEnvelope, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
-import { useAuth } from '../../hooks/useAuth';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+} from "@chakra-ui/react";
+import { FaEnvelope, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import { useAuth } from "../../hooks/useAuth";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const VerifyEmailPage: React.FC = () => {
   const { user, loading, checkEmailVerification, sendVerification } = useAuth();
@@ -22,13 +22,13 @@ const VerifyEmailPage: React.FC = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   }, [user, loading, router]);
 
   useEffect(() => {
     if (user && checkEmailVerification()) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   }, [user, checkEmailVerification, router]);
 
@@ -36,17 +36,17 @@ const VerifyEmailPage: React.FC = () => {
     const result = await sendVerification();
     if (result.success) {
       toast({
-        title: 'Verification email sent',
-        description: 'Please check your inbox for the verification link.',
-        status: 'success',
+        title: "Verification email sent",
+        description: "Please check your inbox for the verification link.",
+        status: "success",
         duration: 5000,
         isClosable: true,
       });
     } else {
       toast({
-        title: 'Failed to send verification email',
+        title: "Failed to send verification email",
         description: result.error,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -80,16 +80,16 @@ const VerifyEmailPage: React.FC = () => {
           as={checkEmailVerification() ? FaCheckCircle : FaEnvelope}
           w={12}
           h={12}
-          color={checkEmailVerification() ? 'green.500' : 'blue.500'}
+          color={checkEmailVerification() ? "green.500" : "blue.500"}
         />
 
         <Heading size="lg" textAlign="center">
-          {checkEmailVerification() ? 'Email Verified!' : 'Verify Your Email'}
+          {checkEmailVerification() ? "Email Verified!" : "Verify Your Email"}
         </Heading>
 
         <Text textAlign="center" color="gray.600">
           {checkEmailVerification()
-            ? 'Your email has been successfully verified. You can now access all features.'
+            ? "Your email has been successfully verified. You can now access all features."
             : `We've sent a verification email to ${user.email}. Please check your inbox and click the verification link.`}
         </Text>
 
@@ -105,10 +105,7 @@ const VerifyEmailPage: React.FC = () => {
         )}
 
         {checkEmailVerification() && (
-          <Button
-            colorScheme="green"
-            onClick={() => router.push('/dashboard')}
-          >
+          <Button colorScheme="green" onClick={() => router.push("/dashboard")}>
             Go to Dashboard
           </Button>
         )}
@@ -117,4 +114,4 @@ const VerifyEmailPage: React.FC = () => {
   );
 };
 
-export default VerifyEmailPage; 
+export default VerifyEmailPage;

@@ -13,7 +13,7 @@ import {
   Share as ShareIcon,
   ShowChart as TrendLineIcon,
   Close as CloseIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import {
   Autocomplete,
   Box,
@@ -56,7 +56,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Timeline,
   TimelineConnector,
@@ -65,11 +65,11 @@ import {
   TimelineItem,
   TimelineOppositeContent,
   TimelineSeparator,
-} from '@mui/lab';
-import { saveAs } from 'file-saver';
-import jsPDF from 'jspdf';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+} from "@mui/lab";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import {
   CartesianGrid,
   Line,
@@ -80,14 +80,20 @@ import {
   ScatterChart,
   XAxis,
   YAxis,
-} from 'recharts';
-import { Alert, ErrorData, ErrorEvent as MonitoringErrorEvent, MetricData, MetricsSnapshot } from '../../types/monitoring';
-import { ErrorTracker, gameMetricsMonitor } from '../../utils/monitoring';
-import { ErrorBoundary } from './[ERR]ErrorBoundary';
-import { MetricsChart } from './[MON]MetricsChart';
-import { exportToPDF } from '../../utils/pdfExport';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import MetricCard from './[MON]MetricCard';
+} from "recharts";
+import {
+  Alert,
+  ErrorData,
+  ErrorEvent as MonitoringErrorEvent,
+  MetricData,
+  MetricsSnapshot,
+} from "../../types/monitoring";
+import { ErrorTracker, gameMetricsMonitor } from "../../utils/monitoring";
+import { ErrorBoundary } from "./[ERR]ErrorBoundary";
+import { MetricsChart } from "./[MON]MetricsChart";
+import { exportToPDF } from "../../utils/pdfExport";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import MetricCard from "./[MON]MetricCard";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -114,36 +120,43 @@ interface DashboardProps {
   gameId?: string;
 }
 
-type TimeRange = '1h' | '6h' | '24h' | '7d' | 'custom';
+type TimeRange = "1h" | "6h" | "24h" | "7d" | "custom";
 
 const exportToCSV = (data: any[], filename: string) => {
   const csvContent = convertToCSV(data);
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   saveAs(blob, `${filename}_${new Date().toISOString()}.csv`);
 };
 
 const exportToJSON = (data: any, filename: string) => {
   const jsonContent = JSON.stringify(data, null, 2);
-  const blob = new Blob([jsonContent], { type: 'application/json' });
+  const blob = new Blob([jsonContent], { type: "application/json" });
   saveAs(blob, `${filename}.json`);
 };
 
 const convertToCSV = (data: any[]): string => {
-  if (!data.length) return '';
-  
+  if (!data.length) return "";
+
   const headers = Object.keys(data[0]);
-  const rows = data.map(item => 
-    headers.map(header => {
-      const value = item[header];
-      return typeof value === 'object' ? JSON.stringify(value) : String(value);
-    }).join(',')
+  const rows = data.map((item) =>
+    headers
+      .map((header) => {
+        const value = item[header];
+        return typeof value === "object"
+          ? JSON.stringify(value)
+          : String(value);
+      })
+      .join(","),
   );
-  
-  return [headers.join(','), ...rows].join('\n');
+
+  return [headers.join(","), ...rows].join("\n");
 };
 
 // Data aggregation utilities
-const aggregateDataPoints = (data: MetricData[], interval: number): MetricData[] => {
+const aggregateDataPoints = (
+  data: MetricData[],
+  interval: number,
+): MetricData[] => {
   if (!data.length) return [];
 
   const groups: { [key: string]: MetricData[] } = {};
@@ -166,7 +179,10 @@ const aggregateDataPoints = (data: MetricData[], interval: number): MetricData[]
   }));
 };
 
-const getAggregationInterval = (timeRange: { startTime: number; endTime: number }): number => {
+const getAggregationInterval = (timeRange: {
+  startTime: number;
+  endTime: number;
+}): number => {
   const duration = timeRange.endTime - timeRange.startTime;
   if (duration > 7 * 24 * 60 * 60 * 1000) {
     // > 7 days
@@ -203,41 +219,41 @@ interface MetricConfig {
   name: string;
   enabled: boolean;
   order: number;
-  chartType: 'line' | 'bar' | 'pie';
+  chartType: "line" | "bar" | "pie";
   refreshInterval: number;
 }
 
 const DEFAULT_METRIC_CONFIG: MetricConfig[] = [
   {
-    id: 'updateTimes',
-    name: 'Update Times',
+    id: "updateTimes",
+    name: "Update Times",
     enabled: true,
     order: 0,
-    chartType: 'line',
+    chartType: "line",
     refreshInterval: 5000,
   },
   {
-    id: 'latency',
-    name: 'Latency',
+    id: "latency",
+    name: "Latency",
     enabled: true,
     order: 1,
-    chartType: 'line',
+    chartType: "line",
     refreshInterval: 5000,
   },
   {
-    id: 'memoryUsage',
-    name: 'Memory Usage',
+    id: "memoryUsage",
+    name: "Memory Usage",
     enabled: true,
     order: 2,
-    chartType: 'line',
+    chartType: "line",
     refreshInterval: 5000,
   },
   {
-    id: 'successRate',
-    name: 'Success Rate',
+    id: "successRate",
+    name: "Success Rate",
     enabled: true,
     order: 3,
-    chartType: 'pie',
+    chartType: "pie",
     refreshInterval: 5000,
   },
 ];
@@ -252,28 +268,28 @@ interface ThresholdConfig {
 
 const DEFAULT_THRESHOLDS: Record<string, ThresholdConfig> = {
   updateTimes: {
-    id: 'updateTimes',
+    id: "updateTimes",
     enabled: true,
     warning: 1000, // 1 second
     critical: 5000, // 5 seconds
     notifyOnBreach: true,
   },
   latency: {
-    id: 'latency',
+    id: "latency",
     enabled: true,
     warning: 200, // 200ms
     critical: 500, // 500ms
     notifyOnBreach: true,
   },
   memoryUsage: {
-    id: 'memoryUsage',
+    id: "memoryUsage",
     enabled: true,
     warning: 70, // 70%
     critical: 90, // 90%
     notifyOnBreach: true,
   },
   successRate: {
-    id: 'successRate',
+    id: "successRate",
     enabled: true,
     warning: 95, // 95%
     critical: 90, // 90%
@@ -287,7 +303,7 @@ interface TrendAnalysis {
   anomalies: {
     timestamp: number;
     value: number;
-    severity: 'warning' | 'critical';
+    severity: "warning" | "critical";
   }[];
 }
 
@@ -340,7 +356,7 @@ interface ExportData {
 }
 
 interface PatternInfo {
-  type: 'trend' | 'seasonal' | 'spike' | 'anomaly';
+  type: "trend" | "seasonal" | "spike" | "anomaly";
   startTime: number;
   endTime: number;
   confidence: number;
@@ -368,7 +384,7 @@ interface EventSequence {
     metricId: string;
     timestamp: number;
     value: number;
-    type: 'cause' | 'effect';
+    type: "cause" | "effect";
   }[];
   confidence: number;
   lagTime: number;
@@ -411,51 +427,76 @@ interface ErrorTrends {
 
 export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedError, setSelectedError] = useState<MonitoringErrorEvent | null>(null);
+  const [selectedError, setSelectedError] =
+    useState<MonitoringErrorEvent | null>(null);
   const [alertCount, setAlertCount] = useState(0);
   const [errorCount, setErrorCount] = useState(0);
-  const [timeRange, setTimeRange] = useState<TimeRange>('1h');
+  const [timeRange, setTimeRange] = useState<TimeRange>("1h");
   const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
   const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
-  const [retentionConfig, setRetentionConfig] = useState<RetentionConfig>(DEFAULT_RETENTION_CONFIG);
+  const [retentionConfig, setRetentionConfig] = useState<RetentionConfig>(
+    DEFAULT_RETENTION_CONFIG,
+  );
   const [showRetentionDialog, setShowRetentionDialog] = useState(false);
-  const [metricConfig, setMetricConfig] = useState<MetricConfig[]>(DEFAULT_METRIC_CONFIG);
+  const [metricConfig, setMetricConfig] = useState<MetricConfig[]>(
+    DEFAULT_METRIC_CONFIG,
+  );
   const [showMetricConfig, setShowMetricConfig] = useState(false);
-  const [thresholds, setThresholds] = useState<Record<string, ThresholdConfig>>(DEFAULT_THRESHOLDS);
+  const [thresholds, setThresholds] =
+    useState<Record<string, ThresholdConfig>>(DEFAULT_THRESHOLDS);
   const [showThresholdConfig, setShowThresholdConfig] = useState(false);
   const [thresholdBreaches, setThresholdBreaches] = useState<
     {
       metric: string;
-      level: 'warning' | 'critical';
+      level: "warning" | "critical";
       value: number;
     }[]
   >([]);
-  const [drillDownData, setDrillDownData] = useState<DrillDownData | null>(null);
+  const [drillDownData, setDrillDownData] = useState<DrillDownData | null>(
+    null,
+  );
   const [showDrillDown, setShowDrillDown] = useState(false);
   const [showTrendLine, setShowTrendLine] = useState(false);
   const [showForecast, setShowForecast] = useState(false);
   const [showAnomalies, setShowAnomalies] = useState(false);
-  const [updateConfig, setUpdateConfig] = useState<UpdateConfig>(DEFAULT_UPDATE_CONFIG);
+  const [updateConfig, setUpdateConfig] = useState<UpdateConfig>(
+    DEFAULT_UPDATE_CONFIG,
+  );
   const [showUpdateConfig, setShowUpdateConfig] = useState(false);
-  const [dataBuffer, setDataBuffer] = useState<Record<string, MetricData[]>>({});
+  const [dataBuffer, setDataBuffer] = useState<Record<string, MetricData[]>>(
+    {},
+  );
   const [isProcessing, setIsProcessing] = useState(false);
-  const [updateInterval, setUpdateInterval] = useState(updateConfig.minInterval);
+  const [updateInterval, setUpdateInterval] = useState(
+    updateConfig.minInterval,
+  );
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
   const [showCorrelation, setShowCorrelation] = useState(false);
-  const [selectedMetrics, setSelectedMetrics] = useState<[string, string] | null>(null);
-  const [correlationData, setCorrelationData] = useState<CorrelationData | null>(null);
-  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedMetrics, setSelectedMetrics] = useState<
+    [string, string] | null
+  >(null);
+  const [correlationData, setCorrelationData] =
+    useState<CorrelationData | null>(null);
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(
+    null,
+  );
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const [selectedMetricAnalytics, setSelectedMetricAnalytics] = useState<string | null>(null);
-  const [analyticsResult, setAnalyticsResult] = useState<AnalyticsResult | null>(null);
+  const [selectedMetricAnalytics, setSelectedMetricAnalytics] = useState<
+    string | null
+  >(null);
+  const [analyticsResult, setAnalyticsResult] =
+    useState<AnalyticsResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCauseEffect, setShowCauseEffect] = useState(false);
-  const [causeEffectAnalysis, setCauseEffectAnalysis] = useState<CauseEffectAnalysis | null>(null);
+  const [causeEffectAnalysis, setCauseEffectAnalysis] =
+    useState<CauseEffectAnalysis | null>(null);
   const [analyzingCauseEffect, setAnalyzingCauseEffect] = useState(false);
   const [errorStats, setErrorStats] = useState<ErrorStats | null>(null);
   const [errorTrends, setErrorTrends] = useState<ErrorTrends | null>(null);
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(
+    null,
+  );
   const errorTracker = ErrorTracker.getInstance();
   const [errorData, setErrorData] = useState<ErrorData[]>([]);
   const [metrics, setMetrics] = useState<MetricsSnapshot | null>(null);
@@ -464,15 +505,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const getTimeRangeInMs = (): { startTime: number; endTime: number } => {
     const now = Date.now();
     switch (timeRange) {
-      case '1h':
+      case "1h":
         return { startTime: now - 3600000, endTime: now };
-      case '6h':
+      case "6h":
         return { startTime: now - 21600000, endTime: now };
-      case '24h':
+      case "24h":
         return { startTime: now - 86400000, endTime: now };
-      case '7d':
+      case "7d":
         return { startTime: now - 604800000, endTime: now };
-      case 'custom':
+      case "custom":
         return {
           startTime: customStartDate?.getTime() || now - 3600000,
           endTime: customEndDate?.getTime() || now,
@@ -489,7 +530,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
         setMetrics(snapshot);
       } catch (error) {
-        console.error('Failed to fetch metrics:', error);
+        console.error("Failed to fetch metrics:", error);
       }
     };
 
@@ -508,26 +549,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     return {
       updateTimes: aggregateDataPoints(
         metrics.updateTimes.filter(
-          (point) => point.timestamp >= timeRange.startTime && point.timestamp <= timeRange.endTime
+          (point) =>
+            point.timestamp >= timeRange.startTime &&
+            point.timestamp <= timeRange.endTime,
         ),
-        interval
+        interval,
       ),
       latency: aggregateDataPoints(
         metrics.latencyData.filter(
-          (point) => point.timestamp >= timeRange.startTime && point.timestamp <= timeRange.endTime
+          (point) =>
+            point.timestamp >= timeRange.startTime &&
+            point.timestamp <= timeRange.endTime,
         ),
-        interval
+        interval,
       ),
       memoryUsage: aggregateDataPoints(
         metrics.historical.memoryUsage.filter(
-          (point) => point.timestamp >= timeRange.startTime && point.timestamp <= timeRange.endTime
+          (point) =>
+            point.timestamp >= timeRange.startTime &&
+            point.timestamp <= timeRange.endTime,
         ),
-        interval
+        interval,
       ),
     };
   }, [metrics, timeRange, customStartDate, customEndDate]);
 
-  const calculateStatistics = (data: MetricData[]): DrillDownData['statistics'] => {
+  const calculateStatistics = (
+    data: MetricData[],
+  ): DrillDownData["statistics"] => {
     if (!data.length) {
       return {
         min: 0,
@@ -542,8 +591,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     const sortedValues = data.map((d) => d.value).sort((a, b) => a - b);
     const sum = sortedValues.reduce((a, b) => a + b, 0);
     const breachCount = data.filter((d) => {
-      const threshold = thresholds[drillDownData?.metricId || ''];
-      return threshold && (d.value >= threshold.critical || d.value >= threshold.warning);
+      const threshold = thresholds[drillDownData?.metricId || ""];
+      return (
+        threshold &&
+        (d.value >= threshold.critical || d.value >= threshold.warning)
+      );
     }).length;
 
     return {
@@ -569,8 +621,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     const n = data.length;
     const sumX = data.reduce((sum, point) => sum + point.timestamp, 0);
     const sumY = data.reduce((sum, point) => sum + point.value, 0);
-    const sumXY = data.reduce((sum, point) => sum + point.timestamp * point.value, 0);
-    const sumXX = data.reduce((sum, point) => sum + point.timestamp * point.timestamp, 0);
+    const sumXY = data.reduce(
+      (sum, point) => sum + point.timestamp * point.value,
+      0,
+    );
+    const sumXX = data.reduce(
+      (sum, point) => sum + point.timestamp * point.timestamp,
+      0,
+    );
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
@@ -593,7 +651,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     // Detect anomalies using Z-score
     const mean = sumY / n;
     const stdDev = Math.sqrt(
-      data.reduce((sum, point) => sum + Math.pow(point.value - mean, 2), 0) / n
+      data.reduce((sum, point) => sum + Math.pow(point.value - mean, 2), 0) / n,
     );
     const zScoreThreshold = 2;
 
@@ -605,7 +663,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       .map((point) => ({
         timestamp: point.timestamp,
         value: point.value,
-        severity: Math.abs((point.value - mean) / stdDev) > 3 ? ('critical' as const) : ('warning' as const),
+        severity:
+          Math.abs((point.value - mean) / stdDev) > 3
+            ? ("critical" as const)
+            : ("warning" as const),
       }));
 
     return {
@@ -621,29 +682,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     const timeRange = getTimeRangeInMs();
     // Calculate weekly trend from historical data
     const historicalData = metrics.historical.cpuUsage.filter(
-      (m) => m.timestamp >= timeRange.startTime && m.timestamp <= timeRange.endTime
+      (m) =>
+        m.timestamp >= timeRange.startTime && m.timestamp <= timeRange.endTime,
     );
 
-    const trendAnalysis = calculateTrendAnalysis(historicalData.map(m => ({
-      timestamp: m.timestamp,
-      value: m.value,
-      label: m.label
-    })));
+    const trendAnalysis = calculateTrendAnalysis(
+      historicalData.map((m) => ({
+        timestamp: m.timestamp,
+        value: m.value,
+        label: m.label,
+      })),
+    );
 
     setDrillDownData({
       metricId,
       startTime: timeRange.startTime,
       endTime: timeRange.endTime,
-      data: historicalData.map(m => ({
+      data: historicalData.map((m) => ({
         timestamp: m.timestamp,
         value: m.value,
-        label: m.label
+        label: m.label,
       })),
-      statistics: calculateStatistics(historicalData.map(m => ({
-        timestamp: m.timestamp,
-        value: m.value,
-        label: m.label
-      }))),
+      statistics: calculateStatistics(
+        historicalData.map((m) => ({
+          timestamp: m.timestamp,
+          value: m.value,
+          label: m.label,
+        })),
+      ),
       trendAnalysis,
     });
     setShowDrillDown(true);
@@ -665,7 +731,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
               timeRange={getTimeRangeInMs()}
               aggregatedData={aggregatedMetrics}
               aggregationInterval={getAggregationInterval(getTimeRangeInMs())}
-              onDataPointClick={(dataPoint) => handleMetricClick(metric.id, dataPoint)}
+              onDataPointClick={(dataPoint) =>
+                handleMetricClick(metric.id, dataPoint)
+              }
               showTrendLine={showTrendLine}
               showForecast={showForecast}
               showAnomalies={showAnomalies}
@@ -678,27 +746,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Subscribe to alerts
-    const alertUnsubscribe = gameMetricsMonitor.subscribeToAlerts((alert: Alert) => {
-      const { startTime, endTime } = getTimeRangeInMs();
-      if (!alert.acknowledged && alert.timestamp >= startTime && alert.timestamp <= endTime) {
-        setAlertCount((prev) => prev + 1);
-      }
-    });
+    const alertUnsubscribe = gameMetricsMonitor.subscribeToAlerts(
+      (alert: Alert) => {
+        const { startTime, endTime } = getTimeRangeInMs();
+        if (
+          !alert.acknowledged &&
+          alert.timestamp >= startTime &&
+          alert.timestamp <= endTime
+        ) {
+          setAlertCount((prev) => prev + 1);
+        }
+      },
+    );
 
     // Subscribe to errors
-    const errorUnsubscribe = gameMetricsMonitor.subscribeToErrors((error: MonitoringErrorEvent) => {
-      const { startTime, endTime } = getTimeRangeInMs();
-      if (error.timestamp >= startTime && error.timestamp <= endTime) {
-        setErrorCount((prev) => prev + 1);
-        // Track the error in our error tracking system
-        errorTracker.trackError(
-          new Error(error.message || 'Unknown error'),
-          {
-            componentStack: error.stack || ''
-          }
-        );
-      }
-    });
+    const errorUnsubscribe = gameMetricsMonitor.subscribeToErrors(
+      (error: MonitoringErrorEvent) => {
+        const { startTime, endTime } = getTimeRangeInMs();
+        if (error.timestamp >= startTime && error.timestamp <= endTime) {
+          setErrorCount((prev) => prev + 1);
+          // Track the error in our error tracking system
+          errorTracker.trackError(new Error(error.message || "Unknown error"), {
+            componentStack: error.stack || "",
+          });
+        }
+      },
+    );
 
     // Get initial counts
     const fetchInitialCounts = async () => {
@@ -706,13 +779,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
       setAlertCount(
         snapshot.alerts?.filter(
-          (a) => !a.acknowledged && a.timestamp >= startTime && a.timestamp <= endTime
-        ).length || 0
+          (a) =>
+            !a.acknowledged &&
+            a.timestamp >= startTime &&
+            a.timestamp <= endTime,
+        ).length || 0,
       );
       setErrorCount(
         snapshot.errorData?.filter(
-          (e) => e.timestamp >= startTime && e.timestamp <= endTime
-        ).length || 0
+          (e) => e.timestamp >= startTime && e.timestamp <= endTime,
+        ).length || 0,
       );
     };
     fetchInitialCounts();
@@ -725,7 +801,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Load saved retention configuration
-    const savedConfig = localStorage.getItem('monitoringRetentionConfig');
+    const savedConfig = localStorage.getItem("monitoringRetentionConfig");
     if (savedConfig) {
       setRetentionConfig(JSON.parse(savedConfig));
     }
@@ -733,7 +809,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Save retention configuration
-    localStorage.setItem('monitoringRetentionConfig', JSON.stringify(retentionConfig));
+    localStorage.setItem(
+      "monitoringRetentionConfig",
+      JSON.stringify(retentionConfig),
+    );
 
     // Apply retention policy if auto-cleanup is enabled
     const applyRetentionPolicy = async () => {
@@ -745,15 +824,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         // Clean up old metrics
         const metricsRetention = retentionConfig.metrics * 24 * 60 * 60 * 1000;
         const cleanedMetrics = {
-          updateTimes: metrics.updateTimes.filter((m) => now - m.timestamp <= metricsRetention),
-          latency: metrics.latency.filter((m) => now - m.timestamp <= metricsRetention),
-          memoryUsage: metrics.memoryUsage.filter((m) => now - m.timestamp <= metricsRetention),
+          updateTimes: metrics.updateTimes.filter(
+            (m) => now - m.timestamp <= metricsRetention,
+          ),
+          latency: metrics.latency.filter(
+            (m) => now - m.timestamp <= metricsRetention,
+          ),
+          memoryUsage: metrics.memoryUsage.filter(
+            (m) => now - m.timestamp <= metricsRetention,
+          ),
         };
 
         // Clean up old alerts
         const alertsRetention = retentionConfig.alerts * 24 * 60 * 60 * 1000;
         const cleanedAlerts =
-          metrics.alerts?.filter((a) => now - a.timestamp <= alertsRetention) || [];
+          metrics.alerts?.filter((a) => now - a.timestamp <= alertsRetention) ||
+          [];
       }
     };
     applyRetentionPolicy();
@@ -761,7 +847,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Load saved metric configuration
-    const savedConfig = localStorage.getItem('monitoringMetricConfig');
+    const savedConfig = localStorage.getItem("monitoringMetricConfig");
     if (savedConfig) {
       setMetricConfig(JSON.parse(savedConfig));
     }
@@ -769,12 +855,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Save metric configuration
-    localStorage.setItem('monitoringMetricConfig', JSON.stringify(metricConfig));
+    localStorage.setItem(
+      "monitoringMetricConfig",
+      JSON.stringify(metricConfig),
+    );
   }, [metricConfig]);
 
   useEffect(() => {
     // Load saved threshold configuration
-    const savedThresholds = localStorage.getItem('monitoringThresholds');
+    const savedThresholds = localStorage.getItem("monitoringThresholds");
     if (savedThresholds) {
       setThresholds(JSON.parse(savedThresholds));
     }
@@ -782,7 +871,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   useEffect(() => {
     // Save threshold configuration
-    localStorage.setItem('monitoringThresholds', JSON.stringify(thresholds));
+    localStorage.setItem("monitoringThresholds", JSON.stringify(thresholds));
   }, [thresholds]);
 
   useEffect(() => {
@@ -796,16 +885,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
         let currentValue: number;
         switch (metricId) {
-          case 'updateTimes':
-            currentValue = metrics.updateTimes[metrics.updateTimes.length - 1]?.value || 0;
+          case "updateTimes":
+            currentValue =
+              metrics.updateTimes[metrics.updateTimes.length - 1]?.value || 0;
             break;
-          case 'latency':
-            currentValue = metrics.latency[metrics.latency.length - 1]?.value || 0;
+          case "latency":
+            currentValue =
+              metrics.latency[metrics.latency.length - 1]?.value || 0;
             break;
-          case 'memoryUsage':
-            currentValue = metrics.memoryUsage[metrics.memoryUsage.length - 1]?.value || 0;
+          case "memoryUsage":
+            currentValue =
+              metrics.memoryUsage[metrics.memoryUsage.length - 1]?.value || 0;
             break;
-          case 'successRate':
+          case "successRate":
             currentValue = metrics.successRate;
             break;
           default:
@@ -815,13 +907,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         if (currentValue >= config.critical) {
           newBreaches.push({
             metric: metricId,
-            level: 'critical',
+            level: "critical",
             value: currentValue,
           });
         } else if (currentValue >= config.warning) {
           newBreaches.push({
             metric: metricId,
-            level: 'warning',
+            level: "warning",
             value: currentValue,
           });
         }
@@ -833,8 +925,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       newBreaches.forEach((breach) => {
         if (thresholds[breach.metric].notifyOnBreach) {
           gameMetricsMonitor.addAlert(
-            breach.level === 'critical' ? 'error' : 'warning',
-            `${metricConfig.find((m) => m.id === breach.metric)?.name} threshold breach: ${breach.value}`
+            breach.level === "critical" ? "error" : "warning",
+            `${metricConfig.find((m) => m.id === breach.metric)?.name} threshold breach: ${breach.value}`,
           );
         }
       });
@@ -844,19 +936,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   }, [thresholds, gameMetricsMonitor]);
 
   const handleAlertAcknowledge = (alert: Alert) => {
-    gameMetricsMonitor.acknowledgeAlert(alert.id, alert.details?.acknowledgeNote);
+    gameMetricsMonitor.acknowledgeAlert(
+      alert.id,
+      alert.details?.acknowledgeNote,
+    );
     setAlertCount((prev) => Math.max(0, prev - 1));
   };
 
   const handleErrorClick = (error: MonitoringErrorEvent) => {
     setSelectedError(error);
     // Track the error in our error tracking system with additional context
-    errorTracker.trackError(
-      new Error(error.message || 'Unknown error'),
-      {
-        componentStack: error.stack || '',
-      }
-    );
+    errorTracker.trackError(new Error(error.message || "Unknown error"), {
+      componentStack: error.stack || "",
+    });
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -866,7 +958,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     if (newValue === 2) setErrorCount(0);
   };
 
-  const handleExport = async (format: 'csv' | 'json' | 'pdf') => {
+  const handleExport = async (format: "csv" | "json" | "pdf") => {
     const { startTime, endTime } = getTimeRangeInMs();
     const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
 
@@ -875,48 +967,57 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         cpuUsage: snapshot.historical.cpuUsage,
         memoryUsage: snapshot.historical.memoryUsage,
         diskUsage: snapshot.historical.diskUsage,
-        networkTraffic: snapshot.historical.networkTraffic
+        networkTraffic: snapshot.historical.networkTraffic,
       },
       correlations: correlationData ? [correlationData] : [],
       thresholds,
       alerts: snapshot.alerts,
       errors: snapshot.errorData,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     switch (format) {
-      case 'csv':
+      case "csv":
         switch (selectedTab) {
           case 0: // Alerts
             exportToCSV(
-              snapshot.alerts.filter(a => a.timestamp >= startTime && a.timestamp <= endTime),
-              'alerts'
+              snapshot.alerts.filter(
+                (a) => a.timestamp >= startTime && a.timestamp <= endTime,
+              ),
+              "alerts",
             );
             break;
           case 1: // Metrics
             exportToCSV(
               Object.entries(exportData.metrics).map(([key, data]) => ({
                 metric: key,
-                data: data.filter(d => d.timestamp >= startTime && d.timestamp <= endTime)
+                data: data.filter(
+                  (d) => d.timestamp >= startTime && d.timestamp <= endTime,
+                ),
               })),
-              'metrics'
+              "metrics",
             );
             break;
           case 2: // Errors
             exportToCSV(
-              snapshot.errorData.filter(e => e.timestamp >= startTime && e.timestamp <= endTime),
-              'errors'
+              snapshot.errorData.filter(
+                (e) => e.timestamp >= startTime && e.timestamp <= endTime,
+              ),
+              "errors",
             );
             break;
         }
         break;
 
-      case 'json':
+      case "json":
         exportToJSON(exportData, `monitoring_data_${new Date().toISOString()}`);
         break;
 
-      case 'pdf':
-        await exportToPDF(exportData, `monitoring_report_${new Date().toISOString()}`);
+      case "pdf":
+        await exportToPDF(
+          exportData,
+          `monitoring_report_${new Date().toISOString()}`,
+        );
         break;
     }
   };
@@ -929,8 +1030,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       timestamp: Date.now(),
       timeRange: { startTime, endTime },
       metrics: {
-        alerts: metrics.alerts?.filter((a) => a.timestamp >= startTime && a.timestamp <= endTime),
-        errors: metrics.errors?.filter((e) => e.timestamp >= startTime && e.timestamp <= endTime),
+        alerts: metrics.alerts?.filter(
+          (a) => a.timestamp >= startTime && a.timestamp <= endTime,
+        ),
+        errors: metrics.errors?.filter(
+          (e) => e.timestamp >= startTime && e.timestamp <= endTime,
+        ),
         performance: {
           updateTimes: metrics.updateTimes,
           latency: metrics.latency,
@@ -940,7 +1045,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       },
     };
 
-    exportToJSON([snapshot], 'monitoring_snapshot');
+    exportToJSON([snapshot], "monitoring_snapshot");
   };
 
   const handleRetentionSave = () => {
@@ -970,7 +1075,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   };
 
   const renderRetentionDialog = () => (
-    <Dialog open={showRetentionDialog} onClose={() => setShowRetentionDialog(false)}>
+    <Dialog
+      open={showRetentionDialog}
+      onClose={() => setShowRetentionDialog(false)}
+    >
       <DialogTitle>Data Retention Settings</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ mt: 2 }}>
@@ -1062,9 +1170,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                 {metricConfig
                   .sort((a, b) => a.order - b.order)
                   .map((metric, index) => (
-                    <Draggable key={metric.id} draggableId={metric.id} index={index}>
+                    <Draggable
+                      key={metric.id}
+                      draggableId={metric.id}
+                      index={index}
+                    >
                       {(provided) => (
-                        <Paper ref={provided.innerRef} {...provided.draggableProps} sx={{ mb: 1 }}>
+                        <Paper
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          sx={{ mb: 1 }}
+                        >
                           <ListItem>
                             <ListItemIcon {...provided.dragHandleProps}>
                               <DragIcon />
@@ -1074,7 +1190,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                 checked={metric.enabled}
                                 onChange={(e) => {
                                   const updated = metricConfig.map((m) =>
-                                    m.id === metric.id ? { ...m, enabled: e.target.checked } : m
+                                    m.id === metric.id
+                                      ? { ...m, enabled: e.target.checked }
+                                      : m,
                                   );
                                   setMetricConfig(updated);
                                 }}
@@ -1086,9 +1204,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                 size="small"
                                 value={metric.chartType}
                                 onChange={(e) => {
-                                  const chartType = e.target.value as 'line' | 'bar' | 'pie';
+                                  const chartType = e.target.value as
+                                    | "line"
+                                    | "bar"
+                                    | "pie";
                                   const updated = metricConfig.map((m) =>
-                                    m.id === metric.id ? { ...m, chartType } : m
+                                    m.id === metric.id
+                                      ? { ...m, chartType }
+                                      : m,
                                   );
                                   setMetricConfig(updated);
                                 }}
@@ -1108,9 +1231,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                   m.id === metric.id
                                     ? {
                                         ...m,
-                                        refreshInterval: parseInt(e.target.value) || 5000,
+                                        refreshInterval:
+                                          parseInt(e.target.value) || 5000,
                                       }
-                                    : m
+                                    : m,
                                 );
                                 setMetricConfig(updated);
                               }}
@@ -1154,9 +1278,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
             <Stack spacing={2}>
               <Box
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
                 <Typography variant="subtitle1">{metric.name}</Typography>
@@ -1195,7 +1319,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                         }));
                       }}
                       min={0}
-                      max={metric.id === 'successRate' ? 100 : 10000}
+                      max={metric.id === "successRate" ? 100 : 10000}
                       valueLabelDisplay="auto"
                     />
                   </Box>
@@ -1214,7 +1338,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                         }));
                       }}
                       min={0}
-                      max={metric.id === 'successRate' ? 100 : 10000}
+                      max={metric.id === "successRate" ? 100 : 10000}
                       valueLabelDisplay="auto"
                     />
                   </Box>
@@ -1244,7 +1368,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setShowThresholdConfig(false)}>Cancel</Button>
-        <Button onClick={() => setShowThresholdConfig(false)} variant="contained">
+        <Button
+          onClick={() => setShowThresholdConfig(false)}
+          variant="contained"
+        >
           Save
         </Button>
       </DialogActions>
@@ -1256,10 +1383,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       {thresholdBreaches.map((breach, index) => (
         <MuiAlert
           key={`${breach.metric}-${index}`}
-          severity={breach.level === 'critical' ? 'error' : 'warning'}
+          severity={breach.level === "critical" ? "error" : "warning"}
           sx={{ mb: 1 }}
         >
-          {metricConfig.find((m) => m.id === breach.metric)?.name} threshold breach: {breach.value}
+          {metricConfig.find((m) => m.id === breach.metric)?.name} threshold
+          breach: {breach.value}
         </MuiAlert>
       ))}
     </Box>
@@ -1276,7 +1404,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         anchor="right"
         open={showDrillDown}
         onClose={() => setShowDrillDown(false)}
-        sx={{ '& .MuiDrawer-paper': { width: '60%' } }}
+        sx={{ "& .MuiDrawer-paper": { width: "60%" } }}
       >
         <Box sx={{ p: 3 }}>
           <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -1316,7 +1444,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           {/* Trend Analysis Summary */}
           {drillDownData.trendAnalysis && (
             <Paper sx={{ p: 2, mb: 3 }}>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
                 Trend Analysis
               </Typography>
               <Grid container spacing={2}>
@@ -1329,8 +1461,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     drillDownData.trendAnalysis.trendLine[
                       drillDownData.trendAnalysis.trendLine.length - 1
                     ]?.value
-                      ? 'Increasing'
-                      : 'Decreasing'}
+                      ? "Increasing"
+                      : "Decreasing"}
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
@@ -1346,7 +1478,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     Forecast Confidence
                   </Typography>
                   <Typography variant="h6">
-                    {(drillDownData.trendAnalysis.forecast[0]?.confidence * 100).toFixed(1)}%
+                    {(
+                      drillDownData.trendAnalysis.forecast[0]?.confidence * 100
+                    ).toFixed(1)}
+                    %
                   </Typography>
                 </Grid>
               </Grid>
@@ -1356,7 +1491,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12}>
               <Paper sx={{ p: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   Statistics
                 </Typography>
                 <Grid container spacing={2}>
@@ -1364,19 +1503,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     <Typography variant="body2" color="text.secondary">
                       Minimum
                     </Typography>
-                    <Typography variant="h6">{drillDownData.statistics.min.toFixed(2)}</Typography>
+                    <Typography variant="h6">
+                      {drillDownData.statistics.min.toFixed(2)}
+                    </Typography>
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2" color="text.secondary">
                       Maximum
                     </Typography>
-                    <Typography variant="h6">{drillDownData.statistics.max.toFixed(2)}</Typography>
+                    <Typography variant="h6">
+                      {drillDownData.statistics.max.toFixed(2)}
+                    </Typography>
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2" color="text.secondary">
                       Average
                     </Typography>
-                    <Typography variant="h6">{drillDownData.statistics.avg.toFixed(2)}</Typography>
+                    <Typography variant="h6">
+                      {drillDownData.statistics.avg.toFixed(2)}
+                    </Typography>
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2" color="text.secondary">
@@ -1408,7 +1553,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
             <Grid item xs={12}>
               <Paper sx={{ p: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  gutterBottom
+                >
                   Detailed Data
                 </Typography>
                 <TableContainer>
@@ -1422,29 +1571,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     </TableHead>
                     <TableBody>
                       {drillDownData.data.map((point, index) => {
-                        let status = 'normal';
+                        let status = "normal";
                         if (threshold?.enabled) {
                           if (point.value >= threshold.critical) {
-                            status = 'critical';
+                            status = "critical";
                           } else if (point.value >= threshold.warning) {
-                            status = 'warning';
+                            status = "warning";
                           }
                         }
 
                         return (
                           <TableRow key={index}>
-                            <TableCell>{new Date(point.timestamp).toLocaleString()}</TableCell>
+                            <TableCell>
+                              {new Date(point.timestamp).toLocaleString()}
+                            </TableCell>
                             <TableCell>{point.value.toFixed(2)}</TableCell>
                             <TableCell>
                               <Chip
                                 size="small"
                                 label={status}
                                 color={
-                                  status === 'critical'
-                                    ? 'error'
-                                    : status === 'warning'
-                                      ? 'warning'
-                                      : 'default'
+                                  status === "critical"
+                                    ? "error"
+                                    : status === "warning"
+                                      ? "warning"
+                                      : "default"
                                 }
                               />
                             </TableCell>
@@ -1484,7 +1635,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         return Math.min(updateConfig.maxInterval, updateConfig.minInterval * 4);
       }
     },
-    [dataBuffer, updateConfig]
+    [dataBuffer, updateConfig],
   );
 
   // Batch process updates
@@ -1518,12 +1669,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   }, [dataBuffer, isProcessing, updateConfig.batchSize]);
 
   // Handle incoming metric updates
-  const handleMetricUpdate = useCallback((metricId: string, data: MetricData) => {
-    setDataBuffer((prev) => ({
-      ...prev,
-      [metricId]: [...(prev[metricId] || []), data],
-    }));
-  }, []);
+  const handleMetricUpdate = useCallback(
+    (metricId: string, data: MetricData) => {
+      setDataBuffer((prev) => ({
+        ...prev,
+        [metricId]: [...(prev[metricId] || []), data],
+      }));
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!updateConfig.dynamicFrequency) {
@@ -1617,7 +1771,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                   onChange={(e) =>
                     setUpdateConfig((prev) => ({
                       ...prev,
-                      minInterval: Math.max(100, parseInt(e.target.value) || 1000),
+                      minInterval: Math.max(
+                        100,
+                        parseInt(e.target.value) || 1000,
+                      ),
                     }))
                   }
                   fullWidth
@@ -1633,7 +1790,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       ...prev,
                       maxInterval: Math.max(
                         updateConfig.minInterval,
-                        parseInt(e.target.value) || 30000
+                        parseInt(e.target.value) || 30000,
                       ),
                     }))
                   }
@@ -1655,7 +1812,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
               <Grid item xs={6}>
                 <Typography variant="body2">Buffer Size</Typography>
                 <Typography variant="h6">
-                  {Object.values(dataBuffer).reduce((sum, arr) => sum + arr.length, 0)}
+                  {Object.values(dataBuffer).reduce(
+                    (sum, arr) => sum + arr.length,
+                    0,
+                  )}
                 </Typography>
               </Grid>
             </Grid>
@@ -1683,16 +1843,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
       // Filter data points within the time range
       const filteredData1 = data1.filter(
-        (d) => d.timestamp >= timeRange.startTime && d.timestamp <= timeRange.endTime
+        (d) =>
+          d.timestamp >= timeRange.startTime &&
+          d.timestamp <= timeRange.endTime,
       );
       const filteredData2 = data2.filter(
-        (d) => d.timestamp >= timeRange.startTime && d.timestamp <= timeRange.endTime
+        (d) =>
+          d.timestamp >= timeRange.startTime &&
+          d.timestamp <= timeRange.endTime,
       );
 
       // Create paired data points
       const pairedData = filteredData1.map((d1) => {
         const closest = filteredData2.reduce((prev, curr) => {
-          return Math.abs(curr.timestamp - d1.timestamp) < Math.abs(prev.timestamp - d1.timestamp)
+          return Math.abs(curr.timestamp - d1.timestamp) <
+            Math.abs(prev.timestamp - d1.timestamp)
             ? curr
             : prev;
         });
@@ -1720,12 +1885,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         timeRange,
       };
     },
-    [getTimeRangeInMs]
+    [getTimeRangeInMs],
   );
 
   const handleCorrelationAnalysis = useCallback(() => {
     if (!selectedMetrics) return;
-    const correlation = calculateCorrelation(selectedMetrics[0], selectedMetrics[1]);
+    const correlation = calculateCorrelation(
+      selectedMetrics[0],
+      selectedMetrics[1],
+    );
     if (correlation) {
       setCorrelationData(correlation);
     }
@@ -1757,11 +1925,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
               value={selectedMetrics || []}
               onChange={(_, newValue) => {
                 if (newValue.length <= 2) {
-                  setSelectedMetrics(newValue.length === 2 ? [newValue[0], newValue[1]] : null);
+                  setSelectedMetrics(
+                    newValue.length === 2 ? [newValue[0], newValue[1]] : null,
+                  );
                 }
               }}
               options={metricConfig.filter((m) => m.enabled).map((m) => m.id)}
-              getOptionLabel={(option) => metricConfig.find((m) => m.id === option)?.name || option}
+              getOptionLabel={(option) =>
+                metricConfig.find((m) => m.id === option)?.name || option
+              }
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -1781,7 +1953,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                       <Typography variant="body1" sx={{ mr: 1 }}>
                         Correlation Coefficient:
                       </Typography>
@@ -1789,26 +1961,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                         variant="h6"
                         color={
                           Math.abs(correlationData.coefficient) > 0.7
-                            ? 'error'
+                            ? "error"
                             : Math.abs(correlationData.coefficient) > 0.3
-                              ? 'warning'
-                              : 'text.primary'
+                              ? "warning"
+                              : "text.primary"
                         }
                       >
                         {correlationData.coefficient.toFixed(3)}
                       </Typography>
                       {correlationData.coefficient > 0 ? (
-                        <PositiveCorrelationIcon color="success" sx={{ ml: 1 }} />
+                        <PositiveCorrelationIcon
+                          color="success"
+                          sx={{ ml: 1 }}
+                        />
                       ) : (
                         <NegativeCorrelationIcon color="error" sx={{ ml: 1 }} />
                       )}
                     </Box>
                     <Typography variant="body2" color="text.secondary">
                       {Math.abs(correlationData.coefficient) > 0.7
-                        ? 'Strong correlation detected'
+                        ? "Strong correlation detected"
                         : Math.abs(correlationData.coefficient) > 0.3
-                          ? 'Moderate correlation detected'
-                          : 'Weak or no correlation detected'}
+                          ? "Moderate correlation detected"
+                          : "Weak or no correlation detected"}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -1816,20 +1991,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
               <Paper sx={{ p: 2, height: 400 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <ScatterChart
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  >
                     <CartesianGrid />
                     <XAxis
                       type="number"
                       dataKey="x"
-                      name={metricConfig.find((m) => m.id === correlationData.metrics[0])?.name}
+                      name={
+                        metricConfig.find(
+                          (m) => m.id === correlationData.metrics[0],
+                        )?.name
+                      }
                     />
                     <YAxis
                       type="number"
                       dataKey="y"
-                      name={metricConfig.find((m) => m.id === correlationData.metrics[1])?.name}
+                      name={
+                        metricConfig.find(
+                          (m) => m.id === correlationData.metrics[1],
+                        )?.name
+                      }
                     />
                     <RechartsTooltip />
-                    <Scatter data={correlationData.scatterData} fill="#8884d8" />
+                    <Scatter
+                      data={correlationData.scatterData}
+                      fill="#8884d8"
+                    />
                   </ScatterChart>
                 </ResponsiveContainer>
               </Paper>
@@ -1868,7 +2056,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const exportToJson = () => {
     const data = generateExportData();
     const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: 'application/json',
+      type: "application/json",
     });
     saveAs(blob, `monitoring-data-${new Date().toISOString()}.json`);
     handleExportClose();
@@ -1879,7 +2067,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     const metrics = data.metrics;
 
     // Convert metrics to CSV format
-    const headers = ['timestamp', ...Object.keys(metrics)];
+    const headers = ["timestamp", ...Object.keys(metrics)];
     const rows = [headers];
 
     // Combine all timestamps
@@ -1894,24 +2082,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       .forEach((timestamp) => {
         const row = [timestamp.toString()];
         Object.keys(metrics).forEach((metricKey) => {
-          const point = metrics[metricKey].find((p) => p.timestamp === timestamp);
-          row.push(point ? point.value.toString() : '');
+          const point = metrics[metricKey].find(
+            (p) => p.timestamp === timestamp,
+          );
+          row.push(point ? point.value.toString() : "");
         });
         rows.push(row);
       });
 
-    const csvContent = rows.map((row) => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     saveAs(blob, `monitoring-data-${new Date().toISOString()}.csv`);
     handleExportClose();
   };
 
   const exportToPdf = async () => {
     try {
-      await exportToPDF('monitoring-dashboard', 'dojopool-monitoring');
+      await exportToPDF("monitoring-dashboard", "dojopool-monitoring");
       handleExportClose();
     } catch (error) {
-      console.error('Failed to export PDF:', error);
+      console.error("Failed to export PDF:", error);
       // Add error notification here
     }
   };
@@ -1933,7 +2123,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   };
 
   const renderExportMenu = () => (
-    <Menu anchorEl={exportAnchorEl} open={Boolean(exportAnchorEl)} onClose={handleExportClose}>
+    <Menu
+      anchorEl={exportAnchorEl}
+      open={Boolean(exportAnchorEl)}
+      onClose={handleExportClose}
+    >
       <MenuItem onClick={exportToJson}>
         <ListItemIcon>
           <JsonIcon />
@@ -1999,7 +2193,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
       // Filter data within time range
       const data = metricData.filter(
-        (d) => d.timestamp >= timeRange.startTime && d.timestamp <= timeRange.endTime
+        (d) =>
+          d.timestamp >= timeRange.startTime &&
+          d.timestamp <= timeRange.endTime,
       );
 
       if (data.length < 2) {
@@ -2013,15 +2209,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       // Simple trend detection
       const values = data.map((d) => d.value);
       const trend = values.reduce((a, b) => a + b, 0) / values.length;
-      const trendStrength = Math.abs(values[values.length - 1] - values[0]) / trend;
+      const trendStrength =
+        Math.abs(values[values.length - 1] - values[0]) / trend;
 
       if (trendStrength > 0.1) {
         patterns.push({
-          type: 'trend',
+          type: "trend",
           startTime: data[0].timestamp,
           endTime: data[data.length - 1].timestamp,
           confidence: Math.min(trendStrength, 1),
-          description: `${trendStrength > 0 ? 'Upward' : 'Downward'} trend detected`,
+          description: `${trendStrength > 0 ? "Upward" : "Downward"} trend detected`,
         });
       }
 
@@ -2047,7 +2244,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         return {
           period: bestPeriod,
           strength: maxCorrelation,
-          peaks: values.map((v, i) => (i % bestPeriod === 0 ? i : -1)).filter((i) => i !== -1),
+          peaks: values
+            .map((v, i) => (i % bestPeriod === 0 ? i : -1))
+            .filter((i) => i !== -1),
         };
       };
 
@@ -2062,7 +2261,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
         // Predict next 10 points
         for (let i = 1; i <= 10; i++) {
-          const nextValue = alpha * lastValue + (1 - alpha) * values[values.length - 1];
+          const nextValue =
+            alpha * lastValue + (1 - alpha) * values[values.length - 1];
           const confidence = Math.max(0.95 - i * 0.05, 0.5); // Decrease confidence over time
           predictions.push({
             timestamp: timestamps[timestamps.length - 1] + interval * i,
@@ -2077,7 +2277,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
       const predictions = generatePredictions(
         values,
-        data.map((d) => d.timestamp)
+        data.map((d) => d.timestamp),
       );
 
       setAnalyticsResult({
@@ -2087,7 +2287,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
       });
       setIsAnalyzing(false);
     },
-    [getTimeRangeInMs]
+    [getTimeRangeInMs],
   );
 
   useEffect(() => {
@@ -2097,7 +2297,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   }, [selectedMetricAnalytics, analyzeMetricPatterns]);
 
   const renderAnalyticsDialog = () => (
-    <Dialog open={showAnalytics} onClose={() => setShowAnalytics(false)} maxWidth="md" fullWidth>
+    <Dialog
+      open={showAnalytics}
+      onClose={() => setShowAnalytics(false)}
+      maxWidth="md"
+      fullWidth
+    >
       <DialogTitle>Advanced Analytics</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ mt: 2 }}>
@@ -2108,8 +2313,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           <FormControl fullWidth>
             <InputLabel>Select Metric</InputLabel>
             <Select
-              value={selectedMetricAnalytics || ''}
-              onChange={(e) => setSelectedMetricAnalytics(e.target.value as string)}
+              value={selectedMetricAnalytics || ""}
+              onChange={(e) =>
+                setSelectedMetricAnalytics(e.target.value as string)
+              }
               label="Select Metric"
             >
               {metricConfig
@@ -2123,7 +2330,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           </FormControl>
 
           {isAnalyzing ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
               <CircularProgress />
             </Box>
           ) : (
@@ -2138,7 +2345,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       <Chip
                         key={index}
                         label={pattern.description}
-                        color={pattern.confidence > 0.7 ? 'primary' : 'default'}
+                        color={pattern.confidence > 0.7 ? "primary" : "default"}
                         icon={<PatternsIcon />}
                       />
                     ))}
@@ -2163,7 +2370,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                         Seasonal Strength
                       </Typography>
                       <Typography variant="h6">
-                        {(analyticsResult.seasonality.strength * 100).toFixed(1)}%
+                        {(analyticsResult.seasonality.strength * 100).toFixed(
+                          1,
+                        )}
+                        %
                       </Typography>
                     </Grid>
                     <Grid item xs={4}>
@@ -2187,13 +2397,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
                           dataKey="timestamp"
-                          tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                          tickFormatter={(value) =>
+                            new Date(value).toLocaleTimeString()
+                          }
                         />
                         <YAxis />
                         <Tooltip
                           formatter={(value: any, name: string) => [
                             value,
-                            name === 'confidence' ? 'Confidence' : 'Predicted Value',
+                            name === "confidence"
+                              ? "Confidence"
+                              : "Predicted Value",
                           ]}
                         />
                         <Line
@@ -2229,7 +2443,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     const timeRange = getTimeRangeInMs();
 
     // Calculate lag correlations between all metric pairs
-    const lagCorrelations: CauseEffectAnalysis['lagCorrelations'] = [];
+    const lagCorrelations: CauseEffectAnalysis["lagCorrelations"] = [];
     const enabledMetrics = metricConfig.filter((m) => m.enabled);
 
     for (let i = 0; i < enabledMetrics.length; i++) {
@@ -2248,7 +2462,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           let correlation = 0;
           let count = 0;
 
-          for (let k = Math.max(0, -lag); k < Math.min(data1.length, data2.length - lag); k++) {
+          for (
+            let k = Math.max(0, -lag);
+            k < Math.min(data1.length, data2.length - lag);
+            k++
+          ) {
             correlation += data1[k].value * data2[k + lag].value;
             count++;
           }
@@ -2280,17 +2498,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
       // Find significant changes in both metrics
       const threshold = 0.1;
-      const events: EventSequence['events'] = [];
+      const events: EventSequence["events"] = [];
 
       data1.forEach((point, i) => {
         if (i > 0) {
-          const change = Math.abs(point.value - data1[i - 1].value) / data1[i - 1].value;
+          const change =
+            Math.abs(point.value - data1[i - 1].value) / data1[i - 1].value;
           if (change > threshold) {
             events.push({
               metricId: corr.metric1,
               timestamp: point.timestamp,
               value: point.value,
-              type: corr.lagTime >= 0 ? 'cause' : 'effect',
+              type: corr.lagTime >= 0 ? "cause" : "effect",
             });
           }
         }
@@ -2298,13 +2517,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
       data2.forEach((point, i) => {
         if (i > 0) {
-          const change = Math.abs(point.value - data2[i - 1].value) / data2[i - 1].value;
+          const change =
+            Math.abs(point.value - data2[i - 1].value) / data2[i - 1].value;
           if (change > threshold) {
             events.push({
               metricId: corr.metric2,
               timestamp: point.timestamp,
               value: point.value,
-              type: corr.lagTime >= 0 ? 'effect' : 'cause',
+              type: corr.lagTime >= 0 ? "effect" : "cause",
             });
           }
         }
@@ -2320,22 +2540,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     });
 
     // Identify root causes
-    const rootCauses: CauseEffectAnalysis['rootCauses'] = [];
+    const rootCauses: CauseEffectAnalysis["rootCauses"] = [];
     enabledMetrics.forEach((metric) => {
       const relatedCorrelations = lagCorrelations.filter(
-        (corr) => corr.metric1 === metric.id || corr.metric2 === metric.id
+        (corr) => corr.metric1 === metric.id || corr.metric2 === metric.id,
       );
 
       const causeCount = relatedCorrelations.filter(
         (corr) =>
           (corr.metric1 === metric.id && corr.lagTime <= 0) ||
-          (corr.metric2 === metric.id && corr.lagTime >= 0)
+          (corr.metric2 === metric.id && corr.lagTime >= 0),
       ).length;
 
       if (causeCount > 0) {
         const confidence = causeCount / relatedCorrelations.length;
         const affectedMetrics = relatedCorrelations
-          .map((corr) => (corr.metric1 === metric.id ? corr.metric2 : corr.metric1))
+          .map((corr) =>
+            corr.metric1 === metric.id ? corr.metric2 : corr.metric1,
+          )
           .filter((m) => m !== metric.id);
 
         rootCauses.push({
@@ -2358,7 +2580,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
     if (showCauseEffect && !causeEffectAnalysis && !analyzingCauseEffect) {
       analyzeCauseEffect();
     }
-  }, [showCauseEffect, causeEffectAnalysis, analyzingCauseEffect, analyzeCauseEffect]);
+  }, [
+    showCauseEffect,
+    causeEffectAnalysis,
+    analyzingCauseEffect,
+    analyzeCauseEffect,
+  ]);
 
   const renderCauseEffectDialog = () => (
     <Dialog
@@ -2375,7 +2602,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           </Typography>
 
           {analyzingCauseEffect ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
               <CircularProgress />
             </Box>
           ) : (
@@ -2391,10 +2618,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       .map((cause, index) => (
                         <ListItem key={index}>
                           <ListItemIcon>
-                            <CauseEffectIcon color={cause.confidence > 0.7 ? 'error' : 'warning'} />
+                            <CauseEffectIcon
+                              color={
+                                cause.confidence > 0.7 ? "error" : "warning"
+                              }
+                            />
                           </ListItemIcon>
                           <ListItemText
-                            primary={metricConfig.find((m) => m.id === cause.metricId)?.name}
+                            primary={
+                              metricConfig.find((m) => m.id === cause.metricId)
+                                ?.name
+                            }
                             secondary={`Confidence: ${(cause.confidence * 100).toFixed(1)}% | Affects ${
                               cause.affectedMetrics.length
                             } metrics`}
@@ -2412,12 +2646,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     {causeEffectAnalysis.sequences.map((sequence, index) => (
                       <TimelineItem key={index}>
                         <TimelineSeparator>
-                          <TimelineDot color={sequence.confidence > 0.7 ? 'primary' : 'grey'} />
+                          <TimelineDot
+                            color={
+                              sequence.confidence > 0.7 ? "primary" : "grey"
+                            }
+                          />
                           <TimelineConnector />
                         </TimelineSeparator>
                         <TimelineContent>
                           <Typography variant="subtitle1">
-                            Sequence {index + 1} (Confidence:{' '}
+                            Sequence {index + 1} (Confidence:{" "}
                             {(sequence.confidence * 100).toFixed(1)}%)
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
@@ -2430,7 +2668,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                 label={`${metricConfig.find((m) => m.id === event.metricId)?.name} (${
                                   event.type
                                 })`}
-                                color={event.type === 'cause' ? 'primary' : 'secondary'}
+                                color={
+                                  event.type === "cause"
+                                    ? "primary"
+                                    : "secondary"
+                                }
                                 size="small"
                                 sx={{ mr: 1, mb: 1 }}
                               />
@@ -2458,24 +2700,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       </TableHead>
                       <TableBody>
                         {causeEffectAnalysis.lagCorrelations
-                          .sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation))
+                          .sort(
+                            (a, b) =>
+                              Math.abs(b.correlation) - Math.abs(a.correlation),
+                          )
                           .map((corr, index) => (
                             <TableRow key={index}>
                               <TableCell>
-                                {metricConfig.find((m) => m.id === corr.metric1)?.name}
+                                {
+                                  metricConfig.find(
+                                    (m) => m.id === corr.metric1,
+                                  )?.name
+                                }
                               </TableCell>
                               <TableCell>
-                                {metricConfig.find((m) => m.id === corr.metric2)?.name}
+                                {
+                                  metricConfig.find(
+                                    (m) => m.id === corr.metric2,
+                                  )?.name
+                                }
                               </TableCell>
                               <TableCell>{corr.lagTime}</TableCell>
                               <TableCell
                                 sx={{
                                   color:
                                     Math.abs(corr.correlation) > 0.7
-                                      ? 'error.main'
+                                      ? "error.main"
                                       : Math.abs(corr.correlation) > 0.5
-                                        ? 'warning.main'
-                                        : 'text.primary',
+                                        ? "warning.main"
+                                        : "text.primary",
                                 }}
                               >
                                 {(corr.correlation * 100).toFixed(1)}%
@@ -2499,7 +2752,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   );
 
   const renderErrorStats = () => {
-    if (!errorStats || !errorTrends) return <div>Loading error statistics...</div>;
+    if (!errorStats || !errorTrends)
+      return <div>Loading error statistics...</div>;
 
     return (
       <div className="error-stats">
@@ -2517,7 +2771,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     <LinearProgress
                       variant="determinate"
                       value={(count / errorStats.total) * 100}
-                      color={count > 10 ? 'error' : count > 5 ? 'warning' : 'primary'}
+                      color={
+                        count > 10 ? "error" : count > 5 ? "warning" : "primary"
+                      }
                     />
                   </ListItem>
                 ))}
@@ -2537,9 +2793,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                   >
                     <ListItemText
                       primary={component}
-                      secondary={`Errors: ${count} | Rate: ${
-                        errorTrends.errorRates.find(r => r.component === component)?.rate.toFixed(2)
-                      } per hour`}
+                      secondary={`Errors: ${count} | Rate: ${errorTrends.errorRates
+                        .find((r) => r.component === component)
+                        ?.rate.toFixed(2)} per hour`}
                     />
                   </ListItem>
                 ))}
@@ -2554,12 +2810,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="timestamp"
-                    tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleTimeString()
+                    }
                   />
                   <YAxis />
                   <Tooltip
                     labelFormatter={(value) => new Date(value).toLocaleString()}
-                    formatter={(value: any) => [`${value} errors`, 'Error Count']}
+                    formatter={(value: any) => [
+                      `${value} errors`,
+                      "Error Count",
+                    ]}
                   />
                   <Line
                     type="monotone"
@@ -2584,7 +2845,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         setErrorStats(stats);
         setErrorTrends(trends);
       } catch (error) {
-        console.error('Failed to fetch error statistics:', error);
+        console.error("Failed to fetch error statistics:", error);
       }
     };
 
@@ -2597,12 +2858,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
   const handleErrorClick = (error: MonitoringErrorEvent) => {
     setSelectedError(error);
     // Track the error in our error tracking system with additional context
-    errorTracker.trackError(
-      new Error(error.message || 'Unknown error'),
-      {
-        componentStack: error.stack || '',
-      }
-    );
+    errorTracker.trackError(new Error(error.message || "Unknown error"), {
+      componentStack: error.stack || "",
+    });
   };
 
   const renderErrorDialog = () => (
@@ -2617,7 +2875,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
         <IconButton
           aria-label="close"
           onClick={() => setSelectedError(null)}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
+          sx={{ position: "absolute", right: 8, top: 8 }}
         >
           <CloseIcon />
         </IconButton>
@@ -2642,26 +2900,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
             {selectedError.stack && (
               <Paper
                 variant="outlined"
-                sx={{ p: 2, backgroundColor: '#f5f5f5', maxHeight: 200, overflow: 'auto' }}
+                sx={{
+                  p: 2,
+                  backgroundColor: "#f5f5f5",
+                  maxHeight: 200,
+                  overflow: "auto",
+                }}
               >
                 <pre style={{ margin: 0 }}>{selectedError.stack}</pre>
               </Paper>
             )}
-            {selectedError.context && Object.keys(selectedError.context).length > 0 && (
-              <>
-                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                  Additional Context:
-                </Typography>
-                <Paper
-                  variant="outlined"
-                  sx={{ p: 2, backgroundColor: '#f5f5f5', maxHeight: 150, overflow: 'auto' }}
-                >
-                  <pre style={{ margin: 0 }}>
-                    {JSON.stringify(selectedError.context, null, 2)}
-                  </pre>
-                </Paper>
-              </>
-            )}
+            {selectedError.context &&
+              Object.keys(selectedError.context).length > 0 && (
+                <>
+                  <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                    Additional Context:
+                  </Typography>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      backgroundColor: "#f5f5f5",
+                      maxHeight: 150,
+                      overflow: "auto",
+                    }}
+                  >
+                    <pre style={{ margin: 0 }}>
+                      {JSON.stringify(selectedError.context, null, 2)}
+                    </pre>
+                  </Paper>
+                </>
+              )}
           </div>
         )}
       </DialogContent>
@@ -2673,7 +2942,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
   return (
     <ErrorBoundary>
-      <Box sx={{ width: '100%', height: '100%' }} id="monitoring-dashboard">
+      <Box sx={{ width: "100%", height: "100%" }} id="monitoring-dashboard">
         <Stack spacing={2}>
           {/* Error Overview */}
           <section className="error-overview">
@@ -2738,7 +3007,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                   {errorTrends.errorRates.map(({ component, rate }) => (
                     <li key={component} className="trend-item">
                       <span className="trend-label">{component}</span>
-                      <span className="trend-value">{formatErrorRate(rate)}</span>
+                      <span className="trend-value">
+                        {formatErrorRate(rate)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -2755,11 +3026,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                   <div key={index} className="error-item">
                     <div className="error-header">
                       <span className="error-type">{error.name}</span>
-                      <span className="error-component">{context.component || 'Unknown'}</span>
-                      <span className="error-time">{formatTimestamp(context.timestamp)}</span>
+                      <span className="error-component">
+                        {context.component || "Unknown"}
+                      </span>
+                      <span className="error-time">
+                        {formatTimestamp(context.timestamp)}
+                      </span>
                     </div>
                     <div className="error-message">{error.message}</div>
-                    {error.stack && <pre className="error-stack">{error.stack}</pre>}
+                    {error.stack && (
+                      <pre className="error-stack">{error.stack}</pre>
+                    )}
                   </div>
                 ))}
               </div>
@@ -2770,7 +3047,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
           {selectedComponent && (
             <div className="filter-banner">
               <span>Filtering by component: {selectedComponent}</span>
-              <button onClick={() => setSelectedComponent(null)} className="clear-filter">
+              <button
+                onClick={() => setSelectedComponent(null)}
+                className="clear-filter"
+              >
                 Clear Filter
               </button>
             </div>

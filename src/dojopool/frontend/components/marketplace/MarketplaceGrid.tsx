@@ -1,5 +1,5 @@
-import React from 'react';
-import './MarketplaceGrid.css';
+import React from "react";
+import "./MarketplaceGrid.css";
 
 interface MarketplaceItem {
   id: string;
@@ -8,7 +8,7 @@ interface MarketplaceItem {
   price: number;
   image: string;
   category: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: "common" | "rare" | "epic" | "legendary";
   stock: number;
 }
 
@@ -17,17 +17,20 @@ interface MarketplaceGridProps {
   onItemClick: (item: MarketplaceItem) => void;
 }
 
-export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({ items, onItemClick }) => {
+export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
+  items,
+  onItemClick,
+}) => {
   const getRarityColor = (rarity: string): string => {
     switch (rarity) {
-      case 'legendary':
-        return '#ffd700';
-      case 'epic':
-        return '#a335ee';
-      case 'rare':
-        return '#0070dd';
+      case "legendary":
+        return "#ffd700";
+      case "epic":
+        return "#a335ee";
+      case "rare":
+        return "#0070dd";
       default:
-        return '#ffffff';
+        return "#ffffff";
     }
   };
 
@@ -40,7 +43,7 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({ items, onItemC
           onClick={() => onItemClick(item)}
           style={
             {
-              '--rarity-color': getRarityColor(item.rarity),
+              "--rarity-color": getRarityColor(item.rarity),
             } as React.CSSProperties
           }
         >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -12,8 +12,8 @@ import {
   ListItemText,
   Divider,
   Alert,
-} from '@mui/material';
-import { MLService } from '../../services/ml.service';
+} from "@mui/material";
+import { MLService } from "../../services/ml.service";
 import {
   LineChart,
   Line,
@@ -23,7 +23,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from "recharts";
 
 interface PatternRecognitionProps {
   modelId: string | null;
@@ -59,7 +59,7 @@ export const PatternRecognition: React.FC<PatternRecognitionProps> = ({
   }, [recentShots, modelId]);
 
   const generateRandomShot = () => {
-    const shotTypes = ['straight', 'spin', 'curve', 'lob', 'slice'];
+    const shotTypes = ["straight", "spin", "curve", "lob", "slice"];
     return {
       type: shotTypes[Math.floor(Math.random() * shotTypes.length)],
       position: {
@@ -74,7 +74,7 @@ export const PatternRecognition: React.FC<PatternRecognitionProps> = ({
 
   const detectPattern = async () => {
     if (!modelId) {
-      setError('No model selected');
+      setError("No model selected");
       return;
     }
 
@@ -83,7 +83,10 @@ export const PatternRecognition: React.FC<PatternRecognitionProps> = ({
       setError(null);
 
       const transformedData = mlService.transformSequenceData(recentShots);
-      const response = await mlService.predictNextPattern(modelId, transformedData);
+      const response = await mlService.predictNextPattern(
+        modelId,
+        transformedData,
+      );
 
       const newPattern = {
         timestamp: new Date().toISOString(),
@@ -93,10 +96,13 @@ export const PatternRecognition: React.FC<PatternRecognitionProps> = ({
       };
 
       setPatterns((prev) => [...prev.slice(-4), newPattern]);
-      setPatternScores((prev) => [...prev.slice(-9), response.data.pattern_score]);
+      setPatternScores((prev) => [
+        ...prev.slice(-9),
+        response.data.pattern_score,
+      ]);
       onPatternDetected(newPattern);
     } catch (err) {
-      setError('Failed to detect pattern');
+      setError("Failed to detect pattern");
       console.error(err);
     } finally {
       setLoading(false);
@@ -151,7 +157,12 @@ export const PatternRecognition: React.FC<PatternRecognitionProps> = ({
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="score" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#8884d8"
+                      activeDot={{ r: 8 }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </Box>
@@ -165,14 +176,20 @@ export const PatternRecognition: React.FC<PatternRecognitionProps> = ({
             </Typography>
             {patterns.map((pattern, index) => (
               <Box key={index} mb={2}>
-                <Alert severity={pattern.is_anomaly ? 'warning' : 'info'} sx={{ mb: 1 }}>
-                  {pattern.is_anomaly ? 'Anomalous Pattern Detected' : 'Normal Pattern Detected'}
+                <Alert
+                  severity={pattern.is_anomaly ? "warning" : "info"}
+                  sx={{ mb: 1 }}
+                >
+                  {pattern.is_anomaly
+                    ? "Anomalous Pattern Detected"
+                    : "Normal Pattern Detected"}
                 </Alert>
                 <Typography variant="body2" color="textSecondary">
                   Pattern Score: {pattern.score.toFixed(3)}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Detected at: {new Date(pattern.timestamp).toLocaleTimeString()}
+                  Detected at:{" "}
+                  {new Date(pattern.timestamp).toLocaleTimeString()}
                 </Typography>
               </Box>
             ))}

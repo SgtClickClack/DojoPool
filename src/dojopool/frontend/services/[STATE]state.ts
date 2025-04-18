@@ -1,7 +1,7 @@
-import { UserProfile } from '../../types/user';
-import { TrainingSession } from '../../types/training';
-import storageService from './storage';
-import analyticsService from './analytics';
+import { UserProfile } from "../../types/user";
+import { TrainingSession } from "../../types/training";
+import storageService from "./storage";
+import analyticsService from "./analytics";
 
 interface AppState {
   user: {
@@ -15,7 +15,7 @@ interface AppState {
     savedTechniques: string[];
   };
   ui: {
-    theme: 'light' | 'dark' | 'system';
+    theme: "light" | "dark" | "system";
     sidebarOpen: boolean;
     activeModal: string | null;
     notifications: any[];
@@ -50,7 +50,7 @@ class StateService {
       savedTechniques: [],
     },
     ui: {
-      theme: 'system',
+      theme: "system",
       sidebarOpen: false,
       activeModal: null,
       notifications: [],
@@ -70,7 +70,10 @@ class StateService {
   };
 
   private listeners: Map<string, Set<StateListener>> = new Map();
-  private persistentKeys: Set<string> = new Set(['user.preferences', 'ui.theme']);
+  private persistentKeys: Set<string> = new Set([
+    "user.preferences",
+    "ui.theme",
+  ]);
 
   constructor() {
     this.initializeState();
@@ -88,23 +91,26 @@ class StateService {
 
     // Track initial state
     analyticsService.trackUserEvent({
-      type: 'state_initialized',
-      userId: 'system',
+      type: "state_initialized",
+      userId: "system",
       details: { timestamp: new Date().toISOString() },
     });
   }
 
   private setupNetworkListeners(): void {
-    window.addEventListener('online', () => {
-      this.setState('offline', { ...this.state.offline, isOnline: true });
+    window.addEventListener("online", () => {
+      this.setState("offline", { ...this.state.offline, isOnline: true });
     });
 
-    window.addEventListener('offline', () => {
-      this.setState('offline', { ...this.state.offline, isOnline: false });
+    window.addEventListener("offline", () => {
+      this.setState("offline", { ...this.state.offline, isOnline: false });
     });
   }
 
-  public select<T>(selector: StateSelector<T>, listener: StateListener<T>): () => void {
+  public select<T>(
+    selector: StateSelector<T>,
+    listener: StateListener<T>,
+  ): () => void {
     const key = selector.toString();
     if (!this.listeners.has(key)) {
       this.listeners.set(key, new Set());
@@ -140,7 +146,7 @@ class StateService {
   public setState<K extends keyof AppState>(
     key: K,
     value: AppState[K],
-    options: { persist?: boolean } = {}
+    options: { persist?: boolean } = {},
   ): void {
     const oldState = { ...this.state };
     this.state = { ...this.state, [key]: value };
@@ -152,9 +158,13 @@ class StateService {
     this.notifyListeners(this.state, oldState);
   }
 
-  public setStateByPath(path: string, value: any, options: { persist?: boolean } = {}): void {
+  public setStateByPath(
+    path: string,
+    value: any,
+    options: { persist?: boolean } = {},
+  ): void {
     const oldState = { ...this.state };
-    const pathParts = path.split('.');
+    const pathParts = path.split(".");
     let current: any = this.state;
 
     for (let i = 0; i < pathParts.length - 1; i++) {
@@ -200,7 +210,7 @@ class StateService {
         savedTechniques: [],
       },
       ui: {
-        theme: 'system',
+        theme: "system",
         sidebarOpen: false,
         activeModal: null,
         notifications: [],
@@ -234,7 +244,7 @@ class StateService {
   }
 
   private getStateByPath(path: string): any {
-    const pathParts = path.split('.');
+    const pathParts = path.split(".");
     let current: any = this.state;
 
     for (const part of pathParts) {

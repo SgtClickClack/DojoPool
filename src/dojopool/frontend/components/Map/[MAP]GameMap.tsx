@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { GoogleMap, LoadScript, Circle } from '@react-google-maps/api';
-import { useTheme } from '@mui/material';
-import { Location } from '../../utils/location';
+import { useCallback, useEffect, useRef } from "react";
+import { GoogleMap, LoadScript, Circle } from "@react-google-maps/api";
+import { useTheme } from "@mui/material";
+import { Location } from "../../utils/location";
 import {
   GOOGLE_MAPS_API_KEY,
   DEFAULT_MAP_OPTIONS,
   MAP_STYLES,
   PLAYER_MARKER_RADIUS,
   ANIMATION_DURATION,
-} from '../../constants';
+} from "../../constants";
 
 interface GameMapProps {
   currentLocation: Location;
@@ -24,9 +24,9 @@ interface AnimatedMarker {
 
 // Map container styles
 const containerStyle = {
-  width: '100%',
-  height: '100%',
-  borderRadius: '12px',
+  width: "100%",
+  height: "100%",
+  borderRadius: "12px",
 };
 
 const GameMap: React.FC<GameMapProps> = ({
@@ -92,7 +92,7 @@ const GameMap: React.FC<GameMapProps> = ({
             scale: 8,
             fillColor: theme.palette.primary.main,
             fillOpacity: 1,
-            strokeColor: 'white',
+            strokeColor: "white",
             strokeWeight: 2,
           },
         }),
@@ -103,7 +103,10 @@ const GameMap: React.FC<GameMapProps> = ({
 
     // Update other players' markers
     Object.entries(otherPlayerLocations).forEach(([playerId, location]) => {
-      const latLng = new google.maps.LatLng(location.latitude, location.longitude);
+      const latLng = new google.maps.LatLng(
+        location.latitude,
+        location.longitude,
+      );
       if (!markersRef.current[playerId]) {
         markersRef.current[playerId] = {
           current: latLng,
@@ -116,7 +119,7 @@ const GameMap: React.FC<GameMapProps> = ({
               scale: 6,
               fillColor: theme.palette.info.main,
               fillOpacity: 0.8,
-              strokeColor: 'white',
+              strokeColor: "white",
               strokeWeight: 1,
             },
           }),
@@ -136,7 +139,9 @@ const GameMap: React.FC<GameMapProps> = ({
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      Object.values(markersRef.current).forEach(({ marker }) => marker?.setMap(null));
+      Object.values(markersRef.current).forEach(({ marker }) =>
+        marker?.setMap(null),
+      );
       markersRef.current = {};
     };
   }, [center, otherPlayerLocations, theme.palette, animateMarkers]);
@@ -151,13 +156,15 @@ const GameMap: React.FC<GameMapProps> = ({
 
       // Add other players to bounds
       Object.values(otherPlayerLocations).forEach((location) => {
-        bounds.extend(new window.google.maps.LatLng(location.latitude, location.longitude));
+        bounds.extend(
+          new window.google.maps.LatLng(location.latitude, location.longitude),
+        );
       });
 
       map.fitBounds(bounds, 50); // 50 pixels padding
       mapRef.current = map;
     },
-    [center, otherPlayerLocations]
+    [center, otherPlayerLocations],
   );
 
   const onUnmount = useCallback(() => {

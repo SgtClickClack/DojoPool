@@ -1,10 +1,10 @@
-import { ImageLoaderProps } from 'next/image';
+import { ImageLoaderProps } from "next/image";
 
 interface CDNConfig {
   baseUrl: string;
   imageOptimizationParams: {
     quality: number;
-    format: 'webp' | 'avif' | 'original';
+    format: "webp" | "avif" | "original";
     width: number;
   };
   assetTypes: {
@@ -18,10 +18,10 @@ interface CDNConfig {
 
 // CDN configuration based on environment
 export const cdnConfig: CDNConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_CDN_URL || 'https://cdn.dojopool.com',
+  baseUrl: process.env.NEXT_PUBLIC_CDN_URL || "https://cdn.dojopool.com",
   imageOptimizationParams: {
     quality: 80,
-    format: 'webp',
+    format: "webp",
     width: 1920,
   },
   assetTypes: {
@@ -44,7 +44,11 @@ export const cdnConfig: CDNConfig = {
 };
 
 // Custom image loader for Next.js Image component
-export const cdnImageLoader = ({ src, width, quality }: ImageLoaderProps): string => {
+export const cdnImageLoader = ({
+  src,
+  width,
+  quality,
+}: ImageLoaderProps): string => {
   const params = new URLSearchParams({
     w: width.toString(),
     q: (quality || cdnConfig.imageOptimizationParams.quality).toString(),
@@ -55,37 +59,44 @@ export const cdnImageLoader = ({ src, width, quality }: ImageLoaderProps): strin
 };
 
 // Generate CDN URL for any asset
-export const getCdnUrl = (path: string, type: keyof typeof cdnConfig.assetTypes): string => {
+export const getCdnUrl = (
+  path: string,
+  type: keyof typeof cdnConfig.assetTypes,
+): string => {
   return `${cdnConfig.baseUrl}/${type}${path}`;
 };
 
 // Generate cache control headers for different asset types
-export const getCacheControlHeaders = (type: keyof typeof cdnConfig.assetTypes): string => {
+export const getCacheControlHeaders = (
+  type: keyof typeof cdnConfig.assetTypes,
+): string => {
   const { maxAge, sMaxAge, staleWhileRevalidate } = cdnConfig.assetTypes[type];
   return `public, max-age=${maxAge}, s-maxage=${sMaxAge}, stale-while-revalidate=${staleWhileRevalidate}`;
 };
 
 // Asset preload helper
-export const generatePreloadTags = (assets: { path: string; type: string }[]): string => {
+export const generatePreloadTags = (
+  assets: { path: string; type: string }[],
+): string => {
   return assets
     .map(({ path, type }) => {
       const url = getCdnUrl(path, type as keyof typeof cdnConfig.assetTypes);
       switch (type) {
-        case 'fonts':
+        case "fonts":
           return `<link rel="preload" href="${url}" as="font" type="font/woff2" crossorigin>`;
-        case 'images':
+        case "images":
           return `<link rel="preload" href="${url}" as="image">`;
         default:
           return `<link rel="preload" href="${url}" as="fetch" crossorigin>`;
       }
     })
-    .join('\n');
+    .join("\n");
 };
 
 // Image optimization middleware
 export const optimizeImage = async (
   src: string,
-  options: Partial<typeof cdnConfig.imageOptimizationParams>
+  options: Partial<typeof cdnConfig.imageOptimizationParams>,
 ): Promise<string> => {
   const params = new URLSearchParams({
     url: src,
@@ -93,10 +104,12 @@ export const optimizeImage = async (
     ...options,
   });
 
-  const response = await fetch(`${cdnConfig.baseUrl}/optimize?${params.toString()}`);
+  const response = await fetch(
+    `${cdnConfig.baseUrl}/optimize?${params.toString()}`,
+  );
   if (!response.ok) {
-    throw new Error('Image optimization failed');
+    throw new Error("Image optimization failed");
   }
 
   return response.url;
-}; 
+};

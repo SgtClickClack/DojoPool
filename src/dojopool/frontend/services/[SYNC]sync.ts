@@ -1,7 +1,7 @@
-import api from './api';
-import storageService from './storage';
-import analyticsService from './analytics';
-import { isNetworkError } from '../utils/errorHandling';
+import api from "./api";
+import storageService from "./storage";
+import analyticsService from "./analytics";
+import { isNetworkError } from "../utils/errorHandling";
 
 interface SyncStatus {
   lastSync: string;
@@ -19,7 +19,7 @@ interface SyncConfig {
 
 class SyncService {
   private status: SyncStatus = {
-    lastSync: '',
+    lastSync: "",
     pendingActions: 0,
     isSyncing: false,
   };
@@ -39,7 +39,7 @@ class SyncService {
   }
 
   private initializeAutoSync(): void {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       this.syncInterval = setInterval(() => {
         this.sync();
       }, this.config.autoSyncInterval);
@@ -47,19 +47,19 @@ class SyncService {
   }
 
   private registerNetworkListeners(): void {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('online', () => this.handleOnline());
-      window.addEventListener('offline', () => this.handleOffline());
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", () => this.handleOnline());
+      window.addEventListener("offline", () => this.handleOffline());
     }
   }
 
   private async handleOnline(): Promise<void> {
-    console.log('Network connection restored. Starting sync...');
+    console.log("Network connection restored. Starting sync...");
     await this.sync();
   }
 
   private handleOffline(): void {
-    console.log('Network connection lost. Pausing sync...');
+    console.log("Network connection lost. Pausing sync...");
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
       this.syncInterval = null;
@@ -97,13 +97,14 @@ class SyncService {
       this.status.pendingActions = 0;
       this.status.error = undefined;
     } catch (error) {
-      console.error('Sync failed:', error);
-      this.status.error = error instanceof Error ? error.message : 'Sync failed';
+      console.error("Sync failed:", error);
+      this.status.error =
+        error instanceof Error ? error.message : "Sync failed";
 
       // Track sync failure
       analyticsService.trackUserEvent({
-        type: 'sync_failure',
-        userId: 'system',
+        type: "sync_failure",
+        userId: "system",
         details: { error: this.status.error },
       });
     } finally {
@@ -119,14 +120,17 @@ class SyncService {
       data: any;
       timestamp: string;
       retryCount: number;
-    }>
+    }>,
   ): Promise<void> {
     for (const action of actions) {
       try {
         await this.processAction(action);
         await storageService.removeOfflineAction(action.id);
       } catch (error) {
-        if (action.retryCount < this.config.maxRetries && !isNetworkError(error)) {
+        if (
+          action.retryCount < this.config.maxRetries &&
+          !isNetworkError(error)
+        ) {
           // Queue for retry with increased retry count
           await storageService.queueOfflineAction(action.action, {
             ...action.data,
@@ -138,19 +142,22 @@ class SyncService {
     }
   }
 
-  private async processAction(action: { action: string; data: any }): Promise<void> {
+  private async processAction(action: {
+    action: string;
+    data: any;
+  }): Promise<void> {
     switch (action.action) {
-      case 'update_training':
+      case "update_training":
         await api.put(`/training/session/${action.data.id}`, action.data);
         break;
-      case 'submit_feedback':
+      case "submit_feedback":
         await api.post(`/training/feedback`, action.data);
         break;
-      case 'update_profile':
-        await api.put('/user/profile', action.data);
+      case "update_profile":
+        await api.put("/user/profile", action.data);
         break;
       default:
-        console.warn('Unknown action type:', action.action);
+        console.warn("Unknown action type:", action.action);
     }
   }
 
@@ -161,11 +168,14 @@ class SyncService {
       try {
         const serverProfile = await api.get(`/user/profile/${profile.id}`);
 
-        if (new Date(serverProfile.data.lastModified) > new Date(profile.lastModified)) {
+        if (
+          new Date(serverProfile.data.lastModified) >
+          new Date(profile.lastModified)
+        ) {
           await storageService.saveUserProfile(serverProfile.data);
         }
       } catch (error) {
-        console.error('Failed to sync user profile:', error);
+        console.error("Failed to sync user profile:", error);
       }
     }
   }
@@ -177,18 +187,21 @@ class SyncService {
       try {
         const serverSession = await api.get(`/training/session/${session.id}`);
 
-        if (new Date(serverSession.data.lastModified) > new Date(session.lastModified)) {
+        if (
+          new Date(serverSession.data.lastModified) >
+          new Date(session.lastModified)
+        ) {
           await storageService.saveTrainingSession(serverSession.data);
         }
       } catch (error) {
-        console.error('Failed to sync training session:', error);
+        console.error("Failed to sync training session:", error);
       }
     }
   }
 
   private updateStatus(): void {
     // Emit status update event
-    const event = new CustomEvent('sync:status', { detail: this.status });
+    const event = new CustomEvent("sync:status", { detail: this.status });
     window.dispatchEvent(event);
   }
 

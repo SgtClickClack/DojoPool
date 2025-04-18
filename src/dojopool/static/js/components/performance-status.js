@@ -1,18 +1,18 @@
-import { initializePerformanceMonitoring } from '../performance-init.js';
+import { initializePerformanceMonitoring } from "../performance-init.js";
 
 export class PerformanceStatus extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-    }
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
 
-    connectedCallback() {
-        this.render();
-        this.initializeMonitoring();
-    }
+  connectedCallback() {
+    this.render();
+    this.initializeMonitoring();
+  }
 
-    render() {
-        this.shadowRoot.innerHTML = `
+  render() {
+    this.shadowRoot.innerHTML = `
             <style>
                 :host {
                     --status-bg: rgba(255, 255, 255, 0.9);
@@ -138,89 +138,97 @@ export class PerformanceStatus extends HTMLElement {
             </div>
         `;
 
-        // Add toggle functionality
-        const widget = this.shadowRoot.querySelector('.status-widget');
-        const metrics = this.shadowRoot.getElementById('metrics');
-        const toggleBtn = this.shadowRoot.getElementById('toggle');
-        const tip = this.shadowRoot.getElementById('tip');
+    // Add toggle functionality
+    const widget = this.shadowRoot.querySelector(".status-widget");
+    const metrics = this.shadowRoot.getElementById("metrics");
+    const toggleBtn = this.shadowRoot.getElementById("toggle");
+    const tip = this.shadowRoot.getElementById("tip");
 
-        toggleBtn.addEventListener('click', () => {
-            const isMinimized = widget.classList.toggle('minimized');
-            toggleBtn.textContent = isMinimized ? '+' : '−';
-            metrics.style.display = isMinimized ? 'none' : 'grid';
-            tip.style.display = 'none';
-        });
-    }
+    toggleBtn.addEventListener("click", () => {
+      const isMinimized = widget.classList.toggle("minimized");
+      toggleBtn.textContent = isMinimized ? "+" : "−";
+      metrics.style.display = isMinimized ? "none" : "grid";
+      tip.style.display = "none";
+    });
+  }
 
-    initializeMonitoring() {
-        const performanceSystem = initializePerformanceMonitoring({
-            containers: {},
-            monitor: {
-                sampleInterval: 1000
-            },
-            network: {
-                enabled: true
-            }
-        });
+  initializeMonitoring() {
+    const performanceSystem = initializePerformanceMonitoring({
+      containers: {},
+      monitor: {
+        sampleInterval: 1000,
+      },
+      network: {
+        enabled: true,
+      },
+    });
 
-        performanceSystem.start();
+    performanceSystem.start();
 
-        setInterval(() => {
-            const metrics = performanceSystem.monitor.getMetrics();
-            const networkMetrics = performanceSystem.networkProfiler?.getMetrics();
+    setInterval(() => {
+      const metrics = performanceSystem.monitor.getMetrics();
+      const networkMetrics = performanceSystem.networkProfiler?.getMetrics();
 
-            if (metrics) {
-                // Update FPS
-                const fps = Math.round(metrics.fps);
-                this.shadowRoot.getElementById('fps').textContent = fps;
+      if (metrics) {
+        // Update FPS
+        const fps = Math.round(metrics.fps);
+        this.shadowRoot.getElementById("fps").textContent = fps;
 
-                // Update connection status
-                let connectionStatus = 'Good';
-                if (networkMetrics) {
-                    const latency = networkMetrics.stats.averageLatency;
-                    if (latency > 200) {
-                        connectionStatus = 'Poor';
-                    } else if (latency > 100) {
-                        connectionStatus = 'Fair';
-                    }
-                }
-                this.shadowRoot.getElementById('connection').textContent = connectionStatus;
+        // Update connection status
+        let connectionStatus = "Good";
+        if (networkMetrics) {
+          const latency = networkMetrics.stats.averageLatency;
+          if (latency > 200) {
+            connectionStatus = "Poor";
+          } else if (latency > 100) {
+            connectionStatus = "Fair";
+          }
+        }
+        this.shadowRoot.getElementById("connection").textContent =
+          connectionStatus;
 
-                // Update quality level
-                let quality = 'High';
-                if (fps < 30) {
-                    quality = 'Low';
-                } else if (fps < 45) {
-                    quality = 'Medium';
-                }
-                this.shadowRoot.getElementById('quality').textContent = quality;
+        // Update quality level
+        let quality = "High";
+        if (fps < 30) {
+          quality = "Low";
+        } else if (fps < 45) {
+          quality = "Medium";
+        }
+        this.shadowRoot.getElementById("quality").textContent = quality;
 
-                // Update status and tips
-                const statusIndicator = this.shadowRoot.getElementById('status');
-                const tip = this.shadowRoot.getElementById('tip');
+        // Update status and tips
+        const statusIndicator = this.shadowRoot.getElementById("status");
+        const tip = this.shadowRoot.getElementById("tip");
 
-                if (fps < 30 || (networkMetrics && networkMetrics.stats.averageLatency > 200)) {
-                    statusIndicator.className = 'status-indicator status-error';
-                    tip.textContent = fps < 30 ?
-                        'Tip: Try lowering the quality settings for better performance' :
-                        'Tip: Check your internet connection';
-                    tip.style.display = 'block';
-                } else if (fps < 45 || (networkMetrics && networkMetrics.stats.averageLatency > 100)) {
-                    statusIndicator.className = 'status-indicator status-warning';
-                    tip.style.display = 'none';
-                } else {
-                    statusIndicator.className = 'status-indicator status-good';
-                    tip.style.display = 'none';
-                }
-            }
-        }, 1000);
+        if (
+          fps < 30 ||
+          (networkMetrics && networkMetrics.stats.averageLatency > 200)
+        ) {
+          statusIndicator.className = "status-indicator status-error";
+          tip.textContent =
+            fps < 30
+              ? "Tip: Try lowering the quality settings for better performance"
+              : "Tip: Check your internet connection";
+          tip.style.display = "block";
+        } else if (
+          fps < 45 ||
+          (networkMetrics && networkMetrics.stats.averageLatency > 100)
+        ) {
+          statusIndicator.className = "status-indicator status-warning";
+          tip.style.display = "none";
+        } else {
+          statusIndicator.className = "status-indicator status-good";
+          tip.style.display = "none";
+        }
+      }
+    }, 1000);
 
-        // Cleanup on disconnect
-        this.addEventListener('disconnectedCallback', () => {
-            performanceSystem.cleanup();
-        });
-    }
+    // Cleanup on disconnect
+    this.addEventListener("disconnectedCallback", () => {
+      performanceSystem.cleanup();
+    });
+  }
 }
 
 // Register the custom element
-customElements.define('performance-status', PerformanceStatus); 
+customElements.define("performance-status", PerformanceStatus);

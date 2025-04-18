@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { OptimizationEngine } from '../utils/optimizationEngine';
+import React, { useEffect, useState } from "react";
+import { OptimizationEngine } from "../utils/optimizationEngine";
 
 interface OptimizationPanelProps {
   playerId: string;
@@ -12,33 +12,40 @@ interface OptimizationPanelProps {
 
 export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
   playerId,
-  metrics
+  metrics,
 }) => {
-  const [suggestions, setSuggestions] = useState<Array<{
-    type: 'technique' | 'strategy' | 'practice';
-    priority: number;
-    title: string;
-    description: string;
-  }>>([]);
+  const [suggestions, setSuggestions] = useState<
+    Array<{
+      type: "technique" | "strategy" | "practice";
+      priority: number;
+      title: string;
+      description: string;
+    }>
+  >([]);
 
-  const [drills, setDrills] = useState<Array<{
-    drillType: string;
-    difficulty: number;
-    repetitions: number;
-  }>>([]);
+  const [drills, setDrills] = useState<
+    Array<{
+      drillType: string;
+      difficulty: number;
+      repetitions: number;
+    }>
+  >([]);
 
   useEffect(() => {
     const loadOptimizations = async () => {
       const engine = OptimizationEngine.getInstance();
-      
+
       try {
-        const newSuggestions = await engine.generateSuggestions(playerId, metrics);
+        const newSuggestions = await engine.generateSuggestions(
+          playerId,
+          metrics,
+        );
         setSuggestions(newSuggestions);
-        
+
         const newDrills = await engine.generateDrills(playerId, metrics);
         setDrills(newDrills);
       } catch (error) {
-        console.error('Failed to load optimizations:', error);
+        console.error("Failed to load optimizations:", error);
       }
     };
 
@@ -47,14 +54,14 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'technique':
-        return '#8884d8';
-      case 'strategy':
-        return '#82ca9d';
-      case 'practice':
-        return '#ffc658';
+      case "technique":
+        return "#8884d8";
+      case "strategy":
+        return "#82ca9d";
+      case "practice":
+        return "#ffc658";
       default:
-        return '#666';
+        return "#666";
     }
   };
 
@@ -65,7 +72,7 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
           padding: 20px;
           background: #f8f9fa;
           border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .section-title {
@@ -122,7 +129,7 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
           background: white;
           padding: 15px;
           border-radius: 6px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .drill-type {
@@ -157,7 +164,8 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
                 className="suggestion-type"
                 style={{ backgroundColor: getTypeColor(suggestion.type) }}
               >
-                {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)}
+                {suggestion.type.charAt(0).toUpperCase() +
+                  suggestion.type.slice(1)}
               </div>
             </div>
             <div className="suggestion-description">
@@ -189,4 +197,4 @@ export const OptimizationPanel: React.FC<OptimizationPanelProps> = ({
       </div>
     </div>
   );
-}; 
+};

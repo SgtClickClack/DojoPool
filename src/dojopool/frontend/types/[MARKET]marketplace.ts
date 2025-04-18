@@ -26,5 +26,5 @@ export interface Transaction {
   items: Array<CartItem & { priceAtPurchase: number }>;
   total: number;
   timestamp: string;
-  status: 'completed' | 'pending' | 'failed';
+  status: "completed" | "pending" | "failed";
 }

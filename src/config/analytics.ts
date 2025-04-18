@@ -1,36 +1,30 @@
-import { Redis } from 'ioredis';
-import { ClickHouse } from '@clickhouse/client';
-import { Segment } from '@segment/analytics-node';
-import { MixpanelClient } from 'mixpanel';
-import { createLogger, format, transports } from 'winston';
+import { Redis } from "ioredis";
+import { ClickHouse } from "@clickhouse/client";
+import { Segment } from "@segment/analytics-node";
+import { MixpanelClient } from "mixpanel";
+import { createLogger, format, transports } from "winston";
 
 // Initialize clients
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
 const clickhouse = new ClickHouse({
-  host: process.env.CLICKHOUSE_HOST || 'http://localhost:8123',
-  database: 'dojopool_analytics',
+  host: process.env.CLICKHOUSE_HOST || "http://localhost:8123",
+  database: "dojopool_analytics",
 });
 
 const segment = new Segment({
-  writeKey: process.env.SEGMENT_WRITE_KEY || '',
+  writeKey: process.env.SEGMENT_WRITE_KEY || "",
 });
 
-const mixpanel = new MixpanelClient(process.env.MIXPANEL_TOKEN || '');
+const mixpanel = new MixpanelClient(process.env.MIXPANEL_TOKEN || "");
 
 // Configure Winston logger for analytics
 const logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp(),
-    format.json()
-  ),
+  level: "info",
+  format: format.combine(format.timestamp(), format.json()),
   transports: [
-    new transports.File({ filename: 'logs/analytics.log' }),
+    new transports.File({ filename: "logs/analytics.log" }),
     new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      ),
+      format: format.combine(format.colorize(), format.simple()),
     }),
   ],
 });
@@ -38,43 +32,43 @@ const logger = createLogger({
 // Analytics event types
 export enum AnalyticsEventType {
   // User events
-  USER_SIGNUP = 'user_signup',
-  USER_LOGIN = 'user_login',
-  USER_LOGOUT = 'user_logout',
-  PROFILE_UPDATE = 'profile_update',
-  
+  USER_SIGNUP = "user_signup",
+  USER_LOGIN = "user_login",
+  USER_LOGOUT = "user_logout",
+  PROFILE_UPDATE = "profile_update",
+
   // Game events
-  GAME_START = 'game_start',
-  GAME_END = 'game_end',
-  SHOT_TAKEN = 'shot_taken',
-  GAME_VICTORY = 'game_victory',
-  
+  GAME_START = "game_start",
+  GAME_END = "game_end",
+  SHOT_TAKEN = "shot_taken",
+  GAME_VICTORY = "game_victory",
+
   // Tournament events
-  TOURNAMENT_JOIN = 'tournament_join',
-  TOURNAMENT_START = 'tournament_start',
-  TOURNAMENT_END = 'tournament_end',
-  TOURNAMENT_VICTORY = 'tournament_victory',
-  
+  TOURNAMENT_JOIN = "tournament_join",
+  TOURNAMENT_START = "tournament_start",
+  TOURNAMENT_END = "tournament_end",
+  TOURNAMENT_VICTORY = "tournament_victory",
+
   // Venue events
-  VENUE_VISIT = 'venue_visit',
-  TABLE_BOOKING = 'table_booking',
-  VENUE_RATING = 'venue_rating',
-  
+  VENUE_VISIT = "venue_visit",
+  TABLE_BOOKING = "table_booking",
+  VENUE_RATING = "venue_rating",
+
   // Feature usage
-  AI_COACH_SESSION = 'ai_coach_session',
-  SHOT_ANALYSIS = 'shot_analysis',
-  RECOMMENDATION_CLICK = 'recommendation_click',
-  
+  AI_COACH_SESSION = "ai_coach_session",
+  SHOT_ANALYSIS = "shot_analysis",
+  RECOMMENDATION_CLICK = "recommendation_click",
+
   // Performance events
-  PAGE_LOAD = 'page_load',
-  API_LATENCY = 'api_latency',
-  ERROR_OCCURRED = 'error_occurred',
-  
+  PAGE_LOAD = "page_load",
+  API_LATENCY = "api_latency",
+  ERROR_OCCURRED = "error_occurred",
+
   // Business events
-  SUBSCRIPTION_STARTED = 'subscription_started',
-  SUBSCRIPTION_RENEWED = 'subscription_renewed',
-  SUBSCRIPTION_CANCELLED = 'subscription_cancelled',
-  REVENUE_GENERATED = 'revenue_generated',
+  SUBSCRIPTION_STARTED = "subscription_started",
+  SUBSCRIPTION_RENEWED = "subscription_renewed",
+  SUBSCRIPTION_CANCELLED = "subscription_cancelled",
+  REVENUE_GENERATED = "revenue_generated",
 }
 
 // Analytics dimensions
@@ -161,18 +155,18 @@ export class Analytics {
     try {
       // Initialize ClickHouse tables if they don't exist
       await this.initializeClickHouseTables();
-      
+
       // Start batch processing
       this.startBatchProcessing();
-      
+
       // Start real-time processing if enabled
       if (analyticsConfig.realtime.enabled) {
         this.startRealtimeProcessing();
       }
-      
-      logger.info('Analytics system initialized successfully');
+
+      logger.info("Analytics system initialized successfully");
     } catch (error) {
-      logger.error('Failed to initialize analytics:', error);
+      logger.error("Failed to initialize analytics:", error);
       throw error;
     }
   }
@@ -240,7 +234,7 @@ export class Analytics {
       try {
         await this.processBatch(events);
       } catch (error) {
-        logger.error('Failed to process batch:', error);
+        logger.error("Failed to process batch:", error);
         // Re-add failed events to the queue
         this.eventQueue.push(...events);
       }
@@ -258,7 +252,7 @@ export class Analytics {
       try {
         await this.updateRealtimeMetrics();
       } catch (error) {
-        logger.error('Failed to update real-time metrics:', error);
+        logger.error("Failed to update real-time metrics:", error);
       }
     }, analyticsConfig.realtime.updateInterval);
   }
@@ -296,11 +290,11 @@ export class Analytics {
       if (!this.flushTimeout) {
         this.flushTimeout = setTimeout(
           () => this.processBatch(this.eventQueue),
-          analyticsConfig.batch.flushInterval
+          analyticsConfig.batch.flushInterval,
         );
       }
     } catch (error) {
-      logger.error('Failed to track event:', error);
+      logger.error("Failed to track event:", error);
     }
   }
 
@@ -314,23 +308,23 @@ export class Analytics {
 
       logger.info(`Processed batch of ${events.length} events`);
     } catch (error) {
-      logger.error('Failed to process batch:', error);
+      logger.error("Failed to process batch:", error);
       throw error;
     }
   }
 
   private async storeEventsInClickHouse(events: AnalyticsEvent[]) {
-    const values = events.map(event => ({
+    const values = events.map((event) => ({
       type: event.type,
-      userId: event.dimensions.userId || '',
-      sessionId: event.dimensions.sessionId || '',
-      deviceType: event.dimensions.deviceType || '',
-      platform: event.dimensions.platform || '',
-      country: event.dimensions.location?.country || '',
-      region: event.dimensions.location?.region || '',
-      city: event.dimensions.location?.city || '',
-      userAgent: event.dimensions.userAgent || '',
-      referrer: event.dimensions.referrer || '',
+      userId: event.dimensions.userId || "",
+      sessionId: event.dimensions.sessionId || "",
+      deviceType: event.dimensions.deviceType || "",
+      platform: event.dimensions.platform || "",
+      country: event.dimensions.location?.country || "",
+      region: event.dimensions.location?.region || "",
+      city: event.dimensions.location?.city || "",
+      userAgent: event.dimensions.userAgent || "",
+      referrer: event.dimensions.referrer || "",
       timestamp: event.dimensions.timestamp,
       duration: event.metrics.duration || null,
       value: event.metrics.value || null,
@@ -343,9 +337,9 @@ export class Analytics {
     }));
 
     await clickhouse.insert({
-      table: 'events',
+      table: "events",
       values,
-      format: 'JSONEachRow',
+      format: "JSONEachRow",
     });
   }
 
@@ -357,7 +351,7 @@ export class Analytics {
 
     for (const event of events) {
       const baseKey = `analytics:realtime:${event.type}`;
-      
+
       // Increment counters
       pipeline.incr(`${baseKey}:total`);
       pipeline.hincrby(`${baseKey}:by_minute`, minute.toString(), 1);
@@ -388,16 +382,21 @@ export class Analytics {
 
     // Get current metrics
     const results = await Promise.all([
-      redis.hgetall('analytics:realtime:active_users'),
-      redis.zcount('analytics:realtime:page_loads', '-inf', '+inf'),
-      redis.hgetall('analytics:realtime:errors'),
+      redis.hgetall("analytics:realtime:active_users"),
+      redis.zcount("analytics:realtime:page_loads", "-inf", "+inf"),
+      redis.hgetall("analytics:realtime:errors"),
     ]);
 
     // Store current snapshot
     pipeline.hmset(`analytics:realtime:metrics:${minute}`, {
       active_users: results[0] ? Object.keys(results[0]).length : 0,
       page_loads: results[1] || 0,
-      errors: results[2] ? Object.values(results[2]).reduce((a: any, b: any) => a + parseInt(b), 0) : 0,
+      errors: results[2]
+        ? Object.values(results[2]).reduce(
+            (a: any, b: any) => a + parseInt(b),
+            0,
+          )
+        : 0,
     });
 
     await pipeline.exec();
@@ -412,7 +411,7 @@ export class Analytics {
       Array.from({ length: 5 }, (_, i) => {
         const m = (minute - i + 60) % 60;
         return redis.hgetall(`analytics:realtime:metrics:${m}`);
-      })
+      }),
     );
 
     return metrics.filter(Boolean);
@@ -420,4 +419,4 @@ export class Analytics {
 }
 
 // Export singleton instance
-export const analytics = Analytics.getInstance(); 
+export const analytics = Analytics.getInstance();

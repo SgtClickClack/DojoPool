@@ -21,7 +21,7 @@ export interface Achievement {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   notifications: NotificationPreferences;
   language: string;
   timezone: string;

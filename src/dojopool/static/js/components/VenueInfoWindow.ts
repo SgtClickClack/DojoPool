@@ -1,27 +1,26 @@
 // Generated type definitions
 
 class VenueInfoWindow {
-    // Properties and methods
+  // Properties and methods
 }
 
 // Type imports
-
 
 /**
  * Custom info window component for displaying venue information
  */
 export default class VenueInfoWindow {
-    constructor() {
-        this.container = document.createElement('div');
-        this.container.className = 'venue-info-window';
-        this.content = null;
-        this.isOpen = false;
-        this.currentMarker = null;
-        this.map = null;
+  constructor() {
+    this.container = document.createElement("div");
+    this.container.className = "venue-info-window";
+    this.content = null;
+    this.isOpen = false;
+    this.currentMarker = null;
+    this.map = null;
 
-        // Create styles
-        const style: any = document.createElement('style');
-        style.textContent = `
+    // Create styles
+    const style: any = document.createElement("style");
+    style.textContent = `
             .venue-info-window {
                 position: absolute;
                 background: rgba(0, 0, 0, 0.9);
@@ -124,77 +123,85 @@ export default class VenueInfoWindow {
                 to { opacity: 1; transform: translateY(0); }
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    setMap(map) {
-        this.map = map;
-        this.map.getDiv().appendChild(this.container);
-    }
+  setMap(map) {
+    this.map = map;
+    this.map.getDiv().appendChild(this.container);
+  }
 
-    open(marker, venue) {
-        this.currentMarker = marker;
-        this.isOpen = true;
+  open(marker, venue) {
+    this.currentMarker = marker;
+    this.isOpen = true;
 
-        // Update content
-        this.container.innerHTML = `
+    // Update content
+    this.container.innerHTML = `
             <button class="venue-info-close">&times;</button>
             <div class="venue-info-header">
                 <h3 class="venue-info-name">${venue.name}</h3>
                 <div class="venue-info-status">
-                    ${venue.status === 'active' ? '● OPEN NOW' : '○ CLOSED'}
+                    ${venue.status === "active" ? "● OPEN NOW" : "○ CLOSED"}
                 </div>
             </div>
             <div class="venue-info-content">
                 <div class="venue-info-stat">
                     <span class="venue-info-label">Tables Available</span>
-                    <span class="venue-info-value">${venue.availableTables || 'N/A'}</span>
+                    <span class="venue-info-value">${venue.availableTables || "N/A"}</span>
                 </div>
                 <div class="venue-info-stat">
                     <span class="venue-info-label">Players Present</span>
-                    <span class="venue-info-value">${venue.currentPlayers || '0'}</span>
+                    <span class="venue-info-value">${venue.currentPlayers || "0"}</span>
                 </div>
                 <div class="venue-info-stat">
                     <span class="venue-info-label">Rating</span>
-                    <span class="venue-info-value">★ ${venue.rating || 'N/A'}</span>
+                    <span class="venue-info-value">★ ${venue.rating || "N/A"}</span>
                 </div>
             </div>
             <div class="venue-info-actions">
                 <button class="venue-info-button" onclick="window.location.href='/venues/${venue.id}'">
                     VIEW DETAILS
                 </button>
-                ${venue.status === 'active' ? `
+                ${
+                  venue.status === "active"
+                    ? `
                     <button class="venue-info-button" onclick="window.location.href='/venues/${venue.id}/book'">
                         BOOK NOW
                     </button>
-                ` : ''}
+                `
+                    : ""
+                }
             </div>
         `;
 
-        // Position the info window
-        const point: any = this.map.getProjection().fromLatLngToPoint(marker.getPosition());
-        const containerRect: any = this.container.getBoundingClientRect();
-        const mapRect: any = this.map.getDiv().getBoundingClientRect();
+    // Position the info window
+    const point: any = this.map
+      .getProjection()
+      .fromLatLngToPoint(marker.getPosition());
+    const containerRect: any = this.container.getBoundingClientRect();
+    const mapRect: any = this.map.getDiv().getBoundingClientRect();
 
-        this.container.style.left = `${point.x - (containerRect.width / 2)}px`;
-        this.container.style.top = `${point.y - containerRect.height - 20}px`;
-        this.container.classList.add('active');
+    this.container.style.left = `${point.x - containerRect.width / 2}px`;
+    this.container.style.top = `${point.y - containerRect.height - 20}px`;
+    this.container.classList.add("active");
 
-        // Add close button handler
-        this.container.querySelector('.venue-info-close').addEventListener('click', () => this.close());
+    // Add close button handler
+    this.container
+      .querySelector(".venue-info-close")
+      .addEventListener("click", () => this.close());
 
-        // Close when clicking outside
-        this.clickListener = this.map.addListener('click', () => this.close());
+    // Close when clicking outside
+    this.clickListener = this.map.addListener("click", () => this.close());
+  }
+
+  close() {
+    if (this.isOpen) {
+      this.container.classList.remove("active");
+      this.isOpen = false;
+      if (this.clickListener) {
+        google.maps.event.removeListener(this.clickListener);
+        this.clickListener = null;
+      }
     }
-
-    close() {
-        if (this.isOpen) {
-            this.container.classList.remove('active');
-            this.isOpen = false;
-            if (this.clickListener) {
-                google.maps.event.removeListener(this.clickListener);
-                this.clickListener = null;
-            }
-        }
-    }
-} 
+  }
+}

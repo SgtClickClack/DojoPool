@@ -1,17 +1,17 @@
-import stateService from './state';
-import analyticsService from './analytics';
-import storageService from './storage';
-import websocketService from './websocket';
+import stateService from "./state";
+import analyticsService from "./analytics";
+import storageService from "./storage";
+import websocketService from "./websocket";
 
 interface Notification {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'system';
+  type: "info" | "success" | "warning" | "error" | "system";
   title: string;
   message: string;
   timestamp: string;
   read: boolean;
   category?: string;
-  priority?: 'low' | 'medium' | 'high';
+  priority?: "low" | "medium" | "high";
   actionUrl?: string;
   metadata?: Record<string, any>;
   expiresAt?: string;
@@ -52,14 +52,14 @@ class NotificationService {
       soundEnabled: true,
       doNotDisturb: {
         enabled: false,
-        startTime: '22:00',
-        endTime: '07:00',
+        startTime: "22:00",
+        endTime: "07:00",
       },
     },
     isInitialized: false,
   };
   private listeners: Set<(state: NotificationState) => void> = new Set();
-  private readonly STORAGE_KEY = 'app:notifications';
+  private readonly STORAGE_KEY = "app:notifications";
   private readonly MAX_NOTIFICATIONS = 100;
 
   constructor() {
@@ -81,14 +81,14 @@ class NotificationService {
 
       // Track initialization
       analyticsService.trackUserEvent({
-        type: 'notification_service_initialized',
-        userId: 'system',
+        type: "notification_service_initialized",
+        userId: "system",
         details: {
           timestamp: new Date().toISOString(),
         },
       });
     } catch (error) {
-      console.error('Failed to initialize notification service:', error);
+      console.error("Failed to initialize notification service:", error);
     }
   }
 
@@ -105,7 +105,7 @@ class NotificationService {
         this.updateUnreadCount();
       }
     } catch (error) {
-      console.error('Failed to load notifications from storage:', error);
+      console.error("Failed to load notifications from storage:", error);
     }
   }
 
@@ -116,10 +116,10 @@ class NotificationService {
         JSON.stringify({
           notifications: this.state.notifications,
           preferences: this.state.preferences,
-        })
+        }),
       );
     } catch (error) {
-      console.error('Failed to save notifications to storage:', error);
+      console.error("Failed to save notifications to storage:", error);
     }
   }
 
@@ -132,12 +132,13 @@ class NotificationService {
   private cleanup(): void {
     const now = new Date().toISOString();
     const expired = this.state.notifications.filter(
-      (notification) => notification.expiresAt && notification.expiresAt < now
+      (notification) => notification.expiresAt && notification.expiresAt < now,
     );
 
     if (expired.length > 0) {
       this.state.notifications = this.state.notifications.filter(
-        (notification) => !notification.expiresAt || notification.expiresAt >= now
+        (notification) =>
+          !notification.expiresAt || notification.expiresAt >= now,
       );
       this.updateUnreadCount();
       this.saveToStorage();
@@ -145,8 +146,8 @@ class NotificationService {
 
       // Track cleanup
       analyticsService.trackUserEvent({
-        type: 'notifications_cleaned_up',
-        userId: 'system',
+        type: "notifications_cleaned_up",
+        userId: "system",
         details: {
           expiredCount: expired.length,
           timestamp: now,
@@ -166,8 +167,8 @@ class NotificationService {
 
       // Track limit enforcement
       analyticsService.trackUserEvent({
-        type: 'notifications_limit_enforced',
-        userId: 'system',
+        type: "notifications_limit_enforced",
+        userId: "system",
         details: {
           removedCount: excess,
           timestamp: now,
@@ -177,23 +178,30 @@ class NotificationService {
   }
 
   private updateUnreadCount(): void {
-    this.state.unreadCount = this.state.notifications.filter((n) => !n.read).length;
+    this.state.unreadCount = this.state.notifications.filter(
+      (n) => !n.read,
+    ).length;
   }
 
-  public async add(notification: Omit<Notification, 'id' | 'timestamp' | 'read'>): Promise<string> {
+  public async add(
+    notification: Omit<Notification, "id" | "timestamp" | "read">,
+  ): Promise<string> {
     // Check if notifications are enabled
     if (!this.state.preferences.enabled) {
-      return '';
+      return "";
     }
 
     // Check category preferences
-    if (notification.category && !this.state.preferences.categories[notification.category]) {
-      return '';
+    if (
+      notification.category &&
+      !this.state.preferences.categories[notification.category]
+    ) {
+      return "";
     }
 
     // Check do not disturb
     if (this.isInDoNotDisturbPeriod()) {
-      return '';
+      return "";
     }
 
     const id = `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -211,7 +219,7 @@ class NotificationService {
 
     // Track notification added
     analyticsService.trackUserEvent({
-      type: 'notification_added',
+      type: "notification_added",
       userId: notification.userId,
       details: {
         notificationId: id,
@@ -234,7 +242,7 @@ class NotificationService {
 
       // Track notification read
       analyticsService.trackUserEvent({
-        type: 'notification_read',
+        type: "notification_read",
         userId: notification.userId,
         details: {
           notificationId: id,
@@ -254,8 +262,8 @@ class NotificationService {
 
       // Track all notifications read
       analyticsService.trackUserEvent({
-        type: 'all_notifications_read',
-        userId: 'system',
+        type: "all_notifications_read",
+        userId: "system",
         details: {
           count: unreadCount,
           timestamp: new Date().toISOString(),
@@ -274,7 +282,7 @@ class NotificationService {
 
       // Track notification removed
       analyticsService.trackUserEvent({
-        type: 'notification_removed',
+        type: "notification_removed",
         userId: notification.userId,
         details: {
           notificationId: id,
@@ -294,8 +302,8 @@ class NotificationService {
 
       // Track notifications cleared
       analyticsService.trackUserEvent({
-        type: 'notifications_cleared',
-        userId: 'system',
+        type: "notifications_cleared",
+        userId: "system",
         details: {
           count,
           timestamp: new Date().toISOString(),
@@ -316,7 +324,9 @@ class NotificationService {
     return { ...this.state.preferences };
   }
 
-  public async updatePreferences(preferences: Partial<NotificationPreferences>): Promise<void> {
+  public async updatePreferences(
+    preferences: Partial<NotificationPreferences>,
+  ): Promise<void> {
     this.state.preferences = {
       ...this.state.preferences,
       ...preferences,
@@ -326,8 +336,8 @@ class NotificationService {
 
     // Track preferences update
     analyticsService.trackUserEvent({
-      type: 'notification_preferences_updated',
-      userId: 'system',
+      type: "notification_preferences_updated",
+      userId: "system",
       details: {
         preferences,
         timestamp: new Date().toISOString(),
@@ -367,15 +377,15 @@ class NotificationService {
   }
 
   private setupWebSocket(): void {
-    websocketService.subscribe('notifications', (data) => {
+    websocketService.subscribe("notifications", (data) => {
       switch (data.type) {
-        case 'new_notification':
+        case "new_notification":
           this.handleNewNotification(data.notification);
           break;
-        case 'notification_update':
+        case "notification_update":
           this.handleNotificationUpdate(data.notification);
           break;
-        case 'notification_delete':
+        case "notification_delete":
           this.handleNotificationDelete(data.notificationId);
           break;
       }
@@ -393,7 +403,10 @@ class NotificationService {
 
     // Trim notifications if exceeding max limit
     if (this.state.notifications.length > this.MAX_NOTIFICATIONS) {
-      this.state.notifications = this.state.notifications.slice(0, this.MAX_NOTIFICATIONS);
+      this.state.notifications = this.state.notifications.slice(
+        0,
+        this.MAX_NOTIFICATIONS,
+      );
     }
 
     // Save and notify
@@ -405,7 +418,9 @@ class NotificationService {
   }
 
   private handleNotificationUpdate(notification: Notification): void {
-    const index = this.state.notifications.findIndex((n) => n.id === notification.id);
+    const index = this.state.notifications.findIndex(
+      (n) => n.id === notification.id,
+    );
     if (index !== -1) {
       const wasUnread = !this.state.notifications[index].read;
       const isNowRead = notification.read;
@@ -425,7 +440,9 @@ class NotificationService {
   }
 
   private handleNotificationDelete(notificationId: string): void {
-    const index = this.state.notifications.findIndex((n) => n.id === notificationId);
+    const index = this.state.notifications.findIndex(
+      (n) => n.id === notificationId,
+    );
     if (index !== -1) {
       const wasUnread = !this.state.notifications[index].read;
       this.state.notifications.splice(index, 1);
@@ -439,18 +456,20 @@ class NotificationService {
     }
   }
 
-  private async showBrowserNotification(notification: Notification): Promise<void> {
+  private async showBrowserNotification(
+    notification: Notification,
+  ): Promise<void> {
     if (
       this.state.preferences.enabled &&
       this.state.preferences.pushNotifications &&
       !this.isInDoNotDisturbPeriod() &&
-      'Notification' in window &&
-      Notification.permission === 'granted'
+      "Notification" in window &&
+      Notification.permission === "granted"
     ) {
       try {
         const browserNotification = new Notification(notification.title, {
           body: notification.message,
-          icon: '/logo192.png',
+          icon: "/logo192.png",
           tag: notification.id,
           silent: !this.state.preferences.soundEnabled,
         });
@@ -465,7 +484,7 @@ class NotificationService {
 
         // Track notification display
         analyticsService.trackUserEvent({
-          type: 'notification_displayed',
+          type: "notification_displayed",
           userId: notification.userId,
           details: {
             notificationId: notification.id,
@@ -473,23 +492,23 @@ class NotificationService {
           },
         });
       } catch (error) {
-        console.error('Failed to show browser notification:', error);
+        console.error("Failed to show browser notification:", error);
       }
     }
   }
 
   public async requestNotificationPermission(): Promise<boolean> {
-    if (!('Notification' in window)) {
+    if (!("Notification" in window)) {
       return false;
     }
 
-    if (Notification.permission === 'granted') {
+    if (Notification.permission === "granted") {
       return true;
     }
 
-    if (Notification.permission !== 'denied') {
+    if (Notification.permission !== "denied") {
       const permission = await Notification.requestPermission();
-      return permission === 'granted';
+      return permission === "granted";
     }
 
     return false;

@@ -1,143 +1,151 @@
 class BandwidthTracker {
-    constructor() {
-        this.imageStats = new Map();
-        this.sessionStats = {
-            totalBandwidth: 0,
-            totalLoadTime: 0,
-            loadCount: 0,
-            startTime: Date.now()
-        };
-        this.thresholds = {
-            slow: 1000000,    // 1MB
-            medium: 5000000,  // 5MB
-            high: 10000000    // 10MB
-        };
-        this.initPerformanceObserver();
-    }
+  constructor() {
+    this.imageStats = new Map();
+    this.sessionStats = {
+      totalBandwidth: 0,
+      totalLoadTime: 0,
+      loadCount: 0,
+      startTime: Date.now(),
+    };
+    this.thresholds = {
+      slow: 1000000, // 1MB
+      medium: 5000000, // 5MB
+      high: 10000000, // 10MB
+    };
+    this.initPerformanceObserver();
+  }
 
-    initPerformanceObserver() {
-        if ('PerformanceObserver' in window) {
-            const observer = new PerformanceObserver((list) => {
-                list.getEntries().forEach(entry => {
-                    if (entry.initiatorType === 'img') {
-                        this.trackResourceTiming(entry);
-                    }
-                });
-            });
-
-            observer.observe({ entryTypes: ['resource'] });
-        }
-    }
-
-    trackResourceTiming(entry) {
-        const size = entry.transferSize || entry.decodedBodySize || 0;
-        const loadTime = entry.duration;
-        const url = entry.name;
-
-        this.trackImageLoad(url, size, loadTime);
-    }
-
-    trackImageLoad(url, size, loadTime) {
-        // Update per-image stats
-        this.imageStats.set(url, {
-            size,
-            loadTime,
-            timestamp: Date.now()
+  initPerformanceObserver() {
+    if ("PerformanceObserver" in window) {
+      const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          if (entry.initiatorType === "img") {
+            this.trackResourceTiming(entry);
+          }
         });
+      });
 
-        // Update session stats
-        this.sessionStats.totalBandwidth += size;
-        this.sessionStats.totalLoadTime += loadTime;
-        this.sessionStats.loadCount++;
+      observer.observe({ entryTypes: ["resource"] });
+    }
+  }
 
-        // Trigger optimization if needed
-        this.checkOptimizationNeeded();
+  trackResourceTiming(entry) {
+    const size = entry.transferSize || entry.decodedBodySize || 0;
+    const loadTime = entry.duration;
+    const url = entry.name;
+
+    this.trackImageLoad(url, size, loadTime);
+  }
+
+  trackImageLoad(url, size, loadTime) {
+    // Update per-image stats
+    this.imageStats.set(url, {
+      size,
+      loadTime,
+      timestamp: Date.now(),
+    });
+
+    // Update session stats
+    this.sessionStats.totalBandwidth += size;
+    this.sessionStats.totalLoadTime += loadTime;
+    this.sessionStats.loadCount++;
+
+    // Trigger optimization if needed
+    this.checkOptimizationNeeded();
+  }
+
+  getImageStats(url) {
+    return this.imageStats.get(url);
+  }
+
+  getTotalBandwidth() {
+    return this.sessionStats.totalBandwidth;
+  }
+
+  getAverageLoadTime() {
+    return this.sessionStats.loadCount > 0
+      ? this.sessionStats.totalLoadTime / this.sessionStats.loadCount
+      : 0;
+  }
+
+  getBandwidthUsage() {
+    const sessionDuration = (Date.now() - this.sessionStats.startTime) / 1000; // in seconds
+    return this.sessionStats.totalBandwidth / sessionDuration; // bytes per second
+  }
+
+  checkOptimizationNeeded() {
+    const currentUsage = this.getBandwidthUsage();
+    const recommendations = this.getOptimizationRecommendations();
+
+    if (recommendations.length > 0) {
+      this.notifyOptimizationNeeded(recommendations);
+    }
+  }
+
+  getOptimizationRecommendations() {
+    const recommendations = [];
+    const usage = this.getBandwidthUsage();
+    const avgLoadTime = this.getAverageLoadTime();
+
+    // Check bandwidth usage thresholds
+    if (usage > this.thresholds.high) {
+      recommendations.push(
+        "Consider reducing image quality to conserve bandwidth",
+      );
     }
 
-    getImageStats(url) {
-        return this.imageStats.get(url);
+    // Check load time performance
+    if (avgLoadTime > 3000) {
+      // 3 seconds
+      recommendations.push(
+        "Consider using lower resolution images for faster loading",
+      );
     }
 
-    getTotalBandwidth() {
-        return this.sessionStats.totalBandwidth;
+    // Check total bandwidth consumption
+    if (this.sessionStats.totalBandwidth > this.thresholds.medium) {
+      recommendations.push(
+        "Session bandwidth usage is high, switching to low-quality images",
+      );
     }
 
-    getAverageLoadTime() {
-        return this.sessionStats.loadCount > 0 ?
-            this.sessionStats.totalLoadTime / this.sessionStats.loadCount : 0;
-    }
+    return recommendations;
+  }
 
-    getBandwidthUsage() {
-        const sessionDuration = (Date.now() - this.sessionStats.startTime) / 1000; // in seconds
-        return this.sessionStats.totalBandwidth / sessionDuration; // bytes per second
-    }
+  notifyOptimizationNeeded(recommendations) {
+    // Create a custom event with optimization recommendations
+    const event = new CustomEvent("bandwidthOptimization", {
+      detail: {
+        recommendations,
+        stats: {
+          bandwidth: this.getBandwidthUsage(),
+          totalUsage: this.getTotalBandwidth(),
+          averageLoadTime: this.getAverageLoadTime(),
+        },
+      },
+    });
 
-    checkOptimizationNeeded() {
-        const currentUsage = this.getBandwidthUsage();
-        const recommendations = this.getOptimizationRecommendations();
+    window.dispatchEvent(event);
+  }
 
-        if (recommendations.length > 0) {
-            this.notifyOptimizationNeeded(recommendations);
-        }
-    }
+  getNetworkCondition() {
+    const usage = this.getBandwidthUsage();
+    if (usage < this.thresholds.slow) return "slow";
+    if (usage < this.thresholds.medium) return "medium";
+    return "high";
+  }
 
-    getOptimizationRecommendations() {
-        const recommendations = [];
-        const usage = this.getBandwidthUsage();
-        const avgLoadTime = this.getAverageLoadTime();
-
-        // Check bandwidth usage thresholds
-        if (usage > this.thresholds.high) {
-            recommendations.push('Consider reducing image quality to conserve bandwidth');
-        }
-
-        // Check load time performance
-        if (avgLoadTime > 3000) { // 3 seconds
-            recommendations.push('Consider using lower resolution images for faster loading');
-        }
-
-        // Check total bandwidth consumption
-        if (this.sessionStats.totalBandwidth > this.thresholds.medium) {
-            recommendations.push('Session bandwidth usage is high, switching to low-quality images');
-        }
-
-        return recommendations;
-    }
-
-    notifyOptimizationNeeded(recommendations) {
-        // Create a custom event with optimization recommendations
-        const event = new CustomEvent('bandwidthOptimization', {
-            detail: {
-                recommendations,
-                stats: {
-                    bandwidth: this.getBandwidthUsage(),
-                    totalUsage: this.getTotalBandwidth(),
-                    averageLoadTime: this.getAverageLoadTime()
-                }
-            }
-        });
-
-        window.dispatchEvent(event);
-    }
-
-    getNetworkCondition() {
-        const usage = this.getBandwidthUsage();
-        if (usage < this.thresholds.slow) return 'slow';
-        if (usage < this.thresholds.medium) return 'medium';
-        return 'high';
-    }
-
-    reset() {
-        this.imageStats.clear();
-        this.sessionStats = {
-            totalBandwidth: 0,
-            totalLoadTime: 0,
-            loadCount: 0,
-            startTime: Date.now()
-        };
-    }
+  reset() {
+    this.imageStats.clear();
+    this.sessionStats = {
+      totalBandwidth: 0,
+      totalLoadTime: 0,
+      loadCount: 0,
+      startTime: Date.now(),
+    };
+  }
 }
 
 // Initialize and export instance
 const bandwidthTracker = new BandwidthTracker();
-export default bandwidthTracker; 
+export default bandwidthTracker;

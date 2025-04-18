@@ -39,4 +39,4 @@ updates:
       - "security"
     commit-message:
       prefix: "fix"
-      include: "scope" 
+      include: "scope"

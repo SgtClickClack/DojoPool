@@ -1,4 +1,8 @@
-import { Google as GoogleIcon, Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Google as GoogleIcon,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -10,19 +14,19 @@ import {
   TextField,
   Typography,
   useTheme,
-} from '@mui/material';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { useAuth } from './AuthContext';
+} from "@mui/material";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { useAuth } from "./AuthContext";
 
 export default function Signup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [validationError, setValidationError] = useState('');
+  const [validationError, setValidationError] = useState("");
   const { signInWithGoogle, error: authError } = useAuth();
   const router = useRouter();
   const theme = useTheme();
@@ -31,48 +35,53 @@ export default function Signup() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setValidationError('Passwords do not match');
+      setValidationError("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setValidationError('Password must be at least 6 characters');
+      setValidationError("Password must be at least 6 characters");
       return;
     }
 
     try {
-      setValidationError('');
+      setValidationError("");
       await signInWithGoogle(); // Using Google auth for now
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error("Signup error:", error);
     }
   }
 
   async function handleGoogleSignup() {
     try {
-      setValidationError('');
+      setValidationError("");
       await signInWithGoogle();
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Google signup error:', error);
+      console.error("Google signup error:", error);
     }
   }
 
   return (
-    <Box className="cyber-gradient" minHeight="100vh" display="flex" alignItems="center">
+    <Box
+      className="cyber-gradient"
+      minHeight="100vh"
+      display="flex"
+      alignItems="center"
+    >
       <Container component="main" maxWidth="xs">
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             p: 4,
             borderRadius: 2,
-            background: 'rgba(30, 30, 30, 0.8)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(0, 255, 255, 0.1)',
-            boxShadow: '0 0 20px rgba(0, 255, 255, 0.2)',
+            background: "rgba(30, 30, 30, 0.8)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(0, 255, 255, 0.1)",
+            boxShadow: "0 0 20px rgba(0, 255, 255, 0.2)",
           }}
         >
           <Typography
@@ -82,27 +91,31 @@ export default function Signup() {
             sx={{
               mb: 4,
               fontWeight: 700,
-              background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              background: "linear-gradient(45deg, #00ffff, #ff00ff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
             }}
           >
             Create DojoPool Account
           </Typography>
           {(validationError || authError) && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mt: 2, 
-                width: '100%',
-                backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                border: '1px solid rgba(211, 47, 47, 0.3)',
+            <Alert
+              severity="error"
+              sx={{
+                mt: 2,
+                width: "100%",
+                backgroundColor: "rgba(211, 47, 47, 0.1)",
+                border: "1px solid rgba(211, 47, 47, 0.3)",
               }}
             >
               {validationError || authError}
             </Alert>
           )}
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ mt: 1, width: "100%" }}
+          >
             <TextField
               margin="normal"
               required
@@ -115,15 +128,15 @@ export default function Signup() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.3)',
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.3)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.5)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.5)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "primary.main",
                   },
                 },
               }}
@@ -139,15 +152,15 @@ export default function Signup() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.3)',
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.3)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.5)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.5)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "primary.main",
                   },
                 },
               }}
@@ -158,7 +171,7 @@ export default function Signup() {
               fullWidth
               name="password"
               label="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="new-password"
               value={password}
@@ -166,10 +179,10 @@ export default function Signup() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton 
-                      onClick={() => setShowPassword(!showPassword)} 
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
                       edge="end"
-                      sx={{ color: 'primary.main' }}
+                      sx={{ color: "primary.main" }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -177,15 +190,15 @@ export default function Signup() {
                 ),
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.3)',
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.3)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.5)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.5)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "primary.main",
                   },
                 },
               }}
@@ -196,20 +209,20 @@ export default function Signup() {
               fullWidth
               name="confirmPassword"
               label="Confirm Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.3)',
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.3)",
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(0, 255, 255, 0.5)',
+                  "&:hover fieldset": {
+                    borderColor: "rgba(0, 255, 255, 0.5)",
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
+                  "&.Mui-focused fieldset": {
+                    borderColor: "primary.main",
                   },
                 },
               }}
@@ -223,22 +236,23 @@ export default function Signup() {
                 mt: 3,
                 mb: 2,
                 py: 1.5,
-                fontSize: '1.1rem',
-                background: 'linear-gradient(45deg, #00ffff 30%, #00ccff 90%)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #00ccff 30%, #00ffff 90%)',
+                fontSize: "1.1rem",
+                background: "linear-gradient(45deg, #00ffff 30%, #00ccff 90%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(45deg, #00ccff 30%, #00ffff 90%)",
                 },
               }}
             >
               Sign Up
             </Button>
-            <Divider 
-              sx={{ 
+            <Divider
+              sx={{
                 my: 2,
-                '&::before, &::after': {
-                  borderColor: 'rgba(0, 255, 255, 0.3)',
+                "&::before, &::after": {
+                  borderColor: "rgba(0, 255, 255, 0.3)",
                 },
-                color: 'text.secondary',
+                color: "text.secondary",
               }}
             >
               OR
@@ -251,21 +265,21 @@ export default function Signup() {
               onClick={handleGoogleSignup}
               sx={{
                 py: 1.5,
-                fontSize: '1.1rem',
-                borderColor: 'rgba(0, 255, 255, 0.3)',
-                '&:hover': {
-                  borderColor: 'primary.main',
+                fontSize: "1.1rem",
+                borderColor: "rgba(0, 255, 255, 0.3)",
+                "&:hover": {
+                  borderColor: "primary.main",
                 },
               }}
             >
               Sign up with Google
             </Button>
-            <Box sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
-              Already have an account?{' '}
+            <Box sx={{ mt: 2, textAlign: "center", color: "text.secondary" }}>
+              Already have an account?{" "}
               <Link
                 href="/login"
-                style={{ 
-                  textDecoration: 'none',
+                style={{
+                  textDecoration: "none",
                   color: theme.palette.primary.main,
                 }}
               >

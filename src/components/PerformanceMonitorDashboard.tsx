@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -7,8 +7,8 @@ import {
   Typography,
   CircularProgress,
   Alert,
-  useTheme
-} from '@mui/material';
+  useTheme,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -17,11 +17,11 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
-} from 'recharts';
-import { ErrorBoundary } from '../components/ErrorBoundary';
-import { PerformanceMonitor } from '../services/PerformanceMonitor';
-import { formatBytes, formatTime, formatPercentage } from '../utils/formatters';
+  ResponsiveContainer,
+} from "recharts";
+import { ErrorBoundary } from "../components/ErrorBoundary";
+import { PerformanceMonitor } from "../services/PerformanceMonitor";
+import { formatBytes, formatTime, formatPercentage } from "../utils/formatters";
 
 interface PerformanceMetrics {
   timestamp: number;
@@ -47,15 +47,17 @@ export const PerformanceMonitorDashboard: React.FC = () => {
   const fetchMetrics = async () => {
     try {
       // TODO: Replace with actual API call
-      const response = await fetch('/api/performance-metrics');
+      const response = await fetch("/api/performance-metrics");
       if (!response.ok) {
-        throw new Error('Failed to fetch metrics');
+        throw new Error("Failed to fetch metrics");
       }
       const data: PerformanceMetrics = await response.json();
-      setMetrics((prevMetrics: PerformanceMetrics[]) => [...prevMetrics, data].slice(-30)); // Keep last 30 data points
+      setMetrics((prevMetrics: PerformanceMetrics[]) =>
+        [...prevMetrics, data].slice(-30),
+      ); // Keep last 30 data points
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch metrics');
+      setError(err instanceof Error ? err.message : "Failed to fetch metrics");
     } finally {
       setLoading(false);
     }
@@ -69,7 +71,12 @@ export const PerformanceMonitorDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -77,7 +84,12 @@ export const PerformanceMonitorDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <Typography color="error">{error}</Typography>
       </Box>
     );
@@ -87,7 +99,7 @@ export const PerformanceMonitorDashboard: React.FC = () => {
     dataKey: keyof PerformanceMetrics,
     label: string,
     color: string,
-    formatter: (value: number) => string
+    formatter: (value: number) => string,
   ) => (
     <Card>
       <CardContent>
@@ -100,12 +112,16 @@ export const PerformanceMonitorDashboard: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="timestamp"
-                tickFormatter={(timestamp: number) => new Date(timestamp).toLocaleTimeString()}
+                tickFormatter={(timestamp: number) =>
+                  new Date(timestamp).toLocaleTimeString()
+                }
               />
               <YAxis tickFormatter={formatter} />
               <Tooltip
                 formatter={(value: number) => [formatter(value), label]}
-                labelFormatter={(timestamp: number) => new Date(timestamp).toLocaleString()}
+                labelFormatter={(timestamp: number) =>
+                  new Date(timestamp).toLocaleString()
+                }
               />
               <Line
                 type="monotone"
@@ -130,16 +146,31 @@ export const PerformanceMonitorDashboard: React.FC = () => {
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            {renderChart('fps', 'Frame Rate', '#2196f3', (value) => `${Math.round(value)} FPS`)}
+            {renderChart(
+              "fps",
+              "Frame Rate",
+              "#2196f3",
+              (value) => `${Math.round(value)} FPS`,
+            )}
           </Grid>
           <Grid item xs={12} md={6}>
-            {renderChart('memoryUsage', 'Memory Usage', '#4caf50', formatBytes)}
+            {renderChart("memoryUsage", "Memory Usage", "#4caf50", formatBytes)}
           </Grid>
           <Grid item xs={12} md={6}>
-            {renderChart('apiResponseTime', 'API Response Time', '#ff9800', formatTime)}
+            {renderChart(
+              "apiResponseTime",
+              "API Response Time",
+              "#ff9800",
+              formatTime,
+            )}
           </Grid>
           <Grid item xs={12} md={6}>
-            {renderChart('errorRate', 'Error Rate', '#f44336', formatPercentage)}
+            {renderChart(
+              "errorRate",
+              "Error Rate",
+              "#f44336",
+              formatPercentage,
+            )}
           </Grid>
         </Grid>
       </Box>
@@ -147,4 +178,4 @@ export const PerformanceMonitorDashboard: React.FC = () => {
   );
 };
 
-export default PerformanceMonitorDashboard; 
+export default PerformanceMonitorDashboard;

@@ -1,14 +1,14 @@
-import { Alert } from '../types/alert';
+import { Alert } from "../types/alert";
 
-export type WebSocketMessageType = 
-  | 'alert'
-  | 'alert.acknowledge'
-  | 'alert.dismiss'
-  | 'alert.flag'
-  | 'connection'
-  | 'heartbeat'
-  | 'batch'
-  | 'subscribe';
+export type WebSocketMessageType =
+  | "alert"
+  | "alert.acknowledge"
+  | "alert.dismiss"
+  | "alert.flag"
+  | "connection"
+  | "heartbeat"
+  | "batch"
+  | "subscribe";
 
 interface WebSocketMessage<T = unknown> {
   type: string;
@@ -16,7 +16,7 @@ interface WebSocketMessage<T = unknown> {
 }
 
 interface BatchedMessage {
-  type: 'batch';
+  type: "batch";
   payload: WebSocketMessage[];
 }
 
@@ -35,7 +35,7 @@ export class WebSocketService {
   private readonly MAX_BATCH_SIZE = 50; // Maximum number of messages per batch
 
   private constructor() {
-    this.url = `${process.env.REACT_APP_WS_URL || 'ws://localhost:8000'}/ws/alerts`;
+    this.url = `${process.env.REACT_APP_WS_URL || "ws://localhost:8000"}/ws/alerts`;
   }
 
   public static getInstance(): WebSocketService {
@@ -49,58 +49,68 @@ export class WebSocketService {
     if (this.ws?.readyState === WebSocket.OPEN) return;
 
     this.ws = new WebSocket(this.url);
-    
+
     this.ws.onopen = () => {
-      console.log('WebSocket connected');
+      console.log("WebSocket connected");
       this.reconnectAttempts = 0;
-      this.emit('connection', { status: 'connected' });
+      this.emit("connection", { status: "connected" });
     };
 
     this.ws.onmessage = (event: MessageEvent) => {
       try {
-        const message: WebSocketMessage | BatchedMessage = JSON.parse(event.data);
+        const message: WebSocketMessage | BatchedMessage = JSON.parse(
+          event.data,
+        );
         if (this.isBatchedMessage(message)) {
           this.handleBatchedMessage(message);
         } else {
           this.handleMessage(message as WebSocketMessage);
         }
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        console.error("Error parsing WebSocket message:", error);
       }
     };
 
     this.ws.onclose = () => {
-      console.log('WebSocket disconnected');
-      this.emit('connection', { status: 'disconnected' });
+      console.log("WebSocket disconnected");
+      this.emit("connection", { status: "disconnected" });
       this.handleReconnection();
     };
 
     this.ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      this.emit('connection', { status: 'error', error });
+      console.error("WebSocket error:", error);
+      this.emit("connection", { status: "error", error });
     };
   }
 
-  private isBatchedMessage(message: WebSocketMessage): message is BatchedMessage {
-    return message.type === 'batch' && Array.isArray((message as BatchedMessage).payload);
+  private isBatchedMessage(
+    message: WebSocketMessage,
+  ): message is BatchedMessage {
+    return (
+      message.type === "batch" &&
+      Array.isArray((message as BatchedMessage).payload)
+    );
   }
 
   private handleBatchedMessage(batchedMessage: BatchedMessage): void {
-    batchedMessage.payload.forEach(message => {
+    batchedMessage.payload.forEach((message) => {
       this.handleMessage(message);
     });
   }
 
   private handleReconnection(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached');
+      console.error("Max reconnection attempts reached");
       return;
     }
 
-    setTimeout(() => {
-      this.reconnectAttempts++;
-      this.connect();
-    }, this.reconnectTimeout * Math.pow(2, this.reconnectAttempts)); // Exponential backoff
+    setTimeout(
+      () => {
+        this.reconnectAttempts++;
+        this.connect();
+      },
+      this.reconnectTimeout * Math.pow(2, this.reconnectAttempts),
+    ); // Exponential backoff
   }
 
   private handleMessage(message: WebSocketMessage): void {
@@ -127,7 +137,7 @@ export class WebSocketService {
   private emit<T = unknown>(type: string, data: T): void {
     const callbacks = this.listeners.get(type);
     if (callbacks) {
-      callbacks.forEach(callback => callback(data));
+      callbacks.forEach((callback) => callback(data));
     }
   }
 
@@ -156,7 +166,10 @@ export class WebSocketService {
     if (this.messageQueue.length >= this.MAX_BATCH_SIZE) {
       this.flushMessageQueue();
     } else if (!this.batchTimeout) {
-      this.batchTimeout = setTimeout(() => this.flushMessageQueue(), this.BATCH_DELAY);
+      this.batchTimeout = setTimeout(
+        () => this.flushMessageQueue(),
+        this.BATCH_DELAY,
+      );
     }
   }
 
@@ -170,13 +183,13 @@ export class WebSocketService {
 
     if (this.ws?.readyState === WebSocket.OPEN) {
       const batchedMessage: BatchedMessage = {
-        type: 'batch',
-        payload: [...this.messageQueue]
+        type: "batch",
+        payload: [...this.messageQueue],
       };
       this.ws.send(JSON.stringify(batchedMessage));
       this.messageQueue = [];
     } else {
-      console.error('WebSocket is not connected');
+      console.error("WebSocket is not connected");
     }
   }
-} 
+}

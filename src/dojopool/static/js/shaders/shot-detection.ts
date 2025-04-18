@@ -102,19 +102,19 @@ const fragmentShaderHigh = `
 `;
 
 export const shotDetectionShaders = [
-    {
-        vertex: vertexShader,
-        fragment: fragmentShaderLow,
-        complexity: 0.3 // 30% complexity
-    },
-    {
-        vertex: vertexShader,
-        fragment: fragmentShaderMedium,
-        complexity: 0.6 // 60% complexity
-    },
-    {
-        vertex: vertexShader,
-        fragment: fragmentShaderHigh,
-        complexity: 1.0 // 100% complexity
-    }
-]; 
+  {
+    vertex: vertexShader,
+    fragment: fragmentShaderLow,
+    complexity: 0.3, // 30% complexity
+  },
+  {
+    vertex: vertexShader,
+    fragment: fragmentShaderMedium,
+    complexity: 0.6, // 60% complexity
+  },
+  {
+    vertex: vertexShader,
+    fragment: fragmentShaderHigh,
+    complexity: 1.0, // 100% complexity
+  },
+];

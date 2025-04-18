@@ -1,7 +1,7 @@
-import stateService from './state';
-import analyticsService from './analytics';
-import apiService from './api';
-import storageService from './storage';
+import stateService from "./state";
+import analyticsService from "./analytics";
+import apiService from "./api";
+import storageService from "./storage";
 
 interface MediaFile {
   id: string;
@@ -44,7 +44,7 @@ class MediaService {
 
   private readonly DEFAULT_OPTIONS: UploadOptions = {
     maxSize: 10 * 1024 * 1024, // 10MB
-    allowedTypes: ['image/*', 'video/*', 'audio/*'],
+    allowedTypes: ["image/*", "video/*", "audio/*"],
     generateThumbnail: true,
     thumbnailSize: { width: 200, height: 200 },
   };
@@ -54,12 +54,15 @@ class MediaService {
   }
 
   private setupOfflineSync(): void {
-    window.addEventListener('online', () => {
+    window.addEventListener("online", () => {
       this.syncOfflineUploads();
     });
   }
 
-  public async upload(file: File, options: UploadOptions = {}): Promise<MediaFile> {
+  public async upload(
+    file: File,
+    options: UploadOptions = {},
+  ): Promise<MediaFile> {
     const fullOptions = { ...this.DEFAULT_OPTIONS, ...options };
 
     // Validate file
@@ -77,8 +80,8 @@ class MediaService {
     try {
       // Track upload start
       analyticsService.trackUserEvent({
-        type: 'media_upload_started',
-        userId: 'system',
+        type: "media_upload_started",
+        userId: "system",
         details: {
           uploadId,
           fileName: file.name,
@@ -93,25 +96,31 @@ class MediaService {
 
       // Check if we're online
       if (!navigator.onLine) {
-        return await this.handleOfflineUpload(uploadId, processedFile, fullOptions);
+        return await this.handleOfflineUpload(
+          uploadId,
+          processedFile,
+          fullOptions,
+        );
       }
 
       // Create form data
       const formData = new FormData();
-      formData.append('file', processedFile);
+      formData.append("file", processedFile);
       if (fullOptions.metadata) {
-        formData.append('metadata', JSON.stringify(fullOptions.metadata));
+        formData.append("metadata", JSON.stringify(fullOptions.metadata));
       }
 
       // Upload file
-      const response = await apiService.post('/api/media/upload', formData, {
+      const response = await apiService.post("/api/media/upload", formData, {
         signal: controller.signal,
         onUploadProgress: (progressEvent) => {
           if (fullOptions.onProgress) {
             const progress: UploadProgress = {
               loaded: progressEvent.loaded,
               total: progressEvent.total,
-              percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total),
+              percentage: Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total,
+              ),
             };
             fullOptions.onProgress(progress);
           }
@@ -122,8 +131,8 @@ class MediaService {
 
       // Track upload success
       analyticsService.trackUserEvent({
-        type: 'media_upload_completed',
-        userId: 'system',
+        type: "media_upload_completed",
+        userId: "system",
         details: {
           uploadId,
           mediaId: mediaFile.id,
@@ -138,8 +147,8 @@ class MediaService {
     } catch (error) {
       // Track upload error
       analyticsService.trackUserEvent({
-        type: 'media_upload_failed',
-        userId: 'system',
+        type: "media_upload_failed",
+        userId: "system",
         details: {
           uploadId,
           error: error.message,
@@ -160,13 +169,15 @@ class MediaService {
   private validateFile(file: File, options: UploadOptions): void {
     // Check file size
     if (options.maxSize && file.size > options.maxSize) {
-      throw new Error(`File size exceeds maximum allowed size of ${options.maxSize} bytes`);
+      throw new Error(
+        `File size exceeds maximum allowed size of ${options.maxSize} bytes`,
+      );
     }
 
     // Check file type
     if (options.allowedTypes && options.allowedTypes.length > 0) {
       const isAllowed = options.allowedTypes.some((type) => {
-        if (type.endsWith('/*')) {
+        if (type.endsWith("/*")) {
           return file.type.startsWith(type.slice(0, -2));
         }
         return file.type === type;
@@ -179,41 +190,47 @@ class MediaService {
   }
 
   private async processFile(file: File, options: UploadOptions): Promise<File> {
-    if (!options.generateThumbnail || !file.type.startsWith('image/')) {
+    if (!options.generateThumbnail || !file.type.startsWith("image/")) {
       return file;
     }
 
     try {
-      const thumbnail = await this.generateThumbnail(file, options.thumbnailSize!);
+      const thumbnail = await this.generateThumbnail(
+        file,
+        options.thumbnailSize!,
+      );
       const processedFile = new File([file], file.name, {
         type: file.type,
         lastModified: file.lastModified,
       });
-      Object.defineProperty(processedFile, 'thumbnail', {
+      Object.defineProperty(processedFile, "thumbnail", {
         value: thumbnail,
         writable: false,
       });
       return processedFile;
     } catch (error) {
-      console.warn('Failed to generate thumbnail:', error);
+      console.warn("Failed to generate thumbnail:", error);
       return file;
     }
   }
 
   private async generateThumbnail(
     file: File,
-    size: { width: number; height: number }
+    size: { width: number; height: number },
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d')!;
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d")!;
 
           // Calculate thumbnail dimensions
-          const ratio = Math.min(size.width / img.width, size.height / img.height);
+          const ratio = Math.min(
+            size.width / img.width,
+            size.height / img.height,
+          );
           const width = img.width * ratio;
           const height = img.height * ratio;
 
@@ -237,7 +254,7 @@ class MediaService {
   private async handleOfflineUpload(
     uploadId: string,
     file: File,
-    options: UploadOptions
+    options: UploadOptions,
   ): Promise<MediaFile> {
     // Create temporary media file
     const mediaFile: MediaFile = {
@@ -247,7 +264,7 @@ class MediaService {
       size: file.size,
       url: URL.createObjectURL(file),
       uploadedAt: new Date().toISOString(),
-      userId: 'system',
+      userId: "system",
       metadata: options.metadata,
     };
 
@@ -262,7 +279,7 @@ class MediaService {
   }
 
   private async syncOfflineUploads(): Promise<void> {
-    const offlineUploads = await storageService.getCachedResponses('media:*');
+    const offlineUploads = await storageService.getCachedResponses("media:*");
     for (const [key, data] of Object.entries(offlineUploads)) {
       try {
         const file = await this.base64ToFile(data.file, data.mediaFile.name);
@@ -271,8 +288,8 @@ class MediaService {
 
         // Track sync success
         analyticsService.trackUserEvent({
-          type: 'media_sync_completed',
-          userId: 'system',
+          type: "media_sync_completed",
+          userId: "system",
           details: {
             uploadId: key,
             mediaId: mediaFile.id,
@@ -284,8 +301,8 @@ class MediaService {
 
         // Track sync error
         analyticsService.trackUserEvent({
-          type: 'media_sync_failed',
-          userId: 'system',
+          type: "media_sync_failed",
+          userId: "system",
           details: {
             uploadId: key,
             error: error.message,
@@ -319,8 +336,8 @@ class MediaService {
 
       // Track upload cancellation
       analyticsService.trackUserEvent({
-        type: 'media_upload_cancelled',
-        userId: 'system',
+        type: "media_upload_cancelled",
+        userId: "system",
         details: {
           uploadId,
           timestamp: new Date().toISOString(),
@@ -345,8 +362,8 @@ class MediaService {
 
       // Track media deletion
       analyticsService.trackUserEvent({
-        type: 'media_deleted',
-        userId: 'system',
+        type: "media_deleted",
+        userId: "system",
         details: {
           mediaId,
           timestamp: new Date().toISOString(),
@@ -368,9 +385,15 @@ class MediaService {
     }
   }
 
-  public async updateMetadata(mediaId: string, metadata: Record<string, any>): Promise<MediaFile> {
+  public async updateMetadata(
+    mediaId: string,
+    metadata: Record<string, any>,
+  ): Promise<MediaFile> {
     try {
-      const response = await apiService.patch(`/api/media/${mediaId}/metadata`, metadata);
+      const response = await apiService.patch(
+        `/api/media/${mediaId}/metadata`,
+        metadata,
+      );
       return response.data;
     } catch (error) {
       console.error(`Failed to update metadata for ${mediaId}:`, error);

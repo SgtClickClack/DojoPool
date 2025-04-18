@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Grid, Typography, CircularProgress } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { MLService } from '../../services/ml.service';
-import { ModelMetrics } from './ModelMetrics';
-import { ShotPrediction } from './ShotPrediction';
-import { PatternRecognition } from './PatternRecognition';
-import { AnomalyDetection } from './AnomalyDetection';
-import { TrainingPlan } from './TrainingPlan';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+import React, { useState, useEffect } from "react";
+import { Box, Grid, Typography, CircularProgress } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { MLService } from "../../services/ml.service";
+import { ModelMetrics } from "./ModelMetrics";
+import { ShotPrediction } from "./ShotPrediction";
+import { PatternRecognition } from "./PatternRecognition";
+import { AnomalyDetection } from "./AnomalyDetection";
+import { TrainingPlan } from "./TrainingPlan";
+import { ErrorBoundary } from "../common/ErrorBoundary";
 
 const mlService = new MLService();
 
@@ -33,7 +33,7 @@ export const MLDashboard: React.FC = () => {
         await fetchModelMetrics(response.data[0].id);
       }
     } catch (err) {
-      setError('Failed to fetch models');
+      setError("Failed to fetch models");
       console.error(err);
     } finally {
       setLoading(false);
@@ -45,14 +45,19 @@ export const MLDashboard: React.FC = () => {
       const response = await mlService.getModelMetrics(modelId);
       setMetrics(response.data);
     } catch (err) {
-      setError('Failed to fetch model metrics');
+      setError("Failed to fetch model metrics");
       console.error(err);
     }
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -94,7 +99,7 @@ export const MLDashboard: React.FC = () => {
             <ShotPrediction
               modelId={selectedModel}
               onPrediction={(prediction) => {
-                console.log('Shot prediction:', prediction);
+                console.log("Shot prediction:", prediction);
               }}
             />
           </ErrorBoundary>
@@ -106,7 +111,7 @@ export const MLDashboard: React.FC = () => {
             <PatternRecognition
               modelId={selectedModel}
               onPatternDetected={(pattern) => {
-                console.log('Pattern detected:', pattern);
+                console.log("Pattern detected:", pattern);
               }}
             />
           </ErrorBoundary>
@@ -117,7 +122,7 @@ export const MLDashboard: React.FC = () => {
           <ErrorBoundary>
             <AnomalyDetection
               onAnomalyDetected={(anomalies) => {
-                console.log('Anomalies detected:', anomalies);
+                console.log("Anomalies detected:", anomalies);
               }}
             />
           </ErrorBoundary>
@@ -129,7 +134,7 @@ export const MLDashboard: React.FC = () => {
             <TrainingPlan
               metrics={metrics}
               onPlanGenerated={(plan) => {
-                console.log('Training plan generated:', plan);
+                console.log("Training plan generated:", plan);
               }}
             />
           </ErrorBoundary>

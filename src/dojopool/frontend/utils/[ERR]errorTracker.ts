@@ -1,5 +1,5 @@
-import { AuditLogger } from './auditLogger';
-import { RetryMechanism } from './retryMechanism';
+import { AuditLogger } from "./auditLogger";
+import { RetryMechanism } from "./retryMechanism";
 
 interface ErrorContext {
   timestamp: number;
@@ -89,7 +89,7 @@ export class ErrorTracker {
   }
 
   private getErrorFingerprint(error: Error): string {
-    return `${error.name}:${error.message}:${error.stack?.split('\n')[1] || ''}`;
+    return `${error.name}:${error.message}:${error.stack?.split("\n")[1] || ""}`;
   }
 
   private updateErrorStats(error: Error, context: ErrorContext): void {
@@ -130,26 +130,35 @@ export class ErrorTracker {
     }
 
     // Check error thresholds
-    const componentErrors = context.component ? this.stats.byComponent[context.component] : 0;
+    const componentErrors = context.component
+      ? this.stats.byComponent[context.component]
+      : 0;
 
     if (componentErrors >= this.config.errorThresholds.critical) {
       this.auditLogger.logError(
-        'ERROR_THRESHOLD',
-        'monitor',
-        'error_tracker',
-        new Error(`Critical error threshold reached for component ${context.component}`)
+        "ERROR_THRESHOLD",
+        "monitor",
+        "error_tracker",
+        new Error(
+          `Critical error threshold reached for component ${context.component}`,
+        ),
       );
     } else if (componentErrors >= this.config.errorThresholds.warning) {
       this.auditLogger.logError(
-        'ERROR_THRESHOLD',
-        'monitor',
-        'error_tracker',
-        new Error(`Warning error threshold reached for component ${context.component}`)
+        "ERROR_THRESHOLD",
+        "monitor",
+        "error_tracker",
+        new Error(
+          `Warning error threshold reached for component ${context.component}`,
+        ),
       );
     }
   }
 
-  async trackError(error: Error, context: Partial<ErrorContext> = {}): Promise<void> {
+  async trackError(
+    error: Error,
+    context: Partial<ErrorContext> = {},
+  ): Promise<void> {
     const fullContext: ErrorContext = {
       timestamp: Date.now(),
       ...context,
@@ -162,31 +171,37 @@ export class ErrorTracker {
       try {
         handler(error, fullContext);
       } catch (handlerError) {
-        console.error('Error in error handler:', handlerError);
+        console.error("Error in error handler:", handlerError);
       }
     });
 
     // Log error
     await this.auditLogger.logError(
-      'ERROR_TRACKED',
-      context.action || 'unknown',
-      context.component || 'unknown',
+      "ERROR_TRACKED",
+      context.action || "unknown",
+      context.component || "unknown",
       error,
       {
         userId: context.userId,
         metadata: context.metadata,
-      }
+      },
     );
   }
 
   async executeWithErrorHandling<T>(
     operation: () => Promise<T>,
-    context: Partial<ErrorContext> = {}
+    context: Partial<ErrorContext> = {},
   ): Promise<T> {
     try {
-      return await this.retryMechanism.executeWithRetry(operation, this.config.retryOptions);
+      return await this.retryMechanism.executeWithRetry(
+        operation,
+        this.config.retryOptions,
+      );
     } catch (error) {
-      await this.trackError(error instanceof Error ? error : new Error(String(error)), context);
+      await this.trackError(
+        error instanceof Error ? error : new Error(String(error)),
+        context,
+      );
       throw error;
     }
   }
@@ -207,10 +222,12 @@ export class ErrorTracker {
     lastSeen: number;
     examples: Array<{ error: Error; context: ErrorContext }>;
   }> {
-    return Array.from(this.errorGroups.entries()).map(([fingerprint, group]) => ({
-      fingerprint,
-      ...group,
-    }));
+    return Array.from(this.errorGroups.entries()).map(
+      ([fingerprint, group]) => ({
+        fingerprint,
+        ...group,
+      }),
+    );
   }
 
   clearStats(): void {
@@ -227,7 +244,8 @@ export class ErrorTracker {
     const now = Date.now();
     const recentErrors = this.stats.recentErrors.filter(
       (error) =>
-        now - error.timestamp <= timeWindow && (!component || error.context.component === component)
+        now - error.timestamp <= timeWindow &&
+        (!component || error.context.component === component),
     );
 
     return (recentErrors.length / timeWindow) * 3600000; // Errors per hour

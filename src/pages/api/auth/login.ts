@@ -1,14 +1,14 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { AuthService } from '../../../services/auth/AuthService';
-import { User } from '../../../types/user';
-import bcrypt from 'bcryptjs';
+import { NextApiRequest, NextApiResponse } from "next";
+import { AuthService } from "../../../services/auth/AuthService";
+import { User } from "../../../types/user";
+import bcrypt from "bcryptjs";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
@@ -16,7 +16,7 @@ export default async function handler(
 
     // Input validation
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
     // TODO: Fetch user from database
@@ -24,14 +24,14 @@ export default async function handler(
     const user: User | null = null;
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     // Generate token
@@ -41,12 +41,12 @@ export default async function handler(
       user: {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
       },
-      token
+      token,
     });
   } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Login error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-} 
+}

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from "react";
 
 interface KeyboardNavigationOptions {
   enabled?: boolean;
@@ -43,92 +43,92 @@ export const useKeyboardNavigation = ({
 
       // Don't handle keyboard events when user is typing in an input
       if (
-        document.activeElement?.tagName === 'INPUT' ||
-        document.activeElement?.tagName === 'TEXTAREA'
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
       ) {
         return;
       }
 
       switch (event.key) {
-        case 'ArrowUp':
+        case "ArrowUp":
           if (onArrowUp) {
             event.preventDefault();
             onArrowUp(event);
           }
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           if (onArrowDown) {
             event.preventDefault();
             onArrowDown(event);
           }
           break;
-        case 'ArrowLeft':
+        case "ArrowLeft":
           if (onArrowLeft) {
             event.preventDefault();
             onArrowLeft(event);
           }
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           if (onArrowRight) {
             event.preventDefault();
             onArrowRight(event);
           }
           break;
-        case 'Enter':
+        case "Enter":
           if (onEnter) {
             event.preventDefault();
             onEnter(event);
           }
           break;
-        case 'Escape':
+        case "Escape":
           if (onEscape) {
             event.preventDefault();
             onEscape(event);
           }
           break;
-        case 'Tab':
+        case "Tab":
           if (onTab) {
             // Don't prevent default for Tab to maintain natural tab navigation
             onTab(event);
           }
           break;
-        case ' ':
+        case " ":
           if (onSpace) {
             event.preventDefault();
             onSpace(event);
           }
           break;
-        case 'Home':
+        case "Home":
           if (onHome) {
             event.preventDefault();
             onHome(event);
           }
           break;
-        case 'End':
+        case "End":
           if (onEnd) {
             event.preventDefault();
             onEnd(event);
           }
           break;
-        case 'PageUp':
+        case "PageUp":
           if (onPageUp) {
             event.preventDefault();
             onPageUp(event);
           }
           break;
-        case 'PageDown':
+        case "PageDown":
           if (onPageDown) {
             event.preventDefault();
             onPageDown(event);
           }
           break;
-        case 'Delete':
+        case "Delete":
           if (onDelete) {
             event.preventDefault();
             onDelete(event);
           }
           break;
-        case 'Backspace':
+        case "Backspace":
           if (onBackspace) {
             event.preventDefault();
             onBackspace(event);
@@ -152,7 +152,7 @@ export const useKeyboardNavigation = ({
       onPageDown,
       onDelete,
       onBackspace,
-    ]
+    ],
   );
 
   useEffect(() => {
@@ -166,10 +166,10 @@ export const useKeyboardNavigation = ({
       handlerRef.current?.(event);
     };
 
-    window.addEventListener('keydown', handler);
+    window.addEventListener("keydown", handler);
 
     return () => {
-      window.removeEventListener('keydown', handler);
+      window.removeEventListener("keydown", handler);
     };
   }, [enabled]);
 
@@ -217,7 +217,7 @@ export const useFocusManager = ({
       currentFocusIndex.current = index;
       (elements[index] as HTMLElement).focus();
     },
-    [getFocusableElements, loop]
+    [getFocusableElements, loop],
   );
 
   const focusNext = useCallback(() => {
@@ -265,4 +265,4 @@ export interface KeyboardNavigationContextValue {
 }
 
 // Export types
-export type { KeyboardNavigationOptions, FocusManagerOptions }; 
+export type { KeyboardNavigationOptions, FocusManagerOptions };

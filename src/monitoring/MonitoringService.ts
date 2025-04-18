@@ -1,23 +1,33 @@
-import { EventEmitter } from 'events';
-import { AlertManager, Alert } from './alerts/AlertManager';
-import { MonitoringConfig, DEFAULT_MONITORING_CONFIG } from './config';
-import { ConsistencyMetrics, PerformanceMetrics, NodeMetrics } from './types';
-import { ConsistencyMetricsCollector } from './collectors/ConsistencyMetricsCollector';
-import { PerformanceMetricsCollector } from './collectors/PerformanceMetricsCollector';
-import { NodeMetricsCollector } from './collectors/NodeMetricsCollector';
-import { ConsensusProtocol } from '../core/consensus/ConsensusProtocol';
-import { NetworkTransport } from '../core/network/NetworkTransport';
-import { MetricsCollector, MetricsData } from './collectors/MetricsCollector';
+import { EventEmitter } from "events";
+import { AlertManager, Alert } from "./alerts/AlertManager";
+import { MonitoringConfig, DEFAULT_MONITORING_CONFIG } from "./config";
+import { ConsistencyMetrics, PerformanceMetrics, NodeMetrics } from "./types";
+import { ConsistencyMetricsCollector } from "./collectors/ConsistencyMetricsCollector";
+import { PerformanceMetricsCollector } from "./collectors/PerformanceMetricsCollector";
+import { NodeMetricsCollector } from "./collectors/NodeMetricsCollector";
+import { ConsensusProtocol } from "../core/consensus/ConsensusProtocol";
+import { NetworkTransport } from "../core/network/NetworkTransport";
+import { MetricsCollector, MetricsData } from "./collectors/MetricsCollector";
 
 export interface MonitoringEvents {
-  'metrics': (data: { name: string; timestamp: number; metrics: MetricsData }) => void;
-  'error': (data: { name: string; timestamp: number; error: string }) => void;
-  'alert': (alert: Alert) => void;
+  metrics: (data: {
+    name: string;
+    timestamp: number;
+    metrics: MetricsData;
+  }) => void;
+  error: (data: { name: string; timestamp: number; error: string }) => void;
+  alert: (alert: Alert) => void;
 }
 
 export declare interface MonitoringService {
-  on<K extends keyof MonitoringEvents>(event: K, listener: MonitoringEvents[K]): this;
-  emit<K extends keyof MonitoringEvents>(event: K, ...args: Parameters<MonitoringEvents[K]>): boolean;
+  on<K extends keyof MonitoringEvents>(
+    event: K,
+    listener: MonitoringEvents[K],
+  ): this;
+  emit<K extends keyof MonitoringEvents>(
+    event: K,
+    ...args: Parameters<MonitoringEvents[K]>
+  ): boolean;
 }
 
 interface MetricsHistory<T extends MetricsData> {
@@ -37,12 +47,12 @@ export class MonitoringService extends EventEmitter {
   constructor(
     networkTransport: NetworkTransport,
     consensusProtocol: ConsensusProtocol,
-    config: Partial<MonitoringConfig> = {}
+    config: Partial<MonitoringConfig> = {},
   ) {
     super();
     this.config = {
       ...DEFAULT_MONITORING_CONFIG,
-      ...config
+      ...config,
     };
 
     this.alertManager = new AlertManager(this.config);
@@ -51,12 +61,14 @@ export class MonitoringService extends EventEmitter {
 
     // Initialize collectors
     this.performanceCollector = new PerformanceMetricsCollector();
-    const consistencyCollector = new ConsistencyMetricsCollector(consensusProtocol);
+    const consistencyCollector = new ConsistencyMetricsCollector(
+      consensusProtocol,
+    );
     const nodeCollector = new NodeMetricsCollector();
 
-    this.collectors.set('performance', this.performanceCollector);
-    this.collectors.set('consistency', consistencyCollector);
-    this.collectors.set('node', nodeCollector);
+    this.collectors.set("performance", this.performanceCollector);
+    this.collectors.set("consistency", consistencyCollector);
+    this.collectors.set("node", nodeCollector);
 
     // Initialize metrics history
     for (const [name] of this.collectors) {
@@ -65,15 +77,15 @@ export class MonitoringService extends EventEmitter {
 
     // Set up event listeners for collectors
     for (const [name, collector] of this.collectors) {
-      collector.on('metrics', (metrics: MetricsData) => {
+      collector.on("metrics", (metrics: MetricsData) => {
         this.addMetricsToHistory(name, Date.now(), metrics);
-        this.emit('metrics', { name, timestamp: Date.now(), metrics });
+        this.emit("metrics", { name, timestamp: Date.now(), metrics });
       });
     }
 
     // Forward alert events from AlertManager
-    this.alertManager.on('alert', (alert: Alert) => {
-      this.emit('alert', alert);
+    this.alertManager.on("alert", (alert: Alert) => {
+      this.emit("alert", alert);
     });
   }
 
@@ -95,7 +107,7 @@ export class MonitoringService extends EventEmitter {
   private startCollection(): void {
     this.collectionTimer = setInterval(
       () => this.collectMetrics(),
-      this.config.collectionInterval
+      this.config.collectionInterval,
     );
   }
 
@@ -113,12 +125,12 @@ export class MonitoringService extends EventEmitter {
       try {
         const metrics = await collector.collect();
         this.addMetricsToHistory(name, timestamp, metrics);
-        this.emit('metrics', { name, timestamp, metrics });
+        this.emit("metrics", { name, timestamp, metrics });
       } catch (error) {
-        this.emit('error', {
+        this.emit("error", {
           name,
           timestamp,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -126,7 +138,11 @@ export class MonitoringService extends EventEmitter {
     this.pruneOldMetrics();
   }
 
-  private addMetricsToHistory(name: string, timestamp: number, metrics: MetricsData): void {
+  private addMetricsToHistory(
+    name: string,
+    timestamp: number,
+    metrics: MetricsData,
+  ): void {
     const history = this.metricsHistory.get(name);
     if (!history) return;
 
@@ -143,7 +159,9 @@ export class MonitoringService extends EventEmitter {
     const cutoffTime = Date.now() - this.config.retentionPeriod;
 
     for (const [name, history] of this.metricsHistory) {
-      const prunedHistory = history.filter(entry => entry.timestamp >= cutoffTime);
+      const prunedHistory = history.filter(
+        (entry) => entry.timestamp >= cutoffTime,
+      );
       this.metricsHistory.set(name, prunedHistory);
     }
   }
@@ -187,4 +205,4 @@ export class MonitoringService extends EventEmitter {
   getActiveAlerts(): Alert[] {
     return this.alertManager.getActiveAlerts();
   }
-} 
+}

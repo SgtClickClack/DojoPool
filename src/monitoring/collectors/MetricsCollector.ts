@@ -3,22 +3,28 @@
  * Each collector is responsible for gathering metrics from a specific component
  * and providing a standardized way to access those metrics.
  */
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 export interface MetricsData {
   [key: string]: number;
 }
 
 export interface MetricsEvents {
-  'metrics': (metrics: MetricsData) => void;
+  metrics: (metrics: MetricsData) => void;
 }
 
 export declare interface MetricsCollector<T extends MetricsData = MetricsData> {
   on<K extends keyof MetricsEvents>(event: K, listener: MetricsEvents[K]): this;
-  emit<K extends keyof MetricsEvents>(event: K, ...args: Parameters<MetricsEvents[K]>): boolean;
+  emit<K extends keyof MetricsEvents>(
+    event: K,
+    ...args: Parameters<MetricsEvents[K]>
+  ): boolean;
 }
 
-export abstract class MetricsCollector<T extends MetricsData = MetricsData> extends EventEmitter implements MetricsCollector<T> {
+export abstract class MetricsCollector<T extends MetricsData = MetricsData>
+  extends EventEmitter
+  implements MetricsCollector<T>
+{
   protected lastCollectedMetrics: T | null = null;
 
   /**
@@ -42,14 +48,20 @@ export abstract class MetricsCollector<T extends MetricsData = MetricsData> exte
 
   protected updateMetrics(metrics: T): void {
     this.lastCollectedMetrics = metrics;
-    this.emit('metrics', metrics);
+    this.emit("metrics", metrics);
   }
 
-  on<K extends keyof MetricsEvents>(event: K, listener: MetricsEvents[K]): this {
+  on<K extends keyof MetricsEvents>(
+    event: K,
+    listener: MetricsEvents[K],
+  ): this {
     return super.on(event, listener);
   }
 
-  emit<K extends keyof MetricsEvents>(event: K, ...args: Parameters<MetricsEvents[K]>): boolean {
+  emit<K extends keyof MetricsEvents>(
+    event: K,
+    ...args: Parameters<MetricsEvents[K]>
+  ): boolean {
     return super.emit(event, ...args);
   }
-} 
+}

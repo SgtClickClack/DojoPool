@@ -1,7 +1,7 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 
 export const createMockCanvas = (): HTMLCanvasElement => {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = 800;
   canvas.height = 600;
   return canvas;
@@ -31,12 +31,12 @@ export const createMockWebGLContext = (): WebGLRenderingContext => {
     shaderSource: jest.fn(),
     compileShader: jest.fn(),
     getShaderParameter: jest.fn().mockReturnValue(true),
-    getShaderInfoLog: jest.fn().mockReturnValue(''),
+    getShaderInfoLog: jest.fn().mockReturnValue(""),
     createProgram: jest.fn().mockReturnValue({}),
     attachShader: jest.fn(),
     linkProgram: jest.fn(),
     getProgramParameter: jest.fn().mockReturnValue(true),
-    getProgramInfoLog: jest.fn().mockReturnValue(''),
+    getProgramInfoLog: jest.fn().mockReturnValue(""),
     useProgram: jest.fn(),
     getAttribLocation: jest.fn().mockReturnValue(0),
     getUniformLocation: jest.fn().mockReturnValue({}),
@@ -71,7 +71,7 @@ export const createMockWebGLContext = (): WebGLRenderingContext => {
 
     // Performance monitoring
     finish: jest.fn(),
-    flush: jest.fn()
+    flush: jest.fn(),
   };
 
   return gl as unknown as WebGLRenderingContext;
@@ -83,7 +83,7 @@ export const createMockShader = () => ({
   unbind: jest.fn(),
   delete: jest.fn(),
   setUniform: jest.fn(),
-  setAttribute: jest.fn()
+  setAttribute: jest.fn(),
 });
 
 export const createMockTexture = () => ({
@@ -91,5 +91,5 @@ export const createMockTexture = () => ({
   unbind: jest.fn(),
   delete: jest.fn(),
   update: jest.fn(),
-  resize: jest.fn()
-}); 
+  resize: jest.fn(),
+});

@@ -1,8 +1,12 @@
-import { EventEmitter } from 'events';
-import { NetworkTransport, NetworkMessage, NetworkMessageType } from '../network/NetworkTransport';
-import { VectorClock } from '../consistency/VectorClock';
-import { StateReplicator } from '../replication/StateReplicator';
-import { 
+import { EventEmitter } from "events";
+import {
+  NetworkTransport,
+  NetworkMessage,
+  NetworkMessageType,
+} from "../network/NetworkTransport";
+import { VectorClock } from "../consistency/VectorClock";
+import { StateReplicator } from "../replication/StateReplicator";
+import {
   ConsensusState,
   NodeRole,
   LogEntry,
@@ -10,19 +14,25 @@ import {
   AppendEntriesRequest,
   AppendEntriesResponse,
   RequestVoteRequest,
-  RequestVoteResponse
-} from './types';
+  RequestVoteResponse,
+} from "./types";
 
 interface ConsensusEvents {
-  'state:change': (state: ConsensusState) => void;
-  'leader:elected': (leaderId: string) => void;
-  'entry:committed': (entry: LogEntry) => void;
-  'term:updated': (term: number) => void;
+  "state:change": (state: ConsensusState) => void;
+  "leader:elected": (leaderId: string) => void;
+  "entry:committed": (entry: LogEntry) => void;
+  "term:updated": (term: number) => void;
 }
 
 declare interface ConsensusManager {
-  on<K extends keyof ConsensusEvents>(event: K, listener: ConsensusEvents[K]): this;
-  emit<K extends keyof ConsensusEvents>(event: K, ...args: Parameters<ConsensusEvents[K]>): boolean;
+  on<K extends keyof ConsensusEvents>(
+    event: K,
+    listener: ConsensusEvents[K],
+  ): this;
+  emit<K extends keyof ConsensusEvents>(
+    event: K,
+    ...args: Parameters<ConsensusEvents[K]>
+  ): boolean;
 }
 
 export class ConsensusManager extends EventEmitter {
@@ -48,7 +58,7 @@ export class ConsensusManager extends EventEmitter {
   constructor(
     config: ConsensusConfig,
     networkTransport: NetworkTransport,
-    stateReplicator: StateReplicator
+    stateReplicator: StateReplicator,
   ) {
     super();
     this.config = config;
@@ -81,13 +91,19 @@ export class ConsensusManager extends EventEmitter {
           this.handleAppendEntries(message.payload as AppendEntriesRequest);
           break;
         case NetworkMessageType.APPEND_ENTRIES_RESPONSE:
-          this.handleAppendEntriesResponse(message.source, message.payload as AppendEntriesResponse);
+          this.handleAppendEntriesResponse(
+            message.source,
+            message.payload as AppendEntriesResponse,
+          );
           break;
         case NetworkMessageType.REQUEST_VOTE:
           this.handleRequestVote(message.payload as RequestVoteRequest);
           break;
         case NetworkMessageType.REQUEST_VOTE_RESPONSE:
-          this.handleRequestVoteResponse(message.source, message.payload as RequestVoteResponse);
+          this.handleRequestVoteResponse(
+            message.source,
+            message.payload as RequestVoteResponse,
+          );
           break;
         case NetworkMessageType.STATE_SYNC:
           this.handleStateSync(message);
@@ -95,13 +111,13 @@ export class ConsensusManager extends EventEmitter {
       }
     });
 
-    this.networkTransport.on('connect', (nodeId: string) => {
+    this.networkTransport.on("connect", (nodeId: string) => {
       this.nodes.add(nodeId);
       this.nextIndex.set(nodeId, this.log.length);
       this.matchIndex.set(nodeId, -1);
     });
 
-    this.networkTransport.on('disconnect', (nodeId: string) => {
+    this.networkTransport.on("disconnect", (nodeId: string) => {
       this.nodes.delete(nodeId);
       this.nextIndex.delete(nodeId);
       this.matchIndex.delete(nodeId);
@@ -126,14 +142,14 @@ export class ConsensusManager extends EventEmitter {
     await this.networkTransport.stop();
   }
 
-  public async appendEntry(entry: Omit<LogEntry, 'term'>): Promise<void> {
+  public async appendEntry(entry: Omit<LogEntry, "term">): Promise<void> {
     if (this.role !== NodeRole.LEADER) {
-      throw new Error('Only leader can append entries');
+      throw new Error("Only leader can append entries");
     }
 
     const logEntry: LogEntry = {
       ...entry,
-      term: this.currentTerm
+      term: this.currentTerm,
     };
 
     this.log.push(logEntry);
@@ -161,17 +177,19 @@ export class ConsensusManager extends EventEmitter {
           prevLogIndex,
           prevLogTerm,
           entries,
-          leaderCommit: this.commitIndex
+          leaderCommit: this.commitIndex,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
   }
 
-  private async handleAppendEntries(request: AppendEntriesRequest): Promise<void> {
+  private async handleAppendEntries(
+    request: AppendEntriesRequest,
+  ): Promise<void> {
     let response: AppendEntriesResponse = {
       term: this.currentTerm,
-      success: false
+      success: false,
     };
 
     if (request.term < this.currentTerm) {
@@ -183,8 +201,10 @@ export class ConsensusManager extends EventEmitter {
     this.state = ConsensusState.FOLLOWER;
     this.currentTerm = request.term;
 
-    if (this.log.length < request.prevLogIndex ||
-        this.log[request.prevLogIndex]?.term !== request.prevLogTerm) {
+    if (
+      this.log.length < request.prevLogIndex ||
+      this.log[request.prevLogIndex]?.term !== request.prevLogTerm
+    ) {
       await this.sendAppendEntriesResponse(request.leaderId, response);
       return;
     }
@@ -193,10 +213,11 @@ export class ConsensusManager extends EventEmitter {
     this.leader = leaderId;
 
     // Check if log contains an entry at prevLogIndex with term prevLogTerm
-    if (prevLogIndex >= 0 && (
-      prevLogIndex >= this.log.length ||
-      this.log[prevLogIndex].term !== prevLogTerm
-    )) {
+    if (
+      prevLogIndex >= 0 &&
+      (prevLogIndex >= this.log.length ||
+        this.log[prevLogIndex].term !== prevLogTerm)
+    ) {
       await this.sendAppendEntriesResponse(message.source, false);
       return;
     }
@@ -214,7 +235,9 @@ export class ConsensusManager extends EventEmitter {
     await this.sendAppendEntriesResponse(message.source, true);
   }
 
-  private async handleAppendEntriesResponse(message: NetworkMessage): Promise<void> {
+  private async handleAppendEntriesResponse(
+    message: NetworkMessage,
+  ): Promise<void> {
     if (this.role !== NodeRole.LEADER) return;
 
     const { success, term, matchIndex } = message.payload;
@@ -250,9 +273,11 @@ export class ConsensusManager extends EventEmitter {
       this.becomeFollower(null);
     }
 
-    if (term === this.currentTerm &&
-        (this.votedFor === null || this.votedFor === candidateId) &&
-        this.isLogUpToDate(lastLogIndex, lastLogTerm)) {
+    if (
+      term === this.currentTerm &&
+      (this.votedFor === null || this.votedFor === candidateId) &&
+      this.isLogUpToDate(lastLogIndex, lastLogTerm)
+    ) {
       this.votedFor = candidateId;
       voteGranted = true;
       this.resetElectionTimeout();
@@ -264,13 +289,15 @@ export class ConsensusManager extends EventEmitter {
       destination: message.source,
       payload: {
         term: this.currentTerm,
-        voteGranted
+        voteGranted,
       },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
-  private async handleRequestVoteResponse(message: NetworkMessage): Promise<void> {
+  private async handleRequestVoteResponse(
+    message: NetworkMessage,
+  ): Promise<void> {
     if (this.role !== NodeRole.CANDIDATE) return;
 
     const { term, voteGranted } = message.payload;
@@ -285,7 +312,9 @@ export class ConsensusManager extends EventEmitter {
       this.votes.set(message.source, true);
 
       // Check if we have majority
-      const votesReceived = Array.from(this.votes.values()).filter(v => v).length;
+      const votesReceived = Array.from(this.votes.values()).filter(
+        (v) => v,
+      ).length;
       if (votesReceived > this.nodes.size / 2) {
         await this.becomeLeader();
       }
@@ -315,7 +344,7 @@ export class ConsensusManager extends EventEmitter {
     }
 
     this.startHeartbeat();
-    this.emit('leader:elected', this.config.nodeId);
+    this.emit("leader:elected", this.config.nodeId);
   }
 
   private becomeFollower(leaderId: string | null): void {
@@ -339,7 +368,7 @@ export class ConsensusManager extends EventEmitter {
     this.votes.clear();
     this.votes.set(this.config.nodeId, true);
 
-    this.emit('term:updated', this.currentTerm);
+    this.emit("term:updated", this.currentTerm);
 
     // Request votes from all nodes
     const lastLogIndex = this.log.length - 1;
@@ -352,9 +381,9 @@ export class ConsensusManager extends EventEmitter {
         term: this.currentTerm,
         candidateId: this.config.nodeId,
         lastLogIndex,
-        lastLogTerm
+        lastLogTerm,
       },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     this.resetElectionTimeout();
@@ -365,7 +394,8 @@ export class ConsensusManager extends EventEmitter {
       clearTimeout(this.electionTimeout);
     }
 
-    const timeout = this.config.electionTimeoutBase +
+    const timeout =
+      this.config.electionTimeoutBase +
       Math.floor(Math.random() * this.config.electionTimeoutVariance);
 
     this.electionTimeout = setTimeout(() => {
@@ -381,10 +411,15 @@ export class ConsensusManager extends EventEmitter {
 
   private async updateCommitIndex(): Promise<void> {
     // Find the highest matchIndex that is replicated on majority of nodes
-    const matchIndexes = Array.from(this.matchIndex.values()).sort((a, b) => b - a);
+    const matchIndexes = Array.from(this.matchIndex.values()).sort(
+      (a, b) => b - a,
+    );
     const majorityIndex = matchIndexes[Math.floor(this.nodes.size / 2)];
 
-    if (majorityIndex > this.commitIndex && this.log[majorityIndex].term === this.currentTerm) {
+    if (
+      majorityIndex > this.commitIndex &&
+      this.log[majorityIndex].term === this.currentTerm
+    ) {
       this.commitIndex = majorityIndex;
       await this.applyCommittedEntries();
     }
@@ -395,7 +430,7 @@ export class ConsensusManager extends EventEmitter {
       this.lastApplied++;
       const entry = this.log[this.lastApplied];
       await this.stateReplicator.applyEntry(entry);
-      this.emit('entry:committed', entry);
+      this.emit("entry:committed", entry);
     }
   }
 
@@ -403,7 +438,7 @@ export class ConsensusManager extends EventEmitter {
     if (term > this.currentTerm) {
       this.currentTerm = term;
       this.votedFor = null;
-      this.emit('term:updated', term);
+      this.emit("term:updated", term);
     }
   }
 
@@ -441,4 +476,4 @@ export class ConsensusManager extends EventEmitter {
     const nextIdx = this.nextIndex.get(nodeId) || 0;
     return this.log.slice(nextIdx);
   }
-} 
+}

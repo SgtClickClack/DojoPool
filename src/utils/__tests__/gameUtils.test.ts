@@ -1,8 +1,8 @@
-import { calculateScore, validateShot, detectCollision } from '../gameUtils';
+import { calculateScore, validateShot, detectCollision } from "../gameUtils";
 
-describe('Game Utilities', () => {
-  describe('calculateScore', () => {
-    it('calculates correct score for valid shots', () => {
+describe("Game Utilities", () => {
+  describe("calculateScore", () => {
+    it("calculates correct score for valid shots", () => {
       const mockShot = {
         pocketedBalls: [1, 2],
         isBreak: false,
@@ -10,7 +10,7 @@ describe('Game Utilities', () => {
       expect(calculateScore(mockShot)).toBe(2);
     });
 
-    it('handles break shot scoring correctly', () => {
+    it("handles break shot scoring correctly", () => {
       const mockShot = {
         pocketedBalls: [1],
         isBreak: true,
@@ -19,8 +19,8 @@ describe('Game Utilities', () => {
     });
   });
 
-  describe('validateShot', () => {
-    it('validates legal shots', () => {
+  describe("validateShot", () => {
+    it("validates legal shots", () => {
       const mockShot = {
         cueBall: { x: 0, y: 0 },
         targetBall: { x: 10, y: 10 },
@@ -29,7 +29,7 @@ describe('Game Utilities', () => {
       expect(validateShot(mockShot)).toBe(true);
     });
 
-    it('detects illegal shots', () => {
+    it("detects illegal shots", () => {
       const mockShot = {
         cueBall: { x: 0, y: 0 },
         targetBall: null,
@@ -39,17 +39,17 @@ describe('Game Utilities', () => {
     });
   });
 
-  describe('detectCollision', () => {
-    it('detects collision between balls', () => {
+  describe("detectCollision", () => {
+    it("detects collision between balls", () => {
       const ball1 = { x: 0, y: 0, radius: 5 };
       const ball2 = { x: 8, y: 0, radius: 5 };
       expect(detectCollision(ball1, ball2)).toBe(true);
     });
 
-    it('returns false when no collision', () => {
+    it("returns false when no collision", () => {
       const ball1 = { x: 0, y: 0, radius: 5 };
       const ball2 = { x: 20, y: 20, radius: 5 };
       expect(detectCollision(ball1, ball2)).toBe(false);
     });
   });
-}); 
+});

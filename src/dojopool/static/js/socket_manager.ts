@@ -2,15 +2,15 @@
  * Optimized client-side WebSocket manager implementation.
  */
 
-import { io, Socket } from 'socket.io-client';
-import { socketMetrics } from './socket_metrics';
+import { io, Socket } from "socket.io-client";
+import { socketMetrics } from "./socket_metrics";
 import {
   ConnectionState,
   ConnectionStatus,
   SocketManager as ISocketManager,
   Message,
-  SocketManagerOptions
-} from './socket_types';
+  SocketManagerOptions,
+} from "./socket_types";
 
 export class SocketManagerImpl implements ISocketManager {
   private static instance: SocketManagerImpl;
@@ -28,15 +28,17 @@ export class SocketManagerImpl implements ISocketManager {
 
   private constructor(options: Partial<SocketManagerOptions> = {}) {
     this.options = {
-      url: options.url || '',
+      url: options.url || "",
       reconnectAttempts: options.reconnectAttempts || 15,
       reconnectDelay: options.reconnectDelay || 1000,
       debug: options.debug || false,
-      timeout: options.timeout || 60000
+      timeout: options.timeout || 60000,
     };
   }
 
-  public static getInstance(options?: Partial<SocketManagerOptions>): SocketManagerImpl {
+  public static getInstance(
+    options?: Partial<SocketManagerOptions>,
+  ): SocketManagerImpl {
     if (!SocketManagerImpl.instance) {
       SocketManagerImpl.instance = new SocketManagerImpl(options);
     }
@@ -55,7 +57,7 @@ export class SocketManagerImpl implements ISocketManager {
     this.connectionPromise = new Promise((resolve, reject) => {
       try {
         this.socket = io(this.options.url, {
-          transports: ['websocket'],
+          transports: ["websocket"],
           reconnection: true,
           reconnectionAttempts: this.options.reconnectAttempts,
           reconnectionDelay: this.options.reconnectDelay,
@@ -63,12 +65,12 @@ export class SocketManagerImpl implements ISocketManager {
           // Performance optimizations
           forceNew: false,
           multiplex: true,
-          perMessageDeflate: true
+          perMessageDeflate: true,
         });
 
         this.setupEventHandlers(resolve, reject);
       } catch (error) {
-        this.log('Error connecting:', error);
+        this.log("Error connecting:", error);
         reject(error);
       }
     });
@@ -76,44 +78,50 @@ export class SocketManagerImpl implements ISocketManager {
     return this.connectionPromise;
   }
 
-  private setupEventHandlers(resolve: () => void, reject: (error: any) => void): void {
+  private setupEventHandlers(
+    resolve: () => void,
+    reject: (error: any) => void,
+  ): void {
     if (!this.socket) return;
 
     // Use a single message handler for all events
     const messageHandler = (data: string | Message) => {
       try {
-        const message = typeof data === 'string' ? JSON.parse(data) : data;
+        const message = typeof data === "string" ? JSON.parse(data) : data;
         socketMetrics.trackMessageReceived();
         this.handleMessage(message);
       } catch (error) {
-        this.log('Error handling message:', error);
+        this.log("Error handling message:", error);
       }
     };
 
-    this.socket.on('connect', () => {
+    this.socket.on("connect", () => {
       this.updateState(ConnectionState.CONNECTED);
       socketMetrics.trackConnect();
       this.processPendingMessages();
       resolve();
     });
 
-    this.socket.on('disconnect', () => {
+    this.socket.on("disconnect", () => {
       this.updateState(ConnectionState.DISCONNECTED);
     });
 
-    this.socket.on('error', (error) => {
+    this.socket.on("error", (error) => {
       this.updateState(ConnectionState.ERROR, error.message);
       reject(error);
     });
 
-    this.socket.on('reconnect_attempt', () => {
+    this.socket.on("reconnect_attempt", () => {
       socketMetrics.trackReconnect();
     });
 
-    this.socket.on('message', messageHandler);
+    this.socket.on("message", messageHandler);
   }
 
-  private updateState(state: ConnectionState, error: string | null = null): void {
+  private updateState(
+    state: ConnectionState,
+    error: string | null = null,
+  ): void {
     this.state = state;
     this.lastError = error;
     this.lastEventTime = Date.now();
@@ -134,7 +142,7 @@ export class SocketManagerImpl implements ISocketManager {
       this.subscriptions.set(type, new Set());
     }
     this.subscriptions.get(type)?.add(callback);
-    this.log('Subscribed to:', type);
+    this.log("Subscribed to:", type);
   }
 
   public unsubscribe<T = any>(type: string, callback: (data: T) => void): void {
@@ -144,7 +152,7 @@ export class SocketManagerImpl implements ISocketManager {
       if (callbacks.size === 0) {
         this.subscriptions.delete(type);
       }
-      this.log('Unsubscribed from:', type);
+      this.log("Unsubscribed from:", type);
     }
   }
 
@@ -152,20 +160,20 @@ export class SocketManagerImpl implements ISocketManager {
     const message: Message<T> = {
       type,
       payload,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     if (this.socket?.connected) {
-      this.socket.emit('message', message);
+      this.socket.emit("message", message);
       socketMetrics.trackMessageSent();
-      this.log('Sent message:', message);
+      this.log("Sent message:", message);
     } else {
       this.pendingMessages.push(message);
-      this.log('Queued message:', message);
+      this.log("Queued message:", message);
       try {
         await this.connect();
       } catch (error) {
-        this.log('Failed to connect:', error);
+        this.log("Failed to connect:", error);
       }
     }
   }
@@ -178,9 +186,9 @@ export class SocketManagerImpl implements ISocketManager {
 
     for (const message of messages) {
       if (this.socket?.connected) {
-        this.socket.emit('message', message);
+        this.socket.emit("message", message);
         socketMetrics.trackMessageSent();
-        this.log('Sent queued message:', message);
+        this.log("Sent queued message:", message);
       } else {
         this.pendingMessages.push(message);
       }
@@ -195,7 +203,7 @@ export class SocketManagerImpl implements ISocketManager {
       try {
         callback(message.payload);
       } catch (error) {
-        this.log('Error in message handler:', error);
+        this.log("Error in message handler:", error);
       }
     }
   }
@@ -204,7 +212,10 @@ export class SocketManagerImpl implements ISocketManager {
     const now = Date.now();
 
     // Return cached state if within cache time
-    if (this.lastConnectionState && now - this.lastStateTime < this.STATE_CACHE_TIME) {
+    if (
+      this.lastConnectionState &&
+      now - this.lastStateTime < this.STATE_CACHE_TIME
+    ) {
       return this.lastConnectionState;
     }
 
@@ -212,7 +223,7 @@ export class SocketManagerImpl implements ISocketManager {
     const state = {
       state: this.state,
       lastError: this.lastError,
-      lastEventTime: new Date(this.lastEventTime).toISOString()
+      lastEventTime: new Date(this.lastEventTime).toISOString(),
     };
 
     // Cache the state
@@ -228,7 +239,7 @@ export class SocketManagerImpl implements ISocketManager {
 
   private log(...args: any[]): void {
     if (this.options.debug) {
-      console.log('[SocketManager]', ...args);
+      console.log("[SocketManager]", ...args);
     }
   }
 }
@@ -236,5 +247,5 @@ export class SocketManagerImpl implements ISocketManager {
 // Create singleton instance
 export const socketManager = SocketManagerImpl.getInstance({
   debug: true,
-  url: process.env.REACT_APP_WS_URL || 'ws://localhost:8000'
+  url: process.env.REACT_APP_WS_URL || "ws://localhost:8000",
 });

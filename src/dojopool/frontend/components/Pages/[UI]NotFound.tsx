@@ -1,6 +1,6 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { Container, Typography, Button, Box } from '@mui/material';
-import ExploreOffIcon from '@mui/icons-material/ExploreOff';
+import { Link as RouterLink } from "react-router-dom";
+import { Container, Typography, Button, Box } from "@mui/material";
+import ExploreOffIcon from "@mui/icons-material/ExploreOff";
 
 const NotFound = () => {
   return (
@@ -8,13 +8,15 @@ const NotFound = () => {
       <Box
         sx={{
           mt: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
         }}
       >
-        <ExploreOffIcon sx={{ fontSize: 100, color: 'text.secondary', mb: 4 }} />
+        <ExploreOffIcon
+          sx={{ fontSize: 100, color: "text.secondary", mb: 4 }}
+        />
         <Typography variant="h2" component="h1" gutterBottom>
           404
         </Typography>
@@ -22,7 +24,8 @@ const NotFound = () => {
           Page Not Found
         </Typography>
         <Typography color="text.secondary" paragraph>
-          Oops! It seems you've ventured off the trail. The page you're looking for doesn't exist.
+          Oops! It seems you've ventured off the trail. The page you're looking
+          for doesn't exist.
         </Typography>
         <Button
           component={RouterLink}

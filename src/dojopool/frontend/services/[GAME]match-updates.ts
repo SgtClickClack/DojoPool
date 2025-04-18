@@ -1,5 +1,5 @@
-import wsService from './websocket';
-import { Match, MatchUpdate, MatchScore } from '../../types/match';
+import wsService from "./websocket";
+import { Match, MatchUpdate, MatchScore } from "../../types/match";
 
 export interface LiveMatch extends Match {
   isLive: boolean;
@@ -16,17 +16,17 @@ class MatchUpdateService {
   }
 
   private setupSubscriptions(): void {
-    wsService.subscribe('match:update', (message) => {
+    wsService.subscribe("match:update", (message) => {
       const update = message.payload as MatchUpdate;
       this.handleMatchUpdate(update);
     });
 
-    wsService.subscribe('match:score', (message) => {
+    wsService.subscribe("match:score", (message) => {
       const { matchId, score } = message.payload;
       this.handleScoreUpdate(matchId, score);
     });
 
-    wsService.subscribe('match:spectators', (message) => {
+    wsService.subscribe("match:spectators", (message) => {
       const { matchId, count } = message.payload;
       this.updateSpectatorCount(matchId, count);
     });
@@ -40,7 +40,7 @@ class MatchUpdateService {
         ...update,
         lastUpdate: new Date().toISOString(),
       });
-      this.notifySubscribers('match:update', update.matchId);
+      this.notifySubscribers("match:update", update.matchId);
     }
   }
 
@@ -52,7 +52,7 @@ class MatchUpdateService {
         currentScore: score,
         lastUpdate: new Date().toISOString(),
       });
-      this.notifySubscribers('match:score', matchId);
+      this.notifySubscribers("match:score", matchId);
     }
   }
 
@@ -64,11 +64,14 @@ class MatchUpdateService {
         spectatorCount: count,
         lastUpdate: new Date().toISOString(),
       });
-      this.notifySubscribers('match:spectators', matchId);
+      this.notifySubscribers("match:spectators", matchId);
     }
   }
 
-  public subscribeToMatch(matchId: string, onUpdate: (match: LiveMatch) => void): () => void {
+  public subscribeToMatch(
+    matchId: string,
+    onUpdate: (match: LiveMatch) => void,
+  ): () => void {
     return wsService.subscribe(`match:${matchId}`, () => {
       const match = this.activeMatches.get(matchId);
       if (match) {
@@ -78,14 +81,14 @@ class MatchUpdateService {
   }
 
   public startWatchingMatch(matchId: string): void {
-    wsService.send('match:watch', {
+    wsService.send("match:watch", {
       matchId,
       timestamp: new Date().toISOString(),
     });
   }
 
   public stopWatchingMatch(matchId: string): void {
-    wsService.send('match:unwatch', {
+    wsService.send("match:unwatch", {
       matchId,
       timestamp: new Date().toISOString(),
     });
@@ -93,7 +96,7 @@ class MatchUpdateService {
   }
 
   public updateScore(matchId: string, score: MatchScore): void {
-    wsService.send('match:score-update', {
+    wsService.send("match:score-update", {
       matchId,
       score,
       timestamp: new Date().toISOString(),

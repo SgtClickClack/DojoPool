@@ -5,6 +5,7 @@
 The DojoPool API is a RESTful service that provides access to all DojoPool functionality. The API uses JSON for request and response bodies, and standard HTTP methods and status codes.
 
 ## Base URL
+
 ```
 Production: https://api.dojopool.com/v1
 Development: http://localhost:5000/v1
@@ -13,12 +14,15 @@ Development: http://localhost:5000/v1
 ## Authentication
 
 ### Bearer Token
+
 All API requests must include an Authorization header:
+
 ```
 Authorization: Bearer <your_token>
 ```
 
 ### Getting a Token
+
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -30,6 +34,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -54,6 +59,7 @@ Response:
 ### User Management
 
 #### Create User
+
 ```http
 POST /users
 Content-Type: application/json
@@ -70,6 +76,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "id": 123,
@@ -84,11 +91,13 @@ Response:
 ```
 
 #### Get User Profile
+
 ```http
 GET /users/{user_id}
 ```
 
 Response:
+
 ```json
 {
   "id": 123,
@@ -106,6 +115,7 @@ Response:
 ### Game Management
 
 #### Create Game
+
 ```http
 POST /games
 Content-Type: application/json
@@ -122,6 +132,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "id": 789,
@@ -149,11 +160,13 @@ Response:
 ```
 
 #### Get Game Details
+
 ```http
 GET /games/{game_id}
 ```
 
 Response:
+
 ```json
 {
   "id": 789,
@@ -182,6 +195,7 @@ Response:
 ### Tournament Management
 
 #### Create Tournament
+
 ```http
 POST /tournaments
 Content-Type: application/json
@@ -197,6 +211,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "id": 321,
@@ -204,7 +219,7 @@ Response:
   "type": "single_elimination",
   "status": "registration_open",
   "start_date": "2024-02-01T00:00:00Z",
-  "entry_fee": 50.00,
+  "entry_fee": 50.0,
   "registered_players": 0,
   "max_players": 32,
   "venue": {
@@ -217,11 +232,13 @@ Response:
 ### Venue Management
 
 #### List Venues
+
 ```http
 GET /venues?latitude=40.7128&longitude=-74.0060&radius=10
 ```
 
 Response:
+
 ```json
 {
   "venues": [
@@ -230,12 +247,12 @@ Response:
       "name": "Downtown Pool Hall",
       "address": "123 Main St",
       "latitude": 40.7128,
-      "longitude": -74.0060,
+      "longitude": -74.006,
       "distance": 0.5,
       "tables_available": 5,
       "operating_hours": {
-        "monday": {"open": "10:00", "close": "22:00"},
-        "tuesday": {"open": "10:00", "close": "22:00"}
+        "monday": { "open": "10:00", "close": "22:00" },
+        "tuesday": { "open": "10:00", "close": "22:00" }
       }
     }
   ],
@@ -248,43 +265,46 @@ Response:
 ### WebSocket Events
 
 #### Connection
+
 ```javascript
 // Connect to WebSocket
-const socket = io('wss://api.dojopool.com', {
-  auth: { token: 'your_token' }
+const socket = io("wss://api.dojopool.com", {
+  auth: { token: "your_token" },
 });
 
 // Connection events
-socket.on('connect', () => {
-  console.log('Connected to server');
+socket.on("connect", () => {
+  console.log("Connected to server");
 });
 
-socket.on('error', (error) => {
-  console.error('Connection error:', error);
+socket.on("error", (error) => {
+  console.error("Connection error:", error);
 });
 ```
 
 #### Game Events
+
 ```javascript
 // Subscribe to game updates
-socket.on('game:update', (data) => {
-  console.log('Game update:', data);
+socket.on("game:update", (data) => {
+  console.log("Game update:", data);
 });
 
 // Send game action
-socket.emit('game:action', {
+socket.emit("game:action", {
   game_id: 789,
-  action: 'shot',
+  action: "shot",
   data: {
-    ball: '8',
-    pocket: 'bottom_right'
-  }
+    ball: "8",
+    pocket: "bottom_right",
+  },
 });
 ```
 
 ## Error Handling
 
 ### Error Response Format
+
 ```json
 {
   "error": {
@@ -296,6 +316,7 @@ socket.emit('game:action', {
 ```
 
 ### Common Error Codes
+
 - `invalid_request`: Request validation failed
 - `not_found`: Resource not found
 - `unauthorized`: Authentication required
@@ -303,6 +324,7 @@ socket.emit('game:action', {
 - `rate_limited`: Too many requests
 
 ### HTTP Status Codes
+
 - 200: Success
 - 201: Created
 - 400: Bad Request
@@ -315,10 +337,12 @@ socket.emit('game:action', {
 ## Pagination
 
 ### Request Parameters
+
 - `page`: Page number (default: 1)
 - `per_page`: Items per page (default: 20, max: 100)
 
 ### Response Format
+
 ```json
 {
   "items": [...],
@@ -339,11 +363,13 @@ socket.emit('game:action', {
 ## SDK Support
 
 ### Official SDKs
+
 - [Python SDK](https://github.com/dojopool/python-sdk)
 - [JavaScript SDK](https://github.com/dojopool/js-sdk)
 - [Mobile SDK](https://github.com/dojopool/mobile-sdk)
 
 ### Example SDK Usage
+
 ```python
 from dojopool import Client
 
@@ -354,11 +380,13 @@ games = client.games.list(venue_id=456)
 ## Testing
 
 ### Sandbox Environment
+
 - Base URL: `https://sandbox.api.dojopool.com/v1`
 - Test credentials provided upon request
 - Reset daily at 00:00 UTC
 
 ### Test Cards
+
 - Success: `4242 4242 4242 4242`
 - Decline: `4000 0000 0000 0002`
 - No Funds: `4000 0000 0000 9995`
@@ -366,14 +394,19 @@ games = client.games.list(venue_id=456)
 ## Support
 
 ### Getting Help
+
 - API Support: api-support@dojopool.com
 - Documentation: https://docs.dojopool.com
 - Status Page: https://status.dojopool.com
 
 ### Best Practices
+
 1. Implement exponential backoff
 2. Cache responses when possible
 3. Use compression for large requests
 4. Monitor rate limits
 5. Handle errors gracefully
-``` 
+
+```
+
+```

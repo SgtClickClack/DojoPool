@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,13 +13,13 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
-} from '@mui/material';
+} from "@mui/material";
 import {
   EmojiEvents as TrophyIcon,
   Timeline as StatsIcon,
   Group as TeamIcon,
   Star as AchievementIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface Achievement {
   id: string;
@@ -64,11 +64,11 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
     const fetchPlayerData = async () => {
       try {
         const response = await fetch(`/api/players/${playerId}`);
-        if (!response.ok) throw new Error('Failed to fetch player data');
+        if (!response.ok) throw new Error("Failed to fetch player data");
         const data = await response.json();
         setPlayer(data);
       } catch (err) {
-        setError('Error loading player profile');
+        setError("Error loading player profile");
       } finally {
         setLoading(false);
       }
@@ -86,11 +86,8 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
       <Grid container spacing={3}>
         {/* Header Section */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar
-              src={player.avatar}
-              sx={{ width: 100, height: 100 }}
-            />
+          <Paper sx={{ p: 3, display: "flex", alignItems: "center", gap: 2 }}>
+            <Avatar src={player.avatar} sx={{ width: 100, height: 100 }} />
             <Box>
               <Typography variant="h4">{player.name}</Typography>
               <Typography variant="subtitle1" color="textSecondary">
@@ -120,7 +117,9 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Typography variant="subtitle2">Games Played</Typography>
-                  <Typography variant="h6">{player.stats.gamesPlayed}</Typography>
+                  <Typography variant="h6">
+                    {player.stats.gamesPlayed}
+                  </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="subtitle2">Win Rate</Typography>
@@ -128,11 +127,15 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="subtitle2">Average Score</Typography>
-                  <Typography variant="h6">{player.stats.averageScore}</Typography>
+                  <Typography variant="h6">
+                    {player.stats.averageScore}
+                  </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="subtitle2">Current Streak</Typography>
-                  <Typography variant="h6">{player.stats.currentStreak}</Typography>
+                  <Typography variant="h6">
+                    {player.stats.currentStreak}
+                  </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="subtitle2">Ranking</Typography>
@@ -168,7 +171,9 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
                       secondary={achievement.description}
                     />
                     <Chip
-                      label={new Date(achievement.dateEarned).toLocaleDateString()}
+                      label={new Date(
+                        achievement.dateEarned,
+                      ).toLocaleDateString()}
                       size="small"
                     />
                   </ListItem>
@@ -205,4 +210,4 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
   );
 };
 
-export default PlayerProfile; 
+export default PlayerProfile;

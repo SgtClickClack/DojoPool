@@ -18,7 +18,7 @@ export interface Match {
   player2: TournamentPlayer | null;
   winner: TournamentPlayer | null;
   loser: TournamentPlayer | null;
-  status: 'pending' | 'in_progress' | 'complete';
+  status: "pending" | "in_progress" | "complete";
   stats?: {
     duration: number;
     score: string;
@@ -50,11 +50,11 @@ export interface TournamentState {
   standings: TournamentPlayer[];
 }
 
-export type TournamentFormat = 
-  | 'single_elimination'
-  | 'double_elimination'
-  | 'round_robin'
-  | 'swiss';
+export type TournamentFormat =
+  | "single_elimination"
+  | "double_elimination"
+  | "round_robin"
+  | "swiss";
 
 export interface TournamentConfig {
   format: TournamentFormat;
@@ -79,4 +79,4 @@ export interface TournamentConfig {
     location: string;
     tables: string[];
   };
-} 
+}

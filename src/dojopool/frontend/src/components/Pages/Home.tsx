@@ -1,17 +1,17 @@
-import { Box, Button, Container, Typography } from '@mui/material';
-import React from 'react';
+import { Box, Button, Container, Typography } from "@mui/material";
+import React from "react";
 
 const Home = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #000000, #1a1a1a)',
-        color: '#ffffff',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom, #000000, #1a1a1a)",
+        color: "#ffffff",
       }}
     >
       <Container maxWidth="md">
@@ -20,12 +20,12 @@ const Home = () => {
           component="h1"
           gutterBottom
           sx={{
-            fontWeight: 'bold',
-            textAlign: 'center',
+            fontWeight: "bold",
+            textAlign: "center",
             mb: 4,
-            background: 'linear-gradient(45deg, #00f2fe 30%, #4facfe 90%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            background: "linear-gradient(45deg, #00f2fe 30%, #4facfe 90%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           Welcome to DojoPool
@@ -35,9 +35,9 @@ const Home = () => {
           component="h2"
           gutterBottom
           sx={{
-            textAlign: 'center',
+            textAlign: "center",
             mb: 4,
-            color: '#f0f0f0',
+            color: "#f0f0f0",
           }}
         >
           Where Pool Meets Digital Innovation
@@ -45,19 +45,19 @@ const Home = () => {
         <Typography
           variant="h6"
           sx={{
-            textAlign: 'center',
+            textAlign: "center",
             mb: 6,
-            color: '#cccccc',
+            color: "#cccccc",
           }}
         >
-          Experience pool like never before with our innovative social gaming platform. Merge
-          physical gameplay with digital enhancements, powered by AI and wrapped in a kung fu anime
-          aesthetic.
+          Experience pool like never before with our innovative social gaming
+          platform. Merge physical gameplay with digital enhancements, powered
+          by AI and wrapped in a kung fu anime aesthetic.
         </Typography>
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
+            display: "flex",
+            justifyContent: "center",
             gap: 3,
             mt: 4,
           }}
@@ -66,12 +66,12 @@ const Home = () => {
             variant="contained"
             size="large"
             sx={{
-              background: 'linear-gradient(45deg, #00f2fe 30%, #4facfe 90%)',
-              color: '#ffffff',
+              background: "linear-gradient(45deg, #00f2fe 30%, #4facfe 90%)",
+              color: "#ffffff",
               px: 4,
               py: 2,
-              '&:hover': {
-                background: 'linear-gradient(45deg, #4facfe 30%, #00f2fe 90%)',
+              "&:hover": {
+                background: "linear-gradient(45deg, #4facfe 30%, #00f2fe 90%)",
               },
             }}
           >
@@ -81,13 +81,13 @@ const Home = () => {
             variant="outlined"
             size="large"
             sx={{
-              borderColor: '#00f2fe',
-              color: '#00f2fe',
+              borderColor: "#00f2fe",
+              color: "#00f2fe",
               px: 4,
               py: 2,
-              '&:hover': {
-                borderColor: '#4facfe',
-                color: '#4facfe',
+              "&:hover": {
+                borderColor: "#4facfe",
+                color: "#4facfe",
               },
             }}
           >

@@ -1,5 +1,5 @@
-import { UserProfile } from '../types/user';
-import { TrainingSession } from '../types/training';
+import { UserProfile } from "../types/user";
+import { TrainingSession } from "../types/training";
 
 interface PromptTemplate {
   template: string;
@@ -19,9 +19,9 @@ const PROMPT_TEMPLATES: Record<string, PromptTemplate> = {
 Focus on {style} techniques and incorporate their recent achievement of {recentAchievement}.
 The story should be motivational and include specific training goals.`,
     defaultParams: {
-      skillLevel: 'beginner',
-      style: 'general',
-      recentAchievement: 'starting their journey',
+      skillLevel: "beginner",
+      style: "general",
+      recentAchievement: "starting their journey",
     },
   },
 
@@ -31,10 +31,10 @@ The challenge should build upon their mastery of {previousTechnique}
 and introduce {newTechnique} in an engaging way.
 Include specific success criteria and safety considerations.`,
     defaultParams: {
-      skillLevel: 'beginner',
-      style: 'general',
-      previousTechnique: 'basic stance',
-      newTechnique: 'basic movement',
+      skillLevel: "beginner",
+      style: "general",
+      previousTechnique: "basic stance",
+      newTechnique: "basic movement",
     },
   },
 
@@ -43,9 +43,9 @@ Include specific success criteria and safety considerations.`,
 Consider their previous experience with {relatedTechnique}
 and suggest specific improvements while maintaining encouragement.`,
     defaultParams: {
-      skillLevel: 'beginner',
-      technique: 'basic technique',
-      relatedTechnique: 'fundamental movement',
+      skillLevel: "beginner",
+      technique: "basic technique",
+      relatedTechnique: "fundamental movement",
     },
   },
 
@@ -54,11 +54,11 @@ and suggest specific improvements while maintaining encouragement.`,
 Include key milestones, focusing on {focusArea}
 and building upon {foundation}.`,
     defaultParams: {
-      currentLevel: 'beginner',
-      targetLevel: 'intermediate',
-      style: 'general',
-      focusArea: 'basic techniques',
-      foundation: 'stance and movement',
+      currentLevel: "beginner",
+      targetLevel: "intermediate",
+      style: "general",
+      focusArea: "basic techniques",
+      foundation: "stance and movement",
     },
   },
 };
@@ -66,7 +66,7 @@ and building upon {foundation}.`,
 export function generateStoryPrompt(
   templateKey: keyof typeof PROMPT_TEMPLATES,
   context: StoryContext,
-  additionalParams: Record<string, any> = {}
+  additionalParams: Record<string, any> = {},
 ): string {
   const template = PROMPT_TEMPLATES[templateKey];
   if (!template) {
@@ -85,19 +85,23 @@ export function generateStoryPrompt(
 function mapContextToParams(context: StoryContext): Record<string, any> {
   return {
     skillLevel: mapSkillLevel(context.currentSkillLevel),
-    recentAchievement: context.previousAchievements[0] || 'starting their journey',
-    style: context.userProfile.preferredStyle || 'general',
+    recentAchievement:
+      context.previousAchievements[0] || "starting their journey",
+    style: context.userProfile.preferredStyle || "general",
   };
 }
 
 function mapSkillLevel(level: number): string {
-  if (level < 3) return 'beginner';
-  if (level < 6) return 'intermediate';
-  if (level < 8) return 'advanced';
-  return 'expert';
+  if (level < 3) return "beginner";
+  if (level < 6) return "intermediate";
+  if (level < 8) return "advanced";
+  return "expert";
 }
 
-function interpolateTemplate(template: string, params: Record<string, any>): string {
+function interpolateTemplate(
+  template: string,
+  params: Record<string, any>,
+): string {
   return template.replace(/{(\w+)}/g, (match, key) => {
     return params[key]?.toString() || match;
   });
@@ -119,7 +123,7 @@ export function validatePrompt(prompt: string): boolean {
 export function sanitizePrompt(prompt: string): string {
   // Add sanitization logic here (e.g., remove sensitive information, inappropriate content, etc.)
   return prompt
-    .replace(/[^\w\s.,!?-]/g, '') // Remove special characters
+    .replace(/[^\w\s.,!?-]/g, "") // Remove special characters
     .trim();
 }
 

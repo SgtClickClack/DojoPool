@@ -1,7 +1,7 @@
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useAuth } from './AuthContext';
-import { Box, CircularProgress } from '@mui/material';
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { useAuth } from "./AuthContext";
+import { Box, CircularProgress } from "@mui/material";
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [user, loading, router]);
 
@@ -18,20 +18,20 @@ export default function ProtectedRoute({ children }) {
       <Box
         className="cyber-gradient"
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <CircularProgress
           size={60}
           thickness={4}
           sx={{
-            color: 'primary.main',
-            '& .MuiCircularProgress-circle': {
-              strokeLinecap: 'round',
-              filter: 'drop-shadow(0 0 8px var(--primary))',
+            color: "primary.main",
+            "& .MuiCircularProgress-circle": {
+              strokeLinecap: "round",
+              filter: "drop-shadow(0 0 8px var(--primary))",
             },
           }}
         />

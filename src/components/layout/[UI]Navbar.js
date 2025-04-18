@@ -1,6 +1,14 @@
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import { AppBar, Box, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -12,8 +20,8 @@ const Navbar = () => {
             to="/"
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              color: 'inherit',
+              display: { xs: "none", md: "flex" },
+              color: "inherit",
             }}
           >
             <SportsEsportsIcon />
@@ -25,33 +33,33 @@ const Navbar = () => {
             to="/"
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
+              display: { xs: "none", md: "flex" },
               fontWeight: 700,
-              color: 'inherit',
-              textDecoration: 'none',
+              color: "inherit",
+              textDecoration: "none",
             }}
           >
             DojoPool
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               component={RouterLink}
               to="/practice"
-              sx={{ my: 2, color: 'white', display: 'block' }}
+              sx={{ my: 2, color: "white", display: "block" }}
             >
               Practice
             </Button>
             <Button
               component={RouterLink}
               to="/analysis"
-              sx={{ my: 2, color: 'white', display: 'block' }}
+              sx={{ my: 2, color: "white", display: "block" }}
             >
               Analysis
             </Button>
             <Button
               component={RouterLink}
               to="/monitoring"
-              sx={{ my: 2, color: 'white', display: 'block' }}
+              sx={{ my: 2, color: "white", display: "block" }}
             >
               Monitoring
             </Button>

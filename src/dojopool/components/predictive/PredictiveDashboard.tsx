@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Grid, Typography, CircularProgress, Paper, Tabs, Tab } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { PerformanceForecast } from './PerformanceForecast';
-import { SkillProgression } from './SkillProgression';
-import { MatchupPrediction } from './MatchupPrediction';
-import { ModelMetrics } from './ModelMetrics';
-import { ErrorBoundary } from '../common/ErrorBoundary';
-import { usePredictiveAnalytics } from '../../hooks/usePredictiveAnalytics';
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Grid,
+  Typography,
+  CircularProgress,
+  Paper,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { PerformanceForecast } from "./PerformanceForecast";
+import { SkillProgression } from "./SkillProgression";
+import { MatchupPrediction } from "./MatchupPrediction";
+import { ModelMetrics } from "./ModelMetrics";
+import { ErrorBoundary } from "../common/ErrorBoundary";
+import { usePredictiveAnalytics } from "../../hooks/usePredictiveAnalytics";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -33,7 +41,8 @@ function TabPanel(props: TabPanelProps) {
 export const PredictiveDashboard: React.FC = () => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
-  const { loading, error, modelMetrics, fetchModelMetrics } = usePredictiveAnalytics();
+  const { loading, error, modelMetrics, fetchModelMetrics } =
+    usePredictiveAnalytics();
 
   useEffect(() => {
     fetchModelMetrics();
@@ -45,7 +54,12 @@ export const PredictiveDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -65,7 +79,7 @@ export const PredictiveDashboard: React.FC = () => {
         Predictive Analytics Dashboard
       </Typography>
 
-      <Paper sx={{ width: '100%', mb: 3 }}>
+      <Paper sx={{ width: "100%", mb: 3 }}>
         <Tabs
           value={activeTab}
           onChange={handleTabChange}

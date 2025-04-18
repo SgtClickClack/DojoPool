@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { Profile } from '../types/profile';
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { Profile } from "../types/profile";
 
 export function useProfile() {
   const { data: session } = useSession();
@@ -16,14 +16,14 @@ export function useProfile() {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch('/api/profile');
+        const response = await fetch("/api/profile");
         if (!response.ok) {
-          throw new Error('Failed to fetch profile');
+          throw new Error("Failed to fetch profile");
         }
         const data = await response.json();
         setProfile(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -34,46 +34,46 @@ export function useProfile() {
 
   const updateProfile = async (data: Partial<Profile>) => {
     try {
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
+      const response = await fetch("/api/profile", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile');
+        throw new Error("Failed to update profile");
       }
 
       const updatedProfile = await response.json();
       setProfile(updatedProfile);
       return updatedProfile;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
       throw err;
     }
   };
 
   const uploadAvatar = async (avatarUrl: string) => {
     try {
-      const response = await fetch('/api/profile/avatar', {
-        method: 'POST',
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ avatarUrl }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload avatar');
+        throw new Error("Failed to upload avatar");
       }
 
       const updatedProfile = await response.json();
       setProfile(updatedProfile);
       return updatedProfile;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
       throw err;
     }
   };
@@ -85,4 +85,4 @@ export function useProfile() {
     updateProfile,
     uploadAvatar,
   };
-} 
+}

@@ -1,6 +1,6 @@
 class LeaderboardManager {
   constructor() {
-    this.currentCategory = 'overall';
+    this.currentCategory = "overall";
     this.currentPeriod = null;
     this.initializeEventListeners();
     this.loadLeaderboard();
@@ -8,8 +8,8 @@ class LeaderboardManager {
 
   initializeEventListeners() {
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tab) => {
-      tab.addEventListener('shown.bs.tab', (event) => {
-        const category = event.target.id.replace('-tab', '');
+      tab.addEventListener("shown.bs.tab", (event) => {
+        const category = event.target.id.replace("-tab", "");
         this.currentCategory = category;
         this.loadLeaderboard();
       });
@@ -19,24 +19,24 @@ class LeaderboardManager {
   async loadLeaderboard() {
     try {
       const response = await fetch(
-        `/api/leaderboard?category=${this.currentCategory}&period=${this.currentPeriod || ''}`
+        `/api/leaderboard?category=${this.currentCategory}&period=${this.currentPeriod || ""}`,
       );
       const data = await response.json();
       this.renderLeaderboard(data);
     } catch (error) {
-      console.error('Error loading leaderboard:', error);
-      this.showError('Failed to load leaderboard data');
+      console.error("Error loading leaderboard:", error);
+      this.showError("Failed to load leaderboard data");
     }
   }
 
   renderLeaderboard(entries) {
     const tableBody = document.getElementById(
-      `${this.currentCategory}Leaderboard`
+      `${this.currentCategory}Leaderboard`,
     );
-    tableBody.innerHTML = '';
+    tableBody.innerHTML = "";
 
     entries.forEach((entry) => {
-      const row = document.createElement('tr');
+      const row = document.createElement("tr");
       row.innerHTML = `
                 <td class="text-center">
                     <span class="badge bg-${this.getRankBadgeColor(entry.rank)}">${entry.rank}</span>
@@ -56,25 +56,25 @@ class LeaderboardManager {
   }
 
   getRankBadgeColor(rank) {
-    if (rank === 1) return 'warning'; // Gold
-    if (rank === 2) return 'secondary'; // Silver
-    if (rank === 3) return 'danger'; // Bronze
-    return 'primary';
+    if (rank === 1) return "warning"; // Gold
+    if (rank === 2) return "secondary"; // Silver
+    if (rank === 3) return "danger"; // Bronze
+    return "primary";
   }
 
   showError(message) {
     // Create and show error toast or alert
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert alert-danger alert-dismissible fade show";
     alertDiv.innerHTML = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
-    document.querySelector('.container').prepend(alertDiv);
+    document.querySelector(".container").prepend(alertDiv);
   }
 }
 
 // Initialize leaderboard when the DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   new LeaderboardManager();
 });

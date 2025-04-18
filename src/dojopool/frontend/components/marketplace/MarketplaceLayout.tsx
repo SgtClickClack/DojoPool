@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { marketplaceService } from '../../services/marketplace';
-import { MarketplaceItem } from '../../types/marketplace';
-import { CartView } from './CartView';
-import { InventoryView } from './InventoryView';
-import './MarketplaceLayout.css';
-import { TransactionHistory } from './TransactionHistory';
+import React, { useEffect, useState } from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { marketplaceService } from "../../services/marketplace";
+import { MarketplaceItem } from "../../types/marketplace";
+import { CartView } from "./CartView";
+import { InventoryView } from "./InventoryView";
+import "./MarketplaceLayout.css";
+import { TransactionHistory } from "./TransactionHistory";
 
 export const MarketplaceLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -21,14 +21,16 @@ export const MarketplaceLayout: React.FC = () => {
       <header className="marketplace-header">
         <div className="header-content">
           <h1>Dojo Pool Marketplace</h1>
-          {location.pathname === '/marketplace' && (
+          {location.pathname === "/marketplace" && (
             <>
               <div className="marketplace-search">
                 <input
                   type="search"
                   className="search-input"
                   placeholder="Search items..."
-                  onChange={e => navigate(`/marketplace?search=${e.target.value}`)}
+                  onChange={(e) =>
+                    navigate(`/marketplace?search=${e.target.value}`)
+                  }
                 />
               </div>
               <div className="marketplace-filters">
@@ -38,7 +40,9 @@ export const MarketplaceLayout: React.FC = () => {
                     id="category-select"
                     className="filter-select"
                     aria-label="Category"
-                    onChange={e => navigate(`/marketplace?category=${e.target.value}`)}
+                    onChange={(e) =>
+                      navigate(`/marketplace?category=${e.target.value}`)
+                    }
                   >
                     <option value="">All Categories</option>
                     <option value="power-ups">Power-ups</option>
@@ -53,7 +57,9 @@ export const MarketplaceLayout: React.FC = () => {
                     id="sort-select"
                     className="filter-select"
                     aria-label="Sort by"
-                    onChange={e => navigate(`/marketplace?sort=${e.target.value}`)}
+                    onChange={(e) =>
+                      navigate(`/marketplace?sort=${e.target.value}`)
+                    }
                   >
                     <option value="">Sort By</option>
                     <option value="price-asc">Price: Low to High</option>
@@ -69,9 +75,15 @@ export const MarketplaceLayout: React.FC = () => {
       </header>
 
       <Routes>
-        <Route path="/" element={<MarketplaceMain onCartUpdate={updateCartCount} />} />
+        <Route
+          path="/"
+          element={<MarketplaceMain onCartUpdate={updateCartCount} />}
+        />
         <Route path="/inventory" element={<InventoryView />} />
-        <Route path="/cart" element={<CartView onCartUpdate={updateCartCount} />} />
+        <Route
+          path="/cart"
+          element={<CartView onCartUpdate={updateCartCount} />}
+        />
         <Route path="/transactions" element={<TransactionHistory />} />
       </Routes>
 
@@ -79,12 +91,15 @@ export const MarketplaceLayout: React.FC = () => {
         <div className="footer-content">
           <div
             className="transaction-history"
-            onClick={() => navigate('/marketplace/transactions')}
+            onClick={() => navigate("/marketplace/transactions")}
           >
             <i className="bi bi-clock-history" />
             Transaction History
           </div>
-          <div className="cart-preview" onClick={() => navigate('/marketplace/cart')}>
+          <div
+            className="cart-preview"
+            onClick={() => navigate("/marketplace/cart")}
+          >
             <i className="bi bi-cart" />
             <span className="cart-count">{cartCount}</span>
             Cart
@@ -106,9 +121,9 @@ const MarketplaceMain: React.FC<MarketplaceMainProps> = ({ onCartUpdate }) => {
   const [walletBalance, setWalletBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    category: '',
-    search: '',
-    sortBy: '',
+    category: "",
+    search: "",
+    sortBy: "",
   });
 
   useEffect(() => {
@@ -126,7 +141,7 @@ const MarketplaceMain: React.FC<MarketplaceMainProps> = ({ onCartUpdate }) => {
       setWalletBalance(balance);
       setError(null);
     } catch (err) {
-      setError('Error loading items');
+      setError("Error loading items");
     } finally {
       setLoading(false);
     }
@@ -137,20 +152,20 @@ const MarketplaceMain: React.FC<MarketplaceMainProps> = ({ onCartUpdate }) => {
       marketplaceService.addToCart(item, 1);
       onCartUpdate();
     } catch (err) {
-      setError('Error adding item to cart');
+      setError("Error adding item to cart");
     }
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilters(prev => ({ ...prev, category: e.target.value }));
+    setFilters((prev) => ({ ...prev, category: e.target.value }));
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters(prev => ({ ...prev, search: e.target.value }));
+    setFilters((prev) => ({ ...prev, search: e.target.value }));
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilters(prev => ({ ...prev, sortBy: e.target.value }));
+    setFilters((prev) => ({ ...prev, sortBy: e.target.value }));
   };
 
   return (
@@ -166,19 +181,27 @@ const MarketplaceMain: React.FC<MarketplaceMainProps> = ({ onCartUpdate }) => {
         <nav className="marketplace-nav">
           <h3>Categories</h3>
           <ul>
-            <li className={`nav-item ${filters.category === 'power-ups' ? 'active' : ''}`}>
+            <li
+              className={`nav-item ${filters.category === "power-ups" ? "active" : ""}`}
+            >
               <i className="bi bi-lightning-charge" />
               Power-ups
             </li>
-            <li className={`nav-item ${filters.category === 'avatars' ? 'active' : ''}`}>
+            <li
+              className={`nav-item ${filters.category === "avatars" ? "active" : ""}`}
+            >
               <i className="bi bi-person-circle" />
               Avatar Items
             </li>
-            <li className={`nav-item ${filters.category === 'accessories' ? 'active' : ''}`}>
+            <li
+              className={`nav-item ${filters.category === "accessories" ? "active" : ""}`}
+            >
               <i className="bi bi-stars" />
               Accessories
             </li>
-            <li className={`nav-item ${filters.category === 'special' ? 'active' : ''}`}>
+            <li
+              className={`nav-item ${filters.category === "special" ? "active" : ""}`}
+            >
               <i className="bi bi-gift" />
               Special Items
             </li>
@@ -200,7 +223,10 @@ const MarketplaceMain: React.FC<MarketplaceMainProps> = ({ onCartUpdate }) => {
               <span>7</span>
             </div>
           </div>
-          <button className="view-inventory-btn" onClick={() => navigate('/marketplace/inventory')}>
+          <button
+            className="view-inventory-btn"
+            onClick={() => navigate("/marketplace/inventory")}
+          >
             View Full Inventory
           </button>
         </div>
@@ -212,7 +238,7 @@ const MarketplaceMain: React.FC<MarketplaceMainProps> = ({ onCartUpdate }) => {
           <div className="loading">Loading...</div>
         ) : (
           <div className="items-grid">
-            {items.map(item => (
+            {items.map((item) => (
               <div key={item.id} className="item-card">
                 <img src={item.image} alt={item.name} />
                 <h3>{item.name}</h3>

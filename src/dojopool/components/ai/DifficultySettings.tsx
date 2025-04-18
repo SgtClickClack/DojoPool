@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Card,
@@ -11,14 +11,14 @@ import {
   Tooltip,
   LinearProgress,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Speed as SpeedIcon,
   Timer as TimeIcon,
   Psychology as ComplexityIcon,
   Refresh as ResetIcon,
   Info as InfoIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface DifficultyParameter {
   name: string;
@@ -47,11 +47,11 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
 
   const getParameterIcon = (name: string) => {
     switch (name.toLowerCase()) {
-      case 'speed':
+      case "speed":
         return <SpeedIcon />;
-      case 'time':
+      case "time":
         return <TimeIcon />;
-      case 'complexity':
+      case "complexity":
         return <ComplexityIcon />;
       default:
         return <SpeedIcon />;
@@ -75,9 +75,9 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
         <CardContent>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               mb: 2,
             }}
           >
@@ -88,7 +88,7 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
               </IconButton>
             </Tooltip>
           </Box>
-          <Box sx={{ position: 'relative', pt: 1 }}>
+          <Box sx={{ position: "relative", pt: 1 }}>
             <LinearProgress
               variant="determinate"
               value={adaptiveScore}
@@ -96,7 +96,7 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                 height: 10,
                 borderRadius: 5,
                 backgroundColor: theme.palette.grey[200],
-                '& .MuiLinearProgress-bar': {
+                "& .MuiLinearProgress-bar": {
                   backgroundColor: getAdaptiveScoreColor(adaptiveScore),
                 },
               }}
@@ -104,10 +104,10 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
             <Typography
               variant="h4"
               sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, 50%)',
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, 50%)",
                 color: getAdaptiveScoreColor(adaptiveScore),
               }}
             >
@@ -130,7 +130,7 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                   sx={{
                     p: 2,
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: "divider",
                     borderRadius: 1,
                   }}
                 >
@@ -138,14 +138,18 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                     {/* Parameter Header */}
                     <Box
                       sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         {getParameterIcon(param.name)}
-                        <Typography variant="subtitle1">{param.name}</Typography>
+                        <Typography variant="subtitle1">
+                          {param.name}
+                        </Typography>
                       </Box>
                       <Tooltip title={param.description}>
                         <IconButton size="small">
@@ -158,15 +162,19 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                     <Box sx={{ px: 2 }}>
                       <Box
                         sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
+                          display: "flex",
+                          justifyContent: "space-between",
                           mb: 1,
                         }}
                       >
                         <Typography variant="body2" color="text.secondary">
                           Current: {formatValue(param.value)}
                         </Typography>
-                        <Typography variant="body2" color="primary" sx={{ fontWeight: 'medium' }}>
+                        <Typography
+                          variant="body2"
+                          color="primary"
+                          sx={{ fontWeight: "medium" }}
+                        >
                           Recommended: {formatValue(param.recommendation)}
                         </Typography>
                       </Box>
@@ -175,25 +183,27 @@ export const DifficultySettings: React.FC<DifficultySettingsProps> = ({
                         min={param.min}
                         max={param.max}
                         step={param.step}
-                        onChange={(_, value) => onParameterChange(param.name, value as number)}
+                        onChange={(_, value) =>
+                          onParameterChange(param.name, value as number)
+                        }
                         valueLabelDisplay="auto"
                         valueLabelFormat={formatValue}
                         marks={[
                           { value: param.min, label: formatValue(param.min) },
-                          { value: param.recommendation, label: '↓' },
+                          { value: param.recommendation, label: "↓" },
                           { value: param.max, label: formatValue(param.max) },
                         ]}
                       />
                     </Box>
 
                     {/* Recommendation Indicator */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         {Math.abs(param.value - param.recommendation) <= 0.1
-                          ? 'Optimal setting'
+                          ? "Optimal setting"
                           : param.value > param.recommendation
-                            ? 'Consider decreasing for better learning'
-                            : 'Consider increasing for better challenge'}
+                            ? "Consider decreasing for better learning"
+                            : "Consider increasing for better challenge"}
                       </Typography>
                     </Box>
                   </Stack>

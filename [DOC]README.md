@@ -31,18 +31,21 @@ DojoPool is an innovative platform that combines AI-powered training, analytics,
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/dojopool.git
    cd dojopool
    ```
 
 2. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    npm install
    ```
 
 3. Start the development server:
+
    ```bash
    npm start
    ```
@@ -52,12 +55,14 @@ DojoPool is an innovative platform that combines AI-powered training, analytics,
 ### Development
 
 - Run tests:
+
   ```bash
   npm test
   pytest
   ```
 
 - Run linting:
+
   ```bash
   npm run lint
   flake8

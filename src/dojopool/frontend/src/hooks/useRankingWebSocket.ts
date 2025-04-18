@@ -1,9 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { useQueryClient } from 'react-query';
-import { useSnackbar } from 'notistack';
+import { useEffect, useRef, useCallback } from "react";
+import { useQueryClient } from "react-query";
+import { useSnackbar } from "notistack";
 
 interface RankingUpdate {
-  type: 'ranking_update' | 'global_update' | 'significant_change';
+  type: "ranking_update" | "global_update" | "significant_change";
   data: any;
   timestamp: string;
 }
@@ -20,43 +20,44 @@ export const useRankingWebSocket = (userId?: number) => {
     }
 
     // Create new WebSocket connection
-    const wsUrl = userId 
+    const wsUrl = userId
       ? `ws://${window.location.host}/api/ws/rankings/${userId}`
       : `ws://${window.location.host}/api/ws/rankings/global`;
 
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log('Connected to ranking updates');
+      console.log("Connected to ranking updates");
     };
 
     ws.onmessage = (event) => {
       const update: RankingUpdate = JSON.parse(event.data);
 
       switch (update.type) {
-        case 'ranking_update':
+        case "ranking_update":
           // Update individual player data
-          queryClient.setQueryData(['playerStats', userId], update.data);
+          queryClient.setQueryData(["playerStats", userId], update.data);
           break;
 
-        case 'global_update':
+        case "global_update":
           // Update global rankings
-          queryClient.setQueryData(['rankings'], update.data);
+          queryClient.setQueryData(["rankings"], update.data);
           break;
 
-        case 'significant_change':
+        case "significant_change":
           // Show notification for significant changes
           const { old_rank, new_rank, change } = update.data;
-          const message = change > 0
-            ? `Ranking increased by ${change} positions! (${old_rank} → ${new_rank})`
-            : `Ranking decreased by ${Math.abs(change)} positions (${old_rank} → ${new_rank})`;
+          const message =
+            change > 0
+              ? `Ranking increased by ${change} positions! (${old_rank} → ${new_rank})`
+              : `Ranking decreased by ${Math.abs(change)} positions (${old_rank} → ${new_rank})`;
 
           enqueueSnackbar(message, {
-            variant: change > 0 ? 'success' : 'warning',
+            variant: change > 0 ? "success" : "warning",
             autoHideDuration: 5000,
             anchorOrigin: {
-              vertical: 'top',
-              horizontal: 'right',
+              vertical: "top",
+              horizontal: "right",
             },
           });
           break;
@@ -64,14 +65,14 @@ export const useRankingWebSocket = (userId?: number) => {
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      enqueueSnackbar('Error connecting to ranking updates', {
-        variant: 'error',
+      console.error("WebSocket error:", error);
+      enqueueSnackbar("Error connecting to ranking updates", {
+        variant: "error",
       });
     };
 
     ws.onclose = () => {
-      console.log('Disconnected from ranking updates');
+      console.log("Disconnected from ranking updates");
       // Attempt to reconnect after 5 seconds
       setTimeout(connect, 5000);
     };
@@ -92,4 +93,4 @@ export const useRankingWebSocket = (userId?: number) => {
   return {
     connected: wsRef.current?.readyState === WebSocket.OPEN,
   };
-}; 
+};

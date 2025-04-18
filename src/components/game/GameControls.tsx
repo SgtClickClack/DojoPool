@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Slider,
@@ -11,7 +11,7 @@ import {
   HStack,
   Text,
   useColorModeValue,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 interface GameControlsProps {
   onShot: (power: number, angle: number, spin: number) => void;
@@ -30,11 +30,13 @@ export const GameControls: React.FC<GameControlsProps> = ({
   const [angle, setAngle] = useState(0);
   const [spin, setSpin] = useState(0);
   const [isCharging, setIsCharging] = useState(false);
-  const [chargeInterval, setChargeInterval] = useState<NodeJS.Timeout | null>(null);
+  const [chargeInterval, setChargeInterval] = useState<NodeJS.Timeout | null>(
+    null,
+  );
 
   // Colors based on theme
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   useEffect(() => {
     return () => {
@@ -46,10 +48,10 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
   const startCharging = () => {
     if (!isActive || isCharging) return;
-    
+
     setIsCharging(true);
     const interval = setInterval(() => {
-      setPower(prev => {
+      setPower((prev) => {
         if (prev >= maxPower) {
           clearInterval(interval);
           setChargeInterval(null);
@@ -65,16 +67,16 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
   const stopCharging = () => {
     if (!isCharging) return;
-    
+
     if (chargeInterval) {
       clearInterval(chargeInterval);
       setChargeInterval(null);
     }
     setIsCharging(false);
-    
+
     // Execute shot with current values
     onShot(power, angle, spin);
-    
+
     // Reset power
     setPower(0);
   };
@@ -168,7 +170,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
             isDisabled={!isActive || isCharging}
             flex={1}
           >
-            {isCharging ? 'Charging...' : 'Take Shot'}
+            {isCharging ? "Charging..." : "Take Shot"}
           </Button>
           <Button
             colorScheme="red"
@@ -182,4 +184,4 @@ export const GameControls: React.FC<GameControlsProps> = ({
       </VStack>
     </Box>
   );
-}; 
+};

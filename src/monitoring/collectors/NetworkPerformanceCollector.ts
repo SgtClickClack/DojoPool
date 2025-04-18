@@ -1,8 +1,12 @@
-import { NetworkTransport } from '../../core/network/NetworkTransport';
-import { NetworkError, NetworkMessage, NetworkStats } from '../../core/network/types';
-import { MetricsCollector, MetricsData } from './MetricsCollector';
-import { MonitoringConfig } from '../config';
-import { NetworkPerformanceData as NetworkMetrics } from '../dashboard/types';
+import { NetworkTransport } from "../../core/network/NetworkTransport";
+import {
+  NetworkError,
+  NetworkMessage,
+  NetworkStats,
+} from "../../core/network/types";
+import { MetricsCollector, MetricsData } from "./MetricsCollector";
+import { MonitoringConfig } from "../config";
+import { NetworkPerformanceData as NetworkMetrics } from "../dashboard/types";
 
 export interface NetworkPerformanceData extends MetricsData {
   /** Average message round-trip time in milliseconds */
@@ -33,7 +37,9 @@ interface RTTSample {
   receiveTime?: number;
 }
 
-export class NetworkPerformanceCollector extends MetricsCollector<NetworkMetrics & MetricsData> {
+export class NetworkPerformanceCollector extends MetricsCollector<
+  NetworkMetrics & MetricsData
+> {
   private readonly networkTransport: NetworkTransport;
   private readonly config: MonitoringConfig;
   private readonly rttSamples: RTTSample[] = [];
@@ -64,29 +70,33 @@ export class NetworkPerformanceCollector extends MetricsCollector<NetworkMetrics
   }
 
   private setupEventHandlers(): void {
-    this.networkTransport.on('message', (message: NetworkMessage): void => {
+    this.networkTransport.on("message", (message: NetworkMessage): void => {
       this.handleNetworkMessage(message);
     });
 
-    this.networkTransport.on('error', (error: NetworkError): void => {
+    this.networkTransport.on("error", (error: NetworkError): void => {
       this.handleNetworkError(error);
     });
 
-    this.networkTransport.on('connect', (): void => {
+    this.networkTransport.on("connect", (): void => {
       this.handleConnect();
     });
 
-    this.networkTransport.on('disconnect', (): void => {
+    this.networkTransport.on("disconnect", (): void => {
       this.handleDisconnect();
     });
   }
 
   private handleNetworkMessage(message: NetworkMessage): void {
     this.messagesReceivedSinceLastCollection++;
-    this.bytesReceivedSinceLastCollection += Buffer.byteLength(JSON.stringify(message));
+    this.bytesReceivedSinceLastCollection += Buffer.byteLength(
+      JSON.stringify(message),
+    );
 
     // Update RTT if this is a response to a message we sent
-    const rttSample = this.rttSamples.find(sample => sample.messageId === message.id);
+    const rttSample = this.rttSamples.find(
+      (sample) => sample.messageId === message.id,
+    );
     if (rttSample) {
       rttSample.receiveTime = Date.now();
     }
@@ -112,14 +122,16 @@ export class NetworkPerformanceCollector extends MetricsCollector<NetworkMetrics
 
   private calculateRTTStats(): { averageRTT: number; p95RTT: number } {
     const completedSamples = this.rttSamples
-      .filter(sample => sample.receiveTime)
-      .map(sample => sample.receiveTime! - sample.sendTime);
+      .filter((sample) => sample.receiveTime)
+      .map((sample) => sample.receiveTime! - sample.sendTime);
 
     if (completedSamples.length === 0) {
       return { averageRTT: 0, p95RTT: 0 };
     }
 
-    const average = completedSamples.reduce((sum, rtt) => sum + rtt, 0) / completedSamples.length;
+    const average =
+      completedSamples.reduce((sum, rtt) => sum + rtt, 0) /
+      completedSamples.length;
     const sorted = [...completedSamples].sort((a, b) => a - b);
     const p95Index = Math.floor(sorted.length * 0.95);
     const p95 = sorted[p95Index];
@@ -132,12 +144,14 @@ export class NetworkPerformanceCollector extends MetricsCollector<NetworkMetrics
   }
 
   private calculateBandwidthUsage(elapsedMs: number): number {
-    const totalBytes = this.bytesSentSinceLastCollection + this.bytesReceivedSinceLastCollection;
+    const totalBytes =
+      this.bytesSentSinceLastCollection + this.bytesReceivedSinceLastCollection;
     return (totalBytes / elapsedMs) * 1000;
   }
 
   private calculateConnectionStability(): number {
-    const maxRetries = this.config.networkThresholds?.maxReconnectionAttempts || 10;
+    const maxRetries =
+      this.config.networkThresholds?.maxReconnectionAttempts || 10;
     const retryRatio = this.connectionRetriesSinceLastCollection / maxRetries;
     return Math.max(0, 100 * (1 - retryRatio));
   }
@@ -158,12 +172,15 @@ export class NetworkPerformanceCollector extends MetricsCollector<NetworkMetrics
       p95RTT,
       inFlightMessages: stats.pendingMessages,
       throughput: this.calculateThroughput(elapsedMs),
-      errorRate: (this.errorsSinceLastCollection / this.messagesReceivedSinceLastCollection) * 100 || 0,
+      errorRate:
+        (this.errorsSinceLastCollection /
+          this.messagesReceivedSinceLastCollection) *
+          100 || 0,
       bandwidthUsage: this.calculateBandwidthUsage(elapsedMs),
       connectionStability: this.calculateConnectionStability(),
       queueSize: stats.queueSize,
       connectionRetries: this.connectionRetriesSinceLastCollection,
-      timeSinceLastMessage: now - stats.lastMessageTimestamp
+      timeSinceLastMessage: now - stats.lastMessageTimestamp,
     };
 
     // Reset counters
@@ -232,20 +249,20 @@ export class NetworkPerformanceCollector extends MetricsCollector<NetworkMetrics
 
     return {
       timestamp: now,
-      averageRTT: this.rttValues.length > 0 
-        ? this.rttValues.reduce((a, b) => a + b, 0) / this.rttValues.length 
-        : 0,
+      averageRTT:
+        this.rttValues.length > 0
+          ? this.rttValues.reduce((a, b) => a + b, 0) / this.rttValues.length
+          : 0,
       p95RTT: sortedRTT[p95Index] || 0,
       inFlightMessages: this.inFlightCount,
       throughput: this.messageCount / (this.interval / 1000),
-      errorRate: this.messageCount > 0 
-        ? (this.errorCount / this.messageCount) * 100 
-        : 0,
+      errorRate:
+        this.messageCount > 0 ? (this.errorCount / this.messageCount) * 100 : 0,
       bandwidthUsage: this.bytesTransferred / (this.interval / 1000),
-      connectionStability: Math.max(0, 100 - (this.retryCount * 10)),
+      connectionStability: Math.max(0, 100 - this.retryCount * 10),
       queueSize: this.queuedMessages,
       connectionRetries: this.retryCount,
-      timeSinceLastMessage: now - this.lastMessageTime
+      timeSinceLastMessage: now - this.lastMessageTime,
     };
   }
-} 
+}

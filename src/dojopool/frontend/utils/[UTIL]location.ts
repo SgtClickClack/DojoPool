@@ -1,4 +1,4 @@
-import { LOCATION_OPTIONS } from '../../constants';
+import { LOCATION_OPTIONS } from "../../constants";
 
 export interface Location {
   latitude: number;
@@ -9,10 +9,10 @@ export interface Location {
 
 export function watchLocation(
   onUpdate: (location: Location) => void,
-  onError?: (error: GeolocationPositionError) => void
+  onError?: (error: GeolocationPositionError) => void,
 ): () => void {
   if (!navigator.geolocation) {
-    throw new Error('Geolocation is not supported by this browser.');
+    throw new Error("Geolocation is not supported by this browser.");
   }
 
   const watchId = navigator.geolocation.watchPosition(
@@ -25,7 +25,7 @@ export function watchLocation(
       });
     },
     onError,
-    LOCATION_OPTIONS
+    LOCATION_OPTIONS,
   );
 
   return () => navigator.geolocation.clearWatch(watchId);
@@ -34,7 +34,7 @@ export function watchLocation(
 export function getCurrentLocation(): Promise<Location> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by this browser.'));
+      reject(new Error("Geolocation is not supported by this browser."));
       return;
     }
 
@@ -48,12 +48,15 @@ export function getCurrentLocation(): Promise<Location> {
         });
       },
       reject,
-      LOCATION_OPTIONS
+      LOCATION_OPTIONS,
     );
   });
 }
 
-export function calculateDistance(location1: Location, location2: Location): number {
+export function calculateDistance(
+  location1: Location,
+  location2: Location,
+): number {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (location1.latitude * Math.PI) / 180;
   const φ2 = (location2.latitude * Math.PI) / 180;

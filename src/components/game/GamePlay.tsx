@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -6,11 +6,11 @@ import {
   Text,
   useColorModeValue,
   useToast,
-} from '@chakra-ui/react';
-import { GameBoard } from './GameBoard';
-import { GameControls } from './GameControls';
-import { GameSpectate } from './GameSpectate';
-import { ShotAnalysis } from './ShotAnalysis';
+} from "@chakra-ui/react";
+import { GameBoard } from "./GameBoard";
+import { GameControls } from "./GameControls";
+import { GameSpectate } from "./GameSpectate";
+import { ShotAnalysis } from "./ShotAnalysis";
 
 interface Ball {
   id: number;
@@ -23,13 +23,13 @@ interface Ball {
 interface GameState {
   balls: Ball[];
   currentPlayer: number;
-  gameStatus: 'waiting' | 'in_progress' | 'finished';
+  gameStatus: "waiting" | "in_progress" | "finished";
   winner?: number;
 }
 
 interface ShotAnalysisResult {
   successProbability: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   recommendedPower: number;
   recommendedAngle: number;
   recommendedSpin: number;
@@ -51,7 +51,7 @@ export const GamePlay: React.FC<GamePlayProps> = ({
   const [gameState, setGameState] = useState<GameState>({
     balls: [],
     currentPlayer: 1,
-    gameStatus: 'waiting',
+    gameStatus: "waiting",
   });
   const [selectedBall, setSelectedBall] = useState<number | null>(null);
   const [isActive, setIsActive] = useState(false);
@@ -61,27 +61,27 @@ export const GamePlay: React.FC<GamePlayProps> = ({
   const toast = useToast();
 
   // Colors based on theme
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   useEffect(() => {
     // Initialize game state
     initializeGame();
-    
+
     // Set up WebSocket connection for real-time updates
     const ws = new WebSocket(`ws://localhost:3001/game/${gameId}`);
-    
+
     ws.onmessage = (event) => {
       const update = JSON.parse(event.data);
       handleGameUpdate(update);
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
       toast({
-        title: 'Connection Error',
-        description: 'Lost connection to game server',
-        status: 'error',
+        title: "Connection Error",
+        description: "Lost connection to game server",
+        status: "error",
         duration: null,
         isClosable: true,
       });
@@ -95,43 +95,43 @@ export const GamePlay: React.FC<GamePlayProps> = ({
   const initializeGame = () => {
     // Initialize balls in starting positions
     const balls: Ball[] = [
-      { id: 0, x: 400, y: 300, color: '#FFFFFF', number: 0 }, // Cue ball
-      { id: 1, x: 600, y: 300, color: '#FFFF00', number: 1 }, // Yellow
-      { id: 2, x: 620, y: 300, color: '#0000FF', number: 2 }, // Blue
-      { id: 3, x: 640, y: 300, color: '#FF0000', number: 3 }, // Red
+      { id: 0, x: 400, y: 300, color: "#FFFFFF", number: 0 }, // Cue ball
+      { id: 1, x: 600, y: 300, color: "#FFFF00", number: 1 }, // Yellow
+      { id: 2, x: 620, y: 300, color: "#0000FF", number: 2 }, // Blue
+      { id: 3, x: 640, y: 300, color: "#FF0000", number: 3 }, // Red
       // Add more balls in a triangle formation
     ];
 
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       balls,
-      gameStatus: 'in_progress',
+      gameStatus: "in_progress",
     }));
   };
 
   const handleGameUpdate = (update: any) => {
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       ...update,
     }));
 
-    if (update.gameStatus === 'finished' && update.winner) {
+    if (update.gameStatus === "finished" && update.winner) {
       handleGameEnd(update.winner);
     }
   };
 
   const handleBallClick = (ballId: number) => {
     if (isSpectator) return;
-    
+
     setSelectedBall(ballId);
     setIsActive(true);
   };
 
   const handleTableClick = (x: number, y: number) => {
     if (!selectedBall || isSpectator) return;
-    
+
     // Calculate shot angle and power based on click position
-    const ball = gameState.balls.find(b => b.id === selectedBall);
+    const ball = gameState.balls.find((b) => b.id === selectedBall);
     if (!ball) return;
 
     const dx = x - ball.x;
@@ -154,9 +154,9 @@ export const GamePlay: React.FC<GamePlayProps> = ({
   const sendShot = (power: number, angle: number, spin: number) => {
     // Send shot data to server
     fetch(`/api/game/${gameId}/shot`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         power,
@@ -164,12 +164,12 @@ export const GamePlay: React.FC<GamePlayProps> = ({
         spin,
         ballId: selectedBall,
       }),
-    }).catch(error => {
-      console.error('Error sending shot:', error);
+    }).catch((error) => {
+      console.error("Error sending shot:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to send shot',
-        status: 'error',
+        title: "Error",
+        description: "Failed to send shot",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
@@ -181,14 +181,14 @@ export const GamePlay: React.FC<GamePlayProps> = ({
 
   const handleAnalysisComplete = (analysis: ShotAnalysisResult) => {
     // Log analysis results for future improvements
-    console.log('Shot Analysis:', analysis);
+    console.log("Shot Analysis:", analysis);
   };
 
   const handleGameEnd = (winner: number) => {
     toast({
-      title: 'Game Over',
+      title: "Game Over",
       description: `Player ${winner} wins!`,
-      status: 'success',
+      status: "success",
       duration: 5000,
       isClosable: true,
     });
@@ -250,4 +250,4 @@ export const GamePlay: React.FC<GamePlayProps> = ({
       </HStack>
     </VStack>
   );
-}; 
+};

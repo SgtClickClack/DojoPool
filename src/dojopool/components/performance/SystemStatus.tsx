@@ -1,11 +1,18 @@
-import React from 'react';
-import { Box, Grid, Paper, Typography, LinearProgress, Tooltip } from '@mui/material';
+import React from "react";
+import {
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  LinearProgress,
+  Tooltip,
+} from "@mui/material";
 import {
   Memory as MemoryIcon,
   Storage as StorageIcon,
   Speed as SpeedIcon,
   NetworkCheck as NetworkIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface SystemStatusProps {
   status: {
@@ -30,17 +37,17 @@ interface SystemStatusProps {
 
 export const SystemStatus: React.FC<SystemStatusProps> = ({ status }) => {
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   const getProgressColor = (value: number): string => {
-    if (value >= 90) return 'error';
-    if (value >= 70) return 'warning';
-    return 'success';
+    if (value >= 90) return "error";
+    if (value >= 70) return "warning";
+    return "success";
   };
 
   return (
@@ -51,7 +58,7 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ status }) => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={3}>
           <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               <SpeedIcon sx={{ mr: 1 }} />
               <Typography variant="subtitle1">CPU Usage</Typography>
             </Box>
@@ -71,7 +78,7 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ status }) => {
 
         <Grid item xs={12} md={3}>
           <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               <MemoryIcon sx={{ mr: 1 }} />
               <Typography variant="subtitle1">Memory Usage</Typography>
             </Box>
@@ -91,7 +98,7 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ status }) => {
 
         <Grid item xs={12} md={3}>
           <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               <StorageIcon sx={{ mr: 1 }} />
               <Typography variant="subtitle1">Disk Usage</Typography>
             </Box>
@@ -111,7 +118,7 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({ status }) => {
 
         <Grid item xs={12} md={3}>
           <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               <NetworkIcon sx={{ mr: 1 }} />
               <Typography variant="subtitle1">Network I/O</Typography>
             </Box>

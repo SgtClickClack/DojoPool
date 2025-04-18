@@ -1,4 +1,4 @@
-import { MetricsCollector, MetricsData } from './MetricsCollector';
+import { MetricsCollector, MetricsData } from "./MetricsCollector";
 
 interface NodeMetrics extends MetricsData {
   uptime: number;
@@ -52,7 +52,7 @@ export class NodeMetricsCollector extends MetricsCollector<NodeMetrics> {
       bytesTransferred: this.byteCount,
       errorCount: this.errors,
       lastHeartbeat: now - this.lastHeartbeatTime,
-      pendingMessages: this.pendingMessageCount
+      pendingMessages: this.pendingMessageCount,
     };
 
     // Reset counters
@@ -75,4 +75,4 @@ export class NodeMetricsCollector extends MetricsCollector<NodeMetrics> {
     this.pendingMessageCount = 0;
     this.lastCollectionTime = Date.now();
   }
-} 
+}

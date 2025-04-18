@@ -1,18 +1,16 @@
 // Generated type definitions
 
-
 // Type imports
 
-
 // Theme constants
-const THEME_KEY: any = 'app-theme';
-const THEME_LIGHT: any = 'theme-light';
-const THEME_DARK: any = 'theme-dark';
+const THEME_KEY: any = "app-theme";
+const THEME_LIGHT: any = "theme-light";
+const THEME_DARK: any = "theme-dark";
 
 // Get system preference for dark mode
 const prefersDarkMode: any = () =>
   window.matchMedia &&
-  window.matchMedia('(prefers-color-scheme: dark)').matches;
+  window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 // Get stored theme preference
 const getStoredTheme: any = () => localStorage.getItem(THEME_KEY);
@@ -49,7 +47,7 @@ const toggleTheme: any = () => {
 const listenForThemeChanges: any = () => {
   if (!window.matchMedia) return;
 
-  const mediaQuery: any = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery: any = window.matchMedia("(prefers-color-scheme: dark)");
   mediaQuery.addListener((e) => {
     if (!getStoredTheme()) {
       applyTheme(e.matches ? THEME_DARK : THEME_LIGHT);

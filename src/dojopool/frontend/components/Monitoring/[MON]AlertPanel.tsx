@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -18,7 +18,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Warning as WarningIcon,
   Error as ErrorIcon,
@@ -26,27 +26,32 @@ import {
   CheckCircle as AcknowledgeIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-} from '@mui/icons-material';
-import { Alert as AlertType } from '../../types/monitoring';
-import { gameMetricsMonitor } from '../../utils/monitoring';
+} from "@mui/icons-material";
+import { Alert as AlertType } from "../../types/monitoring";
+import { gameMetricsMonitor } from "../../utils/monitoring";
 
 interface AlertPanelProps {
   gameId?: string;
   onAlertAcknowledge?: (alert: AlertType) => void;
 }
 
-export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowledge }) => {
+export const AlertPanel: React.FC<AlertPanelProps> = ({
+  gameId,
+  onAlertAcknowledge,
+}) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [expandedAlert, setExpandedAlert] = useState<string | null>(null);
   const [acknowledgeDialogOpen, setAcknowledgeDialogOpen] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<AlertType | null>(null);
-  const [acknowledgeNote, setAcknowledgeNote] = useState('');
+  const [acknowledgeNote, setAcknowledgeNote] = useState("");
 
   useEffect(() => {
     // Subscribe to alerts
-    const unsubscribe = gameMetricsMonitor.subscribeToAlerts((alert: AlertType) => {
-      setAlerts((prev) => [alert, ...prev].slice(0, 100)); // Keep last 100 alerts
-    });
+    const unsubscribe = gameMetricsMonitor.subscribeToAlerts(
+      (alert: AlertType) => {
+        setAlerts((prev) => [alert, ...prev].slice(0, 100)); // Keep last 100 alerts
+      },
+    );
 
     // Return cleanup function
     return () => {
@@ -72,16 +77,16 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
     }
     setAcknowledgeDialogOpen(false);
     setSelectedAlert(null);
-    setAcknowledgeNote('');
+    setAcknowledgeNote("");
   };
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'error':
+      case "error":
         return <ErrorIcon color="error" />;
-      case 'warning':
+      case "warning":
         return <WarningIcon color="warning" />;
-      case 'info':
+      case "info":
         return <InfoIcon color="info" />;
       default:
         return <InfoIcon color="info" />;
@@ -147,13 +152,19 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
                       </Box>
                     }
                   >
-                    <ListItemIcon>{getSeverityIcon(alert.severity)}</ListItemIcon>
+                    <ListItemIcon>
+                      {getSeverityIcon(alert.severity)}
+                    </ListItemIcon>
                     <ListItemText
                       primary={alert.message}
                       secondary={formatTimestamp(alert.timestamp)}
                     />
                   </ListItem>
-                  <Collapse in={expandedAlert === alert.id} timeout="auto" unmountOnExit>
+                  <Collapse
+                    in={expandedAlert === alert.id}
+                    timeout="auto"
+                    unmountOnExit
+                  >
                     <Box pl={9} pr={2} pb={2}>
                       <Alert severity={alert.severity as any}>
                         <Typography variant="subtitle2" gutterBottom>
@@ -202,8 +213,14 @@ export const AlertPanel: React.FC<AlertPanelProps> = ({ gameId, onAlertAcknowled
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setAcknowledgeDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAcknowledgeConfirm} variant="contained" color="primary">
+            <Button onClick={() => setAcknowledgeDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAcknowledgeConfirm}
+              variant="contained"
+              color="primary"
+            >
               Acknowledge
             </Button>
           </DialogActions>

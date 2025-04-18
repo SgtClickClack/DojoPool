@@ -1,6 +1,7 @@
 # DojoPool API Documentation
 
 ## Base URL
+
 ```
 http://localhost:8000/api
 ```
@@ -8,6 +9,7 @@ http://localhost:8000/api
 ## Authentication
 
 ### Login
+
 - **Endpoint**: `/auth/login`
 - **Method**: POST
 - **Description**: Authenticate a user and receive a JWT token
@@ -31,6 +33,7 @@ http://localhost:8000/api
   ```
 
 ### Register
+
 - **Endpoint**: `/auth/register`
 - **Method**: POST
 - **Description**: Create a new user account
@@ -45,12 +48,14 @@ http://localhost:8000/api
 - **Response**: User object
 
 ### Get Profile
+
 - **Endpoint**: `/auth/profile`
 - **Method**: GET
 - **Description**: Get the authenticated user's profile
 - **Response**: User profile object
 
 ### Forgot Password
+
 - **Endpoint**: `/auth/forgot-password`
 - **Method**: POST
 - **Description**: Request a password reset
@@ -62,6 +67,7 @@ http://localhost:8000/api
   ```
 
 ### Reset Password
+
 - **Endpoint**: `/auth/reset-password`
 - **Method**: POST
 - **Description**: Reset password using token
@@ -76,6 +82,7 @@ http://localhost:8000/api
 ## User Management
 
 ### Create User
+
 - **Endpoint**: `/users`
 - **Method**: POST
 - **Description**: Create a new user
@@ -89,18 +96,21 @@ http://localhost:8000/api
 - **Response**: User object
 
 ### Get User by Email
+
 - **Endpoint**: `/users/email/{email}`
 - **Method**: GET
 - **Description**: Get user by email address
 - **Response**: User object
 
 ### Get User by ID
+
 - **Endpoint**: `/users/{id}`
 - **Method**: GET
 - **Description**: Get user by ID
 - **Response**: User object
 
 ### Update User
+
 - **Endpoint**: `/users/{id}`
 - **Method**: PATCH
 - **Description**: Update user information
@@ -108,6 +118,7 @@ http://localhost:8000/api
 - **Response**: Updated User object
 
 ### Delete User
+
 - **Endpoint**: `/users/{id}`
 - **Method**: DELETE
 - **Description**: Delete a user
@@ -116,12 +127,14 @@ http://localhost:8000/api
 ## Venue Management
 
 ### Get Venues
+
 - **Endpoint**: `/venues`
 - **Method**: GET
 - **Description**: Get list of all venues
 - **Response**: Array of Venue objects
 
 ### Get Venue Details
+
 - **Endpoint**: `/venues/{venueId}`
 - **Method**: GET
 - **Description**: Get detailed information about a venue
@@ -130,18 +143,21 @@ http://localhost:8000/api
 ## Game Management
 
 ### Get Games
+
 - **Endpoint**: `/games`
 - **Method**: GET
 - **Description**: Get list of all games
 - **Response**: Array of Game objects
 
 ### Get Game Details
+
 - **Endpoint**: `/games/{gameId}`
 - **Method**: GET
 - **Description**: Get detailed information about a game
 - **Response**: Game object
 
 ### Create Game
+
 - **Endpoint**: `/games`
 - **Method**: POST
 - **Description**: Create a new game
@@ -149,18 +165,21 @@ http://localhost:8000/api
 - **Response**: Created Game object
 
 ### Join Game
+
 - **Endpoint**: `/games/{gameId}/join`
 - **Method**: POST
 - **Description**: Join an existing game
 - **Response**: Updated Game object
 
 ### Leave Game
+
 - **Endpoint**: `/games/{gameId}/leave`
 - **Method**: POST
 - **Description**: Leave a game
 - **Response**: Updated Game object
 
 ### Update Game Status
+
 - **Endpoint**: `/games/{gameId}/status`
 - **Method**: PATCH
 - **Description**: Update game status
@@ -175,6 +194,7 @@ http://localhost:8000/api
 ## Leaderboard
 
 ### Get Leaderboard
+
 - **Endpoint**: `/leaderboard`
 - **Method**: GET
 - **Description**: Get current leaderboard standings
@@ -183,6 +203,7 @@ http://localhost:8000/api
 ## Profile Management
 
 ### Update Profile
+
 - **Endpoint**: `/profile`
 - **Method**: PATCH
 - **Description**: Update user profile information
@@ -204,6 +225,7 @@ All endpoints may return the following error responses:
 ```
 
 Common error codes:
+
 - `400`: Bad Request
 - `401`: Unauthorized
 - `403`: Forbidden
@@ -233,16 +255,19 @@ Common error codes:
 The following WebSocket events are available:
 
 ### Game Events
+
 - `game:update`: Game state updates
 - `game:join`: Player joined game
 - `game:leave`: Player left game
 - `game:status`: Game status changes
 
 ### User Events
+
 - `user:status`: User status updates
 - `user:profile`: Profile updates
 
 ### Venue Events
+
 - `venue:status`: Venue status updates
 - `venue:table`: Table status updates
 
@@ -287,6 +312,7 @@ status = integrator.get_system_status()
 ```
 
 Returns a comprehensive status of all systems including:
+
 - System health status
 - Memory metrics
 - Context status
@@ -301,6 +327,7 @@ await integrator.optimize_resources()
 ```
 
 Triggers optimization across all systems:
+
 - Worker pool scaling
 - Memory cleanup
 - Texture page eviction
@@ -315,6 +342,7 @@ memory_metrics = integrator.memory_profiler.get_metrics()
 ```
 
 Returns memory usage metrics including:
+
 - Current usage
 - Peak usage
 - Spike count
@@ -327,6 +355,7 @@ context_status = integrator.context_manager.get_status()
 ```
 
 Provides WebGL context status:
+
 - Health status
 - Resource usage
 - Performance metrics
@@ -344,6 +373,7 @@ task_id = await integrator.worker_pool.submit_task(
 ```
 
 Submit tasks to the worker pool with priorities:
+
 - LOW
 - MEDIUM
 - HIGH
@@ -356,6 +386,7 @@ worker_stats = integrator.worker_pool.get_worker_stats(worker_id)
 ```
 
 Get statistics for specific workers:
+
 - Status
 - Task count
 - Error count
@@ -373,6 +404,7 @@ result = await integrator.texture_compression.compress_texture(
 ```
 
 Compress textures with configurable profiles:
+
 - Format selection
 - Quality settings
 - Device tier optimization
@@ -385,6 +417,7 @@ texture_id = await integrator.virtual_texturing.create_texture(width, height)
 ```
 
 Manage virtual textures:
+
 - Page table management
 - Memory mapping
 - Cache optimization
@@ -399,6 +432,7 @@ metrics = integrator.performance_monitor.get_metrics()
 ```
 
 Get comprehensive performance metrics:
+
 - FPS
 - Frame time
 - Memory usage
@@ -415,6 +449,7 @@ alerts = integrator.performance_monitor.get_alerts(
 ```
 
 Monitor system alerts:
+
 - Multiple severity levels
 - Customizable thresholds
 - Alert acknowledgment
@@ -458,6 +493,7 @@ except Exception as e:
 ```
 
 Handle various error types:
+
 - Initialization errors
 - Resource errors
 - Context loss
@@ -486,6 +522,7 @@ config = {
 ```
 
 Configurable parameters:
+
 - Resource thresholds
 - Monitoring intervals
 - Recovery settings
@@ -530,18 +567,19 @@ while running:
     status = integrator.get_system_status()
     if status["system_health"]["issues"]:
         await integrator.optimize_resources()
-    
+
     # Process alerts
     alerts = integrator.performance_monitor.get_alerts()
     for alert in alerts:
         handle_alert(alert)
-    
+
     await asyncio.sleep(5)
 ```
 
 ## Versioning and Updates
 
 The API follows semantic versioning:
+
 - MAJOR version for incompatible changes
 - MINOR version for new features
 - PATCH version for bug fixes
@@ -552,4 +590,4 @@ The API follows semantic versioning:
 - Documentation updates
 - Issue tracking
 - Community support
-- Performance guides 
+- Performance guides

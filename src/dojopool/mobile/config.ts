@@ -1,32 +1,32 @@
 export const API_URL = __DEV__
-  ? 'http://localhost:5000' // Development
-  : 'https://api.dojopool.com'; // Production
+  ? "http://localhost:5000" // Development
+  : "https://api.dojopool.com"; // Production
 
 export const CONFIG = {
   // API Endpoints
   endpoints: {
     auth: {
-      login: '/api/v1/auth/login',
-      register: '/api/v1/auth/register',
-      refresh: '/api/v1/auth/refresh',
+      login: "/api/v1/auth/login",
+      register: "/api/v1/auth/register",
+      refresh: "/api/v1/auth/refresh",
     },
     game: {
       track: {
-        start: '/api/v1/games/track/start',
-        stop: '/api/v1/games/track/stop',
-        update: '/api/v1/games/track/update',
+        start: "/api/v1/games/track/start",
+        stop: "/api/v1/games/track/stop",
+        update: "/api/v1/games/track/update",
       },
-      stats: '/api/v1/games/stats',
+      stats: "/api/v1/games/stats",
     },
     profile: {
-      get: '/api/v1/profile',
-      update: '/api/v1/profile/update',
-      avatar: '/api/v1/profile/avatar',
+      get: "/api/v1/profile",
+      update: "/api/v1/profile/update",
+      avatar: "/api/v1/profile/avatar",
     },
     social: {
-      leaderboard: '/api/v1/social/leaderboard',
-      friends: '/api/v1/social/friends',
-      achievements: '/api/v1/social/achievements',
+      leaderboard: "/api/v1/social/leaderboard",
+      friends: "/api/v1/social/friends",
+      achievements: "/api/v1/social/achievements",
     },
   },
 

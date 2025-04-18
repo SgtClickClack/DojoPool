@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -15,7 +15,7 @@ import {
   Chip,
   Alert,
   CircularProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -23,7 +23,7 @@ import {
   TableBar as TableIcon,
   Event as BookingIcon,
   Analytics as StatsIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface Table {
   id: string;
@@ -35,7 +35,7 @@ interface Table {
     player2: string;
     startTime: string;
   };
-  maintenanceStatus: 'operational' | 'needs_maintenance' | 'under_maintenance';
+  maintenanceStatus: "operational" | "needs_maintenance" | "under_maintenance";
   lastMaintenance: string;
 }
 
@@ -46,7 +46,7 @@ interface Booking {
   userName: string;
   startTime: string;
   endTime: string;
-  status: 'confirmed' | 'pending' | 'cancelled';
+  status: "confirmed" | "pending" | "cancelled";
 }
 
 interface Venue {
@@ -81,12 +81,12 @@ const VenueManager: React.FC = () => {
 
   const fetchVenues = async () => {
     try {
-      const response = await fetch('/api/venues');
-      if (!response.ok) throw new Error('Failed to fetch venues');
+      const response = await fetch("/api/venues");
+      if (!response.ok) throw new Error("Failed to fetch venues");
       const data = await response.json();
       setVenues(data);
     } catch (err) {
-      setError('Error loading venues');
+      setError("Error loading venues");
     } finally {
       setLoading(false);
     }
@@ -94,96 +94,106 @@ const VenueManager: React.FC = () => {
 
   const handleAddVenue = async (venueData: Partial<Venue>) => {
     try {
-      const response = await fetch('/api/venues', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/venues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(venueData),
       });
-      if (!response.ok) throw new Error('Failed to add venue');
+      if (!response.ok) throw new Error("Failed to add venue");
       const newVenue = await response.json();
       setVenues([...venues, newVenue]);
       setIsAddDialogOpen(false);
     } catch (err) {
-      setError('Error adding venue');
+      setError("Error adding venue");
     }
   };
 
-  const handleEditVenue = async (venueId: string, venueData: Partial<Venue>) => {
+  const handleEditVenue = async (
+    venueId: string,
+    venueData: Partial<Venue>,
+  ) => {
     try {
       const response = await fetch(`/api/venues/${venueId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(venueData),
       });
-      if (!response.ok) throw new Error('Failed to update venue');
+      if (!response.ok) throw new Error("Failed to update venue");
       const updatedVenue = await response.json();
-      setVenues(venues.map(v => v.id === venueId ? updatedVenue : v));
+      setVenues(venues.map((v) => (v.id === venueId ? updatedVenue : v)));
       setIsEditDialogOpen(false);
     } catch (err) {
-      setError('Error updating venue');
+      setError("Error updating venue");
     }
   };
 
   const handleDeleteVenue = async (venueId: string) => {
-    if (!window.confirm('Are you sure you want to delete this venue?')) return;
-    
+    if (!window.confirm("Are you sure you want to delete this venue?")) return;
+
     try {
       const response = await fetch(`/api/venues/${venueId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!response.ok) throw new Error('Failed to delete venue');
-      setVenues(venues.filter(v => v.id !== venueId));
+      if (!response.ok) throw new Error("Failed to delete venue");
+      setVenues(venues.filter((v) => v.id !== venueId));
     } catch (err) {
-      setError('Error deleting venue');
+      setError("Error deleting venue");
     }
   };
 
   const handleBookTable = async (booking: Partial<Booking>) => {
     try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(booking),
       });
-      if (!response.ok) throw new Error('Failed to book table');
+      if (!response.ok) throw new Error("Failed to book table");
       const newBooking = await response.json();
-      
+
       // Update venue bookings
       if (selectedVenue) {
         const updatedVenue = {
           ...selectedVenue,
           bookings: [...selectedVenue.bookings, newBooking],
         };
-        setVenues(venues.map(v => v.id === selectedVenue.id ? updatedVenue : v));
+        setVenues(
+          venues.map((v) => (v.id === selectedVenue.id ? updatedVenue : v)),
+        );
         setSelectedVenue(updatedVenue);
       }
-      
+
       setIsBookingDialogOpen(false);
     } catch (err) {
-      setError('Error booking table');
+      setError("Error booking table");
     }
   };
 
-  const handleMaintenanceRequest = async (tableId: string, status: Table['maintenanceStatus']) => {
+  const handleMaintenanceRequest = async (
+    tableId: string,
+    status: Table["maintenanceStatus"],
+  ) => {
     try {
       const response = await fetch(`/api/tables/${tableId}/maintenance`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      if (!response.ok) throw new Error('Failed to update maintenance status');
-      
+      if (!response.ok) throw new Error("Failed to update maintenance status");
+
       // Update table status in UI
       if (selectedVenue) {
-        const updatedTables = selectedVenue.tables.map(t =>
-          t.id === tableId ? { ...t, maintenanceStatus: status } : t
+        const updatedTables = selectedVenue.tables.map((t) =>
+          t.id === tableId ? { ...t, maintenanceStatus: status } : t,
         );
         const updatedVenue = { ...selectedVenue, tables: updatedTables };
-        setVenues(venues.map(v => v.id === selectedVenue.id ? updatedVenue : v));
+        setVenues(
+          venues.map((v) => (v.id === selectedVenue.id ? updatedVenue : v)),
+        );
         setSelectedVenue(updatedVenue);
       }
     } catch (err) {
-      setError('Error updating maintenance status');
+      setError("Error updating maintenance status");
     }
   };
 
@@ -192,7 +202,7 @@ const VenueManager: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h4">Venue Management</Typography>
         <Button
           variant="contained"
@@ -208,13 +218,21 @@ const VenueManager: React.FC = () => {
           <Grid item xs={12} md={6} lg={4} key={venue.id}>
             <Card>
               <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
+                >
                   <Typography variant="h6">{venue.name}</Typography>
                   <Box>
-                    <IconButton onClick={() => {
-                      setSelectedVenue(venue);
-                      setIsEditDialogOpen(true);
-                    }}>
+                    <IconButton
+                      onClick={() => {
+                        setSelectedVenue(venue);
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
                       <EditIcon />
                     </IconButton>
                     <IconButton onClick={() => handleDeleteVenue(venue.id)}>
@@ -243,14 +261,14 @@ const VenueManager: React.FC = () => {
 
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2">Amenities</Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                     {venue.amenities.map((amenity) => (
                       <Chip key={amenity} label={amenity} size="small" />
                     ))}
                   </Box>
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: "flex", gap: 1 }}>
                   <Button
                     variant="outlined"
                     startIcon={<TableIcon />}
@@ -268,10 +286,7 @@ const VenueManager: React.FC = () => {
                   >
                     Bookings
                   </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<StatsIcon />}
-                  >
+                  <Button variant="outlined" startIcon={<StatsIcon />}>
                     Stats
                   </Button>
                 </Box>
@@ -337,16 +352,21 @@ const VenueManager: React.FC = () => {
       </Dialog>
 
       {/* Edit Venue Dialog */}
-      <Dialog open={isEditDialogOpen} onClose={() => setIsEditDialogOpen(false)}>
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+      >
         <DialogTitle>Edit Venue</DialogTitle>
         <DialogContent>
           {/* Similar fields as Add Venue Dialog, pre-filled with selected venue data */}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            onClick={() => selectedVenue && handleEditVenue(selectedVenue.id, {})}
+          <Button
+            variant="contained"
+            onClick={() =>
+              selectedVenue && handleEditVenue(selectedVenue.id, {})
+            }
           >
             Save Changes
           </Button>
@@ -354,7 +374,10 @@ const VenueManager: React.FC = () => {
       </Dialog>
 
       {/* Booking Dialog */}
-      <Dialog open={isBookingDialogOpen} onClose={() => setIsBookingDialogOpen(false)}>
+      <Dialog
+        open={isBookingDialogOpen}
+        onClose={() => setIsBookingDialogOpen(false)}
+      >
         <DialogTitle>Book a Table</DialogTitle>
         <DialogContent>
           <TextField
@@ -394,10 +417,7 @@ const VenueManager: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsBookingDialogOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            onClick={() => handleBookTable({})}
-          >
+          <Button variant="contained" onClick={() => handleBookTable({})}>
             Book Table
           </Button>
         </DialogActions>
@@ -406,4 +426,4 @@ const VenueManager: React.FC = () => {
   );
 };
 
-export default VenueManager; 
+export default VenueManager;

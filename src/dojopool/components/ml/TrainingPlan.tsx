@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -15,14 +15,14 @@ import {
   Divider,
   Paper,
   LinearProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   FitnessCenter as FitnessCenterIcon,
   Speed as SpeedIcon,
   Timeline as TimelineIcon,
   TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material';
-import { MLService } from '../../services/ml.service';
+} from "@mui/icons-material";
+import { MLService } from "../../services/ml.service";
 import {
   BarChart,
   Bar,
@@ -32,7 +32,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from "recharts";
 
 interface TrainingPlanProps {
   metrics: any;
@@ -41,7 +41,10 @@ interface TrainingPlanProps {
 
 const mlService = new MLService();
 
-export const TrainingPlan: React.FC<TrainingPlanProps> = ({ metrics, onPlanGenerated }) => {
+export const TrainingPlan: React.FC<TrainingPlanProps> = ({
+  metrics,
+  onPlanGenerated,
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trainingPlan, setTrainingPlan] = useState<any>(null);
@@ -84,17 +87,17 @@ export const TrainingPlan: React.FC<TrainingPlanProps> = ({ metrics, onPlanGener
       setLoading(true);
       setError(null);
 
-      const targetMetrics = ['accuracy', 'consistency', 'speed', 'stamina'];
+      const targetMetrics = ["accuracy", "consistency", "speed", "stamina"];
       const response = await mlService.generateTrainingPlan(
         performanceHistory,
         targetMetrics,
-        7 // Generate a week-long plan
+        7, // Generate a week-long plan
       );
 
       setTrainingPlan(response.data);
       onPlanGenerated(response.data);
     } catch (err) {
-      setError('Failed to generate training plan');
+      setError("Failed to generate training plan");
       console.error(err);
     } finally {
       setLoading(false);
@@ -113,11 +116,11 @@ export const TrainingPlan: React.FC<TrainingPlanProps> = ({ metrics, onPlanGener
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'precision_practice':
+      case "precision_practice":
         return <TimelineIcon />;
-      case 'speed_drill':
+      case "speed_drill":
         return <SpeedIcon />;
-      case 'endurance_training':
+      case "endurance_training":
         return <FitnessCenterIcon />;
       default:
         return <TrendingUpIcon />;
@@ -126,7 +129,12 @@ export const TrainingPlan: React.FC<TrainingPlanProps> = ({ metrics, onPlanGener
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight={400}
+      >
         <CircularProgress />
       </Box>
     );
@@ -157,7 +165,11 @@ export const TrainingPlan: React.FC<TrainingPlanProps> = ({ metrics, onPlanGener
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="accuracy" name="Accuracy %" fill="#8884d8" />
-                  <Bar dataKey="consistency" name="Consistency %" fill="#82ca9d" />
+                  <Bar
+                    dataKey="consistency"
+                    name="Consistency %"
+                    fill="#82ca9d"
+                  />
                   <Bar dataKey="speed" name="Speed" fill="#ffc658" />
                   <Bar dataKey="stamina" name="Stamina %" fill="#ff8042" />
                 </BarChart>
@@ -180,26 +192,38 @@ export const TrainingPlan: React.FC<TrainingPlanProps> = ({ metrics, onPlanGener
                           primary={
                             <Box display="flex" alignItems="center" mb={1}>
                               <Typography variant="subtitle1">
-                                {new Date(day.date).toLocaleDateString('en-US', {
-                                  weekday: 'long',
-                                })}
+                                {new Date(day.date).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    weekday: "long",
+                                  },
+                                )}
                               </Typography>
                               {day.focus_areas.map((area: string) => (
-                                <Chip key={area} label={area} size="small" sx={{ ml: 1 }} />
+                                <Chip
+                                  key={area}
+                                  label={area}
+                                  size="small"
+                                  sx={{ ml: 1 }}
+                                />
                               ))}
                             </Box>
                           }
                           secondary={
                             <List dense>
-                              {day.activities.map((activity: any, actIndex: number) => (
-                                <ListItem key={actIndex}>
-                                  <ListItemIcon>{getActivityIcon(activity.type)}</ListItemIcon>
-                                  <ListItemText
-                                    primary={activity.type.replace('_', ' ')}
-                                    secondary={`${activity.duration} minutes - ${activity.intensity} intensity`}
-                                  />
-                                </ListItem>
-                              ))}
+                              {day.activities.map(
+                                (activity: any, actIndex: number) => (
+                                  <ListItem key={actIndex}>
+                                    <ListItemIcon>
+                                      {getActivityIcon(activity.type)}
+                                    </ListItemIcon>
+                                    <ListItemText
+                                      primary={activity.type.replace("_", " ")}
+                                      secondary={`${activity.duration} minutes - ${activity.intensity} intensity`}
+                                    />
+                                  </ListItem>
+                                ),
+                              )}
                             </List>
                           }
                         />

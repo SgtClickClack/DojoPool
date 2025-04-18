@@ -1,13 +1,26 @@
-import React from 'react';
-import { Box, Typography, Button, AppBar, Toolbar, Container, CssBaseline, Divider, Paper, Grid, Link, Stack } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useUserProfile } from '../../contexts/UserContext';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import PeopleIcon from '@mui/icons-material/People';
-import MessageIcon from '@mui/icons-material/Message';
-import CreateGameForm from './CreateGameForm';
-import ActiveGamesList from './ActiveGamesList';
+import React from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  AppBar,
+  Toolbar,
+  Container,
+  CssBaseline,
+  Divider,
+  Paper,
+  Grid,
+  Link,
+  Stack,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { useUserProfile } from "../../contexts/UserContext";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import PeopleIcon from "@mui/icons-material/People";
+import MessageIcon from "@mui/icons-material/Message";
+import CreateGameForm from "./CreateGameForm";
+import ActiveGamesList from "./ActiveGamesList";
 
 const Dashboard: React.FC = () => {
   const { signOut } = useAuth();
@@ -17,16 +30,18 @@ const Dashboard: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Failed to sign out:', error);
+      console.error("Failed to sign out:", error);
     }
   };
 
-  const displayName = profileLoading ? 'Loading...' : userProfile?.username || userProfile?.email || 'User';
+  const displayName = profileLoading
+    ? "Loading..."
+    : userProfile?.username || userProfile?.email || "User";
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar position="fixed">
         <Toolbar>
@@ -43,11 +58,11 @@ const Dashboard: React.FC = () => {
       </AppBar>
       <Box
         component="main"
-        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, mt: 8 }}
+        sx={{ flexGrow: 1, bgcolor: "background.default", p: 3, mt: 8 }}
       >
         <Container maxWidth="lg">
           <Typography variant="h4" gutterBottom>
-            Welcome, {userProfile?.username || 'Player'}!
+            Welcome, {userProfile?.username || "Player"}!
           </Typography>
 
           {/* Main Content Area - Grid Layout */}
@@ -62,21 +77,39 @@ const Dashboard: React.FC = () => {
             {/* Right Column: Social & Notifications Placeholders */}
             <Grid item xs={12} md={4}>
               <Paper sx={{ p: 2, mb: 2 }}>
-                <Typography variant="h6" gutterBottom>Notifications</Typography>
-                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                   <NotificationsIcon sx={{ mr: 1 }}/> 
-                   <Typography variant="body2">No new notifications. (Placeholder)</Typography>
-                 </Box>
+                <Typography variant="h6" gutterBottom>
+                  Notifications
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <NotificationsIcon sx={{ mr: 1 }} />
+                  <Typography variant="body2">
+                    No new notifications. (Placeholder)
+                  </Typography>
+                </Box>
                 {/* TODO: Implement Notifications List/Feed */}
               </Paper>
 
               <Paper sx={{ p: 2 }}>
-                <Typography variant="h6" gutterBottom>Social</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Social
+                </Typography>
                 <Stack spacing={1}>
-                  <Button startIcon={<PeopleIcon />} component={Link} href="#" variant="outlined" sx={{ justifyContent: 'flex-start' }}>
+                  <Button
+                    startIcon={<PeopleIcon />}
+                    component={Link}
+                    href="#"
+                    variant="outlined"
+                    sx={{ justifyContent: "flex-start" }}
+                  >
                     Friends (Coming Soon)
                   </Button>
-                   <Button startIcon={<MessageIcon />} component={Link} href="#" variant="outlined" sx={{ justifyContent: 'flex-start' }}>
+                  <Button
+                    startIcon={<MessageIcon />}
+                    component={Link}
+                    href="#"
+                    variant="outlined"
+                    sx={{ justifyContent: "flex-start" }}
+                  >
                     Messages (Coming Soon)
                   </Button>
                 </Stack>
@@ -90,4 +123,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

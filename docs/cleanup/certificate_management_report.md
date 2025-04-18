@@ -1,10 +1,13 @@
 # Certificate Management Report
+
 Generated at: 2025-01-14T17:07:25.473667
 
 ## Certificate Files Found
+
 Total Files: 43
 
 ### Production Certificates
+
 - 1024.pub
 - 2_7_keycert.pem
 - badcert.pem
@@ -35,23 +38,25 @@ Total Files: 43
 - test_server.key
 - wrongcert.pem
 
-
 ### Development Certificates
+
 - localhost.crt
 - localhost.csr
 - localhost.key
 
-
 ## Duplicate Certificates
 
 Duplicate Group:
+
 - .venv\Lib\site-packages\certifi\cacert.pem
 - venv\Lib\site-packages\certifi\cacert.pem
 
 Duplicate Group:
-- .venv\Lib\site-packages\pip\_vendor\certifi\cacert.pem
-- venv\Lib\site-packages\pip\_vendor\certifi\cacert.pem
-- venv_new\Lib\site-packages\pip\_vendor\certifi\cacert.pem
+
+- .venv\Lib\site-packages\pip_vendor\certifi\cacert.pem
+- venv\Lib\site-packages\pip_vendor\certifi\cacert.pem
+- venv_new\Lib\site-packages\pip_vendor\certifi\cacert.pem
 
 ## Backup Information
+
 Backup location: C:\Users\JR\Documents\DojoPool\DojoPoolCombined\certs\backup

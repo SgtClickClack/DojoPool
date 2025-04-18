@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -37,16 +37,16 @@ import {
   IconButton,
   Flex,
   Spacer,
-} from '@chakra-ui/react';
-import { useAuth } from '../../hooks/useAuth';
-import { useRouter } from 'next/router';
-import { AuthenticatedLayout } from '../../components/layout/AuthenticatedLayout';
-import { 
-  FiMail, 
-  FiLock, 
-  FiShield, 
-  FiBell, 
-  FiTrash2, 
+} from "@chakra-ui/react";
+import { useAuth } from "../../hooks/useAuth";
+import { useRouter } from "next/router";
+import { AuthenticatedLayout } from "../../components/layout/AuthenticatedLayout";
+import {
+  FiMail,
+  FiLock,
+  FiShield,
+  FiBell,
+  FiTrash2,
   FiDownload,
   FiUser,
   FiKey,
@@ -55,8 +55,8 @@ import {
   FiXCircle,
   FiClock,
   FiSun,
-  FiMoon
-} from 'react-icons/fi';
+  FiMoon,
+} from "react-icons/fi";
 
 interface SettingsForm {
   displayName: string;
@@ -79,7 +79,19 @@ interface ValidationErrors {
 }
 
 const SettingsPage: React.FC = () => {
-  const { user, loading, updateUserProfile, sendVerification, checkEmailVerification, deleteUserAccount, signIn, exportAccountData, requestAccountDeletion, cancelAccountDeletion, getDeletionRequestStatus } = useAuth();
+  const {
+    user,
+    loading,
+    updateUserProfile,
+    sendVerification,
+    checkEmailVerification,
+    deleteUserAccount,
+    signIn,
+    exportAccountData,
+    requestAccountDeletion,
+    cancelAccountDeletion,
+    getDeletionRequestStatus,
+  } = useAuth();
   const router = useRouter();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -87,34 +99,34 @@ const SettingsPage: React.FC = () => {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [deleteRequestTime, setDeleteRequestTime] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState<number>(0);
-  const [deletionStatus, setDeletionStatus] = useState<'pending' | 'completed' | 'cancelled' | null>(null);
+  const [deletionStatus, setDeletionStatus] = useState<
+    "pending" | "completed" | "cancelled" | null
+  >(null);
   const [formData, setFormData] = useState<SettingsForm>({
-    displayName: user?.displayName || '',
-    email: user?.email || '',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    displayName: user?.displayName || "",
+    email: user?.email || "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
     emailNotifications: true,
     securityAlerts: true,
-    deleteAccountPassword: '',
+    deleteAccountPassword: "",
   });
   const { colorMode, toggleColorMode } = useColorMode();
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const cardBg = useColorModeValue('white', 'gray.700');
-  const hoverBg = useColorModeValue('gray.50', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const cardBg = useColorModeValue("white", "gray.700");
+  const hoverBg = useColorModeValue("gray.50", "gray.600");
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
     // Clear error when user starts typing
     if (errors[name as keyof ValidationErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -122,24 +134,24 @@ const SettingsPage: React.FC = () => {
     const newErrors: ValidationErrors = {};
 
     if (!formData.displayName) {
-      newErrors.displayName = 'Display name is required';
+      newErrors.displayName = "Display name is required";
     }
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
 
     if (formData.newPassword) {
       if (!formData.currentPassword) {
-        newErrors.currentPassword = 'Current password is required';
+        newErrors.currentPassword = "Current password is required";
       }
       if (formData.newPassword.length < 6) {
-        newErrors.newPassword = 'Password must be at least 6 characters';
+        newErrors.newPassword = "Password must be at least 6 characters";
       }
       if (formData.newPassword !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match';
+        newErrors.confirmPassword = "Passwords do not match";
       }
     }
 
@@ -149,7 +161,7 @@ const SettingsPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!await validateForm()) return;
+    if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
@@ -160,9 +172,9 @@ const SettingsPage: React.FC = () => {
 
       if (result.success) {
         toast({
-          title: 'Settings updated!',
-          description: 'Your account settings have been successfully updated.',
-          status: 'success',
+          title: "Settings updated!",
+          description: "Your account settings have been successfully updated.",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -171,9 +183,9 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to update settings',
+        title: "Failed to update settings",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -187,9 +199,9 @@ const SettingsPage: React.FC = () => {
       const result = await sendVerification();
       if (result.success) {
         toast({
-          title: 'Verification email sent!',
-          description: 'Please check your inbox for the verification link.',
-          status: 'success',
+          title: "Verification email sent!",
+          description: "Please check your inbox for the verification link.",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -198,9 +210,9 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to send verification email',
+        title: "Failed to send verification email",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -215,7 +227,7 @@ const SettingsPage: React.FC = () => {
       const result = await getDeletionRequestStatus();
       if (result.success && result.status) {
         setDeletionStatus(result.status);
-        if (result.status === 'pending' && result.scheduledFor) {
+        if (result.status === "pending" && result.scheduledFor) {
           const scheduledTime = new Date(result.scheduledFor);
           setDeleteRequestTime(scheduledTime);
           updateCountdown(scheduledTime);
@@ -256,9 +268,10 @@ const SettingsPage: React.FC = () => {
   const handleDeleteAccount = async () => {
     if (!formData.deleteAccountPassword) {
       toast({
-        title: 'Password required',
-        description: 'Please enter your current password to confirm account deletion.',
-        status: 'error',
+        title: "Password required",
+        description:
+          "Please enter your current password to confirm account deletion.",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -268,18 +281,22 @@ const SettingsPage: React.FC = () => {
     setIsLoading(true);
     try {
       // First verify the password
-      const signInResult = await signIn(user?.email || '', formData.deleteAccountPassword);
+      const signInResult = await signIn(
+        user?.email || "",
+        formData.deleteAccountPassword,
+      );
       if (!signInResult.success) {
-        throw new Error('Incorrect password');
+        throw new Error("Incorrect password");
       }
 
       // Request account deletion
       const result = await requestAccountDeletion();
       if (result.success) {
         toast({
-          title: 'Deletion requested',
-          description: 'Your account will be deleted after the cooldown period. You can cancel this request at any time.',
-          status: 'warning',
+          title: "Deletion requested",
+          description:
+            "Your account will be deleted after the cooldown period. You can cancel this request at any time.",
+          status: "warning",
           duration: 5000,
           isClosable: true,
         });
@@ -289,9 +306,9 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to request account deletion',
+        title: "Failed to request account deletion",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -311,9 +328,9 @@ const SettingsPage: React.FC = () => {
         setDeleteRequestTime(null);
         setCountdown(0);
         toast({
-          title: 'Deletion cancelled',
-          description: 'Your account deletion request has been cancelled.',
-          status: 'success',
+          title: "Deletion cancelled",
+          description: "Your account deletion request has been cancelled.",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -322,9 +339,9 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to cancel deletion',
+        title: "Failed to cancel deletion",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -337,31 +354,33 @@ const SettingsPage: React.FC = () => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   const handleExportData = async () => {
     setIsLoading(true);
     try {
       const result = await exportAccountData();
-      if (result.success && 'data' in result) {
+      if (result.success && "data" in result) {
         // Create a blob from the data
-        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+          type: "application/json",
+        });
         const url = URL.createObjectURL(blob);
-        
+
         // Create a temporary link and trigger download
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = `dojo-pool-data-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `dojo-pool-data-${new Date().toISOString().split("T")[0]}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
         toast({
-          title: 'Data exported successfully',
-          description: 'Your account data has been downloaded.',
-          status: 'success',
+          title: "Data exported successfully",
+          description: "Your account data has been downloaded.",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -370,9 +389,9 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to export data',
+        title: "Failed to export data",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -391,19 +410,16 @@ const SettingsPage: React.FC = () => {
 
   return (
     <AuthenticatedLayout>
-      <Box
-        p={8}
-        maxWidth="1200px"
-        mx="auto"
-        mt={8}
-      >
+      <Box p={8} maxWidth="1200px" mx="auto" mt={8}>
         <Flex mb={8} align="center">
           <Heading size="lg">Account Settings</Heading>
           <Spacer />
-          <Tooltip label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}>
+          <Tooltip
+            label={`Switch to ${colorMode === "light" ? "dark" : "light"} mode`}
+          >
             <IconButton
-              aria-label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`}
-              icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+              aria-label={`Switch to ${colorMode === "light" ? "dark" : "light"} mode`}
+              icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
               onClick={toggleColorMode}
               variant="ghost"
               size="lg"
@@ -581,7 +597,7 @@ const SettingsPage: React.FC = () => {
             </CardHeader>
             <CardBody>
               <VStack spacing={4} align="stretch">
-                {deletionStatus === 'pending' && (
+                {deletionStatus === "pending" && (
                   <Card bg="red.50" borderColor="red.200">
                     <CardBody>
                       <VStack align="stretch" spacing={4}>
@@ -593,12 +609,19 @@ const SettingsPage: React.FC = () => {
                           <Text mb={2}>Time remaining:</Text>
                           <HStack>
                             <Icon as={FiClock} color="red.500" />
-                            <Text fontSize="xl" fontWeight="bold" color="red.500">
+                            <Text
+                              fontSize="xl"
+                              fontWeight="bold"
+                              color="red.500"
+                            >
                               {formatTime(countdown)}
                             </Text>
                           </HStack>
                         </Box>
-                        <Progress value={(countdown / (24 * 60 * 60)) * 100} colorScheme="red" />
+                        <Progress
+                          value={(countdown / (24 * 60 * 60)) * 100}
+                          colorScheme="red"
+                        />
                         <Button
                           colorScheme="red"
                           variant="outline"
@@ -612,7 +635,7 @@ const SettingsPage: React.FC = () => {
                     </CardBody>
                   </Card>
                 )}
-                
+
                 {!deletionStatus && (
                   <>
                     <Button
@@ -652,7 +675,8 @@ const SettingsPage: React.FC = () => {
                   <Box>
                     <AlertTitle>Warning</AlertTitle>
                     <AlertDescription>
-                      This action cannot be undone. Your account will be permanently deleted after a 24-hour cooldown period.
+                      This action cannot be undone. Your account will be
+                      permanently deleted after a 24-hour cooldown period.
                     </AlertDescription>
                   </Box>
                 </Alert>
@@ -666,7 +690,9 @@ const SettingsPage: React.FC = () => {
                     placeholder="Enter your current password"
                     _hover={{ bg: hoverBg }}
                   />
-                  <FormErrorMessage>{errors.deleteAccountPassword}</FormErrorMessage>
+                  <FormErrorMessage>
+                    {errors.deleteAccountPassword}
+                  </FormErrorMessage>
                 </FormControl>
               </VStack>
             </ModalBody>
@@ -690,4 +716,4 @@ const SettingsPage: React.FC = () => {
   );
 };
 
-export default SettingsPage; 
+export default SettingsPage;

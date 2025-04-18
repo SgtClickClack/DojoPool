@@ -17,10 +17,10 @@ const api = {
   async get(url) {
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error("Network response was not ok");
       return await response.json();
     } catch (error) {
-      console.error('API Get Error:', error);
+      console.error("API Get Error:", error);
       throw error;
     }
   },
@@ -28,16 +28,16 @@ const api = {
   async post(url, data) {
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error("Network response was not ok");
       return await response.json();
     } catch (error) {
-      console.error('API Post Error:', error);
+      console.error("API Post Error:", error);
       throw error;
     }
   },
@@ -45,29 +45,29 @@ const api = {
 
 // UI Utilities
 const ui = {
-  showAlert(message, type = 'success') {
-    const alert = document.createElement('div');
+  showAlert(message, type = "success") {
+    const alert = document.createElement("div");
     alert.className = `alert alert-${type}`;
     alert.textContent = message;
 
-    const container = $('.container');
+    const container = $(".container");
     container.insertBefore(alert, container.firstChild);
 
     setTimeout(() => alert.remove(), 3000);
   },
 
   toggleLoader(show = true) {
-    const loader = $('.loader');
+    const loader = $(".loader");
     if (loader) {
-      loader.style.display = show ? 'block' : 'none';
+      loader.style.display = show ? "block" : "none";
     }
   },
 
   formatDate(date) {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   },
 };
@@ -80,7 +80,7 @@ const validate = {
   },
 
   required(value) {
-    return value !== null && value !== undefined && value.trim() !== '';
+    return value !== null && value !== undefined && value.trim() !== "";
   },
 
   minLength(value, min) {
@@ -120,7 +120,7 @@ const storage = {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-      console.error('Error saving to localStorage:', e);
+      console.error("Error saving to localStorage:", e);
     }
   },
 
@@ -129,7 +129,7 @@ const storage = {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
     } catch (e) {
-      console.error('Error reading from localStorage:', e);
+      console.error("Error reading from localStorage:", e);
       return null;
     }
   },
@@ -138,7 +138,7 @@ const storage = {
     try {
       localStorage.removeItem(key);
     } catch (e) {
-      console.error('Error removing from localStorage:', e);
+      console.error("Error removing from localStorage:", e);
     }
   },
 };

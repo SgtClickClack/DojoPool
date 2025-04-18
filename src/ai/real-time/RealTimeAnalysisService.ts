@@ -1,4 +1,4 @@
-import { GameEvent, GameState } from '../types/game';
+import { GameEvent, GameState } from "../types/game";
 
 export class RealTimeAnalysisService {
   private eventQueue: GameEvent[];
@@ -19,7 +19,7 @@ export class RealTimeAnalysisService {
       processingTime: [],
       queueSize: [],
       eventCount: 0,
-      errorCount: 0
+      errorCount: 0,
     };
   }
 
@@ -45,14 +45,20 @@ export class RealTimeAnalysisService {
     this.performanceMetrics.queueSize.push(this.eventQueue.length);
   }
 
-  public registerEventHandler(eventType: string, handler: (event: GameEvent) => void): void {
+  public registerEventHandler(
+    eventType: string,
+    handler: (event: GameEvent) => void,
+  ): void {
     if (!this.eventHandlers.has(eventType)) {
       this.eventHandlers.set(eventType, []);
     }
     this.eventHandlers.get(eventType)?.push(handler);
   }
 
-  public unregisterEventHandler(eventType: string, handler: (event: GameEvent) => void): void {
+  public unregisterEventHandler(
+    eventType: string,
+    handler: (event: GameEvent) => void,
+  ): void {
     const handlers = this.eventHandlers.get(eventType);
     if (handlers) {
       const index = handlers.indexOf(handler);
@@ -66,7 +72,7 @@ export class RealTimeAnalysisService {
     return {
       ...this.performanceMetrics,
       processingTime: [...this.performanceMetrics.processingTime],
-      queueSize: [...this.performanceMetrics.queueSize]
+      queueSize: [...this.performanceMetrics.queueSize],
     };
   }
 
@@ -75,7 +81,7 @@ export class RealTimeAnalysisService {
       processingTime: [],
       queueSize: [],
       eventCount: 0,
-      errorCount: 0
+      errorCount: 0,
     };
   }
 
@@ -83,13 +89,13 @@ export class RealTimeAnalysisService {
     const startTime = performance.now();
     const events = this.eventQueue.splice(0, this.eventQueue.length);
 
-    events.forEach(event => {
+    events.forEach((event) => {
       try {
         this.processEvent(event);
         this.performanceMetrics.eventCount++;
       } catch (error) {
         this.performanceMetrics.errorCount++;
-        console.error('Error processing event:', error);
+        console.error("Error processing event:", error);
       }
     });
 
@@ -100,12 +106,12 @@ export class RealTimeAnalysisService {
   private processEvent(event: GameEvent): void {
     const handlers = this.eventHandlers.get(event.shotType);
     if (handlers) {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         try {
           handler(event);
         } catch (error) {
           this.performanceMetrics.errorCount++;
-          console.error('Error in event handler:', error);
+          console.error("Error in event handler:", error);
         }
       });
     }
@@ -118,4 +124,4 @@ export class RealTimeAnalysisService {
   public isProcessing(): boolean {
     return this.processingInterval !== null;
   }
-} 
+}

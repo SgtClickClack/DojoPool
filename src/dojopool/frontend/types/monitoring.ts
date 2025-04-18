@@ -1,7 +1,7 @@
 export interface Alert {
   id: string;
   type: string;
-  severity: 'info' | 'warning' | 'error';
+  severity: "info" | "warning" | "error";
   message: string;
   timestamp: number;
   acknowledged: boolean;
@@ -60,7 +60,7 @@ export interface ErrorData {
 export interface Anomaly {
   timestamp: number;
   value: number;
-  severity: 'warning' | 'critical';
+  severity: "warning" | "critical";
 }
 
 export interface MetricsSnapshot {
@@ -71,7 +71,7 @@ export interface MetricsSnapshot {
 }
 
 export interface TrendAnalysis {
-  trend: 'increasing' | 'decreasing' | 'stable';
+  trend: "increasing" | "decreasing" | "stable";
   confidence: number;
   forecast?: number[];
   anomalies?: number[];
@@ -85,14 +85,14 @@ export interface ChartOptions {
   showTrendline?: boolean;
   showForecast?: boolean;
   showAnomalies?: boolean;
-  aggregationType?: 'sum' | 'avg' | 'min' | 'max';
+  aggregationType?: "sum" | "avg" | "min" | "max";
   timeRange?: {
     start: number;
     end: number;
   };
 }
 
-export type ChartType = 'line' | 'bar' | 'pie';
+export type ChartType = "line" | "bar" | "pie";
 
 export interface PerformanceMetrics {
   cpuUsage: number;
@@ -128,8 +128,8 @@ export interface GameMetrics {
 export interface MetricConfig {
   id: string;
   name: string;
-  chartType: 'line' | 'bar' | 'pie';
+  chartType: "line" | "bar" | "pie";
   enabled: boolean;
   order: number;
   refreshInterval: number;
-} 
+}

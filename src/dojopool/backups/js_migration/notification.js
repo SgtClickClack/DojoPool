@@ -6,8 +6,8 @@ class NotificationManager {
   }
 
   createContainer() {
-    const container = document.createElement('div');
-    container.className = 'notification-container';
+    const container = document.createElement("div");
+    container.className = "notification-container";
     container.style.cssText = `
             position: fixed;
             top: 20px;
@@ -23,17 +23,17 @@ class NotificationManager {
 
   setupEventListeners() {
     // Listen for sync notifications
-    window.addEventListener('sync-notification', (event) => {
+    window.addEventListener("sync-notification", (event) => {
       this.show(event.detail.type, event.detail.message);
     });
 
     // Listen for online/offline status
-    window.addEventListener('online', () => {
-      this.show('success', 'You are back online');
+    window.addEventListener("online", () => {
+      this.show("success", "You are back online");
     });
 
-    window.addEventListener('offline', () => {
-      this.show('warning', 'You are offline. Changes will be saved locally.');
+    window.addEventListener("offline", () => {
+      this.show("warning", "You are offline. Changes will be saved locally.");
     });
   }
 
@@ -53,7 +53,7 @@ class NotificationManager {
   dismiss(id) {
     const notification = this.notifications.get(id);
     if (notification) {
-      notification.classList.add('fade-out');
+      notification.classList.add("fade-out");
       setTimeout(() => {
         notification.remove();
         this.notifications.delete(id);
@@ -62,7 +62,7 @@ class NotificationManager {
   }
 
   createNotification(type, message) {
-    const notification = document.createElement('div');
+    const notification = document.createElement("div");
     notification.className = `notification notification-${type}`;
     notification.style.cssText = `
             padding: 12px 24px;
@@ -82,27 +82,27 @@ class NotificationManager {
 
     // Set background color based on type
     switch (type) {
-      case 'success':
-        notification.style.backgroundColor = '#4caf50';
+      case "success":
+        notification.style.backgroundColor = "#4caf50";
         break;
-      case 'error':
-        notification.style.backgroundColor = '#f44336';
+      case "error":
+        notification.style.backgroundColor = "#f44336";
         break;
-      case 'warning':
-        notification.style.backgroundColor = '#ff9800';
+      case "warning":
+        notification.style.backgroundColor = "#ff9800";
         break;
       default:
-        notification.style.backgroundColor = '#2196f3';
+        notification.style.backgroundColor = "#2196f3";
     }
 
     // Add message
-    const messageElement = document.createElement('span');
+    const messageElement = document.createElement("span");
     messageElement.textContent = message;
     notification.appendChild(messageElement);
 
     // Add close button
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = '×';
+    const closeButton = document.createElement("button");
+    closeButton.innerHTML = "×";
     closeButton.style.cssText = `
             background: none;
             border: none;
@@ -113,11 +113,11 @@ class NotificationManager {
             margin: 0;
             line-height: 1;
         `;
-    closeButton.addEventListener('click', () => {
+    closeButton.addEventListener("click", () => {
       this.dismiss(
         Array.from(this.notifications.entries()).find(
-          ([, n]) => n === notification
-        )?.[0]
+          ([, n]) => n === notification,
+        )?.[0],
       );
     });
     notification.appendChild(closeButton);
@@ -127,7 +127,7 @@ class NotificationManager {
 
   // Add styles to document
   addStyles() {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
             @keyframes slide-in {
                 from {

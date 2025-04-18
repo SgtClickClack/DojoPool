@@ -1,6 +1,6 @@
-import WebSocket from 'ws';
-import { NetworkMessage, NetworkMessageType, NetworkTransport } from './types';
-import { EventEmitter } from 'events';
+import WebSocket from "ws";
+import { NetworkMessage, NetworkMessageType, NetworkTransport } from "./types";
+import { EventEmitter } from "events";
 
 export class WebSocketTransport implements NetworkTransport {
   private ws: WebSocket | null = null;
@@ -17,27 +17,27 @@ export class WebSocketTransport implements NetworkTransport {
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.url);
 
-      this.ws.on('open', () => {
-        this.events.emit('connect');
+      this.ws.on("open", () => {
+        this.events.emit("connect");
         resolve();
       });
 
-      this.ws.on('message', (data: WebSocket.Data) => {
+      this.ws.on("message", (data: WebSocket.Data) => {
         try {
           const message = JSON.parse(data.toString()) as NetworkMessage;
-          this.events.emit('message', message);
+          this.events.emit("message", message);
         } catch (error) {
-          this.events.emit('error', new Error('Failed to parse message'));
+          this.events.emit("error", new Error("Failed to parse message"));
         }
       });
 
-      this.ws.on('error', (error) => {
-        this.events.emit('error', error);
+      this.ws.on("error", (error) => {
+        this.events.emit("error", error);
         reject(error);
       });
 
-      this.ws.on('close', () => {
-        this.events.emit('disconnect');
+      this.ws.on("close", () => {
+        this.events.emit("disconnect");
       });
     });
   }
@@ -49,37 +49,42 @@ export class WebSocketTransport implements NetworkTransport {
     }
   }
 
-  async send<T>(target: string, message: Omit<NetworkMessage<T>, 'source' | 'timestamp'>): Promise<void> {
+  async send<T>(
+    target: string,
+    message: Omit<NetworkMessage<T>, "source" | "timestamp">,
+  ): Promise<void> {
     if (!this.ws) {
-      throw new Error('Not connected');
+      throw new Error("Not connected");
     }
 
     const fullMessage: NetworkMessage<T> = {
       ...message,
       source: this.nodeId,
       target,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.ws.send(JSON.stringify(fullMessage));
   }
 
-  async broadcast<T>(message: Omit<NetworkMessage<T>, 'source' | 'timestamp' | 'target'>): Promise<void> {
+  async broadcast<T>(
+    message: Omit<NetworkMessage<T>, "source" | "timestamp" | "target">,
+  ): Promise<void> {
     if (!this.ws) {
-      throw new Error('Not connected');
+      throw new Error("Not connected");
     }
 
     const fullMessage: NetworkMessage<T> = {
       ...message,
       source: this.nodeId,
-      target: '*',
-      timestamp: Date.now()
+      target: "*",
+      timestamp: Date.now(),
     };
 
     this.ws.send(JSON.stringify(fullMessage));
   }
 
   onMessage(handler: (message: NetworkMessage) => void): void {
-    this.events.on('message', handler);
+    this.events.on("message", handler);
   }
-} 
+}

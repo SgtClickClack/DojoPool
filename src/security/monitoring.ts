@@ -1,54 +1,52 @@
-import { Redis } from 'ioredis';
-import { createLogger, format, transports } from 'winston';
-import { Logtail } from '@logtail/node';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import { Redis } from "ioredis";
+import { createLogger, format, transports } from "winston";
+import { Logtail } from "@logtail/node";
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
 // Initialize clients
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN || '');
-const sesClient = new SESClient({ region: process.env.AWS_REGION || 'us-east-1' });
-const snsClient = new SNSClient({ region: process.env.AWS_REGION || 'us-east-1' });
+const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN || "");
+const sesClient = new SESClient({
+  region: process.env.AWS_REGION || "us-east-1",
+});
+const snsClient = new SNSClient({
+  region: process.env.AWS_REGION || "us-east-1",
+});
 
 // Configure Winston logger
 const logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp(),
-    format.json()
-  ),
+  level: "info",
+  format: format.combine(format.timestamp(), format.json()),
   transports: [
-    new transports.File({ filename: 'logs/security.log' }),
+    new transports.File({ filename: "logs/security.log" }),
     new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple()
-      ),
+      format: format.combine(format.colorize(), format.simple()),
     }),
   ],
 });
 
 // Security event types
 export enum SecurityEventType {
-  AUTH_FAILURE = 'auth_failure',
-  BRUTE_FORCE = 'brute_force',
-  SUSPICIOUS_IP = 'suspicious_ip',
-  RATE_LIMIT = 'rate_limit',
-  API_ABUSE = 'api_abuse',
-  INVALID_TOKEN = 'invalid_token',
-  CSRF_VIOLATION = 'csrf_violation',
-  XSS_ATTEMPT = 'xss_attempt',
-  SQL_INJECTION = 'sql_injection',
-  FILE_UPLOAD = 'file_upload',
-  ADMIN_ACTION = 'admin_action',
+  AUTH_FAILURE = "auth_failure",
+  BRUTE_FORCE = "brute_force",
+  SUSPICIOUS_IP = "suspicious_ip",
+  RATE_LIMIT = "rate_limit",
+  API_ABUSE = "api_abuse",
+  INVALID_TOKEN = "invalid_token",
+  CSRF_VIOLATION = "csrf_violation",
+  XSS_ATTEMPT = "xss_attempt",
+  SQL_INJECTION = "sql_injection",
+  FILE_UPLOAD = "file_upload",
+  ADMIN_ACTION = "admin_action",
 }
 
 // Security event severity levels
 export enum SecurityEventSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical",
 }
 
 interface SecurityEvent {
@@ -86,22 +84,22 @@ export class SecurityMonitor {
     try {
       // Set up real-time monitoring
       await this.setupRedisSubscriptions();
-      
+
       // Start periodic checks
       this.startPeriodicChecks();
-      
-      logger.info('Security monitoring initialized successfully');
+
+      logger.info("Security monitoring initialized successfully");
     } catch (error) {
-      logger.error('Failed to initialize security monitoring:', error);
+      logger.error("Failed to initialize security monitoring:", error);
       throw error;
     }
   }
 
   private async setupRedisSubscriptions() {
     const subscriber = redis.duplicate();
-    await subscriber.subscribe('security-events');
-    
-    subscriber.on('message', async (channel, message) => {
+    await subscriber.subscribe("security-events");
+
+    subscriber.on("message", async (channel, message) => {
       const event = JSON.parse(message) as SecurityEvent;
       await this.handleSecurityEvent(event);
     });
@@ -110,10 +108,10 @@ export class SecurityMonitor {
   private startPeriodicChecks() {
     // Check for authentication failures
     setInterval(() => this.checkAuthFailures(), 60000);
-    
+
     // Check for rate limit violations
     setInterval(() => this.checkRateLimitViolations(), 300000);
-    
+
     // Check for suspicious IPs
     setInterval(() => this.checkSuspiciousIPs(), 600000);
   }
@@ -144,9 +142,9 @@ export class SecurityMonitor {
       }
 
       // Publish event for real-time monitoring
-      await redis.publish('security-events', JSON.stringify(event));
+      await redis.publish("security-events", JSON.stringify(event));
     } catch (error) {
-      logger.error('Failed to log security event:', error);
+      logger.error("Failed to log security event:", error);
     }
   }
 
@@ -161,14 +159,14 @@ export class SecurityMonitor {
       // Take automated actions if needed
       await this.takeAutomatedAction(event);
     } catch (error) {
-      logger.error('Failed to handle security event:', error);
+      logger.error("Failed to handle security event:", error);
     }
   }
 
   private async updateSecurityStats(event: SecurityEvent) {
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString().split("T")[0];
     const key = `security:stats:${date}:${event.type}`;
-    
+
     await redis.hincrby(key, event.severity, 1);
     await redis.expire(key, 2592000); // Keep stats for 30 days
   }
@@ -210,16 +208,18 @@ export class SecurityMonitor {
       // Send SNS notification
       await this.sendSNSAlert(event);
 
-      logger.info('Security alert sent successfully', { event });
+      logger.info("Security alert sent successfully", { event });
     } catch (error) {
-      logger.error('Failed to send security alert:', error);
+      logger.error("Failed to send security alert:", error);
     }
   }
 
   private async sendEmailAlert(event: SecurityEvent) {
     const command = new SendEmailCommand({
       Destination: {
-        ToAddresses: [process.env.SECURITY_ALERT_EMAIL || 'security@dojopool.com'],
+        ToAddresses: [
+          process.env.SECURITY_ALERT_EMAIL || "security@dojopool.com",
+        ],
       },
       Message: {
         Body: {
@@ -231,7 +231,7 @@ export class SecurityMonitor {
           Data: `[${event.severity.toUpperCase()}] Security Alert - ${event.type}`,
         },
       },
-      Source: process.env.SECURITY_EMAIL_FROM || 'alerts@dojopool.com',
+      Source: process.env.SECURITY_EMAIL_FROM || "alerts@dojopool.com",
     });
 
     await sesClient.send(command);
@@ -243,11 +243,11 @@ export class SecurityMonitor {
       Message: JSON.stringify(event),
       MessageAttributes: {
         severity: {
-          DataType: 'String',
+          DataType: "String",
           StringValue: event.severity,
         },
         type: {
-          DataType: 'String',
+          DataType: "String",
           StringValue: event.type,
         },
       },
@@ -257,32 +257,32 @@ export class SecurityMonitor {
   }
 
   private async blockIP(ip: string) {
-    await redis.setex(`security:blocked:ip:${ip}`, 3600, '1'); // Block for 1 hour
+    await redis.setex(`security:blocked:ip:${ip}`, 3600, "1"); // Block for 1 hour
     logger.info(`Blocked IP address: ${ip}`);
   }
 
   private async flagIPForReview(ip: string) {
-    await redis.sadd('security:ip:review', ip);
+    await redis.sadd("security:ip:review", ip);
     logger.info(`Flagged IP for review: ${ip}`);
   }
 
   private async restrictAPIAccess(ip: string) {
-    await redis.setex(`security:api:restricted:${ip}`, 1800, '1'); // Restrict for 30 minutes
+    await redis.setex(`security:api:restricted:${ip}`, 1800, "1"); // Restrict for 30 minutes
     logger.info(`Restricted API access for IP: ${ip}`);
   }
 
   private getSeverityLevel(severity: SecurityEventSeverity): string {
     switch (severity) {
       case SecurityEventSeverity.CRITICAL:
-        return 'error';
+        return "error";
       case SecurityEventSeverity.HIGH:
-        return 'warn';
+        return "warn";
       case SecurityEventSeverity.MEDIUM:
-        return 'info';
+        return "info";
       case SecurityEventSeverity.LOW:
-        return 'debug';
+        return "debug";
       default:
-        return 'info';
+        return "info";
     }
   }
 
@@ -306,29 +306,29 @@ export class SecurityMonitor {
   }
 
   private async checkAuthFailures() {
-    const failures = await redis.keys('security:pattern:auth_failure:*');
+    const failures = await redis.keys("security:pattern:auth_failure:*");
     for (const key of failures) {
       const count = await redis.get(key);
       if (count && parseInt(count) >= THRESHOLDS.AUTH_FAILURES) {
-        const ip = key.split(':').pop();
+        const ip = key.split(":").pop();
         await this.blockIP(ip!);
       }
     }
   }
 
   private async checkRateLimitViolations() {
-    const violations = await redis.keys('security:pattern:rate_limit:*');
+    const violations = await redis.keys("security:pattern:rate_limit:*");
     for (const key of violations) {
       const count = await redis.get(key);
       if (count && parseInt(count) >= THRESHOLDS.RATE_LIMIT_VIOLATIONS) {
-        const ip = key.split(':').pop();
+        const ip = key.split(":").pop();
         await this.restrictAPIAccess(ip!);
       }
     }
   }
 
   private async checkSuspiciousIPs() {
-    const ips = await redis.smembers('security:ip:review');
+    const ips = await redis.smembers("security:ip:review");
     for (const ip of ips) {
       const score = await this.calculateIPRiskScore(ip);
       if (score >= THRESHOLDS.SUSPICIOUS_IP_SCORE) {
@@ -349,4 +349,4 @@ export class SecurityMonitor {
 }
 
 // Export singleton instance
-export const securityMonitor = SecurityMonitor.getInstance(); 
+export const securityMonitor = SecurityMonitor.getInstance();

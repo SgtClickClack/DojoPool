@@ -68,7 +68,7 @@ export interface VenueEvent {
   max_participants?: number;
   entry_fee: number;
   prize_pool: number;
-  status: 'upcoming' | 'in_progress' | 'completed' | 'cancelled';
+  status: "upcoming" | "in_progress" | "completed" | "cancelled";
   created_at: string;
   updated_at: string;
   participants?: VenueEventParticipant[];

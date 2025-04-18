@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { Match, MatchState, MatchType } from '../../types/match';
+import { PrismaClient } from "@prisma/client";
+import { Match, MatchState, MatchType } from "../../types/match";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +10,7 @@ export class MatchService {
     player2Id: string,
     type: MatchType,
     startTime: Date,
-    tableId: string
+    tableId: string,
   ): Promise<Match> {
     return prisma.match.create({
       data: {
@@ -47,7 +47,7 @@ export class MatchService {
     id: string,
     player1Score: number,
     player2Score: number,
-    winnerId: string
+    winnerId: string,
   ): Promise<Match> {
     return prisma.match.update({
       where: { id },
@@ -66,7 +66,7 @@ export class MatchService {
     return prisma.match.findMany({
       where: { tournamentId },
       orderBy: {
-        startTime: 'asc',
+        startTime: "asc",
       },
     });
   }
@@ -74,13 +74,10 @@ export class MatchService {
   static async getPlayerMatches(playerId: string): Promise<Match[]> {
     return prisma.match.findMany({
       where: {
-        OR: [
-          { player1Id: playerId },
-          { player2Id: playerId },
-        ],
+        OR: [{ player1Id: playerId }, { player2Id: playerId }],
       },
       orderBy: {
-        startTime: 'desc',
+        startTime: "desc",
       },
     });
   }
@@ -96,8 +93,8 @@ export class MatchService {
         },
       },
       orderBy: {
-        startTime: 'asc',
+        startTime: "asc",
       },
     });
   }
-} 
+}

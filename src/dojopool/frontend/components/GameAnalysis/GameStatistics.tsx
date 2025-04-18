@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -7,7 +7,7 @@ import {
   Grid,
   CircularProgress,
   LinearProgress,
-} from '@mui/material';
+} from "@mui/material";
 
 interface Statistics {
   total_shots: number;
@@ -29,7 +29,9 @@ interface GameStatisticsProps {
   statistics: Statistics | null;
 }
 
-export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) => {
+export const GameStatistics: React.FC<GameStatisticsProps> = ({
+  statistics,
+}) => {
   if (!statistics) {
     return (
       <Box>
@@ -41,7 +43,7 @@ export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) =>
   }
 
   const successRate = Math.round(
-    (statistics.successful_shots / statistics.total_shots) * 100
+    (statistics.successful_shots / statistics.total_shots) * 100,
   );
 
   return (
@@ -78,14 +80,18 @@ export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) =>
                         right={0}
                         bottom={0}
                       >
-                        <Typography variant="caption">{successRate}%</Typography>
+                        <Typography variant="caption">
+                          {successRate}%
+                        </Typography>
                       </Box>
                     </Box>
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <Box textAlign="center">
-                    <Typography variant="subtitle1">Average Difficulty</Typography>
+                    <Typography variant="subtitle1">
+                      Average Difficulty
+                    </Typography>
                     <Typography variant="h4">
                       {statistics.average_difficulty.toFixed(1)}/10
                     </Typography>
@@ -94,7 +100,9 @@ export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) =>
                 <Grid item xs={12} sm={4}>
                   <Box textAlign="center">
                     <Typography variant="subtitle1">Total Shots</Typography>
-                    <Typography variant="h4">{statistics.total_shots}</Typography>
+                    <Typography variant="h4">
+                      {statistics.total_shots}
+                    </Typography>
                   </Box>
                 </Grid>
               </Grid>
@@ -135,22 +143,22 @@ export const GameStatistics: React.FC<GameStatisticsProps> = ({ statistics }) =>
                 ([difficulty, rate]) => (
                   <Box key={difficulty} mb={1}>
                     <Typography variant="body2" gutterBottom>
-                      {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}:{' '}
-                      {rate}%
+                      {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                      : {rate}%
                     </Typography>
                     <LinearProgress
                       variant="determinate"
                       value={rate}
                       color={
-                        difficulty === 'easy'
-                          ? 'success'
-                          : difficulty === 'medium'
-                          ? 'warning'
-                          : 'error'
+                        difficulty === "easy"
+                          ? "success"
+                          : difficulty === "medium"
+                            ? "warning"
+                            : "error"
                       }
                     />
                   </Box>
-                )
+                ),
               )}
             </CardContent>
           </Card>

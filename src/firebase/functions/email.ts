@@ -1,5 +1,5 @@
-import * as functions from 'firebase-functions';
-import * as nodemailer from 'nodemailer';
+import * as functions from "firebase-functions";
+import * as nodemailer from "nodemailer";
 
 interface EmailData {
   to: string;
@@ -14,36 +14,38 @@ const transporter = nodemailer.createTransport({
   secure: functions.config().email.secure,
   auth: {
     user: functions.config().email.user,
-    pass: functions.config().email.pass
-  }
+    pass: functions.config().email.pass,
+  },
 });
 
-export const sendEmail = functions.https.onCall(async (request: functions.https.CallableRequest<EmailData>) => {
-  // Check if the user is authenticated
-  if (!request.auth) {
-    throw new functions.https.HttpsError(
-      'unauthenticated',
-      'The function must be called while authenticated.'
-    );
-  }
+export const sendEmail = functions.https.onCall(
+  async (request: functions.https.CallableRequest<EmailData>) => {
+    // Check if the user is authenticated
+    if (!request.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "The function must be called while authenticated.",
+      );
+    }
 
-  try {
-    // Send email
-    await transporter.sendMail({
-      from: functions.config().email.from,
-      to: request.data.to,
-      subject: request.data.subject,
-      text: request.data.body,
-      html: request.data.body.replace(/\n/g, '<br>')
-    });
+    try {
+      // Send email
+      await transporter.sendMail({
+        from: functions.config().email.from,
+        to: request.data.to,
+        subject: request.data.subject,
+        text: request.data.body,
+        html: request.data.body.replace(/\n/g, "<br>"),
+      });
 
-    return { success: true };
-  } catch (error: any) {
-    console.error('Error sending email:', error);
-    throw new functions.https.HttpsError(
-      'internal',
-      'Failed to send email',
-      error.message
-    );
-  }
-}); 
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error sending email:", error);
+      throw new functions.https.HttpsError(
+        "internal",
+        "Failed to send email",
+        error.message,
+      );
+    }
+  },
+);

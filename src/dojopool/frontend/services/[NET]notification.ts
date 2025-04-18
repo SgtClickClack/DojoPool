@@ -1,11 +1,11 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  priority?: 'low' | 'medium' | 'high';
+  type: "info" | "success" | "warning" | "error";
+  priority?: "low" | "medium" | "high";
   timestamp: Date;
   read: boolean;
   actionUrl?: string;
@@ -32,8 +32,8 @@ class NotificationService extends EventEmitter {
     soundEnabled: true,
     doNotDisturb: {
       enabled: false,
-      startTime: '22:00',
-      endTime: '07:00',
+      startTime: "22:00",
+      endTime: "07:00",
     },
   };
 
@@ -44,8 +44,8 @@ class NotificationService extends EventEmitter {
 
   private loadFromStorage() {
     try {
-      const storedNotifications = localStorage.getItem('notifications');
-      const storedPreferences = localStorage.getItem('notificationPreferences');
+      const storedNotifications = localStorage.getItem("notifications");
+      const storedPreferences = localStorage.getItem("notificationPreferences");
 
       if (storedNotifications) {
         this.notifications = JSON.parse(storedNotifications);
@@ -55,21 +55,24 @@ class NotificationService extends EventEmitter {
         this.preferences = JSON.parse(storedPreferences);
       }
     } catch (error) {
-      console.error('Error loading notifications from storage:', error);
+      console.error("Error loading notifications from storage:", error);
     }
   }
 
   private saveToStorage() {
     try {
-      localStorage.setItem('notifications', JSON.stringify(this.notifications));
-      localStorage.setItem('notificationPreferences', JSON.stringify(this.preferences));
+      localStorage.setItem("notifications", JSON.stringify(this.notifications));
+      localStorage.setItem(
+        "notificationPreferences",
+        JSON.stringify(this.preferences),
+      );
     } catch (error) {
-      console.error('Error saving notifications to storage:', error);
+      console.error("Error saving notifications to storage:", error);
     }
   }
 
   private emitUpdate() {
-    this.emit('update', {
+    this.emit("update", {
       notifications: this.notifications,
       unreadCount: this.getUnreadCount(),
       preferences: this.preferences,
@@ -77,7 +80,9 @@ class NotificationService extends EventEmitter {
     this.saveToStorage();
   }
 
-  addNotification(notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) {
+  addNotification(
+    notification: Omit<Notification, "id" | "timestamp" | "read">,
+  ) {
     const newNotification: Notification = {
       ...notification,
       id: Math.random().toString(36).substr(2, 9),
@@ -98,10 +103,14 @@ class NotificationService extends EventEmitter {
 
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    const [startHours, startMinutes] = this.preferences.doNotDisturb.startTime.split(':').map(Number);
-    const [endHours, endMinutes] = this.preferences.doNotDisturb.endTime.split(':').map(Number);
-    
+
+    const [startHours, startMinutes] = this.preferences.doNotDisturb.startTime
+      .split(":")
+      .map(Number);
+    const [endHours, endMinutes] = this.preferences.doNotDisturb.endTime
+      .split(":")
+      .map(Number);
+
     const startTime = startHours * 60 + startMinutes;
     const endTime = endHours * 60 + endMinutes;
 
@@ -113,41 +122,41 @@ class NotificationService extends EventEmitter {
   }
 
   private async showNotification(notification: Notification) {
-    if (this.preferences.pushNotifications && 'Notification' in window) {
+    if (this.preferences.pushNotifications && "Notification" in window) {
       try {
         const permission = await this.requestNotificationPermission();
         if (permission) {
           new Notification(notification.title, {
             body: notification.message,
-            icon: '/favicon.ico',
+            icon: "/favicon.ico",
           });
         }
       } catch (error) {
-        console.error('Error showing push notification:', error);
+        console.error("Error showing push notification:", error);
       }
     }
 
     if (this.preferences.soundEnabled) {
       try {
-        const audio = new Audio('/notification-sound.mp3');
+        const audio = new Audio("/notification-sound.mp3");
         await audio.play();
       } catch (error) {
-        console.error('Error playing notification sound:', error);
+        console.error("Error playing notification sound:", error);
       }
     }
   }
 
   async requestNotificationPermission(): Promise<boolean> {
-    if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
+    if (!("Notification" in window)) {
+      console.log("This browser does not support notifications");
       return false;
     }
 
     try {
       const permission = await Notification.requestPermission();
-      return permission === 'granted';
+      return permission === "granted";
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      console.error("Error requesting notification permission:", error);
       return false;
     }
   }
@@ -157,7 +166,7 @@ class NotificationService extends EventEmitter {
   }
 
   getUnreadCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+    return this.notifications.filter((n) => !n.read).length;
   }
 
   getPreferences(): NotificationPreferences {
@@ -165,7 +174,7 @@ class NotificationService extends EventEmitter {
   }
 
   async markAsRead(id: string) {
-    const notification = this.notifications.find(n => n.id === id);
+    const notification = this.notifications.find((n) => n.id === id);
     if (notification) {
       notification.read = true;
       this.emitUpdate();
@@ -173,7 +182,7 @@ class NotificationService extends EventEmitter {
   }
 
   async markAllAsRead() {
-    this.notifications.forEach(n => n.read = true);
+    this.notifications.forEach((n) => (n.read = true));
     this.emitUpdate();
   }
 
@@ -187,15 +196,17 @@ class NotificationService extends EventEmitter {
     this.emitUpdate();
   }
 
-  addListener(callback: (state: {
-    notifications: Notification[];
-    unreadCount: number;
-    preferences: NotificationPreferences;
-  }) => void): () => void {
-    this.on('update', callback);
-    return () => this.off('update', callback);
+  addListener(
+    callback: (state: {
+      notifications: Notification[];
+      unreadCount: number;
+      preferences: NotificationPreferences;
+    }) => void,
+  ): () => void {
+    this.on("update", callback);
+    return () => this.off("update", callback);
   }
 }
 
 const notificationService = new NotificationService();
-export default notificationService; 
+export default notificationService;

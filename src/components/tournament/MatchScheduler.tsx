@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -20,9 +20,9 @@ import {
   ModalFooter,
   ModalCloseButton,
   useDisclosure,
-} from '@chakra-ui/react';
-import { FaCalendar, FaClock, FaUser, FaEdit } from 'react-icons/fa';
-import { format, addMinutes, parseISO } from 'date-fns';
+} from "@chakra-ui/react";
+import { FaCalendar, FaClock, FaUser, FaEdit } from "react-icons/fa";
+import { format, addMinutes, parseISO } from "date-fns";
 
 interface Match {
   id: string;
@@ -30,7 +30,7 @@ interface Match {
   matchNumber: number;
   player1: Player;
   player2: Player;
-  status: 'scheduled' | 'in_progress' | 'completed';
+  status: "scheduled" | "in_progress" | "completed";
   startTime?: string;
   endTime?: string;
   duration: number; // in minutes
@@ -59,7 +59,7 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
   isAdmin = false,
 }) => {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [startTime, setStartTime] = useState<string>('');
+  const [startTime, setStartTime] = useState<string>("");
   const [duration, setDuration] = useState<number>(30);
   const [tableNumber, setTableNumber] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,10 +67,10 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
   const toast = useToast();
 
   // Colors based on theme
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const activeColor = useColorModeValue('blue.500', 'blue.300');
-  const scheduledColor = useColorModeValue('gray.500', 'gray.300');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const activeColor = useColorModeValue("blue.500", "blue.300");
+  const scheduledColor = useColorModeValue("gray.500", "gray.300");
 
   const handleScheduleClick = (match: Match) => {
     setSelectedMatch(match);
@@ -95,22 +95,23 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
         startTime,
         duration,
         tableNumber,
-        status: 'scheduled' as const,
+        status: "scheduled" as const,
       };
 
       await onScheduleUpdate(selectedMatch.id, updates);
       toast({
-        title: 'Match scheduled successfully',
-        status: 'success',
+        title: "Match scheduled successfully",
+        status: "success",
         duration: 3000,
         isClosable: true,
       });
       onClose();
     } catch (error) {
       toast({
-        title: 'Failed to schedule match',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
-        status: 'error',
+        title: "Failed to schedule match",
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -120,9 +121,9 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
   };
 
   const renderMatchCard = (match: Match) => {
-    const isScheduled = match.status === 'scheduled';
-    const isInProgress = match.status === 'in_progress';
-    const isCompleted = match.status === 'completed';
+    const isScheduled = match.status === "scheduled";
+    const isInProgress = match.status === "in_progress";
+    const isCompleted = match.status === "completed";
 
     return (
       <Box
@@ -142,7 +143,7 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
               onClick={() => handleScheduleClick(match)}
               isDisabled={!isAdmin || isCompleted}
             >
-              {isScheduled ? 'Reschedule' : 'Schedule'}
+              {isScheduled ? "Reschedule" : "Schedule"}
             </Button>
           </HStack>
 
@@ -159,7 +160,7 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
           {isScheduled && match.startTime && (
             <HStack spacing={2}>
               <FaCalendar />
-              <Text>Start: {format(parseISO(match.startTime), 'PPp')}</Text>
+              <Text>Start: {format(parseISO(match.startTime), "PPp")}</Text>
             </HStack>
           )}
 
@@ -174,14 +175,12 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
             <Text>Table: {match.tableNumber}</Text>
           )}
 
-          {isInProgress && (
-            <Text color={activeColor}>In Progress</Text>
-          )}
+          {isInProgress && <Text color={activeColor}>In Progress</Text>}
 
           {isCompleted && match.endTime && (
             <HStack spacing={2}>
               <FaClock />
-              <Text>Completed: {format(parseISO(match.endTime), 'PPp')}</Text>
+              <Text>Completed: {format(parseISO(match.endTime), "PPp")}</Text>
             </HStack>
           )}
         </VStack>
@@ -271,4 +270,4 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
       </Modal>
     </VStack>
   );
-}; 
+};

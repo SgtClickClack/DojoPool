@@ -5,7 +5,7 @@ module.exports = {
       getImageData: jest.fn(() => ({
         data: new Uint8ClampedArray(100),
         width: 10,
-        height: 10
+        height: 10,
       })),
       putImageData: jest.fn(),
       clearRect: jest.fn(),
@@ -15,12 +15,13 @@ module.exports = {
       fillText: jest.fn(),
       measureText: jest.fn(() => ({ width: 50 })),
     }),
-    toDataURL: jest.fn(() => 'data:image/png;base64,'),
+    toDataURL: jest.fn(() => "data:image/png;base64,"),
     width: 800,
-    height: 600
+    height: 600,
   }),
-  loadImage: () => Promise.resolve({
-    width: 100,
-    height: 100
-  })
-}; 
+  loadImage: () =>
+    Promise.resolve({
+      width: 100,
+      height: 100,
+    }),
+};

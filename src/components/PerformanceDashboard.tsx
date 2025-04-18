@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -9,7 +9,7 @@ import {
   useTheme,
   IconButton,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Timeline,
   Memory,
@@ -18,8 +18,11 @@ import {
   NetworkCheck,
   Refresh,
   Warning,
-} from '@mui/icons-material';
-import { usePerformanceMonitoring, PerformanceMetrics } from '../services/PerformanceMonitor';
+} from "@mui/icons-material";
+import {
+  usePerformanceMonitoring,
+  PerformanceMetrics,
+} from "../services/PerformanceMonitor";
 
 const MetricCard: React.FC<{
   title: string;
@@ -34,29 +37,29 @@ const MetricCard: React.FC<{
   return (
     <Card
       sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        overflow: 'visible',
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        overflow: "visible",
       }}
     >
       <CardContent>
         <Box
           sx={{
-            position: 'absolute',
+            position: "absolute",
             top: -20,
             left: 20,
             backgroundColor: warning
               ? theme.palette.warning.main
               : theme.palette.primary.main,
-            borderRadius: '50%',
+            borderRadius: "50%",
             width: 40,
             height: 40,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
             boxShadow: theme.shadows[3],
           }}
         >
@@ -81,12 +84,12 @@ const MetricCard: React.FC<{
             <LinearProgress
               variant="determinate"
               value={progress}
-              color={warning ? 'warning' : 'primary'}
+              color={warning ? "warning" : "primary"}
               sx={{
                 height: 8,
                 borderRadius: 4,
                 backgroundColor: theme.palette.grey[200],
-                '& .MuiLinearProgress-bar': {
+                "& .MuiLinearProgress-bar": {
                   borderRadius: 4,
                 },
               }}
@@ -122,18 +125,21 @@ export const PerformanceDashboard: React.FC = () => {
   }
 
   const getFPSProgress = (fps: number) => Math.min((fps / 60) * 100, 100);
-  const getMemoryProgress = (memory: number) => Math.min((memory / 1000) * 100, 100);
-  const getResponseProgress = (time: number) => Math.min((time / 200) * 100, 100);
+  const getMemoryProgress = (memory: number) =>
+    Math.min((memory / 1000) * 100, 100);
+  const getResponseProgress = (time: number) =>
+    Math.min((time / 200) * 100, 100);
   const getLoadProgress = (time: number) => Math.min((time / 3000) * 100, 100);
-  const getLatencyProgress = (latency: number) => Math.min((latency / 100) * 100, 100);
+  const getLatencyProgress = (latency: number) =>
+    Math.min((latency / 100) * 100, 100);
 
   return (
     <Box sx={{ p: 3 }}>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           mb: 3,
         }}
       >
@@ -199,7 +205,7 @@ export const PerformanceDashboard: React.FC = () => {
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Resource Utilization
@@ -208,7 +214,7 @@ export const PerformanceDashboard: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">
                   CPU Usage
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                   <LinearProgress
                     variant="determinate"
                     value={metrics.resourceUtilization.cpu}
@@ -223,7 +229,7 @@ export const PerformanceDashboard: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">
                   Memory Usage
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                   <LinearProgress
                     variant="determinate"
                     value={metrics.resourceUtilization.memory}
@@ -239,7 +245,7 @@ export const PerformanceDashboard: React.FC = () => {
                   <Typography variant="body2" color="text.secondary">
                     GPU Usage
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                     <LinearProgress
                       variant="determinate"
                       value={metrics.resourceUtilization.gpu}
@@ -265,18 +271,19 @@ export const PerformanceDashboard: React.FC = () => {
           sx={{
             mt: 3,
             p: 2,
-            backgroundColor: 'warning.light',
+            backgroundColor: "warning.light",
             borderRadius: 1,
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
           }}
         >
           <Warning color="warning" sx={{ mr: 1 }} />
           <Typography color="warning.dark">
-            Some metrics are outside of optimal ranges. Consider optimizing your application.
+            Some metrics are outside of optimal ranges. Consider optimizing your
+            application.
           </Typography>
         </Box>
       )}
     </Box>
   );
-}; 
+};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -7,11 +7,11 @@ import {
   ListItemText,
   Alert as MuiAlert,
   Collapse,
-  IconButton
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
-import { Alert } from '../../alerts/AlertManager';
-import { TransitionGroup } from 'react-transition-group';
+  IconButton,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
+import { Alert } from "../../alerts/AlertManager";
+import { TransitionGroup } from "react-transition-group";
 
 interface AlertsPanelProps {
   alerts: Alert[];
@@ -20,14 +20,14 @@ interface AlertsPanelProps {
 
 export const AlertsPanel: React.FC<AlertsPanelProps> = ({
   alerts,
-  onDismiss
+  onDismiss,
 }) => {
   const sortedAlerts = [...alerts].sort((a, b) => {
     // Sort by severity (critical first) then by timestamp (newest first)
     if (a.type === b.type) {
       return b.timestamp - a.timestamp;
     }
-    return a.type === 'critical' ? -1 : 1;
+    return a.type === "critical" ? -1 : 1;
   });
 
   return (
@@ -42,11 +42,11 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
               <ListItem
                 sx={{
                   mb: 1,
-                  '&:last-child': { mb: 0 }
+                  "&:last-child": { mb: 0 },
                 }}
               >
                 <MuiAlert
-                  severity={alert.type === 'critical' ? 'error' : 'warning'}
+                  severity={alert.type === "critical" ? "error" : "warning"}
                   action={
                     onDismiss && (
                       <IconButton
@@ -59,13 +59,14 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
                       </IconButton>
                     )
                   }
-                  sx={{ width: '100%' }}
+                  sx={{ width: "100%" }}
                 >
                   <ListItemText
                     primary={alert.message}
                     secondary={
                       <>
-                        Threshold: {alert.threshold} | Value: {alert.value.toFixed(2)} |{' '}
+                        Threshold: {alert.threshold} | Value:{" "}
+                        {alert.value.toFixed(2)} |{" "}
                         {new Date(alert.timestamp).toLocaleString()}
                       </>
                     }
@@ -86,4 +87,4 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({
       </List>
     </Box>
   );
-}; 
+};

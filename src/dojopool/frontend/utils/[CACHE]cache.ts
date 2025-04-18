@@ -1,4 +1,4 @@
-import { CACHE_CONFIG } from '../../constants';
+import { CACHE_CONFIG } from "../../constants";
 
 interface CacheEntry<T> {
   value: T;
@@ -14,7 +14,7 @@ export class Cache<T> {
   constructor(
     ttl = CACHE_CONFIG.DEFAULT_TTL,
     maxSize = CACHE_CONFIG.MAX_SIZE,
-    cleanupInterval = CACHE_CONFIG.CLEANUP_INTERVAL
+    cleanupInterval = CACHE_CONFIG.CLEANUP_INTERVAL,
   ) {
     this.ttl = ttl;
     this.maxSize = maxSize;
@@ -26,7 +26,7 @@ export class Cache<T> {
       this.cleanup();
       if (this.cache.size >= this.maxSize) {
         const oldestKey = Array.from(this.cache.entries()).sort(
-          ([, a], [, b]) => a.timestamp - b.timestamp
+          ([, a], [, b]) => a.timestamp - b.timestamp,
         )[0][0];
         this.cache.delete(oldestKey);
       }

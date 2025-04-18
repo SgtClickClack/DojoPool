@@ -1,4 +1,4 @@
-import { measurePerformance } from '../__tests__/utils/testUtils';
+import { measurePerformance } from "../__tests__/utils/testUtils";
 
 export interface PerformanceMetrics {
   executionTime: number;
@@ -51,11 +51,13 @@ export class PerformanceTest {
   }
 
   async analyze(metrics: PerformanceMetrics[]): Promise<void> {
-    const executionTimes = metrics.map(m => m.executionTime);
-    const memoryUsages = metrics.map(m => m.memoryUsage);
+    const executionTimes = metrics.map((m) => m.executionTime);
+    const memoryUsages = metrics.map((m) => m.memoryUsage);
 
-    const avgExecutionTime = executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
-    const avgMemoryUsage = memoryUsages.reduce((a, b) => a + b, 0) / memoryUsages.length;
+    const avgExecutionTime =
+      executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
+    const avgMemoryUsage =
+      memoryUsages.reduce((a, b) => a + b, 0) / memoryUsages.length;
 
     const p95ExecutionTime = this.calculatePercentile(executionTimes, 95);
     const p95MemoryUsage = this.calculatePercentile(memoryUsages, 95);
@@ -75,4 +77,4 @@ Average Memory Usage: ${(avgMemoryUsage / 1024 / 1024).toFixed(2)}MB
     const index = Math.ceil((percentile / 100) * sorted.length) - 1;
     return sorted[index];
   }
-} 
+}

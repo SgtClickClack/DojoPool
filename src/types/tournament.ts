@@ -1,15 +1,15 @@
 export enum TournamentState {
-  REGISTRATION = 'REGISTRATION',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+  REGISTRATION = "REGISTRATION",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum TournamentType {
-  SINGLES = 'SINGLES',
-  DOUBLES = 'DOUBLES',
-  TEAM = 'TEAM',
-  HANDICAP = 'HANDICAP'
+  SINGLES = "SINGLES",
+  DOUBLES = "DOUBLES",
+  TEAM = "TEAM",
+  HANDICAP = "HANDICAP",
 }
 
 export interface Tournament {
@@ -28,4 +28,4 @@ export interface Tournament {
   createdAt: Date;
   updatedAt: Date;
   endedAt?: Date;
-} 
+}

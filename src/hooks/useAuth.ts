@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { User, updateProfile } from 'firebase/auth';
-import { auth } from '../firebase/config';
-import { onAuthStateChanged } from 'firebase/auth';
-import { 
-  signInWithEmail, 
+import { useState, useEffect } from "react";
+import { User, updateProfile } from "firebase/auth";
+import { auth } from "../firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithEmail,
   signInWithGoogle,
   signInWithFacebook,
   signInWithTwitter,
   signInWithGithub,
   signInWithApple,
-  signUpWithEmail, 
-  resetPassword, 
+  signUpWithEmail,
+  resetPassword,
   logOut,
   sendVerificationEmail,
   isEmailVerified,
@@ -19,11 +19,11 @@ import {
   exportUserData,
   requestAccountDeletion,
   cancelAccountDeletion,
-  getDeletionRequestStatus
-} from '@/firebase/auth';
-import { useRouter } from 'next/router';
-import { getDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+  getDeletionRequestStatus,
+} from "@/firebase/auth";
+import { useRouter } from "next/router";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "../firebase/config";
 
 interface AuthState {
   user: User | null;
@@ -43,7 +43,7 @@ interface ProfileData {
 
 interface DeletionStatus {
   success: boolean;
-  status?: 'pending' | 'completed' | 'cancelled' | null;
+  status?: "pending" | "completed" | "cancelled" | null;
   scheduledFor?: string;
   error?: string;
 }
@@ -57,7 +57,7 @@ export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     loading: true,
-    error: null
+    error: null,
   });
   const router = useRouter();
 
@@ -68,16 +68,16 @@ export const useAuth = () => {
         setAuthState({
           user,
           loading: false,
-          error: null
+          error: null,
         });
       },
       (error) => {
         setAuthState({
           user: null,
           loading: false,
-          error: error.message
+          error: error.message,
         });
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -86,7 +86,7 @@ export const useAuth = () => {
   const handleError = (error: any) => {
     setAuthState({
       ...authState,
-      error: error.message
+      error: error.message,
     });
     setTimeout(() => setAuthState({ ...authState, error: null }), 5000);
   };
@@ -105,20 +105,27 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, displayName: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    displayName: string,
+  ) => {
     try {
       setAuthState({ ...authState, loading: true });
       const result = await signUpWithEmail(email, password, displayName);
       if (!result.success) throw new Error(result.error);
-      
+
       // Send verification email after successful signup
       if (result.user) {
         const verificationResult = await sendVerificationEmail(result.user);
         if (!verificationResult.success) {
-          console.error('Failed to send verification email:', verificationResult.error);
+          console.error(
+            "Failed to send verification email:",
+            verificationResult.error,
+          );
         }
       }
-      
+
       return result;
     } catch (error: any) {
       handleError(error);
@@ -133,7 +140,7 @@ export const useAuth = () => {
       setAuthState({ ...authState, loading: true });
       const result = await signInWithGoogle();
       if (!result.success) throw new Error(result.error);
-      router.push('/auth/complete-profile');
+      router.push("/auth/complete-profile");
       return result;
     } catch (error: any) {
       handleError(error);
@@ -148,7 +155,7 @@ export const useAuth = () => {
       setAuthState({ ...authState, loading: true });
       const result = await signInWithFacebook();
       if (!result.success) throw new Error(result.error);
-      router.push('/auth/complete-profile');
+      router.push("/auth/complete-profile");
       return result;
     } catch (error: any) {
       handleError(error);
@@ -163,7 +170,7 @@ export const useAuth = () => {
       setAuthState({ ...authState, loading: true });
       const result = await signInWithTwitter();
       if (!result.success) throw new Error(result.error);
-      router.push('/auth/complete-profile');
+      router.push("/auth/complete-profile");
       return result;
     } catch (error: any) {
       handleError(error);
@@ -178,7 +185,7 @@ export const useAuth = () => {
       setAuthState({ ...authState, loading: true });
       const result = await signInWithGithub();
       if (!result.success) throw new Error(result.error);
-      router.push('/auth/complete-profile');
+      router.push("/auth/complete-profile");
       return result;
     } catch (error: any) {
       handleError(error);
@@ -193,7 +200,7 @@ export const useAuth = () => {
       setAuthState({ ...authState, loading: true });
       const result = await signInWithApple();
       if (!result.success) throw new Error(result.error);
-      router.push('/auth/complete-profile');
+      router.push("/auth/complete-profile");
       return result;
     } catch (error: any) {
       handleError(error);
@@ -232,8 +239,8 @@ export const useAuth = () => {
   };
 
   const sendVerification = async () => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
       const result = await sendVerificationEmail(authState.user);
@@ -253,31 +260,35 @@ export const useAuth = () => {
   };
 
   const updateUserProfile = async (profileData: ProfileData) => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
-      
+
       // Update Firestore document if player-specific data is provided
-      if (profileData.playerNickname || profileData.skillLevel || 
-          profileData.preferredGameType || profileData.location) {
+      if (
+        profileData.playerNickname ||
+        profileData.skillLevel ||
+        profileData.preferredGameType ||
+        profileData.location
+      ) {
         await createUserDocument(authState.user, {
           playerNickname: profileData.playerNickname,
           skillLevel: profileData.skillLevel,
           preferredGameType: profileData.preferredGameType,
           location: profileData.location,
-          photoURL: profileData.photoURL
+          photoURL: profileData.photoURL,
         });
       }
-      
+
       // Update Firebase Auth profile if auth-specific data is provided
       if (profileData.displayName || profileData.photoURL) {
         await updateProfile(authState.user, {
           displayName: profileData.displayName || undefined,
-          photoURL: profileData.photoURL || null
+          photoURL: profileData.photoURL || null,
         });
       }
-      
+
       return { success: true };
     } catch (error: any) {
       handleError(error);
@@ -290,9 +301,9 @@ export const useAuth = () => {
   const fetchUserProfile = async (uid: string) => {
     try {
       setAuthState({ ...authState, loading: true });
-      const userDoc = await getDoc(doc(db, 'users', uid));
+      const userDoc = await getDoc(doc(db, "users", uid));
       if (!userDoc.exists()) {
-        throw new Error('User profile not found');
+        throw new Error("User profile not found");
       }
       return userDoc.data();
     } catch (error: any) {
@@ -304,16 +315,16 @@ export const useAuth = () => {
   };
 
   const deleteUserAccount = async () => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
       const result = await deleteAccount(authState.user);
       if (!result.success) throw new Error(result.error);
-      
+
       // Sign out after successful deletion
       await signOutUser();
-      
+
       return result;
     } catch (error: any) {
       handleError(error);
@@ -324,13 +335,13 @@ export const useAuth = () => {
   };
 
   const exportAccountData = async () => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
       const result = await exportUserData(authState.user);
       if (!result.success) throw new Error(result.error);
-      
+
       return result;
     } catch (error: any) {
       handleError(error);
@@ -341,8 +352,8 @@ export const useAuth = () => {
   };
 
   const requestAccountDeletionRequest = async (): Promise<AuthResponse> => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
       const result = await requestAccountDeletion(authState.user);
@@ -357,8 +368,8 @@ export const useAuth = () => {
   };
 
   const cancelAccountDeletionRequest = async (): Promise<AuthResponse> => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
       const result = await cancelAccountDeletion(authState.user);
@@ -373,8 +384,8 @@ export const useAuth = () => {
   };
 
   const getDeletionRequestStatusCheck = async (): Promise<DeletionStatus> => {
-    if (!authState.user) return { success: false, error: 'No user logged in' };
-    
+    if (!authState.user) return { success: false, error: "No user logged in" };
+
     try {
       setAuthState({ ...authState, loading: true });
       const result = await getDeletionRequestStatus(authState.user);
@@ -407,6 +418,6 @@ export const useAuth = () => {
     exportAccountData,
     requestAccountDeletion: requestAccountDeletionRequest,
     cancelAccountDeletion: cancelAccountDeletionRequest,
-    getDeletionRequestStatus: getDeletionRequestStatusCheck
+    getDeletionRequestStatus: getDeletionRequestStatusCheck,
   };
-}; 
+};

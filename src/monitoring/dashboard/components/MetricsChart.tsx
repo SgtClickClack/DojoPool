@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   LineChart,
   Line,
@@ -7,9 +7,9 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceLine,
-  ResponsiveContainer
-} from 'recharts';
-import { useTheme } from '@mui/material/styles';
+  ResponsiveContainer,
+} from "recharts";
+import { useTheme } from "@mui/material/styles";
 
 interface MetricDataPoint {
   timestamp: number;
@@ -27,14 +27,14 @@ interface MetricsChartProps {
 
 const formatTimestamp = (timestamp: number) => {
   const date = new Date(timestamp);
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+  return `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
 };
 
 export const MetricsChart: React.FC<MetricsChartProps> = ({
   data,
   yAxisLabel,
   height,
-  reverseThreshold = false
+  reverseThreshold = false,
 }) => {
   const theme = useTheme();
 
@@ -54,7 +54,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
           interval="preserveStartEnd"
         />
         <YAxis
-          label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }}
+          label={{ value: yAxisLabel, angle: -90, position: "insideLeft" }}
         />
         <Tooltip
           labelFormatter={formatTimestamp}
@@ -66,9 +66,9 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
             stroke={theme.palette.warning.main}
             strokeDasharray="3 3"
             label={{
-              value: 'Warning',
-              position: 'right',
-              fill: theme.palette.warning.main
+              value: "Warning",
+              position: "right",
+              fill: theme.palette.warning.main,
             }}
           />
         )}
@@ -78,9 +78,9 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
             stroke={theme.palette.error.main}
             strokeDasharray="3 3"
             label={{
-              value: 'Critical',
-              position: 'right',
-              fill: theme.palette.error.main
+              value: "Critical",
+              position: "right",
+              fill: theme.palette.error.main,
             }}
           />
         )}

@@ -1,13 +1,13 @@
-import Konva from 'konva';
+import Konva from "konva";
 
 // Initialize Konva stage based on environment
 export const initKonvaStage = (containerId: string) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Browser environment
     return new Konva.Stage({
       container: containerId,
       width: 800,
-      height: 600
+      height: 600,
     });
   }
   // Server environment - return null
@@ -27,7 +27,7 @@ export const addImageToLayer = async (layer: Konva.Layer, imageUrl: string) => {
       const image = new Konva.Image({
         image: imageObj,
         width: imageObj.width,
-        height: imageObj.height
+        height: imageObj.height,
       });
       layer.add(image);
       layer.batchDraw();
@@ -39,11 +39,14 @@ export const addImageToLayer = async (layer: Konva.Layer, imageUrl: string) => {
 };
 
 // Helper to export stage as image
-export const exportStageToImage = (stage: Konva.Stage, format: string = 'png') => {
-  if (!stage) return '';
-  return stage.toDataURL({ 
+export const exportStageToImage = (
+  stage: Konva.Stage,
+  format: string = "png",
+) => {
+  if (!stage) return "";
+  return stage.toDataURL({
     mimeType: `image/${format}`,
-    quality: 1
+    quality: 1,
   });
 };
 
@@ -52,4 +55,4 @@ export const clearLayer = (layer: Konva.Layer) => {
   if (!layer) return;
   layer.destroyChildren();
   layer.batchDraw();
-}; 
+};

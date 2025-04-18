@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   AppBar,
   Box,
@@ -20,27 +20,27 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '../../contexts/AuthContext';
-import NotificationCenter from './[NOTIFY]NotificationCenter';
-import notificationService from '../../services/[NET]notification';
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useAuth } from "../../contexts/AuthContext";
+import NotificationCenter from "./[NOTIFY]NotificationCenter";
+import notificationService from "../../services/[NET]notification";
 
 const publicPages = [
-  { title: 'Home', path: '/' },
-  { title: 'Games', path: '/games' },
-  { title: 'Leaderboard', path: '/leaderboard' },
+  { title: "Home", path: "/" },
+  { title: "Games", path: "/games" },
+  { title: "Leaderboard", path: "/leaderboard" },
 ];
 
 const userPages = [
-  { title: 'Profile', path: '/profile' },
-  { title: 'Settings', path: '/settings' },
+  { title: "Profile", path: "/profile" },
+  { title: "Settings", path: "/settings" },
 ];
 
 const Navbar = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -56,12 +56,12 @@ const Navbar = () => {
     try {
       const granted = await notificationService.requestNotificationPermission();
       if (granted) {
-        console.log('Notification permission granted');
+        console.log("Notification permission granted");
       } else {
-        console.log('Notification permission denied');
+        console.log("Notification permission denied");
       }
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      console.error("Error requesting notification permission:", error);
     }
   };
 
@@ -144,17 +144,17 @@ const Navbar = () => {
             to="/"
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
+              display: { xs: "none", md: "flex" },
               fontWeight: 700,
-              color: 'inherit',
-              textDecoration: 'none',
+              color: "inherit",
+              textDecoration: "none",
             }}
           >
             DojoPool
           </Typography>
 
           {/* Mobile Menu */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="menu"
@@ -186,23 +186,23 @@ const Navbar = () => {
             to="/"
             sx={{
               flexGrow: 1,
-              display: { xs: 'flex', md: 'none' },
+              display: { xs: "flex", md: "none" },
               fontWeight: 700,
-              color: 'inherit',
-              textDecoration: 'none',
+              color: "inherit",
+              textDecoration: "none",
             }}
           >
             DojoPool
           </Typography>
 
           {/* Desktop Menu */}
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {publicPages.map((page) => (
               <Button
                 key={page.title}
                 component={RouterLink}
                 to={page.path}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page.title}
               </Button>
@@ -210,30 +210,30 @@ const Navbar = () => {
           </Box>
 
           {/* Right Menu */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {isAuthenticated && <NotificationCenter />}
             {isAuthenticated ? (
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
-                      alt={user?.name || 'User'}
-                      src={user?.avatar || '/static/images/avatar/2.jpg'}
+                      alt={user?.name || "User"}
+                      src={user?.avatar || "/static/images/avatar/2.jpg"}
                     />
                   </IconButton>
                 </Tooltip>
                 <Menu
-                  sx={{ mt: '45px' }}
+                  sx={{ mt: "45px" }}
                   id="menu-appbar"
                   anchorEl={anchorElUser}
                   anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    vertical: "top",
+                    horizontal: "right",
                   }}
                   keepMounted
                   transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    vertical: "top",
+                    horizontal: "right",
                   }}
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
@@ -254,7 +254,11 @@ const Navbar = () => {
                 </Menu>
               </>
             ) : (
-              <Button component={RouterLink} to="/login" sx={{ color: 'white' }}>
+              <Button
+                component={RouterLink}
+                to="/login"
+                sx={{ color: "white" }}
+              >
                 Login
               </Button>
             )}

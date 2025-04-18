@@ -1,8 +1,13 @@
-import { scalabilityScenarios, scalabilityThresholds, resourceMonitoring, testDataConfig } from './config';
-import { performanceMonitor } from '../../config/performance';
-import { analytics, AnalyticsEventType } from '../../config/analytics';
-import * as k6 from 'k6';
-import { check } from 'k6';
+import {
+  scalabilityScenarios,
+  scalabilityThresholds,
+  resourceMonitoring,
+  testDataConfig,
+} from "./config";
+import { performanceMonitor } from "../../config/performance";
+import { analytics, AnalyticsEventType } from "../../config/analytics";
+import * as k6 from "k6";
+import { check } from "k6";
 
 // Test result interface
 interface TestResult {
@@ -61,13 +66,22 @@ export class ScalabilityTestRunner {
 
   private setupMonitoring() {
     // Set up resource monitoring intervals
-    setInterval(() => this.collectSystemMetrics(), resourceMonitoring.intervals.system);
-    setInterval(() => this.collectApplicationMetrics(), resourceMonitoring.intervals.application);
-    setInterval(() => this.collectDatabaseMetrics(), resourceMonitoring.intervals.database);
+    setInterval(
+      () => this.collectSystemMetrics(),
+      resourceMonitoring.intervals.system,
+    );
+    setInterval(
+      () => this.collectApplicationMetrics(),
+      resourceMonitoring.intervals.application,
+    );
+    setInterval(
+      () => this.collectDatabaseMetrics(),
+      resourceMonitoring.intervals.database,
+    );
   }
 
   public async runAllTests() {
-    console.log('Starting scalability test suite...');
+    console.log("Starting scalability test suite...");
 
     // Run each test scenario
     await this.runLoadTest();
@@ -80,10 +94,10 @@ export class ScalabilityTestRunner {
   }
 
   private async runLoadTest() {
-    this.currentTest = 'loadTest';
+    this.currentTest = "loadTest";
     this.startTime = Date.now();
 
-    console.log('Running load test...');
+    console.log("Running load test...");
     const scenario = scalabilityScenarios.loadTest;
 
     try {
@@ -91,9 +105,9 @@ export class ScalabilityTestRunner {
       k6.options = {
         scenarios: {
           load_test: {
-            executor: 'ramping-vus',
+            executor: "ramping-vus",
             stages: scenario.rampUp,
-            gracefulRampDown: '30s',
+            gracefulRampDown: "30s",
           },
         },
         thresholds: scenario.thresholds,
@@ -103,27 +117,27 @@ export class ScalabilityTestRunner {
       const result = await this.executeTest();
       this.results.push(result);
 
-      console.log('Load test completed successfully');
+      console.log("Load test completed successfully");
     } catch (error) {
-      console.error('Load test failed:', error);
-      this.trackTestFailure('loadTest', error);
+      console.error("Load test failed:", error);
+      this.trackTestFailure("loadTest", error);
     }
   }
 
   private async runStressTest() {
-    this.currentTest = 'stressTest';
+    this.currentTest = "stressTest";
     this.startTime = Date.now();
 
-    console.log('Running stress test...');
+    console.log("Running stress test...");
     const scenario = scalabilityScenarios.stressTest;
 
     try {
       k6.options = {
         scenarios: {
           stress_test: {
-            executor: 'ramping-vus',
+            executor: "ramping-vus",
             stages: scenario.rampUp,
-            gracefulRampDown: '30s',
+            gracefulRampDown: "30s",
           },
         },
         thresholds: scenario.thresholds,
@@ -132,27 +146,27 @@ export class ScalabilityTestRunner {
       const result = await this.executeTest();
       this.results.push(result);
 
-      console.log('Stress test completed successfully');
+      console.log("Stress test completed successfully");
     } catch (error) {
-      console.error('Stress test failed:', error);
-      this.trackTestFailure('stressTest', error);
+      console.error("Stress test failed:", error);
+      this.trackTestFailure("stressTest", error);
     }
   }
 
   private async runSpikeTest() {
-    this.currentTest = 'spikeTest';
+    this.currentTest = "spikeTest";
     this.startTime = Date.now();
 
-    console.log('Running spike test...');
+    console.log("Running spike test...");
     const scenario = scalabilityScenarios.spikeTest;
 
     try {
       k6.options = {
         scenarios: {
           spike_test: {
-            executor: 'ramping-vus',
+            executor: "ramping-vus",
             stages: scenario.rampUp,
-            gracefulRampDown: '30s',
+            gracefulRampDown: "30s",
           },
         },
         thresholds: scenario.thresholds,
@@ -161,27 +175,27 @@ export class ScalabilityTestRunner {
       const result = await this.executeTest();
       this.results.push(result);
 
-      console.log('Spike test completed successfully');
+      console.log("Spike test completed successfully");
     } catch (error) {
-      console.error('Spike test failed:', error);
-      this.trackTestFailure('spikeTest', error);
+      console.error("Spike test failed:", error);
+      this.trackTestFailure("spikeTest", error);
     }
   }
 
   private async runEnduranceTest() {
-    this.currentTest = 'enduranceTest';
+    this.currentTest = "enduranceTest";
     this.startTime = Date.now();
 
-    console.log('Running endurance test...');
+    console.log("Running endurance test...");
     const scenario = scalabilityScenarios.enduranceTest;
 
     try {
       k6.options = {
         scenarios: {
           endurance_test: {
-            executor: 'ramping-vus',
+            executor: "ramping-vus",
             stages: scenario.rampUp,
-            gracefulRampDown: '30s',
+            gracefulRampDown: "30s",
           },
         },
         thresholds: scenario.thresholds,
@@ -190,10 +204,10 @@ export class ScalabilityTestRunner {
       const result = await this.executeTest();
       this.results.push(result);
 
-      console.log('Endurance test completed successfully');
+      console.log("Endurance test completed successfully");
     } catch (error) {
-      console.error('Endurance test failed:', error);
-      this.trackTestFailure('enduranceTest', error);
+      console.error("Endurance test failed:", error);
+      this.trackTestFailure("enduranceTest", error);
     }
   }
 
@@ -238,7 +252,7 @@ export class ScalabilityTestRunner {
 
     // Collect metrics during test
     const testMetrics = k6.metrics;
-    
+
     // Update metrics from k6 results
     metrics.http.requestCount = testMetrics.http_reqs.count;
     metrics.http.errorCount = testMetrics.http_req_failed.count;
@@ -254,14 +268,16 @@ export class ScalabilityTestRunner {
     };
 
     // Verify each threshold
-    Object.entries(k6.options.thresholds || {}).forEach(([metric, thresholds]) => {
-      thresholds.forEach((threshold: string) => {
-        if (!check(null, { [metric]: threshold })) {
-          thresholdResults.passed = false;
-          thresholdResults.failures.push(`${metric}: ${threshold}`);
-        }
-      });
-    });
+    Object.entries(k6.options.thresholds || {}).forEach(
+      ([metric, thresholds]) => {
+        thresholds.forEach((threshold: string) => {
+          if (!check(null, { [metric]: threshold })) {
+            thresholdResults.passed = false;
+            thresholdResults.failures.push(`${metric}: ${threshold}`);
+          }
+        });
+      },
+    );
 
     return {
       scenario: this.currentTest!,
@@ -280,12 +296,12 @@ export class ScalabilityTestRunner {
       // Add more system metrics as needed
     };
 
-    this.trackResourceMetrics('system', metrics);
+    this.trackResourceMetrics("system", metrics);
   }
 
   private collectApplicationMetrics() {
     // Collect application-level metrics
-    performanceMonitor.trackCustomMetric('app_metrics', 1, {
+    performanceMonitor.trackCustomMetric("app_metrics", 1, {
       activeUsers: testDataConfig.users.concurrentSessions,
       activeGames: testDataConfig.games.count,
       activeTournaments: testDataConfig.tournaments.count,
@@ -308,7 +324,7 @@ export class ScalabilityTestRunner {
       },
       metadata: {
         testType: this.currentTest,
-        stage: 'execution',
+        stage: "execution",
       },
     });
   }
@@ -347,33 +363,35 @@ export class ScalabilityTestRunner {
   }
 
   private generateReport() {
-    console.log('\nScalability Test Report');
-    console.log('=======================\n');
+    console.log("\nScalability Test Report");
+    console.log("=======================\n");
 
     this.results.forEach((result) => {
       console.log(`Test Scenario: ${result.scenario}`);
       console.log(`Duration: ${result.duration}ms`);
-      console.log('Metrics:');
-      console.log('- HTTP:');
+      console.log("Metrics:");
+      console.log("- HTTP:");
       console.log(`  Requests: ${result.metrics.http.requestCount}`);
       console.log(`  Errors: ${result.metrics.http.errorCount}`);
       console.log(`  P95: ${result.metrics.http.p95}ms`);
       console.log(`  P99: ${result.metrics.http.p99}ms`);
-      console.log('- Resources:');
+      console.log("- Resources:");
       console.log(`  CPU Peak: ${result.metrics.resources.cpu.peak * 100}%`);
-      console.log(`  Memory Peak: ${result.metrics.resources.memory.peak * 100}%`);
-      console.log('Thresholds:');
+      console.log(
+        `  Memory Peak: ${result.metrics.resources.memory.peak * 100}%`,
+      );
+      console.log("Thresholds:");
       console.log(`  Passed: ${result.thresholds.passed}`);
       if (result.thresholds.failures.length > 0) {
-        console.log('  Failures:');
+        console.log("  Failures:");
         result.thresholds.failures.forEach((failure) => {
           console.log(`  - ${failure}`);
         });
       }
-      console.log('-------------------\n');
+      console.log("-------------------\n");
     });
   }
 }
 
 // Export test runner instance
-export const testRunner = new ScalabilityTestRunner(); 
+export const testRunner = new ScalabilityTestRunner();

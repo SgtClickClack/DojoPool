@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -19,8 +19,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
-} from '@mui/material';
+  MenuItem,
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -31,16 +31,19 @@ import {
   Legend,
   ResponsiveContainer,
   LineChart,
-  Line
-} from 'recharts';
+  Line,
+} from "recharts";
 
 interface APIAnalysis {
   total_requests: number;
-  by_endpoint: Record<string, {
-    count: number;
-    avg_time: number;
-    error_rate: number;
-  }>;
+  by_endpoint: Record<
+    string,
+    {
+      count: number;
+      avg_time: number;
+      error_rate: number;
+    }
+  >;
   average_time: number;
   max_time: number;
   error_rate: number;
@@ -81,8 +84,9 @@ export default function APIOptimizationDashboard() {
   const [tabValue, setTabValue] = useState(0);
   const [threshold, setThreshold] = useState(100);
   const [slowEndpoints, setSlowEndpoints] = useState<SlowEndpoint[]>([]);
-  const [optimizationAction, setOptimizationAction] = useState('optimize_payload');
-  const [payloadData, setPayloadData] = useState('');
+  const [optimizationAction, setOptimizationAction] =
+    useState("optimize_payload");
+  const [payloadData, setPayloadData] = useState("");
 
   useEffect(() => {
     fetchAnalysis();
@@ -91,14 +95,14 @@ export default function APIOptimizationDashboard() {
   const fetchAnalysis = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/api');
+      const response = await fetch("/api/optimization/api");
       if (!response.ok) {
-        throw new Error('Failed to fetch API analysis');
+        throw new Error("Failed to fetch API analysis");
       }
       const data = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch analysis');
+      setError(err instanceof Error ? err.message : "Failed to fetch analysis");
     } finally {
       setLoading(false);
     }
@@ -108,29 +112,34 @@ export default function APIOptimizationDashboard() {
     setTabValue(newValue);
   };
 
-  const handleThresholdChange = async (event: Event, newValue: number | number[]) => {
-    const newThreshold = typeof newValue === 'number' ? newValue : newValue[0];
+  const handleThresholdChange = async (
+    event: Event,
+    newValue: number | number[],
+  ) => {
+    const newThreshold = typeof newValue === "number" ? newValue : newValue[0];
     setThreshold(newThreshold);
-    
+
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/api', {
-        method: 'POST',
+      const response = await fetch("/api/optimization/api", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'get_slow_endpoints',
-          threshold: newThreshold
+          action: "get_slow_endpoints",
+          threshold: newThreshold,
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch slow endpoints');
+        throw new Error("Failed to fetch slow endpoints");
       }
       const data = await response.json();
       setSlowEndpoints(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch slow endpoints');
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch slow endpoints",
+      );
     } finally {
       setLoading(false);
     }
@@ -139,23 +148,25 @@ export default function APIOptimizationDashboard() {
   const handleOptimizePayload = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/api', {
-        method: 'POST',
+      const response = await fetch("/api/optimization/api", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'optimize_payload',
-          data: JSON.parse(payloadData)
+          action: "optimize_payload",
+          data: JSON.parse(payloadData),
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to optimize payload');
+        throw new Error("Failed to optimize payload");
       }
       const data = await response.json();
       setPayloadData(JSON.stringify(data, null, 2));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to optimize payload');
+      setError(
+        err instanceof Error ? err.message : "Failed to optimize payload",
+      );
     } finally {
       setLoading(false);
     }
@@ -163,7 +174,12 @@ export default function APIOptimizationDashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -179,12 +195,12 @@ export default function APIOptimizationDashboard() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ width: '100%', mt: 4 }}>
+      <Box sx={{ width: "100%", mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           API Optimization Dashboard
         </Typography>
 
-        <Paper sx={{ width: '100%', mb: 2 }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -204,7 +220,9 @@ export default function APIOptimizationDashboard() {
                   <Typography variant="h6" gutterBottom>
                     API Overview
                   </Typography>
-                  <Typography>Total Requests: {analysis?.total_requests}</Typography>
+                  <Typography>
+                    Total Requests: {analysis?.total_requests}
+                  </Typography>
                   <Typography>
                     Average Response Time: {analysis?.average_time.toFixed(2)}ms
                   </Typography>
@@ -226,8 +244,8 @@ export default function APIOptimizationDashboard() {
                       data={Object.entries(analysis?.by_endpoint || {}).map(
                         ([endpoint, stats]) => ({
                           endpoint,
-                          avg_time: stats.avg_time
-                        })
+                          avg_time: stats.avg_time,
+                        }),
                       )}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -271,7 +289,7 @@ export default function APIOptimizationDashboard() {
                         />
                         <Chip
                           label={`${endpoint.avg_time.toFixed(0)}ms`}
-                          color={endpoint.avg_time > 200 ? 'error' : 'warning'}
+                          color={endpoint.avg_time > 200 ? "error" : "warning"}
                         />
                       </ListItem>
                     ))}
@@ -295,8 +313,12 @@ export default function APIOptimizationDashboard() {
                       onChange={(e) => setOptimizationAction(e.target.value)}
                       label="Optimization Action"
                     >
-                      <MenuItem value="optimize_payload">Optimize Payload</MenuItem>
-                      <MenuItem value="compress_response">Compress Response</MenuItem>
+                      <MenuItem value="optimize_payload">
+                        Optimize Payload
+                      </MenuItem>
+                      <MenuItem value="compress_response">
+                        Compress Response
+                      </MenuItem>
                     </Select>
                   </FormControl>
                   <TextField
@@ -323,4 +345,4 @@ export default function APIOptimizationDashboard() {
       </Box>
     </Container>
   );
-} 
+}

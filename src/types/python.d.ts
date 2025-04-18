@@ -1,4 +1,4 @@
-declare module 'dojopool/services/cdn/cost_optimizer' {
+declare module "dojopool/services/cdn/cost_optimizer" {
   export class CDNCostOptimizer {
     constructor();
     optimize_costs(): Promise<{
@@ -39,10 +39,10 @@ declare module 'dojopool/services/cdn/cost_optimizer' {
   }
 }
 
-declare module 'dojopool/services/auth/session' {
+declare module "dojopool/services/auth/session" {
   export function getCurrentUser(req: any): Promise<{
     id: string;
     email: string;
     role: string;
   } | null>;
-} 
+}

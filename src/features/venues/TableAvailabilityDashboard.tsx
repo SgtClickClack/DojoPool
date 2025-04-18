@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -22,9 +22,18 @@ import {
   Select,
   FormControl,
   InputLabel,
-} from '@mui/material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format, parseISO } from 'date-fns';
+} from "@mui/material";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { format, parseISO } from "date-fns";
 
 interface TableAvailability {
   tableId: number;
@@ -49,16 +58,25 @@ interface MaintenanceSchedule {
 const TableAvailabilityDashboard: React.FC = () => {
   const [availability, setAvailability] = useState<TableAvailability[]>([]);
   const [peakHours, setPeakHours] = useState<PeakHours>({});
-  const [maintenanceSchedule, setMaintenanceSchedule] = useState<MaintenanceSchedule[]>([]);
+  const [maintenanceSchedule, setMaintenanceSchedule] = useState<
+    MaintenanceSchedule[]
+  >([]);
   const [selectedVenue, setSelectedVenue] = useState<number>(1);
-  const [startTime, setStartTime] = useState<string>(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
-  const [endTime, setEndTime] = useState<string>(format(new Date(Date.now() + 24 * 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"));
+  const [startTime, setStartTime] = useState<string>(
+    format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+  );
+  const [endTime, setEndTime] = useState<string>(
+    format(new Date(Date.now() + 24 * 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"),
+  );
   const [openMaintenanceDialog, setOpenMaintenanceDialog] = useState(false);
   const [newMaintenance, setNewMaintenance] = useState({
     tableId: 0,
     startTime: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-    endTime: format(new Date(Date.now() + 2 * 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"),
-    reason: '',
+    endTime: format(
+      new Date(Date.now() + 2 * 60 * 60 * 1000),
+      "yyyy-MM-dd'T'HH:mm",
+    ),
+    reason: "",
   });
 
   useEffect(() => {
@@ -70,41 +88,45 @@ const TableAvailabilityDashboard: React.FC = () => {
   const fetchAvailability = async () => {
     try {
       const response = await fetch(
-        `/api/table-availability/availability/${selectedVenue}?start_time=${startTime}&end_time=${endTime}`
+        `/api/table-availability/availability/${selectedVenue}?start_time=${startTime}&end_time=${endTime}`,
       );
       const data = await response.json();
       setAvailability(data);
     } catch (error) {
-      console.error('Error fetching availability:', error);
+      console.error("Error fetching availability:", error);
     }
   };
 
   const fetchPeakHours = async () => {
     try {
-      const response = await fetch(`/api/table-availability/peak-hours/${selectedVenue}`);
+      const response = await fetch(
+        `/api/table-availability/peak-hours/${selectedVenue}`,
+      );
       const data = await response.json();
       setPeakHours(data);
     } catch (error) {
-      console.error('Error fetching peak hours:', error);
+      console.error("Error fetching peak hours:", error);
     }
   };
 
   const fetchMaintenanceSchedule = async () => {
     try {
-      const response = await fetch(`/api/table-availability/maintenance/${selectedVenue}`);
+      const response = await fetch(
+        `/api/table-availability/maintenance/${selectedVenue}`,
+      );
       const data = await response.json();
       setMaintenanceSchedule(data);
     } catch (error) {
-      console.error('Error fetching maintenance schedule:', error);
+      console.error("Error fetching maintenance schedule:", error);
     }
   };
 
   const handleScheduleMaintenance = async () => {
     try {
-      const response = await fetch('/api/table-availability/maintenance', {
-        method: 'POST',
+      const response = await fetch("/api/table-availability/maintenance", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(newMaintenance),
       });
@@ -114,7 +136,7 @@ const TableAvailabilityDashboard: React.FC = () => {
         fetchMaintenanceSchedule();
       }
     } catch (error) {
-      console.error('Error scheduling maintenance:', error);
+      console.error("Error scheduling maintenance:", error);
     }
   };
 
@@ -137,10 +159,21 @@ const TableAvailabilityDashboard: React.FC = () => {
                 <LineChart data={peakHoursData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="hour" />
-                  <YAxis label={{ value: 'Occupancy Rate (%)', angle: -90, position: 'insideLeft' }} />
+                  <YAxis
+                    label={{
+                      value: "Occupancy Rate (%)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="occupancy" stroke="#8884d8" name="Occupancy Rate" />
+                  <Line
+                    type="monotone"
+                    dataKey="occupancy"
+                    stroke="#8884d8"
+                    name="Occupancy Rate"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -169,8 +202,12 @@ const TableAvailabilityDashboard: React.FC = () => {
                         <TableCell>
                           {table.availableSlots.map((slot, index) => (
                             <div key={index}>
-                              {format(parseISO(slot.start), 'MMM d, yyyy HH:mm')} -{' '}
-                              {format(parseISO(slot.end), 'MMM d, yyyy HH:mm')}
+                              {format(
+                                parseISO(slot.start),
+                                "MMM d, yyyy HH:mm",
+                              )}{" "}
+                              -{" "}
+                              {format(parseISO(slot.end), "MMM d, yyyy HH:mm")}
                             </div>
                           ))}
                         </TableCell>
@@ -187,7 +224,14 @@ const TableAvailabilityDashboard: React.FC = () => {
         <Grid item xs={12}>
           <Card>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
                 <Typography variant="h6">Maintenance Schedule</Typography>
                 <Button
                   variant="contained"
@@ -212,10 +256,16 @@ const TableAvailabilityDashboard: React.FC = () => {
                       <TableRow key={schedule.tableId}>
                         <TableCell>{schedule.tableNumber}</TableCell>
                         <TableCell>
-                          {format(parseISO(schedule.startTime), 'MMM d, yyyy HH:mm')}
+                          {format(
+                            parseISO(schedule.startTime),
+                            "MMM d, yyyy HH:mm",
+                          )}
                         </TableCell>
                         <TableCell>
-                          {format(parseISO(schedule.endTime), 'MMM d, yyyy HH:mm')}
+                          {format(
+                            parseISO(schedule.endTime),
+                            "MMM d, yyyy HH:mm",
+                          )}
                         </TableCell>
                         <TableCell>{schedule.reason}</TableCell>
                       </TableRow>
@@ -229,14 +279,22 @@ const TableAvailabilityDashboard: React.FC = () => {
       </Grid>
 
       {/* Maintenance Dialog */}
-      <Dialog open={openMaintenanceDialog} onClose={() => setOpenMaintenanceDialog(false)}>
+      <Dialog
+        open={openMaintenanceDialog}
+        onClose={() => setOpenMaintenanceDialog(false)}
+      >
         <DialogTitle>Schedule Maintenance</DialogTitle>
         <DialogContent>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Table</InputLabel>
             <Select
               value={newMaintenance.tableId}
-              onChange={(e) => setNewMaintenance({ ...newMaintenance, tableId: Number(e.target.value) })}
+              onChange={(e) =>
+                setNewMaintenance({
+                  ...newMaintenance,
+                  tableId: Number(e.target.value),
+                })
+              }
             >
               {availability.map((table) => (
                 <MenuItem key={table.tableId} value={table.tableId}>
@@ -250,7 +308,12 @@ const TableAvailabilityDashboard: React.FC = () => {
             type="datetime-local"
             label="Start Time"
             value={newMaintenance.startTime}
-            onChange={(e) => setNewMaintenance({ ...newMaintenance, startTime: e.target.value })}
+            onChange={(e) =>
+              setNewMaintenance({
+                ...newMaintenance,
+                startTime: e.target.value,
+              })
+            }
             sx={{ mt: 2 }}
           />
           <TextField
@@ -258,20 +321,30 @@ const TableAvailabilityDashboard: React.FC = () => {
             type="datetime-local"
             label="End Time"
             value={newMaintenance.endTime}
-            onChange={(e) => setNewMaintenance({ ...newMaintenance, endTime: e.target.value })}
+            onChange={(e) =>
+              setNewMaintenance({ ...newMaintenance, endTime: e.target.value })
+            }
             sx={{ mt: 2 }}
           />
           <TextField
             fullWidth
             label="Reason"
             value={newMaintenance.reason}
-            onChange={(e) => setNewMaintenance({ ...newMaintenance, reason: e.target.value })}
+            onChange={(e) =>
+              setNewMaintenance({ ...newMaintenance, reason: e.target.value })
+            }
             sx={{ mt: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenMaintenanceDialog(false)}>Cancel</Button>
-          <Button onClick={handleScheduleMaintenance} variant="contained" color="primary">
+          <Button onClick={() => setOpenMaintenanceDialog(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleScheduleMaintenance}
+            variant="contained"
+            color="primary"
+          >
             Schedule
           </Button>
         </DialogActions>
@@ -280,4 +353,4 @@ const TableAvailabilityDashboard: React.FC = () => {
   );
 };
 
-export default TableAvailabilityDashboard; 
+export default TableAvailabilityDashboard;

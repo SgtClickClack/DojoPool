@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Tag, Modal, message, Tabs } from 'antd';
-import { TrophyOutlined, DollarOutlined, CheckOutlined } from '@ant-design/icons';
-import moment from 'moment';
+import React, { useState, useEffect } from "react";
+import { Card, Table, Button, Tag, Modal, message, Tabs } from "antd";
+import {
+  TrophyOutlined,
+  DollarOutlined,
+  CheckOutlined,
+} from "@ant-design/icons";
+import moment from "moment";
 
-import { useAuth } from '../../hooks/useAuth';
-import { getUnclaimedPrizes, getPrizeHistory, claimPrize } from '../../api/tournaments';
+import { useAuth } from "../../hooks/useAuth";
+import {
+  getUnclaimedPrizes,
+  getPrizeHistory,
+  claimPrize,
+} from "../../api/tournaments";
 
 const { TabPane } = Tabs;
 
@@ -43,8 +51,8 @@ const PrizeManagement: React.FC = () => {
       setUnclaimedPrizes(unclaimed);
       setPrizeHistory(history);
     } catch (error) {
-      console.error('Error fetching prizes:', error);
-      message.error('Failed to fetch prizes');
+      console.error("Error fetching prizes:", error);
+      message.error("Failed to fetch prizes");
     } finally {
       setLoading(false);
     }
@@ -54,58 +62,69 @@ const PrizeManagement: React.FC = () => {
     if (!selectedPrize) return;
 
     try {
-      await claimPrize(selectedPrize.participant_id, selectedPrize.tournament_id);
-      message.success('Prize claimed successfully');
+      await claimPrize(
+        selectedPrize.participant_id,
+        selectedPrize.tournament_id,
+      );
+      message.success("Prize claimed successfully");
       setClaimModalVisible(false);
       fetchPrizes();
     } catch (error) {
-      console.error('Error claiming prize:', error);
-      message.error('Failed to claim prize');
+      console.error("Error claiming prize:", error);
+      message.error("Failed to claim prize");
     }
   };
 
   const columns = [
     {
-      title: 'Tournament',
-      dataIndex: 'tournament_name',
-      key: 'tournament_name',
+      title: "Tournament",
+      dataIndex: "tournament_name",
+      key: "tournament_name",
     },
     {
-      title: 'Place',
-      dataIndex: 'rank',
-      key: 'rank',
+      title: "Place",
+      dataIndex: "rank",
+      key: "rank",
       render: (rank: number) => (
         <Tag
-          color={rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'default'}
+          color={
+            rank === 1
+              ? "gold"
+              : rank === 2
+                ? "silver"
+                : rank === 3
+                  ? "bronze"
+                  : "default"
+          }
         >
           {rank}
         </Tag>
       ),
     },
     {
-      title: 'Amount',
-      dataIndex: 'amount',
-      key: 'amount',
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
       render: (amount: number) => `$${amount.toFixed(2)}`,
     },
     {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      render: (date: string) => moment(date).format('MMM D, YYYY'),
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date: string) => moment(date).format("MMM D, YYYY"),
     },
     {
-      title: 'Status',
-      key: 'status',
+      title: "Status",
+      key: "status",
       render: (_, record: Prize) => (
-        <Tag color={record.claimed ? 'success' : 'warning'}>
-          {record.claimed ? 'Claimed' : 'Unclaimed'}
+        <Tag color={record.claimed ? "success" : "warning"}>
+          {record.claimed ? "Claimed" : "Unclaimed"}
         </Tag>
       ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record: Prize) =>
         !record.claimed && (
           <Button
@@ -143,7 +162,9 @@ const PrizeManagement: React.FC = () => {
             <Table
               columns={columns}
               dataSource={unclaimedPrizes}
-              rowKey={(record) => `${record.tournament_id}-${record.participant_id}`}
+              rowKey={(record) =>
+                `${record.tournament_id}-${record.participant_id}`
+              }
               loading={loading}
               pagination={{
                 pageSize: 10,
@@ -162,7 +183,9 @@ const PrizeManagement: React.FC = () => {
             <Table
               columns={columns}
               dataSource={prizeHistory}
-              rowKey={(record) => `${record.tournament_id}-${record.participant_id}`}
+              rowKey={(record) =>
+                `${record.tournament_id}-${record.participant_id}`
+              }
               loading={loading}
               pagination={{
                 pageSize: 10,
@@ -186,9 +209,9 @@ const PrizeManagement: React.FC = () => {
       >
         {selectedPrize && (
           <p>
-            Are you sure you want to claim your prize of{' '}
-            <strong>${selectedPrize.amount.toFixed(2)}</strong> for placing{' '}
-            <strong>{selectedPrize.rank}</strong> in{' '}
+            Are you sure you want to claim your prize of{" "}
+            <strong>${selectedPrize.amount.toFixed(2)}</strong> for placing{" "}
+            <strong>{selectedPrize.rank}</strong> in{" "}
             <strong>{selectedPrize.tournament_name}</strong>?
           </p>
         )}

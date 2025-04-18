@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Table,
@@ -17,7 +17,7 @@ import {
   message,
   List,
   Avatar,
-} from 'antd';
+} from "antd";
 import {
   CalendarOutlined,
   TeamOutlined,
@@ -27,10 +27,10 @@ import {
   EditOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-} from '@ant-design/icons';
-import moment from 'moment';
+} from "@ant-design/icons";
+import moment from "moment";
 
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from "../../hooks/useAuth";
 import {
   getVenueEvents,
   createEvent,
@@ -38,7 +38,7 @@ import {
   registerForEvent,
   getEventParticipants,
   checkInParticipant,
-} from '../../api/venues';
+} from "../../api/venues";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -61,7 +61,8 @@ const EventManagement: React.FC<EventManagementProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [participantsModalVisible, setParticipantsModalVisible] = useState(false);
+  const [participantsModalVisible, setParticipantsModalVisible] =
+    useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -74,8 +75,8 @@ const EventManagement: React.FC<EventManagementProps> = ({
       const data = await getVenueEvents(venueId);
       setEvents(data);
     } catch (error) {
-      console.error('Error fetching events:', error);
-      message.error('Failed to fetch events');
+      console.error("Error fetching events:", error);
+      message.error("Failed to fetch events");
     } finally {
       setLoading(false);
     }
@@ -86,8 +87,8 @@ const EventManagement: React.FC<EventManagementProps> = ({
       const data = await getEventParticipants(eventId);
       setParticipants(data);
     } catch (error) {
-      console.error('Error fetching participants:', error);
-      message.error('Failed to fetch participants');
+      console.error("Error fetching participants:", error);
+      message.error("Failed to fetch participants");
     }
   };
 
@@ -103,78 +104,88 @@ const EventManagement: React.FC<EventManagementProps> = ({
       delete data.timeRange;
 
       await createEvent(venueId, data);
-      message.success('Event created successfully');
+      message.success("Event created successfully");
       setCreateModalVisible(false);
       form.resetFields();
       fetchEvents();
     } catch (error) {
-      console.error('Error creating event:', error);
-      message.error('Failed to create event');
+      console.error("Error creating event:", error);
+      message.error("Failed to create event");
     }
   };
 
   const handleRegister = async (eventId: number) => {
     try {
       await registerForEvent(eventId);
-      message.success('Successfully registered for event');
+      message.success("Successfully registered for event");
       fetchEvents();
     } catch (error) {
-      console.error('Error registering for event:', error);
-      message.error('Failed to register for event');
+      console.error("Error registering for event:", error);
+      message.error("Failed to register for event");
     }
   };
 
   const handleCheckIn = async (eventId: number, userId: number) => {
     try {
       await checkInParticipant(eventId, userId);
-      message.success('Successfully checked in participant');
+      message.success("Successfully checked in participant");
       fetchParticipants(eventId);
     } catch (error) {
-      console.error('Error checking in participant:', error);
-      message.error('Failed to check in participant');
+      console.error("Error checking in participant:", error);
+      message.error("Failed to check in participant");
     }
   };
 
   const columns = [
     {
-      title: 'Event',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Event",
+      dataIndex: "name",
+      key: "name",
       render: (text: string, record: any) => (
         <div>
           <div style={{ fontWeight: 500 }}>{text}</div>
-          <div style={{ fontSize: 12, color: '#8c8c8c' }}>{record.description}</div>
-        </div>
-      ),
-    },
-    {
-      title: 'Type',
-      dataIndex: 'event_type',
-      key: 'event_type',
-      width: 120,
-      render: (type: string) => (
-        <Tag color={type === 'tournament' ? 'blue' : type === 'social' ? 'green' : 'default'}>
-          {type.charAt(0).toUpperCase() + type.slice(1)}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Date & Time',
-      key: 'datetime',
-      width: 200,
-      render: (record: any) => (
-        <div>
-          <div>{moment(record.start_time).format('MMM D, YYYY')}</div>
-          <div style={{ fontSize: 12, color: '#8c8c8c' }}>
-            {moment(record.start_time).format('h:mm A')} -{' '}
-            {moment(record.end_time).format('h:mm A')}
+          <div style={{ fontSize: 12, color: "#8c8c8c" }}>
+            {record.description}
           </div>
         </div>
       ),
     },
     {
-      title: 'Participants',
-      key: 'participants',
+      title: "Type",
+      dataIndex: "event_type",
+      key: "event_type",
+      width: 120,
+      render: (type: string) => (
+        <Tag
+          color={
+            type === "tournament"
+              ? "blue"
+              : type === "social"
+                ? "green"
+                : "default"
+          }
+        >
+          {type.charAt(0).toUpperCase() + type.slice(1)}
+        </Tag>
+      ),
+    },
+    {
+      title: "Date & Time",
+      key: "datetime",
+      width: 200,
+      render: (record: any) => (
+        <div>
+          <div>{moment(record.start_time).format("MMM D, YYYY")}</div>
+          <div style={{ fontSize: 12, color: "#8c8c8c" }}>
+            {moment(record.start_time).format("h:mm A")} -{" "}
+            {moment(record.end_time).format("h:mm A")}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Participants",
+      key: "participants",
       width: 120,
       render: (record: any) => (
         <Button
@@ -185,13 +196,13 @@ const EventManagement: React.FC<EventManagementProps> = ({
             fetchParticipants(record.id);
           }}
         >
-          {record.participant_count} / {record.max_participants || '∞'}
+          {record.participant_count} / {record.max_participants || "∞"}
         </Button>
       ),
     },
     {
-      title: 'Status',
-      key: 'status',
+      title: "Status",
+      key: "status",
       width: 120,
       render: (record: any) => {
         const now = moment();
@@ -199,36 +210,38 @@ const EventManagement: React.FC<EventManagementProps> = ({
         const end = moment(record.end_time);
 
         let status = record.status;
-        if (now < start) status = 'upcoming';
-        if (now >= start && now <= end) status = 'in_progress';
-        if (now > end) status = 'completed';
+        if (now < start) status = "upcoming";
+        if (now >= start && now <= end) status = "in_progress";
+        if (now > end) status = "completed";
 
         return (
           <Tag
             color={
-              status === 'upcoming'
-                ? 'blue'
-                : status === 'in_progress'
-                  ? 'green'
-                  : status === 'completed'
-                    ? 'default'
-                    : 'red'
+              status === "upcoming"
+                ? "blue"
+                : status === "in_progress"
+                  ? "green"
+                  : status === "completed"
+                    ? "default"
+                    : "red"
             }
           >
-            {status.replace('_', ' ').toUpperCase()}
+            {status.replace("_", " ").toUpperCase()}
           </Tag>
         );
       },
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       width: 120,
       render: (record: any) => {
         const now = moment();
         const start = moment(record.start_time);
         const deadline = moment(record.registration_deadline);
-        const isRegistered = record.participants?.some((p: any) => p.user_id === user?.id);
+        const isRegistered = record.participants?.some(
+          (p: any) => p.user_id === user?.id,
+        );
 
         if (isRegistered) {
           return (
@@ -246,7 +259,10 @@ const EventManagement: React.FC<EventManagementProps> = ({
           );
         }
 
-        if (record.max_participants && record.participant_count >= record.max_participants) {
+        if (
+          record.max_participants &&
+          record.participant_count >= record.max_participants
+        ) {
           return (
             <Tag color="error">
               <TeamOutlined /> Full
@@ -255,7 +271,11 @@ const EventManagement: React.FC<EventManagementProps> = ({
         }
 
         return (
-          <Button type="primary" size="small" onClick={() => handleRegister(record.id)}>
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => handleRegister(record.id)}
+          >
             Register
           </Button>
         );
@@ -309,7 +329,7 @@ const EventManagement: React.FC<EventManagementProps> = ({
           <Form.Item
             name="name"
             label="Event Name"
-            rules={[{ required: true, message: 'Please enter event name' }]}
+            rules={[{ required: true, message: "Please enter event name" }]}
           >
             <Input />
           </Form.Item>
@@ -317,7 +337,7 @@ const EventManagement: React.FC<EventManagementProps> = ({
           <Form.Item
             name="description"
             label="Description"
-            rules={[{ required: true, message: 'Please enter description' }]}
+            rules={[{ required: true, message: "Please enter description" }]}
           >
             <TextArea rows={4} />
           </Form.Item>
@@ -325,7 +345,7 @@ const EventManagement: React.FC<EventManagementProps> = ({
           <Form.Item
             name="event_type"
             label="Event Type"
-            rules={[{ required: true, message: 'Please select event type' }]}
+            rules={[{ required: true, message: "Please select event type" }]}
           >
             <Select>
               <Option value="tournament">Tournament</Option>
@@ -338,25 +358,43 @@ const EventManagement: React.FC<EventManagementProps> = ({
           <Form.Item
             name="timeRange"
             label="Event Time"
-            rules={[{ required: true, message: 'Please select event time' }]}
+            rules={[{ required: true, message: "Please select event time" }]}
           >
-            <RangePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
+            <RangePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item name="registration_deadline" label="Registration Deadline">
-            <DatePicker showTime format="YYYY-MM-DD HH:mm" style={{ width: '100%' }} />
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item name="max_participants" label="Maximum Participants">
-            <InputNumber min={1} style={{ width: '100%' }} />
+            <InputNumber min={1} style={{ width: "100%" }} />
           </Form.Item>
 
           <Form.Item name="entry_fee" label="Entry Fee">
-            <InputNumber min={0} precision={2} prefix="$" style={{ width: '100%' }} />
+            <InputNumber
+              min={0}
+              precision={2}
+              prefix="$"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item name="prize_pool" label="Prize Pool">
-            <InputNumber min={0} precision={2} prefix="$" style={{ width: '100%' }} />
+            <InputNumber
+              min={0}
+              precision={2}
+              prefix="$"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item>
@@ -371,9 +409,11 @@ const EventManagement: React.FC<EventManagementProps> = ({
         title={
           selectedEvent && (
             <div>
-              <div style={{ fontSize: 20, marginBottom: 4 }}>{selectedEvent.name}</div>
-              <div style={{ fontSize: 14, color: '#8c8c8c' }}>
-                {moment(selectedEvent.start_time).format('MMM D, YYYY h:mm A')}
+              <div style={{ fontSize: 20, marginBottom: 4 }}>
+                {selectedEvent.name}
+              </div>
+              <div style={{ fontSize: 14, color: "#8c8c8c" }}>
+                {moment(selectedEvent.start_time).format("MMM D, YYYY h:mm A")}
               </div>
             </div>
           )
@@ -394,14 +434,21 @@ const EventManagement: React.FC<EventManagementProps> = ({
             <List.Item
               actions={[
                 isOwner && !item.checked_in && (
-                  <Button type="link" onClick={() => handleCheckIn(selectedEvent.id, item.user_id)}>
+                  <Button
+                    type="link"
+                    onClick={() =>
+                      handleCheckIn(selectedEvent.id, item.user_id)
+                    }
+                  >
                     Check In
                   </Button>
                 ),
               ]}
             >
               <List.Item.Meta
-                avatar={<Avatar src={item.avatar_url} icon={<UserOutlined />} />}
+                avatar={
+                  <Avatar src={item.avatar_url} icon={<UserOutlined />} />
+                }
                 title={item.username}
                 description={
                   <div>
@@ -414,7 +461,9 @@ const EventManagement: React.FC<EventManagementProps> = ({
                         <ClockCircleOutlined /> Not Checked In
                       </Tag>
                     )}
-                    <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+                    <div
+                      style={{ fontSize: 12, color: "#8c8c8c", marginTop: 4 }}
+                    >
                       Registered {moment(item.registered_at).fromNow()}
                     </div>
                   </div>

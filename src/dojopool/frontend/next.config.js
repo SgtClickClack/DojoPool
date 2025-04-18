@@ -6,7 +6,7 @@ const nextConfig = {
   compress: true,
   compiler: {
     styledComponents: true,
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === "production",
   },
   experimental: {
     optimizeCss: true,
@@ -15,11 +15,11 @@ const nextConfig = {
     scrollRestoration: true,
     workerThreads: true,
     modularizeImports: {
-      '@mui/material': {
-        transform: '@mui/material/{{member}}',
+      "@mui/material": {
+        transform: "@mui/material/{{member}}",
       },
-      '@mui/icons-material': {
-        transform: '@mui/icons-material/{{member}}',
+      "@mui/icons-material": {
+        transform: "@mui/icons-material/{{member}}",
       },
     },
   },
@@ -28,13 +28,13 @@ const nextConfig = {
     config.optimization = {
       ...config.optimization,
       splitChunks: {
-        chunks: 'all',
+        chunks: "all",
         minSize: 20000,
         maxSize: 70000,
         minChunks: 1,
         maxAsyncRequests: 30,
         maxInitialRequests: 30,
-        automaticNameDelimiter: '~',
+        automaticNameDelimiter: "~",
         enforceSizeThreshold: 50000,
         cacheGroups: {
           defaultVendors: {
@@ -49,19 +49,19 @@ const nextConfig = {
           },
           commons: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
+            name: "vendors",
+            chunks: "all",
           },
           styles: {
-            name: 'styles',
+            name: "styles",
             test: /\.(css|scss)$/,
-            chunks: 'all',
+            chunks: "all",
             enforce: true,
           },
         },
       },
       runtimeChunk: {
-        name: 'runtime',
+        name: "runtime",
       },
     };
 
@@ -70,8 +70,8 @@ const nextConfig = {
 
     // Add preload for critical chunks
     config.output.chunkFilename = isServer
-      ? `${dev ? '[name]' : '[name].[fullhash]'}.js`
-      : `static/chunks/${dev ? '[name]' : '[name].[fullhash]'}.js`;
+      ? `${dev ? "[name]" : "[name].[fullhash]"}.js`
+      : `static/chunks/${dev ? "[name]" : "[name].[fullhash]"}.js`;
 
     return config;
   },
@@ -79,67 +79,74 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'same-origin',
+            key: "Referrer-Policy",
+            value: "same-origin",
           },
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         headers: [
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET,POST,PUT,DELETE,OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+          },
         ],
       },
     ];
   },
   // Configure image optimization
   images: {
-    domains: ['localhost'],
+    domains: ["localhost"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/webp', 'image/avif'],
+    formats: ["image/webp", "image/avif"],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // Configure build output
-  output: 'standalone',
+  output: "standalone",
   // Enable progressive web app features
   pwa: {
-    dest: 'public',
+    dest: "public",
     register: true,
     skipWaiting: true,
-    disable: process.env.NODE_ENV === 'development',
+    disable: process.env.NODE_ENV === "development",
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;

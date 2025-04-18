@@ -1,15 +1,15 @@
 export enum MatchType {
-  SINGLES = 'SINGLES',
-  DOUBLES = 'DOUBLES',
-  TEAM = 'TEAM',
-  PRACTICE = 'PRACTICE',
+  SINGLES = "SINGLES",
+  DOUBLES = "DOUBLES",
+  TEAM = "TEAM",
+  PRACTICE = "PRACTICE",
 }
 
 export enum MatchState {
-  SCHEDULED = 'SCHEDULED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  SCHEDULED = "SCHEDULED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
 }
 
 export interface Match {
@@ -27,4 +27,4 @@ export interface Match {
   createdAt: Date;
   updatedAt: Date;
   endedAt?: Date;
-} 
+}

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, Row, Col, Input, Select, Pagination, Empty, Spin } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { useQuery } from 'react-query';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Card, Row, Col, Input, Select, Pagination, Empty, Spin } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { useQuery } from "react-query";
 
-import { getVenues } from '../../api/venues';
-import { Venue } from '../../types/venue';
+import { getVenues } from "../../api/venues";
+import { Venue } from "../../types/venue";
 
 const { Option } = Select;
 
@@ -14,11 +14,11 @@ interface VenueListProps {
 }
 
 const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [filters, setFilters] = useState({
-    name: '',
+    name: "",
     is_verified: undefined as boolean | undefined,
   });
 
@@ -26,12 +26,12 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
     data: venues,
     isLoading,
     error,
-  } = useQuery(['venues', currentPage, pageSize, filters], () =>
+  } = useQuery(["venues", currentPage, pageSize, filters], () =>
     getVenues({
       limit: pageSize,
       offset: (currentPage - 1) * pageSize,
       ...filters,
-    })
+    }),
   );
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
           <Col span={12}>
             <Select
               placeholder="Filter by verification"
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               allowClear
               onChange={handleVerifiedFilter}
             >
@@ -87,7 +87,7 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
+        <div style={{ textAlign: "center", padding: "20px" }}>
           <Spin size="large" />
         </div>
       ) : venues?.items?.length ? (
@@ -102,7 +102,7 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
                       <img
                         alt={venue.name}
                         src={venue.image_url}
-                        style={{ height: 200, objectFit: 'cover' }}
+                        style={{ height: 200, objectFit: "cover" }}
                       />
                     )
                   }
@@ -121,7 +121,7 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
                           {venue.is_verified && (
                             <span
                               style={{
-                                color: '#52c41a',
+                                color: "#52c41a",
                                 marginLeft: 8,
                               }}
                             >
@@ -136,7 +136,7 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
               </Col>
             ))}
           </Row>
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <div style={{ textAlign: "center", marginTop: 16 }}>
             <Pagination
               current={currentPage}
               pageSize={pageSize}

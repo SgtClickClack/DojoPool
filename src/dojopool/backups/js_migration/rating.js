@@ -40,7 +40,7 @@ class Rating {
                         <span class="rating-count"></span>
                     </div>
                 `
-                    : ''
+                    : ""
                 }
                 ${
                   !this.options.readOnly
@@ -50,7 +50,7 @@ class Rating {
                         <button class="btn btn-primary btn-sm submit-rating">Submit Rating</button>
                     </div>
                 `
-                    : ''
+                    : ""
                 }
                 ${
                   this.options.showReviews
@@ -60,20 +60,20 @@ class Rating {
                         <div class="reviews-list"></div>
                     </div>
                 `
-                    : ''
+                    : ""
                 }
             </div>
         `;
 
     // Store references to elements
-    this.starsContainer = this.container.querySelector('.rating-stars');
-    this.stars = this.starsContainer.querySelectorAll('.star');
-    this.averageElement = this.container.querySelector('.average-value');
-    this.countElement = this.container.querySelector('.rating-count');
-    this.reviewsContainer = this.container.querySelector('.reviews-list');
-    this.ratingForm = this.container.querySelector('.rating-form');
-    this.reviewInput = this.container.querySelector('textarea');
-    this.submitButton = this.container.querySelector('.submit-rating');
+    this.starsContainer = this.container.querySelector(".rating-stars");
+    this.stars = this.starsContainer.querySelectorAll(".star");
+    this.averageElement = this.container.querySelector(".average-value");
+    this.countElement = this.container.querySelector(".rating-count");
+    this.reviewsContainer = this.container.querySelector(".reviews-list");
+    this.ratingForm = this.container.querySelector(".rating-form");
+    this.reviewInput = this.container.querySelector("textarea");
+    this.submitButton = this.container.querySelector(".submit-rating");
   }
 
   createStars() {
@@ -81,41 +81,41 @@ class Rating {
       .fill()
       .map(
         (_, i) => `
-            <span class="star${this.options.readOnly ? ' readonly' : ''}" data-value="${i + 1}">
-                <i class="bi bi-star${this.currentRating > i ? '-fill' : ''}"></i>
+            <span class="star${this.options.readOnly ? " readonly" : ""}" data-value="${i + 1}">
+                <i class="bi bi-star${this.currentRating > i ? "-fill" : ""}"></i>
             </span>
-        `
+        `,
       )
-      .join('');
+      .join("");
   }
 
   bindEvents() {
     this.stars.forEach((star) => {
-      star.addEventListener('mouseover', () =>
-        this.highlightStars(star.dataset.value)
+      star.addEventListener("mouseover", () =>
+        this.highlightStars(star.dataset.value),
       );
-      star.addEventListener('mouseout', () =>
-        this.highlightStars(this.currentRating)
+      star.addEventListener("mouseout", () =>
+        this.highlightStars(this.currentRating),
       );
-      star.addEventListener('click', () =>
-        this.selectRating(parseInt(star.dataset.value))
+      star.addEventListener("click", () =>
+        this.selectRating(parseInt(star.dataset.value)),
       );
     });
 
     if (this.submitButton) {
-      this.submitButton.addEventListener('click', () => this.submitRating());
+      this.submitButton.addEventListener("click", () => this.submitRating());
     }
   }
 
   highlightStars(rating) {
     this.stars.forEach((star, index) => {
-      const icon = star.querySelector('i');
+      const icon = star.querySelector("i");
       if (index < rating) {
-        icon.classList.remove('bi-star');
-        icon.classList.add('bi-star-fill');
+        icon.classList.remove("bi-star");
+        icon.classList.add("bi-star-fill");
       } else {
-        icon.classList.remove('bi-star-fill');
-        icon.classList.add('bi-star');
+        icon.classList.remove("bi-star-fill");
+        icon.classList.add("bi-star");
       }
     });
   }
@@ -124,7 +124,7 @@ class Rating {
     this.currentRating = rating;
     this.highlightStars(rating);
     if (this.ratingForm) {
-      this.ratingForm.style.display = 'block';
+      this.ratingForm.style.display = "block";
     }
   }
 
@@ -133,27 +133,27 @@ class Rating {
       const response = await fetch(
         `/api/v1/ratings/${this.options.targetType}/${this.options.targetId}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             rating: this.currentRating,
             review: this.reviewInput?.value,
           }),
-        }
+        },
       );
 
-      if (!response.ok) throw new Error('Failed to submit rating');
+      if (!response.ok) throw new Error("Failed to submit rating");
 
       const data = await response.json();
       this.options.onChange(data);
 
       // Reset form
       if (this.reviewInput) {
-        this.reviewInput.value = '';
+        this.reviewInput.value = "";
       }
-      this.ratingForm.style.display = 'none';
+      this.ratingForm.style.display = "none";
 
       // Reload ratings if showing reviews
       if (this.options.showReviews) {
@@ -162,12 +162,12 @@ class Rating {
 
       // Show success message
       if (window.showToast) {
-        window.showToast('success', 'Rating submitted successfully');
+        window.showToast("success", "Rating submitted successfully");
       }
     } catch (error) {
-      console.error('Rating error:', error);
+      console.error("Rating error:", error);
       if (window.showToast) {
-        window.showToast('error', 'Failed to submit rating. Please try again.');
+        window.showToast("error", "Failed to submit rating. Please try again.");
       }
     }
   }
@@ -175,10 +175,10 @@ class Rating {
   async loadRatings() {
     try {
       const response = await fetch(
-        `/api/v1/ratings/${this.options.targetType}/${this.options.targetId}?verified_only=${this.options.verifiedOnly}`
+        `/api/v1/ratings/${this.options.targetType}/${this.options.targetId}?verified_only=${this.options.verifiedOnly}`,
       );
 
-      if (!response.ok) throw new Error('Failed to load ratings');
+      if (!response.ok) throw new Error("Failed to load ratings");
 
       const data = await response.json();
 
@@ -190,9 +190,9 @@ class Rating {
         this.updateReviewsList(data.ratings);
       }
     } catch (error) {
-      console.error('Load ratings error:', error);
+      console.error("Load ratings error:", error);
       if (window.showToast) {
-        window.showToast('error', 'Failed to load ratings');
+        window.showToast("error", "Failed to load ratings");
       }
     }
   }
@@ -202,7 +202,7 @@ class Rating {
       this.averageElement.textContent = `${average.average.toFixed(1)} ★`;
     }
     if (this.countElement) {
-      this.countElement.textContent = `(${average.count} ${average.count === 1 ? 'rating' : 'ratings'})`;
+      this.countElement.textContent = `(${average.count} ${average.count === 1 ? "rating" : "ratings"})`;
     }
   }
 
@@ -222,8 +222,8 @@ class Rating {
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <strong>${rating.user_name}</strong>
-                        <span class="text-warning ms-2">${'★'.repeat(rating.rating)}</span>
-                        ${rating.is_verified ? '<span class="badge bg-success ms-2">Verified</span>' : ''}
+                        <span class="text-warning ms-2">${"★".repeat(rating.rating)}</span>
+                        ${rating.is_verified ? '<span class="badge bg-success ms-2">Verified</span>' : ""}
                     </div>
                     ${
                       rating.user_id === window.currentUserId
@@ -232,20 +232,20 @@ class Rating {
                             <i class="bi bi-trash"></i>
                         </button>
                     `
-                        : ''
+                        : ""
                     }
                 </div>
-                ${rating.review ? `<p class="mt-1 mb-0">${rating.review}</p>` : ''}
+                ${rating.review ? `<p class="mt-1 mb-0">${rating.review}</p>` : ""}
                 <small class="text-muted">${new Date(rating.created_at).toLocaleDateString()}</small>
             </div>
-        `
+        `,
       )
-      .join('');
+      .join("");
 
     // Bind delete buttons
-    this.reviewsContainer.querySelectorAll('.delete-review').forEach((btn) => {
-      btn.addEventListener('click', () =>
-        this.deleteRating(btn.dataset.ratingId)
+    this.reviewsContainer.querySelectorAll(".delete-review").forEach((btn) => {
+      btn.addEventListener("click", () =>
+        this.deleteRating(btn.dataset.ratingId),
       );
     });
   }
@@ -253,27 +253,27 @@ class Rating {
   async deleteRating(ratingId) {
     try {
       const response = await fetch(`/api/v1/ratings/${ratingId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error('Failed to delete rating');
+      if (!response.ok) throw new Error("Failed to delete rating");
 
       this.options.onDelete(ratingId);
       this.loadRatings();
 
       if (window.showToast) {
-        window.showToast('success', 'Rating deleted successfully');
+        window.showToast("success", "Rating deleted successfully");
       }
     } catch (error) {
-      console.error('Delete rating error:', error);
+      console.error("Delete rating error:", error);
       if (window.showToast) {
-        window.showToast('error', 'Failed to delete rating');
+        window.showToast("error", "Failed to delete rating");
       }
     }
   }
 
   destroy() {
     // Clean up event listeners
-    this.container.innerHTML = '';
+    this.container.innerHTML = "";
   }
 }

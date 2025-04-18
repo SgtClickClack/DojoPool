@@ -1,4 +1,4 @@
-import { GameState, Game, Table, Player } from '../types/game';
+import { GameState, Game, Table, Player } from "../types/game";
 
 export interface InvariantResult {
   name: string;
@@ -17,113 +17,116 @@ export class StateInvariantChecker {
 
   private setupInvariants(): void {
     // Table state invariants
-    this.invariants.set('table-player-consistency', (state: GameState) => {
+    this.invariants.set("table-player-consistency", (state: GameState) => {
       for (const table of state.tables) {
         const tablePlayers = new Set(table.players);
         for (const playerId of tablePlayers) {
-          if (!state.players.some(p => p.id === playerId)) {
+          if (!state.players.some((p) => p.id === playerId)) {
             return {
-              name: 'table-player-consistency',
+              name: "table-player-consistency",
               valid: false,
               details: `Table ${table.id} references non-existent player ${playerId}`,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             };
           }
         }
       }
       return {
-        name: 'table-player-consistency',
+        name: "table-player-consistency",
         valid: true,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     });
 
     // Game state invariants
-    this.invariants.set('game-turn-validity', (state: GameState) => {
+    this.invariants.set("game-turn-validity", (state: GameState) => {
       for (const table of state.tables) {
         if (table.currentGame) {
           const game = table.currentGame;
-          if (game.status === 'active') {
+          if (game.status === "active") {
             if (!game.players.includes(game.currentTurn)) {
               return {
-                name: 'game-turn-validity',
+                name: "game-turn-validity",
                 valid: false,
                 details: `Game in table ${table.id} has invalid current turn player`,
-                timestamp: Date.now()
+                timestamp: Date.now(),
               };
             }
           }
         }
       }
       return {
-        name: 'game-turn-validity',
+        name: "game-turn-validity",
         valid: true,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     });
 
     // Player state invariants
-    this.invariants.set('player-score-validity', (state: GameState) => {
+    this.invariants.set("player-score-validity", (state: GameState) => {
       for (const player of state.players) {
         if (player.score < 0) {
           return {
-            name: 'player-score-validity',
+            name: "player-score-validity",
             valid: false,
             details: `Player ${player.id} has invalid negative score`,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           };
         }
       }
       return {
-        name: 'player-score-validity',
+        name: "player-score-validity",
         valid: true,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     });
 
     // Game phase consistency
-    this.invariants.set('game-phase-consistency', (state: GameState) => {
-      const validPhases = ['setup', 'active', 'finished'];
+    this.invariants.set("game-phase-consistency", (state: GameState) => {
+      const validPhases = ["setup", "active", "finished"];
       if (!validPhases.includes(state.gamePhase)) {
         return {
-          name: 'game-phase-consistency',
+          name: "game-phase-consistency",
           valid: false,
           details: `Invalid game phase: ${state.gamePhase}`,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
       }
       return {
-        name: 'game-phase-consistency',
+        name: "game-phase-consistency",
         valid: true,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     });
 
     // Table status consistency
-    this.invariants.set('table-status-consistency', (state: GameState) => {
+    this.invariants.set("table-status-consistency", (state: GameState) => {
       for (const table of state.tables) {
-        if (table.status === 'active' && !table.currentGame) {
+        if (table.status === "active" && !table.currentGame) {
           return {
-            name: 'table-status-consistency',
+            name: "table-status-consistency",
             valid: false,
             details: `Table ${table.id} is active but has no current game`,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           };
         }
       }
       return {
-        name: 'table-status-consistency',
+        name: "table-status-consistency",
         valid: true,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     });
   }
 
   public checkAll(state: GameState): InvariantResult[] {
-    return Array.from(this.invariants.values()).map(check => check(state));
+    return Array.from(this.invariants.values()).map((check) => check(state));
   }
 
-  public check(state: GameState, invariantName: string): InvariantResult | null {
+  public check(
+    state: GameState,
+    invariantName: string,
+  ): InvariantResult | null {
     const checker = this.invariants.get(invariantName);
     if (!checker) {
       return null;
@@ -133,7 +136,7 @@ export class StateInvariantChecker {
 
   public addInvariant(
     name: string,
-    checker: (state: GameState) => InvariantResult
+    checker: (state: GameState) => InvariantResult,
   ): void {
     this.invariants.set(name, checker);
   }
@@ -145,4 +148,4 @@ export class StateInvariantChecker {
   public getInvariantNames(): string[] {
     return Array.from(this.invariants.keys());
   }
-} 
+}

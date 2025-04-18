@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { Game, GameState, GameType } from '../../types/game';
+import { PrismaClient } from "@prisma/client";
+import { Game, GameState, GameType } from "../../types/game";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ export class GameService {
     type: GameType,
     players: string[],
     venueId: string,
-    tableId: string
+    tableId: string,
   ): Promise<Game> {
     return prisma.game.create({
       data: {
@@ -41,7 +41,10 @@ export class GameService {
     });
   }
 
-  static async updateScore(id: string, score: Record<string, number>): Promise<Game> {
+  static async updateScore(
+    id: string,
+    score: Record<string, number>,
+  ): Promise<Game> {
     return prisma.game.update({
       where: { id },
       data: {
@@ -51,7 +54,10 @@ export class GameService {
     });
   }
 
-  static async updateCurrentPlayer(id: string, playerId: string): Promise<Game> {
+  static async updateCurrentPlayer(
+    id: string,
+    playerId: string,
+  ): Promise<Game> {
     return prisma.game.update({
       where: { id },
       data: {
@@ -82,7 +88,7 @@ export class GameService {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
@@ -95,8 +101,8 @@ export class GameService {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
-} 
+}

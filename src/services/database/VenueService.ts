@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { Venue, VenueStatus } from '../../types/venue';
+import { PrismaClient } from "@prisma/client";
+import { Venue, VenueStatus } from "../../types/venue";
 
 const prisma = new PrismaClient();
 
@@ -13,7 +13,7 @@ export class VenueService {
     phone: string,
     email: string,
     ownerId: string,
-    tableCount: number
+    tableCount: number,
   ): Promise<Venue> {
     return prisma.venue.create({
       data: {
@@ -49,7 +49,10 @@ export class VenueService {
     });
   }
 
-  static async updateVenueStatus(id: string, status: VenueStatus): Promise<Venue> {
+  static async updateVenueStatus(
+    id: string,
+    status: VenueStatus,
+  ): Promise<Venue> {
     return prisma.venue.update({
       where: { id },
       data: {
@@ -63,7 +66,7 @@ export class VenueService {
     return prisma.venue.findMany({
       where: { ownerId },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
@@ -74,7 +77,7 @@ export class VenueService {
         status: VenueStatus.ACTIVE,
       },
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
   }
@@ -83,16 +86,16 @@ export class VenueService {
     return prisma.venue.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { address: { contains: query, mode: 'insensitive' } },
-          { city: { contains: query, mode: 'insensitive' } },
-          { state: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: "insensitive" } },
+          { address: { contains: query, mode: "insensitive" } },
+          { city: { contains: query, mode: "insensitive" } },
+          { state: { contains: query, mode: "insensitive" } },
         ],
         status: VenueStatus.ACTIVE,
       },
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
   }
-} 
+}

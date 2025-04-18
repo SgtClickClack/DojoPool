@@ -1,7 +1,13 @@
-import api from './api';
+import api from "./api";
 
 export interface TrainingEvent {
-  type: 'start' | 'complete' | 'pause' | 'resume' | 'technique_start' | 'technique_complete';
+  type:
+    | "start"
+    | "complete"
+    | "pause"
+    | "resume"
+    | "technique_start"
+    | "technique_complete";
   sessionId: string;
   techniqueId?: string;
   timestamp: string;
@@ -10,7 +16,7 @@ export interface TrainingEvent {
 }
 
 export interface UserEvent {
-  type: 'login' | 'logout' | 'profile_update' | 'achievement' | 'milestone';
+  type: "login" | "logout" | "profile_update" | "achievement" | "milestone";
   userId: string;
   timestamp: string;
   details?: Record<string, any>;
@@ -35,16 +41,16 @@ class AnalyticsService {
     setInterval(() => this.flush(), this.flushInterval);
 
     // Listen for page visibility changes
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
           this.flush();
         }
       });
     }
   }
 
-  public trackTrainingEvent(event: Omit<TrainingEvent, 'timestamp'>): void {
+  public trackTrainingEvent(event: Omit<TrainingEvent, "timestamp">): void {
     const fullEvent: TrainingEvent = {
       ...event,
       timestamp: new Date().toISOString(),
@@ -56,7 +62,7 @@ class AnalyticsService {
     }
   }
 
-  public trackUserEvent(event: Omit<UserEvent, 'timestamp'>): void {
+  public trackUserEvent(event: Omit<UserEvent, "timestamp">): void {
     const fullEvent: UserEvent = {
       ...event,
       timestamp: new Date().toISOString(),
@@ -69,7 +75,7 @@ class AnalyticsService {
   }
 
   public trackPerformance(metrics: PerformanceMetrics): void {
-    api.post('/analytics/performance', {
+    api.post("/analytics/performance", {
       ...metrics,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -105,7 +111,7 @@ class AnalyticsService {
 
   public async getTrendAnalytics(
     userId: string,
-    timeframe: 'week' | 'month' | 'year'
+    timeframe: "week" | "month" | "year",
   ): Promise<{
     trainingFrequency: Array<{ date: string; sessions: number }>;
     skillGrowth: Array<{ date: string; level: number }>;
@@ -127,11 +133,11 @@ class AnalyticsService {
     this.queue = [];
 
     try {
-      await api.post('/analytics/events', { events });
+      await api.post("/analytics/events", { events });
     } catch (error) {
       // On failure, add events back to the queue
       this.queue = [...events, ...this.queue];
-      console.error('Failed to send analytics events:', error);
+      console.error("Failed to send analytics events:", error);
     } finally {
       this.isProcessing = false;
     }
@@ -147,10 +153,13 @@ class AnalyticsService {
     return response.data;
   }
 
-  public async exportAnalytics(userId: string, format: 'csv' | 'json'): Promise<Blob> {
+  public async exportAnalytics(
+    userId: string,
+    format: "csv" | "json",
+  ): Promise<Blob> {
     const response = await api.get(`/analytics/export/${userId}`, {
       params: { format },
-      responseType: 'blob',
+      responseType: "blob",
     });
     return response.data;
   }

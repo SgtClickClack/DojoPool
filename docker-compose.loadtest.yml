@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   k6:
@@ -39,4 +39,4 @@ networks:
   dojopool_staging_network:
     external: true
   loadtest_network:
-    driver: bridge 
+    driver: bridge

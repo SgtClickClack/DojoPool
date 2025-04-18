@@ -1,22 +1,25 @@
-import NextAuth from 'next-auth';
-import { AuthService } from '../../../services/auth/AuthService';
-import { UserService } from '../../../services/database/UserService';
+import NextAuth from "next-auth";
+import { AuthService } from "../../../services/auth/AuthService";
+import { UserService } from "../../../services/database/UserService";
 
 export const authOptions = {
   providers: [
     {
-      id: 'credentials',
-      name: 'Credentials',
+      id: "credentials",
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials: any) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
-        const user = await AuthService.validateUser(credentials.email, credentials.password);
+        const user = await AuthService.validateUser(
+          credentials.email,
+          credentials.password,
+        );
         if (!user) {
           return null;
         }
@@ -46,12 +49,12 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: '/auth/login',
+    signIn: "/auth/login",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-export default NextAuth(authOptions); 
+export default NextAuth(authOptions);

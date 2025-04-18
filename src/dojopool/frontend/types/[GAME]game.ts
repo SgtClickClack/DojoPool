@@ -3,7 +3,7 @@ export interface Game {
   title: string;
   description: string;
   imageUrl: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   duration: string;
   players: number;
 }

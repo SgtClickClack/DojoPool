@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -11,9 +11,9 @@ import {
   IconButton,
   useToast,
   Divider,
-} from '@chakra-ui/react';
-import { ChatIcon, StarIcon, ShareIcon } from '@chakra-ui/icons';
-import axios from 'axios';
+} from "@chakra-ui/react";
+import { ChatIcon, StarIcon, ShareIcon } from "@chakra-ui/icons";
+import axios from "axios";
 
 interface Player {
   username: string;
@@ -25,7 +25,7 @@ interface Player {
 
 interface GameState {
   id: number;
-  status: 'in_progress' | 'completed' | 'cancelled';
+  status: "in_progress" | "completed" | "cancelled";
   player1: Player;
   player2: Player;
   current_player: string;
@@ -56,7 +56,7 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
     const ws = new WebSocket(`ws://${window.location.host}/ws/game/${gameId}/`);
 
     ws.onopen = () => {
-      console.log('Connected to game WebSocket');
+      console.log("Connected to game WebSocket");
     };
 
     ws.onmessage = (event) => {
@@ -65,10 +65,12 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
     };
 
     ws.onclose = () => {
-      console.log('Disconnected from game WebSocket');
+      console.log("Disconnected from game WebSocket");
       // Attempt to reconnect after 3 seconds
       setTimeout(() => {
-        setSocket(new WebSocket(`ws://${window.location.host}/ws/game/${gameId}/`));
+        setSocket(
+          new WebSocket(`ws://${window.location.host}/ws/game/${gameId}/`),
+        );
       }, 3000);
     };
 
@@ -85,8 +87,8 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
       setGameState(response.data);
     } catch (error) {
       toast({
-        title: 'Error fetching game state',
-        status: 'error',
+        title: "Error fetching game state",
+        status: "error",
         duration: 3000,
       });
     } finally {
@@ -96,22 +98,22 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
 
   const handleGameUpdate = (data: any) => {
     switch (data.type) {
-      case 'game_state':
+      case "game_state":
         setGameState(data.state);
         break;
-      case 'shot_made':
+      case "shot_made":
         toast({
-          title: 'Great Shot! 🎯',
+          title: "Great Shot! 🎯",
           description: data.description,
-          status: 'success',
+          status: "success",
           duration: 2000,
         });
         break;
-      case 'game_completed':
+      case "game_completed":
         toast({
-          title: 'Game Complete!',
+          title: "Game Complete!",
           description: `${data.winner} wins!`,
-          status: 'info',
+          status: "info",
           duration: 5000,
         });
         break;
@@ -122,17 +124,17 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
     return <Box>Loading...</Box>;
   }
 
-  const PlayerStats: React.FC<{ player: Player; score: number; isCurrent: boolean }> = ({
-    player,
-    score,
-    isCurrent,
-  }) => (
+  const PlayerStats: React.FC<{
+    player: Player;
+    score: number;
+    isCurrent: boolean;
+  }> = ({ player, score, isCurrent }) => (
     <VStack
       p={4}
       bg="gray.800"
       borderRadius="lg"
       borderWidth={2}
-      borderColor={isCurrent ? 'purple.500' : 'transparent'}
+      borderColor={isCurrent ? "purple.500" : "transparent"}
       spacing={3}
       align="stretch"
     >
@@ -176,7 +178,7 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
 
         <VStack justify="center" spacing={4}>
           <Badge
-            colorScheme={gameState.status === 'in_progress' ? 'green' : 'gray'}
+            colorScheme={gameState.status === "in_progress" ? "green" : "gray"}
             p={2}
             fontSize="lg"
           >
@@ -198,7 +200,9 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
       </Grid>
 
       <Box bg="gray.800" p={4} borderRadius="lg" mb={6}>
-        <Text fontSize="lg" mb={4}>Game Stats</Text>
+        <Text fontSize="lg" mb={4}>
+          Game Stats
+        </Text>
         <Grid templateColumns="repeat(3, 1fr)" gap={4}>
           <VStack>
             <Text color="gray.400">Accuracy</Text>
@@ -209,7 +213,7 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
             />
             <Text>{gameState.stats.accuracy}%</Text>
           </VStack>
-          
+
           <VStack>
             <Text color="gray.400">Position Play</Text>
             <Progress
@@ -219,7 +223,7 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
             />
             <Text>{gameState.stats.position_play}%</Text>
           </VStack>
-          
+
           <VStack>
             <Text color="gray.400">Shot Difficulty</Text>
             <Progress
@@ -254,4 +258,4 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
       </HStack>
     </Box>
   );
-}; 
+};

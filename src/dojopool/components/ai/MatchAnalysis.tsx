@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Card,
@@ -10,7 +10,7 @@ import {
   Chip,
   Divider,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 import {
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
@@ -19,12 +19,12 @@ import {
   Gavel as AccuracyIcon,
   Timer as TimeIcon,
   Psychology as StrategyIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface Metric {
   name: string;
   value: number;
-  trend: 'up' | 'down' | 'neutral';
+  trend: "up" | "down" | "neutral";
   change: number;
 }
 
@@ -59,9 +59,9 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up':
+      case "up":
         return <TrendingUpIcon color="success" />;
-      case 'down':
+      case "down":
         return <TrendingDownIcon color="error" />;
       default:
         return <NeutralIcon color="action" />;
@@ -70,13 +70,13 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
 
   const getMetricIcon = (name: string) => {
     switch (name.toLowerCase()) {
-      case 'speed':
+      case "speed":
         return <SpeedIcon />;
-      case 'accuracy':
+      case "accuracy":
         return <AccuracyIcon />;
-      case 'time':
+      case "time":
         return <TimeIcon />;
-      case 'strategy':
+      case "strategy":
         return <StrategyIcon />;
       default:
         return <SpeedIcon />;
@@ -116,23 +116,25 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
                   sx={{
                     p: 2,
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: "divider",
                     borderRadius: 1,
                   }}
                 >
                   <Stack spacing={1}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {getMetricIcon(metric.name)}
                       <Typography variant="subtitle1">{metric.name}</Typography>
                     </Box>
                     <Typography variant="h4">{metric.value}%</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {getTrendIcon(metric.trend)}
                       <Typography
                         variant="body2"
-                        color={metric.trend === 'up' ? 'success.main' : 'error.main'}
+                        color={
+                          metric.trend === "up" ? "success.main" : "error.main"
+                        }
                       >
-                        {metric.change > 0 ? '+' : ''}
+                        {metric.change > 0 ? "+" : ""}
                         {metric.change}%
                       </Typography>
                     </Box>
@@ -156,20 +158,24 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
                 {index > 0 && <Divider sx={{ my: 2 }} />}
                 <Box
                   sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'start',
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "start",
                   }}
                 >
                   <Stack spacing={1}>
-                    <Typography variant="subtitle1">{moment.timestamp}</Typography>
-                    <Typography variant="body1">{moment.description}</Typography>
+                    <Typography variant="subtitle1">
+                      {moment.timestamp}
+                    </Typography>
+                    <Typography variant="body1">
+                      {moment.description}
+                    </Typography>
                   </Stack>
                   <Chip
                     label={`Impact: ${Math.round(moment.impact * 100)}%`}
                     sx={{
                       backgroundColor: getImpactColor(moment.impact),
-                      color: 'white',
+                      color: "white",
                     }}
                   />
                 </Box>
@@ -192,7 +198,7 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
                   sx={{
                     p: 2,
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: "divider",
                     borderRadius: 1,
                   }}
                 >
@@ -202,7 +208,9 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
                       {pattern.description}
                     </Typography>
                     <Stack spacing={1}>
-                      <Typography variant="body2">Frequency: {pattern.frequency}%</Typography>
+                      <Typography variant="body2">
+                        Frequency: {pattern.frequency}%
+                      </Typography>
                       <LinearProgress
                         variant="determinate"
                         value={pattern.frequency}
@@ -217,8 +225,10 @@ export const MatchAnalysis: React.FC<MatchAnalysisProps> = ({
                         sx={{
                           height: 6,
                           borderRadius: 3,
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: getImpactColor(pattern.effectiveness / 100),
+                          "& .MuiLinearProgress-bar": {
+                            backgroundColor: getImpactColor(
+                              pattern.effectiveness / 100,
+                            ),
                           },
                         }}
                       />

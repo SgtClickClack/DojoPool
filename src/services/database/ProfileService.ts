@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { Profile } from '../../types/profile';
+import { PrismaClient } from "@prisma/client";
+import { Profile } from "../../types/profile";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +10,10 @@ export class ProfileService {
     });
   }
 
-  static async createProfile(userId: string, data: Partial<Profile>): Promise<Profile> {
+  static async createProfile(
+    userId: string,
+    data: Partial<Profile>,
+  ): Promise<Profile> {
     return prisma.profile.create({
       data: {
         userId,
@@ -19,7 +22,10 @@ export class ProfileService {
     });
   }
 
-  static async updateProfile(userId: string, data: Partial<Profile>): Promise<Profile> {
+  static async updateProfile(
+    userId: string,
+    data: Partial<Profile>,
+  ): Promise<Profile> {
     return prisma.profile.update({
       where: { userId },
       data,
@@ -32,10 +38,13 @@ export class ProfileService {
     });
   }
 
-  static async uploadAvatar(userId: string, avatarUrl: string): Promise<Profile> {
+  static async uploadAvatar(
+    userId: string,
+    avatarUrl: string,
+  ): Promise<Profile> {
     return prisma.profile.update({
       where: { userId },
       data: { avatarUrl },
     });
   }
-} 
+}

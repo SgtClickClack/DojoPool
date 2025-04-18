@@ -1,14 +1,14 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { AuthService } from '../../../services/auth/AuthService';
-import { User } from '../../../types/user';
-import bcrypt from 'bcryptjs';
+import { NextApiRequest, NextApiResponse } from "next";
+import { AuthService } from "../../../services/auth/AuthService";
+import { User } from "../../../types/user";
+import bcrypt from "bcryptjs";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
@@ -16,15 +16,17 @@ export default async function handler(
 
     // Input validation
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Invalid email format' });
+      return res.status(400).json({ error: "Invalid email format" });
     }
 
     if (password.length < 8) {
-      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 8 characters long" });
     }
 
     // TODO: Check if user already exists in database
@@ -32,7 +34,7 @@ export default async function handler(
     const existingUser = null;
 
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: "User already exists" });
     }
 
     // Hash password
@@ -43,9 +45,9 @@ export default async function handler(
       id: crypto.randomUUID(),
       email,
       password: hashedPassword,
-      role: 'user',
+      role: "user",
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     // TODO: Save user to database
@@ -58,12 +60,12 @@ export default async function handler(
       user: {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
       },
-      token
+      token,
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Registration error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-} 
+}

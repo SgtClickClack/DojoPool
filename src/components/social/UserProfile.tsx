@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -14,8 +14,8 @@ import {
   StatNumber,
   StatGroup,
   Divider,
-} from '@chakra-ui/react';
-import axios from 'axios';
+} from "@chakra-ui/react";
+import axios from "axios";
 
 interface UserProfileData {
   username: string;
@@ -49,13 +49,15 @@ export const UserProfile: React.FC<{ username?: string }> = ({ username }) => {
 
   const fetchProfile = async () => {
     try {
-      const endpoint = username ? `/api/profiles/${username}/` : '/api/profiles/me/';
+      const endpoint = username
+        ? `/api/profiles/${username}/`
+        : "/api/profiles/me/";
       const response = await axios.get(endpoint);
       setProfile(response.data);
     } catch (error) {
       toast({
-        title: 'Error fetching profile',
-        status: 'error',
+        title: "Error fetching profile",
+        status: "error",
         duration: 3000,
       });
     } finally {
@@ -65,12 +67,12 @@ export const UserProfile: React.FC<{ username?: string }> = ({ username }) => {
 
   const fetchAchievements = async () => {
     try {
-      const response = await axios.get('/api/achievements/my_achievements/');
+      const response = await axios.get("/api/achievements/my_achievements/");
       setAchievements(response.data);
     } catch (error) {
       toast({
-        title: 'Error fetching achievements',
-        status: 'error',
+        title: "Error fetching achievements",
+        status: "error",
         duration: 3000,
       });
     }
@@ -108,12 +110,7 @@ export const UserProfile: React.FC<{ username?: string }> = ({ username }) => {
       </HStack>
 
       {/* Stats */}
-      <StatGroup
-        bg="gray.800"
-        p={4}
-        borderRadius="md"
-        mb={6}
-      >
+      <StatGroup bg="gray.800" p={4} borderRadius="md" mb={6}>
         <Stat>
           <StatLabel>Total Matches</StatLabel>
           <StatNumber>{profile.stats.total_matches}</StatNumber>
@@ -136,7 +133,7 @@ export const UserProfile: React.FC<{ username?: string }> = ({ username }) => {
       <Box mb={8}>
         <Text mb={2}>Level Progress</Text>
         <Progress
-          value={(profile.skill_level % 100)}
+          value={profile.skill_level % 100}
           colorScheme="purple"
           borderRadius="full"
           bg="gray.700"
@@ -147,15 +144,12 @@ export const UserProfile: React.FC<{ username?: string }> = ({ username }) => {
       </Box>
 
       {/* Achievements */}
-      <Text fontSize="xl" mb={4}>Recent Achievements</Text>
+      <Text fontSize="xl" mb={4}>
+        Recent Achievements
+      </Text>
       <VStack spacing={4} align="stretch">
         {achievements.map((achievement) => (
-          <Box
-            key={achievement.name}
-            bg="gray.800"
-            p={4}
-            borderRadius="md"
-          >
+          <Box key={achievement.name} bg="gray.800" p={4} borderRadius="md">
             <HStack justify="space-between">
               <VStack align="start" spacing={1}>
                 <Text fontWeight="bold">{achievement.name}</Text>
@@ -173,9 +167,11 @@ export const UserProfile: React.FC<{ username?: string }> = ({ username }) => {
       {username && username !== profile.username && (
         <HStack mt={6} spacing={4}>
           <Button colorScheme="purple">Add Friend</Button>
-          <Button variant="outline" colorScheme="purple">Send Message</Button>
+          <Button variant="outline" colorScheme="purple">
+            Send Message
+          </Button>
         </HStack>
       )}
     </Box>
   );
-}; 
+};

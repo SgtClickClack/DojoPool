@@ -1,15 +1,15 @@
-import { AlertHistory, IAlertHistory } from '../models/AlertHistory';
-import { PerformanceAlert } from './notifications/PerformanceNotificationService';
-import { Types } from 'mongoose';
+import { AlertHistory, IAlertHistory } from "../models/AlertHistory";
+import { PerformanceAlert } from "./notifications/PerformanceNotificationService";
+import { Types } from "mongoose";
 
 interface AlertDocument {
   _id: Types.ObjectId;
 }
 
 export interface AlertHistoryQuery {
-  type?: 'regression' | 'violation' | 'warning';
+  type?: "regression" | "violation" | "warning";
   metric?: string;
-  status?: 'open' | 'acknowledged' | 'resolved';
+  status?: "open" | "acknowledged" | "resolved";
   startDate?: Date;
   endDate?: Date;
   minImpactScore?: number;
@@ -34,12 +34,15 @@ export interface AlertAnalytics {
 }
 
 export class AlertHistoryService {
-  async createAlert(alert: PerformanceAlert, notificationsSent: { email: boolean; slack: boolean; sns: boolean }): Promise<IAlertHistory> {
+  async createAlert(
+    alert: PerformanceAlert,
+    notificationsSent: { email: boolean; slack: boolean; sns: boolean },
+  ): Promise<IAlertHistory> {
     const alertHistory = new AlertHistory({
       ...alert,
       notificationsSent,
-      status: 'open',
-      timestamp: new Date(alert.timestamp)
+      status: "open",
+      timestamp: new Date(alert.timestamp),
     });
 
     await this.findAndLinkRelatedAlerts(alertHistory);
@@ -52,29 +55,31 @@ export class AlertHistoryService {
       metric: alert.metric,
       timestamp: {
         $gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        $lt: alert.timestamp
+        $lt: alert.timestamp,
       },
-      _id: { $ne: alert._id }
-    }).select('_id').lean<AlertDocument[]>();
+      _id: { $ne: alert._id },
+    })
+      .select("_id")
+      .lean<AlertDocument[]>();
 
-    alert.relatedAlerts = relatedAlerts.map(a => a._id.toString());
+    alert.relatedAlerts = relatedAlerts.map((a) => a._id.toString());
   }
 
   async updateAlertStatus(
     alertId: string,
-    status: 'acknowledged' | 'resolved',
+    status: "acknowledged" | "resolved",
     userId: string,
-    resolution?: string
+    resolution?: string,
   ): Promise<IAlertHistory | null> {
     const update: Partial<IAlertHistory> = {
       status,
-      resolution
+      resolution,
     };
 
-    if (status === 'acknowledged') {
+    if (status === "acknowledged") {
       update.acknowledgedBy = userId;
       update.acknowledgedAt = new Date();
-    } else if (status === 'resolved') {
+    } else if (status === "resolved") {
       update.resolvedBy = userId;
       update.resolvedAt = new Date();
     }
@@ -88,7 +93,8 @@ export class AlertHistoryService {
     if (query.type) filter.type = query.type;
     if (query.metric) filter.metric = query.metric;
     if (query.status) filter.status = query.status;
-    if (query.minImpactScore) filter.impactScore = { $gte: query.minImpactScore };
+    if (query.minImpactScore)
+      filter.impactScore = { $gte: query.minImpactScore };
     if (query.tags?.length) filter.tags = { $in: query.tags };
 
     if (query.startDate || query.endDate) {
@@ -99,10 +105,13 @@ export class AlertHistoryService {
 
     return AlertHistory.find(filter)
       .sort({ timestamp: -1, impactScore: -1 })
-      .populate('relatedAlerts');
+      .populate("relatedAlerts");
   }
 
-  async getAlertAnalytics(startDate: Date, endDate: Date): Promise<AlertAnalytics> {
+  async getAlertAnalytics(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<AlertAnalytics> {
     const [
       totalAlerts,
       statusCounts,
@@ -110,15 +119,17 @@ export class AlertHistoryService {
       typeDistribution,
       metricDistribution,
       topAlerts,
-      dailyTrends
+      dailyTrends,
     ] = await Promise.all([
-      AlertHistory.countDocuments({ timestamp: { $gte: startDate, $lte: endDate } }),
+      AlertHistory.countDocuments({
+        timestamp: { $gte: startDate, $lte: endDate },
+      }),
       this.getStatusCounts(startDate, endDate),
       this.getTimeMetrics(startDate, endDate),
-      this.getAlertDistribution('type', startDate, endDate),
-      this.getAlertDistribution('metric', startDate, endDate),
+      this.getAlertDistribution("type", startDate, endDate),
+      this.getAlertDistribution("metric", startDate, endDate),
       this.getTopImpactingAlerts(startDate, endDate),
-      this.getDailyTrends(startDate, endDate)
+      this.getDailyTrends(startDate, endDate),
     ]);
 
     return {
@@ -128,11 +139,14 @@ export class AlertHistoryService {
       alertsByType: typeDistribution,
       alertsByMetric: metricDistribution,
       topImpactingAlerts: topAlerts,
-      recentTrends: dailyTrends
+      recentTrends: dailyTrends,
     };
   }
 
-  private async getStatusCounts(startDate: Date, endDate: Date): Promise<{
+  private async getStatusCounts(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{
     openAlerts: number;
     acknowledgedAlerts: number;
     resolvedAlerts: number;
@@ -140,27 +154,27 @@ export class AlertHistoryService {
     const result = await AlertHistory.aggregate([
       {
         $match: {
-          timestamp: { $gte: startDate, $lte: endDate }
-        }
+          timestamp: { $gte: startDate, $lte: endDate },
+        },
       },
       {
         $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const counts = { openAlerts: 0, acknowledgedAlerts: 0, resolvedAlerts: 0 };
     result.forEach(({ _id, count }) => {
       switch (_id) {
-        case 'open':
+        case "open":
           counts.openAlerts = count;
           break;
-        case 'acknowledged':
+        case "acknowledged":
           counts.acknowledgedAlerts = count;
           break;
-        case 'resolved':
+        case "resolved":
           counts.resolvedAlerts = count;
           break;
       }
@@ -169,7 +183,10 @@ export class AlertHistoryService {
     return counts;
   }
 
-  private async getTimeMetrics(startDate: Date, endDate: Date): Promise<{
+  private async getTimeMetrics(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{
     averageTimeToAcknowledge: number;
     averageTimeToResolve: number;
   }> {
@@ -179,96 +196,111 @@ export class AlertHistoryService {
           timestamp: { $gte: startDate, $lte: endDate },
           $or: [
             { acknowledgedAt: { $exists: true } },
-            { resolvedAt: { $exists: true } }
-          ]
-        }
+            { resolvedAt: { $exists: true } },
+          ],
+        },
       },
       {
         $group: {
           _id: null,
           avgAckTime: {
             $avg: {
-              $subtract: ['$acknowledgedAt', '$timestamp']
-            }
+              $subtract: ["$acknowledgedAt", "$timestamp"],
+            },
           },
           avgResolveTime: {
             $avg: {
-              $subtract: ['$resolvedAt', '$timestamp']
-            }
-          }
-        }
-      }
+              $subtract: ["$resolvedAt", "$timestamp"],
+            },
+          },
+        },
+      },
     ]);
 
     return {
       averageTimeToAcknowledge: result[0]?.avgAckTime || 0,
-      averageTimeToResolve: result[0]?.avgResolveTime || 0
+      averageTimeToResolve: result[0]?.avgResolveTime || 0,
     };
   }
 
-  private async getAlertDistribution(field: string, startDate: Date, endDate: Date): Promise<Record<string, number>> {
+  private async getAlertDistribution(
+    field: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<Record<string, number>> {
     const result = await AlertHistory.aggregate([
       {
         $match: {
-          timestamp: { $gte: startDate, $lte: endDate }
-        }
+          timestamp: { $gte: startDate, $lte: endDate },
+        },
       },
       {
         $group: {
           _id: `$${field}`,
-          count: { $sum: 1 }
-        }
-      }
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
-    return result.reduce((acc, { _id, count }) => {
-      acc[_id] = count;
-      return acc;
-    }, {} as Record<string, number>);
+    return result.reduce(
+      (acc, { _id, count }) => {
+        acc[_id] = count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 
-  private async getTopImpactingAlerts(startDate: Date, endDate: Date): Promise<IAlertHistory[]> {
+  private async getTopImpactingAlerts(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<IAlertHistory[]> {
     return AlertHistory.find({
-      timestamp: { $gte: startDate, $lte: endDate }
+      timestamp: { $gte: startDate, $lte: endDate },
     })
       .sort({ impactScore: -1 })
       .limit(10);
   }
 
-  private async getDailyTrends(startDate: Date, endDate: Date): Promise<{
-    date: Date;
-    count: number;
-    avgImpactScore: number;
-  }[]> {
+  private async getDailyTrends(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<
+    {
+      date: Date;
+      count: number;
+      avgImpactScore: number;
+    }[]
+  > {
     return AlertHistory.aggregate([
       {
         $match: {
-          timestamp: { $gte: startDate, $lte: endDate }
-        }
+          timestamp: { $gte: startDate, $lte: endDate },
+        },
       },
       {
         $group: {
           _id: {
             $dateToString: {
-              format: '%Y-%m-%d',
-              date: '$timestamp'
-            }
+              format: "%Y-%m-%d",
+              date: "$timestamp",
+            },
           },
           count: { $sum: 1 },
-          avgImpactScore: { $avg: '$impactScore' }
-        }
+          avgImpactScore: { $avg: "$impactScore" },
+        },
       },
       {
-        $sort: { _id: 1 }
+        $sort: { _id: 1 },
       },
       {
         $project: {
           _id: 0,
-          date: { $dateFromString: { dateString: '$_id' } },
+          date: { $dateFromString: { dateString: "$_id" } },
           count: 1,
-          avgImpactScore: 1
-        }
-      }
+          avgImpactScore: 1,
+        },
+      },
     ]);
   }
-} 
+}

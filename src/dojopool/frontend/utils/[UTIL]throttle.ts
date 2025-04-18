@@ -6,7 +6,7 @@ interface ThrottleOptions {
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   wait: number,
-  options: ThrottleOptions = {}
+  options: ThrottleOptions = {},
 ): (...args: Parameters<T>) => ReturnType<T> | undefined {
   let timeout: NodeJS.Timeout | null = null;
   let previous = 0;
@@ -48,10 +48,12 @@ export function throttle<T extends (...args: any[]) => any>(
 }
 
 // Utility function specifically for location updates
-export function throttleLocationUpdates<T extends { latitude: number; longitude: number }>(
+export function throttleLocationUpdates<
+  T extends { latitude: number; longitude: number },
+>(
   callback: (location: T) => void,
   minDistance = 10, // minimum distance in meters
-  minTime = 1000 // minimum time in milliseconds
+  minTime = 1000, // minimum time in milliseconds
 ): (location: T) => void {
   let lastLocation: T | null = null;
   let lastUpdateTime = 0;
@@ -80,14 +82,14 @@ export function throttleLocationUpdates<T extends { latitude: number; longitude:
       }
     },
     minTime,
-    { leading: true, trailing: true }
+    { leading: true, trailing: true },
   );
 }
 
 // Helper function to calculate distance between two points
 function calculateDistance(
   point1: { latitude: number; longitude: number },
-  point2: { latitude: number; longitude: number }
+  point2: { latitude: number; longitude: number },
 ): number {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (point1.latitude * Math.PI) / 180;

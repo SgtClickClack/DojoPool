@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { User } from '../../types/user';
+import { PrismaClient } from "@prisma/client";
+import { User } from "../../types/user";
 
 const prisma = new PrismaClient();
 
@@ -37,4 +37,4 @@ export class UserService {
       where: { id },
     });
   }
-} 
+}

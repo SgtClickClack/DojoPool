@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useCallback } from "react";
+import axios from "axios";
 
 interface Story {
   story: string;
@@ -72,7 +72,8 @@ export const useAI = () => {
   const [story, setStory] = useState<Story | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [difficultySettings, setDifficultySettings] = useState<DifficultySettings | null>(null);
+  const [difficultySettings, setDifficultySettings] =
+    useState<DifficultySettings | null>(null);
   const [metrics, setMetrics] = useState<AIMetrics | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,43 +86,51 @@ export const useAI = () => {
       const response = await axios.get(`/api/ai/story/${matchId}`);
       setStory(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch story');
+      setError(err.response?.data?.error || "Failed to fetch story");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const fetchRecommendations = useCallback(async (type: string = 'training') => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchRecommendations = useCallback(
+    async (type: string = "training") => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const response = await axios.get('/api/ai/recommendations', {
-        params: { type },
-      });
-      setRecommendations(response.data.recommendations);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch recommendations');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const response = await axios.get("/api/ai/recommendations", {
+          params: { type },
+        });
+        setRecommendations(response.data.recommendations);
+      } catch (err) {
+        setError(
+          err.response?.data?.error || "Failed to fetch recommendations",
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
-  const fetchAnalysis = useCallback(async (matchId: number, type: string = 'full') => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchAnalysis = useCallback(
+    async (matchId: number, type: string = "full") => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const response = await axios.get(`/api/ai/match/${matchId}/analysis`, {
-        params: { type },
-      });
-      setAnalysis(response.data);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch match analysis');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const response = await axios.get(`/api/ai/match/${matchId}/analysis`, {
+          params: { type },
+        });
+        setAnalysis(response.data);
+      } catch (err) {
+        setError(err.response?.data?.error || "Failed to fetch match analysis");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const fetchDifficultySettings = useCallback(async (gameId: number) => {
     try {
@@ -131,7 +140,9 @@ export const useAI = () => {
       const response = await axios.get(`/api/ai/game/${gameId}/difficulty`);
       setDifficultySettings(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch difficulty settings');
+      setError(
+        err.response?.data?.error || "Failed to fetch difficulty settings",
+      );
     } finally {
       setLoading(false);
     }
@@ -142,10 +153,10 @@ export const useAI = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.get('/api/ai/metrics');
+      const response = await axios.get("/api/ai/metrics");
       setMetrics(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch AI metrics');
+      setError(err.response?.data?.error || "Failed to fetch AI metrics");
     } finally {
       setLoading(false);
     }
@@ -156,36 +167,41 @@ export const useAI = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.post('/api/ai/batch/analysis', {
+      const response = await axios.post("/api/ai/batch/analysis", {
         match_ids: matchIds,
-        type: 'full',
+        type: "full",
       });
       return response.data.results;
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to analyze matches');
+      setError(err.response?.data?.error || "Failed to analyze matches");
       throw err;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const batchGenerateRecommendations = useCallback(async (userIds: number[]) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const batchGenerateRecommendations = useCallback(
+    async (userIds: number[]) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const response = await axios.post('/api/ai/batch/recommendations', {
-        user_ids: userIds,
-        type: 'training',
-      });
-      return response.data.results;
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to generate recommendations');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const response = await axios.post("/api/ai/batch/recommendations", {
+          user_ids: userIds,
+          type: "training",
+        });
+        return response.data.results;
+      } catch (err) {
+        setError(
+          err.response?.data?.error || "Failed to generate recommendations",
+        );
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   return {
     story,

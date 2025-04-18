@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -10,8 +10,8 @@ import {
   Slider,
   TextField,
   Typography,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 export interface AvatarStyle {
   name: string;
@@ -32,14 +32,14 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const StyledPreview = styled(Box)(({ theme }) => ({
-  width: '256px',
-  height: '256px',
+  width: "256px",
+  height: "256px",
   border: `2px solid ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
-  overflow: 'hidden',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   marginBottom: theme.spacing(2),
 }));
 
@@ -48,27 +48,29 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
   currentAvatarUrl,
 }) => {
   const [styles, setStyles] = useState<Record<string, AvatarStyle>>({});
-  const [selectedStyle, setSelectedStyle] = useState<string>('');
-  const [customPrompt, setCustomPrompt] = useState<string>('');
+  const [selectedStyle, setSelectedStyle] = useState<string>("");
+  const [customPrompt, setCustomPrompt] = useState<string>("");
   const [strength, setStrength] = useState<number>(0.75);
   const [seed, setSeed] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    currentAvatarUrl || null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch available avatar styles
     const fetchStyles = async () => {
       try {
-        const response = await fetch('/api/avatars/styles');
-        if (!response.ok) throw new Error('Failed to fetch styles');
+        const response = await fetch("/api/avatars/styles");
+        if (!response.ok) throw new Error("Failed to fetch styles");
         const data = await response.json();
         setStyles(data);
         if (Object.keys(data).length > 0) {
           setSelectedStyle(Object.keys(data)[0]);
         }
       } catch (err) {
-        setError('Failed to load avatar styles');
+        setError("Failed to load avatar styles");
       }
     };
 
@@ -80,10 +82,10 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
       setIsGenerating(true);
       setError(null);
 
-      const response = await fetch('/api/avatars/generate', {
-        method: 'POST',
+      const response = await fetch("/api/avatars/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           style: selectedStyle,
@@ -92,14 +94,14 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to generate avatar');
+      if (!response.ok) throw new Error("Failed to generate avatar");
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
       onAvatarGenerated(url);
     } catch (err) {
-      setError('Failed to generate avatar');
+      setError("Failed to generate avatar");
     } finally {
       setIsGenerating(false);
     }
@@ -112,10 +114,10 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
       setIsGenerating(true);
       setError(null);
 
-      const response = await fetch('/api/avatars/customize', {
-        method: 'POST',
+      const response = await fetch("/api/avatars/customize", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           style: selectedStyle,
@@ -124,14 +126,14 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to customize avatar');
+      if (!response.ok) throw new Error("Failed to customize avatar");
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setPreviewUrl(url);
       onAvatarGenerated(url);
     } catch (err) {
-      setError('Failed to customize avatar');
+      setError("Failed to customize avatar");
     } finally {
       setIsGenerating(false);
     }
@@ -186,20 +188,22 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
               fullWidth
               label="Seed (Optional)"
               type="number"
-              value={seed || ''}
-              onChange={(e) => setSeed(e.target.value ? Number(e.target.value) : null)}
+              value={seed || ""}
+              onChange={(e) =>
+                setSeed(e.target.value ? Number(e.target.value) : null)
+              }
               disabled={isGenerating}
               sx={{ mb: 2 }}
             />
 
-            <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 variant="contained"
                 onClick={handleGenerate}
                 disabled={isGenerating || !selectedStyle}
                 fullWidth
               >
-                {isGenerating ? <CircularProgress size={24} /> : 'Generate New'}
+                {isGenerating ? <CircularProgress size={24} /> : "Generate New"}
               </Button>
 
               {currentAvatarUrl && (
@@ -209,7 +213,11 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
                   disabled={isGenerating || !selectedStyle}
                   fullWidth
                 >
-                  {isGenerating ? <CircularProgress size={24} /> : 'Customize Current'}
+                  {isGenerating ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    "Customize Current"
+                  )}
                 </Button>
               )}
             </Box>
@@ -230,10 +238,12 @@ const AvatarGenerator: React.FC<AvatarGeneratorProps> = ({
                 <img
                   src={previewUrl}
                   alt="Avatar preview"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
-                <Typography color="textSecondary">No preview available</Typography>
+                <Typography color="textSecondary">
+                  No preview available
+                </Typography>
               )}
             </StyledPreview>
 

@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 
 interface MockResponse<T = unknown> {
   ok: boolean;
@@ -7,13 +7,16 @@ interface MockResponse<T = unknown> {
   text: () => Promise<string>;
 }
 
-export const createMockResponse = <T>(data: T, status = 200): MockResponse<T> => ({
+export const createMockResponse = <T>(
+  data: T,
+  status = 200,
+): MockResponse<T> => ({
   ok: status >= 200 && status < 300,
   status,
   json: () => Promise.resolve(data),
-  text: () => Promise.resolve(JSON.stringify(data))
+  text: () => Promise.resolve(JSON.stringify(data)),
 });
 
 export const mockFetch = <T>(response: MockResponse<T>): jest.Mock => {
   return jest.fn().mockResolvedValue(response);
-}; 
+};

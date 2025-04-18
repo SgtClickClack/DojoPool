@@ -24,7 +24,7 @@ export default class DojoMap {
     try {
       const container = document.getElementById(this.containerId);
       if (!container) {
-        throw new Error('Map container not found');
+        throw new Error("Map container not found");
       }
 
       // Create map instance with configuration
@@ -33,7 +33,7 @@ export default class DojoMap {
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: true,
-        gestureHandling: 'cooperative'
+        gestureHandling: "cooperative",
       });
 
       // Initialize bounds
@@ -41,7 +41,7 @@ export default class DojoMap {
 
       // Create info window for markers
       this.infoWindow = new google.maps.InfoWindow({
-        maxWidth: 300
+        maxWidth: 300,
       });
 
       // Try to get user location
@@ -50,19 +50,18 @@ export default class DojoMap {
           const position = await this.getUserLocation();
           const pos = {
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lng: position.coords.longitude,
           };
           this.mapInstance.setCenter(pos);
           this.addUserMarker(pos);
         } catch (error) {
-          console.warn('Geolocation error:', error);
-          this.handleError('Could not get your location');
+          console.warn("Geolocation error:", error);
+          this.handleError("Could not get your location");
         }
       }
-
     } catch (error) {
-      console.error('Map initialization error:', error);
-      this.handleError('Failed to initialize map');
+      console.error("Map initialization error:", error);
+      this.handleError("Failed to initialize map");
       throw error;
     }
   }
@@ -76,7 +75,7 @@ export default class DojoMap {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: true,
         timeout: 5000,
-        maximumAge: 0
+        maximumAge: 0,
       });
     });
   }
@@ -89,15 +88,15 @@ export default class DojoMap {
     new google.maps.Marker({
       position: position,
       map: this.mapInstance,
-      title: 'Your Location',
+      title: "Your Location",
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 10,
-        fillColor: '#2196F3',
+        fillColor: "#2196F3",
         fillOpacity: 0.8,
         strokeWeight: 2,
-        strokeColor: '#ffffff'
-      }
+        strokeColor: "#ffffff",
+      },
     });
   }
 
@@ -107,10 +106,10 @@ export default class DojoMap {
    */
   addVenues(venues) {
     try {
-      venues.forEach(venue => {
+      venues.forEach((venue) => {
         const position = {
           lat: parseFloat(venue.latitude),
-          lng: parseFloat(venue.longitude)
+          lng: parseFloat(venue.longitude),
         };
 
         if (isNaN(position.lat) || isNaN(position.lng)) {
@@ -123,16 +122,16 @@ export default class DojoMap {
           map: this.mapInstance,
           title: venue.name,
           animation: google.maps.Animation.DROP,
-          icon: this.getMarkerIcon(venue)
+          icon: this.getMarkerIcon(venue),
         });
 
         // Add click listener
-        marker.addListener('click', () => {
+        marker.addListener("click", () => {
           this.showVenueInfo(marker, venue);
         });
 
         // Add hover effects
-        marker.addListener('mouseover', () => {
+        marker.addListener("mouseover", () => {
           marker.setAnimation(google.maps.Animation.BOUNCE);
           setTimeout(() => marker.setAnimation(null), 750);
         });
@@ -146,10 +145,9 @@ export default class DojoMap {
       if (!this.bounds.isEmpty()) {
         this.mapInstance.fitBounds(this.bounds);
       }
-
     } catch (error) {
-      console.error('Error adding venues:', error);
-      this.handleError('Failed to add venue markers');
+      console.error("Error adding venues:", error);
+      this.handleError("Failed to add venue markers");
     }
   }
 
@@ -163,33 +161,33 @@ export default class DojoMap {
       path: google.maps.SymbolPath.CIRCLE,
       scale: 12,
       strokeWeight: 2,
-      strokeColor: '#ffffff'
+      strokeColor: "#ffffff",
     };
 
     switch (venue.status) {
-      case 'open':
+      case "open":
         return {
           ...baseIcon,
-          fillColor: '#4CAF50',
-          fillOpacity: 0.8
+          fillColor: "#4CAF50",
+          fillOpacity: 0.8,
         };
-      case 'busy':
+      case "busy":
         return {
           ...baseIcon,
-          fillColor: '#FFC107',
-          fillOpacity: 0.8
+          fillColor: "#FFC107",
+          fillOpacity: 0.8,
         };
-      case 'closed':
+      case "closed":
         return {
           ...baseIcon,
-          fillColor: '#F44336',
-          fillOpacity: 0.8
+          fillColor: "#F44336",
+          fillOpacity: 0.8,
         };
       default:
         return {
           ...baseIcon,
-          fillColor: '#9E9E9E',
-          fillOpacity: 0.8
+          fillColor: "#9E9E9E",
+          fillOpacity: 0.8,
         };
     }
   }
@@ -235,8 +233,8 @@ export default class DojoMap {
    * @param {string} message - Error message
    */
   handleError(message) {
-    const event = new CustomEvent('map-error', {
-      detail: { message }
+    const event = new CustomEvent("map-error", {
+      detail: { message },
     });
     document.dispatchEvent(event);
   }

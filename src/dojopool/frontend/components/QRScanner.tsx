@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { QrReader } from 'react-qr-reader';
+import React, { useState, useEffect } from "react";
+import { QrReader } from "react-qr-reader";
 import {
   Box,
   Button,
@@ -12,15 +12,15 @@ import {
   DialogTitle,
   IconButton,
   Typography,
-  useTheme
-} from '@mui/material';
+  useTheme,
+} from "@mui/material";
 import {
   Close as CloseIcon,
   QrCode as QrCodeIcon,
-  Refresh as RefreshIcon
-} from '@mui/icons-material';
-import { useSnackbar } from 'notistack';
-import { api } from '../services/api';
+  Refresh as RefreshIcon,
+} from "@mui/icons-material";
+import { useSnackbar } from "notistack";
+import { api } from "../services/api";
 
 interface QRScannerProps {
   onScanSuccess?: (result: any) => void;
@@ -33,97 +33,101 @@ export const QRScanner: React.FC<QRScannerProps> = ({
   onScanSuccess,
   onScanError,
   venueId,
-  tableId
+  tableId,
 }) => {
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
-  
+
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
-  
+
   useEffect(() => {
     // Load QR code if venue and table IDs are provided
     if (venueId && tableId) {
       loadQRCode();
     }
   }, [venueId, tableId]);
-  
+
   const loadQRCode = async () => {
     if (!venueId || !tableId) return;
-    
+
     try {
       setLoading(true);
-      const response = await api.get(
-        `/venues/${venueId}/tables/${tableId}/qr`
-      );
+      const response = await api.get(`/venues/${venueId}/tables/${tableId}/qr`);
       setQrCode(response.data.qr_code);
     } catch (error) {
-      console.error('Error loading QR code:', error);
-      enqueueSnackbar('Failed to load QR code', { variant: 'error' });
+      console.error("Error loading QR code:", error);
+      enqueueSnackbar("Failed to load QR code", { variant: "error" });
     } finally {
       setLoading(false);
     }
   };
-  
+
   const refreshQRCode = async () => {
     if (!venueId || !tableId) return;
-    
+
     try {
       setLoading(true);
       const response = await api.post(
-        `/venues/${venueId}/tables/${tableId}/qr/refresh`
+        `/venues/${venueId}/tables/${tableId}/qr/refresh`,
       );
       setQrCode(response.data.qr_code);
-      enqueueSnackbar('QR code refreshed', { variant: 'success' });
+      enqueueSnackbar("QR code refreshed", { variant: "success" });
     } catch (error) {
-      console.error('Error refreshing QR code:', error);
-      enqueueSnackbar('Failed to refresh QR code', { variant: 'error' });
+      console.error("Error refreshing QR code:", error);
+      enqueueSnackbar("Failed to refresh QR code", { variant: "error" });
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleScan = async (data: string | null) => {
     if (!data) return;
-    
+
     try {
       setLoading(true);
-      const response = await api.post('/qr/verify', {
-        qr_data: data
+      const response = await api.post("/qr/verify", {
+        qr_data: data,
       });
-      
+
       if (response.data.valid) {
-        enqueueSnackbar('QR code verified successfully', { variant: 'success' });
+        enqueueSnackbar("QR code verified successfully", {
+          variant: "success",
+        });
         onScanSuccess?.(response.data);
         setScanning(false);
       } else {
-        throw new Error(response.data.error || 'Invalid QR code');
+        throw new Error(response.data.error || "Invalid QR code");
       }
     } catch (error: any) {
-      console.error('Error verifying QR code:', error);
+      console.error("Error verifying QR code:", error);
       const errorMessage = error.response?.data?.error || error.message;
-      enqueueSnackbar(errorMessage, { variant: 'error' });
+      enqueueSnackbar(errorMessage, { variant: "error" });
       onScanError?.(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleError = (error: Error) => {
-    console.error('QR Scanner error:', error);
-    enqueueSnackbar('Error accessing camera', { variant: 'error' });
-    onScanError?.('Error accessing camera');
+    console.error("QR Scanner error:", error);
+    enqueueSnackbar("Error accessing camera", { variant: "error" });
+    onScanError?.("Error accessing camera");
     setScanning(false);
   };
-  
+
   return (
     <Box>
       {/* QR Code Display */}
       {qrCode && (
         <Card sx={{ mb: 2 }}>
           <CardContent>
-            <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
               <Typography variant="h6" component="div">
                 Table QR Code
               </Typography>
@@ -131,7 +135,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
                 <RefreshIcon />
               </IconButton>
             </Box>
-            
+
             <Box
               display="flex"
               justifyContent="center"
@@ -145,14 +149,14 @@ export const QRScanner: React.FC<QRScannerProps> = ({
                 <img
                   src={`data:image/png;base64,${qrCode}`}
                   alt="Table QR Code"
-                  style={{ maxWidth: '100%', height: 'auto' }}
+                  style={{ maxWidth: "100%", height: "auto" }}
                 />
               )}
             </Box>
           </CardContent>
         </Card>
       )}
-      
+
       {/* Scan Button */}
       <Button
         variant="contained"
@@ -164,7 +168,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       >
         Scan QR Code
       </Button>
-      
+
       {/* Scanner Dialog */}
       <Dialog
         open={scanning}
@@ -173,7 +177,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({
         fullWidth
       >
         <DialogTitle>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             Scan QR Code
             <IconButton
               edge="end"
@@ -185,7 +193,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
             </IconButton>
           </Box>
         </DialogTitle>
-        
+
         <DialogContent>
           <Box position="relative">
             {loading && (
@@ -204,20 +212,20 @@ export const QRScanner: React.FC<QRScannerProps> = ({
                 <CircularProgress />
               </Box>
             )}
-            
+
             <QrReader
-              constraints={{ facingMode: 'environment' }}
+              constraints={{ facingMode: "environment" }}
               onResult={(result) => {
                 if (result) {
                   handleScan(result.getText());
                 }
               }}
-              containerStyle={{ width: '100%' }}
-              videoStyle={{ width: '100%' }}
+              containerStyle={{ width: "100%" }}
+              videoStyle={{ width: "100%" }}
             />
           </Box>
         </DialogContent>
-        
+
         <DialogActions>
           <Button
             onClick={() => setScanning(false)}
@@ -230,4 +238,4 @@ export const QRScanner: React.FC<QRScannerProps> = ({
       </Dialog>
     </Box>
   );
-}; 
+};

@@ -1,6 +1,7 @@
 # Image Compression API Documentation
 
 ## Overview
+
 The Image Compression API provides high-performance image processing capabilities with support for AVIF, WebP, and JPEG formats. It includes memory-efficient batch processing and quality optimization features.
 
 ## Classes
@@ -8,27 +9,34 @@ The Image Compression API provides high-performance image processing capabilitie
 ### ImageCompressionService
 
 #### Constructor
+
 ```python
 ImageCompressionService(config: Optional[Dict[str, Any]] = None)
 ```
+
 - `config`: Optional configuration dictionary. If not provided, uses `DEFAULT_COMPRESSION_CONFIG`
 
 #### Methods
 
 ##### compress_image
+
 ```python
 def compress_image(image_data: bytes, config: CompressionConfig) -> Tuple[bytes, str]
 ```
+
 Compresses a single image according to the specified configuration.
 
 **Parameters:**
+
 - `image_data`: Raw image bytes
 - `config`: CompressionConfig instance
 
 **Returns:**
+
 - Tuple of (compressed image bytes, mime type)
 
 **Example:**
+
 ```python
 service = ImageCompressionService()
 config = CompressionConfig(
@@ -40,6 +48,7 @@ compressed, mime_type = service.compress_image(image_data, config)
 ```
 
 ##### batch_compress_directory
+
 ```python
 def batch_compress_directory(
     input_dir: str,
@@ -47,17 +56,21 @@ def batch_compress_directory(
     chunk_size: Optional[int] = None
 ) -> BatchProcessingResult
 ```
+
 Processes all images in a directory with memory-efficient batching.
 
 **Parameters:**
+
 - `input_dir`: Directory containing input images
 - `output_dir`: Directory for output images
 - `chunk_size`: Optional override for batch size
 
 **Returns:**
+
 - BatchProcessingResult containing processing statistics
 
 **Example:**
+
 ```python
 result = service.batch_compress_directory(
     input_dir="uploads",
@@ -70,6 +83,7 @@ print(f"Processed {len(result.successful)} images")
 ### CompressionConfig
 
 #### Constructor
+
 ```python
 @dataclass
 class CompressionConfig:
@@ -82,6 +96,7 @@ class CompressionConfig:
 ```
 
 **Parameters:**
+
 - `format`: Target format (AVIF, WebP, JPEG, PNG)
 - `quality`: Compression quality (1-100)
 - `target_size`: Optional (width, height) tuple
@@ -92,6 +107,7 @@ class CompressionConfig:
 ### BatchProcessingResult
 
 #### Constructor
+
 ```python
 @dataclass
 class BatchProcessingResult:
@@ -102,6 +118,7 @@ class BatchProcessingResult:
 ```
 
 **Fields:**
+
 - `successful`: List of successfully processed file paths
 - `failed`: List of (filename, error_message) tuples
 - `total_input_size`: Total size of input files in bytes
@@ -110,6 +127,7 @@ class BatchProcessingResult:
 ## Configuration
 
 ### Default Configuration
+
 ```python
 DEFAULT_COMPRESSION_CONFIG = {
     'max_dimension': 2048,
@@ -157,11 +175,13 @@ All operations are logged using Python's logging module.
 ## Performance Considerations
 
 1. **Memory Usage:**
+
    - Images are processed in chunks to limit memory usage
    - Garbage collection runs between chunks
    - Weak references used for temporary data
 
 2. **Threading:**
+
    - Parallel processing with configurable thread count
    - Separate thread pool for AVIF encoding
    - Thread count should be adjusted based on CPU cores
@@ -174,16 +194,19 @@ All operations are logged using Python's logging module.
 ## Best Practices
 
 1. **Configuration:**
+
    - Adjust quality settings based on image content
    - Use appropriate thread counts for your hardware
    - Set chunk size based on available memory
 
 2. **Format Selection:**
+
    - Use AVIF for best compression
    - Use WebP as fallback
    - Keep JPEG for universal compatibility
 
 3. **Memory Management:**
+
    - Process large batches in smaller chunks
    - Monitor memory usage during batch processing
    - Clean up temporary files promptly
@@ -192,4 +215,7 @@ All operations are logged using Python's logging module.
    - Implement retry logic for failed items
    - Log errors with context for debugging
    - Handle format-specific edge cases
-``` 
+
+```
+
+```

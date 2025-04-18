@@ -7,7 +7,7 @@ export interface ConsistencyThresholds {
   latency: AlertThreshold;
   successRate: AlertThreshold;
   minNodes: number;
-  maxSyncDelay: number;  // milliseconds
+  maxSyncDelay: number; // milliseconds
 }
 
 export interface PerformanceThresholds {
@@ -24,7 +24,7 @@ export interface PerformanceThresholds {
 }
 
 export interface NodeThresholds {
-  heartbeatInterval: number;  // milliseconds
+  heartbeatInterval: number; // milliseconds
   maxTermGap: number;
   maxPendingOperations: number;
 }
@@ -65,7 +65,7 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
     latency: { warning: 1000, critical: 5000 },
     successRate: { warning: 95, critical: 90 },
     minNodes: 3,
-    maxSyncDelay: 10000
+    maxSyncDelay: 10000,
   },
   performanceThresholds: {
     operationLatency: { warning: 500, critical: 2000 },
@@ -75,14 +75,14 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
       cpu: { warning: 80, critical: 90 },
       memory: { warning: 80, critical: 90 },
       network: { warning: 80, critical: 90 },
-      disk: { warning: 80, critical: 90 }
+      disk: { warning: 80, critical: 90 },
     },
-    maxQueueLength: 1000
+    maxQueueLength: 1000,
   },
   nodeThresholds: {
     heartbeatInterval: 5000,
     maxTermGap: 100,
-    maxPendingOperations: 1000
+    maxPendingOperations: 1000,
   },
   networkThresholds: {
     rtt: { warning: 200, critical: 1000 },
@@ -91,6 +91,6 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
     queueSize: { warning: 100, critical: 500 },
     maxReconnectionAttempts: 5,
     messageTimeout: { warning: 10000, critical: 30000 },
-    minStability: { warning: 80, critical: 60 }
-  }
+    minStability: { warning: 80, critical: 60 },
+  },
 };

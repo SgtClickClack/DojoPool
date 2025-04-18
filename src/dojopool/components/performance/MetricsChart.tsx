@@ -1,5 +1,11 @@
-import React from 'react';
-import { Box, Paper, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import React from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -9,7 +15,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from "recharts";
 
 interface MetricsChartProps {
   data: Array<{
@@ -28,7 +34,10 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
   timeRange,
   onTimeRangeChange,
 }) => {
-  const handleTimeRangeChange = (event: React.MouseEvent<HTMLElement>, newRange: string) => {
+  const handleTimeRangeChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newRange: string,
+  ) => {
     if (newRange !== null) {
       onTimeRangeChange(newRange);
     }
@@ -36,12 +45,14 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    return timeRange === '1h' ? date.toLocaleTimeString() : date.toLocaleString();
+    return timeRange === "1h"
+      ? date.toLocaleTimeString()
+      : date.toLocaleString();
   };
 
   return (
     <Paper sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h6">Performance Metrics</Typography>
         <ToggleButtonGroup
           value={timeRange}
@@ -55,7 +66,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
           <ToggleButton value="7d">7d</ToggleButton>
         </ToggleButtonGroup>
       </Box>
-      <Box sx={{ width: '100%', height: 400 }}>
+      <Box sx={{ width: "100%", height: 400 }}>
         <ResponsiveContainer>
           <LineChart
             data={data}
@@ -71,7 +82,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
             <YAxis />
             <Tooltip
               labelFormatter={formatTimestamp}
-              formatter={(value: number) => [`${value}%`, '']}
+              formatter={(value: number) => [`${value}%`, ""]}
             />
             <Legend />
             <Line

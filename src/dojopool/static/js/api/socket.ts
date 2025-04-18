@@ -2,8 +2,8 @@
  * WebSocket client module.
  * Provides a wrapper around Socket.IO for real-time communication.
  */
-import { io, Socket } from 'socket.io-client';
-import { Config } from '../config';
+import { io, Socket } from "socket.io-client";
+import { Config } from "../config";
 
 interface SocketOptions {
   autoConnect?: boolean;
@@ -45,7 +45,7 @@ export class SocketClient {
 
     const token = localStorage.getItem(Config.STORAGE.AUTH_TOKEN);
     if (!token) {
-      this.handleError(new Error('Authentication required'));
+      this.handleError(new Error("Authentication required"));
       return;
     }
 
@@ -77,11 +77,11 @@ export class SocketClient {
 
     // Connection events
     this.socket.on(Config.SOCKET.CONNECT, () => {
-      this.emit('connect');
+      this.emit("connect");
     });
 
     this.socket.on(Config.SOCKET.DISCONNECT, () => {
-      this.emit('disconnect');
+      this.emit("disconnect");
     });
 
     this.socket.on(Config.SOCKET.ERROR, (error: Error) => {
@@ -90,15 +90,15 @@ export class SocketClient {
 
     // Custom events
     this.socket.on(Config.SOCKET.GAME_UPDATE, (data) => {
-      this.emit('game_update', data);
+      this.emit("game_update", data);
     });
 
     this.socket.on(Config.SOCKET.CHAT_MESSAGE, (data) => {
-      this.emit('chat_message', data);
+      this.emit("chat_message", data);
     });
 
     this.socket.on(Config.SOCKET.NOTIFICATION, (data) => {
-      this.emit('notification', data);
+      this.emit("notification", data);
     });
   }
 
@@ -154,7 +154,7 @@ export class SocketClient {
       try {
         callback(error);
       } catch (e) {
-        console.error('Error in error handler:', e);
+        console.error("Error in error handler:", e);
       }
     });
   }
@@ -164,7 +164,7 @@ export class SocketClient {
    */
   send(event: string, data?: any): void {
     if (!this.socket?.connected) {
-      this.handleError(new Error('Socket not connected'));
+      this.handleError(new Error("Socket not connected"));
       return;
     }
 
@@ -175,14 +175,14 @@ export class SocketClient {
    * Join a room.
    */
   joinRoom(room: string): void {
-    this.send('join_room', { room });
+    this.send("join_room", { room });
   }
 
   /**
    * Leave a room.
    */
   leaveRoom(room: string): void {
-    this.send('leave_room', { room });
+    this.send("leave_room", { room });
   }
 
   /**

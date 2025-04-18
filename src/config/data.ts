@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+import { randomBytes } from "crypto";
 
 interface DataConfig {
   retentionDays: number;
@@ -26,4 +26,4 @@ export const dataConfig: DataConfig = {
     game: randomBytes(32),
     tournament: randomBytes(32),
   },
-}; 
+};

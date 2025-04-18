@@ -1,14 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Load test results
 const loadTestResults = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../results/k6-results.json'), 'utf8')
+  fs.readFileSync(path.join(__dirname, "../results/k6-results.json"), "utf8"),
 );
 
 // Load component performance results
 const componentResults = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../results/component-perf.json'), 'utf8')
+  fs.readFileSync(
+    path.join(__dirname, "../results/component-perf.json"),
+    "utf8",
+  ),
 );
 
 // Calculate metrics
@@ -22,11 +25,15 @@ const metrics = {
 };
 
 // Generate HTML report
-const htmlReport = generateHtmlReport(metrics, loadTestResults, componentResults);
+const htmlReport = generateHtmlReport(
+  metrics,
+  loadTestResults,
+  componentResults,
+);
 
 // Save results
-fs.writeFileSync('performance-metrics.json', JSON.stringify(metrics, null, 2));
-fs.writeFileSync('performance-report.html', htmlReport);
+fs.writeFileSync("performance-metrics.json", JSON.stringify(metrics, null, 2));
+fs.writeFileSync("performance-report.html", htmlReport);
 
 // Utility functions
 function calculateAverageResponseTime(results) {
@@ -35,22 +42,24 @@ function calculateAverageResponseTime(results) {
 }
 
 function calculate95thPercentileResponseTime(results) {
-  const times = [...results.metrics.http_req_duration.values].sort((a, b) => a - b);
+  const times = [...results.metrics.http_req_duration.values].sort(
+    (a, b) => a - b,
+  );
   const index = Math.floor(times.length * 0.95);
   return times[index];
 }
 
 function calculateAverageMemoryUsage(results) {
-  const usages = results.components.map(c => c.memoryUsage);
+  const usages = results.components.map((c) => c.memoryUsage);
   return usages.reduce((a, b) => a + b, 0) / usages.length;
 }
 
 function calculateMaxMemoryUsage(results) {
-  return Math.max(...results.components.map(c => c.memoryUsage));
+  return Math.max(...results.components.map((c) => c.memoryUsage));
 }
 
 function calculateAverageCpuUsage(results) {
-  const usages = results.components.map(c => c.cpuUsage);
+  const usages = results.components.map((c) => c.cpuUsage);
   return usages.reduce((a, b) => a + b, 0) / usages.length;
 }
 
@@ -62,7 +71,8 @@ function checkThresholds(loadResults, componentResults) {
   };
 
   return (
-    calculate95thPercentileResponseTime(loadResults) < thresholds.maxResponseTime &&
+    calculate95thPercentileResponseTime(loadResults) <
+      thresholds.maxResponseTime &&
     calculateMaxMemoryUsage(componentResults) < thresholds.maxMemoryUsage &&
     calculateAverageCpuUsage(componentResults) < thresholds.maxCpuUsage
   );
@@ -121,8 +131,8 @@ function generateHtmlReport(metrics, loadResults, componentResults) {
   <div class="container">
     <h1>Performance Test Report</h1>
     
-    <div class="status ${metrics.thresholdsPassed ? 'pass' : 'fail'}">
-      ${metrics.thresholdsPassed ? '✅ All performance thresholds passed' : '❌ Some performance thresholds failed'}
+    <div class="status ${metrics.thresholdsPassed ? "pass" : "fail"}">
+      ${metrics.thresholdsPassed ? "✅ All performance thresholds passed" : "❌ Some performance thresholds failed"}
     </div>
 
     <h2>Key Metrics</h2>
@@ -190,4 +200,4 @@ function generateHtmlReport(metrics, loadResults, componentResults) {
 </body>
 </html>
   `;
-} 
+}

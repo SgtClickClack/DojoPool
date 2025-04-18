@@ -1,13 +1,17 @@
-import { io, Socket } from 'socket.io-client';
-import { Location } from '@/utils/location';
-import { Cache } from '@/utils/cache';
-import { throttleLocationUpdates } from '@/utils/throttle';
-import { performanceMonitor, locationMonitor, systemHealthMonitor } from '@/utils/monitoring';
-import { WEBSOCKET_URL } from '@/constants';
-import { locationValidator } from '@/utils/validation';
+import { io, Socket } from "socket.io-client";
+import { Location } from "@/utils/location";
+import { Cache } from "@/utils/cache";
+import { throttleLocationUpdates } from "@/utils/throttle";
+import {
+  performanceMonitor,
+  locationMonitor,
+  systemHealthMonitor,
+} from "@/utils/monitoring";
+import { WEBSOCKET_URL } from "@/constants";
+import { locationValidator } from "@/utils/validation";
 
 export interface GameUpdate {
-  type: 'location' | 'game_over';
+  type: "location" | "game_over";
   data: any;
 }
 
@@ -26,13 +30,13 @@ class GameSocketService {
     });
 
     // Register health checks
-    systemHealthMonitor.registerHealthCheck('websocket', async () => {
+    systemHealthMonitor.registerHealthCheck("websocket", async () => {
       return this.socket?.connected ?? false;
     });
 
-    systemHealthMonitor.registerHealthCheck('location_cache', async () => {
+    systemHealthMonitor.registerHealthCheck("location_cache", async () => {
       try {
-        const testKey = 'health_check';
+        const testKey = "health_check";
         this.locationCache.set(testKey, { latitude: 0, longitude: 0 });
         return this.locationCache.get(testKey) !== undefined;
       } catch {
@@ -49,7 +53,7 @@ class GameSocketService {
       this.disconnect();
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem("auth_token");
     if (!token) return;
 
     this.gameId = gameId;
@@ -82,36 +86,40 @@ class GameSocketService {
   private setupEventHandlers() {
     if (!this.socket) return;
 
-    this.socket.on('connect', () => {
-      console.log('Connected to game socket');
+    this.socket.on("connect", () => {
+      console.log("Connected to game socket");
       const connectionTime = performance.now() - this.connectionStartTime;
       performanceMonitor.recordLatency(connectionTime);
       performanceMonitor.recordSuccess(true);
 
       // Send any pending updates
       if (this.pendingUpdates.length > 0) {
-        const latestUpdate = this.pendingUpdates[this.pendingUpdates.length - 1];
+        const latestUpdate =
+          this.pendingUpdates[this.pendingUpdates.length - 1];
         this.updateLocation(latestUpdate);
         this.pendingUpdates = [];
       }
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('Disconnected from game socket');
+    this.socket.on("disconnect", () => {
+      console.log("Disconnected from game socket");
       performanceMonitor.recordSuccess(false);
     });
 
-    this.socket.on('error', (error: Error) => {
-      console.error('Socket error:', error);
+    this.socket.on("error", (error: Error) => {
+      console.error("Socket error:", error);
       performanceMonitor.recordSuccess(false);
     });
 
     // Monitor player locations from other players
-    this.socket.on('player_locations', (locations: Record<string, Location>) => {
-      Object.entries(locations).forEach(([playerId, location]) => {
-        locationMonitor.recordLocation(playerId, location);
-      });
-    });
+    this.socket.on(
+      "player_locations",
+      (locations: Record<string, Location>) => {
+        Object.entries(locations).forEach(([playerId, location]) => {
+          locationMonitor.recordLocation(playerId, location);
+        });
+      },
+    );
   }
 
   private setupLocationThrottling() {
@@ -125,7 +133,7 @@ class GameSocketService {
             return;
           }
 
-          this.socket.emit('update_location', {
+          this.socket.emit("update_location", {
             gameId: this.gameId,
             location,
           });
@@ -141,14 +149,14 @@ class GameSocketService {
           const duration = performance.now() - start;
           performanceMonitor.recordUpdateTime(duration);
           performanceMonitor.recordSuccess(true);
-          locationMonitor.recordLocation('self', location);
+          locationMonitor.recordLocation("self", location);
         } catch (error) {
           performanceMonitor.recordSuccess(false);
           this.pendingUpdates.push(location);
         }
       },
       10, // minimum 10 meters
-      1000 // minimum 1 second
+      1000, // minimum 1 second
     );
   }
 
@@ -157,7 +165,7 @@ class GameSocketService {
       // Validate location before sending
       const validationResult = locationValidator.validateLocation(location);
       if (!validationResult.isValid) {
-        console.warn('Invalid location:', validationResult.reason);
+        console.warn("Invalid location:", validationResult.reason);
         return;
       }
 
@@ -165,22 +173,28 @@ class GameSocketService {
       if (this.gameId && this.socket?.auth?.token) {
         const movementValidation = locationValidator.validateMovement(
           this.socket.auth.token as string,
-          location
+          location,
         );
 
         if (!movementValidation.isValidMovement) {
-          console.warn('Invalid movement:', movementValidation.suspiciousReason);
+          console.warn(
+            "Invalid movement:",
+            movementValidation.suspiciousReason,
+          );
           return;
         }
 
         if (movementValidation.suspiciousReason) {
-          console.warn('Suspicious movement:', movementValidation.suspiciousReason);
+          console.warn(
+            "Suspicious movement:",
+            movementValidation.suspiciousReason,
+          );
         }
 
         // Record the speed in monitoring
         locationMonitor.recordPlayerSpeed(
           this.socket.auth.token as string,
-          movementValidation.estimatedSpeed
+          movementValidation.estimatedSpeed,
         );
       }
 
@@ -199,13 +213,13 @@ class GameSocketService {
         performanceMonitor.recordSuccess(true);
       } catch (error) {
         performanceMonitor.recordSuccess(false);
-        console.error('Game update error:', error);
+        console.error("Game update error:", error);
       }
     };
 
-    this.socket.on('game_update', wrappedCallback);
+    this.socket.on("game_update", wrappedCallback);
     return () => {
-      this.socket?.off('game_update', wrappedCallback);
+      this.socket?.off("game_update", wrappedCallback);
     };
   }
 
@@ -228,13 +242,13 @@ class GameSocketService {
         performanceMonitor.recordSuccess(true);
       } catch (error) {
         performanceMonitor.recordSuccess(false);
-        console.error('Location update error:', error);
+        console.error("Location update error:", error);
       }
     };
 
-    this.socket.on('player_locations', handleLocations);
+    this.socket.on("player_locations", handleLocations);
     return () => {
-      this.socket?.off('player_locations', handleLocations);
+      this.socket?.off("player_locations", handleLocations);
     };
   }
 
@@ -243,10 +257,9 @@ class GameSocketService {
       performance: performanceMonitor.getAverages(),
       health: systemHealthMonitor.getStatus(),
       playerSpeeds: Object.fromEntries(
-        Array.from(this.locationCache.get(this.gameId!) || {}).map(([playerId]) => [
-          playerId,
-          locationMonitor.getPlayerSpeed(playerId),
-        ])
+        Array.from(this.locationCache.get(this.gameId!) || {}).map(
+          ([playerId]) => [playerId, locationMonitor.getPlayerSpeed(playerId)],
+        ),
       ),
     };
   }

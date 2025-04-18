@@ -6,7 +6,7 @@ interface MemoryStats {
 }
 
 interface MemoryThresholds {
-  warning: number;  // percentage of heap limit
+  warning: number; // percentage of heap limit
   critical: number; // percentage of heap limit
 }
 
@@ -16,8 +16,8 @@ export class MemoryProfilerService {
   private static instance: MemoryProfilerService;
   private readonly DEFAULT_INTERVAL = 30000; // 30 seconds
   private readonly DEFAULT_THRESHOLDS: MemoryThresholds = {
-    warning: 70,  // 70% of heap limit
-    critical: 85  // 85% of heap limit
+    warning: 70, // 70% of heap limit
+    critical: 85, // 85% of heap limit
   };
 
   private intervalId: number | null = null;
@@ -77,10 +77,11 @@ export class MemoryProfilerService {
       return { warning: false, critical: false };
     }
 
-    const usagePercentage = (stats.usedJSHeapSize / stats.jsHeapSizeLimit) * 100;
+    const usagePercentage =
+      (stats.usedJSHeapSize / stats.jsHeapSizeLimit) * 100;
     return {
       warning: usagePercentage >= this.DEFAULT_THRESHOLDS.warning,
-      critical: usagePercentage >= this.DEFAULT_THRESHOLDS.critical
+      critical: usagePercentage >= this.DEFAULT_THRESHOLDS.critical,
     };
   }
 
@@ -89,16 +90,16 @@ export class MemoryProfilerService {
     if (critical && window.gc) {
       try {
         window.gc();
-        console.log('Manual garbage collection triggered');
+        console.log("Manual garbage collection triggered");
       } catch (error) {
-        console.warn('Failed to trigger manual garbage collection:', error);
+        console.warn("Failed to trigger manual garbage collection:", error);
       }
     }
   }
 
   private captureMemoryStats(): void {
     if (!window.performance || !window.performance.memory) {
-      console.warn('Memory API not available');
+      console.warn("Memory API not available");
       return;
     }
 
@@ -107,7 +108,7 @@ export class MemoryProfilerService {
       jsHeapSizeLimit: memory.jsHeapSizeLimit,
       totalJSHeapSize: memory.totalJSHeapSize,
       usedJSHeapSize: memory.usedJSHeapSize,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.memoryHistory.push(stats);
@@ -120,22 +121,29 @@ export class MemoryProfilerService {
   }
 
   private checkAndWarnMemoryUsage(stats: MemoryStats): void {
-    const usagePercentage = (stats.usedJSHeapSize / stats.jsHeapSizeLimit) * 100;
-    
+    const usagePercentage =
+      (stats.usedJSHeapSize / stats.jsHeapSizeLimit) * 100;
+
     if (usagePercentage >= this.DEFAULT_THRESHOLDS.critical) {
-      console.warn('Critical memory usage detected:', usagePercentage.toFixed(2) + '%');
+      console.warn(
+        "Critical memory usage detected:",
+        usagePercentage.toFixed(2) + "%",
+      );
       this.suggestGarbageCollection();
     } else if (usagePercentage >= this.DEFAULT_THRESHOLDS.warning) {
-      console.warn('High memory usage detected:', usagePercentage.toFixed(2) + '%');
+      console.warn(
+        "High memory usage detected:",
+        usagePercentage.toFixed(2) + "%",
+      );
     }
   }
 
   private notifyListeners(stats: MemoryStats): void {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(stats);
       } catch (error) {
-        console.error('Error in memory stats listener:', error);
+        console.error("Error in memory stats listener:", error);
       }
     });
   }
@@ -154,4 +162,4 @@ declare global {
   interface Window {
     gc?: () => void;
   }
-} 
+}

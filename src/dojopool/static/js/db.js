@@ -1,6 +1,6 @@
 class DojoPoolDB {
   constructor() {
-    this.dbName = 'dojo_pool_db';
+    this.dbName = "dojo_pool_db";
     this.dbVersion = 1;
     this.db = null;
     this.initDB();
@@ -23,47 +23,47 @@ class DojoPoolDB {
         const db = event.target.result;
 
         // Games store
-        if (!db.objectStoreNames.contains('games')) {
-          const gamesStore = db.createObjectStore('games', {
-            keyPath: 'id',
+        if (!db.objectStoreNames.contains("games")) {
+          const gamesStore = db.createObjectStore("games", {
+            keyPath: "id",
             autoIncrement: true,
           });
-          gamesStore.createIndex('venue_id', 'venue_id');
-          gamesStore.createIndex('status', 'status');
-          gamesStore.createIndex('created_at', 'created_at');
+          gamesStore.createIndex("venue_id", "venue_id");
+          gamesStore.createIndex("status", "status");
+          gamesStore.createIndex("created_at", "created_at");
         }
 
         // Players store
-        if (!db.objectStoreNames.contains('players')) {
-          const playersStore = db.createObjectStore('players', {
-            keyPath: 'id',
+        if (!db.objectStoreNames.contains("players")) {
+          const playersStore = db.createObjectStore("players", {
+            keyPath: "id",
           });
-          playersStore.createIndex('email', 'email', { unique: true });
-          playersStore.createIndex('username', 'username');
+          playersStore.createIndex("email", "email", { unique: true });
+          playersStore.createIndex("username", "username");
         }
 
         // Venues store
-        if (!db.objectStoreNames.contains('venues')) {
-          const venuesStore = db.createObjectStore('venues', { keyPath: 'id' });
-          venuesStore.createIndex('location', 'location');
-          venuesStore.createIndex('name', 'name');
+        if (!db.objectStoreNames.contains("venues")) {
+          const venuesStore = db.createObjectStore("venues", { keyPath: "id" });
+          venuesStore.createIndex("location", "location");
+          venuesStore.createIndex("name", "name");
         }
 
         // Sync queue store
-        if (!db.objectStoreNames.contains('sync_queue')) {
-          const syncStore = db.createObjectStore('sync_queue', {
-            keyPath: 'id',
+        if (!db.objectStoreNames.contains("sync_queue")) {
+          const syncStore = db.createObjectStore("sync_queue", {
+            keyPath: "id",
             autoIncrement: true,
           });
-          syncStore.createIndex('type', 'type');
-          syncStore.createIndex('status', 'status');
+          syncStore.createIndex("type", "type");
+          syncStore.createIndex("status", "status");
         }
       };
     });
   }
 
   async addGame(game) {
-    return this.addItem('games', {
+    return this.addItem("games", {
       ...game,
       created_at: new Date(),
       synced: false,
@@ -71,37 +71,37 @@ class DojoPoolDB {
   }
 
   async getGame(id) {
-    return this.getItem('games', id);
+    return this.getItem("games", id);
   }
 
   async updateGame(id, updates) {
-    return this.updateItem('games', id, updates);
+    return this.updateItem("games", id, updates);
   }
 
   async deleteGame(id) {
-    return this.deleteItem('games', id);
+    return this.deleteItem("games", id);
   }
 
   async addToSyncQueue(item) {
-    return this.addItem('sync_queue', {
+    return this.addItem("sync_queue", {
       ...item,
-      status: 'pending',
+      status: "pending",
       created_at: new Date(),
     });
   }
 
   async getSyncQueue() {
-    return this.getAllItems('sync_queue');
+    return this.getAllItems("sync_queue");
   }
 
   async updateSyncStatus(id, status) {
-    return this.updateItem('sync_queue', id, { status });
+    return this.updateItem("sync_queue", id, { status });
   }
 
   // Generic CRUD operations
   async addItem(storeName, item) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(storeName, 'readwrite');
+      const transaction = this.db.transaction(storeName, "readwrite");
       const store = transaction.objectStore(storeName);
       const request = store.add(item);
 
@@ -112,7 +112,7 @@ class DojoPoolDB {
 
   async getItem(storeName, id) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(storeName, 'readonly');
+      const transaction = this.db.transaction(storeName, "readonly");
       const store = transaction.objectStore(storeName);
       const request = store.get(id);
 
@@ -123,7 +123,7 @@ class DojoPoolDB {
 
   async getAllItems(storeName) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(storeName, 'readonly');
+      const transaction = this.db.transaction(storeName, "readonly");
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
 
@@ -134,7 +134,7 @@ class DojoPoolDB {
 
   async updateItem(storeName, id, updates) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(storeName, 'readwrite');
+      const transaction = this.db.transaction(storeName, "readwrite");
       const store = transaction.objectStore(storeName);
       const request = store.get(id);
 
@@ -151,7 +151,7 @@ class DojoPoolDB {
 
   async deleteItem(storeName, id) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(storeName, 'readwrite');
+      const transaction = this.db.transaction(storeName, "readwrite");
       const store = transaction.objectStore(storeName);
       const request = store.delete(id);
 
@@ -163,7 +163,7 @@ class DojoPoolDB {
   // Query helpers
   async queryByIndex(storeName, indexName, value) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(storeName, 'readonly');
+      const transaction = this.db.transaction(storeName, "readonly");
       const store = transaction.objectStore(storeName);
       const index = store.index(indexName);
       const request = index.getAll(value);
@@ -182,6 +182,6 @@ class DojoPoolDB {
   }
 
   async getUnsynced(storeName) {
-    return this.queryByIndex(storeName, 'synced', false);
+    return this.queryByIndex(storeName, "synced", false);
   }
 }

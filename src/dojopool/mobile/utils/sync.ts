@@ -1,11 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-community/netinfo';
-import { API_URL } from '../config';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
+import { API_URL } from "../config";
 
 interface SyncItem {
   id: string;
   endpoint: string;
-  method: 'POST' | 'PUT' | 'DELETE';
+  method: "POST" | "PUT" | "DELETE";
   data: any;
   timestamp: number;
 }
@@ -29,20 +29,20 @@ class SyncManager {
 
   private async loadQueue() {
     try {
-      const queueData = await AsyncStorage.getItem('syncQueue');
+      const queueData = await AsyncStorage.getItem("syncQueue");
       if (queueData) {
         this.syncQueue = JSON.parse(queueData);
       }
     } catch (error) {
-      console.error('Error loading sync queue:', error);
+      console.error("Error loading sync queue:", error);
     }
   }
 
   private async saveQueue() {
     try {
-      await AsyncStorage.getItem('syncQueue', JSON.stringify(this.syncQueue));
+      await AsyncStorage.getItem("syncQueue", JSON.stringify(this.syncQueue));
     } catch (error) {
-      console.error('Error saving sync queue:', error);
+      console.error("Error saving sync queue:", error);
     }
   }
 
@@ -54,7 +54,7 @@ class SyncManager {
     });
   }
 
-  async addToQueue(item: Omit<SyncItem, 'id' | 'timestamp'>) {
+  async addToQueue(item: Omit<SyncItem, "id" | "timestamp">) {
     const syncItem: SyncItem = {
       ...item,
       id: Math.random().toString(36).substr(2, 9),
@@ -83,7 +83,7 @@ class SyncManager {
         await fetch(`${API_URL}${item.endpoint}`, {
           method: item.method,
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(item.data),
         });

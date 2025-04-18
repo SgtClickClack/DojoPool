@@ -1,7 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
+import { Request, Response, NextFunction } from "express";
+import helmet from "helmet";
 
-export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
+export const securityHeaders = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   // Apply helmet with custom configuration
   helmet({
     contentSecurityPolicy: {
@@ -39,4 +43,4 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
     referrerPolicy: { policy: "no-referrer" },
     xssFilter: true,
   })(req, res, next);
-}; 
+};

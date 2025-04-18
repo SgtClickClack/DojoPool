@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,9 +8,9 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import AvatarGenerator from './[UI]AvatarGenerator';
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import AvatarGenerator from "./[UI]AvatarGenerator";
 
 export interface AvatarEditDialogProps {
   open: boolean;
@@ -26,21 +26,27 @@ const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
   currentAvatarUrl,
 }) => {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleAvatarGenerated = (avatarUrl: string) => {
     onAvatarChange(avatarUrl);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullScreen={fullScreen} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullScreen={fullScreen}
+      maxWidth="md"
+      fullWidth
+    >
       <DialogTitle
         sx={{
           m: 0,
           p: 2,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         Edit Avatar
@@ -48,7 +54,7 @@ const AvatarEditDialog: React.FC<AvatarEditDialogProps> = ({
           aria-label="close"
           onClick={onClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 8,
             top: 8,
             color: (theme) => theme.palette.grey[500],

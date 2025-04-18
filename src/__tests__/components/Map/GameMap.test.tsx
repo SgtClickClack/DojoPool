@@ -1,7 +1,7 @@
-import React from 'react';
-import { screen, act } from '@testing-library/react';
-import { GameMap } from '../../../dojopool/frontend/components/Map/[MAP]GameMap';
-import { renderWithProviders } from '../../utils/testUtils';
+import React from "react";
+import { screen, act } from "@testing-library/react";
+import { GameMap } from "../../../dojopool/frontend/components/Map/[MAP]GameMap";
+import { renderWithProviders } from "../../utils/testUtils";
 
 // Mock Google Maps JavaScript API
 const mockMap = {
@@ -32,8 +32,10 @@ const mockLatLng = jest.fn().mockImplementation((lat, lng) => ({
 }));
 
 // Mock the entire @react-google-maps/api module
-jest.mock('@react-google-maps/api', () => ({
-  LoadScript: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+jest.mock("@react-google-maps/api", () => ({
+  LoadScript: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   GoogleMap: ({
     children,
     onLoad,
@@ -50,7 +52,11 @@ jest.mock('@react-google-maps/api', () => ({
     return <div data-testid="google-map">{children}</div>;
   },
   Circle: ({ center, radius }: { center: any; radius: number }) => (
-    <div data-testid="map-circle" data-center={JSON.stringify(center)} data-radius={radius} />
+    <div
+      data-testid="map-circle"
+      data-center={JSON.stringify(center)}
+      data-radius={radius}
+    />
   ),
 }));
 
@@ -73,10 +79,10 @@ beforeAll(() => {
   };
 });
 
-describe('GameMap Component', () => {
+describe("GameMap Component", () => {
   const mockCurrentLocation = {
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: -74.006,
   };
 
   const mockOtherPlayerLocations = {
@@ -94,39 +100,33 @@ describe('GameMap Component', () => {
     jest.clearAllMocks();
   });
 
-  it('renders map container', () => {
+  it("renders map container", () => {
     renderWithProviders(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         otherPlayerLocations={mockOtherPlayerLocations}
-      />
+      />,
     );
-    
-    expect(screen.getByTestId('google-map')).toBeInTheDocument();
+
+    expect(screen.getByTestId("google-map")).toBeInTheDocument();
   });
 
-  it('renders player range circle', () => {
-    renderWithProviders(
-      <GameMap 
-        currentLocation={mockCurrentLocation}
-      />
-    );
-    
-    const circle = screen.getByTestId('map-circle');
+  it("renders player range circle", () => {
+    renderWithProviders(<GameMap currentLocation={mockCurrentLocation} />);
+
+    const circle = screen.getByTestId("map-circle");
     expect(circle).toBeInTheDocument();
-    
-    const centerData = JSON.parse(circle.getAttribute('data-center') || '{}');
+
+    const centerData = JSON.parse(circle.getAttribute("data-center") || "{}");
     expect(centerData).toEqual({
       lat: mockCurrentLocation.latitude,
       lng: mockCurrentLocation.longitude,
     });
   });
 
-  it('updates map when current location changes', () => {
+  it("updates map when current location changes", () => {
     const { rerender } = renderWithProviders(
-      <GameMap 
-        currentLocation={mockCurrentLocation}
-      />
+      <GameMap currentLocation={mockCurrentLocation} />,
     );
 
     const newLocation = {
@@ -134,47 +134,43 @@ describe('GameMap Component', () => {
       longitude: -87.6298,
     };
 
-    rerender(
-      <GameMap 
-        currentLocation={newLocation}
-      />
-    );
+    rerender(<GameMap currentLocation={newLocation} />);
 
     expect(mockMap.fitBounds).toHaveBeenCalled();
   });
 
-  it('handles other player location updates', () => {
+  it("handles other player location updates", () => {
     const { rerender } = renderWithProviders(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         otherPlayerLocations={mockOtherPlayerLocations}
-      />
+      />,
     );
 
     const updatedLocations = {
       ...mockOtherPlayerLocations,
       player3: {
-        latitude: 40.7130,
+        latitude: 40.713,
         longitude: -74.0062,
       },
     };
 
     rerender(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         otherPlayerLocations={updatedLocations}
-      />
+      />,
     );
 
     expect(mockMap.fitBounds).toHaveBeenCalled();
   });
 
-  it('cleans up markers on unmount', () => {
+  it("cleans up markers on unmount", () => {
     const { unmount } = renderWithProviders(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         otherPlayerLocations={mockOtherPlayerLocations}
-      />
+      />,
     );
 
     unmount();
@@ -182,37 +178,37 @@ describe('GameMap Component', () => {
     expect(mockMarker.setMap).toHaveBeenCalledWith(null);
   });
 
-  it('handles empty other player locations', () => {
+  it("handles empty other player locations", () => {
     renderWithProviders(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         otherPlayerLocations={{}}
-      />
+      />,
     );
 
     expect(mockMap.fitBounds).toHaveBeenCalled();
   });
 
-  it('animates marker movements', () => {
+  it("animates marker movements", () => {
     jest.useFakeTimers();
 
     const { rerender } = renderWithProviders(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         otherPlayerLocations={mockOtherPlayerLocations}
-      />
+      />,
     );
 
     const newLocation = {
-      latitude: 40.7140,
-      longitude: -74.0070,
+      latitude: 40.714,
+      longitude: -74.007,
     };
 
     rerender(
-      <GameMap 
+      <GameMap
         currentLocation={newLocation}
         otherPlayerLocations={mockOtherPlayerLocations}
-      />
+      />,
     );
 
     act(() => {
@@ -224,15 +220,15 @@ describe('GameMap Component', () => {
     jest.useRealTimers();
   });
 
-  it('handles location update callback', () => {
+  it("handles location update callback", () => {
     const mockOnLocationUpdate = jest.fn();
 
     renderWithProviders(
-      <GameMap 
+      <GameMap
         currentLocation={mockCurrentLocation}
         onLocationUpdate={mockOnLocationUpdate}
         otherPlayerLocations={mockOtherPlayerLocations}
-      />
+      />,
     );
 
     // Simulate map click or location update
@@ -241,12 +237,8 @@ describe('GameMap Component', () => {
     expect(mockOnLocationUpdate).not.toHaveBeenCalled();
   });
 
-  it('applies custom map styles', () => {
-    renderWithProviders(
-      <GameMap 
-        currentLocation={mockCurrentLocation}
-      />
-    );
+  it("applies custom map styles", () => {
+    renderWithProviders(<GameMap currentLocation={mockCurrentLocation} />);
 
     // Verify that the map was created with custom styles
     expect(mockMap.fitBounds).toHaveBeenCalled();
@@ -254,19 +246,15 @@ describe('GameMap Component', () => {
     // but since we're mocking the map, we just verify the map was initialized
   });
 
-  it('handles invalid coordinates gracefully', () => {
+  it("handles invalid coordinates gracefully", () => {
     const invalidLocation = {
       latitude: NaN,
       longitude: NaN,
     };
 
-    renderWithProviders(
-      <GameMap 
-        currentLocation={invalidLocation}
-      />
-    );
+    renderWithProviders(<GameMap currentLocation={invalidLocation} />);
 
     // The map should still render without crashing
-    expect(screen.getByTestId('google-map')).toBeInTheDocument();
+    expect(screen.getByTestId("google-map")).toBeInTheDocument();
   });
-}); 
+});

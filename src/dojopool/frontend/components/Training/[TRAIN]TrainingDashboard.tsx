@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -12,12 +12,17 @@ import {
   CardActions,
   LinearProgress,
   Chip,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { FitnessCenter, Timeline, CheckCircle, ArrowForward } from '@mui/icons-material';
-import { api } from '../../services/api';
-import { ProgressChart } from './ProgressChart';
-import { ExerciseList } from './ExerciseList';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import {
+  FitnessCenter,
+  Timeline,
+  CheckCircle,
+  ArrowForward,
+} from "@mui/icons-material";
+import { api } from "../../services/api";
+import { ProgressChart } from "./ProgressChart";
+import { ExerciseList } from "./ExerciseList";
 
 const DashboardContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -25,10 +30,10 @@ const DashboardContainer = styled(Paper)(({ theme }) => ({
 }));
 
 const StatsCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
 }));
 
 interface Program {
@@ -56,7 +61,9 @@ interface Progress {
 export const TrainingDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(
+    null,
+  );
   const [progress, setProgress] = useState<Progress[]>([]);
 
   useEffect(() => {
@@ -67,15 +74,15 @@ export const TrainingDashboard: React.FC = () => {
     try {
       setLoading(true);
       const [recResponse, progressResponse] = await Promise.all([
-        api.get('/training/recommend'),
-        api.get('/training/progress'),
+        api.get("/training/recommend"),
+        api.get("/training/progress"),
       ]);
 
       setRecommendation(recResponse.data);
       setProgress(progressResponse.data.progress);
     } catch (err) {
-      setError('Failed to load training dashboard');
-      console.error('Training dashboard error:', err);
+      setError("Failed to load training dashboard");
+      console.error("Training dashboard error:", err);
     } finally {
       setLoading(false);
     }
@@ -85,7 +92,7 @@ export const TrainingDashboard: React.FC = () => {
     if (!progress.length) return 0;
     const totalExercises = progress.length;
     const completedExercises = progress.filter((p) =>
-      Object.values(p.performance_metrics).every((v) => v >= 0.7)
+      Object.values(p.performance_metrics).every((v) => v >= 0.7),
     ).length;
     return (completedExercises / totalExercises) * 100;
   };
@@ -162,7 +169,10 @@ export const TrainingDashboard: React.FC = () => {
                     {recommendation.program.description}
                   </Typography>
                   <Box display="flex" gap={1} mb={2}>
-                    <Chip label={`${recommendation.program.difficulty} Level`} color="primary" />
+                    <Chip
+                      label={`${recommendation.program.difficulty} Level`}
+                      color="primary"
+                    />
                     <Chip
                       label={`${recommendation.program.duration_weeks} Weeks`}
                       color="secondary"

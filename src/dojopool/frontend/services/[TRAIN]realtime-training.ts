@@ -1,9 +1,13 @@
-import wsService from './websocket';
-import { TrainingSession, TrainingProgress, TrainingMetrics } from '../../types/training';
+import wsService from "./websocket";
+import {
+  TrainingSession,
+  TrainingProgress,
+  TrainingMetrics,
+} from "../../types/training";
 
 export interface TrainingUpdate {
   sessionId: string;
-  type: 'progress' | 'metrics' | 'feedback' | 'status';
+  type: "progress" | "metrics" | "feedback" | "status";
   data: any;
   timestamp: string;
 }
@@ -18,19 +22,22 @@ class RealTimeTrainingService {
   private sessionSubscriptions: Map<string, () => void> = new Map();
 
   public joinSession(sessionId: string, userId: string): void {
-    wsService.send('training:join', { sessionId, userId });
+    wsService.send("training:join", { sessionId, userId });
   }
 
   public leaveSession(sessionId: string, userId: string): void {
-    wsService.send('training:leave', { sessionId, userId });
+    wsService.send("training:leave", { sessionId, userId });
     this.unsubscribeFromSession(sessionId);
   }
 
-  public subscribeToSession(sessionId: string, onUpdate: (update: TrainingUpdate) => void): void {
+  public subscribeToSession(
+    sessionId: string,
+    onUpdate: (update: TrainingUpdate) => void,
+  ): void {
     // Unsubscribe from previous session if exists
     this.unsubscribeFromSession(sessionId);
 
-    const unsubscribe = wsService.subscribe('training:update', (message) => {
+    const unsubscribe = wsService.subscribe("training:update", (message) => {
       if (message.payload.sessionId === sessionId) {
         onUpdate(message.payload as TrainingUpdate);
       }
@@ -47,16 +54,22 @@ class RealTimeTrainingService {
     }
   }
 
-  public updateProgress(sessionId: string, progress: Partial<TrainingProgress>): void {
-    wsService.send('training:progress', {
+  public updateProgress(
+    sessionId: string,
+    progress: Partial<TrainingProgress>,
+  ): void {
+    wsService.send("training:progress", {
       sessionId,
       progress,
       timestamp: new Date().toISOString(),
     });
   }
 
-  public updateMetrics(sessionId: string, metrics: Partial<TrainingMetrics>): void {
-    wsService.send('training:metrics', {
+  public updateMetrics(
+    sessionId: string,
+    metrics: Partial<TrainingMetrics>,
+  ): void {
+    wsService.send("training:metrics", {
       sessionId,
       metrics,
       timestamp: new Date().toISOString(),
@@ -69,9 +82,9 @@ class RealTimeTrainingService {
       techniqueId: string;
       rating: number;
       comments?: string;
-    }
+    },
   ): void {
-    wsService.send('training:feedback', {
+    wsService.send("training:feedback", {
       sessionId,
       feedback,
       timestamp: new Date().toISOString(),
@@ -84,9 +97,9 @@ class RealTimeTrainingService {
       techniqueId: string;
       difficulty: string;
       question?: string;
-    }
+    },
   ): void {
-    wsService.send('training:help-request', {
+    wsService.send("training:help-request", {
       sessionId,
       ...details,
       timestamp: new Date().toISOString(),
@@ -99,9 +112,9 @@ class RealTimeTrainingService {
       maxParticipants?: number;
       isPrivate?: boolean;
       requiresInstructor?: boolean;
-    }
+    },
   ): void {
-    wsService.send('training:start-live', {
+    wsService.send("training:start-live", {
       sessionId,
       config,
       timestamp: new Date().toISOString(),
@@ -109,14 +122,16 @@ class RealTimeTrainingService {
   }
 
   public endLiveSession(sessionId: string): void {
-    wsService.send('training:end-live', {
+    wsService.send("training:end-live", {
       sessionId,
       timestamp: new Date().toISOString(),
     });
   }
 
-  public subscribeToLiveSessions(onUpdate: (sessions: LiveTrainingSession[]) => void): () => void {
-    return wsService.subscribe('training:live-sessions', (message) => {
+  public subscribeToLiveSessions(
+    onUpdate: (sessions: LiveTrainingSession[]) => void,
+  ): () => void {
+    return wsService.subscribe("training:live-sessions", (message) => {
       onUpdate(message.payload as LiveTrainingSession[]);
     });
   }
@@ -125,10 +140,10 @@ class RealTimeTrainingService {
     sessionId: string,
     message: {
       text: string;
-      type?: 'chat' | 'instruction' | 'question';
-    }
+      type?: "chat" | "instruction" | "question";
+    },
   ): void {
-    wsService.send('training:message', {
+    wsService.send("training:message", {
       sessionId,
       ...message,
       timestamp: new Date().toISOString(),
@@ -137,9 +152,14 @@ class RealTimeTrainingService {
 
   public subscribeToMessages(
     sessionId: string,
-    onMessage: (message: { userId: string; text: string; type: string; timestamp: string }) => void
+    onMessage: (message: {
+      userId: string;
+      text: string;
+      type: string;
+      timestamp: string;
+    }) => void,
   ): () => void {
-    return wsService.subscribe('training:message', (wsMessage) => {
+    return wsService.subscribe("training:message", (wsMessage) => {
       if (wsMessage.payload.sessionId === sessionId) {
         onMessage(wsMessage.payload);
       }
@@ -147,7 +167,7 @@ class RealTimeTrainingService {
   }
 
   public synchronizeTime(sessionId: string): void {
-    wsService.send('training:sync-time', {
+    wsService.send("training:sync-time", {
       sessionId,
       clientTime: new Date().toISOString(),
     });

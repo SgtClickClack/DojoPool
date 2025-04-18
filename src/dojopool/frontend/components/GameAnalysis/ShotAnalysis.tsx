@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -7,8 +7,8 @@ import {
   Card,
   CardContent,
   Grid,
-} from '@mui/material';
-import axios from 'axios';
+} from "@mui/material";
+import axios from "axios";
 
 interface ShotAnalysisProps {
   gameId: number;
@@ -41,8 +41,8 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
       const response = await axios.get(`/api/analysis/game/${gameId}/shots`);
       setShots(response.data.shots);
     } catch (err) {
-      setError('Failed to load shot analysis');
-      console.error('Shot analysis error:', err);
+      setError("Failed to load shot analysis");
+      console.error("Shot analysis error:", err);
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
                   Type: {shot.type}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Success: {shot.success ? 'Yes' : 'No'}
+                  Success: {shot.success ? "Yes" : "No"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Difficulty: {shot.difficulty}/10
@@ -108,4 +108,4 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
       </Grid>
     </Box>
   );
-}; 
+};

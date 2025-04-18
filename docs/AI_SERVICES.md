@@ -1,7 +1,9 @@
 # AI Services Guide
 
 ## Overview
+
 The DojoPool AI services provide advanced analysis, prediction, and recommendation capabilities using state-of-the-art machine learning models. This guide covers the three main AI components:
+
 1. Shot Analysis
 2. Game Analysis
 3. Performance Prediction
@@ -9,6 +11,7 @@ The DojoPool AI services provide advanced analysis, prediction, and recommendati
 ## Shot Analysis Service
 
 ### Features
+
 - Deep learning-based pose estimation using MediaPipe
 - Real-time shot feedback
 - Shot difficulty estimation
@@ -16,6 +19,7 @@ The DojoPool AI services provide advanced analysis, prediction, and recommendati
 - Comprehensive metrics and feedback generation
 
 ### Usage
+
 ```python
 from dojopool.core.services.shot_analysis import ShotAnalyzer
 
@@ -27,6 +31,7 @@ results = await analyzer.analyze_shot(
 ```
 
 ### Output Metrics
+
 - Power
 - Accuracy
 - Spin
@@ -35,6 +40,7 @@ results = await analyzer.analyze_shot(
 - Consistency
 
 ### Technical Details
+
 - Uses MediaPipe for pose estimation
 - MobileNetV2 for feature extraction
 - Custom models for:
@@ -45,6 +51,7 @@ results = await analyzer.analyze_shot(
 ## Game Analysis Service
 
 ### Features
+
 - Pattern recognition for playing styles
 - Strategic recommendations
 - Shot distribution heat maps
@@ -52,6 +59,7 @@ results = await analyzer.analyze_shot(
 - Performance metrics and adaptations
 
 ### Usage
+
 ```python
 from dojopool.core.services.game_analysis import GameAnalyzer
 
@@ -64,6 +72,7 @@ results = await analyzer.analyze_game(
 ```
 
 ### Analysis Components
+
 - Shot patterns
 - Position patterns
 - Strategy patterns
@@ -71,6 +80,7 @@ results = await analyzer.analyze_game(
 - Performance metrics
 
 ### Visualization
+
 - Shot distribution heat maps
 - Position heat maps
 - Pattern visualizations
@@ -79,6 +89,7 @@ results = await analyzer.analyze_game(
 ## Performance Prediction Service
 
 ### Features
+
 - Machine learning models for skill progression
 - Personalized training recommendations
 - Comparative analysis
@@ -86,6 +97,7 @@ results = await analyzer.analyze_game(
 - Milestone tracking
 
 ### Usage
+
 ```python
 from dojopool.core.services.performance_prediction import PerformancePredictor
 
@@ -98,6 +110,7 @@ results = await predictor.predict_performance(
 ```
 
 ### Prediction Components
+
 - Skill metrics
 - Progression metrics
 - Future skill development
@@ -105,6 +118,7 @@ results = await predictor.predict_performance(
 - Performance milestones
 
 ### Timeline Generation
+
 - Weekly training plans
 - Progressive difficulty
 - Milestone tracking
@@ -113,18 +127,21 @@ results = await predictor.predict_performance(
 ## Model Training and Updates
 
 ### Training Data Requirements
+
 - Shot videos for pose estimation
 - Game recordings for pattern analysis
 - Player performance history
 - Training session data
 
 ### Model Versioning
+
 - Models are versioned using semantic versioning
 - Updates are deployed through the model registry
 - Backward compatibility is maintained
 - Performance metrics are tracked
 
 ### Calibration
+
 - Models require initial calibration
 - Regular recalibration based on new data
 - Adaptation to player progress
@@ -133,6 +150,7 @@ results = await predictor.predict_performance(
 ## Integration Guidelines
 
 ### Frontend Integration
+
 ```javascript
 // Real-time shot analysis
 const analyzer = new ShotAnalyzer();
@@ -150,6 +168,7 @@ gameAnalyzer.onGameComplete(game => {
 ```
 
 ### Backend Integration
+
 ```python
 # Shot analysis webhook
 @app.post("/api/shot-analysis")
@@ -171,17 +190,20 @@ async def analyze_game(game_id: str):
 ## Performance Considerations
 
 ### Real-time Processing
+
 - Shot analysis: <100ms per frame
 - Game analysis: <1s for updates
 - Prediction: <2s for full analysis
 
 ### Resource Requirements
+
 - GPU recommended for real-time analysis
 - Minimum 4GB RAM for model serving
 - SSD storage for model files
 - Network bandwidth for real-time features
 
 ### Optimization Techniques
+
 - Model quantization
 - Batch processing
 - Caching strategies
@@ -190,6 +212,7 @@ async def analyze_game(game_id: str):
 ## Error Handling
 
 ### Common Issues
+
 1. Poor video quality
 2. Missing pose keypoints
 3. Insufficient historical data
@@ -197,6 +220,7 @@ async def analyze_game(game_id: str):
 5. Real-time processing delays
 
 ### Resolution Strategies
+
 - Automatic quality enhancement
 - Interpolation for missing data
 - Fallback to simpler models
@@ -206,12 +230,14 @@ async def analyze_game(game_id: str):
 ## Security Considerations
 
 ### Data Protection
+
 - Personal data encryption
 - Secure model storage
 - Access control
 - Audit logging
 
 ### Model Security
+
 - Input validation
 - Output sanitization
 - Rate limiting
@@ -220,12 +246,14 @@ async def analyze_game(game_id: str):
 ## Monitoring and Maintenance
 
 ### Performance Metrics
+
 - Model accuracy
 - Processing latency
 - Resource utilization
 - Error rates
 
 ### Maintenance Tasks
+
 - Regular model retraining
 - Data pipeline updates
 - Performance optimization
@@ -234,12 +262,14 @@ async def analyze_game(game_id: str):
 ## Future Developments
 
 ### Planned Enhancements
+
 - 3D shot analysis
 - Team dynamics analysis
 - Tournament predictions
 - VR integration
 
 ### Research Areas
+
 - Advanced biomechanics
 - Multi-player analysis
 - Real-time coaching
@@ -248,14 +278,19 @@ async def analyze_game(game_id: str):
 ## Support and Resources
 
 ### Documentation
+
 - API Reference
 - Model Documentation
 - Integration Guides
 - Troubleshooting Guide
 
 ### Support Channels
+
 - Technical Support
 - Model Updates
 - Training Resources
 - Community Forum
-``` 
+
+```
+
+```

@@ -5,7 +5,7 @@ export interface GameState {
     player2: number;
   };
   turn: number;
-  status: 'waiting' | 'in_progress' | 'completed';
+  status: "waiting" | "in_progress" | "completed";
 }
 
 export interface PlayerStats {
@@ -33,4 +33,4 @@ export interface GameEvent {
   accuracy: number;
   duration: number;
   timestamp: number;
-} 
+}

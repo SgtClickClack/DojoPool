@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import {
   Container,
   Typography,
@@ -8,10 +8,10 @@ import {
   Tab,
   Pagination,
   CircularProgress,
-  Alert
-} from '@mui/material';
-import { ShareCard } from '../../components/social/ShareCard';
-import { Share, ShareType } from '../../types/share';
+  Alert,
+} from "@mui/material";
+import { ShareCard } from "../../components/social/ShareCard";
+import { Share, ShareType } from "../../types/share";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -30,11 +30,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`share-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -51,15 +47,17 @@ export default function SharesPage() {
   const fetchShares = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/social/share?page=${page}&per_page=10`);
+      const response = await fetch(
+        `/api/social/share?page=${page}&per_page=10`,
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch shares');
+        throw new Error("Failed to fetch shares");
       }
       const data = await response.json();
       setShares(data.shares);
       setTotalPages(data.total_pages);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -69,7 +67,10 @@ export default function SharesPage() {
     fetchShares();
   }, [page]);
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => {
     setPage(value);
   };
 
@@ -81,18 +82,25 @@ export default function SharesPage() {
   const handleDeleteShare = async (shareId: number) => {
     try {
       const response = await fetch(`/api/social/share?share_id=${shareId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error('Failed to delete share');
+        throw new Error("Failed to delete share");
       }
-      setShares(shares.filter(share => share.id !== shareId));
+      setShares(shares.filter((share) => share.id !== shareId));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete share');
+      setError(err instanceof Error ? err.message : "Failed to delete share");
     }
   };
 
-  const contentTypes: ShareType[] = ['game', 'tournament', 'achievement', 'profile', 'shot', 'venue'];
+  const contentTypes: ShareType[] = [
+    "game",
+    "tournament",
+    "achievement",
+    "profile",
+    "shot",
+    "venue",
+  ];
 
   return (
     <Container maxWidth="md">
@@ -107,17 +115,21 @@ export default function SharesPage() {
           </Alert>
         )}
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={tabValue} onChange={handleTabChange}>
             <Tab label="All" />
             {contentTypes.map((type, index) => (
-              <Tab key={type} label={type.charAt(0).toUpperCase() + type.slice(1)} value={index + 1} />
+              <Tab
+                key={type}
+                label={type.charAt(0).toUpperCase() + type.slice(1)}
+                value={index + 1}
+              />
             ))}
           </Tabs>
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -125,8 +137,8 @@ export default function SharesPage() {
             {contentTypes.map((type, index) => (
               <TabPanel key={type} value={tabValue} index={index + 1}>
                 {shares
-                  .filter(share => share.content_type === type)
-                  .map(share => (
+                  .filter((share) => share.content_type === type)
+                  .map((share) => (
                     <ShareCard
                       key={share.id}
                       share={share}
@@ -137,7 +149,7 @@ export default function SharesPage() {
             ))}
 
             <TabPanel value={tabValue} index={0}>
-              {shares.map(share => (
+              {shares.map((share) => (
                 <ShareCard
                   key={share.id}
                   share={share}
@@ -146,7 +158,7 @@ export default function SharesPage() {
               ))}
             </TabPanel>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
               <Pagination
                 count={totalPages}
                 page={page}
@@ -159,4 +171,4 @@ export default function SharesPage() {
       </Box>
     </Container>
   );
-} 
+}

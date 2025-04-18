@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,8 +20,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  LinearProgress
-} from '@mui/material';
+  LinearProgress,
+} from "@mui/material";
 import {
   Close,
   EmojiEvents,
@@ -31,10 +31,10 @@ import {
   People,
   Speed,
   Assessment,
-  Psychology
-} from '@mui/icons-material';
-import { useQuery } from 'react-query';
-import axios from 'axios';
+  Psychology,
+} from "@mui/icons-material";
+import { useQuery } from "react-query";
+import axios from "axios";
 import {
   LineChart,
   Line,
@@ -43,8 +43,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
-} from 'recharts';
+  Legend,
+} from "recharts";
 
 interface PlayerStatsModalProps {
   playerId: number;
@@ -98,27 +98,27 @@ const StatCard: React.FC<{
   color: string;
 }> = ({ title, value, icon, color }) => {
   const theme = useTheme();
-  
+
   return (
     <Box
       sx={{
         p: 2,
         borderRadius: 2,
         backgroundColor: alpha(color, 0.1),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 1
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 1,
       }}
     >
       <Box
         sx={{
           backgroundColor: alpha(color, 0.2),
-          borderRadius: '50%',
+          borderRadius: "50%",
           p: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {icon}
@@ -135,20 +135,24 @@ const StatCard: React.FC<{
 
 const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
   playerId,
-  onClose
+  onClose,
 }) => {
   const theme = useTheme();
 
-  const { data: stats, isLoading, error } = useQuery<PlayerStats>(
-    ['playerStats', playerId],
+  const {
+    data: stats,
+    isLoading,
+    error,
+  } = useQuery<PlayerStats>(
+    ["playerStats", playerId],
     async () => {
       const response = await axios.get(`/api/rankings/player/${playerId}`);
       return response.data;
     },
     {
       enabled: true,
-      refetchOnWindowFocus: false
-    }
+      refetchOnWindowFocus: false,
+    },
   );
 
   const formatDate = (dateString: string) => {
@@ -174,8 +178,8 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           sx: {
             borderRadius: 2,
             backgroundColor: alpha(theme.palette.background.paper, 0.95),
-            backdropFilter: 'blur(8px)'
-          }
+            backdropFilter: "blur(8px)",
+          },
         }}
       >
         <DialogTitle>
@@ -198,8 +202,8 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           sx: {
             borderRadius: 2,
             backgroundColor: alpha(theme.palette.background.paper, 0.95),
-            backdropFilter: 'blur(8px)'
-          }
+            backdropFilter: "blur(8px)",
+          },
         }}
       >
         <DialogTitle>
@@ -221,8 +225,8 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
         sx: {
           borderRadius: 2,
           backgroundColor: alpha(theme.palette.background.paper, 0.95),
-          backdropFilter: 'blur(8px)'
-        }
+          backdropFilter: "blur(8px)",
+        },
       }}
     >
       <DialogTitle>
@@ -246,7 +250,7 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                 sx={{
                   backgroundColor: alpha(stats.tier_color, 0.1),
                   color: stats.tier_color,
-                  fontWeight: 'bold'
+                  fontWeight: "bold",
                 }}
               />
             </Box>
@@ -255,25 +259,40 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Current Stats */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Current Stats</Typography>
+              <Typography variant="h6" gutterBottom>
+                Current Stats
+              </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Typography color="textSecondary">Global Rank</Typography>
                   <Typography variant="h5">
                     #{stats.rank}
-                    <Typography component="span" color={stats.rank_movement > 0 ? 'success.main' : 'error.main'}>
-                      {stats.rank_movement > 0 ? ' ↑' : stats.rank_movement < 0 ? ' ↓' : ''}
+                    <Typography
+                      component="span"
+                      color={
+                        stats.rank_movement > 0 ? "success.main" : "error.main"
+                      }
+                    >
+                      {stats.rank_movement > 0
+                        ? " ↑"
+                        : stats.rank_movement < 0
+                          ? " ↓"
+                          : ""}
                       {Math.abs(stats.rank_movement)}
                     </Typography>
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography color="textSecondary">Rating</Typography>
-                  <Typography variant="h5">{Math.round(stats.rating)}</Typography>
+                  <Typography variant="h5">
+                    {Math.round(stats.rating)}
+                  </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography color="textSecondary">Win Rate</Typography>
-                  <Typography variant="h5">{(stats.win_rate * 100).toFixed(1)}%</Typography>
+                  <Typography variant="h5">
+                    {(stats.win_rate * 100).toFixed(1)}%
+                  </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography color="textSecondary">Total Games</Typography>
@@ -286,20 +305,26 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Best Achievements */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Best Achievements</Typography>
+              <Typography variant="h6" gutterBottom>
+                Best Achievements
+              </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Typography color="textSecondary">Highest Rank</Typography>
                   <Typography variant="h5">#{stats.highest_rank}</Typography>
                   <Typography variant="caption">
-                    {stats.highest_rank_date && `on ${formatDate(stats.highest_rank_date)}`}
+                    {stats.highest_rank_date &&
+                      `on ${formatDate(stats.highest_rank_date)}`}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography color="textSecondary">Highest Rating</Typography>
-                  <Typography variant="h5">{Math.round(stats.highest_rating)}</Typography>
+                  <Typography variant="h5">
+                    {Math.round(stats.highest_rating)}
+                  </Typography>
                   <Typography variant="caption">
-                    {stats.highest_rating_date && `on ${formatDate(stats.highest_rating_date)}`}
+                    {stats.highest_rating_date &&
+                      `on ${formatDate(stats.highest_rating_date)}`}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -312,9 +337,17 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                     {stats.rank_streak >= 3 && (
                       <Chip
                         size="small"
-                        icon={stats.rank_streak_type === 'win' ? <TrendingUp /> : <TrendingDown />}
-                        label={`${stats.rank_streak} ${stats.rank_streak_type === 'win' ? 'Up' : 'Down'}`}
-                        color={stats.rank_streak_type === 'win' ? 'success' : 'error'}
+                        icon={
+                          stats.rank_streak_type === "win" ? (
+                            <TrendingUp />
+                          ) : (
+                            <TrendingDown />
+                          )
+                        }
+                        label={`${stats.rank_streak} ${stats.rank_streak_type === "win" ? "Up" : "Down"}`}
+                        color={
+                          stats.rank_streak_type === "win" ? "success" : "error"
+                        }
                         variant="outlined"
                       />
                     )}
@@ -327,7 +360,9 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Rating History Chart */}
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Rating History</Typography>
+              <Typography variant="h6" gutterBottom>
+                Rating History
+              </Typography>
               <Box height={300}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
@@ -335,14 +370,11 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={formatDate}
-                    />
+                    <XAxis dataKey="date" tickFormatter={formatDate} />
                     <YAxis />
                     <Tooltip
                       labelFormatter={formatDate}
-                      formatter={(value: any) => [Math.round(value), 'Rating']}
+                      formatter={(value: any) => [Math.round(value), "Rating"]}
                     />
                     <Legend />
                     <Line
@@ -360,7 +392,9 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Performance Metrics */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Performance Metrics</Typography>
+              <Typography variant="h6" gutterBottom>
+                Performance Metrics
+              </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Box display="flex" alignItems="center" gap={1} mb={1}>
@@ -369,15 +403,15 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                   </Box>
                   <LinearProgress
                     variant="determinate"
-                    value={(stats.win_rate * 100)}
+                    value={stats.win_rate * 100}
                     sx={{
                       height: 8,
                       borderRadius: 4,
                       backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                      '& .MuiLinearProgress-bar': {
+                      "& .MuiLinearProgress-bar": {
                         borderRadius: 4,
-                        backgroundColor: getPerformanceColor(stats.win_rate, 1)
-                      }
+                        backgroundColor: getPerformanceColor(stats.win_rate, 1),
+                      },
                     }}
                   />
                 </Grid>
@@ -393,10 +427,13 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                       height: 8,
                       borderRadius: 4,
                       backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                      '& .MuiLinearProgress-bar': {
+                      "& .MuiLinearProgress-bar": {
                         borderRadius: 4,
-                        backgroundColor: getPerformanceColor(stats.total_games, 100)
-                      }
+                        backgroundColor: getPerformanceColor(
+                          stats.total_games,
+                          100,
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -407,15 +444,18 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                   </Box>
                   <LinearProgress
                     variant="determinate"
-                    value={Math.min((stats.rank_streak * 10), 100)}
+                    value={Math.min(stats.rank_streak * 10, 100)}
                     sx={{
                       height: 8,
                       borderRadius: 4,
                       backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                      '& .MuiLinearProgress-bar': {
+                      "& .MuiLinearProgress-bar": {
                         borderRadius: 4,
-                        backgroundColor: getPerformanceColor(stats.rank_streak, 10)
-                      }
+                        backgroundColor: getPerformanceColor(
+                          stats.rank_streak,
+                          10,
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -426,15 +466,18 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                   </Box>
                   <LinearProgress
                     variant="determinate"
-                    value={Math.min((stats.tournament_wins * 20), 100)}
+                    value={Math.min(stats.tournament_wins * 20, 100)}
                     sx={{
                       height: 8,
                       borderRadius: 4,
                       backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                      '& .MuiLinearProgress-bar': {
+                      "& .MuiLinearProgress-bar": {
                         borderRadius: 4,
-                        backgroundColor: getPerformanceColor(stats.tournament_wins, 5)
-                      }
+                        backgroundColor: getPerformanceColor(
+                          stats.tournament_wins,
+                          5,
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -445,7 +488,9 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
           {/* Recent Tournament Results */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Recent Tournament Results</Typography>
+              <Typography variant="h6" gutterBottom>
+                Recent Tournament Results
+              </Typography>
               <TableContainer>
                 <Table size="small">
                   <TableHead>
@@ -463,14 +508,20 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
                           <Chip
                             size="small"
                             label={`${tournament.placement}${
-                              tournament.placement === 1 ? 'st' :
-                              tournament.placement === 2 ? 'nd' :
-                              tournament.placement === 3 ? 'rd' : 'th'
+                              tournament.placement === 1
+                                ? "st"
+                                : tournament.placement === 2
+                                  ? "nd"
+                                  : tournament.placement === 3
+                                    ? "rd"
+                                    : "th"
                             }`}
                             color={
-                              tournament.placement === 1 ? 'success' :
-                              tournament.placement <= 3 ? 'primary' :
-                              'default'
+                              tournament.placement === 1
+                                ? "success"
+                                : tournament.placement <= 3
+                                  ? "primary"
+                                  : "default"
                             }
                           />
                         </TableCell>
@@ -488,4 +539,4 @@ const PlayerStatsModal: React.FC<PlayerStatsModalProps> = ({
   );
 };
 
-export default PlayerStatsModal; 
+export default PlayerStatsModal;

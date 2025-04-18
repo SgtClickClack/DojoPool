@@ -1,4 +1,4 @@
-import { $, $$, ui } from './utils.js';
+import { $, $$, ui } from "./utils.js";
 
 // Modal Component
 class Modal {
@@ -8,25 +8,25 @@ class Modal {
   }
 
   setupEventListeners() {
-    const closeButtons = this.modal.querySelectorAll('[data-close-modal]');
+    const closeButtons = this.modal.querySelectorAll("[data-close-modal]");
     closeButtons.forEach((button) => {
-      button.addEventListener('click', () => this.hide());
+      button.addEventListener("click", () => this.hide());
     });
 
     // Close on click outside
-    this.modal.addEventListener('click', (e) => {
+    this.modal.addEventListener("click", (e) => {
       if (e.target === this.modal) this.hide();
     });
   }
 
   show() {
-    this.modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
+    this.modal.classList.add("show");
+    document.body.style.overflow = "hidden";
   }
 
   hide() {
-    this.modal.classList.remove('show');
-    document.body.style.overflow = '';
+    this.modal.classList.remove("show");
+    document.body.style.overflow = "";
   }
 }
 
@@ -34,14 +34,14 @@ class Modal {
 class Tabs {
   constructor(container) {
     this.container = container;
-    this.tabs = this.container.querySelectorAll('[data-tab]');
-    this.panels = this.container.querySelectorAll('[data-tab-panel]');
+    this.tabs = this.container.querySelectorAll("[data-tab]");
+    this.panels = this.container.querySelectorAll("[data-tab-panel]");
     this.setupEventListeners();
   }
 
   setupEventListeners() {
     this.tabs.forEach((tab) => {
-      tab.addEventListener('click', () => this.switchTab(tab));
+      tab.addEventListener("click", () => this.switchTab(tab));
     });
   }
 
@@ -49,11 +49,11 @@ class Tabs {
     const targetPanel = selectedTab.dataset.tab;
 
     this.tabs.forEach((tab) => {
-      tab.classList.toggle('active', tab === selectedTab);
+      tab.classList.toggle("active", tab === selectedTab);
     });
 
     this.panels.forEach((panel) => {
-      panel.classList.toggle('active', panel.dataset.tabPanel === targetPanel);
+      panel.classList.toggle("active", panel.dataset.tabPanel === targetPanel);
     });
   }
 }
@@ -62,16 +62,16 @@ class Tabs {
 class Dropdown {
   constructor(container) {
     this.container = container;
-    this.button = container.querySelector('[data-dropdown-toggle]');
-    this.menu = container.querySelector('[data-dropdown-menu]');
+    this.button = container.querySelector("[data-dropdown-toggle]");
+    this.menu = container.querySelector("[data-dropdown-menu]");
     this.setupEventListeners();
   }
 
   setupEventListeners() {
-    this.button.addEventListener('click', () => this.toggle());
+    this.button.addEventListener("click", () => this.toggle());
 
     // Close on click outside
-    document.addEventListener('click', (e) => {
+    document.addEventListener("click", (e) => {
       if (!this.container.contains(e.target)) {
         this.hide();
       }
@@ -79,17 +79,17 @@ class Dropdown {
   }
 
   toggle() {
-    this.menu.classList.toggle('show');
+    this.menu.classList.toggle("show");
   }
 
   hide() {
-    this.menu.classList.remove('show');
+    this.menu.classList.remove("show");
   }
 }
 
 // Toast Notification Component
 class Toast {
-  constructor(message, type = 'info', duration = 3000) {
+  constructor(message, type = "info", duration = 3000) {
     this.message = message;
     this.type = type;
     this.duration = duration;
@@ -98,7 +98,7 @@ class Toast {
   }
 
   create() {
-    this.element = document.createElement('div');
+    this.element = document.createElement("div");
     this.element.className = `toast toast-${this.type}`;
     this.element.textContent = this.message;
     document.body.appendChild(this.element);
@@ -107,7 +107,7 @@ class Toast {
   show() {
     this.create();
     setTimeout(() => {
-      this.element.classList.add('show');
+      this.element.classList.add("show");
     }, 100);
 
     if (this.duration) {
@@ -116,7 +116,7 @@ class Toast {
   }
 
   hide() {
-    this.element.classList.remove('show');
+    this.element.classList.remove("show");
     setTimeout(() => {
       this.element.remove();
     }, 300);
@@ -132,15 +132,15 @@ class FormValidator {
   }
 
   setupEventListeners() {
-    this.form.addEventListener('submit', (e) => {
+    this.form.addEventListener("submit", (e) => {
       if (!this.validateAll()) {
         e.preventDefault();
       }
     });
 
     // Real-time validation
-    this.form.querySelectorAll('input, select, textarea').forEach((field) => {
-      field.addEventListener('blur', () => {
+    this.form.querySelectorAll("input, select, textarea").forEach((field) => {
+      field.addEventListener("blur", () => {
         this.validateField(field);
       });
     });
@@ -151,7 +151,7 @@ class FormValidator {
     if (!rules) return true;
 
     let isValid = true;
-    let errorMessage = '';
+    let errorMessage = "";
 
     rules.forEach((rule) => {
       if (!rule.validate(field.value)) {
@@ -160,13 +160,13 @@ class FormValidator {
       }
     });
 
-    this.showFieldError(field, isValid ? '' : errorMessage);
+    this.showFieldError(field, isValid ? "" : errorMessage);
     return isValid;
   }
 
   validateAll() {
     let isValid = true;
-    this.form.querySelectorAll('input, select, textarea').forEach((field) => {
+    this.form.querySelectorAll("input, select, textarea").forEach((field) => {
       if (!this.validateField(field)) {
         isValid = false;
       }
@@ -175,22 +175,22 @@ class FormValidator {
   }
 
   showFieldError(field, message) {
-    const errorElement = field.parentElement.querySelector('.error-message');
+    const errorElement = field.parentElement.querySelector(".error-message");
     if (message) {
       if (!errorElement) {
-        const error = document.createElement('div');
-        error.className = 'error-message';
+        const error = document.createElement("div");
+        error.className = "error-message";
         error.textContent = message;
         field.parentElement.appendChild(error);
       } else {
         errorElement.textContent = message;
       }
-      field.classList.add('error');
+      field.classList.add("error");
     } else {
       if (errorElement) {
         errorElement.remove();
       }
-      field.classList.remove('error');
+      field.classList.remove("error");
     }
   }
 }

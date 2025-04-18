@@ -16,9 +16,13 @@ export interface TrainingSession {
   metrics: TrainingMetrics;
 }
 
-export type TrainingStatus = 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+export type TrainingStatus =
+  | "scheduled"
+  | "in-progress"
+  | "completed"
+  | "cancelled";
 
-export type TrainingType = 'solo' | 'guided' | 'challenge' | 'assessment';
+export type TrainingType = "solo" | "guided" | "challenge" | "assessment";
 
 export interface Technique {
   id: string;

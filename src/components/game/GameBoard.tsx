@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { Box, useColorModeValue } from '@chakra-ui/react';
-import Konva from 'konva';
+import React, { useEffect, useRef } from "react";
+import { Box, useColorModeValue } from "@chakra-ui/react";
+import Konva from "konva";
 
 interface Ball {
   id: number;
@@ -32,9 +32,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   const layerRef = useRef<Konva.Layer | null>(null);
 
   // Colors based on theme
-  const feltColor = useColorModeValue('#2D5A27', '#1A3D16');
-  const railColor = useColorModeValue('#8B4513', '#5C2D0D');
-  const pocketColor = useColorModeValue('#000000', '#000000');
+  const feltColor = useColorModeValue("#2D5A27", "#1A3D16");
+  const railColor = useColorModeValue("#8B4513", "#5C2D0D");
+  const pocketColor = useColorModeValue("#000000", "#000000");
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -62,7 +62,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
     // Add event listeners
     if (isInteractive) {
-      stage.on('click', handleClick);
+      stage.on("click", handleClick);
     }
 
     return () => {
@@ -91,7 +91,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       { x: width - railWidth, y: 0, width: railWidth, height: height }, // Right
     ];
 
-    rails.forEach(rail => {
+    rails.forEach((rail) => {
       const railRect = new Konva.Rect({
         ...rail,
         fill: railColor,
@@ -110,7 +110,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       { x: width, y: height }, // Bottom right
     ];
 
-    pockets.forEach(pocket => {
+    pockets.forEach((pocket) => {
       const pocketCircle = new Konva.Circle({
         x: pocket.x,
         y: pocket.y,
@@ -123,18 +123,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
   const drawBalls = (layer: Konva.Layer, balls: Ball[]) => {
     // Clear existing balls
-    layer.find('.ball').forEach(ball => ball.destroy());
+    layer.find(".ball").forEach((ball) => ball.destroy());
 
     // Draw new balls
-    balls.forEach(ball => {
+    balls.forEach((ball) => {
       const ballCircle = new Konva.Circle({
         x: ball.x,
         y: ball.y,
         radius: 15,
         fill: ball.color,
-        stroke: '#000000',
+        stroke: "#000000",
         strokeWidth: 1,
-        className: 'ball',
+        className: "ball",
       });
 
       // Add number if specified
@@ -143,9 +143,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           x: ball.x - 5,
           y: ball.y - 7,
           text: ball.number.toString(),
-          fill: '#FFFFFF',
+          fill: "#FFFFFF",
           fontSize: 12,
-          fontWeight: 'bold',
+          fontWeight: "bold",
         });
         layer.add(numberText);
       }
@@ -163,11 +163,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     if (ball) {
       const ballPos = ball.getAbsolutePosition();
       const distance = Math.sqrt(
-        Math.pow(pos.x - ballPos.x, 2) + Math.pow(pos.y - ballPos.y, 2)
+        Math.pow(pos.x - ballPos.x, 2) + Math.pow(pos.y - ballPos.y, 2),
       );
 
       if (distance <= 15) {
-        const ballId = parseInt(ball.getAttr('id') || '0');
+        const ballId = parseInt(ball.getAttr("id") || "0");
         onBallClick?.(ballId);
         return;
       }
@@ -186,4 +186,4 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       bg={feltColor}
     />
   );
-}; 
+};

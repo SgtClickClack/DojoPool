@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -10,12 +10,12 @@ import {
   Tabs,
   Tab,
   Alert,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { ShotAnalysis } from './ShotAnalysis';
-import { GamePatterns } from './GamePatterns';
-import { GameStatistics } from './GameStatistics';
-import axios from 'axios';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { ShotAnalysis } from "./ShotAnalysis";
+import { GamePatterns } from "./GamePatterns";
+import { GameStatistics } from "./GameStatistics";
+import axios from "axios";
 
 const AnalyzerContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -52,8 +52,8 @@ export const GameAnalyzer: React.FC<GameAnalyzerProps> = ({ gameId }) => {
         statistics: statsRes.data.statistics,
       });
     } catch (err) {
-      setError('Failed to load game analysis');
-      console.error('Game analysis error:', err);
+      setError("Failed to load game analysis");
+      console.error("Game analysis error:", err);
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,9 @@ export const GameAnalyzer: React.FC<GameAnalyzerProps> = ({ gameId }) => {
 
       {activeTab === 1 && <GamePatterns patterns={analysisData.patterns} />}
 
-      {activeTab === 2 && <GameStatistics statistics={analysisData.statistics} />}
+      {activeTab === 2 && (
+        <GameStatistics statistics={analysisData.statistics} />
+      )}
     </AnalyzerContainer>
   );
 };

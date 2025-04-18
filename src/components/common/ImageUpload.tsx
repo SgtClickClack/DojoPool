@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -8,9 +8,9 @@ import {
   Progress,
   Text,
   useColorModeValue,
-} from '@chakra-ui/react';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../firebase/config';
+} from "@chakra-ui/react";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "../../firebase/config";
 
 interface ImageUploadProps {
   currentImageUrl?: string | null;
@@ -27,23 +27,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    currentImageUrl || null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
-  const bgColor = useColorModeValue('gray.50', 'gray.700');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
-        title: 'Invalid file type',
-        description: 'Please select an image file',
-        status: 'error',
+        title: "Invalid file type",
+        description: "Please select an image file",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -53,9 +55,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
       toast({
-        title: 'File too large',
+        title: "File too large",
         description: `Maximum file size is ${maxSize}MB`,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -85,17 +87,18 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on(
-        'state_changed',
+        "state_changed",
         (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setUploadProgress(progress);
         },
         (error) => {
-          console.error('Upload error:', error);
+          console.error("Upload error:", error);
           toast({
-            title: 'Upload failed',
-            description: 'Failed to upload image. Please try again.',
-            status: 'error',
+            title: "Upload failed",
+            description: "Failed to upload image. Please try again.",
+            status: "error",
             duration: 5000,
             isClosable: true,
           });
@@ -106,20 +109,21 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           setIsUploading(false);
           setUploadProgress(0);
           toast({
-            title: 'Upload successful',
-            description: 'Your profile picture has been updated.',
-            status: 'success',
+            title: "Upload successful",
+            description: "Your profile picture has been updated.",
+            status: "success",
             duration: 5000,
             isClosable: true,
           });
-        }
+        },
       );
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
       toast({
-        title: 'Upload failed',
-        description: error.message || 'Failed to upload image. Please try again.',
-        status: 'error',
+        title: "Upload failed",
+        description:
+          error.message || "Failed to upload image. Please try again.",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -149,7 +153,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           ref={fileInputRef}
           onChange={handleFileSelect}
           accept="image/*"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           disabled={isUploading}
         />
         {previewUrl ? (
@@ -188,4 +192,4 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   );
 };
 
-export default ImageUpload; 
+export default ImageUpload;

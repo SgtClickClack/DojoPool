@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Paper,
@@ -10,10 +10,10 @@ import {
   ListItemText,
   Divider,
   Alert,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { PhotoCamera } from '@mui/icons-material';
-import axios from 'axios';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { PhotoCamera } from "@mui/icons-material";
+import axios from "axios";
 
 const AnalyzerContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -21,8 +21,8 @@ const AnalyzerContainer = styled(Paper)(({ theme }) => ({
 }));
 
 const MetricsContainer = styled(Box)(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
   gap: theme.spacing(2),
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
@@ -30,12 +30,12 @@ const MetricsContainer = styled(Box)(({ theme }) => ({
 
 const MetricCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
-  textAlign: 'center',
+  textAlign: "center",
   backgroundColor: theme.palette.background.default,
 }));
 
-const Input = styled('input')({
-  display: 'none',
+const Input = styled("input")({
+  display: "none",
 });
 
 interface ShotMetrics {
@@ -56,25 +56,29 @@ export const ShotAnalyzer: React.FC = () => {
   const [analysis, setAnalysis] = useState<ShotAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('shot_video', file);
+    formData.append("shot_video", file);
 
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post('/api/ai/analyze-shot', formData, {
+      const response = await axios.post("/api/ai/analyze-shot", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       setAnalysis(response.data);
     } catch (err) {
-      setError('Failed to analyze shot. Please try again with a different video.');
-      console.error('Error analyzing shot:', err);
+      setError(
+        "Failed to analyze shot. Please try again with a different video.",
+      );
+      console.error("Error analyzing shot:", err);
     } finally {
       setLoading(false);
     }

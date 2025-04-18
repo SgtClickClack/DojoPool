@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   VStack,
@@ -12,9 +12,9 @@ import {
   FormErrorMessage,
   Select,
   useColorModeValue,
-} from '@chakra-ui/react';
-import { useAuth } from '../../hooks/useAuth';
-import { useRouter } from 'next/router';
+} from "@chakra-ui/react";
+import { useAuth } from "../../hooks/useAuth";
+import { useRouter } from "next/router";
 
 interface ProfileData {
   playerNickname: string;
@@ -37,23 +37,23 @@ export const ProfileCompletion: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [formData, setFormData] = useState<ProfileData>({
-    playerNickname: '',
-    skillLevel: '',
-    preferredGameType: '',
-    location: '',
+    playerNickname: "",
+    skillLevel: "",
+    preferredGameType: "",
+    location: "",
   });
 
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name as keyof ValidationErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -61,19 +61,19 @@ export const ProfileCompletion: React.FC = () => {
     const newErrors: ValidationErrors = {};
 
     if (!formData.playerNickname) {
-      newErrors.playerNickname = 'Player nickname is required';
+      newErrors.playerNickname = "Player nickname is required";
     }
 
     if (!formData.skillLevel) {
-      newErrors.skillLevel = 'Skill level is required';
+      newErrors.skillLevel = "Skill level is required";
     }
 
     if (!formData.preferredGameType) {
-      newErrors.preferredGameType = 'Preferred game type is required';
+      newErrors.preferredGameType = "Preferred game type is required";
     }
 
     if (!formData.location) {
-      newErrors.location = 'Location is required';
+      newErrors.location = "Location is required";
     }
 
     setErrors(newErrors);
@@ -82,28 +82,28 @@ export const ProfileCompletion: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!await validateForm()) return;
+    if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
       const result = await updateUserProfile(formData);
       if (result.success) {
         toast({
-          title: 'Profile completed!',
-          description: 'Your profile has been successfully updated.',
-          status: 'success',
+          title: "Profile completed!",
+          description: "Your profile has been successfully updated.",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
-        router.push('/dashboard');
+        router.push("/dashboard");
       } else {
         throw new Error(result.error);
       }
     } catch (error: any) {
       toast({
-        title: 'Failed to update profile',
+        title: "Failed to update profile",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -202,4 +202,4 @@ export const ProfileCompletion: React.FC = () => {
       </VStack>
     </Box>
   );
-}; 
+};

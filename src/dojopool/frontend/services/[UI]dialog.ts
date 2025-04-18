@@ -1,9 +1,9 @@
-import stateService from './state';
-import analyticsService from './analytics';
+import stateService from "./state";
+import analyticsService from "./analytics";
 
 interface DialogButton {
   text: string;
-  type?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'info';
+  type?: "primary" | "secondary" | "danger" | "success" | "warning" | "info";
   disabled?: boolean;
   loading?: boolean;
   icon?: string;
@@ -15,8 +15,8 @@ interface DialogConfig {
   title: string;
   content: string | HTMLElement;
   buttons?: DialogButton[];
-  size?: 'small' | 'medium' | 'large' | 'full';
-  position?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  size?: "small" | "medium" | "large" | "full";
+  position?: "center" | "top" | "bottom" | "left" | "right";
   closeOnEscape?: boolean;
   closeOnOverlayClick?: boolean;
   showCloseButton?: boolean;
@@ -50,8 +50,8 @@ class DialogService {
   }
 
   private setupKeyboardListener(): void {
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
         const activeDialog = this.getActiveDialog();
         if (activeDialog?.closeOnEscape) {
           this.close(activeDialog.id);
@@ -60,7 +60,7 @@ class DialogService {
     });
   }
 
-  public open(config: Omit<DialogConfig, 'id'>): string {
+  public open(config: Omit<DialogConfig, "id">): string {
     const id = `dialog-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const dialogConfig: DialogConfig = {
       ...config,
@@ -68,8 +68,8 @@ class DialogService {
       closeOnEscape: config.closeOnEscape ?? true,
       closeOnOverlayClick: config.closeOnOverlayClick ?? true,
       showCloseButton: config.showCloseButton ?? true,
-      size: config.size || 'medium',
-      position: config.position || 'center',
+      size: config.size || "medium",
+      position: config.position || "center",
     };
 
     this.state.dialogs.set(id, dialogConfig);
@@ -84,8 +84,8 @@ class DialogService {
 
     // Track dialog opened
     analyticsService.trackUserEvent({
-      type: 'dialog_opened',
-      userId: 'system',
+      type: "dialog_opened",
+      userId: "system",
       details: {
         dialogId: id,
         title: dialogConfig.title,
@@ -107,16 +107,19 @@ class DialogService {
 
     // Remove from state
     this.state.dialogs.delete(id);
-    this.state.dialogStack = this.state.dialogStack.filter((dialogId) => dialogId !== id);
-    this.state.activeDialog = this.state.dialogStack[this.state.dialogStack.length - 1] || null;
+    this.state.dialogStack = this.state.dialogStack.filter(
+      (dialogId) => dialogId !== id,
+    );
+    this.state.activeDialog =
+      this.state.dialogStack[this.state.dialogStack.length - 1] || null;
 
     // Notify listeners
     this.notifyListeners();
 
     // Track dialog closed
     analyticsService.trackUserEvent({
-      type: 'dialog_closed',
-      userId: 'system',
+      type: "dialog_closed",
+      userId: "system",
       details: {
         dialogId: id,
         title: dialog.title,
@@ -141,8 +144,8 @@ class DialogService {
 
       // Track all dialogs closed
       analyticsService.trackUserEvent({
-        type: 'all_dialogs_closed',
-        userId: 'system',
+        type: "all_dialogs_closed",
+        userId: "system",
         details: {
           count: dialogCount,
           timestamp: new Date().toISOString(),
@@ -156,26 +159,26 @@ class DialogService {
     message: string;
     confirmText?: string;
     cancelText?: string;
-    confirmType?: DialogButton['type'];
-    size?: DialogConfig['size'];
+    confirmType?: DialogButton["type"];
+    size?: DialogConfig["size"];
   }): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       this.open({
         title: options.title,
         content: options.message,
-        size: options.size || 'small',
+        size: options.size || "small",
         buttons: [
           {
-            text: options.cancelText || 'Cancel',
-            type: 'secondary',
+            text: options.cancelText || "Cancel",
+            type: "secondary",
             onClick: () => {
               resolve(false);
               this.close(this.state.activeDialog!);
             },
           },
           {
-            text: options.confirmText || 'Confirm',
-            type: options.confirmType || 'primary',
+            text: options.confirmText || "Confirm",
+            type: options.confirmType || "primary",
             onClick: () => {
               resolve(true);
               this.close(this.state.activeDialog!);
@@ -196,40 +199,42 @@ class DialogService {
     validator?: (value: string) => boolean | string;
   }): Promise<string | null> {
     return new Promise<string | null>((resolve) => {
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'dialog-prompt-input';
-      input.value = options.defaultValue || '';
-      input.placeholder = options.placeholder || '';
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "dialog-prompt-input";
+      input.value = options.defaultValue || "";
+      input.placeholder = options.placeholder || "";
 
-      const content = document.createElement('div');
-      content.className = 'dialog-prompt-content';
+      const content = document.createElement("div");
+      content.className = "dialog-prompt-content";
       content.innerHTML = `<p>${options.message}</p>`;
       content.appendChild(input);
 
       this.open({
         title: options.title,
         content,
-        size: 'small',
+        size: "small",
         buttons: [
           {
-            text: options.cancelText || 'Cancel',
-            type: 'secondary',
+            text: options.cancelText || "Cancel",
+            type: "secondary",
             onClick: () => {
               resolve(null);
               this.close(this.state.activeDialog!);
             },
           },
           {
-            text: options.confirmText || 'OK',
-            type: 'primary',
+            text: options.confirmText || "OK",
+            type: "primary",
             onClick: () => {
               const value = input.value;
               if (options.validator) {
                 const validationResult = options.validator(value);
                 if (validationResult !== true) {
                   const errorMessage =
-                    typeof validationResult === 'string' ? validationResult : 'Invalid input';
+                    typeof validationResult === "string"
+                      ? validationResult
+                      : "Invalid input";
                   input.setCustomValidity(errorMessage);
                   input.reportValidity();
                   return;
@@ -252,7 +257,9 @@ class DialogService {
   }
 
   public getActiveDialog(): DialogConfig | undefined {
-    return this.state.activeDialog ? this.state.dialogs.get(this.state.activeDialog) : undefined;
+    return this.state.activeDialog
+      ? this.state.dialogs.get(this.state.activeDialog)
+      : undefined;
   }
 
   public updateDialog(id: string, updates: Partial<DialogConfig>): void {
@@ -263,8 +270,8 @@ class DialogService {
 
       // Track dialog updated
       analyticsService.trackUserEvent({
-        type: 'dialog_updated',
-        userId: 'system',
+        type: "dialog_updated",
+        userId: "system",
         details: {
           dialogId: id,
           updates: Object.keys(updates),
@@ -274,7 +281,11 @@ class DialogService {
     }
   }
 
-  public setDialogButton(id: string, index: number, updates: Partial<DialogButton>): void {
+  public setDialogButton(
+    id: string,
+    index: number,
+    updates: Partial<DialogButton>,
+  ): void {
     const dialog = this.state.dialogs.get(id);
     if (dialog && dialog.buttons && dialog.buttons[index]) {
       dialog.buttons[index] = {
@@ -285,8 +296,8 @@ class DialogService {
 
       // Track button updated
       analyticsService.trackUserEvent({
-        type: 'dialog_button_updated',
-        userId: 'system',
+        type: "dialog_button_updated",
+        userId: "system",
         details: {
           dialogId: id,
           buttonIndex: index,

@@ -1,4 +1,4 @@
-import { GooseAI } from './gooseAI';
+import { GooseAI } from "./gooseAI";
 
 interface ShotAnalysis {
   difficulty: number;
@@ -45,14 +45,14 @@ export class GameAnalyzer {
     try {
       const response = await this.goose.generateCompletion(prompt, {
         maxTokens: 200,
-        temperature: 0.7
+        temperature: 0.7,
       });
 
       // Parse the response
       const analysis = this.parseAnalysisResponse(response.choices[0].text);
       return analysis;
     } catch (error) {
-      console.error('Error analyzing shot:', error);
+      console.error("Error analyzing shot:", error);
       throw error;
     }
   }
@@ -76,25 +76,28 @@ export class GameAnalyzer {
     try {
       const response = await this.goose.generateCompletion(prompt, {
         maxTokens: 150,
-        temperature: 0.7
+        temperature: 0.7,
       });
 
       return response.choices[0].text.trim();
     } catch (error) {
-      console.error('Error getting positional advice:', error);
+      console.error("Error getting positional advice:", error);
       throw error;
     }
   }
 
-  public async getShotRecommendations(playerSkillLevel: number, gameState: {
-    remainingBalls: number[];
-    difficulty: number;
-    isDefensive: boolean;
-  }): Promise<string[]> {
+  public async getShotRecommendations(
+    playerSkillLevel: number,
+    gameState: {
+      remainingBalls: number[];
+      difficulty: number;
+      isDefensive: boolean;
+    },
+  ): Promise<string[]> {
     const prompt = `
       Recommend pool shots for this situation:
       Player Skill Level: ${playerSkillLevel}/10
-      Remaining Balls: ${gameState.remainingBalls.join(', ')}
+      Remaining Balls: ${gameState.remainingBalls.join(", ")}
       Current Difficulty: ${gameState.difficulty}/10
       Defensive Situation: ${gameState.isDefensive}
 
@@ -108,15 +111,15 @@ export class GameAnalyzer {
     try {
       const response = await this.goose.generateCompletion(prompt, {
         maxTokens: 200,
-        temperature: 0.8
+        temperature: 0.8,
       });
 
       return response.choices[0].text
-        .split('\n')
-        .filter(line => line.trim())
-        .map(line => line.trim());
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line) => line.trim());
     } catch (error) {
-      console.error('Error getting shot recommendations:', error);
+      console.error("Error getting shot recommendations:", error);
       throw error;
     }
   }
@@ -126,24 +129,24 @@ export class GameAnalyzer {
       difficulty: 0,
       recommendations: [],
       risks: [],
-      alternativeShots: []
+      alternativeShots: [],
     };
 
-    const lines = text.split('\n');
-    let currentSection = '';
+    const lines = text.split("\n");
+    let currentSection = "";
 
     for (const line of lines) {
       const trimmedLine = line.trim();
-      
-      if (trimmedLine.startsWith('Difficulty:')) {
-        analysis.difficulty = parseInt(trimmedLine.split(':')[1]) || 0;
-      } else if (trimmedLine === 'Recommendations:') {
-        currentSection = 'recommendations';
-      } else if (trimmedLine === 'Risks:') {
-        currentSection = 'risks';
-      } else if (trimmedLine === 'Alternative Shots:') {
-        currentSection = 'alternativeShots';
-      } else if (trimmedLine.startsWith('- ')) {
+
+      if (trimmedLine.startsWith("Difficulty:")) {
+        analysis.difficulty = parseInt(trimmedLine.split(":")[1]) || 0;
+      } else if (trimmedLine === "Recommendations:") {
+        currentSection = "recommendations";
+      } else if (trimmedLine === "Risks:") {
+        currentSection = "risks";
+      } else if (trimmedLine === "Alternative Shots:") {
+        currentSection = "alternativeShots";
+      } else if (trimmedLine.startsWith("- ")) {
         const item = trimmedLine.substring(2).trim();
         if (currentSection && item) {
           analysis[currentSection].push(item);
@@ -153,4 +156,4 @@ export class GameAnalyzer {
 
     return analysis;
   }
-} 
+}

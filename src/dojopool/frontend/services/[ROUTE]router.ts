@@ -1,5 +1,5 @@
-import stateService from './state';
-import analyticsService from './analytics';
+import stateService from "./state";
+import analyticsService from "./analytics";
 
 interface RouteParams {
   [key: string]: string;
@@ -63,15 +63,15 @@ class RouterService {
 
   private initialize(): void {
     // Setup popstate listener
-    window.addEventListener('popstate', this.handlePopState.bind(this));
+    window.addEventListener("popstate", this.handlePopState.bind(this));
 
     // Handle initial route
     this.handleInitialRoute();
 
     // Track initialization
     analyticsService.trackUserEvent({
-      type: 'router_initialized',
-      userId: 'system',
+      type: "router_initialized",
+      userId: "system",
       details: {
         timestamp: new Date().toISOString(),
       },
@@ -94,7 +94,11 @@ class RouterService {
     this.matchRoute(path, query, state);
   }
 
-  private async matchRoute(path: string, query: QueryParams, state: RouteState): Promise<void> {
+  private async matchRoute(
+    path: string,
+    query: QueryParams,
+    state: RouteState,
+  ): Promise<void> {
     for (const route of this.routes.values()) {
       const match = this.matchPath(route.path, path);
       if (match) {
@@ -104,9 +108,12 @@ class RouterService {
     }
   }
 
-  private matchPath(routePath: string, currentPath: string): RouteParams | null {
-    const routeParts = routePath.split('/');
-    const currentParts = currentPath.split('/');
+  private matchPath(
+    routePath: string,
+    currentPath: string,
+  ): RouteParams | null {
+    const routeParts = routePath.split("/");
+    const currentParts = currentPath.split("/");
 
     if (routeParts.length !== currentParts.length) {
       return null;
@@ -118,7 +125,7 @@ class RouterService {
       const routePart = routeParts[i];
       const currentPart = currentParts[i];
 
-      if (routePart.startsWith(':')) {
+      if (routePart.startsWith(":")) {
         params[routePart.slice(1)] = currentPart;
       } else if (routePart !== currentPart) {
         return null;
@@ -159,14 +166,14 @@ class RouterService {
     });
 
     const queryString = params.toString();
-    return queryString ? `?${queryString}` : '';
+    return queryString ? `?${queryString}` : "";
   }
 
   private async navigateToRoute(
     route: Route,
     params: RouteParams,
     query: QueryParams,
-    state: RouteState
+    state: RouteState,
   ): Promise<void> {
     if (this.state.isNavigating) {
       return;
@@ -177,7 +184,10 @@ class RouterService {
     try {
       // Check beforeLeave hook
       if (this.state.currentRoute?.beforeLeave) {
-        const canLeave = await this.state.currentRoute.beforeLeave(route, this.state.currentRoute);
+        const canLeave = await this.state.currentRoute.beforeLeave(
+          route,
+          this.state.currentRoute,
+        );
         if (!canLeave) {
           return;
         }
@@ -185,7 +195,10 @@ class RouterService {
 
       // Check beforeEnter hook
       if (route.beforeEnter) {
-        const canEnter = await route.beforeEnter(route, this.state.currentRoute);
+        const canEnter = await route.beforeEnter(
+          route,
+          this.state.currentRoute,
+        );
         if (!canEnter) {
           return;
         }
@@ -208,8 +221,8 @@ class RouterService {
 
       // Track navigation
       analyticsService.trackUserEvent({
-        type: 'route_changed',
-        userId: 'system',
+        type: "route_changed",
+        userId: "system",
         details: {
           from: this.state.previousRoute?.path,
           to: route.path,
@@ -217,12 +230,12 @@ class RouterService {
         },
       });
     } catch (error) {
-      console.error('Navigation error:', error);
+      console.error("Navigation error:", error);
 
       // Track navigation error
       analyticsService.trackUserEvent({
-        type: 'route_change_error',
-        userId: 'system',
+        type: "route_change_error",
+        userId: "system",
         details: {
           from: this.state.previousRoute?.path,
           to: route.path,
@@ -244,8 +257,8 @@ class RouterService {
 
     // Track route registration
     analyticsService.trackUserEvent({
-      type: 'route_registered',
-      userId: 'system',
+      type: "route_registered",
+      userId: "system",
       details: {
         path: route.path,
         name: route.name,
@@ -258,8 +271,16 @@ class RouterService {
     routes.forEach((route) => this.registerRoute(route));
   }
 
-  public async navigate(path: string, options: NavigationOptions = {}): Promise<void> {
-    const { replace = false, state = {}, preserveQuery = false, preserveState = false } = options;
+  public async navigate(
+    path: string,
+    options: NavigationOptions = {},
+  ): Promise<void> {
+    const {
+      replace = false,
+      state = {},
+      preserveQuery = false,
+      preserveState = false,
+    } = options;
 
     // Build query string
     const query = preserveQuery ? this.state.query : {};
@@ -275,9 +296,9 @@ class RouterService {
         // Update history
         const url = `${path}${queryString}`;
         if (replace) {
-          window.history.replaceState(newState, '', url);
+          window.history.replaceState(newState, "", url);
         } else {
-          window.history.pushState(newState, '', url);
+          window.history.pushState(newState, "", url);
         }
 
         // Navigate to route

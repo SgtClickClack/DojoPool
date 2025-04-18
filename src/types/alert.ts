@@ -1,24 +1,24 @@
 export enum AlertType {
-    ERROR = 'error',
-    WARNING = 'warning',
-    SUCCESS = 'success',
-    INFO = 'info'
+  ERROR = "error",
+  WARNING = "warning",
+  SUCCESS = "success",
+  INFO = "info",
 }
 
 export enum AlertStatus {
-    OPEN = 'open',
-    ACKNOWLEDGED = 'acknowledged',
-    DISMISSED = 'dismissed'
+  OPEN = "open",
+  ACKNOWLEDGED = "acknowledged",
+  DISMISSED = "dismissed",
 }
 
 export interface Alert {
-    id: string;
-    type: AlertType;
-    status: AlertStatus;
-    message: string;
-    timestamp: string;
-    isFlagged: boolean;
-    metadata?: Record<string, any>;
+  id: string;
+  type: AlertType;
+  status: AlertStatus;
+  message: string;
+  timestamp: string;
+  isFlagged: boolean;
+  metadata?: Record<string, any>;
 }
 
 export interface AlertUpdate {
@@ -29,4 +29,4 @@ export interface AlertUpdate {
   resolvedAt?: string;
   acknowledgedBy?: string;
   acknowledgedAt?: string;
-} 
+}

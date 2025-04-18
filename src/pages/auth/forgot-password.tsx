@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -12,18 +12,18 @@ import {
   Heading,
   Alert,
   AlertIcon,
-} from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+} from "@chakra-ui/react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 const schema = yup.object().shape({
   email: yup
     .string()
-    .email('Please enter a valid email address')
-    .required('Email is required'),
+    .email("Please enter a valid email address")
+    .required("Email is required"),
 });
 
 type FormData = {
@@ -46,32 +46,32 @@ export default function ForgotPassword() {
   const onSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true);
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send recovery email');
+        throw new Error("Failed to send recovery email");
       }
 
       toast({
-        title: 'Recovery email sent',
-        description: 'Please check your email for password reset instructions.',
-        status: 'success',
+        title: "Recovery email sent",
+        description: "Please check your email for password reset instructions.",
+        status: "success",
         duration: 5000,
         isClosable: true,
       });
 
-      router.push('/auth/login');
+      router.push("/auth/login");
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to send recovery email. Please try again.',
-        status: 'error',
+        title: "Error",
+        description: "Failed to send recovery email. Please try again.",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -88,14 +88,16 @@ export default function ForgotPassword() {
             Forgot Password
           </Heading>
           <Text color="gray.600">
-            Enter your email address and we'll send you instructions to reset your password.
+            Enter your email address and we'll send you instructions to reset
+            your password.
           </Text>
         </Box>
 
         <Alert status="info" borderRadius="md">
           <AlertIcon />
           <Text>
-            For security reasons, we don't reveal whether an email address is registered or not.
+            For security reasons, we don't reveal whether an email address is
+            registered or not.
           </Text>
         </Alert>
 
@@ -105,7 +107,7 @@ export default function ForgotPassword() {
               <FormLabel>Email Address</FormLabel>
               <Input
                 type="email"
-                {...register('email')}
+                {...register("email")}
                 placeholder="Enter your email"
                 size="lg"
               />
@@ -134,4 +136,4 @@ export default function ForgotPassword() {
       </VStack>
     </Container>
   );
-} 
+}

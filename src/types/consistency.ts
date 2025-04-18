@@ -31,11 +31,11 @@ export interface GameState {
  * Game status enumeration
  */
 export enum GameStatus {
-  WAITING = 'WAITING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  PAUSED = 'PAUSED',
-  ERROR = 'ERROR'
+  WAITING = "WAITING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  PAUSED = "PAUSED",
+  ERROR = "ERROR",
 }
 
 /**
@@ -65,10 +65,10 @@ export interface ConsistencyMetrics {
  * Consistency level enumeration
  */
 export enum ConsistencyLevel {
-  STRONG = 'STRONG',
-  EVENTUAL = 'EVENTUAL',
-  CAUSAL = 'CAUSAL',
-  SESSION = 'SESSION'
+  STRONG = "STRONG",
+  EVENTUAL = "EVENTUAL",
+  CAUSAL = "CAUSAL",
+  SESSION = "SESSION",
 }
 
 /**
@@ -82,7 +82,12 @@ export interface InvariantResult {
 }
 
 export interface ConsensusMessage {
-  type: 'HEARTBEAT' | 'VOTE_REQUEST' | 'VOTE_RESPONSE' | 'LOG_ENTRY' | 'LOG_COMMIT';
+  type:
+    | "HEARTBEAT"
+    | "VOTE_REQUEST"
+    | "VOTE_RESPONSE"
+    | "LOG_ENTRY"
+    | "LOG_COMMIT";
   term: number;
   senderId: string;
   vectorClock: VectorTimestamp;
@@ -95,4 +100,4 @@ export interface LogEntry {
   command: string;
   data: any;
   vectorClock: VectorTimestamp;
-} 
+}

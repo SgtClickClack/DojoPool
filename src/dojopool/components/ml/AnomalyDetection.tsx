@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -16,8 +16,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-} from '@mui/material';
-import { MLService } from '../../services/ml.service';
+} from "@mui/material";
+import { MLService } from "../../services/ml.service";
 import {
   ScatterChart,
   Scatter,
@@ -27,7 +27,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from "recharts";
 
 interface AnomalyDetectionProps {
   onAnomalyDetected: (anomalies: any) => void;
@@ -35,7 +35,9 @@ interface AnomalyDetectionProps {
 
 const mlService = new MLService();
 
-export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDetected }) => {
+export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({
+  onAnomalyDetected,
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [performanceData, setPerformanceData] = useState<any[]>([]);
@@ -71,7 +73,9 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDet
       accuracy: isAnomalous ? baseAccuracy * 0.5 : baseAccuracy,
       speed: isAnomalous ? baseSpeed * 1.5 : baseSpeed,
       shots_taken: Math.floor(10 + Math.random() * 20),
-      success_rate: isAnomalous ? 0.3 + Math.random() * 0.2 : 0.6 + Math.random() * 0.3,
+      success_rate: isAnomalous
+        ? 0.3 + Math.random() * 0.2
+        : 0.6 + Math.random() * 0.3,
     };
   };
 
@@ -80,16 +84,19 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDet
       setLoading(true);
       setError(null);
 
-      const response = await mlService.detectAnomalies(performanceData, contamination);
+      const response = await mlService.detectAnomalies(
+        performanceData,
+        contamination,
+      );
 
       const detectedAnomalies = performanceData.filter(
-        (_, index) => response.data.anomalies[index]
+        (_, index) => response.data.anomalies[index],
       );
 
       setAnomalies(detectedAnomalies);
       onAnomalyDetected(detectedAnomalies);
     } catch (err) {
-      setError('Failed to detect anomalies');
+      setError("Failed to detect anomalies");
       console.error(err);
     } finally {
       setLoading(false);
@@ -114,7 +121,9 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDet
         <Grid container spacing={3}>
           {/* Contamination Slider */}
           <Grid item xs={12}>
-            <Typography gutterBottom>Contamination Factor: {contamination}</Typography>
+            <Typography gutterBottom>
+              Contamination Factor: {contamination}
+            </Typography>
             <Slider
               value={contamination}
               onChange={(_, value) => setContamination(value as number)}
@@ -132,11 +141,23 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDet
             </Typography>
             <Box height={400}>
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <ScatterChart
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                >
                   <CartesianGrid />
-                  <XAxis type="number" dataKey="accuracy" name="Accuracy" unit="%" />
-                  <YAxis type="number" dataKey="speed" name="Speed" unit=" m/s" />
-                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                  <XAxis
+                    type="number"
+                    dataKey="accuracy"
+                    name="Accuracy"
+                    unit="%"
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="speed"
+                    name="Speed"
+                    unit=" m/s"
+                  />
+                  <Tooltip cursor={{ strokeDasharray: "3 3" }} />
                   <Legend />
                   <Scatter
                     name="Normal"
@@ -172,9 +193,15 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDet
                   <TableBody>
                     {anomalies.map((anomaly, index) => (
                       <TableRow key={index}>
-                        <TableCell>{new Date(anomaly.timestamp).toLocaleTimeString()}</TableCell>
-                        <TableCell align="right">{(anomaly.accuracy * 100).toFixed(1)}%</TableCell>
-                        <TableCell align="right">{anomaly.speed.toFixed(1)}</TableCell>
+                        <TableCell>
+                          {new Date(anomaly.timestamp).toLocaleTimeString()}
+                        </TableCell>
+                        <TableCell align="right">
+                          {(anomaly.accuracy * 100).toFixed(1)}%
+                        </TableCell>
+                        <TableCell align="right">
+                          {anomaly.speed.toFixed(1)}
+                        </TableCell>
                         <TableCell align="right">
                           {(anomaly.success_rate * 100).toFixed(1)}%
                         </TableCell>
@@ -190,7 +217,8 @@ export const AnomalyDetection: React.FC<AnomalyDetectionProps> = ({ onAnomalyDet
           {anomalies.length > 0 && (
             <Grid item xs={12}>
               <Alert severity="warning" sx={{ mt: 2 }}>
-                Detected {anomalies.length} anomalies in recent performance data.
+                Detected {anomalies.length} anomalies in recent performance
+                data.
               </Alert>
             </Grid>
           )}

@@ -4,8 +4,8 @@ class VenueManager {
     this.currentPage = 1;
     this.perPage = 20;
     this.filters = {
-      status: '',
-      sortBy: 'name',
+      status: "",
+      sortBy: "name",
     };
     this.initializeEventListeners();
     this.loadVenues();
@@ -13,23 +13,23 @@ class VenueManager {
 
   initializeEventListeners() {
     // Search input
-    const searchInput = document.getElementById('venueSearch');
+    const searchInput = document.getElementById("venueSearch");
     if (searchInput) {
       searchInput.addEventListener(
-        'input',
+        "input",
         debounce(() => {
           this.currentPage = 1;
           this.loadVenues();
-        }, 300)
+        }, 300),
       );
     }
 
     // Filters
-    const statusFilter = document.getElementById('statusFilter');
-    const sortByFilter = document.getElementById('sortBy');
+    const statusFilter = document.getElementById("statusFilter");
+    const sortByFilter = document.getElementById("sortBy");
 
     if (statusFilter) {
-      statusFilter.addEventListener('change', () => {
+      statusFilter.addEventListener("change", () => {
         this.filters.status = statusFilter.value;
         this.currentPage = 1;
         this.loadVenues();
@@ -37,7 +37,7 @@ class VenueManager {
     }
 
     if (sortByFilter) {
-      sortByFilter.addEventListener('change', () => {
+      sortByFilter.addEventListener("change", () => {
         this.filters.sortBy = sortByFilter.value;
         this.currentPage = 1;
         this.loadVenues();
@@ -45,15 +45,15 @@ class VenueManager {
     }
 
     // Create venue form
-    const createForm = document.getElementById('createVenueForm');
+    const createForm = document.getElementById("createVenueForm");
     if (createForm) {
-      createForm.addEventListener('submit', (e) => this.handleCreateVenue(e));
+      createForm.addEventListener("submit", (e) => this.handleCreateVenue(e));
     }
   }
 
   async loadVenues() {
     try {
-      const searchQuery = document.getElementById('venueSearch')?.value || '';
+      const searchQuery = document.getElementById("venueSearch")?.value || "";
       const queryParams = new URLSearchParams({
         page: this.currentPage,
         per_page: this.perPage,
@@ -65,19 +65,19 @@ class VenueManager {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to load venues');
+        throw new Error(data.error || "Failed to load venues");
       }
 
       this.renderVenues(data.items);
       this.renderPagination(data);
     } catch (error) {
-      console.error('Error loading venues:', error);
-      showNotification('error', 'Failed to load venues');
+      console.error("Error loading venues:", error);
+      showNotification("error", "Failed to load venues");
     }
   }
 
   renderVenues(venues) {
-    const grid = document.getElementById('venuesGrid');
+    const grid = document.getElementById("venuesGrid");
     if (!grid) return;
 
     grid.innerHTML = venues
@@ -85,7 +85,7 @@ class VenueManager {
         (venue) => `
             <div class="venue-card">
                 <div class="venue-image">
-                    <img src="${venue.images?.[0] || '/static/img/default-venue.jpg'}" alt="${venue.name}">
+                    <img src="${venue.images?.[0] || "/static/img/default-venue.jpg"}" alt="${venue.name}">
                 </div>
                 <div class="venue-info">
                     <h3>${venue.name}</h3>
@@ -107,14 +107,14 @@ class VenueManager {
                                 Edit
                             </button>
                         `
-                            : ''
+                            : ""
                         }
                     </div>
                 </div>
             </div>
-        `
+        `,
       )
-      .join('');
+      .join("");
   }
 
   renderStars(rating) {
@@ -124,28 +124,28 @@ class VenueManager {
 
     return `
             ${'<i class="fas fa-star"></i>'.repeat(fullStars)}
-            ${hasHalfStar ? '<i class="fas fa-star-half-alt"></i>' : ''}
+            ${hasHalfStar ? '<i class="fas fa-star-half-alt"></i>' : ""}
             ${'<i class="far fa-star"></i>'.repeat(emptyStars)}
         `;
   }
 
   renderPagination(data) {
-    const pagination = document.getElementById('venuesPagination');
+    const pagination = document.getElementById("venuesPagination");
     if (!pagination) return;
 
     const totalPages = Math.ceil(data.total / this.perPage);
-    let paginationHtml = '';
+    let paginationHtml = "";
 
     if (totalPages > 1) {
       paginationHtml = `
                 <button class="btn btn-secondary" 
-                    ${this.currentPage === 1 ? 'disabled' : ''}
+                    ${this.currentPage === 1 ? "disabled" : ""}
                     onclick="venueManager.changePage(${this.currentPage - 1})">
                     Previous
                 </button>
                 <span class="page-info">Page ${this.currentPage} of ${totalPages}</span>
                 <button class="btn btn-secondary" 
-                    ${this.currentPage === totalPages ? 'disabled' : ''}
+                    ${this.currentPage === totalPages ? "disabled" : ""}
                     onclick="venueManager.changePage(${this.currentPage + 1})">
                     Next
                 </button>
@@ -161,26 +161,26 @@ class VenueManager {
     const formData = new FormData(form);
 
     try {
-      const response = await fetch('/api/venues', {
-        method: 'POST',
+      const response = await fetch("/api/venues", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(Object.fromEntries(formData)),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create venue');
+        throw new Error(data.error || "Failed to create venue");
       }
 
-      showNotification('success', 'Venue created successfully');
-      $('#createVenueModal').modal('hide');
+      showNotification("success", "Venue created successfully");
+      $("#createVenueModal").modal("hide");
       form.reset();
       this.loadVenues();
     } catch (error) {
-      console.error('Error creating venue:', error);
-      showNotification('error', error.message);
+      console.error("Error creating venue:", error);
+      showNotification("error", error.message);
     }
   }
 
@@ -203,16 +203,16 @@ class VenueDetailsManager {
   }
 
   initializeEventListeners() {
-    const bookingForm = document.getElementById('bookingForm');
+    const bookingForm = document.getElementById("bookingForm");
     if (bookingForm) {
-      bookingForm.addEventListener('submit', (e) => this.handleBooking(e));
+      bookingForm.addEventListener("submit", (e) => this.handleBooking(e));
     }
 
     // Image gallery
-    const thumbnails = document.querySelectorAll('.image-thumbnails img');
+    const thumbnails = document.querySelectorAll(".image-thumbnails img");
     thumbnails.forEach((thumb) => {
-      thumb.addEventListener('click', () => {
-        const mainImage = document.querySelector('.main-image img');
+      thumb.addEventListener("click", () => {
+        const mainImage = document.querySelector(".main-image img");
         mainImage.src = thumb.src;
       });
     });
@@ -220,7 +220,7 @@ class VenueDetailsManager {
 
   initializeCalendar() {
     // Initialize availability calendar
-    const calendar = document.querySelector('.availability-calendar');
+    const calendar = document.querySelector(".availability-calendar");
     if (calendar) {
       // Implement calendar initialization
     }
@@ -233,23 +233,23 @@ class VenueDetailsManager {
 
     try {
       const response = await fetch(`/api/venues/${this.venueId}/bookings`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(Object.fromEntries(formData)),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create booking');
+        throw new Error(data.error || "Failed to create booking");
       }
 
-      showNotification('success', 'Booking created successfully');
+      showNotification("success", "Booking created successfully");
       form.reset();
     } catch (error) {
-      console.error('Error creating booking:', error);
-      showNotification('error', error.message);
+      console.error("Error creating booking:", error);
+      showNotification("error", error.message);
     }
   }
 }
@@ -273,13 +273,13 @@ function showNotification(type, message) {
 }
 
 // Initialize managers based on current page
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('venuesGrid')) {
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("venuesGrid")) {
     window.venueManager = new VenueManager();
   }
 
   const venueDetailsContainer = document.querySelector(
-    '.venue-details-container'
+    ".venue-details-container",
   );
   if (venueDetailsContainer) {
     const venueId = venueDetailsContainer.dataset.venueId;

@@ -1,7 +1,11 @@
-import { NetworkTransport } from '../../core/network/NetworkTransport';
-import { NetworkError, NetworkMessage, NetworkMessageType } from '../../core/network/types';
-import { MetricsCollector, MetricsData } from './MetricsCollector';
-import { MonitoringConfig } from '../config';
+import { NetworkTransport } from "../../core/network/NetworkTransport";
+import {
+  NetworkError,
+  NetworkMessage,
+  NetworkMessageType,
+} from "../../core/network/types";
+import { MetricsCollector, MetricsData } from "./MetricsCollector";
+import { MonitoringConfig } from "../config";
 
 export interface NetworkMetricsData extends MetricsData {
   messagesSent: number;
@@ -43,7 +47,7 @@ const INITIAL_METRICS_STATE: NetworkMetricsData = {
   bandwidthUsage: 0,
   connectionStability: 100,
   queueSize: 0,
-  timestamp: Date.now()
+  timestamp: Date.now(),
 };
 
 export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData> {
@@ -71,7 +75,7 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     this.disconnectionCount = new Map();
     this.metricsState = {
       metrics: { ...INITIAL_METRICS_STATE },
-      lastError: null
+      lastError: null,
     };
     this.lastCollectionTime = this.startTime;
 
@@ -79,19 +83,22 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
   }
 
   private setupEventHandlers(): void {
-    this.networkTransport.on('message', (message: NetworkMessage<any>): void => {
-      this.handleMessage(message);
-    });
+    this.networkTransport.on(
+      "message",
+      (message: NetworkMessage<any>): void => {
+        this.handleMessage(message);
+      },
+    );
 
-    this.networkTransport.on('error', (error: NetworkError): void => {
+    this.networkTransport.on("error", (error: NetworkError): void => {
       this.handleError(error);
     });
 
-    this.networkTransport.on('connect', (nodeId: string): void => {
+    this.networkTransport.on("connect", (nodeId: string): void => {
       this.handleConnect(nodeId);
     });
 
-    this.networkTransport.on('disconnect', (nodeId: string): void => {
+    this.networkTransport.on("disconnect", (nodeId: string): void => {
       this.handleDisconnect(nodeId);
     });
   }
@@ -109,8 +116,9 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     // Update bandwidth usage
     const timeDiff = (now - this.lastBytesTimestamp) / 1000; // Convert to seconds
     if (timeDiff > 0) {
-      const bytesDiff = this.metricsState.metrics.bytesTransferred - this.lastBytesTransferred;
-      this.metricsState.metrics.bandwidthUsage = (bytesDiff / timeDiff) / 1024; // Convert to KB/s
+      const bytesDiff =
+        this.metricsState.metrics.bytesTransferred - this.lastBytesTransferred;
+      this.metricsState.metrics.bandwidthUsage = bytesDiff / timeDiff / 1024; // Convert to KB/s
       this.lastBytesTransferred = this.metricsState.metrics.bytesTransferred;
       this.lastBytesTimestamp = now;
     }
@@ -127,10 +135,12 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     this.lastMessageTime.set(message.source, now);
 
     // Calculate RTT for responses
-    if (message.type === NetworkMessageType.APPEND_ENTRIES_RESPONSE ||
-        message.type === NetworkMessageType.REQUEST_VOTE_RESPONSE ||
-        message.type === NetworkMessageType.STATE_SYNC_RESPONSE) {
-      const requestId = message.id.replace('_RESPONSE', '');
+    if (
+      message.type === NetworkMessageType.APPEND_ENTRIES_RESPONSE ||
+      message.type === NetworkMessageType.REQUEST_VOTE_RESPONSE ||
+      message.type === NetworkMessageType.STATE_SYNC_RESPONSE
+    ) {
+      const requestId = message.id.replace("_RESPONSE", "");
       if (this.messageTimestamps.has(requestId)) {
         const sendTime = this.messageTimestamps.get(requestId)!;
         const rtt = now - sendTime;
@@ -140,9 +150,11 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     }
 
     // Store timestamp for sent messages
-    if (message.type === NetworkMessageType.APPEND_ENTRIES ||
-        message.type === NetworkMessageType.REQUEST_VOTE ||
-        message.type === NetworkMessageType.STATE_SYNC) {
+    if (
+      message.type === NetworkMessageType.APPEND_ENTRIES ||
+      message.type === NetworkMessageType.REQUEST_VOTE ||
+      message.type === NetworkMessageType.STATE_SYNC
+    ) {
       this.messageTimestamps.set(message.id, now);
     }
   }
@@ -177,13 +189,18 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
       return;
     }
 
-    const disconnections = Array.from(this.disconnectionCount.values())
-      .reduce((sum, count) => sum + count, 0);
+    const disconnections = Array.from(this.disconnectionCount.values()).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
     const uptime = Date.now() - this.startTime;
     const disconnectionsPerHour = (disconnections * 3600000) / uptime;
-    
+
     // Calculate stability score (100 - disconnections per hour, minimum 0)
-    this.metricsState.metrics.connectionStability = Math.max(0, 100 - disconnectionsPerHour);
+    this.metricsState.metrics.connectionStability = Math.max(
+      0,
+      100 - disconnectionsPerHour,
+    );
   }
 
   private calculateAverageLatency(): number {
@@ -193,7 +210,9 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
   }
 
   private calculateSuccessRate(): number {
-    const total = this.metricsState.metrics.messagesSent + this.metricsState.metrics.messagesReceived;
+    const total =
+      this.metricsState.metrics.messagesSent +
+      this.metricsState.metrics.messagesReceived;
     if (total === 0) return 100;
     return ((total - this.metricsState.metrics.errors) / total) * 100;
   }
@@ -206,7 +225,7 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
   }
 
   private calculateBandwidthUsage(): number {
-    const currentBytes = this.networkTransport['stats'].bytesTransferred;
+    const currentBytes = this.networkTransport["stats"].bytesTransferred;
     const bytesDelta = currentBytes - this.lastBytesTransferred;
     const timeDelta = (Date.now() - this.lastBytesTimestamp) / 1000; // Convert to seconds
     this.lastBytesTransferred = currentBytes;
@@ -216,7 +235,7 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
 
   private calculateConnectionStability(): number {
     const uptime = Date.now() - this.startTime;
-    const reconnects = this.networkTransport['connectionRetries'].size;
+    const reconnects = this.networkTransport["connectionRetries"].size;
     // Higher stability score for longer uptime and fewer reconnects
     return Math.max(0, Math.min(100, 100 - (reconnects * 10000) / uptime));
   }
@@ -231,30 +250,35 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
    */
   public async collect(): Promise<NetworkMetricsData> {
     const now = Date.now();
-    const transportStats = this.networkTransport['stats'];
+    const transportStats = this.networkTransport["stats"];
     const metrics: NetworkMetricsData = {
       messagesSent: transportStats.messagesSent,
       messagesReceived: transportStats.messagesReceived,
       bytesTransferred: transportStats.bytesTransferred,
       activeConnections: transportStats.activeConnections,
       errors: transportStats.errors,
-      messageLatency: this.messageLatencies.length > 0 ? 
-        this.messageLatencies.reduce((a, b) => a + b, 0) / this.messageLatencies.length : 0,
+      messageLatency:
+        this.messageLatencies.length > 0
+          ? this.messageLatencies.reduce((a, b) => a + b, 0) /
+            this.messageLatencies.length
+          : 0,
       p95Latency: this.calculateP95Latency(),
-      messageSuccessRate: this.totalMessages > 0 ? 
-        (this.successfulMessages / this.totalMessages) * 100 : 100,
+      messageSuccessRate:
+        this.totalMessages > 0
+          ? (this.successfulMessages / this.totalMessages) * 100
+          : 100,
       connectionUptime: now - this.startTime,
       lastHeartbeat: transportStats.lastMessageTimestamp,
-      reconnectionAttempts: this.networkTransport['connectionRetries'].size,
+      reconnectionAttempts: this.networkTransport["connectionRetries"].size,
       pendingMessages: transportStats.pendingMessages,
       bandwidthUsage: this.calculateBandwidthUsage(),
       connectionStability: this.calculateConnectionStability(),
       queueSize: transportStats.queueSize,
-      timestamp: now
+      timestamp: now,
     };
 
     this.metricsState.metrics.connectionUptime = metrics.connectionUptime;
-    this.updateConnectionStability('');
+    this.updateConnectionStability("");
     this.updateMetrics(metrics);
     this.lastCollectionTime = now;
     return metrics;
@@ -277,7 +301,7 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     this.messageLatencies = [];
     this.metricsState = {
       metrics: { ...INITIAL_METRICS_STATE },
-      lastError: null
+      lastError: null,
     };
     this.rttValues.length = 0;
     this.messageTimestamps.clear();
@@ -286,4 +310,4 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     this.successfulMessages = 0;
     this.lastBytesTransferred = 0;
   }
-} 
+}

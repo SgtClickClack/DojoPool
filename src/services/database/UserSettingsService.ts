@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { UserSettings } from '../../types/user';
+import { PrismaClient } from "@prisma/client";
+import { UserSettings } from "../../types/user";
 
 export class UserSettingsService {
   private prisma: PrismaClient;
@@ -14,7 +14,7 @@ export class UserSettingsService {
         where: { userId },
       });
     } catch (error) {
-      console.error('Error fetching user settings:', error);
+      console.error("Error fetching user settings:", error);
       throw error;
     }
   }
@@ -27,26 +27,29 @@ export class UserSettingsService {
           emailNotifications: true,
           pushNotifications: true,
           darkMode: false,
-          language: 'en',
-          timezone: 'UTC',
+          language: "en",
+          timezone: "UTC",
           privacySettings: {},
           notificationSettings: {},
         },
       });
     } catch (error) {
-      console.error('Error creating user settings:', error);
+      console.error("Error creating user settings:", error);
       throw error;
     }
   }
 
-  async updateSettings(userId: string, data: Partial<UserSettings>): Promise<UserSettings> {
+  async updateSettings(
+    userId: string,
+    data: Partial<UserSettings>,
+  ): Promise<UserSettings> {
     try {
       return await this.prisma.userSettings.update({
         where: { userId },
         data,
       });
     } catch (error) {
-      console.error('Error updating user settings:', error);
+      console.error("Error updating user settings:", error);
       throw error;
     }
   }
@@ -57,8 +60,8 @@ export class UserSettingsService {
         where: { userId },
       });
     } catch (error) {
-      console.error('Error deleting user settings:', error);
+      console.error("Error deleting user settings:", error);
       throw error;
     }
   }
-} 
+}

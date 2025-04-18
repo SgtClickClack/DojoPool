@@ -1,4 +1,4 @@
-import { Vector2D } from '../types/geometry';
+import { Vector2D } from "../types/geometry";
 
 export interface PhysicsObject {
   position: Vector2D;
@@ -23,7 +23,7 @@ export class PhysicsEngine {
     friction = 0.02,
     cushionRestitution = 0.6,
     ballRestitution = 0.95,
-    minVelocity = 0.01
+    minVelocity = 0.01,
   ) {
     this.friction = friction;
     this.cushionRestitution = cushionRestitution;
@@ -34,7 +34,7 @@ export class PhysicsEngine {
   public calculateTrajectory(
     initialPosition: Vector2D,
     power: number,
-    angle: number
+    angle: number,
   ): Vector2D {
     const radians = (angle * Math.PI) / 180;
     return {
@@ -56,7 +56,10 @@ export class PhysicsEngine {
     };
   }
 
-  public detectCollision(ball1: PhysicsObject, ball2: PhysicsObject): CollisionResult {
+  public detectCollision(
+    ball1: PhysicsObject,
+    ball2: PhysicsObject,
+  ): CollisionResult {
     const dx = ball2.position.x - ball1.position.x;
     const dy = ball2.position.y - ball1.position.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -84,8 +87,7 @@ export class PhysicsEngine {
 
     const restitution = this.ballRestitution;
     const j =
-      -(1 + restitution) *
-      velocityAlongNormal /
+      (-(1 + restitution) * velocityAlongNormal) /
       (1 / ball1.mass + 1 / ball2.mass);
 
     const impulseX = j * normalX;
@@ -93,12 +95,12 @@ export class PhysicsEngine {
 
     const newVelocities: [Vector2D, Vector2D] = [
       {
-        x: ball1.velocity.x - (impulseX / ball1.mass),
-        y: ball1.velocity.y - (impulseY / ball1.mass),
+        x: ball1.velocity.x - impulseX / ball1.mass,
+        y: ball1.velocity.y - impulseY / ball1.mass,
       },
       {
-        x: ball2.velocity.x + (impulseX / ball2.mass),
-        y: ball2.velocity.y + (impulseY / ball2.mass),
+        x: ball2.velocity.x + impulseX / ball2.mass,
+        y: ball2.velocity.y + impulseY / ball2.mass,
       },
     ];
 
@@ -112,15 +114,21 @@ export class PhysicsEngine {
   public handleCushionCollision(
     ball: PhysicsObject,
     tableWidth: number,
-    tableHeight: number
+    tableHeight: number,
   ): Vector2D {
     let newVelocity = { ...ball.velocity };
 
-    if (ball.position.x - ball.radius <= 0 || ball.position.x + ball.radius >= tableWidth) {
+    if (
+      ball.position.x - ball.radius <= 0 ||
+      ball.position.x + ball.radius >= tableWidth
+    ) {
       newVelocity.x = -newVelocity.x * this.cushionRestitution;
     }
 
-    if (ball.position.y - ball.radius <= 0 || ball.position.y + ball.radius >= tableHeight) {
+    if (
+      ball.position.y - ball.radius <= 0 ||
+      ball.position.y + ball.radius >= tableHeight
+    ) {
       newVelocity.y = -newVelocity.y * this.cushionRestitution;
     }
 
@@ -131,7 +139,7 @@ export class PhysicsEngine {
     objects: PhysicsObject[],
     tableWidth: number,
     tableHeight: number,
-    deltaTime: number
+    deltaTime: number,
   ): PhysicsObject[] {
     const updatedObjects = objects.map((obj) => ({
       ...obj,
@@ -141,7 +149,10 @@ export class PhysicsEngine {
     // Handle ball-to-ball collisions
     for (let i = 0; i < updatedObjects.length; i++) {
       for (let j = i + 1; j < updatedObjects.length; j++) {
-        const collision = this.detectCollision(updatedObjects[i], updatedObjects[j]);
+        const collision = this.detectCollision(
+          updatedObjects[i],
+          updatedObjects[j],
+        );
         if (collision.collided && collision.newVelocities) {
           updatedObjects[i].velocity = collision.newVelocities[0];
           updatedObjects[j].velocity = collision.newVelocities[1];
@@ -151,7 +162,11 @@ export class PhysicsEngine {
 
     // Update positions and handle cushion collisions
     return updatedObjects.map((obj) => {
-      const newVelocity = this.handleCushionCollision(obj, tableWidth, tableHeight);
+      const newVelocity = this.handleCushionCollision(
+        obj,
+        tableWidth,
+        tableHeight,
+      );
       return {
         ...obj,
         position: {
@@ -162,4 +177,4 @@ export class PhysicsEngine {
       };
     });
   }
-} 
+}

@@ -1,5 +1,5 @@
-import { Game, GameState } from '@/types/game';
-import apiClient from './client';
+import { Game, GameState } from "@/types/game";
+import apiClient from "./client";
 
 export interface CreateGameResponse {
   gameId: string;
@@ -22,7 +22,7 @@ export interface GameProgress {
 
 export const gameApi = {
   listGames: async (): Promise<Game[]> => {
-    const response = await apiClient.get<Game[]>('/games');
+    const response = await apiClient.get<Game[]>("/games");
     return response.data;
   },
 
@@ -34,7 +34,7 @@ export const gameApi = {
   createGame: async (data: {
     title: string;
     description: string;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
+    difficulty: "Easy" | "Medium" | "Hard";
     duration: string;
     maxPlayers: number;
     clues: {
@@ -46,12 +46,14 @@ export const gameApi = {
       qrCode?: string;
     }[];
   }): Promise<CreateGameResponse> => {
-    const response = await apiClient.post<CreateGameResponse>('/games', data);
+    const response = await apiClient.post<CreateGameResponse>("/games", data);
     return response.data;
   },
 
   joinGame: async (gameId: string): Promise<JoinGameResponse> => {
-    const response = await apiClient.post<JoinGameResponse>(`/games/${gameId}/join`);
+    const response = await apiClient.post<JoinGameResponse>(
+      `/games/${gameId}/join`,
+    );
     return response.data;
   },
 
@@ -60,14 +62,20 @@ export const gameApi = {
     return response.data;
   },
 
-  updateProgress: async (gameId: string, progress: GameProgress): Promise<GameState> => {
-    const response = await apiClient.post<GameState>(`/games/${gameId}/progress`, progress);
+  updateProgress: async (
+    gameId: string,
+    progress: GameProgress,
+  ): Promise<GameState> => {
+    const response = await apiClient.post<GameState>(
+      `/games/${gameId}/progress`,
+      progress,
+    );
     return response.data;
   },
 
   verifyQRCode: async (
     gameId: string,
-    data: { clueId: string; qrCode: string }
+    data: { clueId: string; qrCode: string },
   ): Promise<{ isValid: boolean; message?: string }> => {
     const response = await apiClient.post<{
       isValid: boolean;
@@ -81,7 +89,7 @@ export const gameApi = {
   },
 
   endGame: async (
-    gameId: string
+    gameId: string,
   ): Promise<{
     finalScore: number;
     completedClues: number;

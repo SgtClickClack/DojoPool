@@ -1,12 +1,12 @@
-import { EventEmitter } from 'events';
-import { ErrorInfo } from 'react';
-import { Alert } from '../types/monitoring';
+import { EventEmitter } from "events";
+import { ErrorInfo } from "react";
+import { Alert } from "../types/monitoring";
 
 interface MetricData {
   timestamp: number;
   value: number;
   label: string;
-  category: 'performance' | 'resources' | 'errors' | 'warnings';
+  category: "performance" | "resources" | "errors" | "warnings";
 }
 
 interface MetricsSnapshot {
@@ -56,8 +56,8 @@ interface GameMetrics {
 interface ErrorEvent {
   id: string;
   timestamp: number;
-  type: 'validation' | 'connection' | 'system' | 'boundary';
-  severity: 'error' | 'warning' | 'info';
+  type: "validation" | "connection" | "system" | "boundary";
+  severity: "error" | "warning" | "info";
   message: string;
   playerId?: string;
   details?: Record<string, any>;
@@ -86,30 +86,30 @@ export class ErrorTracker {
       error,
       errorInfo,
       timestamp: Date.now(),
-      componentStack: errorInfo.componentStack
+      componentStack: errorInfo.componentStack,
     });
 
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error caught by ErrorTracker:', {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error caught by ErrorTracker:", {
         error,
         errorInfo,
-        componentStack: errorInfo.componentStack
+        componentStack: errorInfo.componentStack,
       });
     }
 
     // Send error to monitoring service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       this.reportErrorToService(error, errorInfo);
     }
   }
 
   private reportErrorToService(error: Error, errorInfo: ErrorInfo): void {
     // This would be implemented to send errors to your error tracking service
-    console.error('Error reported to service:', {
+    console.error("Error reported to service:", {
       error,
       errorInfo,
-      componentStack: errorInfo.componentStack
+      componentStack: errorInfo.componentStack,
     });
   }
 
@@ -129,27 +129,28 @@ export class ErrorTracker {
     componentStack?: string;
   }> {
     const now = Date.now();
-    return this.errors.filter(error => now - error.timestamp <= timeWindow);
+    return this.errors.filter((error) => now - error.timestamp <= timeWindow);
   }
 
   getErrorStats(): ErrorStats {
     const now = Date.now();
     const recentErrors = this.errors
-      .filter(e => now - e.timestamp <= 3600000) // Last hour
+      .filter((e) => now - e.timestamp <= 3600000) // Last hour
       .map(({ error, errorInfo, timestamp }) => ({
         error,
         context: {
-          component: errorInfo.componentStack?.split('\n')[1]?.trim() || 'Unknown',
-          timestamp
-        }
+          component:
+            errorInfo.componentStack?.split("\n")[1]?.trim() || "Unknown",
+          timestamp,
+        },
       }));
 
     const byType: Record<string, number> = {};
     const byComponent: Record<string, number> = {};
 
     recentErrors.forEach(({ error, context }) => {
-      const type = error.name || 'Unknown';
-      const component = context.component || 'Unknown';
+      const type = error.name || "Unknown";
+      const component = context.component || "Unknown";
 
       byType[type] = (byType[type] || 0) + 1;
       byComponent[component] = (byComponent[component] || 0) + 1;
@@ -159,7 +160,7 @@ export class ErrorTracker {
       total: recentErrors.length,
       byType,
       byComponent,
-      recentErrors
+      recentErrors,
     };
   }
 
@@ -169,10 +170,12 @@ export class ErrorTracker {
     const hourAgo = now - 3600000;
 
     // Calculate error rates per component
-    const errorRates = Object.entries(stats.byComponent).map(([component, count]) => ({
-      component,
-      rate: count / 3600 * 1000 // errors per hour
-    }));
+    const errorRates = Object.entries(stats.byComponent).map(
+      ([component, count]) => ({
+        component,
+        rate: (count / 3600) * 1000, // errors per hour
+      }),
+    );
 
     // Get top error types
     const topErrorTypes = Object.entries(stats.byType)
@@ -194,7 +197,9 @@ export class ErrorTracker {
       const intervalEnd = intervalStart + intervalSize;
       return {
         timestamp: intervalStart,
-        errorCount: this.errors.filter(e => e.timestamp >= intervalStart && e.timestamp < intervalEnd).length
+        errorCount: this.errors.filter(
+          (e) => e.timestamp >= intervalStart && e.timestamp < intervalEnd,
+        ).length,
       };
     });
 
@@ -202,7 +207,7 @@ export class ErrorTracker {
       topErrorTypes,
       topComponents,
       errorRates,
-      recentTrends
+      recentTrends,
     };
   }
 }
@@ -210,7 +215,10 @@ export class ErrorTracker {
 export class GameMetricsMonitor extends EventEmitter {
   private static instance: GameMetricsMonitor;
   private metrics: Map<string, GameMetrics> = new Map();
-  private errorHistory: Map<string, Array<{ timestamp: number; type: string }>> = new Map();
+  private errorHistory: Map<
+    string,
+    Array<{ timestamp: number; type: string }>
+  > = new Map();
   private readonly RATE_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
   private updateTimes: MetricData[] = [];
   private latencyData: MetricData[] = [];
@@ -234,84 +242,84 @@ export class GameMetricsMonitor extends EventEmitter {
   private textureLoadTimeData: MetricData[] = [];
   private modelLoadTimeData: MetricData[] = [];
   private audioLoadTimeData: MetricData[] = [];
-  
+
   private readonly THRESHOLDS = {
     cpu: {
       critical: 90, // 90% CPU usage
-      warning: 75,  // 75% CPU usage
+      warning: 75, // 75% CPU usage
     },
     memory: {
       critical: 85, // 85% memory usage
-      warning: 70,  // 70% memory usage
+      warning: 70, // 70% memory usage
     },
     disk: {
       critical: 90, // 90% disk usage
-      warning: 80,  // 80% disk usage
+      warning: 80, // 80% disk usage
     },
     network: {
       critical: 1000, // 1000 KB/s
-      warning: 800,   // 800 KB/s
+      warning: 800, // 800 KB/s
     },
     errors: {
-      critical: 10,  // 10 errors per minute
-      warning: 5,    // 5 errors per minute
-    }
+      critical: 10, // 10 errors per minute
+      warning: 5, // 5 errors per minute
+    },
   };
 
   private readonly GAME_THRESHOLDS = {
     fps: {
-      critical: 30,  // Below 30 FPS is critical
-      warning: 45,   // Below 45 FPS is warning
-      target: 60     // Target 60 FPS
+      critical: 30, // Below 30 FPS is critical
+      warning: 45, // Below 45 FPS is warning
+      target: 60, // Target 60 FPS
     },
     inputLatency: {
       critical: 100, // Above 100ms is critical
-      warning: 50,   // Above 50ms is warning
-      target: 16     // Target 16ms (60 FPS)
+      warning: 50, // Above 50ms is warning
+      target: 16, // Target 16ms (60 FPS)
     },
     syncLatency: {
       critical: 200, // Above 200ms is critical
-      warning: 100,  // Above 100ms is warning
-      target: 50     // Target 50ms
+      warning: 100, // Above 100ms is warning
+      target: 50, // Target 50ms
     },
     renderTime: {
-      critical: 20,  // Above 20ms is critical
-      warning: 12,   // Above 12ms is warning
-      target: 8      // Target 8ms
+      critical: 20, // Above 20ms is critical
+      warning: 12, // Above 12ms is warning
+      target: 8, // Target 8ms
     },
     physicsTime: {
-      critical: 16,  // Above 16ms is critical
-      warning: 12,   // Above 12ms is warning
-      target: 8      // Target 8ms
-    }
+      critical: 16, // Above 16ms is critical
+      warning: 12, // Above 12ms is warning
+      target: 8, // Target 8ms
+    },
   };
 
   private readonly ASSET_THRESHOLDS = {
     assetLoad: {
       critical: 5000, // 5 seconds
-      warning: 2000,  // 2 seconds
-      target: 1000    // 1 second
+      warning: 2000, // 2 seconds
+      target: 1000, // 1 second
     },
     shaderCompile: {
       critical: 1000, // 1 second
-      warning: 500,   // 500ms
-      target: 100     // 100ms
+      warning: 500, // 500ms
+      target: 100, // 100ms
     },
     textureLoad: {
       critical: 2000, // 2 seconds
-      warning: 1000,  // 1 second
-      target: 500     // 500ms
+      warning: 1000, // 1 second
+      target: 500, // 500ms
     },
     modelLoad: {
       critical: 3000, // 3 seconds
-      warning: 1500,  // 1.5 seconds
-      target: 750     // 750ms
+      warning: 1500, // 1.5 seconds
+      target: 750, // 750ms
     },
     audioLoad: {
       critical: 1500, // 1.5 seconds
-      warning: 750,   // 750ms
-      target: 250     // 250ms
-    }
+      warning: 750, // 750ms
+      target: 250, // 250ms
+    },
   };
 
   private constructor() {
@@ -326,7 +334,7 @@ export class GameMetricsMonitor extends EventEmitter {
         this.metrics.set(gameId, {
           errorCount: 0,
           warningCount: 0,
-          errorRate: 0
+          errorRate: 0,
         });
         this.errorHistory.set(gameId, []);
       }
@@ -340,7 +348,7 @@ export class GameMetricsMonitor extends EventEmitter {
     // Initialize with some sample data
     const now = Date.now();
     const baseTime = now - 24 * 60 * 60 * 1000; // 24 hours ago
-    
+
     // Clear existing data
     this.updateTimes = [];
     this.latencyData = [];
@@ -351,144 +359,144 @@ export class GameMetricsMonitor extends EventEmitter {
     this.diskUsageData = [];
     this.networkTrafficData = [];
     this.processStatsData = [];
-    
+
     this.fpsData = [];
     this.inputLatencyData = [];
     this.syncLatencyData = [];
     this.renderTimeData = [];
     this.physicsTimeData = [];
-    
+
     this.assetLoadTimeData = [];
     this.shaderCompileTimeData = [];
     this.textureLoadTimeData = [];
     this.modelLoadTimeData = [];
     this.audioLoadTimeData = [];
-    
+
     for (let i = 0; i < 24; i++) {
       const timestamp = baseTime + i * 60 * 60 * 1000;
       this.updateTimes.push({
         timestamp,
         value: Math.random() * 100,
-        label: 'Update Time',
-        category: 'performance'
+        label: "Update Time",
+        category: "performance",
       });
       this.latencyData.push({
         timestamp,
         value: Math.random() * 200,
-        label: 'Latency',
-        category: 'performance'
+        label: "Latency",
+        category: "performance",
       });
       this.memoryUsageData.push({
         timestamp,
         value: Math.random() * 80,
-        label: 'Memory Usage',
-        category: 'resources'
+        label: "Memory Usage",
+        category: "resources",
       });
       this.cpuUsageData.push({
         timestamp,
         value: Math.random() * 100,
-        label: 'CPU Usage',
-        category: 'resources'
+        label: "CPU Usage",
+        category: "resources",
       });
       this.errorRateData.push({
         timestamp,
         value: Math.random() * 5,
-        label: 'Error Rate',
-        category: 'errors'
+        label: "Error Rate",
+        category: "errors",
       });
       this.requestRateData.push({
         timestamp,
         value: Math.random() * 1000,
-        label: 'Request Rate',
-        category: 'performance'
+        label: "Request Rate",
+        category: "performance",
       });
       this.diskUsageData.push({
         timestamp,
         value: 0, // Will be updated with real values
-        label: 'Disk Usage',
-        category: 'resources'
+        label: "Disk Usage",
+        category: "resources",
       });
       this.networkTrafficData.push({
         timestamp,
         value: 0,
-        label: 'Network Traffic',
-        category: 'performance'
+        label: "Network Traffic",
+        category: "performance",
       });
       this.processStatsData.push({
         timestamp,
         value: 0,
-        label: 'Process Count',
-        category: 'resources'
+        label: "Process Count",
+        category: "resources",
       });
-      
+
       this.fpsData.push({
         timestamp,
         value: 60, // Initialize with ideal FPS
-        label: 'FPS',
-        category: 'performance'
+        label: "FPS",
+        category: "performance",
       });
-      
+
       this.inputLatencyData.push({
         timestamp,
         value: 16, // Initialize with ideal input latency
-        label: 'Input Latency',
-        category: 'performance'
+        label: "Input Latency",
+        category: "performance",
       });
-      
+
       this.syncLatencyData.push({
         timestamp,
         value: 50, // Initialize with ideal sync latency
-        label: 'Sync Latency',
-        category: 'performance'
+        label: "Sync Latency",
+        category: "performance",
       });
-      
+
       this.renderTimeData.push({
         timestamp,
         value: 8, // Initialize with ideal render time
-        label: 'Render Time',
-        category: 'performance'
+        label: "Render Time",
+        category: "performance",
       });
-      
+
       this.physicsTimeData.push({
         timestamp,
         value: 8, // Initialize with ideal physics time
-        label: 'Physics Time',
-        category: 'performance'
+        label: "Physics Time",
+        category: "performance",
       });
-      
+
       this.assetLoadTimeData.push({
         timestamp,
         value: 0,
-        label: 'Asset Load Time',
-        category: 'performance'
+        label: "Asset Load Time",
+        category: "performance",
       });
-      
+
       this.shaderCompileTimeData.push({
         timestamp,
         value: 0,
-        label: 'Shader Compile Time',
-        category: 'performance'
+        label: "Shader Compile Time",
+        category: "performance",
       });
-      
+
       this.textureLoadTimeData.push({
         timestamp,
         value: 0,
-        label: 'Texture Load Time',
-        category: 'performance'
+        label: "Texture Load Time",
+        category: "performance",
       });
-      
+
       this.modelLoadTimeData.push({
         timestamp,
         value: 0,
-        label: 'Model Load Time',
-        category: 'performance'
+        label: "Model Load Time",
+        category: "performance",
       });
-      
+
       this.audioLoadTimeData.push({
         timestamp,
         value: 0,
-        label: 'Audio Load Time',
-        category: 'performance'
+        label: "Audio Load Time",
+        category: "performance",
       });
     }
   }
@@ -502,21 +510,22 @@ export class GameMetricsMonitor extends EventEmitter {
 
   private async calculateDiskUsage(): Promise<number> {
     try {
-      if ('storage' in navigator && 'estimate' in navigator.storage) {
+      if ("storage" in navigator && "estimate" in navigator.storage) {
         const estimate = await navigator.storage.estimate();
-        const usagePercent = (estimate.usage || 0) / (estimate.quota || 1) * 100;
+        const usagePercent =
+          ((estimate.usage || 0) / (estimate.quota || 1)) * 100;
         return Math.min(usagePercent, 100);
       }
       return 0;
     } catch (error) {
-      console.warn('Failed to calculate disk usage:', error);
+      console.warn("Failed to calculate disk usage:", error);
       return 0;
     }
   }
 
   private async calculateMemoryAvailable(): Promise<number> {
     try {
-      if ('memory' in performance) {
+      if ("memory" in performance) {
         const memory = (performance as any).memory;
         if (memory) {
           const available = memory.jsHeapSizeLimit - memory.usedJSHeapSize;
@@ -525,22 +534,25 @@ export class GameMetricsMonitor extends EventEmitter {
       }
       return 0;
     } catch (error) {
-      console.warn('Failed to calculate available memory:', error);
+      console.warn("Failed to calculate available memory:", error);
       return 0;
     }
   }
 
-  private async calculateNetworkStats(): Promise<{ sent: number; received: number }> {
+  private async calculateNetworkStats(): Promise<{
+    sent: number;
+    received: number;
+  }> {
     try {
-      if ('performance' in window) {
-        const resources = performance.getEntriesByType('resource');
+      if ("performance" in window) {
+        const resources = performance.getEntriesByType("resource");
         const now = Date.now();
         const fiveMinutesAgo = now - 5 * 60 * 1000;
-        
+
         let sent = 0;
         let received = 0;
-        
-        resources.forEach(resource => {
+
+        resources.forEach((resource) => {
           if (resource.startTime >= fiveMinutesAgo) {
             const entry = resource as PerformanceResourceTiming;
             received += entry.transferSize || 0;
@@ -551,34 +563,39 @@ export class GameMetricsMonitor extends EventEmitter {
         // Convert to KB
         return {
           sent: Math.round(sent / 1024),
-          received: Math.round(received / 1024)
+          received: Math.round(received / 1024),
         };
       }
       return { sent: 0, received: 0 };
     } catch (error) {
-      console.warn('Failed to calculate network stats:', error);
+      console.warn("Failed to calculate network stats:", error);
       return { sent: 0, received: 0 };
     }
   }
 
-  private async calculateProcessStats(): Promise<{ count: number; threadCount: number }> {
+  private async calculateProcessStats(): Promise<{
+    count: number;
+    threadCount: number;
+  }> {
     try {
       // For web workers
-      const workerCount = typeof navigator !== 'undefined' && 'hardwareConcurrency' in navigator
-        ? navigator.hardwareConcurrency
-        : 1;
+      const workerCount =
+        typeof navigator !== "undefined" && "hardwareConcurrency" in navigator
+          ? navigator.hardwareConcurrency
+          : 1;
 
       // Get active service workers
-      const swCount = 'serviceWorker' in navigator
-        ? (await navigator.serviceWorker.getRegistrations()).length
-        : 0;
+      const swCount =
+        "serviceWorker" in navigator
+          ? (await navigator.serviceWorker.getRegistrations()).length
+          : 0;
 
       return {
         count: swCount + 1, // Main process + service workers
-        threadCount: workerCount
+        threadCount: workerCount,
       };
     } catch (error) {
-      console.warn('Failed to calculate process stats:', error);
+      console.warn("Failed to calculate process stats:", error);
       return { count: 1, threadCount: 1 };
     }
   }
@@ -591,31 +608,56 @@ export class GameMetricsMonitor extends EventEmitter {
   }): void {
     // CPU Usage Alert
     if (metrics.cpuUsage >= this.THRESHOLDS.cpu.critical) {
-      this.addAlert('error', `Critical: CPU usage at ${metrics.cpuUsage.toFixed(1)}%`);
+      this.addAlert(
+        "error",
+        `Critical: CPU usage at ${metrics.cpuUsage.toFixed(1)}%`,
+      );
     } else if (metrics.cpuUsage >= this.THRESHOLDS.cpu.warning) {
-      this.addAlert('warning', `Warning: High CPU usage at ${metrics.cpuUsage.toFixed(1)}%`);
+      this.addAlert(
+        "warning",
+        `Warning: High CPU usage at ${metrics.cpuUsage.toFixed(1)}%`,
+      );
     }
 
     // Memory Usage Alert
     if (metrics.memoryUsage >= this.THRESHOLDS.memory.critical) {
-      this.addAlert('error', `Critical: Memory usage at ${metrics.memoryUsage.toFixed(1)}%`);
+      this.addAlert(
+        "error",
+        `Critical: Memory usage at ${metrics.memoryUsage.toFixed(1)}%`,
+      );
     } else if (metrics.memoryUsage >= this.THRESHOLDS.memory.warning) {
-      this.addAlert('warning', `Warning: High memory usage at ${metrics.memoryUsage.toFixed(1)}%`);
+      this.addAlert(
+        "warning",
+        `Warning: High memory usage at ${metrics.memoryUsage.toFixed(1)}%`,
+      );
     }
 
     // Disk Usage Alert
     if (metrics.diskUsage >= this.THRESHOLDS.disk.critical) {
-      this.addAlert('error', `Critical: Disk usage at ${metrics.diskUsage.toFixed(1)}%`);
+      this.addAlert(
+        "error",
+        `Critical: Disk usage at ${metrics.diskUsage.toFixed(1)}%`,
+      );
     } else if (metrics.diskUsage >= this.THRESHOLDS.disk.warning) {
-      this.addAlert('warning', `Warning: High disk usage at ${metrics.diskUsage.toFixed(1)}%`);
+      this.addAlert(
+        "warning",
+        `Warning: High disk usage at ${metrics.diskUsage.toFixed(1)}%`,
+      );
     }
 
     // Network Traffic Alert
-    const networkTotal = metrics.networkStats.sent + metrics.networkStats.received;
+    const networkTotal =
+      metrics.networkStats.sent + metrics.networkStats.received;
     if (networkTotal >= this.THRESHOLDS.network.critical) {
-      this.addAlert('error', `Critical: High network traffic at ${networkTotal.toFixed(1)} KB/s`);
+      this.addAlert(
+        "error",
+        `Critical: High network traffic at ${networkTotal.toFixed(1)} KB/s`,
+      );
     } else if (networkTotal >= this.THRESHOLDS.network.warning) {
-      this.addAlert('warning', `Warning: Elevated network traffic at ${networkTotal.toFixed(1)} KB/s`);
+      this.addAlert(
+        "warning",
+        `Warning: Elevated network traffic at ${networkTotal.toFixed(1)} KB/s`,
+      );
     }
   }
 
@@ -628,37 +670,70 @@ export class GameMetricsMonitor extends EventEmitter {
   }): void {
     // FPS Alerts
     if (metrics.fps <= this.GAME_THRESHOLDS.fps.critical) {
-      this.addAlert('error', `Critical: Low FPS at ${metrics.fps.toFixed(1)}`);
+      this.addAlert("error", `Critical: Low FPS at ${metrics.fps.toFixed(1)}`);
     } else if (metrics.fps <= this.GAME_THRESHOLDS.fps.warning) {
-      this.addAlert('warning', `Warning: FPS dropped to ${metrics.fps.toFixed(1)}`);
+      this.addAlert(
+        "warning",
+        `Warning: FPS dropped to ${metrics.fps.toFixed(1)}`,
+      );
     }
 
     // Input Latency Alerts
     if (metrics.inputLatency >= this.GAME_THRESHOLDS.inputLatency.critical) {
-      this.addAlert('error', `Critical: High input latency at ${metrics.inputLatency.toFixed(1)}ms`);
-    } else if (metrics.inputLatency >= this.GAME_THRESHOLDS.inputLatency.warning) {
-      this.addAlert('warning', `Warning: Input latency at ${metrics.inputLatency.toFixed(1)}ms`);
+      this.addAlert(
+        "error",
+        `Critical: High input latency at ${metrics.inputLatency.toFixed(1)}ms`,
+      );
+    } else if (
+      metrics.inputLatency >= this.GAME_THRESHOLDS.inputLatency.warning
+    ) {
+      this.addAlert(
+        "warning",
+        `Warning: Input latency at ${metrics.inputLatency.toFixed(1)}ms`,
+      );
     }
 
     // Sync Latency Alerts
     if (metrics.syncLatency >= this.GAME_THRESHOLDS.syncLatency.critical) {
-      this.addAlert('error', `Critical: High sync latency at ${metrics.syncLatency.toFixed(1)}ms`);
-    } else if (metrics.syncLatency >= this.GAME_THRESHOLDS.syncLatency.warning) {
-      this.addAlert('warning', `Warning: Sync latency at ${metrics.syncLatency.toFixed(1)}ms`);
+      this.addAlert(
+        "error",
+        `Critical: High sync latency at ${metrics.syncLatency.toFixed(1)}ms`,
+      );
+    } else if (
+      metrics.syncLatency >= this.GAME_THRESHOLDS.syncLatency.warning
+    ) {
+      this.addAlert(
+        "warning",
+        `Warning: Sync latency at ${metrics.syncLatency.toFixed(1)}ms`,
+      );
     }
 
     // Render Time Alerts
     if (metrics.renderTime >= this.GAME_THRESHOLDS.renderTime.critical) {
-      this.addAlert('error', `Critical: High render time at ${metrics.renderTime.toFixed(1)}ms`);
+      this.addAlert(
+        "error",
+        `Critical: High render time at ${metrics.renderTime.toFixed(1)}ms`,
+      );
     } else if (metrics.renderTime >= this.GAME_THRESHOLDS.renderTime.warning) {
-      this.addAlert('warning', `Warning: Render time at ${metrics.renderTime.toFixed(1)}ms`);
+      this.addAlert(
+        "warning",
+        `Warning: Render time at ${metrics.renderTime.toFixed(1)}ms`,
+      );
     }
 
     // Physics Time Alerts
     if (metrics.physicsTime >= this.GAME_THRESHOLDS.physicsTime.critical) {
-      this.addAlert('error', `Critical: High physics time at ${metrics.physicsTime.toFixed(1)}ms`);
-    } else if (metrics.physicsTime >= this.GAME_THRESHOLDS.physicsTime.warning) {
-      this.addAlert('warning', `Warning: Physics time at ${metrics.physicsTime.toFixed(1)}ms`);
+      this.addAlert(
+        "error",
+        `Critical: High physics time at ${metrics.physicsTime.toFixed(1)}ms`,
+      );
+    } else if (
+      metrics.physicsTime >= this.GAME_THRESHOLDS.physicsTime.warning
+    ) {
+      this.addAlert(
+        "warning",
+        `Warning: Physics time at ${metrics.physicsTime.toFixed(1)}ms`,
+      );
     }
   }
 
@@ -671,41 +746,77 @@ export class GameMetricsMonitor extends EventEmitter {
   }): void {
     if (metrics.assetLoad !== undefined) {
       if (metrics.assetLoad >= this.ASSET_THRESHOLDS.assetLoad.critical) {
-        this.addAlert('error', `Critical: Asset load time ${metrics.assetLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "error",
+          `Critical: Asset load time ${metrics.assetLoad.toFixed(0)}ms`,
+        );
       } else if (metrics.assetLoad >= this.ASSET_THRESHOLDS.assetLoad.warning) {
-        this.addAlert('warning', `Warning: Asset load time ${metrics.assetLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "warning",
+          `Warning: Asset load time ${metrics.assetLoad.toFixed(0)}ms`,
+        );
       }
     }
 
     if (metrics.shaderCompile !== undefined) {
-      if (metrics.shaderCompile >= this.ASSET_THRESHOLDS.shaderCompile.critical) {
-        this.addAlert('error', `Critical: Shader compile time ${metrics.shaderCompile.toFixed(0)}ms`);
-      } else if (metrics.shaderCompile >= this.ASSET_THRESHOLDS.shaderCompile.warning) {
-        this.addAlert('warning', `Warning: Shader compile time ${metrics.shaderCompile.toFixed(0)}ms`);
+      if (
+        metrics.shaderCompile >= this.ASSET_THRESHOLDS.shaderCompile.critical
+      ) {
+        this.addAlert(
+          "error",
+          `Critical: Shader compile time ${metrics.shaderCompile.toFixed(0)}ms`,
+        );
+      } else if (
+        metrics.shaderCompile >= this.ASSET_THRESHOLDS.shaderCompile.warning
+      ) {
+        this.addAlert(
+          "warning",
+          `Warning: Shader compile time ${metrics.shaderCompile.toFixed(0)}ms`,
+        );
       }
     }
 
     if (metrics.textureLoad !== undefined) {
       if (metrics.textureLoad >= this.ASSET_THRESHOLDS.textureLoad.critical) {
-        this.addAlert('error', `Critical: Texture load time ${metrics.textureLoad.toFixed(0)}ms`);
-      } else if (metrics.textureLoad >= this.ASSET_THRESHOLDS.textureLoad.warning) {
-        this.addAlert('warning', `Warning: Texture load time ${metrics.textureLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "error",
+          `Critical: Texture load time ${metrics.textureLoad.toFixed(0)}ms`,
+        );
+      } else if (
+        metrics.textureLoad >= this.ASSET_THRESHOLDS.textureLoad.warning
+      ) {
+        this.addAlert(
+          "warning",
+          `Warning: Texture load time ${metrics.textureLoad.toFixed(0)}ms`,
+        );
       }
     }
 
     if (metrics.modelLoad !== undefined) {
       if (metrics.modelLoad >= this.ASSET_THRESHOLDS.modelLoad.critical) {
-        this.addAlert('error', `Critical: Model load time ${metrics.modelLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "error",
+          `Critical: Model load time ${metrics.modelLoad.toFixed(0)}ms`,
+        );
       } else if (metrics.modelLoad >= this.ASSET_THRESHOLDS.modelLoad.warning) {
-        this.addAlert('warning', `Warning: Model load time ${metrics.modelLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "warning",
+          `Warning: Model load time ${metrics.modelLoad.toFixed(0)}ms`,
+        );
       }
     }
 
     if (metrics.audioLoad !== undefined) {
       if (metrics.audioLoad >= this.ASSET_THRESHOLDS.audioLoad.critical) {
-        this.addAlert('error', `Critical: Audio load time ${metrics.audioLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "error",
+          `Critical: Audio load time ${metrics.audioLoad.toFixed(0)}ms`,
+        );
       } else if (metrics.audioLoad >= this.ASSET_THRESHOLDS.audioLoad.warning) {
-        this.addAlert('warning', `Warning: Audio load time ${metrics.audioLoad.toFixed(0)}ms`);
+        this.addAlert(
+          "warning",
+          `Warning: Audio load time ${metrics.audioLoad.toFixed(0)}ms`,
+        );
       }
     }
   }
@@ -722,22 +833,30 @@ export class GameMetricsMonitor extends EventEmitter {
       memoryUsage: 0,
       diskUsage: 0,
       networkStats: { sent: 0, received: 0 },
-      processStats: { count: 0, threadCount: 0 }
+      processStats: { count: 0, threadCount: 0 },
     };
 
     try {
       const now = Date.now();
       const fiveMinutesAgo = now - 5 * 60 * 1000;
-      
+
       // Get recent metrics
-      const recentCpuData = this.cpuUsageData.filter(m => m.timestamp >= fiveMinutesAgo);
-      const recentMemoryData = this.memoryUsageData.filter(m => m.timestamp >= fiveMinutesAgo);
-      const recentDiskData = this.diskUsageData.filter(m => m.timestamp >= fiveMinutesAgo);
-      
+      const recentCpuData = this.cpuUsageData.filter(
+        (m) => m.timestamp >= fiveMinutesAgo,
+      );
+      const recentMemoryData = this.memoryUsageData.filter(
+        (m) => m.timestamp >= fiveMinutesAgo,
+      );
+      const recentDiskData = this.diskUsageData.filter(
+        (m) => m.timestamp >= fiveMinutesAgo,
+      );
+
       // Calculate averages
-      const calculateAverage = (data: MetricData[]) => 
-        data.length ? data.reduce((sum, m) => sum + m.value, 0) / data.length : 0;
-      
+      const calculateAverage = (data: MetricData[]) =>
+        data.length
+          ? data.reduce((sum, m) => sum + m.value, 0) / data.length
+          : 0;
+
       metrics.cpuUsage = calculateAverage(recentCpuData);
       metrics.memoryUsage = calculateAverage(recentMemoryData);
       metrics.diskUsage = await this.calculateDiskUsage();
@@ -749,7 +868,7 @@ export class GameMetricsMonitor extends EventEmitter {
 
       return metrics;
     } catch (error) {
-      console.error('Error calculating aggregated metrics:', error);
+      console.error("Error calculating aggregated metrics:", error);
       return metrics;
     }
   }
@@ -757,9 +876,15 @@ export class GameMetricsMonitor extends EventEmitter {
   // Update the error rate monitoring to use thresholds
   private checkErrorRateThreshold(errorRate: number): void {
     if (errorRate >= this.THRESHOLDS.errors.critical) {
-      this.addAlert('error', `Critical: High error rate at ${errorRate.toFixed(1)} errors/minute`);
+      this.addAlert(
+        "error",
+        `Critical: High error rate at ${errorRate.toFixed(1)} errors/minute`,
+      );
     } else if (errorRate >= this.THRESHOLDS.errors.warning) {
-      this.addAlert('warning', `Warning: Elevated error rate at ${errorRate.toFixed(1)} errors/minute`);
+      this.addAlert(
+        "warning",
+        `Warning: Elevated error rate at ${errorRate.toFixed(1)} errors/minute`,
+      );
     }
   }
 
@@ -778,28 +903,29 @@ export class GameMetricsMonitor extends EventEmitter {
         networkReceived: aggregatedMetrics.networkStats.received,
         memoryAvailable: 0,
         processCount: aggregatedMetrics.processStats.count,
-        threadCount: aggregatedMetrics.processStats.threadCount
+        threadCount: aggregatedMetrics.processStats.threadCount,
       },
       historical: {
         cpuUsage: this.cpuUsageData,
         memoryUsage: this.memoryUsageData,
         diskUsage: this.diskUsageData,
-        networkTraffic: []
+        networkTraffic: [],
       },
       alerts: this.alerts,
       latencyData: this.latencyData,
-      errorData: this.errorTracker.getRecentErrors().map(error => ({
+      errorData: this.errorTracker.getRecentErrors().map((error) => ({
         id: Math.random().toString(36).substr(2, 9),
-        type: error.error.name || 'unknown',
+        type: error.error.name || "unknown",
         message: error.error.message,
-        stack: error.componentStack || '',
+        stack: error.componentStack || "",
         timestamp: error.timestamp,
-        component: error.errorInfo.componentStack?.split('\n')[1]?.trim() || 'Unknown',
-        context: {}
+        component:
+          error.errorInfo.componentStack?.split("\n")[1]?.trim() || "Unknown",
+        context: {},
       })),
       updateTimes: this.updateTimes,
       successRate: this.calculateSuccessRate(),
-      timestamp: now
+      timestamp: now,
     };
   }
 
@@ -812,25 +938,51 @@ export class GameMetricsMonitor extends EventEmitter {
     return Array.from({ length: intervals }, (_, i) => {
       const intervalStart = hourAgo + i * intervalSize;
       const intervalEnd = intervalStart + intervalSize;
-      
+
       const totalRequests = this.requestRateData.filter(
-        m => m.timestamp >= intervalStart && m.timestamp < intervalEnd
-      ).length;
-      
-      const errors = this.errorRateData.filter(
-        m => m.timestamp >= intervalStart && m.timestamp < intervalEnd
+        (m) => m.timestamp >= intervalStart && m.timestamp < intervalEnd,
       ).length;
 
-      return totalRequests > 0 ? ((totalRequests - errors) / totalRequests) * 100 : 100;
+      const errors = this.errorRateData.filter(
+        (m) => m.timestamp >= intervalStart && m.timestamp < intervalEnd,
+      ).length;
+
+      return totalRequests > 0
+        ? ((totalRequests - errors) / totalRequests) * 100
+        : 100;
     });
   }
 
-  addMetric(type: 'updateTime' | 'latency' | 'memory' | 'cpu' | 'error' | 'request' | 'disk' | 'memoryAvailable' | 'network' | 'process' | 'thread' | 'fps' | 'inputLatency' | 'syncLatency' | 'renderTime' | 'physicsTime' | 'assetLoad' | 'shaderCompile' | 'textureLoad' | 'modelLoad' | 'audioLoad', value: number) {
+  addMetric(
+    type:
+      | "updateTime"
+      | "latency"
+      | "memory"
+      | "cpu"
+      | "error"
+      | "request"
+      | "disk"
+      | "memoryAvailable"
+      | "network"
+      | "process"
+      | "thread"
+      | "fps"
+      | "inputLatency"
+      | "syncLatency"
+      | "renderTime"
+      | "physicsTime"
+      | "assetLoad"
+      | "shaderCompile"
+      | "textureLoad"
+      | "modelLoad"
+      | "audioLoad",
+    value: number,
+  ) {
     const metricData: MetricData = {
       timestamp: Date.now(),
       value,
       label: type.charAt(0).toUpperCase() + type.slice(1),
-      category: this.getMetricCategory(type)
+      category: this.getMetricCategory(type),
     };
 
     const targetArray = this.getMetricArray(type);
@@ -838,89 +990,91 @@ export class GameMetricsMonitor extends EventEmitter {
 
     // Cleanup old data
     this.cleanupOldData();
-    
-    this.emit('metricUpdated', type, metricData);
+
+    this.emit("metricUpdated", type, metricData);
   }
 
-  private getMetricCategory(type: string): 'performance' | 'resources' | 'errors' | 'warnings' {
+  private getMetricCategory(
+    type: string,
+  ): "performance" | "resources" | "errors" | "warnings" {
     switch (type) {
-      case 'error':
-        return 'errors';
-      case 'updateTime':
-      case 'latency':
-      case 'request':
-        return 'performance';
-      case 'memory':
-      case 'cpu':
-        return 'resources';
-      case 'disk':
-        return 'resources';
-      case 'memoryAvailable':
-        return 'resources';
-      case 'network':
-        return 'performance';
-      case 'process':
-      case 'thread':
-        return 'resources';
-      case 'fps':
-      case 'inputLatency':
-      case 'syncLatency':
-      case 'renderTime':
-      case 'physicsTime':
-        return 'performance';
-      case 'assetLoad':
-      case 'shaderCompile':
-      case 'textureLoad':
-      case 'modelLoad':
-      case 'audioLoad':
-        return 'performance';
+      case "error":
+        return "errors";
+      case "updateTime":
+      case "latency":
+      case "request":
+        return "performance";
+      case "memory":
+      case "cpu":
+        return "resources";
+      case "disk":
+        return "resources";
+      case "memoryAvailable":
+        return "resources";
+      case "network":
+        return "performance";
+      case "process":
+      case "thread":
+        return "resources";
+      case "fps":
+      case "inputLatency":
+      case "syncLatency":
+      case "renderTime":
+      case "physicsTime":
+        return "performance";
+      case "assetLoad":
+      case "shaderCompile":
+      case "textureLoad":
+      case "modelLoad":
+      case "audioLoad":
+        return "performance";
       default:
-        return 'performance';
+        return "performance";
     }
   }
 
   private getMetricArray(type: string): MetricData[] {
     switch (type) {
-      case 'updateTime':
+      case "updateTime":
         return this.updateTimes;
-      case 'latency':
+      case "latency":
         return this.latencyData;
-      case 'memory':
+      case "memory":
         return this.memoryUsageData;
-      case 'cpu':
+      case "cpu":
         return this.cpuUsageData;
-      case 'error':
+      case "error":
         return this.errorRateData;
-      case 'request':
+      case "request":
         return this.requestRateData;
-      case 'disk':
+      case "disk":
         return this.diskUsageData;
-      case 'memoryAvailable':
+      case "memoryAvailable":
         return this.memoryAvailableData;
-      case 'network':
+      case "network":
         return this.networkTrafficData;
-      case 'process':
-      case 'thread':
+      case "process":
+      case "thread":
         return this.processStatsData;
-      case 'fps':
+      case "fps":
         return this.fpsData;
-      case 'inputLatency':
+      case "inputLatency":
         return this.inputLatencyData;
-      case 'syncLatency':
+      case "syncLatency":
         return this.syncLatencyData;
-      case 'renderTime':
+      case "renderTime":
         return this.renderTimeData;
-      case 'physicsTime':
+      case "physicsTime":
         return this.physicsTimeData;
-      case 'assetLoad':
+      case "assetLoad":
         return this.assetLoadTimeData;
-      case 'shaderCompile':
+      case "shaderCompile":
         return this.shaderCompileTimeData;
-      case 'textureLoad':
+      case "textureLoad":
         return this.textureLoadTimeData;
-      case 'modelLoad':
+      case "modelLoad":
         return this.modelLoadTimeData;
-      case 'audioLoad':
+      case "audioLoad":
         return this.audioLoadTimeData;
       default:
         return this.updateTimes;
@@ -929,7 +1083,8 @@ export class GameMetricsMonitor extends EventEmitter {
 
   private cleanupOldData(): void {
     const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    const cleanup = (arr: MetricData[]) => arr.filter(m => m.timestamp > dayAgo);
+    const cleanup = (arr: MetricData[]) =>
+      arr.filter((m) => m.timestamp > dayAgo);
 
     this.updateTimes = cleanup(this.updateTimes);
     this.latencyData = cleanup(this.latencyData);
@@ -962,9 +1117,9 @@ export class GameMetricsMonitor extends EventEmitter {
     history.push({ timestamp, type: error.type });
 
     // Update counts
-    if (error.severity === 'error') {
+    if (error.severity === "error") {
       metrics.errorCount++;
-    } else if (error.severity === 'warning') {
+    } else if (error.severity === "warning") {
       metrics.warningCount++;
     }
 
@@ -976,9 +1131,9 @@ export class GameMetricsMonitor extends EventEmitter {
 
     // Calculate and check error rate
     const recentErrors = history.filter(
-      (e) => e.timestamp > timestamp - this.RATE_WINDOW
+      (e) => e.timestamp > timestamp - this.RATE_WINDOW,
     );
-    const errorRate = (recentErrors.length / (this.RATE_WINDOW / 60000));
+    const errorRate = recentErrors.length / (this.RATE_WINDOW / 60000);
     metrics.errorRate = errorRate;
 
     // Check error rate threshold
@@ -987,20 +1142,20 @@ export class GameMetricsMonitor extends EventEmitter {
     // Clean up old history
     this.errorHistory.set(
       gameId,
-      history.filter((e) => e.timestamp > timestamp - this.RATE_WINDOW)
+      history.filter((e) => e.timestamp > timestamp - this.RATE_WINDOW),
     );
 
     this.metrics.set(gameId, metrics);
-    this.emit('metricsUpdated', gameId, { ...metrics });
-    this.emit('error', error);
+    this.emit("metricsUpdated", gameId, { ...metrics });
+    this.emit("error", error);
 
     // Create and emit an alert for critical errors
-    if (error.severity === 'error') {
+    if (error.severity === "error") {
       const alert: Alert = {
         id: `alert-${Date.now()}`,
         timestamp: Date.now(),
-        type: 'system',
-        severity: 'critical',
+        type: "system",
+        severity: "critical",
         message: error.message,
         details: {
           errorType: error.type,
@@ -1009,7 +1164,7 @@ export class GameMetricsMonitor extends EventEmitter {
         },
       };
       this.alerts.push(alert);
-      this.emit('alert', alert);
+      this.emit("alert", alert);
     }
   }
 
@@ -1024,18 +1179,18 @@ export class GameMetricsMonitor extends EventEmitter {
   }
 
   onMetricsUpdate(callback: (gameId: string, metrics: GameMetrics) => void) {
-    this.on('metricsUpdated', callback);
-    return () => this.off('metricsUpdated', callback);
+    this.on("metricsUpdated", callback);
+    return () => this.off("metricsUpdated", callback);
   }
 
   subscribeToErrors(callback: (error: ErrorEvent) => void) {
-    this.on('error', callback);
-    return () => this.off('error', callback);
+    this.on("error", callback);
+    return () => this.off("error", callback);
   }
 
   subscribeToAlerts(callback: (alert: Alert) => void) {
-    this.on('alert', callback);
-    return () => this.off('alert', callback);
+    this.on("alert", callback);
+    return () => this.off("alert", callback);
   }
 
   getAlerts(): Alert[] {
@@ -1043,96 +1198,125 @@ export class GameMetricsMonitor extends EventEmitter {
   }
 
   acknowledgeAlert(alertId: string, userId: string) {
-    const alert = this.alerts.find(a => a.id === alertId);
+    const alert = this.alerts.find((a) => a.id === alertId);
     if (alert) {
       alert.acknowledged = true;
       alert.acknowledgedBy = userId;
       alert.acknowledgedAt = Date.now();
-      this.emit('alertUpdated', alert);
+      this.emit("alertUpdated", alert);
     }
   }
 
-  addAlert(severity: 'error' | 'warning' | 'info', message: string): Alert {
+  addAlert(severity: "error" | "warning" | "info", message: string): Alert {
     // Map the severity to the correct type
-    let mappedSeverity: 'critical' | 'high' | 'medium' | 'low';
+    let mappedSeverity: "critical" | "high" | "medium" | "low";
     switch (severity) {
-      case 'error':
-        mappedSeverity = 'critical';
+      case "error":
+        mappedSeverity = "critical";
         break;
-      case 'warning':
-        mappedSeverity = 'high';
+      case "warning":
+        mappedSeverity = "high";
         break;
-      case 'info':
-        mappedSeverity = 'medium';
+      case "info":
+        mappedSeverity = "medium";
         break;
       default:
-        mappedSeverity = 'low';
+        mappedSeverity = "low";
     }
 
     const alert: Alert = {
       id: Math.random().toString(36).substr(2, 9),
-      type: 'system',
+      type: "system",
       severity: mappedSeverity,
       message,
       timestamp: Date.now(),
       acknowledged: false,
-      details: {}
+      details: {},
     };
     this.alerts.push(alert);
-    this.emit('alert', alert);
+    this.emit("alert", alert);
     return alert;
   }
 
-  monitorError(error: Error, details: { errorId: string; type: string; playerId?: string; gameId?: string }) {
+  monitorError(
+    error: Error,
+    details: {
+      errorId: string;
+      type: string;
+      playerId?: string;
+      gameId?: string;
+    },
+  ) {
     const errorEvent: ErrorEvent = {
       id: details.errorId,
       timestamp: Date.now(),
-      type: details.type as 'validation' | 'connection' | 'system' | 'boundary',
-      severity: 'error',
+      type: details.type as "validation" | "connection" | "system" | "boundary",
+      severity: "error",
       message: error.message,
       playerId: details.playerId,
-      details: {}
+      details: {},
     };
 
     if (details.gameId) {
       this.recordError(details.gameId, errorEvent);
     }
-    
-    this.emit('error', errorEvent);
+
+    this.emit("error", errorEvent);
   }
 
   batchUpdate(updates: Record<string, MetricData[]>): void {
     Object.entries(updates).forEach(([type, dataPoints]) => {
-      dataPoints.forEach(data => {
-        const metricType = type as 'updateTime' | 'latency' | 'memory' | 'cpu' | 'error' | 'request' | 'disk' | 'memoryAvailable' | 'network' | 'process' | 'thread' | 'fps' | 'inputLatency' | 'syncLatency' | 'renderTime' | 'physicsTime' | 'assetLoad' | 'shaderCompile' | 'textureLoad' | 'modelLoad' | 'audioLoad';
+      dataPoints.forEach((data) => {
+        const metricType = type as
+          | "updateTime"
+          | "latency"
+          | "memory"
+          | "cpu"
+          | "error"
+          | "request"
+          | "disk"
+          | "memoryAvailable"
+          | "network"
+          | "process"
+          | "thread"
+          | "fps"
+          | "inputLatency"
+          | "syncLatency"
+          | "renderTime"
+          | "physicsTime"
+          | "assetLoad"
+          | "shaderCompile"
+          | "textureLoad"
+          | "modelLoad"
+          | "audioLoad";
         this.addMetric(metricType, data.value);
       });
     });
-    this.emit('metricsUpdated', updates);
+    this.emit("metricsUpdated", updates);
   }
 
   public async updateDiskUsage(): Promise<void> {
     const diskUsage = await this.calculateDiskUsage();
-    this.addMetric('disk', diskUsage);
+    this.addMetric("disk", diskUsage);
   }
 
   public startDiskMonitoring(interval: number = 60000): void {
     setInterval(() => {
-      this.updateDiskUsage().catch(error => {
-        console.error('Failed to update disk usage:', error);
+      this.updateDiskUsage().catch((error) => {
+        console.error("Failed to update disk usage:", error);
       });
     }, interval);
   }
 
   public async updateMemoryAvailable(): Promise<void> {
     const memoryAvailable = await this.calculateMemoryAvailable();
-    this.addMetric('memoryAvailable', memoryAvailable);
+    this.addMetric("memoryAvailable", memoryAvailable);
   }
 
   public startMemoryMonitoring(interval: number = 30000): void {
     setInterval(() => {
-      this.updateMemoryAvailable().catch(error => {
-        console.error('Failed to update memory available:', error);
+      this.updateMemoryAvailable().catch((error) => {
+        console.error("Failed to update memory available:", error);
       });
     }, interval);
   }
@@ -1140,27 +1324,27 @@ export class GameMetricsMonitor extends EventEmitter {
   public async updateNetworkStats(): Promise<void> {
     const stats = await this.calculateNetworkStats();
     const total = stats.sent + stats.received;
-    this.addMetric('network', total);
+    this.addMetric("network", total);
   }
 
   public async updateProcessStats(): Promise<void> {
     const stats = await this.calculateProcessStats();
-    this.addMetric('process', stats.count);
-    this.addMetric('thread', stats.threadCount);
+    this.addMetric("process", stats.count);
+    this.addMetric("thread", stats.threadCount);
   }
 
   public startNetworkMonitoring(interval: number = 10000): void {
     setInterval(() => {
-      this.updateNetworkStats().catch(error => {
-        console.error('Failed to update network stats:', error);
+      this.updateNetworkStats().catch((error) => {
+        console.error("Failed to update network stats:", error);
       });
     }, interval);
   }
 
   public startProcessMonitoring(interval: number = 30000): void {
     setInterval(() => {
-      this.updateProcessStats().catch(error => {
-        console.error('Failed to update process stats:', error);
+      this.updateProcessStats().catch((error) => {
+        console.error("Failed to update process stats:", error);
       });
     }, interval);
   }
@@ -1175,28 +1359,31 @@ export class GameMetricsMonitor extends EventEmitter {
     const timestamp = Date.now();
 
     if (metrics.fps !== undefined) {
-      this.addMetric('fps', metrics.fps);
+      this.addMetric("fps", metrics.fps);
     }
     if (metrics.inputLatency !== undefined) {
-      this.addMetric('inputLatency', metrics.inputLatency);
+      this.addMetric("inputLatency", metrics.inputLatency);
     }
     if (metrics.syncLatency !== undefined) {
-      this.addMetric('syncLatency', metrics.syncLatency);
+      this.addMetric("syncLatency", metrics.syncLatency);
     }
     if (metrics.renderTime !== undefined) {
-      this.addMetric('renderTime', metrics.renderTime);
+      this.addMetric("renderTime", metrics.renderTime);
     }
     if (metrics.physicsTime !== undefined) {
-      this.addMetric('physicsTime', metrics.physicsTime);
+      this.addMetric("physicsTime", metrics.physicsTime);
     }
 
     // Check thresholds for game metrics
     this.checkGameThresholds({
       fps: metrics.fps ?? this.getLastValue(this.fpsData),
-      inputLatency: metrics.inputLatency ?? this.getLastValue(this.inputLatencyData),
-      syncLatency: metrics.syncLatency ?? this.getLastValue(this.syncLatencyData),
+      inputLatency:
+        metrics.inputLatency ?? this.getLastValue(this.inputLatencyData),
+      syncLatency:
+        metrics.syncLatency ?? this.getLastValue(this.syncLatencyData),
       renderTime: metrics.renderTime ?? this.getLastValue(this.renderTimeData),
-      physicsTime: metrics.physicsTime ?? this.getLastValue(this.physicsTimeData)
+      physicsTime:
+        metrics.physicsTime ?? this.getLastValue(this.physicsTimeData),
     });
   }
 
@@ -1214,7 +1401,7 @@ export class GameMetricsMonitor extends EventEmitter {
 
       if (now - lastFrameTime >= 1000) {
         const fps = Math.round((frameCount * 1000) / (now - lastFrameTime));
-        this.addMetric('fps', fps);
+        this.addMetric("fps", fps);
         frameCount = 0;
         lastFrameTime = now;
       }
@@ -1230,12 +1417,14 @@ export class GameMetricsMonitor extends EventEmitter {
   private startInputLatencyMonitoring(): void {
     const measureInputLatency = (event: Event) => {
       const latency = performance.now() - event.timeStamp;
-      this.addMetric('inputLatency', latency);
+      this.addMetric("inputLatency", latency);
     };
 
     // Monitor input events
-    ['mousedown', 'keydown', 'touchstart'].forEach(eventType => {
-      window.addEventListener(eventType, measureInputLatency, { passive: true });
+    ["mousedown", "keydown", "touchstart"].forEach((eventType) => {
+      window.addEventListener(eventType, measureInputLatency, {
+        passive: true,
+      });
     });
   }
 
@@ -1247,19 +1436,19 @@ export class GameMetricsMonitor extends EventEmitter {
     audioLoad?: number;
   }): void {
     if (metrics.assetLoad !== undefined) {
-      this.addMetric('assetLoad', metrics.assetLoad);
+      this.addMetric("assetLoad", metrics.assetLoad);
     }
     if (metrics.shaderCompile !== undefined) {
-      this.addMetric('shaderCompile', metrics.shaderCompile);
+      this.addMetric("shaderCompile", metrics.shaderCompile);
     }
     if (metrics.textureLoad !== undefined) {
-      this.addMetric('textureLoad', metrics.textureLoad);
+      this.addMetric("textureLoad", metrics.textureLoad);
     }
     if (metrics.modelLoad !== undefined) {
-      this.addMetric('modelLoad', metrics.modelLoad);
+      this.addMetric("modelLoad", metrics.modelLoad);
     }
     if (metrics.audioLoad !== undefined) {
-      this.addMetric('audioLoad', metrics.audioLoad);
+      this.addMetric("audioLoad", metrics.audioLoad);
     }
 
     this.checkAssetThresholds(metrics);
@@ -1287,8 +1476,8 @@ export class GameMetricsMonitor extends EventEmitter {
       });
     });
 
-    observer.observe({ entryTypes: ['resource'] });
+    observer.observe({ entryTypes: ["resource"] });
   }
 }
 
-export const gameMetricsMonitor = GameMetricsMonitor.getInstance(); 
+export const gameMetricsMonitor = GameMetricsMonitor.getInstance();

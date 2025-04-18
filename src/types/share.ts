@@ -1,4 +1,10 @@
-export type ShareType = 'game' | 'tournament' | 'achievement' | 'profile' | 'shot' | 'venue';
+export type ShareType =
+  | "game"
+  | "tournament"
+  | "achievement"
+  | "profile"
+  | "shot"
+  | "venue";
 
 export interface Share {
   id: number;
@@ -15,4 +21,4 @@ export interface Share {
     username: string;
     avatar_url?: string;
   };
-} 
+}

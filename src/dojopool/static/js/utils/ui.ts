@@ -2,14 +2,14 @@
  * UI utilities module.
  * Provides common UI helper functions and utilities.
  */
-import { Config } from '../config';
+import { Config } from "../config";
 
 /**
  * Debounce function execution.
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number = Config.UI.DEBOUNCE_DELAY
+  wait: number = Config.UI.DEBOUNCE_DELAY,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
 
@@ -29,7 +29,7 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   let lastResult: ReturnType<T>;
@@ -48,10 +48,10 @@ export function throttle<T extends (...args: any[]) => any>(
  * Format file size.
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
@@ -70,20 +70,20 @@ export function isFileSizeValid(file: File): boolean {
 export function formatDate(
   date: Date | string,
   options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  },
 ): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('en-US', options).format(d);
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-US", options).format(d);
 }
 
 /**
  * Format relative time.
  */
 export function formatRelativeTime(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = typeof date === "string" ? new Date(date) : date;
   const now = new Date();
   const diff = now.getTime() - d.getTime();
 
@@ -101,7 +101,7 @@ export function formatRelativeTime(date: Date | string): string {
   } else if (minutes > 0) {
     return `${minutes}m ago`;
   } else {
-    return 'Just now';
+    return "Just now";
   }
 }
 
@@ -111,7 +111,7 @@ export function formatRelativeTime(date: Date | string): string {
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   classes: string[] = [],
-  attributes: Record<string, string> = {}
+  attributes: Record<string, string> = {},
 ): HTMLElementTagNameMap[K] {
   const element = document.createElement(tag);
   element.classList.add(...classes);
@@ -128,22 +128,22 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
  */
 export function showToast(
   message: string,
-  type: 'success' | 'error' | 'info' = 'info',
-  duration: number = Config.UI.TOAST_DURATION
+  type: "success" | "error" | "info" = "info",
+  duration: number = Config.UI.TOAST_DURATION,
 ): void {
-  const toast = createElement('div', ['toast', `toast-${type}`]);
+  const toast = createElement("div", ["toast", `toast-${type}`]);
   toast.textContent = message;
 
   document.body.appendChild(toast);
 
   // Trigger animation
   requestAnimationFrame(() => {
-    toast.classList.add('show');
+    toast.classList.add("show");
   });
 
   // Remove after duration
   setTimeout(() => {
-    toast.classList.remove('show');
+    toast.classList.remove("show");
     setTimeout(() => {
       document.body.removeChild(toast);
     }, 300); // Match animation duration
@@ -155,7 +155,7 @@ export function showToast(
  */
 export function handleInfiniteScroll(
   callback: () => void,
-  threshold: number = Config.UI.INFINITE_SCROLL_THRESHOLD
+  threshold: number = Config.UI.INFINITE_SCROLL_THRESHOLD,
 ): () => void {
   const handler = throttle(() => {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
@@ -165,8 +165,8 @@ export function handleInfiniteScroll(
     }
   }, 100);
 
-  window.addEventListener('scroll', handler);
-  return () => window.removeEventListener('scroll', handler);
+  window.addEventListener("scroll", handler);
+  return () => window.removeEventListener("scroll", handler);
 }
 
 /**
@@ -175,9 +175,9 @@ export function handleInfiniteScroll(
 export async function copyToClipboard(text: string): Promise<void> {
   try {
     await navigator.clipboard.writeText(text);
-    showToast('Copied to clipboard', 'success');
+    showToast("Copied to clipboard", "success");
   } catch (error) {
-    showToast('Failed to copy to clipboard', 'error');
+    showToast("Failed to copy to clipboard", "error");
   }
 }
 
@@ -185,10 +185,10 @@ export async function copyToClipboard(text: string): Promise<void> {
  * Download file.
  */
 export function downloadFile(url: string, filename: string): void {
-  const link = createElement('a', [], {
+  const link = createElement("a", [], {
     href: url,
     download: filename,
-    style: 'display: none',
+    style: "display: none",
   });
 
   document.body.appendChild(link);
@@ -200,7 +200,7 @@ export function downloadFile(url: string, filename: string): void {
  * Get file extension.
  */
 export function getFileExtension(filename: string): string {
-  return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+  return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
 }
 
 /**
@@ -208,7 +208,7 @@ export function getFileExtension(filename: string): string {
  */
 export function isMobileDevice(): boolean {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
+    navigator.userAgent,
   );
 }
 
@@ -216,7 +216,7 @@ export function isMobileDevice(): boolean {
  * Get browser language.
  */
 export function getBrowserLanguage(): string {
-  return navigator.language.split('-')[0];
+  return navigator.language.split("-")[0];
 }
 
 /**

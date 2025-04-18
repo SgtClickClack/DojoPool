@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface CacheItem<T> {
   data: T;
@@ -18,7 +18,11 @@ class StorageManager {
     return StorageManager.instance;
   }
 
-  async setItem<T>(key: string, value: T, expiresIn: number = 3600): Promise<void> {
+  async setItem<T>(
+    key: string,
+    value: T,
+    expiresIn: number = 3600,
+  ): Promise<void> {
     try {
       const item: CacheItem<T> = {
         data: value,
@@ -27,7 +31,7 @@ class StorageManager {
       };
       await AsyncStorage.setItem(key, JSON.stringify(item));
     } catch (error) {
-      console.error('Error setting item in storage:', error);
+      console.error("Error setting item in storage:", error);
       throw error;
     }
   }
@@ -48,7 +52,7 @@ class StorageManager {
 
       return item.data;
     } catch (error) {
-      console.error('Error getting item from storage:', error);
+      console.error("Error getting item from storage:", error);
       return null;
     }
   }
@@ -57,7 +61,7 @@ class StorageManager {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing item from storage:', error);
+      console.error("Error removing item from storage:", error);
       throw error;
     }
   }
@@ -66,7 +70,7 @@ class StorageManager {
     try {
       await AsyncStorage.clear();
     } catch (error) {
-      console.error('Error clearing storage:', error);
+      console.error("Error clearing storage:", error);
       throw error;
     }
   }
@@ -75,7 +79,7 @@ class StorageManager {
     try {
       return await AsyncStorage.getAllKeys();
     } catch (error) {
-      console.error('Error getting all keys from storage:', error);
+      console.error("Error getting all keys from storage:", error);
       return [];
     }
   }
@@ -84,7 +88,7 @@ class StorageManager {
     try {
       return await AsyncStorage.multiGet(keys);
     } catch (error) {
-      console.error('Error getting multiple items from storage:', error);
+      console.error("Error getting multiple items from storage:", error);
       return [];
     }
   }
@@ -93,7 +97,7 @@ class StorageManager {
     try {
       await AsyncStorage.multiRemove(keys);
     } catch (error) {
-      console.error('Error removing multiple items from storage:', error);
+      console.error("Error removing multiple items from storage:", error);
       throw error;
     }
   }

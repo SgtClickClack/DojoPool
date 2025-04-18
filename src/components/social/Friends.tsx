@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -16,9 +16,9 @@ import {
   TabPanels,
   TabPanel,
   Badge,
-} from '@chakra-ui/react';
-import { SearchIcon } from '@chakra-ui/icons';
-import axios from 'axios';
+} from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
+import axios from "axios";
 
 interface Friend {
   username: string;
@@ -29,7 +29,7 @@ interface Friend {
 export const Friends: React.FC = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
 
@@ -40,12 +40,12 @@ export const Friends: React.FC = () => {
 
   const fetchFriends = async () => {
     try {
-      const response = await axios.get('/api/friendships/?status=accepted');
+      const response = await axios.get("/api/friendships/?status=accepted");
       setFriends(response.data);
     } catch (error) {
       toast({
-        title: 'Error fetching friends',
-        status: 'error',
+        title: "Error fetching friends",
+        status: "error",
         duration: 3000,
       });
     } finally {
@@ -55,12 +55,12 @@ export const Friends: React.FC = () => {
 
   const fetchPendingRequests = async () => {
     try {
-      const response = await axios.get('/api/friendships/?status=pending');
+      const response = await axios.get("/api/friendships/?status=pending");
       setPendingRequests(response.data);
     } catch (error) {
       toast({
-        title: 'Error fetching requests',
-        status: 'error',
+        title: "Error fetching requests",
+        status: "error",
         duration: 3000,
       });
     }
@@ -68,17 +68,17 @@ export const Friends: React.FC = () => {
 
   const sendFriendRequest = async (username: string) => {
     try {
-      await axios.post('/api/friendships/send_request/', { username });
+      await axios.post("/api/friendships/send_request/", { username });
       toast({
-        title: 'Friend request sent!',
-        status: 'success',
+        title: "Friend request sent!",
+        status: "success",
         duration: 3000,
       });
       fetchPendingRequests();
     } catch (error) {
       toast({
-        title: 'Error sending friend request',
-        status: 'error',
+        title: "Error sending friend request",
+        status: "error",
         duration: 3000,
       });
     }
@@ -88,22 +88,25 @@ export const Friends: React.FC = () => {
     try {
       await axios.post(`/api/friendships/${requestId}/accept/`);
       toast({
-        title: 'Friend request accepted!',
-        status: 'success',
+        title: "Friend request accepted!",
+        status: "success",
         duration: 3000,
       });
       fetchFriends();
       fetchPendingRequests();
     } catch (error) {
       toast({
-        title: 'Error accepting friend request',
-        status: 'error',
+        title: "Error accepting friend request",
+        status: "error",
         duration: 3000,
       });
     }
   };
 
-  const FriendCard: React.FC<{ friend: Friend; isPending?: boolean }> = ({ friend, isPending }) => (
+  const FriendCard: React.FC<{ friend: Friend; isPending?: boolean }> = ({
+    friend,
+    isPending,
+  }) => (
     <HStack
       w="100%"
       bg="gray.800"
@@ -190,11 +193,7 @@ export const Friends: React.FC = () => {
           <TabPanel>
             <VStack spacing={4} align="stretch">
               {pendingRequests.map((request) => (
-                <FriendCard
-                  key={request.username}
-                  friend={request}
-                  isPending
-                />
+                <FriendCard key={request.username} friend={request} isPending />
               ))}
               {pendingRequests.length === 0 && (
                 <Text color="gray.400" textAlign="center">
@@ -217,7 +216,7 @@ export const Friends: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   bg="gray.800"
                   border="none"
-                  _focus={{ border: 'none' }}
+                  _focus={{ border: "none" }}
                 />
               </InputGroup>
               <Button
@@ -233,4 +232,4 @@ export const Friends: React.FC = () => {
       </Tabs>
     </Box>
   );
-}; 
+};

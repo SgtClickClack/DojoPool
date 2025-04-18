@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Button,
@@ -14,7 +14,7 @@ import {
   Col,
   Timeline,
   message,
-} from 'antd';
+} from "antd";
 import {
   UserOutlined,
   ClockCircleOutlined,
@@ -22,18 +22,18 @@ import {
   BarChartOutlined,
   CheckCircleOutlined,
   LogoutOutlined,
-} from '@ant-design/icons';
-import moment from 'moment';
-import { Line } from '@ant-design/charts';
+} from "@ant-design/icons";
+import moment from "moment";
+import { Line } from "@ant-design/charts";
 
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from "../../hooks/useAuth";
 import {
   checkIn,
   checkOut,
   getActiveCheckins,
   getCheckinHistory,
   getOccupancyStats,
-} from '../../api/venues';
+} from "../../api/venues";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -43,7 +43,10 @@ interface CheckInSystemProps {
   venueName: string;
 }
 
-const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => {
+const CheckInSystem: React.FC<CheckInSystemProps> = ({
+  venueId,
+  venueName,
+}) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeCheckins, setActiveCheckins] = useState<any[]>([]);
@@ -70,8 +73,8 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
       setCheckinHistory(history);
       setOccupancyStats(stats);
     } catch (error) {
-      console.error('Error fetching check-in data:', error);
-      message.error('Failed to fetch check-in data');
+      console.error("Error fetching check-in data:", error);
+      message.error("Failed to fetch check-in data");
     } finally {
       setLoading(false);
     }
@@ -80,32 +83,32 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
   const handleCheckIn = async (values: any) => {
     try {
       await checkIn(venueId, values);
-      message.success('Checked in successfully');
+      message.success("Checked in successfully");
       setCheckInModalVisible(false);
       form.resetFields();
       fetchData();
     } catch (error) {
-      console.error('Error checking in:', error);
-      message.error('Failed to check in');
+      console.error("Error checking in:", error);
+      message.error("Failed to check in");
     }
   };
 
   const handleCheckOut = async () => {
     try {
       await checkOut(venueId);
-      message.success('Checked out successfully');
+      message.success("Checked out successfully");
       fetchData();
     } catch (error) {
-      console.error('Error checking out:', error);
-      message.error('Failed to check out');
+      console.error("Error checking out:", error);
+      message.error("Failed to check out");
     }
   };
 
   const activeColumns = [
     {
-      title: 'Player',
-      dataIndex: 'username',
-      key: 'username',
+      title: "Player",
+      dataIndex: "username",
+      key: "username",
       render: (text: string, record: any) => (
         <span>
           <UserOutlined /> {text}
@@ -113,26 +116,28 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
       ),
     },
     {
-      title: 'Table',
-      dataIndex: 'table_number',
-      key: 'table_number',
+      title: "Table",
+      dataIndex: "table_number",
+      key: "table_number",
     },
     {
-      title: 'Game',
-      dataIndex: 'game_type',
-      key: 'game_type',
+      title: "Game",
+      dataIndex: "game_type",
+      key: "game_type",
     },
     {
-      title: 'Check-in Time',
-      dataIndex: 'checked_in_at',
-      key: 'checked_in_at',
-      render: (date: string) => moment(date).format('h:mm A'),
+      title: "Check-in Time",
+      dataIndex: "checked_in_at",
+      key: "checked_in_at",
+      render: (date: string) => moment(date).format("h:mm A"),
     },
     {
-      title: 'Duration',
-      key: 'duration',
+      title: "Duration",
+      key: "duration",
       render: (_, record: any) => {
-        const duration = moment.duration(moment().diff(moment(record.checked_in_at)));
+        const duration = moment.duration(
+          moment().diff(moment(record.checked_in_at)),
+        );
         return `${Math.floor(duration.asHours())}h ${duration.minutes()}m`;
       },
     },
@@ -140,27 +145,27 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
 
   const historyColumns = [
     {
-      title: 'Player',
-      dataIndex: 'username',
-      key: 'username',
+      title: "Player",
+      dataIndex: "username",
+      key: "username",
     },
     {
-      title: 'Check-in',
-      dataIndex: 'checked_in_at',
-      key: 'checked_in_at',
-      render: (date: string) => moment(date).format('MMM D, h:mm A'),
+      title: "Check-in",
+      dataIndex: "checked_in_at",
+      key: "checked_in_at",
+      render: (date: string) => moment(date).format("MMM D, h:mm A"),
     },
     {
-      title: 'Check-out',
-      dataIndex: 'checked_out_at',
-      key: 'checked_out_at',
-      render: (date: string) => (date ? moment(date).format('h:mm A') : '-'),
+      title: "Check-out",
+      dataIndex: "checked_out_at",
+      key: "checked_out_at",
+      render: (date: string) => (date ? moment(date).format("h:mm A") : "-"),
     },
     {
-      title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
-      render: (duration: string) => duration || '-',
+      title: "Duration",
+      dataIndex: "duration",
+      key: "duration",
+      render: (duration: string) => duration || "-",
     },
   ];
 
@@ -176,7 +181,12 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
         }
         extra={
           isCheckedIn ? (
-            <Button type="primary" danger icon={<LogoutOutlined />} onClick={handleCheckOut}>
+            <Button
+              type="primary"
+              danger
+              icon={<LogoutOutlined />}
+              onClick={handleCheckOut}
+            >
               Check Out
             </Button>
           ) : (
@@ -264,11 +274,11 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
                 yField="count"
                 point={{
                   size: 4,
-                  shape: 'diamond',
+                  shape: "diamond",
                 }}
                 label={{
                   style: {
-                    fill: '#aaa',
+                    fill: "#aaa",
                   },
                 }}
               />
@@ -290,7 +300,7 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
           <Form.Item
             name="table_number"
             label="Table Number"
-            rules={[{ required: true, message: 'Please enter table number' }]}
+            rules={[{ required: true, message: "Please enter table number" }]}
           >
             <Input type="number" min={1} />
           </Form.Item>
@@ -298,7 +308,7 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({ venueId, venueName }) => 
           <Form.Item
             name="game_type"
             label="Game Type"
-            rules={[{ required: true, message: 'Please select game type' }]}
+            rules={[{ required: true, message: "Please select game type" }]}
           >
             <Select>
               <Option value="8-ball">8-Ball</Option>

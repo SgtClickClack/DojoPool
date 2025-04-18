@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Container, Grid } from '@mui/material';
-import { SystemStatus } from './SystemStatus';
-import { MetricsChart } from './MetricsChart';
-import { OptimizationRecommendations } from './OptimizationRecommendations';
-import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor';
+import React, { useState, useEffect } from "react";
+import { Box, Container, Grid } from "@mui/material";
+import { SystemStatus } from "./SystemStatus";
+import { MetricsChart } from "./MetricsChart";
+import { OptimizationRecommendations } from "./OptimizationRecommendations";
+import { usePerformanceMonitor } from "../../hooks/usePerformanceMonitor";
 
 export const PerformanceDashboard: React.FC = () => {
-  const [timeRange, setTimeRange] = useState<string>('1h');
-  const { systemStatus, metricsHistory, recommendations, loading, error, fetchMetrics } =
-    usePerformanceMonitor();
+  const [timeRange, setTimeRange] = useState<string>("1h");
+  const {
+    systemStatus,
+    metricsHistory,
+    recommendations,
+    loading,
+    error,
+    fetchMetrics,
+  } = usePerformanceMonitor();
 
   useEffect(() => {
     // Initial fetch

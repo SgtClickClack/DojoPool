@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@chakra-ui/react';
+import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@chakra-ui/react";
 
 interface NotificationCounts {
   unread_messages: number;
@@ -25,54 +25,54 @@ export const useNotifications = () => {
     const ws = new WebSocket(`ws://${window.location.host}/ws/notifications/`);
 
     ws.onopen = () => {
-      console.log('WebSocket connected');
+      console.log("WebSocket connected");
     };
 
     ws.onmessage = (event) => {
       const data: NotificationMessage = JSON.parse(event.data);
 
       switch (data.type) {
-        case 'counts_update':
+        case "counts_update":
           setCounts(data as NotificationCounts);
           break;
 
-        case 'new_message':
+        case "new_message":
           toast({
-            title: 'New Message',
+            title: "New Message",
             description: `You have a new message from ${data.message.sender}`,
-            status: 'info',
+            status: "info",
             duration: 5000,
             isClosable: true,
-            position: 'top-right',
+            position: "top-right",
           });
           break;
 
-        case 'friend_request':
+        case "friend_request":
           toast({
-            title: 'Friend Request',
+            title: "Friend Request",
             description: `${data.request.sender} sent you a friend request`,
-            status: 'info',
+            status: "info",
             duration: 5000,
             isClosable: true,
-            position: 'top-right',
+            position: "top-right",
           });
           break;
 
-        case 'achievement_unlocked':
+        case "achievement_unlocked":
           toast({
-            title: 'Achievement Unlocked! 🏆',
+            title: "Achievement Unlocked! 🏆",
             description: `${data.achievement.name}: ${data.achievement.description}`,
-            status: 'success',
+            status: "success",
             duration: 7000,
             isClosable: true,
-            position: 'top-right',
+            position: "top-right",
           });
           break;
       }
     };
 
     ws.onclose = () => {
-      console.log('WebSocket disconnected');
+      console.log("WebSocket disconnected");
       // Attempt to reconnect after 3 seconds
       setTimeout(() => {
         connect();
@@ -80,7 +80,7 @@ export const useNotifications = () => {
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
     };
 
     setSocket(ws);
@@ -94,17 +94,22 @@ export const useNotifications = () => {
     connect();
   }, [connect]);
 
-  const markMessageRead = useCallback((messageId: number) => {
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({
-        command: 'mark_read',
-        message_id: messageId,
-      }));
-    }
-  }, [socket]);
+  const markMessageRead = useCallback(
+    (messageId: number) => {
+      if (socket?.readyState === WebSocket.OPEN) {
+        socket.send(
+          JSON.stringify({
+            command: "mark_read",
+            message_id: messageId,
+          }),
+        );
+      }
+    },
+    [socket],
+  );
 
   return {
     counts,
     markMessageRead,
   };
-}; 
+};

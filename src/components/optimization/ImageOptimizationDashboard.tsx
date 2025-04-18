@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -22,8 +22,8 @@ import {
   MenuItem,
   Card,
   CardMedia,
-  CardContent
-} from '@mui/material';
+  CardContent,
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -35,8 +35,8 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
-} from 'recharts';
+  Cell,
+} from "recharts";
 
 interface ImageAnalysis {
   total_images: number;
@@ -88,14 +88,17 @@ export default function ImageOptimizationDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
-  const [imagePath, setImagePath] = useState('');
-  const [targetFormat, setTargetFormat] = useState('WebP');
+  const [imagePath, setImagePath] = useState("");
+  const [targetFormat, setTargetFormat] = useState("WebP");
   const [maxWidth, setMaxWidth] = useState(1920);
   const [maxHeight, setMaxHeight] = useState(1080);
   const [quality, setQuality] = useState(85);
   const [optimizedImage, setOptimizedImage] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<ImageMetrics | null>(null);
-  const [responsiveImages, setResponsiveImages] = useState<Record<string, ResponsiveImage> | null>(null);
+  const [responsiveImages, setResponsiveImages] = useState<Record<
+    string,
+    ResponsiveImage
+  > | null>(null);
 
   useEffect(() => {
     fetchAnalysis();
@@ -104,14 +107,14 @@ export default function ImageOptimizationDashboard() {
   const fetchAnalysis = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/image');
+      const response = await fetch("/api/optimization/image");
       if (!response.ok) {
-        throw new Error('Failed to fetch image analysis');
+        throw new Error("Failed to fetch image analysis");
       }
       const data = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch analysis');
+      setError(err instanceof Error ? err.message : "Failed to fetch analysis");
     } finally {
       setLoading(false);
     }
@@ -124,30 +127,30 @@ export default function ImageOptimizationDashboard() {
   const handleOptimizeImage = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/image', {
-        method: 'POST',
+      const response = await fetch("/api/optimization/image", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'optimize_image',
+          action: "optimize_image",
           data: {
             image_path: imagePath,
             target_format: targetFormat,
             max_width: maxWidth,
             max_height: maxHeight,
-            quality: quality
-          }
+            quality: quality,
+          },
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to optimize image');
+        throw new Error("Failed to optimize image");
       }
       const data = await response.json();
       setOptimizedImage(data.image);
       setMetrics(data.metrics);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to optimize image');
+      setError(err instanceof Error ? err.message : "Failed to optimize image");
     } finally {
       setLoading(false);
     }
@@ -156,30 +159,34 @@ export default function ImageOptimizationDashboard() {
   const handleGenerateResponsive = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/image', {
-        method: 'POST',
+      const response = await fetch("/api/optimization/image", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'generate_responsive',
+          action: "generate_responsive",
           data: {
             image_path: imagePath,
             sizes: [
               [640, 480],
               [1024, 768],
-              [1920, 1080]
-            ]
-          }
+              [1920, 1080],
+            ],
+          },
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to generate responsive images');
+        throw new Error("Failed to generate responsive images");
       }
       const data = await response.json();
       setResponsiveImages(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate responsive images');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate responsive images",
+      );
     } finally {
       setLoading(false);
     }
@@ -187,7 +194,12 @@ export default function ImageOptimizationDashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -203,12 +215,12 @@ export default function ImageOptimizationDashboard() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ width: '100%', mt: 4 }}>
+      <Box sx={{ width: "100%", mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Image Optimization Dashboard
         </Typography>
 
-        <Paper sx={{ width: '100%', mb: 2 }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -232,10 +244,12 @@ export default function ImageOptimizationDashboard() {
                     Total Images: {analysis?.total_images}
                   </Typography>
                   <Typography>
-                    Total Size: {(analysis?.total_size / (1024 * 1024)).toFixed(2)} MB
+                    Total Size:{" "}
+                    {(analysis?.total_size / (1024 * 1024)).toFixed(2)} MB
                   </Typography>
                   <Typography>
-                    Average Size: {(analysis?.average_size / 1024).toFixed(2)} KB
+                    Average Size: {(analysis?.average_size / 1024).toFixed(2)}{" "}
+                    KB
                   </Typography>
                 </Paper>
               </Grid>
@@ -247,9 +261,11 @@ export default function ImageOptimizationDashboard() {
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
-                        data={Object.entries(analysis?.format_distribution || {}).map(([name, value]) => ({
+                        data={Object.entries(
+                          analysis?.format_distribution || {},
+                        ).map(([name, value]) => ({
                           name,
-                          value
+                          value,
                         }))}
                         dataKey="value"
                         nameKey="name"
@@ -258,8 +274,13 @@ export default function ImageOptimizationDashboard() {
                         outerRadius={100}
                         label
                       >
-                        {Object.entries(analysis?.format_distribution || {}).map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={`#${Math.floor(Math.random()*16777215).toString(16)}`} />
+                        {Object.entries(
+                          analysis?.format_distribution || {},
+                        ).map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -298,9 +319,7 @@ export default function ImageOptimizationDashboard() {
                       <MenuItem value="AVIF">AVIF</MenuItem>
                     </Select>
                   </FormControl>
-                  <Typography gutterBottom>
-                    Max Width: {maxWidth}px
-                  </Typography>
+                  <Typography gutterBottom>Max Width: {maxWidth}px</Typography>
                   <Slider
                     value={maxWidth}
                     onChange={(_, value) => setMaxWidth(value as number)}
@@ -322,9 +341,7 @@ export default function ImageOptimizationDashboard() {
                     valueLabelDisplay="auto"
                     sx={{ mb: 2 }}
                   />
-                  <Typography gutterBottom>
-                    Quality: {quality}%
-                  </Typography>
+                  <Typography gutterBottom>Quality: {quality}%</Typography>
                   <Slider
                     value={quality}
                     onChange={(_, value) => setQuality(value as number)}
@@ -358,16 +375,19 @@ export default function ImageOptimizationDashboard() {
                       />
                       <CardContent>
                         <Typography>
-                          Original Size: {(metrics.original_size / 1024).toFixed(2)} KB
+                          Original Size:{" "}
+                          {(metrics.original_size / 1024).toFixed(2)} KB
                         </Typography>
                         <Typography>
-                          Optimized Size: {(metrics.optimized_size / 1024).toFixed(2)} KB
+                          Optimized Size:{" "}
+                          {(metrics.optimized_size / 1024).toFixed(2)} KB
                         </Typography>
                         <Typography>
                           Reduction: {metrics.reduction_percentage.toFixed(1)}%
                         </Typography>
                         <Typography>
-                          Dimensions: {metrics.dimensions[0]}x{metrics.dimensions[1]}
+                          Dimensions: {metrics.dimensions[0]}x
+                          {metrics.dimensions[1]}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -415,7 +435,8 @@ export default function ImageOptimizationDashboard() {
                                 Size: {(image.size / 1024).toFixed(2)} KB
                               </Typography>
                               <Typography>
-                                Dimensions: {image.dimensions[0]}x{image.dimensions[1]}
+                                Dimensions: {image.dimensions[0]}x
+                                {image.dimensions[1]}
                               </Typography>
                             </CardContent>
                           </Card>
@@ -431,4 +452,4 @@ export default function ImageOptimizationDashboard() {
       </Box>
     </Container>
   );
-} 
+}

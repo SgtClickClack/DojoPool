@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Grid,
@@ -8,19 +8,19 @@ import {
   LinearProgress,
   IconButton,
   Tooltip,
-} from '@mui/material';
-import { Speed, GpsFixed, RotateRight, Timeline } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+} from "@mui/material";
+import { Speed, GpsFixed, RotateRight, Timeline } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
 
 const MetricCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
 }));
 
 const MetricIcon = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
+  display: "flex",
+  alignItems: "center",
   marginBottom: theme.spacing(1),
 }));
 
@@ -35,7 +35,7 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
     title: string,
     value: number,
     icon: React.ReactNode,
-    description: string
+    description: string,
   ) => (
     <MetricCard>
       <CardContent>
@@ -45,7 +45,11 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
             {title}
           </Typography>
         </MetricIcon>
-        <LinearProgress variant="determinate" value={value * 100} sx={{ mb: 1 }} />
+        <LinearProgress
+          variant="determinate"
+          value={value * 100}
+          sx={{ mb: 1 }}
+        />
         <Typography variant="h4" gutterBottom>
           {(value * 100).toFixed(1)}%
         </Typography>
@@ -61,34 +65,34 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={6} lg={3}>
           {renderMetricCard(
-            'Power',
+            "Power",
             0.85,
             <Speed color="primary" />,
-            'Shot power and velocity analysis'
+            "Shot power and velocity analysis",
           )}
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           {renderMetricCard(
-            'Accuracy',
+            "Accuracy",
             0.92,
             <GpsFixed color="primary" />,
-            'Shot precision and target alignment'
+            "Shot precision and target alignment",
           )}
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           {renderMetricCard(
-            'Spin',
+            "Spin",
             0.78,
             <RotateRight color="primary" />,
-            'Ball spin and rotation analysis'
+            "Ball spin and rotation analysis",
           )}
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           {renderMetricCard(
-            'Trajectory',
+            "Trajectory",
             0.88,
             <Timeline color="primary" />,
-            'Path and movement analysis'
+            "Path and movement analysis",
           )}
         </Grid>
 
@@ -100,13 +104,13 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
               </Typography>
               <Box
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: 400,
-                  bgcolor: 'background.default',
+                  bgcolor: "background.default",
                   borderRadius: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {/* Placeholder for shot trajectory visualization */}
@@ -130,8 +134,9 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
                     Shot Type
                   </Typography>
                   <Typography variant="body1" paragraph>
-                    Break shot with medium-high power and excellent accuracy. The ball trajectory
-                    shows optimal path with minimal deviation.
+                    Break shot with medium-high power and excellent accuracy.
+                    The ball trajectory shows optimal path with minimal
+                    deviation.
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -139,9 +144,9 @@ export const ShotAnalysis: React.FC<ShotAnalysisProps> = ({ gameId }) => {
                     Recommendations
                   </Typography>
                   <Typography variant="body1">
-                    - Maintain current power level for consistent results - Consider slight
-                    adjustment in spin for better control - Practice similar shots from different
-                    angles
+                    - Maintain current power level for consistent results -
+                    Consider slight adjustment in spin for better control -
+                    Practice similar shots from different angles
                   </Typography>
                 </Grid>
               </Grid>

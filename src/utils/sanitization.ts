@@ -1,5 +1,5 @@
-import { escape } from 'html-escaper';
-import validator from 'validator';
+import { escape } from "html-escaper";
+import validator from "validator";
 
 interface UserData {
   name?: string | null;
@@ -23,15 +23,16 @@ export function sanitizeUserData(data: UserData): UserData {
     sanitized.name = data.name;
   } else {
     sanitized.name = escape(data.name.toString())
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/<[^>]*>/g, "") // Remove HTML tags
       .trim();
   }
 
   if (data.email === null || data.email === undefined) {
     sanitized.email = data.email;
   } else {
-    sanitized.email = validator.escape(data.email.toString())
-      .replace(/['"]/g, '') // Remove quotes
+    sanitized.email = validator
+      .escape(data.email.toString())
+      .replace(/['"]/g, "") // Remove quotes
       .toLowerCase()
       .trim();
   }
@@ -40,14 +41,14 @@ export function sanitizeUserData(data: UserData): UserData {
     sanitized.bio = data.bio;
   } else {
     sanitized.bio = escape(data.bio.toString())
-      .replace(/;/g, '') // Remove semicolons
-      .replace(/--/g, '') // Remove SQL comments
+      .replace(/;/g, "") // Remove semicolons
+      .replace(/--/g, "") // Remove SQL comments
       .trim();
   }
 
   // Copy other properties that don't need sanitization
-  Object.keys(data).forEach(key => {
-    if (!['name', 'email', 'bio'].includes(key)) {
+  Object.keys(data).forEach((key) => {
+    if (!["name", "email", "bio"].includes(key)) {
       sanitized[key] = data[key];
     }
   });
@@ -63,8 +64,8 @@ export function sanitizeGameData(data: GameData): GameData {
     sanitized.title = data.title;
   } else {
     sanitized.title = escape(data.title.toString())
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
-      .replace(/onerror/gi, '') // Remove onerror attributes
+      .replace(/<[^>]*>/g, "") // Remove HTML tags
+      .replace(/onerror/gi, "") // Remove onerror attributes
       .trim();
   }
 
@@ -72,8 +73,8 @@ export function sanitizeGameData(data: GameData): GameData {
     sanitized.description = data.description;
   } else {
     sanitized.description = escape(data.description.toString())
-      .replace(/'/g, '') // Remove single quotes
-      .replace(/--/g, '') // Remove SQL comments
+      .replace(/'/g, "") // Remove single quotes
+      .replace(/--/g, "") // Remove SQL comments
       .trim();
   }
 
@@ -81,17 +82,17 @@ export function sanitizeGameData(data: GameData): GameData {
     sanitized.notes = data.notes;
   } else {
     sanitized.notes = escape(data.notes.toString())
-      .replace(/;/g, '') // Remove semicolons
-      .replace(/--/g, '') // Remove SQL comments
+      .replace(/;/g, "") // Remove semicolons
+      .replace(/--/g, "") // Remove SQL comments
       .trim();
   }
 
   // Copy other properties that don't need sanitization
-  Object.keys(data).forEach(key => {
-    if (!['title', 'description', 'notes'].includes(key)) {
+  Object.keys(data).forEach((key) => {
+    if (!["title", "description", "notes"].includes(key)) {
       sanitized[key] = data[key];
     }
   });
 
   return sanitized;
-} 
+}

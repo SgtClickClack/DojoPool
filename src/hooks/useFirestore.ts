@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { 
+import { useState, useCallback } from "react";
+import {
   createDocument,
   getDocument,
   updateDocument,
@@ -7,9 +7,9 @@ import {
   queryDocuments,
   getActiveGames,
   getVenuesByLocation,
-  getUpcomingTournaments
-} from '@/firebase/firestore';
-import { FirebaseResponse } from '@/firebase/types';
+  getUpcomingTournaments,
+} from "@/firebase/firestore";
+import { FirebaseResponse } from "@/firebase/types";
 
 export const useFirestore = () => {
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,10 @@ export const useFirestore = () => {
     setTimeout(() => setError(null), 5000);
   };
 
-  const create = async <T>(collection: string, data: T): Promise<FirebaseResponse<string>> => {
+  const create = async <T>(
+    collection: string,
+    data: T,
+  ): Promise<FirebaseResponse<string>> => {
     try {
       setLoading(true);
       const result = await createDocument(collection, data);
@@ -34,7 +37,10 @@ export const useFirestore = () => {
     }
   };
 
-  const get = async <T>(collection: string, id: string): Promise<FirebaseResponse<T>> => {
+  const get = async <T>(
+    collection: string,
+    id: string,
+  ): Promise<FirebaseResponse<T>> => {
     try {
       setLoading(true);
       const result = await getDocument(collection, id);
@@ -48,7 +54,11 @@ export const useFirestore = () => {
     }
   };
 
-  const update = async <T>(collection: string, id: string, data: Partial<T>): Promise<FirebaseResponse<void>> => {
+  const update = async <T>(
+    collection: string,
+    id: string,
+    data: Partial<T>,
+  ): Promise<FirebaseResponse<void>> => {
     try {
       setLoading(true);
       const result = await updateDocument(collection, id, data);
@@ -62,7 +72,10 @@ export const useFirestore = () => {
     }
   };
 
-  const remove = async (collection: string, id: string): Promise<FirebaseResponse<void>> => {
+  const remove = async (
+    collection: string,
+    id: string,
+  ): Promise<FirebaseResponse<void>> => {
     try {
       setLoading(true);
       const result = await deleteDocument(collection, id);
@@ -76,7 +89,11 @@ export const useFirestore = () => {
     }
   };
 
-  const query = async <T>(collection: string, constraints: any[] = [], limit: number = 10): Promise<FirebaseResponse<T[]>> => {
+  const query = async <T>(
+    collection: string,
+    constraints: any[] = [],
+    limit: number = 10,
+  ): Promise<FirebaseResponse<T[]>> => {
     try {
       setLoading(true);
       const result = await queryDocuments(collection, constraints, limit);
@@ -105,19 +122,22 @@ export const useFirestore = () => {
     }
   }, []);
 
-  const getVenues = useCallback(async (location: string, limit: number = 10) => {
-    try {
-      setLoading(true);
-      const result = await getVenuesByLocation(location, limit);
-      if (!result.success) throw new Error(result.error);
-      return result;
-    } catch (error: any) {
-      handleError(error);
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const getVenues = useCallback(
+    async (location: string, limit: number = 10) => {
+      try {
+        setLoading(true);
+        const result = await getVenuesByLocation(location, limit);
+        if (!result.success) throw new Error(result.error);
+        return result;
+      } catch (error: any) {
+        handleError(error);
+        return { success: false, error: error.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const getUpcoming = useCallback(async (limit: number = 10) => {
     try {
@@ -143,6 +163,6 @@ export const useFirestore = () => {
     query,
     getActive,
     getVenues,
-    getUpcoming
+    getUpcoming,
   };
-}; 
+};

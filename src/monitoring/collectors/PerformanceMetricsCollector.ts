@@ -1,5 +1,5 @@
-import { MetricsCollector, MetricsData } from './MetricsCollector';
-import os from 'os';
+import { MetricsCollector, MetricsData } from "./MetricsCollector";
+import os from "os";
 
 interface PerformanceMetrics extends MetricsData {
   operationLatency: number;
@@ -43,14 +43,17 @@ export class PerformanceMetricsCollector extends MetricsCollector<PerformanceMet
     const timeDiff = (now - this.lastCollectionTime) / 1000; // Convert to seconds
 
     // Calculate operation latency
-    const avgLatency = this.operationTimes.length > 0
-      ? this.operationTimes.reduce((sum, time) => sum + time, 0) / this.operationTimes.length
-      : 0;
+    const avgLatency =
+      this.operationTimes.length > 0
+        ? this.operationTimes.reduce((sum, time) => sum + time, 0) /
+          this.operationTimes.length
+        : 0;
 
     // Calculate error rate
-    const errorRate = this.operationCount > 0
-      ? (this.errorCount / this.operationCount) * 100
-      : 0;
+    const errorRate =
+      this.operationCount > 0
+        ? (this.errorCount / this.operationCount) * 100
+        : 0;
 
     // Calculate throughput (operations per second)
     const throughput = this.operationCount / timeDiff;
@@ -75,7 +78,7 @@ export class PerformanceMetricsCollector extends MetricsCollector<PerformanceMet
       memoryUsage: memPercent,
       networkUsage: 0, // Implement actual network usage monitoring if needed
       diskUsage,
-      queueLength: this.queueSize
+      queueLength: this.queueSize,
     };
 
     // Update last collection time and CPU usage
@@ -99,4 +102,4 @@ export class PerformanceMetricsCollector extends MetricsCollector<PerformanceMet
     this.lastCollectionTime = Date.now();
     this.lastCpuUsage = process.cpuUsage();
   }
-} 
+}

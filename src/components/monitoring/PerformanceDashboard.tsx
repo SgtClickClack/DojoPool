@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -9,8 +9,8 @@ import {
   Tab,
   CircularProgress,
   Alert,
-  LinearProgress
-} from '@mui/material';
+  LinearProgress,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -21,8 +21,8 @@ import {
   Legend,
   ResponsiveContainer,
   BarChart,
-  Bar
-} from 'recharts';
+  Bar,
+} from "recharts";
 
 interface SystemMetrics {
   cpu: {
@@ -119,25 +119,27 @@ export default function PerformanceDashboard() {
   const fetchMetrics = async () => {
     try {
       setLoading(true);
-      const types = ['system', 'api', 'database', 'cache'];
+      const types = ["system", "api", "database", "cache"];
       const metrics = await Promise.all(
         types.map(async (type) => {
-          const response = await fetch(`/api/monitoring/performance?type=${type}`);
+          const response = await fetch(
+            `/api/monitoring/performance?type=${type}`,
+          );
           if (!response.ok) {
             throw new Error(`Failed to fetch ${type} metrics`);
           }
           return response.json();
-        })
+        }),
       );
 
       setData({
         system: metrics[0],
         api: metrics[1],
         database: metrics[2],
-        cache: metrics[3]
+        cache: metrics[3],
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch metrics');
+      setError(err instanceof Error ? err.message : "Failed to fetch metrics");
     } finally {
       setLoading(false);
     }
@@ -149,7 +151,12 @@ export default function PerformanceDashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -165,12 +172,12 @@ export default function PerformanceDashboard() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ width: '100%', mt: 4 }}>
+      <Box sx={{ width: "100%", mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Performance Dashboard
         </Typography>
 
-        <Paper sx={{ width: '100%', mb: 2 }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -212,10 +219,15 @@ export default function PerformanceDashboard() {
                   </Typography>
                   <Typography>Usage: {data.system?.memory.percent}%</Typography>
                   <Typography>
-                    Used: {Math.round(data.system?.memory.used || 0 / 1024 / 1024)}MB
+                    Used:{" "}
+                    {Math.round(data.system?.memory.used || 0 / 1024 / 1024)}MB
                   </Typography>
                   <Typography>
-                    Available: {Math.round(data.system?.memory.available || 0 / 1024 / 1024)}MB
+                    Available:{" "}
+                    {Math.round(
+                      data.system?.memory.available || 0 / 1024 / 1024,
+                    )}
+                    MB
                   </Typography>
                   <Box sx={{ mt: 2 }}>
                     <LinearProgress
@@ -233,10 +245,12 @@ export default function PerformanceDashboard() {
                   </Typography>
                   <Typography>Usage: {data.system?.disk.percent}%</Typography>
                   <Typography>
-                    Used: {Math.round(data.system?.disk.used || 0 / 1024 / 1024)}MB
+                    Used:{" "}
+                    {Math.round(data.system?.disk.used || 0 / 1024 / 1024)}MB
                   </Typography>
                   <Typography>
-                    Free: {Math.round(data.system?.disk.free || 0 / 1024 / 1024)}MB
+                    Free:{" "}
+                    {Math.round(data.system?.disk.free || 0 / 1024 / 1024)}MB
                   </Typography>
                   <Box sx={{ mt: 2 }}>
                     <LinearProgress
@@ -257,7 +271,9 @@ export default function PerformanceDashboard() {
                   <Typography variant="h6" gutterBottom>
                     API Overview
                   </Typography>
-                  <Typography>Total Requests: {data.api?.total_requests}</Typography>
+                  <Typography>
+                    Total Requests: {data.api?.total_requests}
+                  </Typography>
                   <Typography>
                     Average Response Time: {data.api?.average_response_time}ms
                   </Typography>
@@ -271,9 +287,9 @@ export default function PerformanceDashboard() {
                   </Typography>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart
-                      data={Object.entries(data.api?.requests_by_type || {}).map(
-                        ([type, count]) => ({ type, count })
-                      )}
+                      data={Object.entries(
+                        data.api?.requests_by_type || {},
+                      ).map(([type, count]) => ({ type, count }))}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="type" />
@@ -341,9 +357,8 @@ export default function PerformanceDashboard() {
                     Hit Rate: {(data.cache?.hit_rate || 0 * 100).toFixed(2)}%
                   </Typography>
                   <Typography>
-                    Memory Used: {Math.round(
-                      (data.cache?.memory_used || 0) / 1024 / 1024
-                    )}MB
+                    Memory Used:{" "}
+                    {Math.round((data.cache?.memory_used || 0) / 1024 / 1024)}MB
                   </Typography>
                   <Typography>
                     Connected Clients: {data.cache?.connected_clients}
@@ -370,4 +385,4 @@ export default function PerformanceDashboard() {
       </Box>
     </Container>
   );
-} 
+}

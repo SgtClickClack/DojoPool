@@ -32,7 +32,7 @@ class ReviewComponent {
                         <button class="btn btn-primary btn-sm submit-review">Submit Review</button>
                     </div>
                 `
-                    : ''
+                    : ""
                 }
                 <div class="review-content mt-3" style="display: none;">
                     <div class="review-text"></div>
@@ -52,7 +52,7 @@ class ReviewComponent {
                                 </button>
                             </div>
                         `
-                            : ''
+                            : ""
                         }
                         <div class="review-actions">
                             <button class="btn btn-sm btn-link report-review">Report</button>
@@ -62,7 +62,7 @@ class ReviewComponent {
                                 <button class="btn btn-sm btn-link edit-review">Edit</button>
                                 <button class="btn btn-sm btn-link delete-review">Delete</button>
                             `
-                                : ''
+                                : ""
                             }
                         </div>
                     </div>
@@ -78,56 +78,56 @@ class ReviewComponent {
                             </div>
                         </div>
                     `
-                        : ''
+                        : ""
                     }
                 </div>
             </div>
         `;
 
     // Store references to elements
-    this.reviewForm = this.container.querySelector('.review-form');
-    this.reviewInput = this.container.querySelector('.review-form textarea');
-    this.submitButton = this.container.querySelector('.submit-review');
-    this.reviewContent = this.container.querySelector('.review-content');
-    this.reviewText = this.container.querySelector('.review-text');
-    this.reviewDate = this.container.querySelector('.review-date');
-    this.helpfulButton = this.container.querySelector('.vote-helpful');
-    this.unhelpfulButton = this.container.querySelector('.vote-unhelpful');
-    this.helpfulCount = this.container.querySelector('.helpful-count');
-    this.unhelpfulCount = this.container.querySelector('.unhelpful-count');
-    this.reportButton = this.container.querySelector('.report-review');
-    this.editButton = this.container.querySelector('.edit-review');
-    this.deleteButton = this.container.querySelector('.delete-review');
-    this.responsesList = this.container.querySelector('.responses-list');
-    this.responseForm = this.container.querySelector('.response-form');
+    this.reviewForm = this.container.querySelector(".review-form");
+    this.reviewInput = this.container.querySelector(".review-form textarea");
+    this.submitButton = this.container.querySelector(".submit-review");
+    this.reviewContent = this.container.querySelector(".review-content");
+    this.reviewText = this.container.querySelector(".review-text");
+    this.reviewDate = this.container.querySelector(".review-date");
+    this.helpfulButton = this.container.querySelector(".vote-helpful");
+    this.unhelpfulButton = this.container.querySelector(".vote-unhelpful");
+    this.helpfulCount = this.container.querySelector(".helpful-count");
+    this.unhelpfulCount = this.container.querySelector(".unhelpful-count");
+    this.reportButton = this.container.querySelector(".report-review");
+    this.editButton = this.container.querySelector(".edit-review");
+    this.deleteButton = this.container.querySelector(".delete-review");
+    this.responsesList = this.container.querySelector(".responses-list");
+    this.responseForm = this.container.querySelector(".response-form");
     this.responseInput = this.container.querySelector(
-      '.response-form textarea'
+      ".response-form textarea",
     );
     this.submitResponseButton =
-      this.container.querySelector('.submit-response');
+      this.container.querySelector(".submit-response");
   }
 
   bindEvents() {
     if (!this.options.readOnly) {
-      this.submitButton?.addEventListener('click', () => this.submitReview());
-      this.editButton?.addEventListener('click', () => this.editReview());
-      this.deleteButton?.addEventListener('click', () => this.deleteReview());
+      this.submitButton?.addEventListener("click", () => this.submitReview());
+      this.editButton?.addEventListener("click", () => this.editReview());
+      this.deleteButton?.addEventListener("click", () => this.deleteReview());
     }
 
     if (this.options.showVoting) {
-      this.helpfulButton?.addEventListener('click', () =>
-        this.voteReview(true)
+      this.helpfulButton?.addEventListener("click", () =>
+        this.voteReview(true),
       );
-      this.unhelpfulButton?.addEventListener('click', () =>
-        this.voteReview(false)
+      this.unhelpfulButton?.addEventListener("click", () =>
+        this.voteReview(false),
       );
     }
 
-    this.reportButton?.addEventListener('click', () => this.reportReview());
+    this.reportButton?.addEventListener("click", () => this.reportReview());
 
     if (this.options.showResponses) {
-      this.submitResponseButton?.addEventListener('click', () =>
-        this.submitResponse()
+      this.submitResponseButton?.addEventListener("click", () =>
+        this.submitResponse(),
       );
     }
   }
@@ -135,14 +135,14 @@ class ReviewComponent {
   async loadReview() {
     try {
       const response = await fetch(`/api/v1/reviews/${this.options.ratingId}`);
-      if (!response.ok) throw new Error('Failed to load review');
+      if (!response.ok) throw new Error("Failed to load review");
 
       const data = await response.json();
       this.displayReview(data);
     } catch (error) {
-      console.error('Load review error:', error);
+      console.error("Load review error:", error);
       if (window.showToast) {
-        window.showToast('error', 'Failed to load review');
+        window.showToast("error", "Failed to load review");
       }
     }
   }
@@ -151,13 +151,13 @@ class ReviewComponent {
     try {
       const content = this.reviewInput.value.trim();
       if (!content) {
-        throw new Error('Review content is required');
+        throw new Error("Review content is required");
       }
 
-      const response = await fetch('/api/v1/reviews', {
-        method: 'POST',
+      const response = await fetch("/api/v1/reviews", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           rating_id: this.options.ratingId,
@@ -165,19 +165,19 @@ class ReviewComponent {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to submit review');
+      if (!response.ok) throw new Error("Failed to submit review");
 
       const data = await response.json();
       this.options.onUpdate(data);
       this.loadReview();
 
       if (window.showToast) {
-        window.showToast('success', 'Review submitted successfully');
+        window.showToast("success", "Review submitted successfully");
       }
     } catch (error) {
-      console.error('Submit review error:', error);
+      console.error("Submit review error:", error);
       if (window.showToast) {
-        window.showToast('error', error.message);
+        window.showToast("error", error.message);
       }
     }
   }
@@ -187,54 +187,54 @@ class ReviewComponent {
       const response = await fetch(
         `/api/v1/reviews/${this.options.ratingId}/vote`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             is_helpful: isHelpful,
           }),
-        }
+        },
       );
 
-      if (!response.ok) throw new Error('Failed to vote');
+      if (!response.ok) throw new Error("Failed to vote");
 
       this.loadReview();
     } catch (error) {
-      console.error('Vote error:', error);
+      console.error("Vote error:", error);
       if (window.showToast) {
-        window.showToast('error', 'Failed to vote on review');
+        window.showToast("error", "Failed to vote on review");
       }
     }
   }
 
   async reportReview() {
-    const reason = prompt('Please provide a reason for reporting this review:');
+    const reason = prompt("Please provide a reason for reporting this review:");
     if (!reason) return;
 
     try {
       const response = await fetch(
         `/api/v1/reviews/${this.options.ratingId}/report`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             reason: reason,
           }),
-        }
+        },
       );
 
-      if (!response.ok) throw new Error('Failed to report review');
+      if (!response.ok) throw new Error("Failed to report review");
 
       if (window.showToast) {
-        window.showToast('success', 'Review reported successfully');
+        window.showToast("success", "Review reported successfully");
       }
     } catch (error) {
-      console.error('Report error:', error);
+      console.error("Report error:", error);
       if (window.showToast) {
-        window.showToast('error', 'Failed to report review');
+        window.showToast("error", "Failed to report review");
       }
     }
   }
@@ -243,34 +243,34 @@ class ReviewComponent {
     try {
       const content = this.responseInput.value.trim();
       if (!content) {
-        throw new Error('Response content is required');
+        throw new Error("Response content is required");
       }
 
       const response = await fetch(
         `/api/v1/reviews/${this.options.ratingId}/responses`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             content: content,
           }),
-        }
+        },
       );
 
-      if (!response.ok) throw new Error('Failed to submit response');
+      if (!response.ok) throw new Error("Failed to submit response");
 
-      this.responseInput.value = '';
+      this.responseInput.value = "";
       this.loadReview();
 
       if (window.showToast) {
-        window.showToast('success', 'Response submitted successfully');
+        window.showToast("success", "Response submitted successfully");
       }
     } catch (error) {
-      console.error('Submit response error:', error);
+      console.error("Submit response error:", error);
       if (window.showToast) {
-        window.showToast('error', error.message);
+        window.showToast("error", error.message);
       }
     }
   }
@@ -278,10 +278,10 @@ class ReviewComponent {
   displayReview(data) {
     if (!data) return;
 
-    this.reviewContent.style.display = 'block';
+    this.reviewContent.style.display = "block";
     this.reviewText.textContent = data.content;
     this.reviewDate.textContent = new Date(
-      data.created_at
+      data.created_at,
     ).toLocaleDateString();
 
     if (this.options.showVoting) {
@@ -306,13 +306,13 @@ class ReviewComponent {
                     By ${response.user_name} on ${new Date(response.created_at).toLocaleDateString()}
                 </small>
             </div>
-        `
+        `,
       )
-      .join('');
+      .join("");
   }
 }
 
 // Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = ReviewComponent;
 }

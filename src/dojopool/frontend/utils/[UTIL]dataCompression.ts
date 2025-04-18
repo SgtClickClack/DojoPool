@@ -1,4 +1,4 @@
-import { deflate, inflate } from 'pako';
+import { deflate, inflate } from "pako";
 
 interface CompressionConfig {
   compressionLevel: number; // 1-9, where 9 is max compression
@@ -48,7 +48,10 @@ export class DataCompressor {
       .toString(16);
   }
 
-  private async compressChunk(data: string, index: number): Promise<CompressedChunk> {
+  private async compressChunk(
+    data: string,
+    index: number,
+  ): Promise<CompressedChunk> {
     const compressedData = deflate(data, {
       level: this.config.compressionLevel,
     });
@@ -66,13 +69,13 @@ export class DataCompressor {
       throw new Error(`Checksum mismatch for chunk ${chunk.index}`);
     }
 
-    const decompressedData = inflate(chunk.data, { to: 'string' });
+    const decompressedData = inflate(chunk.data, { to: "string" });
     return decompressedData;
   }
 
   async compressData(
     data: any,
-    dataType: string
+    dataType: string,
   ): Promise<{ compressed: CompressedChunk[]; metadata: ArchiveMetadata }> {
     const jsonString = JSON.stringify(data);
     const originalSize = new TextEncoder().encode(jsonString).length;
@@ -85,10 +88,13 @@ export class DataCompressor {
 
     // Compress each chunk
     const compressedChunks = await Promise.all(
-      chunks.map((chunk, index) => this.compressChunk(chunk, index))
+      chunks.map((chunk, index) => this.compressChunk(chunk, index)),
     );
 
-    const compressedSize = compressedChunks.reduce((size, chunk) => size + chunk.data.length, 0);
+    const compressedSize = compressedChunks.reduce(
+      (size, chunk) => size + chunk.data.length,
+      0,
+    );
 
     const metadata: ArchiveMetadata = {
       timestamp: Date.now(),
@@ -105,22 +111,27 @@ export class DataCompressor {
     };
   }
 
-  async decompressData<T>(chunks: CompressedChunk[], metadata: ArchiveMetadata): Promise<T> {
+  async decompressData<T>(
+    chunks: CompressedChunk[],
+    metadata: ArchiveMetadata,
+  ): Promise<T> {
     // Sort chunks by index
     const sortedChunks = [...chunks].sort((a, b) => a.index - b.index);
 
     // Decompress all chunks
     const decompressedChunks = await Promise.all(
-      sortedChunks.map((chunk) => this.decompressChunk(chunk))
+      sortedChunks.map((chunk) => this.decompressChunk(chunk)),
     );
 
     // Combine chunks
-    const jsonString = decompressedChunks.join('');
+    const jsonString = decompressedChunks.join("");
 
     // Verify checksum
-    const verifyChecksum = this.calculateChecksum(new TextEncoder().encode(jsonString));
+    const verifyChecksum = this.calculateChecksum(
+      new TextEncoder().encode(jsonString),
+    );
     if (verifyChecksum !== metadata.checksum) {
-      throw new Error('Data integrity check failed');
+      throw new Error("Data integrity check failed");
     }
 
     return JSON.parse(jsonString);
@@ -133,7 +144,7 @@ export class DataCompressor {
 
   async archiveData(
     data: any,
-    dataType: string
+    dataType: string,
   ): Promise<{ archiveKey: string; metadata: ArchiveMetadata }> {
     const { compressed, metadata } = await this.compressData(data, dataType);
     const archiveKey = `${dataType}_${metadata.timestamp}`;
@@ -149,10 +160,10 @@ export class DataCompressor {
 
       return { archiveKey, metadata };
     } catch (error) {
-      if (error instanceof Error && error.name === 'QuotaExceededError') {
+      if (error instanceof Error && error.name === "QuotaExceededError") {
         // Handle storage quota exceeded
         this.handleStorageQuotaExceeded();
-        throw new Error('Storage quota exceeded while archiving data');
+        throw new Error("Storage quota exceeded while archiving data");
       }
       throw error;
     }
@@ -177,8 +188,8 @@ export class DataCompressor {
       try {
         localStorage.removeItem(archive.key);
         // Try to store a small test item to see if we have space
-        localStorage.setItem('test', '1');
-        localStorage.removeItem('test');
+        localStorage.setItem("test", "1");
+        localStorage.removeItem("test");
         break;
       } catch (error) {
         // Continue removing if still out of space
@@ -195,7 +206,7 @@ export class DataCompressor {
       if (!key) continue;
 
       try {
-        const archiveData = JSON.parse(localStorage.getItem(key) || '');
+        const archiveData = JSON.parse(localStorage.getItem(key) || "");
         if (archiveData.metadata) {
           archives.push({
             key,
@@ -219,11 +230,11 @@ export class DataCompressor {
     const archives = this.listArchives();
     const totalOriginalSize = archives.reduce(
       (sum, archive) => sum + archive.metadata.originalSize,
-      0
+      0,
     );
     const totalCompressedSize = archives.reduce(
       (sum, archive) => sum + archive.metadata.compressedSize,
-      0
+      0,
     );
 
     return {

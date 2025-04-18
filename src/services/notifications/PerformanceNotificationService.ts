@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer';
-import { WebClient } from '@slack/web-api';
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-import { AlertHistoryService } from '../AlertHistoryService';
+import nodemailer from "nodemailer";
+import { WebClient } from "@slack/web-api";
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+import { AlertHistoryService } from "../AlertHistoryService";
 
 interface NotificationConfig {
   email?: {
@@ -30,7 +30,7 @@ interface NotificationConfig {
 }
 
 export interface PerformanceAlert {
-  type: 'regression' | 'violation' | 'warning';
+  type: "regression" | "violation" | "warning";
   metric: string;
   value: number;
   threshold?: number;
@@ -46,7 +46,10 @@ export class PerformanceNotificationService {
   private snsClient: SNSClient | null = null;
   private alertHistoryService: AlertHistoryService;
 
-  constructor(config: NotificationConfig, alertHistoryService: AlertHistoryService) {
+  constructor(
+    config: NotificationConfig,
+    alertHistoryService: AlertHistoryService,
+  ) {
     this.config = config;
     this.alertHistoryService = alertHistoryService;
     this.initializeClients();
@@ -55,7 +58,9 @@ export class PerformanceNotificationService {
   private async initializeClients() {
     // Initialize email client
     if (this.config.email?.enabled && this.config.email.smtpConfig) {
-      this.emailTransporter = nodemailer.createTransport(this.config.email.smtpConfig);
+      this.emailTransporter = nodemailer.createTransport(
+        this.config.email.smtpConfig,
+      );
     }
 
     // Initialize Slack client
@@ -66,7 +71,7 @@ export class PerformanceNotificationService {
     // Initialize SNS client
     if (this.config.sns?.enabled) {
       this.snsClient = new SNSClient({
-        region: this.config.sns.region
+        region: this.config.sns.region,
       });
     }
   }
@@ -98,7 +103,7 @@ export class PerformanceNotificationService {
       to: this.config.email.recipients,
       subject: `Performance Alert: ${alert.type.toUpperCase()} - ${alert.metric}`,
       text: message,
-      html: message.replace(/\n/g, '<br>')
+      html: message.replace(/\n/g, "<br>"),
     });
   }
 
@@ -111,13 +116,13 @@ export class PerformanceNotificationService {
       text: message,
       blocks: [
         {
-          type: 'section',
+          type: "section",
           text: {
-            type: 'mrkdwn',
-            text: message
-          }
-        }
-      ]
+            type: "mrkdwn",
+            text: message,
+          },
+        },
+      ],
     });
   }
 
@@ -128,7 +133,7 @@ export class PerformanceNotificationService {
     const command = new PublishCommand({
       TopicArn: this.config.sns.topicArn,
       Subject: `Performance Alert: ${alert.type.toUpperCase()} - ${alert.metric}`,
-      Message: message
+      Message: message,
     });
 
     await this.snsClient.send(command);
@@ -138,7 +143,7 @@ export class PerformanceNotificationService {
     const notificationsSent = {
       email: false,
       slack: false,
-      sns: false
+      sns: false,
     };
 
     const promises: Promise<void>[] = [];
@@ -146,30 +151,36 @@ export class PerformanceNotificationService {
     if (this.config.email?.enabled) {
       promises.push(
         this.sendEmailAlert(alert)
-          .then(() => { notificationsSent.email = true; })
-          .catch(error => {
-            console.error('Failed to send email alert:', error);
+          .then(() => {
+            notificationsSent.email = true;
           })
+          .catch((error) => {
+            console.error("Failed to send email alert:", error);
+          }),
       );
     }
 
     if (this.config.slack?.enabled) {
       promises.push(
         this.sendSlackAlert(alert)
-          .then(() => { notificationsSent.slack = true; })
-          .catch(error => {
-            console.error('Failed to send Slack alert:', error);
+          .then(() => {
+            notificationsSent.slack = true;
           })
+          .catch((error) => {
+            console.error("Failed to send Slack alert:", error);
+          }),
       );
     }
 
     if (this.config.sns?.enabled) {
       promises.push(
         this.sendSNSAlert(alert)
-          .then(() => { notificationsSent.sns = true; })
-          .catch(error => {
-            console.error('Failed to send SNS alert:', error);
+          .then(() => {
+            notificationsSent.sns = true;
           })
+          .catch((error) => {
+            console.error("Failed to send SNS alert:", error);
+          }),
       );
     }
 
@@ -179,11 +190,11 @@ export class PerformanceNotificationService {
     try {
       await this.alertHistoryService.createAlert(alert, notificationsSent);
     } catch (error) {
-      console.error('Failed to store alert in history:', error);
+      console.error("Failed to store alert in history:", error);
     }
   }
 
   public async sendBatchAlerts(alerts: PerformanceAlert[]): Promise<void> {
-    await Promise.all(alerts.map(alert => this.sendAlert(alert)));
+    await Promise.all(alerts.map((alert) => this.sendAlert(alert)));
   }
-} 
+}

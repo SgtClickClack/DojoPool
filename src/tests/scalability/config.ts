@@ -1,4 +1,4 @@
-import { PerformanceMonitor } from '../../config/performance';
+import { PerformanceMonitor } from "../../config/performance";
 
 // Scalability test thresholds
 export const scalabilityThresholds = {
@@ -60,68 +60,68 @@ export const scalabilityScenarios = {
   // Load test scenarios
   loadTest: {
     rampUp: [
-      { duration: '5m', target: 1000 }, // Ramp up to 1000 users over 5 minutes
-      { duration: '10m', target: 1000 }, // Stay at 1000 users for 10 minutes
-      { duration: '5m', target: 2000 }, // Ramp up to 2000 users over 5 minutes
-      { duration: '10m', target: 2000 }, // Stay at 2000 users for 10 minutes
-      { duration: '5m', target: 5000 }, // Ramp up to 5000 users over 5 minutes
-      { duration: '10m', target: 5000 }, // Stay at 5000 users for 10 minutes
-      { duration: '5m', target: 0 }, // Ramp down to 0 users over 5 minutes
+      { duration: "5m", target: 1000 }, // Ramp up to 1000 users over 5 minutes
+      { duration: "10m", target: 1000 }, // Stay at 1000 users for 10 minutes
+      { duration: "5m", target: 2000 }, // Ramp up to 2000 users over 5 minutes
+      { duration: "10m", target: 2000 }, // Stay at 2000 users for 10 minutes
+      { duration: "5m", target: 5000 }, // Ramp up to 5000 users over 5 minutes
+      { duration: "10m", target: 5000 }, // Stay at 5000 users for 10 minutes
+      { duration: "5m", target: 0 }, // Ramp down to 0 users over 5 minutes
     ],
     thresholds: {
-      'http_req_duration': ['p(95)<800'],
-      'ws_connection_time': ['p(95)<300'],
-      'game_event_duration': ['p(95)<200'],
+      http_req_duration: ["p(95)<800"],
+      ws_connection_time: ["p(95)<300"],
+      game_event_duration: ["p(95)<200"],
     },
   },
 
   // Stress test scenarios
   stressTest: {
     rampUp: [
-      { duration: '5m', target: 5000 }, // Ramp up to 5000 users over 5 minutes
-      { duration: '10m', target: 5000 }, // Stay at 5000 users for 10 minutes
-      { duration: '5m', target: 7500 }, // Ramp up to 7500 users over 5 minutes
-      { duration: '10m', target: 7500 }, // Stay at 7500 users for 10 minutes
-      { duration: '5m', target: 10000 }, // Ramp up to 10000 users over 5 minutes
-      { duration: '10m', target: 10000 }, // Stay at 10000 users for 10 minutes
-      { duration: '5m', target: 0 }, // Ramp down to 0 users over 5 minutes
+      { duration: "5m", target: 5000 }, // Ramp up to 5000 users over 5 minutes
+      { duration: "10m", target: 5000 }, // Stay at 5000 users for 10 minutes
+      { duration: "5m", target: 7500 }, // Ramp up to 7500 users over 5 minutes
+      { duration: "10m", target: 7500 }, // Stay at 7500 users for 10 minutes
+      { duration: "5m", target: 10000 }, // Ramp up to 10000 users over 5 minutes
+      { duration: "10m", target: 10000 }, // Stay at 10000 users for 10 minutes
+      { duration: "5m", target: 0 }, // Ramp down to 0 users over 5 minutes
     ],
     thresholds: {
-      'http_req_duration': ['p(99)<1500'],
-      'ws_connection_time': ['p(99)<500'],
-      'game_event_duration': ['p(99)<400'],
+      http_req_duration: ["p(99)<1500"],
+      ws_connection_time: ["p(99)<500"],
+      game_event_duration: ["p(99)<400"],
     },
   },
 
   // Spike test scenarios
   spikeTest: {
     rampUp: [
-      { duration: '1m', target: 1000 }, // Quick ramp up to 1000 users
-      { duration: '2m', target: 1000 }, // Hold at 1000 users
-      { duration: '1m', target: 10000 }, // Sudden spike to 10000 users
-      { duration: '2m', target: 10000 }, // Hold at 10000 users
-      { duration: '1m', target: 1000 }, // Quick drop to 1000 users
-      { duration: '2m', target: 1000 }, // Hold at 1000 users
-      { duration: '1m', target: 0 }, // Ramp down to 0
+      { duration: "1m", target: 1000 }, // Quick ramp up to 1000 users
+      { duration: "2m", target: 1000 }, // Hold at 1000 users
+      { duration: "1m", target: 10000 }, // Sudden spike to 10000 users
+      { duration: "2m", target: 10000 }, // Hold at 10000 users
+      { duration: "1m", target: 1000 }, // Quick drop to 1000 users
+      { duration: "2m", target: 1000 }, // Hold at 1000 users
+      { duration: "1m", target: 0 }, // Ramp down to 0
     ],
     thresholds: {
-      'http_req_duration': ['p(99)<2000'],
-      'ws_connection_time': ['p(99)<1000'],
-      'game_event_duration': ['p(99)<800'],
+      http_req_duration: ["p(99)<2000"],
+      ws_connection_time: ["p(99)<1000"],
+      game_event_duration: ["p(99)<800"],
     },
   },
 
   // Endurance test scenarios
   enduranceTest: {
     rampUp: [
-      { duration: '10m', target: 2000 }, // Ramp up to 2000 users over 10 minutes
-      { duration: '4h', target: 2000 }, // Stay at 2000 users for 4 hours
-      { duration: '10m', target: 0 }, // Ramp down to 0 users over 10 minutes
+      { duration: "10m", target: 2000 }, // Ramp up to 2000 users over 10 minutes
+      { duration: "4h", target: 2000 }, // Stay at 2000 users for 4 hours
+      { duration: "10m", target: 0 }, // Ramp down to 0 users over 10 minutes
     ],
     thresholds: {
-      'http_req_duration': ['p(95)<800', 'p(99)<1500'],
-      'ws_connection_time': ['p(95)<300', 'p(99)<500'],
-      'game_event_duration': ['p(95)<200', 'p(99)<400'],
+      http_req_duration: ["p(95)<800", "p(99)<1500"],
+      ws_connection_time: ["p(95)<300", "p(99)<500"],
+      game_event_duration: ["p(95)<200", "p(99)<400"],
     },
   },
 };
@@ -188,4 +188,4 @@ export const testDataConfig = {
 };
 
 // Export performance monitor instance
-export const monitor = PerformanceMonitor.getInstance(); 
+export const monitor = PerformanceMonitor.getInstance();

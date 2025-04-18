@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Card,
@@ -10,7 +10,7 @@ import {
   Tooltip,
   IconButton,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Speed as PerformanceIcon,
   Psychology as AccuracyIcon,
@@ -18,7 +18,7 @@ import {
   Refresh as RefreshRateIcon,
   Memory as ResourceIcon,
   Info as InfoIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface MetricData {
   current: number;
@@ -60,29 +60,32 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
 
   const getMetricIcon = (name: string) => {
     switch (name.toLowerCase()) {
-      case 'performance':
+      case "performance":
         return <PerformanceIcon />;
-      case 'accuracy':
+      case "accuracy":
         return <AccuracyIcon />;
-      case 'latency':
+      case "latency":
         return <LatencyIcon />;
-      case 'refresh rate':
+      case "refresh rate":
         return <RefreshRateIcon />;
-      case 'resource usage':
+      case "resource usage":
         return <ResourceIcon />;
       default:
         return <PerformanceIcon />;
     }
   };
 
-  const getStatusColor = (value: number, threshold: { warning: number; critical: number }) => {
+  const getStatusColor = (
+    value: number,
+    threshold: { warning: number; critical: number },
+  ) => {
     if (value >= threshold.critical) return theme.palette.error.main;
     if (value >= threshold.warning) return theme.palette.warning.main;
     return theme.palette.success.main;
   };
 
   const formatChange = (change: number) => {
-    const prefix = change > 0 ? '+' : '';
+    const prefix = change > 0 ? "+" : "";
     return `${prefix}${change.toFixed(1)}%`;
   };
 
@@ -93,14 +96,14 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
         <CardContent>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               mb: 3,
             }}
           >
             <Typography variant="h6">System Metrics</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 Last updated: {lastUpdated}
               </Typography>
@@ -119,21 +122,25 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                   sx={{
                     p: 2,
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: "divider",
                     borderRadius: 1,
                   }}
                 >
                   <Stack spacing={2}>
                     <Box
                       sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         {getMetricIcon(metric.name)}
-                        <Typography variant="subtitle1">{metric.name}</Typography>
+                        <Typography variant="subtitle1">
+                          {metric.name}
+                        </Typography>
                       </Box>
                       <Tooltip title={metric.description}>
                         <IconButton size="small">
@@ -145,8 +152,8 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                     <Box>
                       <Box
                         sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
+                          display: "flex",
+                          justifyContent: "space-between",
                           mb: 1,
                         }}
                       >
@@ -157,7 +164,10 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                         <Typography
                           variant="body2"
                           sx={{
-                            color: metric.value.change > 0 ? 'success.main' : 'error.main',
+                            color:
+                              metric.value.change > 0
+                                ? "success.main"
+                                : "error.main",
                           }}
                         >
                           {formatChange(metric.value.change)}
@@ -165,13 +175,19 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                       </Box>
                       <LinearProgress
                         variant="determinate"
-                        value={(metric.value.current / metric.threshold.critical) * 100}
+                        value={
+                          (metric.value.current / metric.threshold.critical) *
+                          100
+                        }
                         sx={{
                           height: 6,
                           borderRadius: 3,
                           backgroundColor: theme.palette.grey[200],
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: getStatusColor(metric.value.current, metric.threshold),
+                          "& .MuiLinearProgress-bar": {
+                            backgroundColor: getStatusColor(
+                              metric.value.current,
+                              metric.threshold,
+                            ),
                           },
                         }}
                       />
@@ -197,21 +213,25 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                   sx={{
                     p: 2,
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: "divider",
                     borderRadius: 1,
                   }}
                 >
                   <Stack spacing={2}>
                     <Box
                       sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         {getMetricIcon(metric.name)}
-                        <Typography variant="subtitle1">{metric.name}</Typography>
+                        <Typography variant="subtitle1">
+                          {metric.name}
+                        </Typography>
                       </Box>
                       <Tooltip title={metric.description}>
                         <IconButton size="small">
@@ -223,16 +243,21 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                     <Box>
                       <Box
                         sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
+                          display: "flex",
+                          justifyContent: "space-between",
                           mb: 1,
                         }}
                       >
-                        <Typography variant="h4">{metric.value.current}%</Typography>
+                        <Typography variant="h4">
+                          {metric.value.current}%
+                        </Typography>
                         <Typography
                           variant="body2"
                           sx={{
-                            color: metric.value.change > 0 ? 'success.main' : 'error.main',
+                            color:
+                              metric.value.change > 0
+                                ? "success.main"
+                                : "error.main",
                           }}
                         >
                           {formatChange(metric.value.change)}
@@ -245,12 +270,16 @@ export const AIMetrics: React.FC<AIMetricsProps> = ({
                           height: 6,
                           borderRadius: 3,
                           backgroundColor: theme.palette.grey[200],
-                          '& .MuiLinearProgress-bar': {
+                          "& .MuiLinearProgress-bar": {
                             backgroundColor: theme.palette.primary.main,
                           },
                         }}
                       />
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 1 }}
+                      >
                         Previous: {metric.value.previous}%
                       </Typography>
                     </Box>

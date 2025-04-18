@@ -1,8 +1,8 @@
-import React from 'react';
-import { Box, TextField } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import React from "react";
+import { Box, TextField } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 interface DateRangePickerProps {
   startDate: Date;
@@ -35,13 +35,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ display: 'flex', gap: 2 }}>
+      <Box sx={{ display: "flex", gap: 2 }}>
         <DatePicker
           label="Start Date"
           value={startDate}
           onChange={handleStartDateChange}
           maxDate={endDate}
-          renderInput={(params) => <TextField {...params} size="small" sx={{ width: '100%' }} />}
+          renderInput={(params) => (
+            <TextField {...params} size="small" sx={{ width: "100%" }} />
+          )}
         />
         <DatePicker
           label="End Date"
@@ -49,7 +51,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           onChange={handleEndDateChange}
           minDate={startDate}
           maxDate={new Date()}
-          renderInput={(params) => <TextField {...params} size="small" sx={{ width: '100%' }} />}
+          renderInput={(params) => (
+            <TextField {...params} size="small" sx={{ width: "100%" }} />
+          )}
         />
       </Box>
     </LocalizationProvider>

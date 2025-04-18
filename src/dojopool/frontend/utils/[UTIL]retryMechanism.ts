@@ -18,11 +18,11 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
   maxDelay: 30000, // 30 seconds
   backoffFactor: 2,
   retryableErrors: [
-    'NETWORK_ERROR',
-    'TIMEOUT',
+    "NETWORK_ERROR",
+    "TIMEOUT",
     /^5\d{2}$/, // 5XX server errors
-    'ECONNRESET',
-    'ETIMEDOUT',
+    "ECONNRESET",
+    "ETIMEDOUT",
   ],
 };
 
@@ -45,7 +45,8 @@ export class RetryMechanism {
   }
 
   private calculateDelay(attempt: number): number {
-    const delay = this.config.initialDelay * Math.pow(this.config.backoffFactor, attempt);
+    const delay =
+      this.config.initialDelay * Math.pow(this.config.backoffFactor, attempt);
     return Math.min(delay, this.config.maxDelay);
   }
 
@@ -53,7 +54,10 @@ export class RetryMechanism {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async execute<T>(operation: () => Promise<T>, onRetry?: (state: RetryState) => void): Promise<T> {
+  async execute<T>(
+    operation: () => Promise<T>,
+    onRetry?: (state: RetryState) => void,
+  ): Promise<T> {
     let attempt = 0;
     const startTime = Date.now();
 
@@ -68,7 +72,10 @@ export class RetryMechanism {
           startTime,
         };
 
-        if (attempt >= this.config.maxAttempts || !this.isRetryableError(error as Error)) {
+        if (
+          attempt >= this.config.maxAttempts ||
+          !this.isRetryableError(error as Error)
+        ) {
           throw error;
         }
 
@@ -87,7 +94,7 @@ export class RetryMechanism {
   // Utility method for wrapping functions with retry logic
   wrap<T extends (...args: any[]) => Promise<any>>(
     fn: T,
-    onRetry?: (state: RetryState) => void
+    onRetry?: (state: RetryState) => void,
   ): T {
     return ((...args: Parameters<T>): ReturnType<T> => {
       return this.execute(() => fn(...args), onRetry) as ReturnType<T>;
@@ -98,7 +105,7 @@ export class RetryMechanism {
   static async fetch(
     input: RequestInfo,
     init?: RequestInit,
-    config?: Partial<RetryConfig>
+    config?: Partial<RetryConfig>,
   ): Promise<Response> {
     const retryMechanism = new RetryMechanism(config);
 

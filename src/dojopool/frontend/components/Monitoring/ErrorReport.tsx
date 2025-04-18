@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -16,21 +16,21 @@ import {
   Collapse,
   Alert,
   LinearProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   KeyboardArrowDown as ExpandMoreIcon,
   KeyboardArrowUp as ExpandLessIcon,
   Warning as WarningIcon,
   Error as ErrorIcon,
   Info as InfoIcon,
-} from '@mui/icons-material';
-import { gameMetricsMonitor } from '../../utils/monitoring';
+} from "@mui/icons-material";
+import { gameMetricsMonitor } from "../../utils/monitoring";
 
 interface ErrorEvent {
   id: string;
   timestamp: number;
-  type: 'validation' | 'connection' | 'system' | 'boundary';
-  severity: 'error' | 'warning' | 'info';
+  type: "validation" | "connection" | "system" | "boundary";
+  severity: "error" | "warning" | "info";
   message: string;
   playerId?: string;
   details?: Record<string, any>;
@@ -41,7 +41,10 @@ interface ErrorReportProps {
   onErrorClick?: (error: ErrorEvent) => void;
 }
 
-export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }) => {
+export const ErrorReport: React.FC<ErrorReportProps> = ({
+  gameId,
+  onErrorClick,
+}) => {
   const [errors, setErrors] = useState<ErrorEvent[]>([]);
   const [expanded, setExpanded] = useState<string | false>(false);
   const [errorStats, setErrorStats] = useState({
@@ -51,10 +54,12 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
   });
 
   useEffect(() => {
-    const unsubscribe = gameMetricsMonitor.subscribeToErrors((error: ErrorEvent) => {
-      setErrors((prev) => [error, ...prev].slice(0, 100)); // Keep last 100 errors
-      updateErrorStats(error);
-    });
+    const unsubscribe = gameMetricsMonitor.subscribeToErrors(
+      (error: ErrorEvent) => {
+        setErrors((prev) => [error, ...prev].slice(0, 100)); // Keep last 100 errors
+        updateErrorStats(error);
+      },
+    );
 
     return () => {
       unsubscribe();
@@ -77,9 +82,9 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'error':
+      case "error":
         return <ErrorIcon color="error" />;
-      case 'warning':
+      case "warning":
         return <WarningIcon color="warning" />;
       default:
         return <InfoIcon color="info" />;
@@ -88,16 +93,16 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
 
   const getErrorTypeColor = (type: string) => {
     switch (type) {
-      case 'validation':
-        return 'primary';
-      case 'connection':
-        return 'error';
-      case 'system':
-        return 'warning';
-      case 'boundary':
-        return 'info';
+      case "validation":
+        return "primary";
+      case "connection":
+        return "error";
+      case "system":
+        return "warning";
+      case "boundary":
+        return "info";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -107,7 +112,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
 
   const calculateErrorRate = () => {
     const recentErrors = errors.filter(
-      (e) => Date.now() - e.timestamp < 5 * 60 * 1000 // Last 5 minutes
+      (e) => Date.now() - e.timestamp < 5 * 60 * 1000, // Last 5 minutes
     ).length;
     return (recentErrors / 5).toFixed(2); // Errors per minute
   };
@@ -127,7 +132,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
           <LinearProgress
             variant="determinate"
             value={Math.min((Number(calculateErrorRate()) / 10) * 100, 100)}
-            color={Number(calculateErrorRate()) > 5 ? 'error' : 'primary'}
+            color={Number(calculateErrorRate()) > 5 ? "error" : "primary"}
           />
         </Box>
 
@@ -162,7 +167,7 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
                   <TableRow
                     hover
                     onClick={() => onErrorClick?.(error)}
-                    style={{ cursor: onErrorClick ? 'pointer' : 'default' }}
+                    style={{ cursor: onErrorClick ? "pointer" : "default" }}
                   >
                     <TableCell padding="checkbox">
                       <IconButton
@@ -172,7 +177,11 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
                           setExpanded(expanded === error.id ? false : error.id);
                         }}
                       >
-                        {expanded === error.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        {expanded === error.id ? (
+                          <ExpandLessIcon />
+                        ) : (
+                          <ExpandMoreIcon />
+                        )}
                       </IconButton>
                     </TableCell>
                     <TableCell>{formatTimestamp(error.timestamp)}</TableCell>
@@ -185,11 +194,18 @@ export const ErrorReport: React.FC<ErrorReportProps> = ({ gameId, onErrorClick }
                     </TableCell>
                     <TableCell>{getSeverityIcon(error.severity)}</TableCell>
                     <TableCell>{error.message}</TableCell>
-                    <TableCell>{error.playerId || '-'}</TableCell>
+                    <TableCell>{error.playerId || "-"}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                      <Collapse in={expanded === error.id} timeout="auto" unmountOnExit>
+                    <TableCell
+                      style={{ paddingBottom: 0, paddingTop: 0 }}
+                      colSpan={6}
+                    >
+                      <Collapse
+                        in={expanded === error.id}
+                        timeout="auto"
+                        unmountOnExit
+                      >
                         <Box p={2}>
                           <Alert severity={error.severity as any}>
                             <Typography variant="subtitle2" gutterBottom>

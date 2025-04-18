@@ -1,16 +1,16 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import { Box, Spinner, Center } from '@chakra-ui/react';
-import { useAuth } from '../../hooks/useAuth';
+import React from "react";
+import { useRouter } from "next/router";
+import { Box, Spinner, Center } from "@chakra-ui/react";
+import { useAuth } from "../../hooks/useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireVerification?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requireVerification = true 
+  requireVerification = true,
 }) => {
   const { user, loading, checkEmailVerification } = useAuth();
   const router = useRouter();
@@ -18,9 +18,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   React.useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push('/auth/login');
+        router.push("/auth/login");
       } else if (requireVerification && !checkEmailVerification()) {
-        router.push('/auth/verify-email');
+        router.push("/auth/verify-email");
       }
     }
   }, [user, loading, router, requireVerification, checkEmailVerification]);
@@ -42,4 +42,4 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   return <Box>{children}</Box>;
-}; 
+};

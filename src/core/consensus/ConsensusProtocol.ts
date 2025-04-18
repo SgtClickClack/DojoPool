@@ -1,9 +1,9 @@
-import { NetworkTransport, NetworkMessage } from '../network/NetworkTransport';
-import { VectorClock } from '../consistency/VectorClock';
-import { EventEmitter } from 'events';
+import { NetworkTransport, NetworkMessage } from "../network/NetworkTransport";
+import { VectorClock } from "../consistency/VectorClock";
+import { EventEmitter } from "events";
 
-export type NodeRole = 'FOLLOWER' | 'CANDIDATE' | 'LEADER';
-export type ConsensusState = 'VOTING' | 'COMMITTED' | 'REJECTED';
+export type NodeRole = "FOLLOWER" | "CANDIDATE" | "LEADER";
+export type ConsensusState = "VOTING" | "COMMITTED" | "REJECTED";
 
 export interface ConsensusConfig {
   nodeId: string;
@@ -34,20 +34,26 @@ export interface VoteResponse {
 }
 
 export interface ConsensusEvents {
-  'operationComplete': (success: boolean, latency: number) => void;
-  'sync': () => void;
-  'nodeCountChange': (count: number) => void;
-  'termChange': (gap: number) => void;
-  'pendingOperationsChange': (count: number) => void;
-  'leader:elected': (event: { nodeId: string; term: number }) => void;
-  'proposal:committed': (event: { proposalId: string; value: any }) => void;
-  'error': (error: Error) => void;
+  operationComplete: (success: boolean, latency: number) => void;
+  sync: () => void;
+  nodeCountChange: (count: number) => void;
+  termChange: (gap: number) => void;
+  pendingOperationsChange: (count: number) => void;
+  "leader:elected": (event: { nodeId: string; term: number }) => void;
+  "proposal:committed": (event: { proposalId: string; value: any }) => void;
+  error: (error: Error) => void;
 }
 
 export declare interface ConsensusProtocol {
-  on<K extends keyof ConsensusEvents>(event: K, listener: ConsensusEvents[K]): this;
-  emit<K extends keyof ConsensusEvents>(event: K, ...args: Parameters<ConsensusEvents[K]>): boolean;
-  
+  on<K extends keyof ConsensusEvents>(
+    event: K,
+    listener: ConsensusEvents[K],
+  ): this;
+  emit<K extends keyof ConsensusEvents>(
+    event: K,
+    ...args: Parameters<ConsensusEvents[K]>
+  ): boolean;
+
   // Core consensus methods
   getCurrentTerm(): Promise<number>;
   getLeader(): Promise<string | null>;
@@ -81,7 +87,7 @@ export class ConsensusProtocol extends EventEmitter {
     this.vectorClock = new VectorClock();
     this.currentTerm = 0;
     this.votedFor = null;
-    this.role = 'FOLLOWER';
+    this.role = "FOLLOWER";
     this.leaderId = null;
     this.votes = new Map();
     this.electionTimeout = null;
@@ -96,25 +102,25 @@ export class ConsensusProtocol extends EventEmitter {
   }
 
   private setupTransportListeners(): void {
-    this.transport.on('consensus:request', ({ peerId, payload }) => {
+    this.transport.on("consensus:request", ({ peerId, payload }) => {
       switch (payload.type) {
-        case 'VOTE_REQUEST':
+        case "VOTE_REQUEST":
           this.handleVoteRequest(peerId, payload.data);
           break;
-        case 'VOTE_RESPONSE':
+        case "VOTE_RESPONSE":
           this.handleVoteResponse(peerId, payload.data);
           break;
-        case 'PROPOSAL':
+        case "PROPOSAL":
           this.handleProposal(peerId, payload.data);
           break;
-        case 'PROPOSAL_RESPONSE':
+        case "PROPOSAL_RESPONSE":
           this.handleProposalResponse(peerId, payload.data);
           break;
       }
     });
 
-    this.transport.on('peer:disconnected', () => {
-      if (this.role === 'LEADER') {
+    this.transport.on("peer:disconnected", () => {
+      if (this.role === "LEADER") {
         this.checkLeadershipValidity();
       }
     });
@@ -139,19 +145,19 @@ export class ConsensusProtocol extends EventEmitter {
     }
 
     const timeout = Math.floor(
-      Math.random() * (this.electionTimeoutMax - this.electionTimeoutMin) + 
-      this.electionTimeoutMin
+      Math.random() * (this.electionTimeoutMax - this.electionTimeoutMin) +
+        this.electionTimeoutMin,
     );
 
     this.electionTimeout = setTimeout(() => {
-      if (this.role !== 'LEADER') {
+      if (this.role !== "LEADER") {
         this.startElection();
       }
     }, timeout);
   }
 
   private startElection(): void {
-    this.role = 'CANDIDATE';
+    this.role = "CANDIDATE";
     this.currentTerm++;
     this.votedFor = this.nodeId;
     this.votes.clear();
@@ -161,18 +167,18 @@ export class ConsensusProtocol extends EventEmitter {
       term: this.currentTerm,
       candidateId: this.nodeId,
       lastLogIndex: this.vectorClock.getTimestamp()[this.nodeId] || 0,
-      lastLogTerm: this.currentTerm - 1
+      lastLogTerm: this.currentTerm - 1,
     };
 
     this.broadcast({
-      type: 'CONSENSUS_REQUEST',
+      type: "CONSENSUS_REQUEST",
       nodeId: this.nodeId,
       vectorClock: this.vectorClock.getTimestamp(),
       payload: {
-        type: 'VOTE_REQUEST',
-        data: voteRequest
+        type: "VOTE_REQUEST",
+        data: voteRequest,
       },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     this.resetElectionTimeout();
@@ -186,7 +192,7 @@ export class ConsensusProtocol extends EventEmitter {
 
     if (request.term > this.currentTerm) {
       this.currentTerm = request.term;
-      this.role = 'FOLLOWER';
+      this.role = "FOLLOWER";
       this.votedFor = null;
       this.leaderId = null;
     }
@@ -204,29 +210,29 @@ export class ConsensusProtocol extends EventEmitter {
     const response: VoteResponse = {
       term: this.currentTerm,
       voteGranted: granted,
-      voterId: this.nodeId
+      voterId: this.nodeId,
     };
 
     this.transport.send(peerId, {
-      type: 'CONSENSUS_RESPONSE',
+      type: "CONSENSUS_RESPONSE",
       nodeId: this.nodeId,
       vectorClock: this.vectorClock.getTimestamp(),
       payload: {
-        type: 'VOTE_RESPONSE',
-        data: response
+        type: "VOTE_RESPONSE",
+        data: response,
       },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
   private handleVoteResponse(peerId: string, response: VoteResponse): void {
-    if (this.role !== 'CANDIDATE' || response.term < this.currentTerm) {
+    if (this.role !== "CANDIDATE" || response.term < this.currentTerm) {
       return;
     }
 
     if (response.term > this.currentTerm) {
       this.currentTerm = response.term;
-      this.role = 'FOLLOWER';
+      this.role = "FOLLOWER";
       this.votedFor = null;
       this.leaderId = null;
       this.resetElectionTimeout();
@@ -239,7 +245,9 @@ export class ConsensusProtocol extends EventEmitter {
 
   private checkVotes(): void {
     const totalVotes = this.transport.getPeers().length + 1;
-    const votesReceived = Array.from(this.votes.values()).filter(v => v).length;
+    const votesReceived = Array.from(this.votes.values()).filter(
+      (v) => v,
+    ).length;
 
     if (votesReceived > totalVotes / 2) {
       this.becomeLeader();
@@ -247,11 +255,14 @@ export class ConsensusProtocol extends EventEmitter {
   }
 
   private becomeLeader(): void {
-    if (this.role === 'CANDIDATE') {
-      this.role = 'LEADER';
+    if (this.role === "CANDIDATE") {
+      this.role = "LEADER";
       this.leaderId = this.nodeId;
       this.startHeartbeat();
-      this.emit('leader:elected', { nodeId: this.nodeId, term: this.currentTerm });
+      this.emit("leader:elected", {
+        nodeId: this.nodeId,
+        term: this.currentTerm,
+      });
     }
   }
 
@@ -262,10 +273,10 @@ export class ConsensusProtocol extends EventEmitter {
 
     this.heartbeatTimer = setInterval(() => {
       this.broadcast({
-        type: 'HEARTBEAT',
+        type: "HEARTBEAT",
         nodeId: this.nodeId,
         vectorClock: this.vectorClock.getTimestamp(),
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }, this.heartbeatInterval);
   }
@@ -273,7 +284,7 @@ export class ConsensusProtocol extends EventEmitter {
   private checkLeadershipValidity(): void {
     const connectedPeers = this.transport.getPeers().length;
     if (connectedPeers === 0) {
-      this.role = 'FOLLOWER';
+      this.role = "FOLLOWER";
       this.leaderId = null;
       this.resetElectionTimeout();
     }
@@ -285,33 +296,33 @@ export class ConsensusProtocol extends EventEmitter {
       proposalId,
       value,
       term: this.currentTerm,
-      proposerId: this.nodeId
+      proposerId: this.nodeId,
     };
 
     this.proposals.set(proposalId, proposal);
-    this.proposalStates.set(proposalId, 'VOTING');
+    this.proposalStates.set(proposalId, "VOTING");
 
-    if (this.role === 'LEADER') {
+    if (this.role === "LEADER") {
       this.broadcast({
-        type: 'CONSENSUS_REQUEST',
+        type: "CONSENSUS_REQUEST",
         nodeId: this.nodeId,
         vectorClock: this.vectorClock.getTimestamp(),
         payload: {
-          type: 'PROPOSAL',
-          data: proposal
+          type: "PROPOSAL",
+          data: proposal,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     } else if (this.leaderId) {
       this.transport.send(this.leaderId, {
-        type: 'CONSENSUS_REQUEST',
+        type: "CONSENSUS_REQUEST",
         nodeId: this.nodeId,
         vectorClock: this.vectorClock.getTimestamp(),
         payload: {
-          type: 'PROPOSAL',
-          data: proposal
+          type: "PROPOSAL",
+          data: proposal,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
 
@@ -319,38 +330,41 @@ export class ConsensusProtocol extends EventEmitter {
   }
 
   private handleProposal(peerId: string, proposal: ConsensusProposal): void {
-    if (this.role === 'LEADER' && proposal.term === this.currentTerm) {
+    if (this.role === "LEADER" && proposal.term === this.currentTerm) {
       this.proposals.set(proposal.proposalId, proposal);
-      this.proposalStates.set(proposal.proposalId, 'VOTING');
-      
+      this.proposalStates.set(proposal.proposalId, "VOTING");
+
       this.broadcast({
-        type: 'CONSENSUS_REQUEST',
+        type: "CONSENSUS_REQUEST",
         nodeId: this.nodeId,
         vectorClock: this.vectorClock.getTimestamp(),
         payload: {
-          type: 'PROPOSAL',
-          data: proposal
+          type: "PROPOSAL",
+          data: proposal,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
   }
 
-  private handleProposalResponse(peerId: string, response: { proposalId: string; accepted: boolean }): void {
+  private handleProposalResponse(
+    peerId: string,
+    response: { proposalId: string; accepted: boolean },
+  ): void {
     const proposal = this.proposals.get(response.proposalId);
-    if (!proposal || this.role !== 'LEADER') {
+    if (!proposal || this.role !== "LEADER") {
       return;
     }
 
     // TODO: Implement proposal acceptance logic
     // For now, we'll use a simple majority vote
     const state = this.proposalStates.get(response.proposalId);
-    if (state === 'VOTING') {
+    if (state === "VOTING") {
       // Count votes and commit if majority accepts
-      this.proposalStates.set(response.proposalId, 'COMMITTED');
-      this.emit('proposal:committed', { 
+      this.proposalStates.set(response.proposalId, "COMMITTED");
+      this.emit("proposal:committed", {
         proposalId: response.proposalId,
-        value: proposal.value
+        value: proposal.value,
       });
     }
   }
@@ -374,4 +388,4 @@ export class ConsensusProtocol extends EventEmitter {
   public getNodeId(): string {
     return this.nodeId;
   }
-} 
+}

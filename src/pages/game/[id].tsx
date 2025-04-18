@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Container,
@@ -63,11 +63,27 @@ import {
   ListIcon,
   useClipboard,
   useBreakpointValue,
-} from '@chakra-ui/react';
-import { FiShare2, FiDownload, FiRefreshCw, FiClock, FiUsers, FiSettings, FiFlag, FiAward, FiTrendingUp, FiCopy, FiCheck, FiX, FiAlertCircle, FiInfo, FiHelpCircle } from 'react-icons/fi';
-import GameTracker from '../../features/game/GameTracker';
-import GameAnalysis from '../../features/game/GameAnalysis';
-import { useAuth } from '../../hooks/useAuth';
+} from "@chakra-ui/react";
+import {
+  FiShare2,
+  FiDownload,
+  FiRefreshCw,
+  FiClock,
+  FiUsers,
+  FiSettings,
+  FiFlag,
+  FiAward,
+  FiTrendingUp,
+  FiCopy,
+  FiCheck,
+  FiX,
+  FiAlertCircle,
+  FiInfo,
+  FiHelpCircle,
+} from "react-icons/fi";
+import GameTracker from "../../features/game/GameTracker";
+import GameAnalysis from "../../features/game/GameAnalysis";
+import { useAuth } from "../../hooks/useAuth";
 
 interface GameData {
   id: string;
@@ -83,7 +99,7 @@ interface GameData {
   };
   shots: Array<{
     playerId: string;
-    type: 'pot' | 'miss' | 'foul';
+    type: "pot" | "miss" | "foul";
     ballNumber?: number;
     timestamp: number;
     position?: {
@@ -91,7 +107,7 @@ interface GameData {
       y: number;
     };
   }>;
-  status: 'active' | 'completed';
+  status: "active" | "completed";
   startTime: number;
   endTime?: number;
   duration?: number;
@@ -110,20 +126,22 @@ const GamePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const toast = useToast();
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { hasCopied, onCopy } = useClipboard(window.location.href);
   const [showAdvancedStats, setShowAdvancedStats] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<Array<{
-    id: string;
-    userId: string;
-    userName: string;
-    text: string;
-    timestamp: number;
-  }>>([]);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<
+    Array<{
+      id: string;
+      userId: string;
+      userName: string;
+      text: string;
+      timestamp: number;
+    }>
+  >([]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareOptions, setShareOptions] = useState({
     includeStats: true,
@@ -135,31 +153,33 @@ const GamePage: React.FC = () => {
   const [currentReplayIndex, setCurrentReplayIndex] = useState(0);
   const [isReplayPlaying, setIsReplayPlaying] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
-  const [achievements, setAchievements] = useState<Array<{
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    unlocked: boolean;
-    timestamp?: number;
-  }>>([]);
+  const [achievements, setAchievements] = useState<
+    Array<{
+      id: string;
+      title: string;
+      description: string;
+      icon: string;
+      unlocked: boolean;
+      timestamp?: number;
+    }>
+  >([]);
 
   const fetchGameData = async () => {
-    if (!id || typeof id !== 'string') return;
+    if (!id || typeof id !== "string") return;
 
     try {
       const response = await fetch(`/api/games/${id}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch game data');
+        throw new Error("Failed to fetch game data");
       }
       const data = await response.json();
       setGameData(data);
     } catch (err: any) {
       setError(err.message);
       toast({
-        title: 'Error',
-        description: 'Failed to load game data. Please try again.',
-        status: 'error',
+        title: "Error",
+        description: "Failed to load game data. Please try again.",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -184,27 +204,31 @@ const GamePage: React.FC = () => {
     const newComment = {
       id: Date.now().toString(),
       userId: user.uid,
-      userName: user.displayName || 'Anonymous',
+      userName: user.displayName || "Anonymous",
       text: comment.trim(),
       timestamp: Date.now(),
     };
 
     try {
       // Add comment to Firestore
-      await db.collection('games').doc(id as string).collection('comments').add(newComment);
+      await db
+        .collection("games")
+        .doc(id as string)
+        .collection("comments")
+        .add(newComment);
       setComments([...comments, newComment]);
-      setComment('');
+      setComment("");
       toast({
-        title: 'Comment added',
-        status: 'success',
+        title: "Comment added",
+        status: "success",
         duration: 3000,
         isClosable: true,
       });
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to add comment. Please try again.',
-        status: 'error',
+        title: "Error",
+        description: "Failed to add comment. Please try again.",
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
@@ -221,16 +245,18 @@ const GamePage: React.FC = () => {
     const exportData = {
       ...gameData,
       comments: shareOptions.includeComments ? comments : undefined,
-      statistics: shareOptions.includeStats ? {
-        player1Stats,
-        player2Stats,
-      } : undefined,
+      statistics: shareOptions.includeStats
+        ? {
+            player1Stats,
+            player2Stats,
+          }
+        : undefined,
     };
 
     const dataStr = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `game-${gameData.id}.json`;
     document.body.appendChild(a);
@@ -253,7 +279,7 @@ const GamePage: React.FC = () => {
     let interval: NodeJS.Timeout;
     if (isReplayPlaying && showReplay && gameData) {
       interval = setInterval(() => {
-        setCurrentReplayIndex(prev => {
+        setCurrentReplayIndex((prev) => {
           if (prev >= gameData.shots.length - 1) {
             setIsReplayPlaying(false);
             return prev;
@@ -267,7 +293,12 @@ const GamePage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minH="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="100vh"
+      >
         <VStack spacing={4}>
           <Spinner size="xl" />
           <Text>Loading game data...</Text>
@@ -282,15 +313,13 @@ const GamePage: React.FC = () => {
         <Alert status="error" borderRadius="md">
           <AlertIcon />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {error || 'Game not found'}
-          </AlertDescription>
+          <AlertDescription>{error || "Game not found"}</AlertDescription>
         </Alert>
       </Container>
     );
   }
 
-  const gameDuration = gameData.endTime 
+  const gameDuration = gameData.endTime
     ? Math.floor((gameData.endTime - gameData.startTime) / 1000)
     : Math.floor((Date.now() - gameData.startTime) / 1000);
 
@@ -298,7 +327,7 @@ const GamePage: React.FC = () => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -330,10 +359,16 @@ const GamePage: React.FC = () => {
                       Refresh
                     </MenuItem>
                     <MenuDivider />
-                    <MenuItem icon={<FiFlag />} onClick={() => setShowReplay(true)}>
+                    <MenuItem
+                      icon={<FiFlag />}
+                      onClick={() => setShowReplay(true)}
+                    >
                       Show Replay
                     </MenuItem>
-                    <MenuItem icon={<FiAward />} onClick={() => setShowAchievements(true)}>
+                    <MenuItem
+                      icon={<FiAward />}
+                      onClick={() => setShowAchievements(true)}
+                    >
                       View Achievements
                     </MenuItem>
                   </MenuList>
@@ -353,14 +388,18 @@ const GamePage: React.FC = () => {
                 <Stat>
                   <StatLabel>Status</StatLabel>
                   <StatNumber>
-                    <Badge colorScheme={gameData.status === 'active' ? 'green' : 'blue'}>
-                      {gameData.status === 'active' ? 'In Progress' : 'Completed'}
+                    <Badge
+                      colorScheme={
+                        gameData.status === "active" ? "green" : "blue"
+                      }
+                    >
+                      {gameData.status === "active"
+                        ? "In Progress"
+                        : "Completed"}
                     </Badge>
                   </StatNumber>
                   {gameData.winner && (
-                    <StatHelpText>
-                      Winner: {gameData.winner.name}
-                    </StatHelpText>
+                    <StatHelpText>Winner: {gameData.winner.name}</StatHelpText>
                   )}
                 </Stat>
                 <Stat>
@@ -368,7 +407,10 @@ const GamePage: React.FC = () => {
                   <StatNumber>{gameData.shots.length}</StatNumber>
                   <StatHelpText>
                     <StatArrow type="increase" />
-                    {Math.round((gameData.shots.length / gameDuration) * 60)} shots per minute
+                    {Math.round(
+                      (gameData.shots.length / gameDuration) * 60,
+                    )}{" "}
+                    shots per minute
                   </StatHelpText>
                 </Stat>
               </SimpleGrid>
@@ -376,7 +418,10 @@ const GamePage: React.FC = () => {
               <Divider />
 
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                <Card bg={useColorModeValue('blue.50', 'blue.900')} borderColor="blue.200">
+                <Card
+                  bg={useColorModeValue("blue.50", "blue.900")}
+                  borderColor="blue.200"
+                >
                   <CardBody>
                     <VStack align="stretch" spacing={2}>
                       <HStack justify="space-between">
@@ -387,11 +432,17 @@ const GamePage: React.FC = () => {
                         <StatLabel>Score</StatLabel>
                         <StatNumber>{gameData.player1.score}</StatNumber>
                         <StatHelpText>
-                          {Math.round((gameData.player1.score / gameData.shots.length) * 100)}% success rate
+                          {Math.round(
+                            (gameData.player1.score / gameData.shots.length) *
+                              100,
+                          )}
+                          % success rate
                         </StatHelpText>
                       </Stat>
-                      <Progress 
-                        value={(gameData.player1.score / gameData.shots.length) * 100} 
+                      <Progress
+                        value={
+                          (gameData.player1.score / gameData.shots.length) * 100
+                        }
                         colorScheme="blue"
                         size="sm"
                       />
@@ -399,7 +450,10 @@ const GamePage: React.FC = () => {
                   </CardBody>
                 </Card>
 
-                <Card bg={useColorModeValue('green.50', 'green.900')} borderColor="green.200">
+                <Card
+                  bg={useColorModeValue("green.50", "green.900")}
+                  borderColor="green.200"
+                >
                   <CardBody>
                     <VStack align="stretch" spacing={2}>
                       <HStack justify="space-between">
@@ -410,11 +464,17 @@ const GamePage: React.FC = () => {
                         <StatLabel>Score</StatLabel>
                         <StatNumber>{gameData.player2.score}</StatNumber>
                         <StatHelpText>
-                          {Math.round((gameData.player2.score / gameData.shots.length) * 100)}% success rate
+                          {Math.round(
+                            (gameData.player2.score / gameData.shots.length) *
+                              100,
+                          )}
+                          % success rate
                         </StatHelpText>
                       </Stat>
-                      <Progress 
-                        value={(gameData.player2.score / gameData.shots.length) * 100} 
+                      <Progress
+                        value={
+                          (gameData.player2.score / gameData.shots.length) * 100
+                        }
                         colorScheme="green"
                         size="sm"
                       />
@@ -448,7 +508,10 @@ const GamePage: React.FC = () => {
                       </ListItem>
                       <ListItem>
                         <ListIcon as={FiTrendingUp} />
-                        Shots per Minute: {Math.round((gameData.shots.length / gameDuration) * 60)}
+                        Shots per Minute:{" "}
+                        {Math.round(
+                          (gameData.shots.length / gameDuration) * 60,
+                        )}
                       </ListItem>
                       {gameData.winner && (
                         <ListItem>
@@ -533,7 +596,11 @@ const GamePage: React.FC = () => {
 
                 <VStack spacing={4} align="stretch">
                   {comments.map((comment) => (
-                    <Card key={comment.id} bg={bgColor} borderColor={borderColor}>
+                    <Card
+                      key={comment.id}
+                      bg={bgColor}
+                      borderColor={borderColor}
+                    >
                       <CardBody>
                         <VStack align="stretch" spacing={2}>
                           <HStack justify="space-between">
@@ -566,30 +633,36 @@ const GamePage: React.FC = () => {
                 <FormLabel mb="0">Include Statistics</FormLabel>
                 <Switch
                   isChecked={shareOptions.includeStats}
-                  onChange={(e) => setShareOptions(prev => ({
-                    ...prev,
-                    includeStats: e.target.checked,
-                  }))}
+                  onChange={(e) =>
+                    setShareOptions((prev) => ({
+                      ...prev,
+                      includeStats: e.target.checked,
+                    }))
+                  }
                 />
               </FormControl>
               <FormControl display="flex" alignItems="center">
                 <FormLabel mb="0">Include Comments</FormLabel>
                 <Switch
                   isChecked={shareOptions.includeComments}
-                  onChange={(e) => setShareOptions(prev => ({
-                    ...prev,
-                    includeComments: e.target.checked,
-                  }))}
+                  onChange={(e) =>
+                    setShareOptions((prev) => ({
+                      ...prev,
+                      includeComments: e.target.checked,
+                    }))
+                  }
                 />
               </FormControl>
               <FormControl display="flex" alignItems="center">
                 <FormLabel mb="0">Include Replay</FormLabel>
                 <Switch
                   isChecked={shareOptions.includeReplay}
-                  onChange={(e) => setShareOptions(prev => ({
-                    ...prev,
-                    includeReplay: e.target.checked,
-                  }))}
+                  onChange={(e) =>
+                    setShareOptions((prev) => ({
+                      ...prev,
+                      includeReplay: e.target.checked,
+                    }))
+                  }
                 />
               </FormControl>
               <HStack w="100%">
@@ -598,13 +671,17 @@ const GamePage: React.FC = () => {
                   aria-label="Copy link"
                   icon={hasCopied ? <FiCheck /> : <FiCopy />}
                   onClick={onCopy}
-                  colorScheme={hasCopied ? 'green' : 'blue'}
+                  colorScheme={hasCopied ? "green" : "blue"}
                 />
               </HStack>
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={() => setShowShareModal(false)}>
+            <Button
+              variant="ghost"
+              mr={3}
+              onClick={() => setShowShareModal(false)}
+            >
               Close
             </Button>
           </ModalFooter>
@@ -627,7 +704,7 @@ const GamePage: React.FC = () => {
                   leftIcon={isReplayPlaying ? <FiPause /> : <FiPlay />}
                   onClick={toggleReplay}
                 >
-                  {isReplayPlaying ? 'Pause' : 'Play'}
+                  {isReplayPlaying ? "Pause" : "Play"}
                 </Button>
                 <Select
                   value={replaySpeed}
@@ -653,7 +730,10 @@ const GamePage: React.FC = () => {
       </Modal>
 
       {/* Achievements Modal */}
-      <Modal isOpen={showAchievements} onClose={() => setShowAchievements(false)}>
+      <Modal
+        isOpen={showAchievements}
+        onClose={() => setShowAchievements(false)}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Achievements</ModalHeader>
@@ -663,14 +743,14 @@ const GamePage: React.FC = () => {
               {achievements.map((achievement) => (
                 <Card
                   key={achievement.id}
-                  bg={achievement.unlocked ? 'green.50' : 'gray.50'}
-                  borderColor={achievement.unlocked ? 'green.200' : 'gray.200'}
+                  bg={achievement.unlocked ? "green.50" : "gray.50"}
+                  borderColor={achievement.unlocked ? "green.200" : "gray.200"}
                 >
                   <CardBody>
                     <HStack spacing={4}>
                       <Icon
                         as={achievement.unlocked ? FiAward : FiLock}
-                        color={achievement.unlocked ? 'green.500' : 'gray.500'}
+                        color={achievement.unlocked ? "green.500" : "gray.500"}
                         boxSize={6}
                       />
                       <VStack align="start" spacing={1}>
@@ -680,7 +760,8 @@ const GamePage: React.FC = () => {
                         </Text>
                         {achievement.unlocked && achievement.timestamp && (
                           <Text fontSize="xs" color="gray.500">
-                            Unlocked: {new Date(achievement.timestamp).toLocaleString()}
+                            Unlocked:{" "}
+                            {new Date(achievement.timestamp).toLocaleString()}
                           </Text>
                         )}
                       </VStack>
@@ -691,7 +772,11 @@ const GamePage: React.FC = () => {
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={() => setShowAchievements(false)}>
+            <Button
+              variant="ghost"
+              mr={3}
+              onClick={() => setShowAchievements(false)}
+            >
               Close
             </Button>
           </ModalFooter>
@@ -701,4 +786,4 @@ const GamePage: React.FC = () => {
   );
 };
 
-export default GamePage; 
+export default GamePage;

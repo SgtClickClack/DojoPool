@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -9,18 +9,18 @@ import {
   CircularProgress,
   Alert,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Analytics as AnalyticsIcon,
   Psychology as AIIcon,
   Speed as PerformanceIcon,
   Settings as SettingsIcon,
-} from '@mui/icons-material';
-import { MatchStory } from './MatchStory';
-import { Recommendations } from './Recommendations';
-import { MatchAnalysis } from './MatchAnalysis';
-import { DifficultySettings } from './DifficultySettings';
-import { AIMetrics } from './AIMetrics';
+} from "@mui/icons-material";
+import { MatchStory } from "./MatchStory";
+import { Recommendations } from "./Recommendations";
+import { MatchAnalysis } from "./MatchAnalysis";
+import { DifficultySettings } from "./DifficultySettings";
+import { AIMetrics } from "./AIMetrics";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -56,15 +56,15 @@ export const Dashboard: React.FC = () => {
         setError(null);
 
         // Fetch data from your AI service endpoints
-        const response = await fetch('/api/ai/dashboard');
+        const response = await fetch("/api/ai/dashboard");
         if (!response.ok) {
-          throw new Error('Failed to fetch AI dashboard data');
+          throw new Error("Failed to fetch AI dashboard data");
         }
 
         const result = await response.json();
         setData(result);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
       }
@@ -101,9 +101,9 @@ export const Dashboard: React.FC = () => {
     return (
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           minHeight: 400,
         }}
       >
@@ -131,7 +131,7 @@ export const Dashboard: React.FC = () => {
         </Typography>
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
@@ -173,15 +173,15 @@ export const Dashboard: React.FC = () => {
               metrics={data?.analysis.metrics || []}
               keyMoments={data?.analysis.keyMoments || []}
               patterns={data?.analysis.patterns || []}
-              summary={data?.analysis.summary || ''}
+              summary={data?.analysis.summary || ""}
             />
           </Grid>
           <Grid item xs={12} md={4}>
             <MatchStory
-              title={data?.story.title || ''}
-              date={data?.story.date || ''}
+              title={data?.story.title || ""}
+              date={data?.story.date || ""}
               players={data?.story.players || []}
-              story={data?.story.content || ''}
+              story={data?.story.content || ""}
               highlights={data?.story.highlights || []}
               isBookmarked={data?.story.isBookmarked || false}
               onBookmark={handleBookmark}
@@ -199,7 +199,7 @@ export const Dashboard: React.FC = () => {
         <AIMetrics
           systemMetrics={data?.metrics.system || []}
           performanceMetrics={data?.metrics.performance || []}
-          lastUpdated={data?.metrics.lastUpdated || ''}
+          lastUpdated={data?.metrics.lastUpdated || ""}
           onRefresh={handleRefresh}
         />
       </TabPanel>

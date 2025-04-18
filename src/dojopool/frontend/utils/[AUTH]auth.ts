@@ -1,9 +1,9 @@
-import { RetryMechanism } from './retryMechanism';
+import { RetryMechanism } from "./retryMechanism";
 
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  OPERATOR = 'OPERATOR',
-  VIEWER = 'VIEWER',
+  ADMIN = "ADMIN",
+  OPERATOR = "OPERATOR",
+  VIEWER = "VIEWER",
 }
 
 interface User {
@@ -28,9 +28,9 @@ interface AuthConfig {
 }
 
 const DEFAULT_AUTH_CONFIG: AuthConfig = {
-  apiUrl: '/api/auth',
+  apiUrl: "/api/auth",
   tokenRefreshThreshold: 300000, // 5 minutes
-  sessionStorageKey: 'auth_session',
+  sessionStorageKey: "auth_session",
 };
 
 export class AuthManager {
@@ -44,7 +44,7 @@ export class AuthManager {
     this.config = { ...DEFAULT_AUTH_CONFIG, ...config };
     this.retryMechanism = new RetryMechanism({
       maxAttempts: 3,
-      retryableErrors: ['NETWORK_ERROR', 'TIMEOUT'],
+      retryableErrors: ["NETWORK_ERROR", "TIMEOUT"],
     });
     this.loadSession();
   }
@@ -65,7 +65,7 @@ export class AuthManager {
           this.refreshToken();
         }
       } catch (error) {
-        console.error('Failed to load session:', error);
+        console.error("Failed to load session:", error);
         this.clearSession();
       }
     }
@@ -73,7 +73,10 @@ export class AuthManager {
 
   private saveSession(session: Session): void {
     this.currentSession = session;
-    sessionStorage.setItem(this.config.sessionStorageKey, JSON.stringify(session));
+    sessionStorage.setItem(
+      this.config.sessionStorageKey,
+      JSON.stringify(session),
+    );
   }
 
   private clearSession(): void {
@@ -84,12 +87,14 @@ export class AuthManager {
   private shouldRefreshToken(): boolean {
     if (!this.currentSession) return false;
     const now = Date.now();
-    return this.currentSession.expiresAt - now < this.config.tokenRefreshThreshold;
+    return (
+      this.currentSession.expiresAt - now < this.config.tokenRefreshThreshold
+    );
   }
 
   private async refreshToken(): Promise<void> {
     if (!this.currentSession?.refreshToken) {
-      throw new Error('No refresh token available');
+      throw new Error("No refresh token available");
     }
 
     if (this.refreshPromise) {
@@ -98,9 +103,9 @@ export class AuthManager {
 
     this.refreshPromise = this.retryMechanism.execute(async () => {
       const response = await fetch(`${this.config.apiUrl}/refresh`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           refreshToken: this.currentSession?.refreshToken,
@@ -108,7 +113,7 @@ export class AuthManager {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to refresh token');
+        throw new Error("Failed to refresh token");
       }
 
       const newSession = await response.json();
@@ -125,16 +130,16 @@ export class AuthManager {
   async login(username: string, password: string): Promise<void> {
     const response = await this.retryMechanism.execute(async () => {
       return fetch(`${this.config.apiUrl}/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
     });
 
     if (!response.ok) {
-      throw new Error('Login failed');
+      throw new Error("Login failed");
     }
 
     const session = await response.json();
@@ -147,7 +152,7 @@ export class AuthManager {
     try {
       await this.retryMechanism.execute(async () => {
         await fetch(`${this.config.apiUrl}/logout`, {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${this.currentSession?.token}`,
           },

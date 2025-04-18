@@ -1,4 +1,4 @@
-import analyticsService from './analytics';
+import analyticsService from "./analytics";
 
 interface ValidationRule {
   type: string;
@@ -15,7 +15,10 @@ interface ValidationResult {
   errors: Record<string, string[]>;
 }
 
-type ValidationFunction = (value: any, params?: any) => boolean | Promise<boolean>;
+type ValidationFunction = (
+  value: any,
+  params?: any,
+) => boolean | Promise<boolean>;
 
 class ValidationService {
   private rules: Map<string, ValidationFunction> = new Map();
@@ -28,101 +31,101 @@ class ValidationService {
   private registerDefaultRules(): void {
     // Required validation
     this.registerRule(
-      'required',
+      "required",
       (value) => {
         if (value === null || value === undefined) return false;
-        if (typeof value === 'string') return value.trim().length > 0;
+        if (typeof value === "string") return value.trim().length > 0;
         if (Array.isArray(value)) return value.length > 0;
         return true;
       },
-      'This field is required'
+      "This field is required",
     );
 
     // Email validation
     this.registerRule(
-      'email',
+      "email",
       (value) => {
         if (!value) return true;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value);
       },
-      'Please enter a valid email address'
+      "Please enter a valid email address",
     );
 
     // Minimum length validation
     this.registerRule(
-      'minLength',
+      "minLength",
       (value, min) => {
         if (!value) return true;
         return String(value).length >= min;
       },
-      'This field must be at least {0} characters long'
+      "This field must be at least {0} characters long",
     );
 
     // Maximum length validation
     this.registerRule(
-      'maxLength',
+      "maxLength",
       (value, max) => {
         if (!value) return true;
         return String(value).length <= max;
       },
-      'This field must not exceed {0} characters'
+      "This field must not exceed {0} characters",
     );
 
     // Pattern validation
     this.registerRule(
-      'pattern',
+      "pattern",
       (value, pattern) => {
         if (!value) return true;
         const regex = new RegExp(pattern);
         return regex.test(value);
       },
-      'This field is invalid'
+      "This field is invalid",
     );
 
     // Numeric validation
     this.registerRule(
-      'numeric',
+      "numeric",
       (value) => {
         if (!value) return true;
         return !isNaN(Number(value));
       },
-      'Please enter a valid number'
+      "Please enter a valid number",
     );
 
     // Integer validation
     this.registerRule(
-      'integer',
+      "integer",
       (value) => {
         if (!value) return true;
         return Number.isInteger(Number(value));
       },
-      'Please enter a valid integer'
+      "Please enter a valid integer",
     );
 
     // Minimum value validation
     this.registerRule(
-      'min',
+      "min",
       (value, min) => {
         if (!value) return true;
         return Number(value) >= min;
       },
-      'This field must be at least {0}'
+      "This field must be at least {0}",
     );
 
     // Maximum value validation
     this.registerRule(
-      'max',
+      "max",
       (value, max) => {
         if (!value) return true;
         return Number(value) <= max;
       },
-      'This field must not exceed {0}'
+      "This field must not exceed {0}",
     );
 
     // URL validation
     this.registerRule(
-      'url',
+      "url",
       (value) => {
         if (!value) return true;
         try {
@@ -132,109 +135,113 @@ class ValidationService {
           return false;
         }
       },
-      'Please enter a valid URL'
+      "Please enter a valid URL",
     );
 
     // Date validation
     this.registerRule(
-      'date',
+      "date",
       (value) => {
         if (!value) return true;
         const date = new Date(value);
         return !isNaN(date.getTime());
       },
-      'Please enter a valid date'
+      "Please enter a valid date",
     );
 
     // Future date validation
     this.registerRule(
-      'futureDate',
+      "futureDate",
       (value) => {
         if (!value) return true;
         const date = new Date(value);
         return date > new Date();
       },
-      'Please enter a future date'
+      "Please enter a future date",
     );
 
     // Past date validation
     this.registerRule(
-      'pastDate',
+      "pastDate",
       (value) => {
         if (!value) return true;
         const date = new Date(value);
         return date < new Date();
       },
-      'Please enter a past date'
+      "Please enter a past date",
     );
 
     // Array minimum length validation
     this.registerRule(
-      'minItems',
+      "minItems",
       (value, min) => {
         if (!Array.isArray(value)) return true;
         return value.length >= min;
       },
-      'Please select at least {0} items'
+      "Please select at least {0} items",
     );
 
     // Array maximum length validation
     this.registerRule(
-      'maxItems',
+      "maxItems",
       (value, max) => {
         if (!Array.isArray(value)) return true;
         return value.length <= max;
       },
-      'Please select no more than {0} items'
+      "Please select no more than {0} items",
     );
 
     // Equal to validation
     this.registerRule(
-      'equalTo',
+      "equalTo",
       (value, targetValue) => {
         return value === targetValue;
       },
-      'This field must match {0}'
+      "This field must match {0}",
     );
 
     // Not equal to validation
     this.registerRule(
-      'notEqualTo',
+      "notEqualTo",
       (value, targetValue) => {
         return value !== targetValue;
       },
-      'This field must not match {0}'
+      "This field must not match {0}",
     );
 
     // Contains validation
     this.registerRule(
-      'contains',
+      "contains",
       (value, substring) => {
         if (!value) return true;
         return String(value).includes(substring);
       },
-      'This field must contain {0}'
+      "This field must contain {0}",
     );
 
     // Does not contain validation
     this.registerRule(
-      'notContains',
+      "notContains",
       (value, substring) => {
         if (!value) return true;
         return !String(value).includes(substring);
       },
-      'This field must not contain {0}'
+      "This field must not contain {0}",
     );
   }
 
-  public registerRule(type: string, validator: ValidationFunction, defaultMessage: string): void {
+  public registerRule(
+    type: string,
+    validator: ValidationFunction,
+    defaultMessage: string,
+  ): void {
     this.rules.set(type, validator);
     this.customMessages.set(type, defaultMessage);
 
     // Track rule registration in analytics
     analyticsService.trackUserEvent({
-      type: 'validation_rule_registered',
-      userId: 'system',
+      type: "validation_rule_registered",
+      userId: "system",
       details: {
         ruleType: type,
         timestamp: new Date().toISOString(),
@@ -255,7 +262,7 @@ class ValidationService {
 
   public async validate(
     schema: ValidationSchema,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<ValidationResult> {
     const errors: Record<string, string[]> = {};
     let isValid = true;
@@ -263,15 +270,20 @@ class ValidationService {
     try {
       // Track validation start
       analyticsService.trackUserEvent({
-        type: 'validation_started',
-        userId: 'system',
+        type: "validation_started",
+        userId: "system",
         details: {
           timestamp: new Date().toISOString(),
         },
       });
 
       for (const [field, rules] of Object.entries(schema)) {
-        const fieldErrors = await this.validateField(field, rules, data[field], data);
+        const fieldErrors = await this.validateField(
+          field,
+          rules,
+          data[field],
+          data,
+        );
         if (fieldErrors.length > 0) {
           errors[field] = fieldErrors;
           isValid = false;
@@ -280,8 +292,8 @@ class ValidationService {
 
       // Track validation completion
       analyticsService.trackUserEvent({
-        type: 'validation_completed',
-        userId: 'system',
+        type: "validation_completed",
+        userId: "system",
         details: {
           isValid,
           errorCount: Object.keys(errors).length,
@@ -293,8 +305,8 @@ class ValidationService {
     } catch (error) {
       // Track validation error
       analyticsService.trackUserEvent({
-        type: 'validation_error',
-        userId: 'system',
+        type: "validation_error",
+        userId: "system",
         details: {
           error: error.message,
           timestamp: new Date().toISOString(),
@@ -309,7 +321,7 @@ class ValidationService {
     field: string,
     rules: ValidationRule[],
     value: any,
-    data?: Record<string, any>
+    data?: Record<string, any>,
   ): Promise<string[]> {
     const errors: string[] = [];
 
@@ -323,12 +335,15 @@ class ValidationService {
       try {
         const isValid = await validator(value, rule.params);
         if (!isValid) {
-          const message = rule.message || this.customMessages.get(rule.type) || 'Invalid value';
+          const message =
+            rule.message ||
+            this.customMessages.get(rule.type) ||
+            "Invalid value";
           errors.push(this.formatMessage(message, rule.params));
         }
       } catch (error) {
         console.error(`Validation error for field ${field}:`, error);
-        errors.push('Validation failed');
+        errors.push("Validation failed");
       }
     }
 
@@ -338,7 +353,7 @@ class ValidationService {
   public async validateAsync(
     schema: ValidationSchema,
     data: Record<string, any>,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
   ): Promise<ValidationResult> {
     const fields = Object.keys(schema);
     const totalFields = fields.length;
@@ -348,8 +363,8 @@ class ValidationService {
     try {
       // Track async validation start
       analyticsService.trackUserEvent({
-        type: 'async_validation_started',
-        userId: 'system',
+        type: "async_validation_started",
+        userId: "system",
         details: {
           fieldCount: totalFields,
           timestamp: new Date().toISOString(),
@@ -358,21 +373,26 @@ class ValidationService {
 
       await Promise.all(
         fields.map(async (field) => {
-          const fieldErrors = await this.validateField(field, schema[field], data[field], data);
+          const fieldErrors = await this.validateField(
+            field,
+            schema[field],
+            data[field],
+            data,
+          );
           if (fieldErrors.length > 0) {
             errors[field] = fieldErrors;
           }
           validatedFields++;
           onProgress?.(validatedFields / totalFields);
-        })
+        }),
       );
 
       const isValid = Object.keys(errors).length === 0;
 
       // Track async validation completion
       analyticsService.trackUserEvent({
-        type: 'async_validation_completed',
-        userId: 'system',
+        type: "async_validation_completed",
+        userId: "system",
         details: {
           isValid,
           errorCount: Object.keys(errors).length,
@@ -384,8 +404,8 @@ class ValidationService {
     } catch (error) {
       // Track async validation error
       analyticsService.trackUserEvent({
-        type: 'async_validation_error',
-        userId: 'system',
+        type: "async_validation_error",
+        userId: "system",
         details: {
           error: error.message,
           timestamp: new Date().toISOString(),
@@ -402,7 +422,7 @@ class ValidationService {
       for (const rule of rules) {
         if (!this.rules.has(rule.type)) {
           throw new Error(
-            `Unknown validation rule type '${rule.type}' in schema for field '${field}'`
+            `Unknown validation rule type '${rule.type}' in schema for field '${field}'`,
           );
         }
       }

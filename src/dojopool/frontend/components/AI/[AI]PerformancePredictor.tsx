@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Paper,
@@ -10,8 +10,8 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   TrendingUp,
   TrendingDown,
@@ -19,8 +19,8 @@ import {
   Star,
   Warning,
   CheckCircle,
-} from '@mui/icons-material';
-import axios from 'axios';
+} from "@mui/icons-material";
+import axios from "axios";
 
 const PredictorContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -36,7 +36,12 @@ const MetricBox = styled(Box)(({ theme }) => ({
 
 interface PerformancePrediction {
   skill_trend: {
-    trend: 'improving_rapidly' | 'improving_steadily' | 'stable' | 'declining' | 'unknown';
+    trend:
+      | "improving_rapidly"
+      | "improving_steadily"
+      | "stable"
+      | "declining"
+      | "unknown";
     confidence: number;
   };
   potential_peak: {
@@ -46,13 +51,15 @@ interface PerformancePrediction {
   };
   areas_for_improvement: Array<{
     aspect: string;
-    priority: 'high' | 'medium' | 'low';
+    priority: "high" | "medium" | "low";
     suggestion: string;
   }>;
 }
 
 export const PerformancePredictor: React.FC = () => {
-  const [prediction, setPrediction] = useState<PerformancePrediction | null>(null);
+  const [prediction, setPrediction] = useState<PerformancePrediction | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,11 +67,13 @@ export const PerformancePredictor: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('/api/ai/performance-prediction');
+      const response = await axios.get("/api/ai/performance-prediction");
       setPrediction(response.data);
     } catch (err) {
-      setError('Failed to fetch performance prediction. Please try again later.');
-      console.error('Error fetching prediction:', err);
+      setError(
+        "Failed to fetch performance prediction. Please try again later.",
+      );
+      console.error("Error fetching prediction:", err);
     } finally {
       setLoading(false);
     }
@@ -76,12 +85,12 @@ export const PerformancePredictor: React.FC = () => {
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'improving_rapidly':
-      case 'improving_steadily':
+      case "improving_rapidly":
+      case "improving_steadily":
         return <TrendingUp color="success" />;
-      case 'declining':
+      case "declining":
         return <TrendingDown color="error" />;
-      case 'stable':
+      case "stable":
         return <RemoveCircle color="info" />;
       default:
         return <Warning color="warning" />;
@@ -90,14 +99,14 @@ export const PerformancePredictor: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'error';
-      case 'medium':
-        return 'warning';
-      case 'low':
-        return 'success';
+      case "high":
+        return "error";
+      case "medium":
+        return "warning";
+      case "low":
+        return "success";
       default:
-        return 'info';
+        return "info";
     }
   };
 
@@ -137,11 +146,9 @@ export const PerformancePredictor: React.FC = () => {
           </Typography>
         </Box>
         <Typography>
-          Your performance is{' '}
-          <strong>
-            {prediction.skill_trend.trend.replace('_', ' ')}
-          </strong>{' '}
-          with {Math.round(prediction.skill_trend.confidence * 100)}% confidence
+          Your performance is{" "}
+          <strong>{prediction.skill_trend.trend.replace("_", " ")}</strong> with{" "}
+          {Math.round(prediction.skill_trend.confidence * 100)}% confidence
         </Typography>
       </MetricBox>
 
@@ -171,10 +178,7 @@ export const PerformancePredictor: React.FC = () => {
               <ListItemIcon>
                 <CheckCircle color={getPriorityColor(area.priority) as any} />
               </ListItemIcon>
-              <ListItemText
-                primary={area.aspect}
-                secondary={area.suggestion}
-              />
+              <ListItemText primary={area.aspect} secondary={area.suggestion} />
             </ListItem>
             {index < prediction.areas_for_improvement.length - 1 && (
               <Divider variant="inset" component="li" />

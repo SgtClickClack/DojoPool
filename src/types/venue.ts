@@ -1,8 +1,8 @@
 export enum VenueStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  PENDING = 'PENDING',
-  SUSPENDED = 'SUSPENDED'
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  PENDING = "PENDING",
+  SUSPENDED = "SUSPENDED",
 }
 
 export interface Venue {
@@ -19,4 +19,4 @@ export interface Venue {
   status: VenueStatus;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

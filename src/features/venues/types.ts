@@ -24,4 +24,4 @@ export interface VenueAnalyticsData {
       [reason: string]: number;
     };
   };
-} 
+}

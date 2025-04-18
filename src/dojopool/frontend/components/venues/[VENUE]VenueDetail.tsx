@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, Tabs, Descriptions, Tag, message } from 'antd';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Card, Tabs, Descriptions, Tag, message } from "antd";
 import {
   EnvironmentOutlined,
   PhoneOutlined,
@@ -9,13 +9,13 @@ import {
   TeamOutlined,
   TrophyOutlined,
   CalendarOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
-import { getVenue } from '../../api/venues';
-import CheckInSystem from './CheckInSystem';
-import LeaderboardList from './LeaderboardList';
-import EventList from '../events/EventList';
-import LoadingSpinner from '../common/LoadingSpinner';
+import { getVenue } from "../../api/venues";
+import CheckInSystem from "./CheckInSystem";
+import LeaderboardList from "./LeaderboardList";
+import EventList from "../events/EventList";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const { TabPane } = Tabs;
 
@@ -34,8 +34,8 @@ const VenueDetail: React.FC = () => {
       const data = await getVenue(parseInt(id));
       setVenue(data);
     } catch (error) {
-      console.error('Error fetching venue:', error);
-      message.error('Failed to fetch venue details');
+      console.error("Error fetching venue:", error);
+      message.error("Failed to fetch venue details");
     } finally {
       setLoading(false);
     }
@@ -54,8 +54,8 @@ const VenueDetail: React.FC = () => {
       <Card>
         <div className="venue-detail__header">
           <h1>{venue.name}</h1>
-          <Tag color={venue.is_active ? 'success' : 'default'}>
-            {venue.is_active ? 'Open' : 'Closed'}
+          <Tag color={venue.is_active ? "success" : "default"}>
+            {venue.is_active ? "Open" : "Closed"}
           </Tag>
         </div>
 

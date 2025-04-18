@@ -1,18 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { 
-  collection, 
-  getDocs, 
-  query, 
-  limit, 
-  orderBy, 
-  getDoc, 
-  doc, 
-  QuerySnapshot, 
+import React, { useEffect, useState, useCallback } from "react";
+import {
+  collection,
+  getDocs,
+  query,
+  limit,
+  orderBy,
+  getDoc,
+  doc,
+  QuerySnapshot,
   DocumentData,
   addDoc,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from '../firebase/config';
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "../firebase/config";
 
 interface TestData {
   id: string;
@@ -53,7 +53,7 @@ const cacheStats: CacheStats = {
   hits: 0,
   misses: 0,
   totalQueries: 0,
-  lastOptimization: Date.now()
+  lastOptimization: Date.now(),
 };
 
 // Initial cache settings
@@ -68,7 +68,9 @@ export const FirebaseTest: React.FC = () => {
   const [testData, setTestData] = useState<TestData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [performance, setPerformance] = useState<PerformanceMetrics | null>(null);
+  const [performance, setPerformance] = useState<PerformanceMetrics | null>(
+    null,
+  );
   const [isAddingTest, setIsAddingTest] = useState(false);
 
   const optimizeCache = useCallback(() => {
@@ -78,23 +80,18 @@ export const FirebaseTest: React.FC = () => {
     }
 
     // Calculate cache hit rate
-    const hitRate = cacheStats.totalQueries > 0 
-      ? cacheStats.hits / cacheStats.totalQueries 
-      : 0;
+    const hitRate =
+      cacheStats.totalQueries > 0
+        ? cacheStats.hits / cacheStats.totalQueries
+        : 0;
 
     // Adjust cache duration based on performance
     if (performance?.queryTime && performance.queryTime > TARGET_QUERY_TIME) {
       // Increase cache duration if queries are slow
-      CACHE_DURATION = Math.min(
-        CACHE_DURATION * 1.2,
-        MAX_CACHE_DURATION
-      );
+      CACHE_DURATION = Math.min(CACHE_DURATION * 1.2, MAX_CACHE_DURATION);
     } else if (hitRate < 0.5) {
       // Decrease cache duration if hit rate is low
-      CACHE_DURATION = Math.max(
-        CACHE_DURATION * 0.8,
-        MIN_CACHE_DURATION
-      );
+      CACHE_DURATION = Math.max(CACHE_DURATION * 0.8, MIN_CACHE_DURATION);
     }
 
     // Reset stats
@@ -121,8 +118,9 @@ export const FirebaseTest: React.FC = () => {
       }
     }
     if (cache.size > CACHE_SIZE) {
-      const oldestKey = entries
-        .sort(([, a], [, b]) => a.timestamp - b.timestamp)[0][0];
+      const oldestKey = entries.sort(
+        ([, a], [, b]) => a.timestamp - b.timestamp,
+      )[0][0];
       cache.delete(oldestKey);
     }
   }, []);
@@ -130,9 +128,9 @@ export const FirebaseTest: React.FC = () => {
   const addTestDocument = async () => {
     try {
       setIsAddingTest(true);
-      await addDoc(collection(db, 'test_collection'), {
+      await addDoc(collection(db, "test_collection"), {
         timestamp: serverTimestamp(),
-        testData: 'Test document ' + new Date().toISOString()
+        testData: "Test document " + new Date().toISOString(),
       });
       // Clear cache to force a fresh fetch
       cache.clear();
@@ -143,7 +141,9 @@ export const FirebaseTest: React.FC = () => {
       // Refetch data
       fetchData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add test document');
+      setError(
+        err instanceof Error ? err.message : "Failed to add test document",
+      );
     } finally {
       setIsAddingTest(false);
     }
@@ -154,11 +154,11 @@ export const FirebaseTest: React.FC = () => {
       const startTime = window.performance.now();
       clearOldCache();
       optimizeCache();
-      
+
       // Check cache first
-      const cacheKey = 'test_collection';
+      const cacheKey = "test_collection";
       const cachedData = cache.get(cacheKey);
-      
+
       let querySnapshot: QuerySnapshot<DocumentData>;
       let networkTime = 0;
       let processingTime = 0;
@@ -172,32 +172,32 @@ export const FirebaseTest: React.FC = () => {
         const networkStart = window.performance.now();
         // Create a test query with optimizations
         const testQuery = query(
-          collection(db, 'test_collection'),
-          orderBy('timestamp', 'desc'),
-          limit(5)
+          collection(db, "test_collection"),
+          orderBy("timestamp", "desc"),
+          limit(5),
         );
         querySnapshot = await getDocs(testQuery);
         networkTime = window.performance.now() - networkStart;
         cacheStats.misses++;
-        
+
         // Cache the results
         cache.set(cacheKey, {
           data: querySnapshot,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
       cacheStats.totalQueries++;
 
       const processingStart = window.performance.now();
-      const data = querySnapshot.docs.map(doc => ({
+      const data = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         timestamp: doc.data().timestamp?.toDate() || new Date(),
         performance: {
           queryTime: window.performance.now() - startTime,
           cacheHit: isCacheHit,
           networkTime,
-          processingTime: window.performance.now() - processingStart
-        }
+          processingTime: window.performance.now() - processingStart,
+        },
       }));
       processingTime = window.performance.now() - processingStart;
 
@@ -208,15 +208,17 @@ export const FirebaseTest: React.FC = () => {
         networkTime,
         processingTime,
         cacheSize: cache.size,
-        averageQueryTime: cacheStats.totalQueries > 0 
-          ? (performance?.queryTime || 0) / cacheStats.totalQueries 
-          : 0,
-        cacheHitRate: cacheStats.totalQueries > 0 
-          ? cacheStats.hits / cacheStats.totalQueries 
-          : 0
+        averageQueryTime:
+          cacheStats.totalQueries > 0
+            ? (performance?.queryTime || 0) / cacheStats.totalQueries
+            : 0,
+        cacheHitRate:
+          cacheStats.totalQueries > 0
+            ? cacheStats.hits / cacheStats.totalQueries
+            : 0,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -243,17 +245,17 @@ export const FirebaseTest: React.FC = () => {
           disabled={isAddingTest}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
         >
-          {isAddingTest ? 'Adding...' : 'Add Test Document'}
+          {isAddingTest ? "Adding..." : "Add Test Document"}
         </button>
       </div>
-      
+
       {performance && (
         <div className="mb-4 p-2 bg-gray-100 rounded">
           <h3 className="font-semibold">Performance Metrics:</h3>
           <p>Total Query Time: {performance.queryTime.toFixed(2)}ms</p>
           <p>Network Time: {performance.networkTime.toFixed(2)}ms</p>
           <p>Processing Time: {performance.processingTime.toFixed(2)}ms</p>
-          <p>Cache Hit: {performance.cacheHit ? 'Yes' : 'No'}</p>
+          <p>Cache Hit: {performance.cacheHit ? "Yes" : "No"}</p>
           <p>Cache Size: {performance.cacheSize} items</p>
           <p>Cache Duration: {(CACHE_DURATION / 1000).toFixed(1)}s</p>
           <p>Cache Hit Rate: {(performance.cacheHitRate * 100).toFixed(1)}%</p>
@@ -263,16 +265,16 @@ export const FirebaseTest: React.FC = () => {
 
       <div className="space-y-2">
         <h3 className="font-semibold">Test Data:</h3>
-        {testData.map(item => (
+        {testData.map((item) => (
           <div key={item.id} className="p-2 bg-white border rounded">
             <p>ID: {item.id}</p>
             <p>Timestamp: {item.timestamp.toLocaleString()}</p>
             <p className="text-sm text-gray-600">
-              Cache Hit: {item.performance.cacheHit ? 'Yes' : 'No'}
+              Cache Hit: {item.performance.cacheHit ? "Yes" : "No"}
             </p>
           </div>
         ))}
       </div>
     </div>
   );
-}; 
+};

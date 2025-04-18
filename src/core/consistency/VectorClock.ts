@@ -85,18 +85,21 @@ export class VectorClock {
     this.timestamps = { ...snapshot };
   }
 
-  public compare(other: VectorTimestamp): 'before' | 'after' | 'concurrent' {
+  public compare(other: VectorTimestamp): "before" | "after" | "concurrent" {
     let isBefore = false;
     let isAfter = false;
 
     const allNodes = new Set([
       ...Object.keys(this.timestamps),
-      ...Object.keys(other)
+      ...Object.keys(other),
     ]);
 
     for (const nodeId of allNodes) {
-      const selfTime = typeof this.timestamps[nodeId] === 'number' ? this.timestamps[nodeId] : 0;
-      const otherTime = typeof other[nodeId] === 'number' ? other[nodeId] : 0;
+      const selfTime =
+        typeof this.timestamps[nodeId] === "number"
+          ? this.timestamps[nodeId]
+          : 0;
+      const otherTime = typeof other[nodeId] === "number" ? other[nodeId] : 0;
 
       if (selfTime < otherTime) {
         isBefore = true;
@@ -105,13 +108,13 @@ export class VectorClock {
       }
 
       if (isBefore && isAfter) {
-        return 'concurrent';
+        return "concurrent";
       }
     }
 
-    if (isBefore && !isAfter) return 'before';
-    if (isAfter && !isBefore) return 'after';
-    return 'concurrent';
+    if (isBefore && !isAfter) return "before";
+    if (isAfter && !isBefore) return "after";
+    return "concurrent";
   }
 
   getCurrentValue(): VectorTimestamp {
@@ -125,7 +128,7 @@ export class VectorClock {
   public equals(other: VectorClock): boolean {
     const allNodeIds = new Set([
       ...Object.keys(this.timestamps),
-      ...Object.keys(other.timestamps)
+      ...Object.keys(other.timestamps),
     ]);
 
     for (const nodeId of allNodeIds) {
@@ -135,4 +138,4 @@ export class VectorClock {
     }
     return true;
   }
-} 
+}

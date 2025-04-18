@@ -1,14 +1,18 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { createGzip } from 'zlib';
-import { createCipheriv, randomBytes } from 'crypto';
-import { createReadStream, createWriteStream } from 'fs';
-import { mkdir, readdir, unlink } from 'fs/promises';
-import path from 'path';
-import { pipeline } from 'stream/promises';
-import { backupConfig, validateBackupConfig } from '../../config/backup';
-import { BackupType, BackupResult, BackupNotification } from '../../types/backup';
-import { prisma } from '../../lib/prisma';
-import { logger } from '../../utils/logger';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { createGzip } from "zlib";
+import { createCipheriv, randomBytes } from "crypto";
+import { createReadStream, createWriteStream } from "fs";
+import { mkdir, readdir, unlink } from "fs/promises";
+import path from "path";
+import { pipeline } from "stream/promises";
+import { backupConfig, validateBackupConfig } from "../../config/backup";
+import {
+  BackupType,
+  BackupResult,
+  BackupNotification,
+} from "../../types/backup";
+import { prisma } from "../../lib/prisma";
+import { logger } from "../../utils/logger";
 
 export class BackupService {
   private s3Client: S3Client | null = null;
@@ -17,14 +21,16 @@ export class BackupService {
   constructor() {
     this.validateConfig();
     this.initializeS3Client();
-    this.encryptionKey = Buffer.from(process.env.BACKUP_ENCRYPTION_KEY || randomBytes(32));
+    this.encryptionKey = Buffer.from(
+      process.env.BACKUP_ENCRYPTION_KEY || randomBytes(32),
+    );
   }
 
   private validateConfig() {
     try {
       validateBackupConfig(backupConfig);
     } catch (error) {
-      logger.error('Invalid backup configuration:', error);
+      logger.error("Invalid backup configuration:", error);
       throw error;
     }
   }
@@ -49,13 +55,13 @@ export class BackupService {
       // Perform backup based on type
       let size = 0;
       switch (type) {
-        case 'database':
+        case "database":
           size = await this.backupDatabase(backupPath);
           break;
-        case 'files':
+        case "files":
           size = await this.backupFiles(backupPath);
           break;
-        case 'configs':
+        case "configs":
           size = await this.backupConfigs(backupPath);
           break;
         default:
@@ -72,7 +78,7 @@ export class BackupService {
 
       // Send notification
       await this.sendNotification({
-        type: 'success',
+        type: "success",
         message: `Backup completed successfully: ${type}`,
         details: {
           backupType: type,
@@ -91,10 +97,10 @@ export class BackupService {
       };
     } catch (error) {
       logger.error(`Backup failed for type ${type}:`, error);
-      
+
       // Send error notification
       await this.sendNotification({
-        type: 'error',
+        type: "error",
         message: `Backup failed: ${type}`,
         details: {
           backupType: type,
@@ -108,46 +114,47 @@ export class BackupService {
   }
 
   private async backupDatabase(outputPath: string): Promise<number> {
-    const dumpStream = await prisma.$queryRaw`pg_dump $${process.env.DATABASE_URL}`;
+    const dumpStream =
+      await prisma.$queryRaw`pg_dump $${process.env.DATABASE_URL}`;
     return this.processBackupStream(dumpStream, outputPath);
   }
 
   private async backupFiles(outputPath: string): Promise<number> {
     // Implementation for file backup
-    const { tar } = await import('tar');
+    const { tar } = await import("tar");
     const { include } = backupConfig.schedules.files;
-    
+
     await tar.create(
       {
         gzip: backupConfig.compression,
         file: outputPath,
         cwd: process.cwd(),
       },
-      include
+      include,
     );
 
-    return (await import('fs')).statSync(outputPath).size;
+    return (await import("fs")).statSync(outputPath).size;
   }
 
   private async backupConfigs(outputPath: string): Promise<number> {
-    const { tar } = await import('tar');
+    const { tar } = await import("tar");
     const { include } = backupConfig.schedules.configs;
-    
+
     await tar.create(
       {
         gzip: backupConfig.compression,
         file: outputPath,
         cwd: process.cwd(),
       },
-      include
+      include,
     );
 
-    return (await import('fs')).statSync(outputPath).size;
+    return (await import("fs")).statSync(outputPath).size;
   }
 
   private async processBackupStream(
     inputStream: NodeJS.ReadableStream,
-    outputPath: string
+    outputPath: string,
   ): Promise<number> {
     const gzip = createGzip();
     const output = createWriteStream(outputPath);
@@ -155,23 +162,23 @@ export class BackupService {
 
     if (backupConfig.encryption) {
       const iv = randomBytes(16);
-      const cipher = createCipheriv('aes-256-gcm', this.encryptionKey, iv);
-      
+      const cipher = createCipheriv("aes-256-gcm", this.encryptionKey, iv);
+
       // Prepend IV to the output file
       output.write(iv);
-      
+
       await pipeline(inputStream, gzip, cipher, output);
     } else {
       await pipeline(inputStream, gzip, output);
     }
 
-    size = (await import('fs')).statSync(outputPath).size;
+    size = (await import("fs")).statSync(outputPath).size;
     return size;
   }
 
   private async uploadToS3(filePath: string, fileName: string): Promise<void> {
     if (!this.s3Client) {
-      throw new Error('S3 client not initialized');
+      throw new Error("S3 client not initialized");
     }
 
     const fileStream = createReadStream(filePath);
@@ -187,15 +194,17 @@ export class BackupService {
   private async cleanupOldBackups(type: BackupType): Promise<void> {
     const maxBackups = backupConfig.schedules[type].maxBackups;
     const typePattern = new RegExp(`^${type}-.*\\.tar\\.gz$`);
-    
+
     const files = await readdir(backupConfig.backupDir);
     const typeFiles = files
-      .filter(file => typePattern.test(file))
-      .map(file => ({
+      .filter((file) => typePattern.test(file))
+      .map((file) => ({
         name: file,
         path: path.join(backupConfig.backupDir, file),
         time: (async () => {
-          const stats = await import('fs/promises').then(fs => fs.stat(path.join(backupConfig.backupDir, file)));
+          const stats = await import("fs/promises").then((fs) =>
+            fs.stat(path.join(backupConfig.backupDir, file)),
+          );
           return stats.mtime.getTime();
         })(),
       }));
@@ -213,13 +222,15 @@ export class BackupService {
   private generateBackupFileName(type: BackupType, timestamp: Date): string {
     const dateStr = timestamp
       .toISOString()
-      .replace(/[:.]/g, '-')
-      .replace('T', '_')
+      .replace(/[:.]/g, "-")
+      .replace("T", "_")
       .slice(0, -5);
     return `${type}-${dateStr}.tar.gz`;
   }
 
-  private async sendNotification(notification: BackupNotification): Promise<void> {
+  private async sendNotification(
+    notification: BackupNotification,
+  ): Promise<void> {
     try {
       // Send email notification if enabled
       if (backupConfig.notifications.email.enabled) {
@@ -231,24 +242,28 @@ export class BackupService {
       if (backupConfig.notifications.slack.enabled) {
         const { webhook, channel } = backupConfig.notifications.slack;
         await fetch(webhook, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             channel,
             text: notification.message,
-            attachments: [{
-              color: notification.type === 'success' ? 'good' : 'danger',
-              fields: Object.entries(notification.details).map(([key, value]) => ({
-                title: key,
-                value: String(value),
-                short: true,
-              })),
-            }],
+            attachments: [
+              {
+                color: notification.type === "success" ? "good" : "danger",
+                fields: Object.entries(notification.details).map(
+                  ([key, value]) => ({
+                    title: key,
+                    value: String(value),
+                    short: true,
+                  }),
+                ),
+              },
+            ],
           }),
         });
       }
     } catch (error) {
-      logger.error('Failed to send backup notification:', error);
+      logger.error("Failed to send backup notification:", error);
     }
   }
-} 
+}

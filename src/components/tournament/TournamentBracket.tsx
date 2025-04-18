@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -10,8 +10,8 @@ import {
   Icon,
   Button,
   useToast,
-} from '@chakra-ui/react';
-import { FaTrophy, FaUser, FaClock, FaCheck } from 'react-icons/fa';
+} from "@chakra-ui/react";
+import { FaTrophy, FaUser, FaClock, FaCheck } from "react-icons/fa";
 
 interface Match {
   id: string;
@@ -20,7 +20,7 @@ interface Match {
   player1: Player;
   player2: Player;
   winner?: Player;
-  status: 'scheduled' | 'in_progress' | 'completed';
+  status: "scheduled" | "in_progress" | "completed";
   startTime?: string;
   endTime?: string;
 }
@@ -49,20 +49,23 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   const toast = useToast();
 
   // Colors based on theme
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const winnerColor = useColorModeValue('green.500', 'green.300');
-  const activeColor = useColorModeValue('blue.500', 'blue.300');
-  const scheduledColor = useColorModeValue('gray.500', 'gray.300');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const winnerColor = useColorModeValue("green.500", "green.300");
+  const activeColor = useColorModeValue("blue.500", "blue.300");
+  const scheduledColor = useColorModeValue("gray.500", "gray.300");
 
   // Group matches by round
-  const matchesByRound = matches.reduce((acc, match) => {
-    if (!acc[match.round]) {
-      acc[match.round] = [];
-    }
-    acc[match.round].push(match);
-    return acc;
-  }, {} as Record<number, Match[]>);
+  const matchesByRound = matches.reduce(
+    (acc, match) => {
+      if (!acc[match.round]) {
+        acc[match.round] = [];
+      }
+      acc[match.round].push(match);
+      return acc;
+    },
+    {} as Record<number, Match[]>,
+  );
 
   const handleMatchClick = (matchId: string) => {
     if (onMatchClick) {
@@ -70,22 +73,22 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
     }
   };
 
-  const getMatchStatusColor = (status: Match['status']) => {
+  const getMatchStatusColor = (status: Match["status"]) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return winnerColor;
-      case 'in_progress':
+      case "in_progress":
         return activeColor;
       default:
         return scheduledColor;
     }
   };
 
-  const getMatchStatusIcon = (status: Match['status']) => {
+  const getMatchStatusIcon = (status: Match["status"]) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return FaCheck;
-      case 'in_progress':
+      case "in_progress":
         return FaClock;
       default:
         return FaClock;
@@ -104,14 +107,26 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
         borderWidth="1px"
         borderColor={borderColor}
         borderRadius="lg"
-        cursor={onMatchClick ? 'pointer' : 'default'}
+        cursor={onMatchClick ? "pointer" : "default"}
         onClick={() => handleMatchClick(match.id)}
-        _hover={onMatchClick ? { transform: 'scale(1.02)', transition: 'transform 0.2s' } : undefined}
+        _hover={
+          onMatchClick
+            ? { transform: "scale(1.02)", transition: "transform 0.2s" }
+            : undefined
+        }
       >
         <VStack spacing={2} align="stretch">
           <HStack justify="space-between">
             <Text fontWeight="bold">Match {match.matchNumber}</Text>
-            <Badge colorScheme={match.status === 'completed' ? 'green' : match.status === 'in_progress' ? 'blue' : 'gray'}>
+            <Badge
+              colorScheme={
+                match.status === "completed"
+                  ? "green"
+                  : match.status === "in_progress"
+                    ? "blue"
+                    : "gray"
+              }
+            >
               {match.status.charAt(0).toUpperCase() + match.status.slice(1)}
             </Badge>
           </HStack>
@@ -142,14 +157,18 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           {match.startTime && (
             <HStack spacing={2}>
               <Icon as={FaClock} />
-              <Text fontSize="sm">Started: {new Date(match.startTime).toLocaleString()}</Text>
+              <Text fontSize="sm">
+                Started: {new Date(match.startTime).toLocaleString()}
+              </Text>
             </HStack>
           )}
 
           {match.endTime && (
             <HStack spacing={2}>
               <Icon as={FaCheck} />
-              <Text fontSize="sm">Completed: {new Date(match.endTime).toLocaleString()}</Text>
+              <Text fontSize="sm">
+                Completed: {new Date(match.endTime).toLocaleString()}
+              </Text>
             </HStack>
           )}
         </VStack>
@@ -169,9 +188,11 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           {round > 1 && (
             <Button
               size="sm"
-              onClick={() => setExpandedRound(prev => prev === round ? round - 1 : round)}
+              onClick={() =>
+                setExpandedRound((prev) => (prev === round ? round - 1 : round))
+              }
             >
-              {isExpanded ? 'Collapse' : 'Expand'}
+              {isExpanded ? "Collapse" : "Expand"}
             </Button>
           )}
         </HStack>
@@ -205,4 +226,4 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
       </Box>
     </VStack>
   );
-}; 
+};

@@ -4,9 +4,9 @@ import {
   getDownloadURL,
   deleteObject,
   listAll,
-  StorageReference
-} from 'firebase/storage';
-import { storage } from './config';
+  StorageReference,
+} from "firebase/storage";
+import { storage } from "./config";
 
 // Upload file
 export const uploadFile = async (path: string, file: File) => {
@@ -53,9 +53,9 @@ export const listFiles = async (path: string) => {
         return {
           name: itemRef.name,
           fullPath: itemRef.fullPath,
-          url
+          url,
         };
-      })
+      }),
     );
     return { success: true, files: urls };
   } catch (error: any) {
@@ -74,4 +74,4 @@ export const uploadGameRecording = async (gameId: string, file: File) => {
 
 export const uploadVenueImage = async (venueId: string, file: File) => {
   return uploadFile(`venues/${venueId}/images/${file.name}`, file);
-}; 
+};

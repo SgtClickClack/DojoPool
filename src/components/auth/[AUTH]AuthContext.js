@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -8,7 +8,7 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
-} from '../../firebase';
+} from "../../firebase";
 
 const AuthContext = createContext();
 
@@ -22,7 +22,11 @@ export function AuthProvider({ children }) {
 
   async function signup(email, password, displayName) {
     try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       await updateProfile(result.user, { displayName });
       return result;
     } catch (error) {
@@ -82,5 +86,9 @@ export function AuthProvider({ children }) {
     loading,
   };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 }

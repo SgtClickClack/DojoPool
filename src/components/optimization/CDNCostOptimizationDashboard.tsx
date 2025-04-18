@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -16,7 +16,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-} from '@mui/material';
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -29,7 +29,7 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts';
+} from "recharts";
 
 interface CostReport {
   optimization: {
@@ -56,7 +56,7 @@ interface CostReport {
   timestamp: string;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function CDNCostOptimizationDashboard() {
   const [loading, setLoading] = useState(true);
@@ -74,14 +74,14 @@ export default function CDNCostOptimizationDashboard() {
   const fetchCostReport = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/cdn/cost');
+      const response = await fetch("/api/cdn/cost");
       if (!response.ok) {
-        throw new Error('Failed to fetch cost report');
+        throw new Error("Failed to fetch cost report");
       }
       const data = await response.json();
       setCostReport(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -90,10 +90,10 @@ export default function CDNCostOptimizationDashboard() {
   const handleOptimize = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/cdn/cost', {
-        method: 'POST',
+      const response = await fetch("/api/cdn/cost", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           cost_threshold: costThreshold,
@@ -103,20 +103,20 @@ export default function CDNCostOptimizationDashboard() {
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to optimize costs');
+        throw new Error("Failed to optimize costs");
       }
       await fetchCostReport();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(value);
   };
 
@@ -126,7 +126,12 @@ export default function CDNCostOptimizationDashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -149,15 +154,20 @@ export default function CDNCostOptimizationDashboard() {
   }
 
   const costData = [
-    { name: 'Total Cost', value: costReport.optimization.costs.total_cost },
-    { name: 'Bandwidth Cost', value: costReport.optimization.costs.bandwidth_cost },
-    { name: 'Request Cost', value: costReport.optimization.costs.request_cost },
+    { name: "Total Cost", value: costReport.optimization.costs.total_cost },
+    {
+      name: "Bandwidth Cost",
+      value: costReport.optimization.costs.bandwidth_cost,
+    },
+    { name: "Request Cost", value: costReport.optimization.costs.request_cost },
   ];
 
-  const hourlyData = Object.entries(costReport.usage.hourly_usage).map(([hour, value]) => ({
-    hour: parseInt(hour),
-    value,
-  }));
+  const hourlyData = Object.entries(costReport.usage.hourly_usage).map(
+    ([hour, value]) => ({
+      hour: parseInt(hour),
+      value,
+    }),
+  );
 
   return (
     <Box sx={{ p: 3 }}>
@@ -181,13 +191,18 @@ export default function CDNCostOptimizationDashboard() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${formatPercentage(percent)}`}
+                      label={({ name, percent }) =>
+                        `${name}: ${formatPercentage(percent)}`
+                      }
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
                       {costData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
                       ))}
                     </Pie>
                     <Tooltip formatter={formatCurrency} />
@@ -209,17 +224,22 @@ export default function CDNCostOptimizationDashboard() {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Typography>
-                    Status: {costReport.optimization.optimized ? 'Optimized' : 'No Optimization Needed'}
+                    Status:{" "}
+                    {costReport.optimization.optimized
+                      ? "Optimized"
+                      : "No Optimization Needed"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography>
-                    Total Savings: {formatCurrency(costReport.optimization.savings)}
+                    Total Savings:{" "}
+                    {formatCurrency(costReport.optimization.savings)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography>
-                    Optimization Time: {costReport.optimization.optimization_time.toFixed(2)}s
+                    Optimization Time:{" "}
+                    {costReport.optimization.optimization_time.toFixed(2)}s
                   </Typography>
                 </Grid>
               </Grid>
@@ -275,7 +295,7 @@ export default function CDNCostOptimizationDashboard() {
                     value={costThreshold}
                     onChange={(e) => setCostThreshold(Number(e.target.value))}
                     InputProps={{
-                      startAdornment: '$',
+                      startAdornment: "$",
                     }}
                   />
                 </Grid>
@@ -283,7 +303,9 @@ export default function CDNCostOptimizationDashboard() {
                   <Typography gutterBottom>Bandwidth Threshold</Typography>
                   <Slider
                     value={bandwidthThreshold}
-                    onChange={(_, value) => setBandwidthThreshold(value as number)}
+                    onChange={(_, value) =>
+                      setBandwidthThreshold(value as number)
+                    }
                     min={0}
                     max={2000}
                     step={50}
@@ -294,9 +316,11 @@ export default function CDNCostOptimizationDashboard() {
                     fullWidth
                     type="number"
                     value={bandwidthThreshold}
-                    onChange={(e) => setBandwidthThreshold(Number(e.target.value))}
+                    onChange={(e) =>
+                      setBandwidthThreshold(Number(e.target.value))
+                    }
                     InputProps={{
-                      startAdornment: '$',
+                      startAdornment: "$",
                     }}
                   />
                 </Grid>
@@ -304,7 +328,9 @@ export default function CDNCostOptimizationDashboard() {
                   <Typography gutterBottom>Request Threshold</Typography>
                   <Slider
                     value={requestThreshold}
-                    onChange={(_, value) => setRequestThreshold(value as number)}
+                    onChange={(_, value) =>
+                      setRequestThreshold(value as number)
+                    }
                     min={0}
                     max={500}
                     step={10}
@@ -315,17 +341,23 @@ export default function CDNCostOptimizationDashboard() {
                     fullWidth
                     type="number"
                     value={requestThreshold}
-                    onChange={(e) => setRequestThreshold(Number(e.target.value))}
+                    onChange={(e) =>
+                      setRequestThreshold(Number(e.target.value))
+                    }
                     InputProps={{
-                      startAdornment: '$',
+                      startAdornment: "$",
                     }}
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography gutterBottom>Optimization Interval (hours)</Typography>
+                  <Typography gutterBottom>
+                    Optimization Interval (hours)
+                  </Typography>
                   <Slider
                     value={optimizationInterval}
-                    onChange={(_, value) => setOptimizationInterval(value as number)}
+                    onChange={(_, value) =>
+                      setOptimizationInterval(value as number)
+                    }
                     min={1}
                     max={168}
                     step={1}
@@ -335,7 +367,9 @@ export default function CDNCostOptimizationDashboard() {
                     fullWidth
                     type="number"
                     value={optimizationInterval}
-                    onChange={(e) => setOptimizationInterval(Number(e.target.value))}
+                    onChange={(e) =>
+                      setOptimizationInterval(Number(e.target.value))
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -355,4 +389,4 @@ export default function CDNCostOptimizationDashboard() {
       </Grid>
     </Box>
   );
-} 
+}

@@ -20,17 +20,17 @@ export interface NetworkMessage<T = unknown> {
 }
 
 export enum NetworkMessageType {
-  APPEND_ENTRIES = 'APPEND_ENTRIES',
-  APPEND_ENTRIES_RESPONSE = 'APPEND_ENTRIES_RESPONSE',
-  REQUEST_VOTE = 'REQUEST_VOTE',
-  REQUEST_VOTE_RESPONSE = 'REQUEST_VOTE_RESPONSE',
-  STATE_SYNC = 'STATE_SYNC',
-  STATE_SYNC_RESPONSE = 'STATE_SYNC_RESPONSE',
-  HEARTBEAT = 'HEARTBEAT',
-  CONNECT = 'CONNECT',
-  DISCONNECT = 'DISCONNECT',
-  MESSAGE = 'MESSAGE',
-  ERROR = 'ERROR'
+  APPEND_ENTRIES = "APPEND_ENTRIES",
+  APPEND_ENTRIES_RESPONSE = "APPEND_ENTRIES_RESPONSE",
+  REQUEST_VOTE = "REQUEST_VOTE",
+  REQUEST_VOTE_RESPONSE = "REQUEST_VOTE_RESPONSE",
+  STATE_SYNC = "STATE_SYNC",
+  STATE_SYNC_RESPONSE = "STATE_SYNC_RESPONSE",
+  HEARTBEAT = "HEARTBEAT",
+  CONNECT = "CONNECT",
+  DISCONNECT = "DISCONNECT",
+  MESSAGE = "MESSAGE",
+  ERROR = "ERROR",
 }
 
 export interface NetworkTransportConfig {
@@ -70,32 +70,42 @@ export interface NetworkError {
 }
 
 export enum NetworkEvents {
-  MESSAGE = 'message',
-  ERROR = 'error',
-  CONNECT = 'connect',
-  DISCONNECT = 'disconnect',
-  STATS = 'stats'
+  MESSAGE = "message",
+  ERROR = "error",
+  CONNECT = "connect",
+  DISCONNECT = "disconnect",
+  STATS = "stats",
 }
 
 export interface NetworkTransport {
-  send<T>(target: string, message: Omit<NetworkMessage<T>, 'source' | 'timestamp'>): Promise<void>;
+  send<T>(
+    target: string,
+    message: Omit<NetworkMessage<T>, "source" | "timestamp">,
+  ): Promise<void>;
   onMessage(handler: (message: NetworkMessage) => void): void;
-  broadcast<T>(message: Omit<NetworkMessage<T>, 'source' | 'timestamp' | 'target'>): Promise<void>;
+  broadcast<T>(
+    message: Omit<NetworkMessage<T>, "source" | "timestamp" | "target">,
+  ): Promise<void>;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 }
 
 export type NetworkEventHandler<T extends any[]> = (...args: T) => void;
 
-export interface NetworkEventMap extends Record<string | symbol, NetworkEventHandler<any[]>> {
-  'connect': (nodeId: string) => void;
-  'disconnect': (nodeId: string) => void;
-  'message': (message: NetworkMessage) => void;
-  'error': (error: NetworkError) => void;
-  'stateUpdated': (state: unknown) => void;
-  'stateSyncRequest': (request: { nodeId: string; state: unknown; timestamp: number }) => void;
-  'state:change': (state: unknown) => void;
-  'leader:elected': (leaderId: string) => void;
-  'entry:committed': (entry: unknown) => void;
+export interface NetworkEventMap
+  extends Record<string | symbol, NetworkEventHandler<any[]>> {
+  connect: (nodeId: string) => void;
+  disconnect: (nodeId: string) => void;
+  message: (message: NetworkMessage) => void;
+  error: (error: NetworkError) => void;
+  stateUpdated: (state: unknown) => void;
+  stateSyncRequest: (request: {
+    nodeId: string;
+    state: unknown;
+    timestamp: number;
+  }) => void;
+  "state:change": (state: unknown) => void;
+  "leader:elected": (leaderId: string) => void;
+  "entry:committed": (entry: unknown) => void;
   [key: string]: NetworkEventHandler<any[]>;
-} 
+}

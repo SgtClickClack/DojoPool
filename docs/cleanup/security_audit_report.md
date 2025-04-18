@@ -1,12 +1,15 @@
 # Security Audit Report
+
 Generated at: 2025-01-14T16:57:35.716233
 
 ## Overview
+
 - Security Files Found: 15
 - Potential Secrets Found: 234
 - Issues Found: 2
 
 ## Security Files
+
 - certs\server.crt
   - Type: Certificate
   - Size: 1134 bytes
@@ -63,12 +66,13 @@ Generated at: 2025-01-14T16:57:35.716233
   - Type: Private Key
   - Size: 1704 bytes
   - Last Modified: 2025-01-03T21:59:59.929538
-- venv_new\Lib\site-packages\pip\_vendor\certifi\cacert.pem
+- venv_new\Lib\site-packages\pip_vendor\certifi\cacert.pem
   - Type: PEM Certificate
   - Size: 299427 bytes
   - Last Modified: 2025-01-10T12:39:15.175852
 
 ## Potential Secrets Found
+
 - context_validation.yaml (Line 509)
   - Type: password
   - Risk Level: MEDIUM
@@ -759,13 +763,13 @@ Generated at: 2025-01-14T16:57:35.716233
 - venv_new\Lib\site-packages\jinja2\lexer.py (Line 185)
   - Type: secret
   - Risk Level: HIGH
-- venv_new\Lib\site-packages\pip\_internal\network\auth.py (Line 467)
+- venv_new\Lib\site-packages\pip_internal\network\auth.py (Line 467)
   - Type: password
   - Risk Level: MEDIUM
-- venv_new\Lib\site-packages\pip\_internal\utils\misc.py (Line 477)
+- venv_new\Lib\site-packages\pip_internal\utils\misc.py (Line 477)
   - Type: password
   - Risk Level: MEDIUM
-- venv_new\Lib\site-packages\pip\_vendor\rich\_emoji_codes.py (Line 2882)
+- venv_new\Lib\site-packages\pip_vendor\rich_emoji_codes.py (Line 2882)
   - Type: secret
   - Risk Level: HIGH
 - venv_new\Lib\site-packages\werkzeug\debug\tbtools.py (Line 30)
@@ -773,5 +777,6 @@ Generated at: 2025-01-14T16:57:35.716233
   - Risk Level: HIGH
 
 ## Issues Found
+
 - deployment\nginx\test\nginx\nginx.conf: [Errno 13] Permission denied: 'C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\deployment\\nginx\\test\\nginx\\nginx.conf'
 - src\dojopool\core\backend\Dojo_Pool.py: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte

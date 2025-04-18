@@ -5,7 +5,10 @@ export interface Location {
   timestamp?: number;
 }
 
-export const calculateDistance = (location1: Location, location2: Location): number => {
+export const calculateDistance = (
+  location1: Location,
+  location2: Location,
+): number => {
   const R = 6371e3; // Earth's radius in meters
   const φ1 = (location1.latitude * Math.PI) / 180;
   const φ2 = (location2.latitude * Math.PI) / 180;
@@ -24,7 +27,7 @@ export const calculateDistance = (location1: Location, location2: Location): num
 export const isWithinRadius = (
   location1: Location,
   location2: Location,
-  radiusMeters: number
+  radiusMeters: number,
 ): boolean => {
   return calculateDistance(location1, location2) <= radiusMeters;
 };
@@ -32,7 +35,7 @@ export const isWithinRadius = (
 export const getCurrentLocation = (): Promise<Location> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by your browser'));
+      reject(new Error("Geolocation is not supported by your browser"));
       return;
     }
 
@@ -52,20 +55,20 @@ export const getCurrentLocation = (): Promise<Location> => {
         enableHighAccuracy: true,
         timeout: 5000,
         maximumAge: 0,
-      }
+      },
     );
   });
 };
 
 export const watchLocation = (
   onLocationUpdate: (location: Location) => void,
-  onError?: (error: GeolocationPositionError) => void
+  onError?: (error: GeolocationPositionError) => void,
 ): (() => void) => {
   if (!navigator.geolocation) {
     if (onError) {
       onError({
         code: 2,
-        message: 'Geolocation is not supported by your browser',
+        message: "Geolocation is not supported by your browser",
         PERMISSION_DENIED: 1,
         POSITION_UNAVAILABLE: 2,
         TIMEOUT: 3,
@@ -88,10 +91,10 @@ export const watchLocation = (
       enableHighAccuracy: true,
       timeout: 5000,
       maximumAge: 0,
-    }
+    },
   );
 
   return () => {
     navigator.geolocation.clearWatch(watchId);
   };
-}; 
+};

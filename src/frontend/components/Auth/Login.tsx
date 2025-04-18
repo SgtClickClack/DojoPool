@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -10,16 +10,20 @@ import {
   InputAdornment,
   Alert,
   Container,
-} from '@mui/material';
-import { Google as GoogleIcon, Visibility, VisibilityOff } from '@mui/icons-material';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+} from "@mui/material";
+import {
+  Google as GoogleIcon,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -27,12 +31,12 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await signIn(email, password);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      setError(err.message || "Failed to sign in");
     } finally {
       setLoading(false);
     }
@@ -40,12 +44,12 @@ const Login: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await signInWithGoogle();
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      setError(err.message || "Failed to sign in with Google");
     } finally {
       setLoading(false);
     }
@@ -56,21 +60,21 @@ const Login: React.FC = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Paper
           elevation={3}
           sx={{
             p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            background: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(10px)",
           }}
         >
           <Typography component="h1" variant="h5" gutterBottom>
@@ -78,12 +82,16 @@ const Login: React.FC = () => {
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ mt: 1, width: "100%" }}
+          >
             <TextField
               margin="normal"
               required
@@ -102,7 +110,7 @@ const Login: React.FC = () => {
               fullWidth
               name="password"
               label="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="current-password"
               value={password}
@@ -145,12 +153,12 @@ const Login: React.FC = () => {
               Sign in with Google
             </Button>
 
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                Don't have an account?{' '}
+                Don't have an account?{" "}
                 <RouterLink
                   to="/register"
-                  style={{ color: 'primary.main', textDecoration: 'none' }}
+                  style={{ color: "primary.main", textDecoration: "none" }}
                 >
                   Sign up
                 </RouterLink>
@@ -163,4 +171,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;

@@ -12,15 +12,15 @@ Retrieves the global rankings list with detailed player statistics.
 
 #### Query Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| page | integer | Page number (default: 1) |
-| per_page | integer | Items per page (default: 20, max: 100) |
-| sort_by | string | Sort field (rating, games_won, tournament_wins) |
-| order | string | Sort order (asc, desc) |
-| tier | string | Filter by tier (optional) |
-| min_rating | integer | Minimum rating filter (optional) |
-| max_rating | integer | Maximum rating filter (optional) |
+| Parameter  | Type    | Description                                     |
+| ---------- | ------- | ----------------------------------------------- |
+| page       | integer | Page number (default: 1)                        |
+| per_page   | integer | Items per page (default: 20, max: 100)          |
+| sort_by    | string  | Sort field (rating, games_won, tournament_wins) |
+| order      | string  | Sort order (asc, desc)                          |
+| tier       | string  | Filter by tier (optional)                       |
+| min_rating | integer | Minimum rating filter (optional)                |
+| max_rating | integer | Maximum rating filter (optional)                |
 
 #### Response
 
@@ -56,11 +56,11 @@ Retrieves the global rankings list with detailed player statistics.
 
 #### Status Codes
 
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Success |
-| 400 | Invalid parameters |
-| 429 | Rate limit exceeded |
+| Status Code | Description         |
+| ----------- | ------------------- |
+| 200         | Success             |
+| 400         | Invalid parameters  |
+| 429         | Rate limit exceeded |
 
 ---
 
@@ -74,9 +74,9 @@ Retrieves detailed ranking information for a specific player.
 
 #### Path Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| user_id | string | Unique identifier of the player |
+| Parameter | Type   | Description                     |
+| --------- | ------ | ------------------------------- |
+| user_id   | string | Unique identifier of the player |
 
 #### Response
 
@@ -130,11 +130,11 @@ Retrieves detailed ranking information for a specific player.
 
 #### Status Codes
 
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Success |
-| 404 | Player not found |
-| 429 | Rate limit exceeded |
+| Status Code | Description         |
+| ----------- | ------------------- |
+| 200         | Success             |
+| 404         | Player not found    |
+| 429         | Rate limit exceeded |
 
 ---
 
@@ -148,8 +148,8 @@ Triggers a manual update of the global rankings. Admin access required.
 
 #### Request Headers
 
-| Header | Value |
-|--------|--------|
+| Header        | Value                |
+| ------------- | -------------------- |
 | Authorization | Bearer {admin_token} |
 
 #### Response
@@ -164,12 +164,12 @@ Triggers a manual update of the global rankings. Admin access required.
 
 #### Status Codes
 
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Rankings updated successfully |
-| 401 | Unauthorized |
-| 403 | Forbidden (non-admin user) |
-| 429 | Rate limit exceeded |
+| Status Code | Description                   |
+| ----------- | ----------------------------- |
+| 200         | Rankings updated successfully |
+| 401         | Unauthorized                  |
+| 403         | Forbidden (non-admin user)    |
+| 429         | Rate limit exceeded           |
 
 ---
 
@@ -193,13 +193,13 @@ Triggers a manual update of the global rankings. Admin access required.
 
 ## Common Error Codes
 
-| Code | Description |
-|------|-------------|
+| Code               | Description              |
+| ------------------ | ------------------------ |
 | INVALID_PARAMETERS | Invalid query parameters |
-| PLAYER_NOT_FOUND | Player ID not found |
-| UNAUTHORIZED | Missing or invalid token |
-| FORBIDDEN | Insufficient permissions |
-| RATE_LIMITED | Too many requests |
+| PLAYER_NOT_FOUND   | Player ID not found      |
+| UNAUTHORIZED       | Missing or invalid token |
+| FORBIDDEN          | Insufficient permissions |
+| RATE_LIMITED       | Too many requests        |
 
 ## Caching
 
@@ -213,4 +213,4 @@ Triggers a manual update of the global rankings. Admin access required.
 2. Cache responses on the client side
 3. Handle rate limits gracefully
 4. Implement exponential backoff for retries
-5. Monitor API usage and response times 
+5. Monitor API usage and response times

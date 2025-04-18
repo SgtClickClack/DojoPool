@@ -1,7 +1,7 @@
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import Home from './components/Pages/Home.tsx';
-import GlobalRankings from './components/rankings/GlobalRankings';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import Home from "./components/Pages/Home.tsx";
+import GlobalRankings from "./components/rankings/GlobalRankings";
 
 const App = () => {
   return (

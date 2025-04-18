@@ -1,8 +1,8 @@
-import '@testing-library/jest-dom';
-import { TextEncoder, TextDecoder as NodeTextDecoder } from 'util';
-import { MockWebSocket } from './utils/testUtils';
-import { configure } from '@testing-library/react';
-import { jest, afterEach } from '@jest/globals';
+import "@testing-library/jest-dom";
+import { TextEncoder, TextDecoder as NodeTextDecoder } from "util";
+import { MockWebSocket } from "./utils/testUtils";
+import { configure } from "@testing-library/react";
+import { jest, afterEach } from "@jest/globals";
 
 // TextEncoder/TextDecoder polyfills
 global.TextEncoder = TextEncoder;
@@ -27,11 +27,11 @@ const sessionStorageMock = {
   key: jest.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
+Object.defineProperty(window, "localStorage", { value: localStorageMock });
+Object.defineProperty(window, "sessionStorage", { value: sessionStorageMock });
 
 // Mock WebSocket
-Object.defineProperty(window, 'WebSocket', { value: MockWebSocket });
+Object.defineProperty(window, "WebSocket", { value: MockWebSocket });
 
 // Mock ResizeObserver
 class ResizeObserver {
@@ -49,14 +49,14 @@ class IntersectionObserver {
   unobserve = jest.fn();
 }
 
-Object.defineProperty(window, 'IntersectionObserver', {
+Object.defineProperty(window, "IntersectionObserver", {
   writable: true,
   configurable: true,
   value: IntersectionObserver,
 });
 
 // Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query: string) => ({
     matches: false,
@@ -72,7 +72,9 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock performance.now
 const mockPerformanceNow = jest.fn(() => Date.now());
-const mockRequestAnimationFrame = jest.fn((callback: FrameRequestCallback) => setTimeout(() => callback(performance.now()), 0));
+const mockRequestAnimationFrame = jest.fn((callback: FrameRequestCallback) =>
+  setTimeout(() => callback(performance.now()), 0),
+);
 const mockCancelAnimationFrame = jest.fn((id: number) => clearTimeout(id));
 
 global.requestAnimationFrame = mockRequestAnimationFrame;
@@ -85,7 +87,7 @@ HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
   getImageData: jest.fn(() => ({
     data: new Uint8ClampedArray(100),
     width: 10,
-    height: 10
+    height: 10,
   })),
   putImageData: jest.fn(),
   clearRect: jest.fn(),
@@ -101,7 +103,7 @@ afterEach(() => {
   jest.clearAllMocks();
   localStorage.clear();
   sessionStorage.clear();
-  document.body.innerHTML = '';
+  document.body.innerHTML = "";
 });
 
 // Global test timeout
@@ -109,7 +111,7 @@ jest.setTimeout(10000);
 
 // Configure testing-library
 configure({
-  testIdAttribute: 'data-testid',
+  testIdAttribute: "data-testid",
 });
 
 // Add any global test utilities or mocks here
@@ -126,18 +128,18 @@ class MockTextDecoder implements TextDecoder {
   ignoreBOM: boolean;
 
   constructor() {
-    this.encoding = 'utf-8';
+    this.encoding = "utf-8";
     this.fatal = false;
     this.ignoreBOM = false;
   }
-  
+
   decode(input?: BufferSource): string {
-    if (!input) return '';
+    if (!input) return "";
     if (input instanceof ArrayBuffer) {
       return new NodeTextDecoder().decode(input);
     }
-    return '';
+    return "";
   }
 }
 
-global.TextDecoder = MockTextDecoder as unknown as typeof TextDecoder; 
+global.TextDecoder = MockTextDecoder as unknown as typeof TextDecoder;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -8,10 +8,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  LinearProgress
-} from '@mui/material';
-import { MetricsData } from '../../collectors/MetricsCollector';
-import { AlertThreshold } from '../../config';
+  LinearProgress,
+} from "@mui/material";
+import { MetricsData } from "../../collectors/MetricsCollector";
+import { AlertThreshold } from "../../config";
 
 interface MetricsPanelProps {
   title: string;
@@ -19,11 +19,14 @@ interface MetricsPanelProps {
   thresholds?: Record<string, AlertThreshold>;
 }
 
-const getThresholdColor = (value: number, threshold?: AlertThreshold): string => {
-  if (!threshold) return 'primary.main';
-  if (value >= threshold.critical) return 'error.main';
-  if (value >= threshold.warning) return 'warning.main';
-  return 'success.main';
+const getThresholdColor = (
+  value: number,
+  threshold?: AlertThreshold,
+): string => {
+  if (!threshold) return "primary.main";
+  if (value >= threshold.critical) return "error.main";
+  if (value >= threshold.warning) return "warning.main";
+  return "success.main";
 };
 
 const formatMetricValue = (value: number): string => {
@@ -32,7 +35,10 @@ const formatMetricValue = (value: number): string => {
   return value.toFixed(2);
 };
 
-const calculateProgress = (value: number, threshold?: AlertThreshold): number => {
+const calculateProgress = (
+  value: number,
+  threshold?: AlertThreshold,
+): number => {
   if (!threshold) return 0;
   const max = threshold.critical * 1.2; // Add 20% buffer
   return Math.min((value / max) * 100, 100);
@@ -41,7 +47,7 @@ const calculateProgress = (value: number, threshold?: AlertThreshold): number =>
 export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   title,
   metrics = {},
-  thresholds = {}
+  thresholds = {},
 }) => {
   return (
     <Box>
@@ -76,21 +82,25 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    {threshold?.warning ? formatMetricValue(threshold.warning) : '-'}
+                    {threshold?.warning
+                      ? formatMetricValue(threshold.warning)
+                      : "-"}
                   </TableCell>
                   <TableCell align="right">
-                    {threshold?.critical ? formatMetricValue(threshold.critical) : '-'}
+                    {threshold?.critical
+                      ? formatMetricValue(threshold.critical)
+                      : "-"}
                   </TableCell>
-                  <TableCell sx={{ width: '30%' }}>
+                  <TableCell sx={{ width: "30%" }}>
                     <LinearProgress
                       variant="determinate"
                       value={progress}
                       color={
                         value >= (threshold?.critical ?? Infinity)
-                          ? 'error'
+                          ? "error"
                           : value >= (threshold?.warning ?? Infinity)
-                          ? 'warning'
-                          : 'success'
+                            ? "warning"
+                            : "success"
                       }
                       sx={{ height: 8, borderRadius: 4 }}
                     />
@@ -103,4 +113,4 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       </TableContainer>
     </Box>
   );
-}; 
+};

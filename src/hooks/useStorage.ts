@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   uploadFile,
   getFileURL,
@@ -6,9 +6,9 @@ import {
   listFiles,
   uploadProfileImage,
   uploadGameRecording,
-  uploadVenueImage
-} from '@/firebase/storage';
-import { FirebaseResponse } from '@/firebase/types';
+  uploadVenueImage,
+} from "@/firebase/storage";
+import { FirebaseResponse } from "@/firebase/types";
 
 export const useStorage = () => {
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,10 @@ export const useStorage = () => {
     setTimeout(() => setError(null), 5000);
   };
 
-  const upload = async (path: string, file: File): Promise<FirebaseResponse<string>> => {
+  const upload = async (
+    path: string,
+    file: File,
+  ): Promise<FirebaseResponse<string>> => {
     try {
       setLoading(true);
       setProgress(0);
@@ -79,7 +82,10 @@ export const useStorage = () => {
   };
 
   // Specialized upload functions
-  const uploadProfile = async (userId: string, file: File): Promise<FirebaseResponse<string>> => {
+  const uploadProfile = async (
+    userId: string,
+    file: File,
+  ): Promise<FirebaseResponse<string>> => {
     try {
       setLoading(true);
       setProgress(0);
@@ -95,7 +101,10 @@ export const useStorage = () => {
     }
   };
 
-  const uploadGame = async (gameId: string, file: File): Promise<FirebaseResponse<string>> => {
+  const uploadGame = async (
+    gameId: string,
+    file: File,
+  ): Promise<FirebaseResponse<string>> => {
     try {
       setLoading(true);
       setProgress(0);
@@ -111,7 +120,10 @@ export const useStorage = () => {
     }
   };
 
-  const uploadVenue = async (venueId: string, file: File): Promise<FirebaseResponse<string>> => {
+  const uploadVenue = async (
+    venueId: string,
+    file: File,
+  ): Promise<FirebaseResponse<string>> => {
     try {
       setLoading(true);
       setProgress(0);
@@ -137,6 +149,6 @@ export const useStorage = () => {
     list,
     uploadProfile,
     uploadGame,
-    uploadVenue
+    uploadVenue,
   };
-}; 
+};

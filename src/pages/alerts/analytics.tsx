@@ -1,7 +1,7 @@
-import React from 'react';
-import { AlertAnalyticsDashboard } from '../../components/alerts/AlertAnalyticsDashboard';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import React from "react";
+import { AlertAnalyticsDashboard } from "../../components/alerts/AlertAnalyticsDashboard";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const AlertAnalyticsPage: React.FC = () => {
   return (
@@ -11,4 +11,4 @@ const AlertAnalyticsPage: React.FC = () => {
   );
 };
 
-export default AlertAnalyticsPage; 
+export default AlertAnalyticsPage;

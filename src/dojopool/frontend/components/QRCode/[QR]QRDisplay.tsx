@@ -1,7 +1,7 @@
-import React from 'react';
-import { Box, Button, Paper, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import DownloadIcon from '@mui/icons-material/Download';
+import React from "react";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import DownloadIcon from "@mui/icons-material/Download";
 
 interface QRDisplayProps {
   qrCode: string;
@@ -12,21 +12,26 @@ interface QRDisplayProps {
 
 const QRContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
   gap: theme.spacing(2),
-  maxWidth: '300px',
-  margin: '0 auto',
+  maxWidth: "300px",
+  margin: "0 auto",
 }));
 
-const QRImage = styled('img')({
-  width: '100%',
-  height: 'auto',
-  maxWidth: '250px',
+const QRImage = styled("img")({
+  width: "100%",
+  height: "auto",
+  maxWidth: "250px",
 });
 
-const QRDisplay: React.FC<QRDisplayProps> = ({ qrCode, title, tableNumber, onDownload }) => {
+const QRDisplay: React.FC<QRDisplayProps> = ({
+  qrCode,
+  title,
+  tableNumber,
+  onDownload,
+}) => {
   const handleDownload = () => {
     if (onDownload) {
       onDownload();
@@ -34,9 +39,9 @@ const QRDisplay: React.FC<QRDisplayProps> = ({ qrCode, title, tableNumber, onDow
     }
 
     // Default download behavior
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = qrCode;
-    link.download = `table-${tableNumber || 'qr'}-code.png`;
+    link.download = `table-${tableNumber || "qr"}-code.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -56,9 +61,17 @@ const QRDisplay: React.FC<QRDisplayProps> = ({ qrCode, title, tableNumber, onDow
         </Typography>
       )}
 
-      <QRImage src={qrCode} alt={`QR Code${tableNumber ? ` for Table #${tableNumber}` : ''}`} />
+      <QRImage
+        src={qrCode}
+        alt={`QR Code${tableNumber ? ` for Table #${tableNumber}` : ""}`}
+      />
 
-      <Button variant="contained" startIcon={<DownloadIcon />} onClick={handleDownload} fullWidth>
+      <Button
+        variant="contained"
+        startIcon={<DownloadIcon />}
+        onClick={handleDownload}
+        fullWidth
+      >
         Download QR Code
       </Button>
     </QRContainer>

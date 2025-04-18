@@ -3,6 +3,7 @@
 ## System Overview
 
 ### High-Level Architecture
+
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   Client Layer  │────▶│  Service Layer  │────▶│    Data Layer   │
@@ -11,6 +12,7 @@
 ```
 
 ### Technology Stack
+
 - Frontend: React, TypeScript, Material-UI
 - Backend: Flask, Python 3.9+
 - Database: PostgreSQL 13+
@@ -22,6 +24,7 @@
 ## Component Architecture
 
 ### Frontend Architecture
+
 ```
 src/frontend/
 ├── components/       # Reusable UI components
@@ -34,7 +37,9 @@ src/frontend/
 ```
 
 #### Key Components
+
 1. **Core Components**
+
    - Authentication
    - Game Interface
    - Tournament Brackets
@@ -42,6 +47,7 @@ src/frontend/
    - Real-time Updates
 
 2. **State Management**
+
    - Redux for global state
    - React Query for API state
    - Context for theme/localization
@@ -53,6 +59,7 @@ src/frontend/
    - WebSocket connection pooling
 
 ### Backend Architecture
+
 ```
 src/
 ├── api/            # REST API endpoints
@@ -64,7 +71,9 @@ src/
 ```
 
 #### Service Layer
+
 1. **Core Services**
+
    - UserService
    - GameService
    - TournamentService
@@ -72,6 +81,7 @@ src/
    - NotificationService
 
 2. **Support Services**
+
    - AuthenticationService
    - CacheService
    - QueueService
@@ -88,6 +98,7 @@ src/
 ### Data Architecture
 
 #### Database Schema
+
 ```sql
 -- Core Tables
 Users(id, username, email, ...)
@@ -107,7 +118,9 @@ Analytics(id, type, data, ...)
 ```
 
 #### Caching Strategy
+
 1. **Redis Caching**
+
    - Session data
    - Game state
    - Tournament brackets
@@ -123,6 +136,7 @@ Analytics(id, type, data, ...)
 ## System Integration
 
 ### API Integration
+
 ```
 ┌────────────┐     ┌────────────┐     ┌────────────┐
 │   Client   │────▶│    API     │────▶│  Service   │
@@ -131,6 +145,7 @@ Analytics(id, type, data, ...)
 ```
 
 1. **REST API**
+
    - Resource-based endpoints
    - JWT authentication
    - Rate limiting
@@ -143,7 +158,9 @@ Analytics(id, type, data, ...)
    - Status updates
 
 ### External Integrations
+
 1. **Payment Processing**
+
    - Stripe integration
    - Payment verification
    - Refund handling
@@ -158,6 +175,7 @@ Analytics(id, type, data, ...)
 ## Deployment Architecture
 
 ### Production Environment
+
 ```
 ┌─────────────────┐
 │   Load Balancer │
@@ -177,7 +195,9 @@ Analytics(id, type, data, ...)
 ```
 
 ### Scaling Strategy
+
 1. **Horizontal Scaling**
+
    - Auto-scaling groups
    - Load balancing
    - Session management
@@ -192,6 +212,7 @@ Analytics(id, type, data, ...)
 ## Security Architecture
 
 ### Authentication Flow
+
 ```
 ┌────────────┐     ┌────────────┐     ┌────────────┐
 │   Client   │────▶│    Auth    │────▶│   Token    │
@@ -200,7 +221,9 @@ Analytics(id, type, data, ...)
 ```
 
 ### Authorization Levels
+
 1. **User Roles**
+
    - Player
    - Venue Manager
    - Tournament Organizer
@@ -216,7 +239,9 @@ Analytics(id, type, data, ...)
 ## Monitoring Architecture
 
 ### Metrics Collection
+
 1. **Application Metrics**
+
    - Request latency
    - Error rates
    - Resource usage
@@ -229,7 +254,9 @@ Analytics(id, type, data, ...)
    - Network status
 
 ### Logging Strategy
+
 1. **Log Levels**
+
    - ERROR: System failures
    - WARN: Potential issues
    - INFO: State changes
@@ -244,7 +271,9 @@ Analytics(id, type, data, ...)
 ## Disaster Recovery
 
 ### Backup Strategy
+
 1. **Data Backups**
+
    - Database snapshots
    - File system backups
    - Configuration backups
@@ -257,7 +286,9 @@ Analytics(id, type, data, ...)
    - Incident response
 
 ### High Availability
+
 1. **Redundancy**
+
    - Multiple instances
    - Database replicas
    - Geographic distribution
@@ -272,7 +303,9 @@ Analytics(id, type, data, ...)
 ## Development Architecture
 
 ### Development Environment
+
 1. **Local Setup**
+
    - Docker containers
    - Development database
    - Mock services
@@ -285,7 +318,9 @@ Analytics(id, type, data, ...)
    - Performance testing
 
 ### CI/CD Pipeline
+
 1. **Build Process**
+
    - Code compilation
    - Asset bundling
    - Dependency resolution
@@ -300,14 +335,19 @@ Analytics(id, type, data, ...)
 ## Future Considerations
 
 ### Scalability
+
 - Microservices migration
 - Serverless functions
 - Edge computing
 - Global distribution
 
 ### Technology Evolution
+
 - Framework updates
 - Security enhancements
 - Performance improvements
 - Feature additions
-``` 
+
+```
+
+```

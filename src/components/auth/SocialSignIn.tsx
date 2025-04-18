@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -9,15 +9,15 @@ import {
   Tooltip,
   Spinner,
   VStack,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 import {
   FaGoogle,
   FaFacebook,
   FaTwitter,
   FaGithub,
   FaApple,
-} from 'react-icons/fa';
-import { useAuth } from '@/hooks/useAuth';
+} from "react-icons/fa";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SocialSignInProps {
   onSuccess?: () => void;
@@ -44,19 +44,19 @@ export const SocialSignIn: React.FC<SocialSignInProps> = ({
 
   const handleSocialSignIn = async (
     provider: string,
-    signInFunction: () => Promise<any>
+    signInFunction: () => Promise<any>,
   ) => {
     if (loading) return;
 
     try {
       setLoading(provider);
       const result = await signInFunction();
-      
+
       if (result.success) {
         toast({
-          title: 'Sign in successful!',
-          description: 'Please complete your profile',
-          status: 'success',
+          title: "Sign in successful!",
+          description: "Please complete your profile",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -66,17 +66,17 @@ export const SocialSignIn: React.FC<SocialSignInProps> = ({
       }
     } catch (error: any) {
       const currentRetries = retryCount[provider] || 0;
-      
+
       if (currentRetries < MAX_RETRIES) {
-        setRetryCount(prev => ({ ...prev, [provider]: currentRetries + 1 }));
+        setRetryCount((prev) => ({ ...prev, [provider]: currentRetries + 1 }));
         setTimeout(() => {
           handleSocialSignIn(provider, signInFunction);
         }, RETRY_DELAY);
       } else {
         toast({
-          title: 'Sign in failed',
-          description: error.message || 'An error occurred during sign in',
-          status: 'error',
+          title: "Sign in failed",
+          description: error.message || "An error occurred during sign in",
+          status: "error",
           duration: 5000,
           isClosable: true,
         });
@@ -89,34 +89,34 @@ export const SocialSignIn: React.FC<SocialSignInProps> = ({
 
   const socialProviders = [
     {
-      name: 'Google',
+      name: "Google",
       icon: FaGoogle,
-      color: 'red.500',
-      onClick: () => handleSocialSignIn('google', signInWithGooglePopup),
+      color: "red.500",
+      onClick: () => handleSocialSignIn("google", signInWithGooglePopup),
     },
     {
-      name: 'Facebook',
+      name: "Facebook",
       icon: FaFacebook,
-      color: 'blue.500',
-      onClick: () => handleSocialSignIn('facebook', signInWithFacebookPopup),
+      color: "blue.500",
+      onClick: () => handleSocialSignIn("facebook", signInWithFacebookPopup),
     },
     {
-      name: 'Twitter',
+      name: "Twitter",
       icon: FaTwitter,
-      color: 'blue.400',
-      onClick: () => handleSocialSignIn('twitter', signInWithTwitterPopup),
+      color: "blue.400",
+      onClick: () => handleSocialSignIn("twitter", signInWithTwitterPopup),
     },
     {
-      name: 'GitHub',
+      name: "GitHub",
       icon: FaGithub,
-      color: 'gray.700',
-      onClick: () => handleSocialSignIn('github', signInWithGithubPopup),
+      color: "gray.700",
+      onClick: () => handleSocialSignIn("github", signInWithGithubPopup),
     },
     {
-      name: 'Apple',
+      name: "Apple",
       icon: FaApple,
-      color: 'gray.800',
-      onClick: () => handleSocialSignIn('apple', signInWithApplePopup),
+      color: "gray.800",
+      onClick: () => handleSocialSignIn("apple", signInWithApplePopup),
     },
   ];
 
@@ -147,11 +147,11 @@ export const SocialSignIn: React.FC<SocialSignInProps> = ({
               borderWidth={2}
               _hover={{
                 bg: `${provider.color}`,
-                color: 'white',
+                color: "white",
                 borderColor: provider.color,
               }}
               _active={{
-                transform: 'scale(0.95)',
+                transform: "scale(0.95)",
               }}
               transition="all 0.2s"
             >
@@ -160,13 +160,14 @@ export const SocialSignIn: React.FC<SocialSignInProps> = ({
           </Tooltip>
         ))}
       </HStack>
-      {Object.entries(retryCount).map(([provider, count]) => (
-        count > 0 && (
-          <Text key={provider} fontSize="xs" color="gray.500">
-            Retrying {provider} sign in... ({count}/{MAX_RETRIES})
-          </Text>
-        )
-      ))}
+      {Object.entries(retryCount).map(
+        ([provider, count]) =>
+          count > 0 && (
+            <Text key={provider} fontSize="xs" color="gray.500">
+              Retrying {provider} sign in... ({count}/{MAX_RETRIES})
+            </Text>
+          ),
+      )}
     </VStack>
   );
-}; 
+};

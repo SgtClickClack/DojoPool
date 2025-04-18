@@ -1,7 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
-import { Box, Paper, Typography, Button, CircularProgress } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import React, { useState, useEffect } from "react";
+import {
+  GoogleMap,
+  LoadScript,
+  Marker,
+  InfoWindow,
+} from "@react-google-maps/api";
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 interface Dojo {
   id: number;
@@ -21,26 +32,26 @@ interface DojoMapProps {
 }
 
 const MapContainer = styled(Box)(({ theme }) => ({
-  height: '500px',
-  width: '100%',
-  position: 'relative',
+  height: "500px",
+  width: "100%",
+  position: "relative",
 }));
 
 const InfoWindowContent = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1),
-  maxWidth: '200px',
+  maxWidth: "200px",
 }));
 
 const LoadingOverlay = styled(Box)(({ theme }) => ({
-  position: 'absolute',
+  position: "absolute",
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'rgba(255, 255, 255, 0.8)',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(255, 255, 255, 0.8)",
   zIndex: 1,
 }));
 
@@ -48,11 +59,13 @@ const DojoMap: React.FC<DojoMapProps> = ({ apiKey, center, onDojoSelect }) => {
   const [dojos, setDojos] = useState<Dojo[]>([]);
   const [selectedDojo, setSelectedDojo] = useState<Dojo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState(center || { lat: 0, lng: 0 });
+  const [userLocation, setUserLocation] = useState(
+    center || { lat: 0, lng: 0 },
+  );
 
   const mapStyles = {
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
   };
 
   useEffect(() => {
@@ -68,9 +81,9 @@ const DojoMap: React.FC<DojoMapProps> = ({ apiKey, center, onDojoSelect }) => {
           fetchNearbyDojos(location);
         },
         (error) => {
-          console.error('Error getting location:', error);
+          console.error("Error getting location:", error);
           setLoading(false);
-        }
+        },
       );
     } else {
       fetchNearbyDojos(center);
@@ -79,13 +92,15 @@ const DojoMap: React.FC<DojoMapProps> = ({ apiKey, center, onDojoSelect }) => {
 
   const fetchNearbyDojos = async (location: { lat: number; lng: number }) => {
     try {
-      const response = await fetch(`/api/geo/nearby?lat=${location.lat}&lng=${location.lng}`);
+      const response = await fetch(
+        `/api/geo/nearby?lat=${location.lat}&lng=${location.lng}`,
+      );
       const data = await response.json();
-      if (data.status === 'success') {
+      if (data.status === "success") {
         setDojos(data.dojos);
       }
     } catch (error) {
-      console.error('Error fetching nearby dojos:', error);
+      console.error("Error fetching nearby dojos:", error);
     } finally {
       setLoading(false);
     }
@@ -107,12 +122,16 @@ const DojoMap: React.FC<DojoMapProps> = ({ apiKey, center, onDojoSelect }) => {
       )}
 
       <LoadScript googleMapsApiKey={apiKey}>
-        <GoogleMap mapContainerStyle={mapStyles} zoom={13} center={userLocation}>
+        <GoogleMap
+          mapContainerStyle={mapStyles}
+          zoom={13}
+          center={userLocation}
+        >
           {/* User's location marker */}
           <Marker
             position={userLocation}
             icon={{
-              url: '/assets/icons/user-location.png',
+              url: "/assets/icons/user-location.png",
               scaledSize: new window.google.maps.Size(30, 30),
             }}
           />
@@ -125,8 +144,8 @@ const DojoMap: React.FC<DojoMapProps> = ({ apiKey, center, onDojoSelect }) => {
               onClick={() => handleMarkerClick(dojo)}
               icon={{
                 url: dojo.is_unlocked
-                  ? '/assets/icons/dojo-unlocked.png'
-                  : '/assets/icons/dojo-locked.png',
+                  ? "/assets/icons/dojo-unlocked.png"
+                  : "/assets/icons/dojo-locked.png",
                 scaledSize: new window.google.maps.Size(40, 40),
               }}
             />
@@ -143,10 +162,14 @@ const DojoMap: React.FC<DojoMapProps> = ({ apiKey, center, onDojoSelect }) => {
             >
               <InfoWindowContent>
                 <Typography variant="h6">{selectedDojo.name}</Typography>
-                <Typography variant="body2">Distance: {selectedDojo.distance} km</Typography>
-                <Typography variant="body2">Rating: {selectedDojo.rating} ⭐</Typography>
                 <Typography variant="body2">
-                  Status: {selectedDojo.is_unlocked ? 'Unlocked' : 'Locked'}
+                  Distance: {selectedDojo.distance} km
+                </Typography>
+                <Typography variant="body2">
+                  Rating: {selectedDojo.rating} ⭐
+                </Typography>
+                <Typography variant="body2">
+                  Status: {selectedDojo.is_unlocked ? "Unlocked" : "Locked"}
                 </Typography>
                 {!selectedDojo.is_unlocked && (
                   <Typography variant="body2" color="text.secondary">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -15,8 +15,8 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-} from '@chakra-ui/react';
-import { useAuth } from '@/hooks/useAuth';
+} from "@chakra-ui/react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TwoFactorSetupProps {
   onSuccess?: () => void;
@@ -27,11 +27,11 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
   onSuccess,
   onCancel,
 }) => {
-  const [qrCode, setQrCode] = useState<string>('');
-  const [secret, setSecret] = useState<string>('');
-  const [verificationCode, setVerificationCode] = useState<string>('');
+  const [qrCode, setQrCode] = useState<string>("");
+  const [secret, setSecret] = useState<string>("");
+  const [verificationCode, setVerificationCode] = useState<string>("");
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [step, setStep] = useState<'setup' | 'verify' | 'backup'>('setup');
+  const [step, setStep] = useState<"setup" | "verify" | "backup">("setup");
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const { user } = useAuth();
@@ -40,26 +40,26 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
     const initialize2FA = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/auth/2fa/setup', {
-          method: 'POST',
+        const response = await fetch("/api/auth/2fa/setup", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
-        
+
         if (!response.ok) {
-          throw new Error('Failed to initialize 2FA');
+          throw new Error("Failed to initialize 2FA");
         }
-        
+
         const data = await response.json();
         setQrCode(data.qrCode);
         setSecret(data.secret);
-        setStep('verify');
+        setStep("verify");
       } catch (error) {
         toast({
-          title: 'Error',
-          description: 'Failed to initialize 2FA setup',
-          status: 'error',
+          title: "Error",
+          description: "Failed to initialize 2FA setup",
+          status: "error",
           duration: 5000,
           isClosable: true,
         });
@@ -74,26 +74,26 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
   const handleVerification = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/auth/2fa/verify', {
-        method: 'POST',
+      const response = await fetch("/api/auth/2fa/verify", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ code: verificationCode }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('Invalid verification code');
+        throw new Error("Invalid verification code");
       }
-      
+
       const data = await response.json();
       setBackupCodes(data.backupCodes);
-      setStep('backup');
+      setStep("backup");
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Invalid verification code',
-        status: 'error',
+        title: "Error",
+        description: "Invalid verification code",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -105,31 +105,31 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
   const handleComplete = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/auth/2fa/enable', {
-        method: 'POST',
+      const response = await fetch("/api/auth/2fa/enable", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to enable 2FA');
+        throw new Error("Failed to enable 2FA");
       }
-      
+
       toast({
-        title: 'Success',
-        description: 'Two-factor authentication enabled successfully',
-        status: 'success',
+        title: "Success",
+        description: "Two-factor authentication enabled successfully",
+        status: "success",
         duration: 5000,
         isClosable: true,
       });
-      
+
       onSuccess?.();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to enable 2FA',
-        status: 'error',
+        title: "Error",
+        description: "Failed to enable 2FA",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -141,7 +141,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
   return (
     <Box p={6} maxW="md" mx="auto">
       <VStack spacing={6} align="stretch">
-        {step === 'setup' && (
+        {step === "setup" && (
           <>
             <Text fontSize="xl" fontWeight="bold">
               Set Up Two-Factor Authentication
@@ -151,7 +151,10 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
             </Text>
             {qrCode && (
               <Box p={4} borderWidth={1} borderRadius="md">
-                <Image src={`data:image/png;base64,${qrCode}`} alt="2FA QR Code" />
+                <Image
+                  src={`data:image/png;base64,${qrCode}`}
+                  alt="2FA QR Code"
+                />
                 <Text mt={2} fontSize="sm" color="gray.500">
                   Manual entry code: {secret}
                 </Text>
@@ -160,7 +163,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
           </>
         )}
 
-        {step === 'verify' && (
+        {step === "verify" && (
           <>
             <Text fontSize="xl" fontWeight="bold">
               Verify Setup
@@ -188,7 +191,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
           </>
         )}
 
-        {step === 'backup' && (
+        {step === "backup" && (
           <>
             <Text fontSize="xl" fontWeight="bold">
               Backup Codes
@@ -198,8 +201,8 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
               <Box>
                 <AlertTitle>Save these backup codes!</AlertTitle>
                 <AlertDescription>
-                  You can use these codes to access your account if you lose your
-                  authenticator device. Each code can only be used once.
+                  You can use these codes to access your account if you lose
+                  your authenticator device. Each code can only be used once.
                 </AlertDescription>
               </Box>
             </Alert>
@@ -236,4 +239,4 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       </VStack>
     </Box>
   );
-}; 
+};

@@ -1,36 +1,36 @@
 global:
   resolve_timeout: 5m
-  slack_api_url: '${SLACK_WEBHOOK_URL}'
-  smtp_smarthost: '${SMTP_HOST}:${SMTP_PORT}'
-  smtp_from: '${SMTP_FROM}'
-  smtp_auth_username: '${SMTP_USER}'
-  smtp_auth_password: '${SMTP_PASSWORD}'
+  slack_api_url: "${SLACK_WEBHOOK_URL}"
+  smtp_smarthost: "${SMTP_HOST}:${SMTP_PORT}"
+  smtp_from: "${SMTP_FROM}"
+  smtp_auth_username: "${SMTP_USER}"
+  smtp_auth_password: "${SMTP_PASSWORD}"
 
 route:
-  group_by: ['alertname', 'cluster', 'service']
+  group_by: ["alertname", "cluster", "service"]
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
-  receiver: 'slack-notifications'
+  receiver: "slack-notifications"
   routes:
     - match:
         severity: critical
-      receiver: 'pagerduty-critical'
+      receiver: "pagerduty-critical"
       continue: true
     - match:
         severity: warning
-      receiver: 'slack-notifications'
+      receiver: "slack-notifications"
       continue: true
     - match:
         severity: info
-      receiver: 'email-notifications'
+      receiver: "email-notifications"
 
 receivers:
-  - name: 'slack-notifications'
+  - name: "slack-notifications"
     slack_configs:
-      - channel: '#dojopool-alerts'
+      - channel: "#dojopool-alerts"
         send_resolved: true
-        icon_url: 'https://avatars3.githubusercontent.com/u/3380462'
+        icon_url: "https://avatars3.githubusercontent.com/u/3380462"
         title: |-
           [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
         text: >-
@@ -42,9 +42,9 @@ receivers:
             {{ end }}
           {{ end }}
 
-  - name: 'email-notifications'
+  - name: "email-notifications"
     email_configs:
-      - to: '${ALERT_EMAIL_TO}'
+      - to: "${ALERT_EMAIL_TO}"
         send_resolved: true
         headers:
           subject: |-
@@ -62,16 +62,16 @@ receivers:
             </ul>
           {{ end }}
 
-  - name: 'pagerduty-critical'
+  - name: "pagerduty-critical"
     pagerduty_configs:
-      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+      - service_key: "${PAGERDUTY_SERVICE_KEY}"
         send_resolved: true
         description: |-
           [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }} - {{ .CommonAnnotations.description }}
 
 inhibit_rules:
   - source_match:
-      severity: 'critical'
+      severity: "critical"
     target_match:
-      severity: 'warning'
-    equal: ['alertname', 'cluster', 'service'] 
+      severity: "warning"
+    equal: ["alertname", "cluster", "service"]

@@ -1,104 +1,109 @@
 // Add interfaces and types
 interface QualityMetrics {
-    readonly frameRate: number;
-    readonly gpuTime: number;
+  readonly frameRate: number;
+  readonly gpuTime: number;
 }
 
 interface QualityChangeEvent extends CustomEvent {
-    readonly detail: {
-        readonly level: number;
-    };
+  readonly detail: {
+    readonly level: number;
+  };
 }
 
 interface QualityTransitionEvent extends CustomEvent {
-    readonly detail: {
-        readonly progress: number;
-        readonly currentQuality: number;
-    };
+  readonly detail: {
+    readonly progress: number;
+    readonly currentQuality: number;
+  };
 }
 
 interface QualityTransitionCompleteEvent extends CustomEvent {
-    readonly detail: {
-        readonly quality: number;
-    };
+  readonly detail: {
+    readonly quality: number;
+  };
 }
 
 class QualityIndicator extends HTMLElement {
-    private static readonly AUTO_QUALITY_THRESHOLDS = {
-        LOW_FPS: 30,
-        HIGH_FPS: 55,
-        HIGH_GPU_TIME: 16,
-        LOW_GPU_TIME: 8
-    } as const;
+  private static readonly AUTO_QUALITY_THRESHOLDS = {
+    LOW_FPS: 30,
+    HIGH_FPS: 55,
+    HIGH_GPU_TIME: 16,
+    LOW_GPU_TIME: 8,
+  } as const;
 
-    private readonly elements: {
-        container: HTMLDivElement;
-        statusIcon: HTMLDivElement;
-        qualityText: HTMLDivElement;
-        controlsContainer: HTMLDivElement;
-        transitionOverlay: HTMLDivElement;
-        autoButton: HTMLButtonElement;
-        qualitySlider: HTMLInputElement;
+  private readonly elements: {
+    container: HTMLDivElement;
+    statusIcon: HTMLDivElement;
+    qualityText: HTMLDivElement;
+    controlsContainer: HTMLDivElement;
+    transitionOverlay: HTMLDivElement;
+    autoButton: HTMLButtonElement;
+    qualitySlider: HTMLInputElement;
+  };
+
+  private qualityLevel: number = 3;
+  private autoMode: boolean = true;
+  private isTransitioning: boolean = false;
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this.elements = this.createElements();
+    this.setupStyles();
+    this.setupEventListeners();
+    this.updateDisplay();
+  }
+
+  private createElements() {
+    const container = document.createElement("div");
+    container.className = "quality-indicator";
+
+    const statusIcon = document.createElement("div");
+    statusIcon.className = "status-icon";
+
+    const qualityText = document.createElement("div");
+    qualityText.className = "quality-text";
+
+    const controlsContainer = document.createElement("div");
+    controlsContainer.className = "controls-container";
+
+    const autoButton = document.createElement("button");
+    autoButton.textContent = "Auto";
+    autoButton.className = "control-button auto-button";
+
+    const qualitySlider = document.createElement("input");
+    qualitySlider.type = "range";
+    qualitySlider.min = "1";
+    qualitySlider.max = "3";
+    qualitySlider.value = "3";
+    qualitySlider.className = "quality-slider";
+
+    const transitionOverlay = document.createElement("div");
+    transitionOverlay.className = "transition-overlay";
+
+    controlsContainer.append(autoButton, qualitySlider);
+    container.append(
+      statusIcon,
+      qualityText,
+      controlsContainer,
+      transitionOverlay,
+    );
+    this.shadowRoot?.appendChild(container);
+
+    return {
+      container,
+      statusIcon,
+      qualityText,
+      controlsContainer,
+      transitionOverlay,
+      autoButton,
+      qualitySlider,
     };
+  }
 
-    private qualityLevel: number = 3;
-    private autoMode: boolean = true;
-    private isTransitioning: boolean = false;
-
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-        this.elements = this.createElements();
-        this.setupStyles();
-        this.setupEventListeners();
-        this.updateDisplay();
-    }
-
-    private createElements() {
-        const container = document.createElement('div');
-        container.className = 'quality-indicator';
-
-        const statusIcon = document.createElement('div');
-        statusIcon.className = 'status-icon';
-
-        const qualityText = document.createElement('div');
-        qualityText.className = 'quality-text';
-
-        const controlsContainer = document.createElement('div');
-        controlsContainer.className = 'controls-container';
-
-        const autoButton = document.createElement('button');
-        autoButton.textContent = 'Auto';
-        autoButton.className = 'control-button auto-button';
-
-        const qualitySlider = document.createElement('input');
-        qualitySlider.type = 'range';
-        qualitySlider.min = '1';
-        qualitySlider.max = '3';
-        qualitySlider.value = '3';
-        qualitySlider.className = 'quality-slider';
-
-        const transitionOverlay = document.createElement('div');
-        transitionOverlay.className = 'transition-overlay';
-
-        controlsContainer.append(autoButton, qualitySlider);
-        container.append(statusIcon, qualityText, controlsContainer, transitionOverlay);
-        this.shadowRoot?.appendChild(container);
-
-        return {
-            container,
-            statusIcon,
-            qualityText,
-            controlsContainer,
-            transitionOverlay,
-            autoButton,
-            qualitySlider
-        };
-    }
-
-    private setupStyles(): void {
-        const style = document.createElement('style');
-        style.textContent = `
+  private setupStyles(): void {
+    const style = document.createElement("style");
+    style.textContent = `
             .quality-indicator {
                 position: fixed;
                 bottom: 20px;
@@ -245,123 +250,157 @@ class QualityIndicator extends HTMLElement {
                 transition: color 0.3s ease;
             }
         `;
-        this.shadowRoot?.appendChild(style);
+    this.shadowRoot?.appendChild(style);
+  }
+
+  private setupEventListeners(): void {
+    // DOM Events
+    this.elements.autoButton.addEventListener(
+      "click",
+      this.handleAutoButtonClick,
+    );
+    this.elements.qualitySlider.addEventListener(
+      "input",
+      this.handleQualitySliderInput,
+    );
+
+    // Window Events
+    window.addEventListener("webglcontextlost", this.handleContextLost);
+    window.addEventListener("webglcontextrestored", this.handleContextRestored);
+    window.addEventListener(
+      "performanceupdate",
+      this.handlePerformanceUpdate as EventListener,
+    );
+    window.addEventListener(
+      "qualitytransition",
+      this.handleTransitionProgress as EventListener,
+    );
+    window.addEventListener(
+      "qualitytransitioncomplete",
+      this.handleTransitionComplete as EventListener,
+    );
+  }
+
+  private readonly handleAutoButtonClick = (): void => {
+    this.autoMode = !this.autoMode;
+    this.elements.autoButton.classList.toggle("active", this.autoMode);
+  };
+
+  private readonly handleQualitySliderInput = (e: Event): void => {
+    const target = e.target as HTMLInputElement;
+    this.setQualityLevel(parseInt(target.value, 10));
+  };
+
+  private readonly handleContextLost = (): void => {
+    this.setQualityLevel(1);
+    this.updateDisplay();
+  };
+
+  private readonly handleContextRestored = (): void => {
+    if (this.autoMode) {
+      this.setQualityLevel(2);
     }
+    this.updateDisplay();
+  };
 
-    private setupEventListeners(): void {
-        // DOM Events
-        this.elements.autoButton.addEventListener('click', this.handleAutoButtonClick);
-        this.elements.qualitySlider.addEventListener('input', this.handleQualitySliderInput);
+  private readonly handlePerformanceUpdate = (
+    e: CustomEvent<QualityMetrics>,
+  ): void => {
+    if (!this.autoMode) return;
 
-        // Window Events
-        window.addEventListener('webglcontextlost', this.handleContextLost);
-        window.addEventListener('webglcontextrestored', this.handleContextRestored);
-        window.addEventListener('performanceupdate', this.handlePerformanceUpdate as EventListener);
-        window.addEventListener('qualitytransition', this.handleTransitionProgress as EventListener);
-        window.addEventListener('qualitytransitioncomplete', this.handleTransitionComplete as EventListener);
+    const { frameRate, gpuTime } = e.detail;
+    const { LOW_FPS, HIGH_FPS, HIGH_GPU_TIME, LOW_GPU_TIME } =
+      QualityIndicator.AUTO_QUALITY_THRESHOLDS;
+
+    if (frameRate < LOW_FPS || gpuTime > HIGH_GPU_TIME) {
+      if (this.qualityLevel > 1) {
+        this.setQualityLevel(this.qualityLevel - 1);
+      }
+    } else if (frameRate > HIGH_FPS && gpuTime < LOW_GPU_TIME) {
+      if (this.qualityLevel < 3) {
+        this.setQualityLevel(this.qualityLevel + 1);
+      }
     }
+  };
 
-    private readonly handleAutoButtonClick = (): void => {
-        this.autoMode = !this.autoMode;
-        this.elements.autoButton.classList.toggle('active', this.autoMode);
-    };
+  private readonly handleTransitionProgress = (
+    e: QualityTransitionEvent,
+  ): void => {
+    this.isTransitioning = true;
+    this.elements.transitionOverlay.classList.add("active");
+    this.updateQualityDisplay(e.detail.currentQuality);
+  };
 
-    private readonly handleQualitySliderInput = (e: Event): void => {
-        const target = e.target as HTMLInputElement;
-        this.setQualityLevel(parseInt(target.value, 10));
-    };
+  private readonly handleTransitionComplete = (
+    e: QualityTransitionCompleteEvent,
+  ): void => {
+    this.isTransitioning = false;
+    this.elements.transitionOverlay.classList.remove("active");
+    this.qualityLevel = e.detail.quality;
+    this.updateDisplay();
+  };
 
-    private readonly handleContextLost = (): void => {
-        this.setQualityLevel(1);
-        this.updateDisplay();
-    };
+  private setQualityLevel(level: number): void {
+    if (this.isTransitioning) return;
 
-    private readonly handleContextRestored = (): void => {
-        if (this.autoMode) {
-            this.setQualityLevel(2);
-        }
-        this.updateDisplay();
-    };
+    const event = new CustomEvent<{ level: number }>("qualitychange", {
+      detail: { level },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
+  }
 
-    private readonly handlePerformanceUpdate = (e: CustomEvent<QualityMetrics>): void => {
-        if (!this.autoMode) return;
+  private updateDisplay(): void {
+    const qualityClass = this.getQualityClass(this.qualityLevel);
+    const qualityText = this.getQualityText(this.qualityLevel);
 
-        const { frameRate, gpuTime } = e.detail;
-        const { LOW_FPS, HIGH_FPS, HIGH_GPU_TIME, LOW_GPU_TIME } = QualityIndicator.AUTO_QUALITY_THRESHOLDS;
+    this.elements.statusIcon.className = `status-icon ${qualityClass}`;
+    this.elements.qualityText.textContent = `Quality: ${qualityText}`;
+    this.elements.qualitySlider.value = this.qualityLevel.toString();
+    this.setAttribute("data-quality-level", this.qualityLevel.toString());
+  }
 
-        if (frameRate < LOW_FPS || gpuTime > HIGH_GPU_TIME) {
-            if (this.qualityLevel > 1) {
-                this.setQualityLevel(this.qualityLevel - 1);
-            }
-        } else if (frameRate > HIGH_FPS && gpuTime < LOW_GPU_TIME) {
-            if (this.qualityLevel < 3) {
-                this.setQualityLevel(this.qualityLevel + 1);
-            }
-        }
-    };
+  private updateQualityDisplay(quality: number): void {
+    const qualityClass = this.getQualityClass(quality);
+    const qualityText = this.getQualityText(quality);
 
-    private readonly handleTransitionProgress = (e: QualityTransitionEvent): void => {
-        this.isTransitioning = true;
-        this.elements.transitionOverlay.classList.add('active');
-        this.updateQualityDisplay(e.detail.currentQuality);
-    };
+    this.elements.statusIcon.className = `status-icon ${qualityClass}`;
+    this.elements.qualityText.textContent = `Quality: ${qualityText}`;
+  }
 
-    private readonly handleTransitionComplete = (e: QualityTransitionCompleteEvent): void => {
-        this.isTransitioning = false;
-        this.elements.transitionOverlay.classList.remove('active');
-        this.qualityLevel = e.detail.quality;
-        this.updateDisplay();
-    };
+  private getQualityClass(quality: number): string {
+    if (quality >= 2.7) return "high";
+    if (quality >= 1.7) return "medium";
+    return "low";
+  }
 
-    private setQualityLevel(level: number): void {
-        if (this.isTransitioning) return;
+  private getQualityText(quality: number): string {
+    if (quality >= 2.7) return "High";
+    if (quality >= 1.7) return "Medium";
+    return "Low";
+  }
 
-        const event = new CustomEvent<{ level: number }>('qualitychange', {
-            detail: { level },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
-    }
-
-    private updateDisplay(): void {
-        const qualityClass = this.getQualityClass(this.qualityLevel);
-        const qualityText = this.getQualityText(this.qualityLevel);
-
-        this.elements.statusIcon.className = `status-icon ${qualityClass}`;
-        this.elements.qualityText.textContent = `Quality: ${qualityText}`;
-        this.elements.qualitySlider.value = this.qualityLevel.toString();
-        this.setAttribute('data-quality-level', this.qualityLevel.toString());
-    }
-
-    private updateQualityDisplay(quality: number): void {
-        const qualityClass = this.getQualityClass(quality);
-        const qualityText = this.getQualityText(quality);
-
-        this.elements.statusIcon.className = `status-icon ${qualityClass}`;
-        this.elements.qualityText.textContent = `Quality: ${qualityText}`;
-    }
-
-    private getQualityClass(quality: number): string {
-        if (quality >= 2.7) return 'high';
-        if (quality >= 1.7) return 'medium';
-        return 'low';
-    }
-
-    private getQualityText(quality: number): string {
-        if (quality >= 2.7) return 'High';
-        if (quality >= 1.7) return 'Medium';
-        return 'Low';
-    }
-
-    disconnectedCallback(): void {
-        // Clean up event listeners
-        window.removeEventListener('webglcontextlost', this.handleContextLost);
-        window.removeEventListener('webglcontextrestored', this.handleContextRestored);
-        window.removeEventListener('performanceupdate', this.handlePerformanceUpdate as EventListener);
-        window.removeEventListener('qualitytransition', this.handleTransitionProgress as EventListener);
-        window.removeEventListener('qualitytransitioncomplete', this.handleTransitionComplete as EventListener);
-    }
+  disconnectedCallback(): void {
+    // Clean up event listeners
+    window.removeEventListener("webglcontextlost", this.handleContextLost);
+    window.removeEventListener(
+      "webglcontextrestored",
+      this.handleContextRestored,
+    );
+    window.removeEventListener(
+      "performanceupdate",
+      this.handlePerformanceUpdate as EventListener,
+    );
+    window.removeEventListener(
+      "qualitytransition",
+      this.handleTransitionProgress as EventListener,
+    );
+    window.removeEventListener(
+      "qualitytransitioncomplete",
+      this.handleTransitionComplete as EventListener,
+    );
+  }
 }
 
-customElements.define('quality-indicator', QualityIndicator); 
+customElements.define("quality-indicator", QualityIndicator);

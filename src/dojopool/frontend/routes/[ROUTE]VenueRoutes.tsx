@@ -1,9 +1,9 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-import VenueList from '../components/venues/VenueList';
-import VenueDetail from '../components/venues/VenueDetail';
-import PrivateRoute from './PrivateRoute';
+import VenueList from "../components/venues/VenueList";
+import VenueDetail from "../components/venues/VenueDetail";
+import PrivateRoute from "./PrivateRoute";
 
 const VenueRoutes: React.FC = () => {
   return (

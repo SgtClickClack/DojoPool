@@ -9,4 +9,4 @@ export interface Profile {
   preferredGame?: string;
   createdAt: Date;
   updatedAt: Date;
-} 
+}

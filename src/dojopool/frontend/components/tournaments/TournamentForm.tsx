@@ -1,10 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Form, Input, Select, DatePicker, InputNumber, Button, Card, message, Space } from 'antd';
-import moment from 'moment';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  InputNumber,
+  Button,
+  Card,
+  message,
+  Space,
+} from "antd";
+import moment from "moment";
 
-import { Tournament, TournamentFormat, CreateTournamentData } from '../../types/tournament';
-import { createTournament, getTournament, updateTournament } from '../../api/tournaments';
+import {
+  Tournament,
+  TournamentFormat,
+  CreateTournamentData,
+} from "../../types/tournament";
+import {
+  createTournament,
+  getTournament,
+  updateTournament,
+} from "../../api/tournaments";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -41,8 +59,8 @@ const TournamentForm: React.FC = () => {
           : undefined,
       });
     } catch (error) {
-      console.error('Error fetching tournament:', error);
-      message.error('Failed to load tournament details');
+      console.error("Error fetching tournament:", error);
+      message.error("Failed to load tournament details");
     } finally {
       setLoading(false);
     }
@@ -62,15 +80,15 @@ const TournamentForm: React.FC = () => {
 
       if (id) {
         await updateTournament(parseInt(id), tournamentData);
-        message.success('Tournament updated successfully');
+        message.success("Tournament updated successfully");
       } else {
         await createTournament(tournamentData);
-        message.success('Tournament created successfully');
+        message.success("Tournament created successfully");
       }
-      navigate('/tournaments');
+      navigate("/tournaments");
     } catch (error) {
-      console.error('Error saving tournament:', error);
-      message.error('Failed to save tournament');
+      console.error("Error saving tournament:", error);
+      message.error("Failed to save tournament");
     } finally {
       setLoading(false);
     }
@@ -78,7 +96,10 @@ const TournamentForm: React.FC = () => {
 
   return (
     <div className="tournament-form">
-      <Card title={id ? 'Edit Tournament' : 'Create Tournament'} loading={loading}>
+      <Card
+        title={id ? "Edit Tournament" : "Create Tournament"}
+        loading={loading}
+      >
         <Form
           form={form}
           layout="vertical"
@@ -92,8 +113,8 @@ const TournamentForm: React.FC = () => {
             name="name"
             label="Tournament Name"
             rules={[
-              { required: true, message: 'Please enter tournament name' },
-              { max: 100, message: 'Name cannot exceed 100 characters' },
+              { required: true, message: "Please enter tournament name" },
+              { max: 100, message: "Name cannot exceed 100 characters" },
             ]}
           >
             <Input />
@@ -102,7 +123,9 @@ const TournamentForm: React.FC = () => {
           <Form.Item
             name="description"
             label="Description"
-            rules={[{ max: 500, message: 'Description cannot exceed 500 characters' }]}
+            rules={[
+              { max: 500, message: "Description cannot exceed 500 characters" },
+            ]}
           >
             <TextArea rows={4} />
           </Form.Item>
@@ -110,7 +133,7 @@ const TournamentForm: React.FC = () => {
           <Form.Item
             name="venue_id"
             label="Venue"
-            rules={[{ required: true, message: 'Please select a venue' }]}
+            rules={[{ required: true, message: "Please select a venue" }]}
           >
             <Select placeholder="Select venue">
               {/* TODO: Add venue options */}
@@ -122,7 +145,9 @@ const TournamentForm: React.FC = () => {
           <Form.Item
             name="format"
             label="Tournament Format"
-            rules={[{ required: true, message: 'Please select tournament format' }]}
+            rules={[
+              { required: true, message: "Please select tournament format" },
+            ]}
           >
             <Select placeholder="Select format">
               <Option value="single_elimination">Single Elimination</Option>
@@ -136,7 +161,7 @@ const TournamentForm: React.FC = () => {
             <Form.Item
               name="start_date"
               label="Start Date"
-              rules={[{ required: true, message: 'Please select start date' }]}
+              rules={[{ required: true, message: "Please select start date" }]}
             >
               <DatePicker showTime />
             </Form.Item>
@@ -144,12 +169,15 @@ const TournamentForm: React.FC = () => {
             <Form.Item
               name="end_date"
               label="End Date"
-              rules={[{ required: true, message: 'Please select end date' }]}
+              rules={[{ required: true, message: "Please select end date" }]}
             >
               <DatePicker showTime />
             </Form.Item>
 
-            <Form.Item name="registration_deadline" label="Registration Deadline">
+            <Form.Item
+              name="registration_deadline"
+              label="Registration Deadline"
+            >
               <DatePicker showTime />
             </Form.Item>
           </Space>
@@ -160,9 +188,9 @@ const TournamentForm: React.FC = () => {
               label="Max Participants"
               rules={[
                 {
-                  type: 'number',
+                  type: "number",
                   min: 2,
-                  message: 'Must have at least 2 participants',
+                  message: "Must have at least 2 participants",
                 },
               ]}
             >
@@ -174,9 +202,9 @@ const TournamentForm: React.FC = () => {
               label="Entry Fee"
               rules={[
                 {
-                  type: 'number',
+                  type: "number",
                   min: 0,
-                  message: 'Entry fee cannot be negative',
+                  message: "Entry fee cannot be negative",
                 },
               ]}
             >
@@ -188,9 +216,9 @@ const TournamentForm: React.FC = () => {
               label="Prize Pool"
               rules={[
                 {
-                  type: 'number',
+                  type: "number",
                   min: 0,
-                  message: 'Prize pool cannot be negative',
+                  message: "Prize pool cannot be negative",
                 },
               ]}
             >
@@ -201,7 +229,9 @@ const TournamentForm: React.FC = () => {
           <Form.Item
             name="rules"
             label="Tournament Rules"
-            rules={[{ max: 1000, message: 'Rules cannot exceed 1000 characters' }]}
+            rules={[
+              { max: 1000, message: "Rules cannot exceed 1000 characters" },
+            ]}
           >
             <TextArea rows={6} />
           </Form.Item>
@@ -209,9 +239,9 @@ const TournamentForm: React.FC = () => {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" loading={loading}>
-                {id ? 'Update Tournament' : 'Create Tournament'}
+                {id ? "Update Tournament" : "Create Tournament"}
               </Button>
-              <Button onClick={() => navigate('/tournaments')}>Cancel</Button>
+              <Button onClick={() => navigate("/tournaments")}>Cancel</Button>
             </Space>
           </Form.Item>
         </Form>

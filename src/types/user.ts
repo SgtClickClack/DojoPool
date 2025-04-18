@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   password: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,8 +16,8 @@ export interface UserSettings {
   language: string;
   timezone: string;
   privacySettings: {
-    profileVisibility: 'public' | 'friends' | 'private';
-    activityVisibility: 'public' | 'friends' | 'private';
+    profileVisibility: "public" | "friends" | "private";
+    activityVisibility: "public" | "friends" | "private";
     allowFriendRequests: boolean;
     allowMessages: boolean;
   };
@@ -30,4 +30,4 @@ export interface UserSettings {
   };
   createdAt: Date;
   updatedAt: Date;
-} 
+}

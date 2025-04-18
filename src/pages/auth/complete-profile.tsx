@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useAuth } from '../../hooks/useAuth';
-import { ProfileCompletion } from '../../components/auth/ProfileCompletion';
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "../../hooks/useAuth";
+import { ProfileCompletion } from "../../components/auth/ProfileCompletion";
 
 const CompleteProfilePage: React.FC = () => {
   const { user, loading } = useAuth();
@@ -9,7 +9,7 @@ const CompleteProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   }, [user, loading, router]);
 
@@ -24,4 +24,4 @@ const CompleteProfilePage: React.FC = () => {
   return <ProfileCompletion />;
 };
 
-export default CompleteProfilePage; 
+export default CompleteProfilePage;

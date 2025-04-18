@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -10,17 +10,21 @@ import {
   InputAdornment,
   Alert,
   Container,
-} from '@mui/material';
-import { Google as GoogleIcon, Visibility, VisibilityOff } from '@mui/icons-material';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+} from "@mui/material";
+import {
+  Google as GoogleIcon,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Register: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -28,20 +32,20 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError("Password must be at least 6 characters");
       return;
     }
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await signUp(email, password);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+      setError(err.message || "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -49,12 +53,12 @@ const Register: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      setError('');
+      setError("");
       setLoading(true);
       await signInWithGoogle();
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      setError(err.message || "Failed to sign in with Google");
     } finally {
       setLoading(false);
     }
@@ -65,21 +69,21 @@ const Register: React.FC = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Paper
           elevation={3}
           sx={{
             p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            background: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(10px)",
           }}
         >
           <Typography component="h1" variant="h5" gutterBottom>
@@ -87,12 +91,16 @@ const Register: React.FC = () => {
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ mt: 1, width: "100%" }}
+          >
             <TextField
               margin="normal"
               required
@@ -111,7 +119,7 @@ const Register: React.FC = () => {
               fullWidth
               name="password"
               label="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="new-password"
               value={password}
@@ -136,7 +144,7 @@ const Register: React.FC = () => {
               fullWidth
               name="confirmPassword"
               label="Confirm Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               id="confirmPassword"
               autoComplete="new-password"
               value={confirmPassword}
@@ -166,12 +174,12 @@ const Register: React.FC = () => {
               Sign up with Google
             </Button>
 
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <RouterLink
                   to="/login"
-                  style={{ color: 'primary.main', textDecoration: 'none' }}
+                  style={{ color: "primary.main", textDecoration: "none" }}
                 >
                   Sign in
                 </RouterLink>
@@ -184,4 +192,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register; 
+export default Register;

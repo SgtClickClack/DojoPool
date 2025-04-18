@@ -1,42 +1,43 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { TwoFactorService } from '../../../../dojopool/services/auth/two_factor';
-import { getCurrentUser } from '../../../../dojopool/utils/auth';
+import { NextApiRequest, NextApiResponse } from "next";
+import { TwoFactorService } from "../../../../dojopool/services/auth/two_factor";
+import { getCurrentUser } from "../../../../dojopool/utils/auth";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const user = await getCurrentUser(req);
     if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const { code } = req.body;
     if (!code) {
-      return res.status(400).json({ error: 'Verification code is required' });
+      return res.status(400).json({ error: "Verification code is required" });
     }
 
     // Get the temporary secret from the session
     const tempSecret = req.session.temp_2fa_secret;
     if (!tempSecret) {
-      return res.status(400).json({ error: '2FA setup not initialized' });
+      return res.status(400).json({ error: "2FA setup not initialized" });
     }
 
     // Verify the code
     const isValid = TwoFactorService.verify_code(tempSecret, code);
     if (!isValid) {
-      return res.status(400).json({ error: 'Invalid verification code' });
+      return res.status(400).json({ error: "Invalid verification code" });
     }
 
     // Generate backup codes
-    const [success, backupCodes, error] = await TwoFactorService.generate_backup_codes(user);
+    const [success, backupCodes, error] =
+      await TwoFactorService.generate_backup_codes(user);
     if (!success || error) {
-      return res.status(500).json({ error: 'Failed to generate backup codes' });
+      return res.status(500).json({ error: "Failed to generate backup codes" });
     }
 
     return res.status(200).json({
@@ -44,7 +45,7 @@ export default async function handler(
       backupCodes,
     });
   } catch (error) {
-    console.error('2FA verification error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("2FA verification error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-} 
+}

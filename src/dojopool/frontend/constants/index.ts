@@ -1,6 +1,8 @@
 // API and Websocket URLs
-export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-export const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:3000';
+export const API_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:3000/api";
+export const WEBSOCKET_URL =
+  process.env.REACT_APP_WEBSOCKET_URL || "ws://localhost:3000";
 
 // Location Options
 export const LOCATION_OPTIONS = {
@@ -35,7 +37,8 @@ export const MONITORING_CONFIG = {
 };
 
 // Map Configuration
-export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+export const GOOGLE_MAPS_API_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 export const DEFAULT_MAP_OPTIONS = {
   disableDefaultUI: true,
@@ -45,41 +48,41 @@ export const DEFAULT_MAP_OPTIONS = {
   streetViewControl: false,
   rotateControl: false,
   fullscreenControl: true,
-  gestureHandling: 'greedy',
+  gestureHandling: "greedy",
   clickableIcons: false,
   zoom: 15,
 };
 
 export const MAP_STYLES = [
   {
-    featureType: 'all',
-    elementType: 'geometry',
-    stylers: [{ color: '#242f3e' }],
+    featureType: "all",
+    elementType: "geometry",
+    stylers: [{ color: "#242f3e" }],
   },
   {
-    featureType: 'all',
-    elementType: 'labels.text.stroke',
-    stylers: [{ color: '#242f3e' }],
+    featureType: "all",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#242f3e" }],
   },
   {
-    featureType: 'all',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#746855' }],
+    featureType: "all",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#746855" }],
   },
   {
-    featureType: 'water',
-    elementType: 'geometry',
-    stylers: [{ color: '#17263c' }],
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
   },
   {
-    featureType: 'water',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#515c6d' }],
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
   },
   {
-    featureType: 'water',
-    elementType: 'labels.text.stroke',
-    stylers: [{ color: '#17263c' }],
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
   },
 ];
 

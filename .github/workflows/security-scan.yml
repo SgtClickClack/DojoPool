@@ -2,11 +2,11 @@ name: Security Scan and Updates
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
+    - cron: "0 0 * * *" # Run daily at midnight
 
 jobs:
   security-scan:
@@ -15,15 +15,15 @@ jobs:
       contents: write
       pull-requests: write
       security-events: write
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -48,15 +48,15 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: 'chore: update dependencies and fix security vulnerabilities'
-          title: 'Security: Update dependencies and fix vulnerabilities'
+          commit-message: "chore: update dependencies and fix security vulnerabilities"
+          title: "Security: Update dependencies and fix vulnerabilities"
           body: |
             Automated security update
-            
+
             - Updated dependencies to latest secure versions
             - Fixed security vulnerabilities
             - Run npm audit fix
-            
+
             Please review the changes and merge if tests pass.
           branch: security-updates
           delete-branch: true
@@ -68,6 +68,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Dependency Review
-        uses: actions/dependency-review-action@v3 
+        uses: actions/dependency-review-action@v3

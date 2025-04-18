@@ -1,7 +1,7 @@
-import * as tf from '@tensorflow/tfjs';
-import { ShotData } from './ShotAnalysisService';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as tf from "@tensorflow/tfjs";
+import { ShotData } from "./ShotAnalysisService";
+import * as fs from "fs";
+import * as path from "path";
 
 interface ModelMetadata {
   version: string;
@@ -41,7 +41,7 @@ export class ShotAnalysisModel {
 
   private initializeMetadata(): ModelMetadata {
     return {
-      version: '1.0.0',
+      version: "1.0.0",
       inputShape: this.inputShape,
       numClasses: this.numClasses,
       validationMetrics: null,
@@ -50,8 +50,8 @@ export class ShotAnalysisModel {
       trainingHistory: {
         epochs: 0,
         batchSize: 0,
-        validationSplit: 0
-      }
+        validationSplit: 0,
+      },
     };
   }
 
@@ -59,29 +59,33 @@ export class ShotAnalysisModel {
     const model = tf.sequential();
 
     // Input layer
-    model.add(tf.layers.dense({
-      units: 64,
-      activation: 'relu',
-      inputShape: [this.inputShape[0]]
-    }));
+    model.add(
+      tf.layers.dense({
+        units: 64,
+        activation: "relu",
+        inputShape: [this.inputShape[0]],
+      }),
+    );
 
     // Hidden layers
-    model.add(tf.layers.dense({ units: 128, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 128, activation: "relu" }));
     model.add(tf.layers.dropout({ rate: 0.2 }));
-    model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 64, activation: "relu" }));
     model.add(tf.layers.dropout({ rate: 0.2 }));
 
     // Output layer
-    model.add(tf.layers.dense({
-      units: this.numClasses,
-      activation: 'softmax'
-    }));
+    model.add(
+      tf.layers.dense({
+        units: this.numClasses,
+        activation: "softmax",
+      }),
+    );
 
     // Compile model
     model.compile({
       optimizer: tf.train.adam(0.001),
-      loss: 'categoricalCrossentropy',
-      metrics: ['accuracy']
+      loss: "categoricalCrossentropy",
+      metrics: ["accuracy"],
     });
 
     return model;
@@ -92,7 +96,7 @@ export class ShotAnalysisModel {
     labels: number[][],
     epochs: number = 100,
     batchSize: number = 32,
-    validationSplit: number = 0.2
+    validationSplit: number = 0.2,
   ): Promise<tf.History> {
     const features = this.preprocessData(trainingData);
     const oneHotLabels = tf.tensor2d(labels, [labels.length, this.numClasses]);
@@ -110,15 +114,20 @@ export class ShotAnalysisModel {
       validationData: [valFeatures, valLabels],
       callbacks: {
         onEpochEnd: async (epoch, logs) => {
-          console.log(`Epoch ${epoch}: loss = ${logs?.loss}, accuracy = ${logs?.acc}`);
-        }
-      }
+          console.log(
+            `Epoch ${epoch}: loss = ${logs?.loss}, accuracy = ${logs?.acc}`,
+          );
+        },
+      },
     });
 
     // Calculate validation metrics
     const valPredictions = this.model.predict(valFeatures) as tf.Tensor;
     const valTrueLabels = valLabels;
-    this.validationMetrics = await this.evaluateModel(valPredictions, valTrueLabels);
+    this.validationMetrics = await this.evaluateModel(
+      valPredictions,
+      valTrueLabels,
+    );
 
     // Update metadata
     this.metadata.lastUpdated = new Date().toISOString();
@@ -126,7 +135,7 @@ export class ShotAnalysisModel {
     this.metadata.trainingHistory = {
       epochs,
       batchSize,
-      validationSplit
+      validationSplit,
     };
 
     return history;
@@ -134,7 +143,7 @@ export class ShotAnalysisModel {
 
   public async evaluateModel(
     features: tf.Tensor,
-    labels: tf.Tensor
+    labels: tf.Tensor,
   ): Promise<{
     accuracy: number;
     precision: number;
@@ -146,7 +155,10 @@ export class ShotAnalysisModel {
     const trueClasses = tf.argMax(labels, 1);
 
     // Calculate confusion matrix
-    const confusionMatrix = await this.calculateConfusionMatrix(predictedClasses, trueClasses);
+    const confusionMatrix = await this.calculateConfusionMatrix(
+      predictedClasses,
+      trueClasses,
+    );
 
     // Calculate metrics
     const metrics = this.calculateMetrics(confusionMatrix);
@@ -157,10 +169,12 @@ export class ShotAnalysisModel {
 
   private async calculateConfusionMatrix(
     predicted: tf.Tensor,
-    trueLabels: tf.Tensor
+    trueLabels: tf.Tensor,
   ): Promise<number[][]> {
     const numClasses = this.numClasses;
-    const matrix = Array(numClasses).fill(0).map(() => Array(numClasses).fill(0));
+    const matrix = Array(numClasses)
+      .fill(0)
+      .map(() => Array(numClasses).fill(0));
 
     const predictedData = await predicted.data();
     const trueData = await trueLabels.data();
@@ -211,13 +225,14 @@ export class ShotAnalysisModel {
     const accuracy = totalCorrect / totalPredictions;
     const avgPrecision = precisions.reduce((a, b) => a + b, 0) / numClasses;
     const avgRecall = recalls.reduce((a, b) => a + b, 0) / numClasses;
-    const f1Score = 2 * (avgPrecision * avgRecall) / (avgPrecision + avgRecall) || 0;
+    const f1Score =
+      (2 * (avgPrecision * avgRecall)) / (avgPrecision + avgRecall) || 0;
 
     return {
       accuracy,
       precision: avgPrecision,
       recall: avgRecall,
-      f1Score
+      f1Score,
     };
   }
 
@@ -238,20 +253,20 @@ export class ShotAnalysisModel {
     const features = this.preprocessData([shotData]);
     const prediction = this.model.predict(features) as tf.Tensor;
     const result = await prediction.data();
-    
+
     return {
       success: result[1] > result[0],
       confidence: Math.max(...result),
-      accuracy: this.calculateAccuracy(shotData)
+      accuracy: this.calculateAccuracy(shotData),
     };
   }
 
   private preprocessData(shots: ShotData[]): tf.Tensor {
-    const features = shots.map(shot => {
+    const features = shots.map((shot) => {
       const distance = this.calculateDistance(shot.cueBall, shot.targetBall);
       const angle = this.calculateAngle(shot.cueBall, shot.targetBall);
       const accuracy = this.calculateAccuracy(shot);
-      
+
       return [
         shot.cueBall.x,
         shot.cueBall.y,
@@ -262,7 +277,7 @@ export class ShotAnalysisModel {
         distance,
         angle,
         accuracy,
-        shot.success ? 1 : 0
+        shot.success ? 1 : 0,
       ];
     });
 
@@ -271,36 +286,31 @@ export class ShotAnalysisModel {
 
   private calculateDistance(
     point1: { x: number; y: number },
-    point2: { x: number; y: number }
+    point2: { x: number; y: number },
   ): number {
     return Math.sqrt(
-      Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
+      Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2),
     );
   }
 
   private calculateAngle(
     point1: { x: number; y: number },
-    point2: { x: number; y: number }
+    point2: { x: number; y: number },
   ): number {
     return Math.atan2(point2.y - point1.y, point2.x - point1.x);
   }
 
   private calculateAccuracy(shot: ShotData): number {
     // Calculate accuracy based on multiple factors
-    const distanceFactor = 1 - (this.calculateDistance(
-      shot.cueBall,
-      shot.targetBall
-    ) / 100); // Normalize to table size
+    const distanceFactor =
+      1 - this.calculateDistance(shot.cueBall, shot.targetBall) / 100; // Normalize to table size
 
-    const spinFactor = 1 - (Math.abs(shot.english.top) + Math.abs(shot.english.side)) / 2;
+    const spinFactor =
+      1 - (Math.abs(shot.english.top) + Math.abs(shot.english.side)) / 2;
     const powerFactor = 1 - Math.abs(shot.power - 0.5); // Ideal power is 0.5
 
     // Weighted average of factors
-    return (
-      distanceFactor * 0.4 +
-      spinFactor * 0.3 +
-      powerFactor * 0.3
-    );
+    return distanceFactor * 0.4 + spinFactor * 0.3 + powerFactor * 0.3;
   }
 
   public async saveModel(modelPath: string): Promise<void> {
@@ -313,18 +323,20 @@ export class ShotAnalysisModel {
     await this.model.save(`file://${modelPath}/model`);
 
     // Save metadata
-    const metadataPath = path.join(modelPath, 'metadata.json');
+    const metadataPath = path.join(modelPath, "metadata.json");
     fs.writeFileSync(metadataPath, JSON.stringify(this.metadata, null, 2));
   }
 
   public async loadModel(modelPath: string): Promise<void> {
     // Load model weights and topology
-    this.model = await tf.loadLayersModel(`file://${modelPath}/model/model.json`);
+    this.model = await tf.loadLayersModel(
+      `file://${modelPath}/model/model.json`,
+    );
 
     // Load metadata
-    const metadataPath = path.join(modelPath, 'metadata.json');
+    const metadataPath = path.join(modelPath, "metadata.json");
     if (fs.existsSync(metadataPath)) {
-      const metadataJson = fs.readFileSync(metadataPath, 'utf-8');
+      const metadataJson = fs.readFileSync(metadataPath, "utf-8");
       this.metadata = JSON.parse(metadataJson);
       this.validationMetrics = this.metadata.validationMetrics;
     } else {
@@ -335,4 +347,4 @@ export class ShotAnalysisModel {
   public getMetadata(): ModelMetadata {
     return this.metadata;
   }
-} 
+}

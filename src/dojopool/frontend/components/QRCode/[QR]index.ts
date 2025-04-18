@@ -1,6 +1,6 @@
-export { default as QRScanner } from './QRScanner';
-export { default as QRDisplay } from './QRDisplay';
-export { default as QRDialog } from './QRDialog';
+export { default as QRScanner } from "./QRScanner";
+export { default as QRDisplay } from "./QRDisplay";
+export { default as QRDialog } from "./QRDialog";
 
 // Types
 export interface QRScannerProps {
@@ -22,6 +22,6 @@ export interface QRDialogProps {
   onScan?: (data: string) => void;
   qrCode?: string;
   tableNumber?: number;
-  mode?: 'scan' | 'display' | 'both';
+  mode?: "scan" | "display" | "both";
   title?: string;
 }

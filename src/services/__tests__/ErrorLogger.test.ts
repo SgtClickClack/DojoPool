@@ -1,233 +1,239 @@
-import { act } from '@testing-library/react';
-import ErrorLogger, { useErrorLogger } from '../ErrorLogger';
+import { act } from "@testing-library/react";
+import ErrorLogger, { useErrorLogger } from "../ErrorLogger";
 
-describe('ErrorLogger', () => {
-    let logger: ErrorLogger;
-    
-    beforeEach(() => {
-        // Reset fetch mock
-        (global.fetch as jest.Mock).mockReset();
-        
-        // Reset timers
-        jest.useFakeTimers();
-        
-        // Get fresh instance
-        logger = ErrorLogger.getInstance({
-            apiEndpoint: '/api/errors',
-            batchSize: 2,
-            flushInterval: 1000
-        });
+describe("ErrorLogger", () => {
+  let logger: ErrorLogger;
+
+  beforeEach(() => {
+    // Reset fetch mock
+    (global.fetch as jest.Mock).mockReset();
+
+    // Reset timers
+    jest.useFakeTimers();
+
+    // Get fresh instance
+    logger = ErrorLogger.getInstance({
+      apiEndpoint: "/api/errors",
+      batchSize: 2,
+      flushInterval: 1000,
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  describe("error logging", () => {
+    it("should batch errors and send them", async () => {
+      const error1 = new Error("Test error 1");
+      const error2 = new Error("Test error 2");
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+      });
+
+      // Log two errors
+      logger.logError(error1);
+      logger.logError(error2);
+
+      // Errors should be batched and sent immediately when batch size is reached
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/errors",
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining("Test error 1"),
+        }),
+      );
+
+      const requestBody = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body,
+      );
+
+      expect(requestBody.errors).toHaveLength(2);
+      expect(requestBody.errors[0].error.message).toBe("Test error 1");
+      expect(requestBody.errors[1].error.message).toBe("Test error 2");
     });
 
-    afterEach(() => {
-        jest.useRealTimers();
+    it("should flush errors after interval", async () => {
+      const error = new Error("Test error");
+
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+      });
+
+      // Log one error
+      logger.logError(error);
+
+      // Error should not be sent immediately
+      expect(global.fetch).not.toHaveBeenCalled();
+
+      // Fast forward past flush interval
+      jest.advanceTimersByTime(1000);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/errors",
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining("Test error"),
+        }),
+      );
     });
 
-    describe('error logging', () => {
-        it('should batch errors and send them', async () => {
-            const error1 = new Error('Test error 1');
-            const error2 = new Error('Test error 2');
+    it("should retry failed requests", async () => {
+      const error = new Error("Test error");
 
-            (global.fetch as jest.Mock).mockResolvedValueOnce({
-                ok: true
-            });
+      (global.fetch as jest.Mock)
+        .mockRejectedValueOnce(new Error("Network error"))
+        .mockResolvedValueOnce({ ok: true });
 
-            // Log two errors
-            logger.logError(error1);
-            logger.logError(error2);
+      logger.logError(error);
+      jest.advanceTimersByTime(1000);
 
-            // Errors should be batched and sent immediately when batch size is reached
-            expect(global.fetch).toHaveBeenCalledWith(
-                '/api/errors',
-                expect.objectContaining({
-                    method: 'POST',
-                    body: expect.stringContaining('Test error 1')
-                })
-            );
+      // First attempt fails
+      await Promise.resolve();
 
-            const requestBody = JSON.parse(
-                (global.fetch as jest.Mock).mock.calls[0][1].body
-            );
+      // Should retry after delay
+      jest.advanceTimersByTime(1000);
 
-            expect(requestBody.errors).toHaveLength(2);
-            expect(requestBody.errors[0].error.message).toBe('Test error 1');
-            expect(requestBody.errors[1].error.message).toBe('Test error 2');
-        });
-
-        it('should flush errors after interval', async () => {
-            const error = new Error('Test error');
-
-            (global.fetch as jest.Mock).mockResolvedValueOnce({
-                ok: true
-            });
-
-            // Log one error
-            logger.logError(error);
-
-            // Error should not be sent immediately
-            expect(global.fetch).not.toHaveBeenCalled();
-
-            // Fast forward past flush interval
-            jest.advanceTimersByTime(1000);
-
-            expect(global.fetch).toHaveBeenCalledWith(
-                '/api/errors',
-                expect.objectContaining({
-                    method: 'POST',
-                    body: expect.stringContaining('Test error')
-                })
-            );
-        });
-
-        it('should retry failed requests', async () => {
-            const error = new Error('Test error');
-
-            (global.fetch as jest.Mock)
-                .mockRejectedValueOnce(new Error('Network error'))
-                .mockResolvedValueOnce({ ok: true });
-
-            logger.logError(error);
-            jest.advanceTimersByTime(1000);
-
-            // First attempt fails
-            await Promise.resolve();
-            
-            // Should retry after delay
-            jest.advanceTimersByTime(1000);
-
-            expect(global.fetch).toHaveBeenCalledTimes(2);
-        });
-
-        it('should respect sample rate', () => {
-            const logger = ErrorLogger.getInstance({
-                sampleRate: 0.5
-            });
-
-            // Mock Math.random
-            const mockRandom = jest.spyOn(Math, 'random');
-            mockRandom.mockReturnValueOnce(0.4); // Should be logged
-            mockRandom.mockReturnValueOnce(0.6); // Should be ignored
-
-            logger.logError(new Error('Test error 1'));
-            logger.logError(new Error('Test error 2'));
-
-            jest.advanceTimersByTime(1000);
-
-            const requestBody = JSON.parse(
-                (global.fetch as jest.Mock).mock.calls[0][1].body
-            );
-
-            expect(requestBody.errors).toHaveLength(1);
-            expect(requestBody.errors[0].error.message).toBe('Test error 1');
-        });
-
-        it('should ignore specified errors', () => {
-            const logger = ErrorLogger.getInstance({
-                ignoredErrors: [/ignore me/]
-            });
-
-            logger.logError(new Error('ignore me please'));
-            logger.logError(new Error('important error'));
-
-            jest.advanceTimersByTime(1000);
-
-            const requestBody = JSON.parse(
-                (global.fetch as jest.Mock).mock.calls[0][1].body
-            );
-
-            expect(requestBody.errors).toHaveLength(1);
-            expect(requestBody.errors[0].error.message).toBe('important error');
-        });
+      expect(global.fetch).toHaveBeenCalledTimes(2);
     });
 
-    describe('React error logging', () => {
-        it('should log React errors with component stack', () => {
-            const error = new Error('React error');
-            const errorInfo = {
-                componentStack: '\n    at Component\n    at App'
-            };
+    it("should respect sample rate", () => {
+      const logger = ErrorLogger.getInstance({
+        sampleRate: 0.5,
+      });
 
-            logger.logReactError(error, errorInfo);
+      // Mock Math.random
+      const mockRandom = jest.spyOn(Math, "random");
+      mockRandom.mockReturnValueOnce(0.4); // Should be logged
+      mockRandom.mockReturnValueOnce(0.6); // Should be ignored
 
-            jest.advanceTimersByTime(1000);
+      logger.logError(new Error("Test error 1"));
+      logger.logError(new Error("Test error 2"));
 
-            const requestBody = JSON.parse(
-                (global.fetch as jest.Mock).mock.calls[0][1].body
-            );
+      jest.advanceTimersByTime(1000);
 
-            expect(requestBody.errors[0]).toEqual(expect.objectContaining({
-                error: expect.objectContaining({
-                    message: 'React error'
-                }),
-                componentStack: errorInfo.componentStack,
-                context: expect.objectContaining({
-                    type: 'reactError'
-                })
-            }));
-        });
+      const requestBody = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body,
+      );
+
+      expect(requestBody.errors).toHaveLength(1);
+      expect(requestBody.errors[0].error.message).toBe("Test error 1");
     });
 
-    describe('system information', () => {
-        it('should include system info with errors', () => {
-            logger.logError(new Error('Test error'));
+    it("should ignore specified errors", () => {
+      const logger = ErrorLogger.getInstance({
+        ignoredErrors: [/ignore me/],
+      });
 
-            jest.advanceTimersByTime(1000);
+      logger.logError(new Error("ignore me please"));
+      logger.logError(new Error("important error"));
 
-            const requestBody = JSON.parse(
-                (global.fetch as jest.Mock).mock.calls[0][1].body
-            );
+      jest.advanceTimersByTime(1000);
 
-            expect(requestBody.errors[0].systemInfo).toEqual(expect.objectContaining({
-                userAgent: expect.any(String),
-                platform: expect.any(String),
-                language: expect.any(String),
-                screenSize: expect.objectContaining({
-                    width: expect.any(Number),
-                    height: expect.any(Number)
-                }),
-                url: expect.any(String)
-            }));
-        });
+      const requestBody = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body,
+      );
+
+      expect(requestBody.errors).toHaveLength(1);
+      expect(requestBody.errors[0].error.message).toBe("important error");
     });
+  });
 
-    describe('error context', () => {
-        it('should include custom context with errors', () => {
-            logger.logError(new Error('Test error'), {
-                context: {
-                    userId: '123',
-                    action: 'checkout'
-                }
-            });
+  describe("React error logging", () => {
+    it("should log React errors with component stack", () => {
+      const error = new Error("React error");
+      const errorInfo = {
+        componentStack: "\n    at Component\n    at App",
+      };
 
-            jest.advanceTimersByTime(1000);
+      logger.logReactError(error, errorInfo);
 
-            const requestBody = JSON.parse(
-                (global.fetch as jest.Mock).mock.calls[0][1].body
-            );
+      jest.advanceTimersByTime(1000);
 
-            expect(requestBody.errors[0].context).toEqual(expect.objectContaining({
-                userId: '123',
-                action: 'checkout'
-            }));
-        });
+      const requestBody = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body,
+      );
+
+      expect(requestBody.errors[0]).toEqual(
+        expect.objectContaining({
+          error: expect.objectContaining({
+            message: "React error",
+          }),
+          componentStack: errorInfo.componentStack,
+          context: expect.objectContaining({
+            type: "reactError",
+          }),
+        }),
+      );
     });
+  });
 
-    describe('cleanup', () => {
-        it('should clear error queue', () => {
-            logger.logError(new Error('Test error'));
-            logger.clearQueue();
+  describe("system information", () => {
+    it("should include system info with errors", () => {
+      logger.logError(new Error("Test error"));
 
-            jest.advanceTimersByTime(1000);
+      jest.advanceTimersByTime(1000);
 
-            expect(global.fetch).not.toHaveBeenCalled();
-        });
+      const requestBody = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body,
+      );
+
+      expect(requestBody.errors[0].systemInfo).toEqual(
+        expect.objectContaining({
+          userAgent: expect.any(String),
+          platform: expect.any(String),
+          language: expect.any(String),
+          screenSize: expect.objectContaining({
+            width: expect.any(Number),
+            height: expect.any(Number),
+          }),
+          url: expect.any(String),
+        }),
+      );
     });
+  });
 
-    describe('React hook', () => {
-        it('should provide logger instance', () => {
-            const { result } = renderHook(() => useErrorLogger());
-            
-            expect(result.current).toBe(logger);
-        });
+  describe("error context", () => {
+    it("should include custom context with errors", () => {
+      logger.logError(new Error("Test error"), {
+        context: {
+          userId: "123",
+          action: "checkout",
+        },
+      });
+
+      jest.advanceTimersByTime(1000);
+
+      const requestBody = JSON.parse(
+        (global.fetch as jest.Mock).mock.calls[0][1].body,
+      );
+
+      expect(requestBody.errors[0].context).toEqual(
+        expect.objectContaining({
+          userId: "123",
+          action: "checkout",
+        }),
+      );
     });
-}); 
+  });
+
+  describe("cleanup", () => {
+    it("should clear error queue", () => {
+      logger.logError(new Error("Test error"));
+      logger.clearQueue();
+
+      jest.advanceTimersByTime(1000);
+
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("React hook", () => {
+    it("should provide logger instance", () => {
+      const { result } = renderHook(() => useErrorLogger());
+
+      expect(result.current).toBe(logger);
+    });
+  });
+});

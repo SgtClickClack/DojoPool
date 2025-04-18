@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  Suspense,
+} from "react";
 import {
   Box,
   Container,
@@ -19,8 +25,8 @@ import {
   ListItemText,
   IconButton,
   Tooltip as MuiTooltip,
-  Button
-} from '@mui/material';
+  Button,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -29,14 +35,17 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   Legend,
-  ResponsiveContainer
-} from 'recharts';
-import { ListChildComponentProps, FixedSizeList as VirtualizedList } from 'react-window';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+  ResponsiveContainer,
+} from "recharts";
+import {
+  ListChildComponentProps,
+  FixedSizeList as VirtualizedList,
+} from "react-window";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import WarningIcon from "@mui/icons-material/Warning";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 
 interface PerformanceMetric {
   name: string;
@@ -52,7 +61,7 @@ interface PerformanceRegression {
   currentValue: number;
   baselineValue: number;
   percentChange: number;
-  severity: 'error' | 'warning';
+  severity: "error" | "warning";
   threshold: number;
 }
 
@@ -83,17 +92,28 @@ const MetricCard = React.memo<{
   showTrend?: boolean;
 }>(({ metric, showTrend }) => {
   const theme = useTheme();
-  
-  const status = useMemo(() => 
-    metric.value > metric.threshold ? 'error' :
-    metric.value > metric.warning ? 'warning' : 'success',
-    [metric.value, metric.threshold, metric.warning]
+
+  const status = useMemo(
+    () =>
+      metric.value > metric.threshold
+        ? "error"
+        : metric.value > metric.warning
+          ? "warning"
+          : "success",
+    [metric.value, metric.threshold, metric.warning],
   );
-  
+
   return (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
           <Typography variant="h6" component="div">
             {metric.name}
           </Typography>
@@ -125,10 +145,13 @@ const MetricCard = React.memo<{
   );
 });
 
-MetricCard.displayName = 'MetricCard';
+MetricCard.displayName = "MetricCard";
 
 // Error Fallback Component
-const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) => (
+const ErrorFallback: React.FC<FallbackProps> = ({
+  error,
+  resetErrorBoundary,
+}) => (
   <Alert severity="error">
     <AlertTitle>Something went wrong</AlertTitle>
     {error.message}
@@ -137,7 +160,9 @@ const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) =
 );
 
 // Virtualized List Item
-const VirtualizedListItem: React.FC<ListChildComponentProps<PerformanceRegression[]>> = ({ index, style, data }) => {
+const VirtualizedListItem: React.FC<
+  ListChildComponentProps<PerformanceRegression[]>
+> = ({ index, style, data }) => {
   const regression = data[index];
   return (
     <ListItem style={style}>
@@ -145,16 +170,20 @@ const VirtualizedListItem: React.FC<ListChildComponentProps<PerformanceRegressio
         primary={regression.metric}
         secondary={`${regression.percentChange}% change (${regression.baselineValue}ms → ${regression.currentValue}ms)`}
       />
-      {regression.severity === 'error' ? <ErrorOutlineIcon color="error" /> : <WarningIcon color="warning" />}
+      {regression.severity === "error" ? (
+        <ErrorOutlineIcon color="error" />
+      ) : (
+        <WarningIcon color="warning" />
+      )}
     </ListItem>
   );
 };
 
-VirtualizedListItem.displayName = 'VirtualizedListItem';
+VirtualizedListItem.displayName = "VirtualizedListItem";
 
 const PerformanceMonitorDashboard: React.FC = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PerformanceHistory | null>(null);
@@ -162,7 +191,11 @@ const PerformanceMonitorDashboard: React.FC = () => {
   const fetchData = useCallback(async (force = false) => {
     try {
       // Check cache first
-      if (!force && cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+      if (
+        !force &&
+        cachedData &&
+        Date.now() - cachedData.timestamp < CACHE_DURATION
+      ) {
         setData(cachedData.data);
         setLoading(false);
         return;
@@ -170,19 +203,19 @@ const PerformanceMonitorDashboard: React.FC = () => {
 
       setLoading(true);
       setError(null);
-      const response = await fetch('/api/performance/history');
-      if (!response.ok) throw new Error('Failed to fetch performance data');
+      const response = await fetch("/api/performance/history");
+      if (!response.ok) throw new Error("Failed to fetch performance data");
       const result = await response.json();
-      
+
       // Update cache
       cachedData = {
         data: result,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
-      
+
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -192,23 +225,27 @@ const PerformanceMonitorDashboard: React.FC = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleRefresh = useCallback((event: React.MouseEvent) => {
-    event.preventDefault();
-    fetchData(true);
-  }, [fetchData]);
+  const handleRefresh = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      fetchData(true);
+    },
+    [fetchData],
+  );
 
-  const memoizedMetrics = useMemo(() => 
-    data?.metrics.map((metric) => (
-      <Grid item xs={12} sm={6} md={4} key={metric.name}>
-        <MetricCard metric={metric} showTrend />
-      </Grid>
-    )),
-    [data?.metrics]
+  const memoizedMetrics = useMemo(
+    () =>
+      data?.metrics.map((metric) => (
+        <Grid item xs={12} sm={6} md={4} key={metric.name}>
+          <MetricCard metric={metric} showTrend />
+        </Grid>
+      )),
+    [data?.metrics],
   );
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
         <CircularProgress />
       </Box>
     );
@@ -226,10 +263,20 @@ const PerformanceMonitorDashboard: React.FC = () => {
   if (!data) return null;
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => fetchData(true)}>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onReset={() => fetchData(true)}
+    >
       <Container maxWidth="lg">
         <Box sx={{ my: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
             <Typography variant="h4" component="h1">
               Performance Monitor
             </Typography>
@@ -277,14 +324,12 @@ const PerformanceMonitorDashboard: React.FC = () => {
 
             {/* Budget Violations */}
             <Grid item xs={12} md={6}>
-              <Paper sx={{ p: 2, height: '100%' }}>
+              <Paper sx={{ p: 2, height: "100%" }}>
                 <Typography variant="h6" gutterBottom>
                   Budget Violations
                 </Typography>
                 {data.violations.length === 0 && data.warnings.length === 0 ? (
-                  <Alert severity="success">
-                    All metrics within budget
-                  </Alert>
+                  <Alert severity="success">All metrics within budget</Alert>
                 ) : (
                   <List>
                     {data.violations.map((violation, index) => (
@@ -346,4 +391,4 @@ const PerformanceMonitorDashboard: React.FC = () => {
   );
 };
 
-export default PerformanceMonitorDashboard; 
+export default PerformanceMonitorDashboard;

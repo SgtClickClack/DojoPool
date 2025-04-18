@@ -1,4 +1,9 @@
-export type AchievementType = 'game' | 'tournament' | 'social' | 'skill' | 'special';
+export type AchievementType =
+  | "game"
+  | "tournament"
+  | "social"
+  | "skill"
+  | "special";
 
 export interface Achievement {
   id: number;
@@ -43,4 +48,4 @@ export interface AchievementLeaderboardEntry {
 export interface AchievementResponse {
   achievements: UserAchievement[];
   stats: AchievementStats;
-} 
+}

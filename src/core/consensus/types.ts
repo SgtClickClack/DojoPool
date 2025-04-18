@@ -1,15 +1,15 @@
-import { VectorTimestamp } from '../../types/consistency';
+import { VectorTimestamp } from "../../types/consistency";
 
 export enum ConsensusState {
-  FOLLOWER = 'FOLLOWER',
-  CANDIDATE = 'CANDIDATE',
-  LEADER = 'LEADER'
+  FOLLOWER = "FOLLOWER",
+  CANDIDATE = "CANDIDATE",
+  LEADER = "LEADER",
 }
 
 export enum NodeRole {
-  FOLLOWER = 'FOLLOWER',
-  CANDIDATE = 'CANDIDATE',
-  LEADER = 'LEADER'
+  FOLLOWER = "FOLLOWER",
+  CANDIDATE = "CANDIDATE",
+  LEADER = "LEADER",
 }
 
 export interface LogEntry {
@@ -53,4 +53,4 @@ export interface RequestVoteResponse {
 export interface GameEvent {
   type: string;
   data: any;
-} 
+}

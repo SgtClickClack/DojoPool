@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -7,7 +7,7 @@ import {
   Typography,
   CircularProgress,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -16,14 +16,18 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from 'recharts';
-import { MetricData, MetricsSnapshot, TrendAnalysis } from '../../types/monitoring';
-import { gameMetricsMonitor } from '../../utils/monitoring';
+} from "recharts";
+import {
+  MetricData,
+  MetricsSnapshot,
+  TrendAnalysis,
+} from "../../types/monitoring";
+import { gameMetricsMonitor } from "../../utils/monitoring";
 
 interface MetricsChartProps {
   gameId?: string;
   metricId: string;
-  chartType: 'line' | 'bar' | 'pie';
+  chartType: "line" | "bar" | "pie";
   refreshInterval?: number;
   timeRange: {
     startTime: number;
@@ -65,7 +69,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
         const snapshot = await gameMetricsMonitor.getMetricsSnapshot();
         setMetrics(snapshot);
       } catch (error) {
-        console.error('Failed to fetch metrics:', error);
+        console.error("Failed to fetch metrics:", error);
       }
     };
 
@@ -87,11 +91,11 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
     if (!aggregatedData) return [];
 
     switch (metricId) {
-      case 'updateTimes':
+      case "updateTimes":
         return aggregatedData.updateTimes;
-      case 'latency':
+      case "latency":
         return aggregatedData.latency;
-      case 'memoryUsage':
+      case "memoryUsage":
         return aggregatedData.memoryUsage;
       default:
         return [];
@@ -103,7 +107,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
     const formattedData = formatMetricData(data);
 
     switch (chartType) {
-      case 'line':
+      case "line":
         return (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={formattedData}>
@@ -123,7 +127,9 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
                 dataKey="value"
                 stroke={theme.palette.primary.main}
                 dot={false}
-                onClick={(point) => onDataPointClick?.(point as unknown as MetricData)}
+                onClick={(point) =>
+                  onDataPointClick?.(point as unknown as MetricData)
+                }
               />
               {showTrendLine && trendAnalysis?.trendLine && (
                 <Line
@@ -138,7 +144,12 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
               {showForecast && trendAnalysis?.forecast && (
                 <Line
                   type="monotone"
-                  data={formatMetricData(trendAnalysis.forecast.map(f => ({ timestamp: f.timestamp, value: f.value })))}
+                  data={formatMetricData(
+                    trendAnalysis.forecast.map((f) => ({
+                      timestamp: f.timestamp,
+                      value: f.value,
+                    })),
+                  )}
                   dataKey="value"
                   stroke={theme.palette.info.main}
                   strokeDasharray="3 3"

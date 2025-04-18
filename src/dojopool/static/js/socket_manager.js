@@ -12,7 +12,7 @@ class SocketManager {
       userId: null,
       pendingMessages: [],
       lastReconnectAttempt: null,
-      state: 'initializing',
+      state: "initializing",
       isWebview: false,
     };
     this.healthCheckInterval = null;
@@ -22,7 +22,7 @@ class SocketManager {
   initialize() {
     // Initialize Socket.IO with enhanced reconnection options and webview support
     const protocol = window.location.protocol;
-    const isWebview = window.location.hostname.includes('.webview');
+    const isWebview = window.location.hostname.includes(".webview");
     this.connectionState.isWebview = isWebview;
 
     this.socket = io({
@@ -32,15 +32,15 @@ class SocketManager {
       reconnectionDelayMax: this.maxDelay,
       timeout: isWebview ? 120000 : 60000, // Longer timeout for webview
       autoConnect: true,
-      transports: ['websocket', 'polling'],
+      transports: ["websocket", "polling"],
       // Add randomization to prevent thundering herd
       randomizationFactor: 0.5,
       // Ensure proper protocol and origin handling
-      secure: protocol === 'https:',
+      secure: protocol === "https:",
       rejectUnauthorized: false,
       withCredentials: true,
       extraHeaders: {
-        'X-Client-Type': isWebview ? 'webview' : 'browser',
+        "X-Client-Type": isWebview ? "webview" : "browser",
       },
     });
 
@@ -55,27 +55,27 @@ class SocketManager {
 
   setupWebviewHandlers() {
     // Handle webview-specific events
-    window.addEventListener('focus', () => {
+    window.addEventListener("focus", () => {
       if (!this.connectionState.isConnected) {
-        console.log('Webview gained focus, attempting reconnection...');
+        console.log("Webview gained focus, attempting reconnection...");
         this.forceReconnect();
       }
     });
 
-    window.addEventListener('online', () => {
-      console.log('Network connection restored in webview');
+    window.addEventListener("online", () => {
+      console.log("Network connection restored in webview");
       if (!this.connectionState.isConnected) {
         this.forceReconnect();
       }
     });
 
     // Handle webview suspension/resume
-    document.addEventListener('visibilitychange', () => {
+    document.addEventListener("visibilitychange", () => {
       if (
-        document.visibilityState === 'visible' &&
+        document.visibilityState === "visible" &&
         !this.connectionState.isConnected
       ) {
-        console.log('Webview became visible, checking connection...');
+        console.log("Webview became visible, checking connection...");
         this.checkConnectionState();
       }
     });
@@ -83,10 +83,10 @@ class SocketManager {
 
   setupEventHandlers() {
     // Connection event handlers with enhanced state management
-    this.socket.on('connect', () => {
-      console.log('Connected to server');
+    this.socket.on("connect", () => {
+      console.log("Connected to server");
       this.connectionState.isConnected = true;
-      this.connectionState.state = 'connected';
+      this.connectionState.state = "connected";
       this.reconnectAttempts = 0;
       this.connectionState.lastEventTime = Date.now();
 
@@ -97,16 +97,16 @@ class SocketManager {
       this.restoreState();
 
       // Show connection status to user
-      this.updateUIStatus('Connected', 'success');
+      this.updateUIStatus("Connected", "success");
 
       // Process any pending messages
       this.processPendingMessages();
     });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('Disconnected:', reason);
+    this.socket.on("disconnect", (reason) => {
+      console.log("Disconnected:", reason);
       this.connectionState.isConnected = false;
-      this.connectionState.state = 'disconnected';
+      this.connectionState.state = "disconnected";
       this.connectionState.lastEventTime = Date.now();
 
       // Save state before attempting reconnection
@@ -114,62 +114,62 @@ class SocketManager {
 
       // Handle different disconnect reasons
       const messages = {
-        'io server disconnect':
-          'Server disconnected - Attempting to reconnect...',
-        'io client disconnect':
-          'Client disconnected - Attempting to reconnect...',
-        'transport close': 'Connection lost - Attempting to reconnect...',
-        'ping timeout': 'Connection timeout - Attempting to reconnect...',
+        "io server disconnect":
+          "Server disconnected - Attempting to reconnect...",
+        "io client disconnect":
+          "Client disconnected - Attempting to reconnect...",
+        "transport close": "Connection lost - Attempting to reconnect...",
+        "ping timeout": "Connection timeout - Attempting to reconnect...",
       };
 
       const message =
-        messages[reason] || 'Connection lost - Attempting to reconnect...';
-      this.updateUIStatus(message, 'warning');
+        messages[reason] || "Connection lost - Attempting to reconnect...";
+      this.updateUIStatus(message, "warning");
 
       // Handle webview-specific reconnection
       if (this.connectionState.isWebview) {
         // Use longer delays for webview reconnection
         setTimeout(() => this.forceReconnect(), 2000);
-      } else if (['transport close', 'ping timeout'].includes(reason)) {
+      } else if (["transport close", "ping timeout"].includes(reason)) {
         setTimeout(() => this.forceReconnect(), 1000);
       }
     });
 
     // Enhanced reconnection handling with exponential backoff
-    this.socket.on('reconnect_attempt', (attemptNumber) => {
+    this.socket.on("reconnect_attempt", (attemptNumber) => {
       console.log(`Reconnection attempt ${attemptNumber}`);
       this.reconnectAttempts = attemptNumber;
       this.connectionState.lastReconnectAttempt = Date.now();
-      this.connectionState.state = 'reconnecting';
+      this.connectionState.state = "reconnecting";
 
       // Calculate delay using exponential backoff with jitter
       const jitter = Math.random() * 0.3 + 0.85; // Random factor between 0.85 and 1.15
       const delay = Math.min(
         this.baseDelay * Math.pow(1.5, attemptNumber - 1) * jitter,
-        this.maxDelay
+        this.maxDelay,
       );
 
       this.updateUIStatus(
         `Reconnecting in ${(delay / 1000).toFixed(1)} seconds... (Attempt ${attemptNumber}/${this.maxReconnectAttempts})`,
-        'warning'
+        "warning",
       );
     });
 
-    this.socket.on('reconnect', (attemptNumber) => {
-      console.log('Reconnected after', attemptNumber, 'attempts');
+    this.socket.on("reconnect", (attemptNumber) => {
+      console.log("Reconnected after", attemptNumber, "attempts");
       this.connectionState.isConnected = true;
-      this.connectionState.state = 'connected';
+      this.connectionState.state = "connected";
       this.connectionState.lastEventTime = Date.now();
 
       // Restore connection state
       this.restoreState();
-      this.updateUIStatus('Reconnected successfully', 'success');
+      this.updateUIStatus("Reconnected successfully", "success");
     });
 
-    this.socket.on('reconnect_error', (error) => {
-      console.error('Reconnection error:', error);
-      this.connectionState.state = 'error';
-      this.updateUIStatus(`Reconnection failed: ${error.message}`, 'error');
+    this.socket.on("reconnect_error", (error) => {
+      console.error("Reconnection error:", error);
+      this.connectionState.state = "error";
+      this.updateUIStatus(`Reconnection failed: ${error.message}`, "error");
 
       // Special handling for webview
       if (this.connectionState.isWebview) {
@@ -177,34 +177,34 @@ class SocketManager {
       }
     });
 
-    this.socket.on('reconnect_failed', () => {
-      console.log('Failed to reconnect after maximum attempts');
-      this.connectionState.state = 'failed';
+    this.socket.on("reconnect_failed", () => {
+      console.log("Failed to reconnect after maximum attempts");
+      this.connectionState.state = "failed";
 
       if (this.connectionState.isWebview) {
         this.updateUIStatus(
-          'Connection failed - Retrying in background...',
-          'error'
+          "Connection failed - Retrying in background...",
+          "error",
         );
         setTimeout(() => this.forceReconnect(), 5000);
       } else {
         this.updateUIStatus(
-          'Connection failed - Please refresh the page',
-          'error'
+          "Connection failed - Please refresh the page",
+          "error",
         );
         this.handleReconnectionFailure();
       }
     });
 
     // Enhanced error handling with specific error types
-    this.socket.on('error', (error) => {
-      console.error('Socket error:', error);
-      this.connectionState.state = 'error';
+    this.socket.on("error", (error) => {
+      console.error("Socket error:", error);
+      this.connectionState.state = "error";
       this.handleSocketError(error);
     });
 
     // Server responses
-    this.socket.on('pong', (data) => {
+    this.socket.on("pong", (data) => {
       this.connectionState.lastEventTime = Date.now();
       if (data && data.timestamp) {
         this.connectionState.lastServerTimestamp = data.timestamp;
@@ -212,14 +212,14 @@ class SocketManager {
     });
 
     // Connection confirmation with enhanced state management
-    this.socket.on('connection_confirmed', (data) => {
-      console.log('Connection confirmed:', data);
+    this.socket.on("connection_confirmed", (data) => {
+      console.log("Connection confirmed:", data);
       this.connectionState.userId = data.sid;
       this.connectionState.lastEventTime = Date.now();
       this.connectionState.isWebview = data.is_webview;
 
       if (data.session_restored) {
-        console.log('Session restored successfully');
+        console.log("Session restored successfully");
       }
 
       if (data.user_id) {
@@ -232,7 +232,7 @@ class SocketManager {
     // Implement progressive backoff for webview reconnection
     const backoffDelay = Math.min(
       this.baseDelay * Math.pow(2, this.reconnectAttempts),
-      this.maxDelay
+      this.maxDelay,
     );
 
     setTimeout(() => {
@@ -244,7 +244,7 @@ class SocketManager {
 
   checkConnectionState() {
     if (!this.connectionState.isConnected) {
-      console.log('Connection check failed, attempting reconnect...');
+      console.log("Connection check failed, attempting reconnect...");
       this.forceReconnect();
     } else {
       this.ping();
@@ -272,7 +272,7 @@ class SocketManager {
     const maxAge = this.connectionState.isWebview ? 90000 : 45000;
 
     if (lastEventAge > maxAge) {
-      console.log('Connection appears stale, attempting to reconnect...');
+      console.log("Connection appears stale, attempting to reconnect...");
       this.forceReconnect();
     } else {
       this.ping();
@@ -280,15 +280,15 @@ class SocketManager {
   }
 
   handleSocketError(error) {
-    const errorMessage = error.message || 'Unknown error occurred';
-    this.updateUIStatus(`Connection error: ${errorMessage}`, 'error');
+    const errorMessage = error.message || "Unknown error occurred";
+    this.updateUIStatus(`Connection error: ${errorMessage}`, "error");
 
     this.connectionState.lastError = {
       timestamp: Date.now(),
       message: errorMessage,
     };
 
-    if (error.type === 'TransportError') {
+    if (error.type === "TransportError") {
       setTimeout(() => this.forceReconnect(), 1000);
     }
   }
@@ -304,11 +304,11 @@ class SocketManager {
   }
 
   showRefreshButton() {
-    const statusElement = document.getElementById('connection-status');
+    const statusElement = document.getElementById("connection-status");
     if (statusElement) {
-      const refreshButton = document.createElement('button');
-      refreshButton.textContent = 'Refresh Page';
-      refreshButton.className = 'btn btn-primary mt-2';
+      const refreshButton = document.createElement("button");
+      refreshButton.textContent = "Refresh Page";
+      refreshButton.className = "btn btn-primary mt-2";
       refreshButton.onclick = () => window.location.reload();
       statusElement.appendChild(refreshButton);
     }
@@ -319,9 +319,9 @@ class SocketManager {
       delete this.connectionState.lastError;
     }
 
-    const statusElement = document.getElementById('connection-status');
+    const statusElement = document.getElementById("connection-status");
     if (statusElement) {
-      const refreshButton = statusElement.querySelector('button');
+      const refreshButton = statusElement.querySelector("button");
       if (refreshButton) {
         refreshButton.remove();
       }
@@ -331,11 +331,11 @@ class SocketManager {
   ping() {
     if (this.connectionState.isConnected) {
       const pingTimeout = setTimeout(() => {
-        console.log('Ping timeout, connection might be unstable');
-        this.updateUIStatus('Connection unstable', 'warning');
+        console.log("Ping timeout, connection might be unstable");
+        this.updateUIStatus("Connection unstable", "warning");
       }, 5000);
 
-      this.socket.emit('ping', () => {
+      this.socket.emit("ping", () => {
         clearTimeout(pingTimeout);
       });
     }
@@ -346,34 +346,34 @@ class SocketManager {
       userId: this.connectionState.userId,
       lastEventTime: this.connectionState.lastEventTime,
       pendingMessages: this.connectionState.pendingMessages,
-      sessionData: sessionStorage.getItem('socketSession'),
+      sessionData: sessionStorage.getItem("socketSession"),
       state: this.connectionState.state,
       isWebview: this.connectionState.isWebview,
     };
 
-    localStorage.setItem('socketState', JSON.stringify(state));
-    console.log('Connection state saved');
+    localStorage.setItem("socketState", JSON.stringify(state));
+    console.log("Connection state saved");
   }
 
   restoreState() {
     try {
-      const savedState = JSON.parse(localStorage.getItem('socketState'));
+      const savedState = JSON.parse(localStorage.getItem("socketState"));
       if (savedState) {
         this.connectionState.userId = savedState.userId;
         this.connectionState.lastEventTime = savedState.lastEventTime;
         this.connectionState.pendingMessages = savedState.pendingMessages || [];
-        this.connectionState.state = savedState.state || 'connected';
+        this.connectionState.state = savedState.state || "connected";
         this.connectionState.isWebview = savedState.isWebview;
 
         if (savedState.sessionData) {
-          sessionStorage.setItem('socketSession', savedState.sessionData);
+          sessionStorage.setItem("socketSession", savedState.sessionData);
         }
 
-        console.log('Connection state restored');
+        console.log("Connection state restored");
         return true;
       }
     } catch (error) {
-      console.error('Error restoring state:', error);
+      console.error("Error restoring state:", error);
     }
     return false;
   }
@@ -383,14 +383,14 @@ class SocketManager {
     this.connectionState.pendingMessages = [];
 
     messages.forEach((message) => {
-      console.log('Processing pending message:', message.event);
+      console.log("Processing pending message:", message.event);
       this.socket.emit(message.event, message.data);
     });
   }
 
   queueMessage(event, data) {
     if (!this.connectionState.isConnected) {
-      console.log('Queuing message for later delivery:', event);
+      console.log("Queuing message for later delivery:", event);
       this.connectionState.pendingMessages.push({ event, data });
       return false;
     }
@@ -400,15 +400,15 @@ class SocketManager {
   sendMessage(event, data) {
     if (this.queueMessage(event, data)) {
       this.socket.emit(event, data);
-      console.log('Message sent:', event);
+      console.log("Message sent:", event);
     }
   }
 
   updateUIStatus(message, type) {
-    let statusElement = document.getElementById('connection-status');
+    let statusElement = document.getElementById("connection-status");
     if (!statusElement) {
-      statusElement = document.createElement('div');
-      statusElement.id = 'connection-status';
+      statusElement = document.createElement("div");
+      statusElement.id = "connection-status";
       statusElement.style.cssText = `
                 position: fixed;
                 bottom: 20px;
@@ -425,26 +425,26 @@ class SocketManager {
     }
 
     const styles = {
-      success: 'background-color: var(--bs-success); color: white;',
-      warning: 'background-color: var(--bs-warning); color: black;',
-      error: 'background-color: var(--bs-danger); color: white;',
+      success: "background-color: var(--bs-success); color: white;",
+      warning: "background-color: var(--bs-warning); color: black;",
+      error: "background-color: var(--bs-danger); color: white;",
     };
 
     statusElement.style.cssText += styles[type] || styles.warning;
     statusElement.textContent = message;
 
-    if (type === 'success') {
+    if (type === "success") {
       setTimeout(() => {
-        statusElement.style.opacity = '0';
+        statusElement.style.opacity = "0";
         setTimeout(() => {
-          if (statusElement.style.opacity === '0') {
-            statusElement.style.display = 'none';
+          if (statusElement.style.opacity === "0") {
+            statusElement.style.display = "none";
           }
         }, 300);
       }, 3000);
     } else {
-      statusElement.style.opacity = '1';
-      statusElement.style.display = 'block';
+      statusElement.style.opacity = "1";
+      statusElement.style.display = "block";
     }
   }
 
@@ -455,7 +455,7 @@ class SocketManager {
       }
 
       setTimeout(() => {
-        console.log('Forcing reconnection...');
+        console.log("Forcing reconnection...");
         this.socket.connect();
       }, 1000);
     }

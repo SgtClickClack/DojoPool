@@ -1,5 +1,5 @@
-import stateService from './state';
-import analyticsService from './analytics';
+import stateService from "./state";
+import analyticsService from "./analytics";
 
 interface LoadingState {
   isLoading: boolean;
@@ -35,7 +35,7 @@ class LoadingService {
             this.stop(key);
           }
         });
-      }
+      },
     );
   }
 
@@ -45,7 +45,7 @@ class LoadingService {
       message?: string;
       showProgress?: boolean;
       progressInterval?: number;
-    } = {}
+    } = {},
   ): void {
     if (this.state.loadingStates.get(key)) {
       return;
@@ -53,8 +53,8 @@ class LoadingService {
 
     // Track loading start in analytics
     analyticsService.trackUserEvent({
-      type: 'loading_started',
-      userId: 'system',
+      type: "loading_started",
+      userId: "system",
       details: {
         loadingKey: key,
         timestamp: new Date().toISOString(),
@@ -71,7 +71,7 @@ class LoadingService {
     this.state.isLoading = true;
 
     // Update UI state
-    stateService.setState('ui', {
+    stateService.setState("ui", {
       ...stateService.getState((state) => state.ui),
       loadingStates: {
         ...stateService.getState((state) => state.ui.loadingStates),
@@ -103,8 +103,8 @@ class LoadingService {
 
     // Track loading stop in analytics
     analyticsService.trackUserEvent({
-      type: 'loading_stopped',
-      userId: 'system',
+      type: "loading_stopped",
+      userId: "system",
       details: {
         loadingKey: key,
         duration: this.getLoadingDuration(key),
@@ -127,7 +127,7 @@ class LoadingService {
     this.state.isLoading = this.state.globalLoadingCount > 0;
 
     // Update UI state
-    stateService.setState('ui', {
+    stateService.setState("ui", {
       ...stateService.getState((state) => state.ui),
       loadingStates: {
         ...stateService.getState((state) => state.ui.loadingStates),
@@ -187,7 +187,9 @@ class LoadingService {
   }
 
   private getLoadingDuration(key: string): number {
-    const startTime = this.state.loadingStates.get(key) ? new Date().getTime() : undefined;
+    const startTime = this.state.loadingStates.get(key)
+      ? new Date().getTime()
+      : undefined;
     return startTime ? new Date().getTime() - startTime : 0;
   }
 
@@ -216,7 +218,7 @@ class LoadingService {
     };
 
     // Update UI state
-    stateService.setState('ui', {
+    stateService.setState("ui", {
       ...stateService.getState((state) => state.ui),
       loadingStates: {},
     });

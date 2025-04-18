@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 export interface ShotData {
   timestamp: number;
@@ -33,28 +33,31 @@ export class ShotAnalysisService extends EventEmitter {
       timestamp: Date.now(),
       ballPositions: {
         cueBall: { x: 0, y: 0 },
-        targetBall: { x: 0, y: 0 }
+        targetBall: { x: 0, y: 0 },
       },
-      shotType: '',
+      shotType: "",
       power: 0,
       spin: { top: 0, side: 0 },
       success: false,
-      accuracy: 0
+      accuracy: 0,
     };
-    this.emit('trackingStarted');
+    this.emit("trackingStarted");
   }
 
   /**
    * Update ball positions during tracking
    */
-  public updateBallPositions(cueBall: { x: number; y: number }, targetBall: { x: number; y: number }): void {
+  public updateBallPositions(
+    cueBall: { x: number; y: number },
+    targetBall: { x: number; y: number },
+  ): void {
     if (!this.isTracking || !this.currentShot) return;
 
     this.currentShot.ballPositions = {
       cueBall,
-      targetBall
+      targetBall,
     };
-    this.emit('positionsUpdated', this.currentShot.ballPositions);
+    this.emit("positionsUpdated", this.currentShot.ballPositions);
   }
 
   /**
@@ -62,7 +65,7 @@ export class ShotAnalysisService extends EventEmitter {
    */
   public completeShot(success: boolean, accuracy: number): ShotData {
     if (!this.isTracking || !this.currentShot) {
-      throw new Error('No shot is currently being tracked');
+      throw new Error("No shot is currently being tracked");
     }
 
     this.currentShot.success = success;
@@ -72,7 +75,7 @@ export class ShotAnalysisService extends EventEmitter {
     const completedShot = { ...this.currentShot };
     this.currentShot = null;
 
-    this.emit('shotCompleted', completedShot);
+    this.emit("shotCompleted", completedShot);
     return completedShot;
   }
 
@@ -87,8 +90,8 @@ export class ShotAnalysisService extends EventEmitter {
     // TODO: Implement AI-powered shot analysis
     return {
       strength: 0,
-      technique: '',
-      recommendations: []
+      technique: "",
+      recommendations: [],
     };
   }
-} 
+}

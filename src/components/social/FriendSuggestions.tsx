@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -10,9 +10,9 @@ import {
   Skeleton,
   Badge,
   Tooltip,
-} from '@chakra-ui/react';
-import { StarIcon, PeopleIcon } from '@chakra-ui/icons';
-import axios from 'axios';
+} from "@chakra-ui/react";
+import { StarIcon, PeopleIcon } from "@chakra-ui/icons";
+import axios from "axios";
 
 interface FriendSuggestion {
   username: string;
@@ -32,12 +32,12 @@ export const FriendSuggestions: React.FC = () => {
 
   const fetchSuggestions = async () => {
     try {
-      const response = await axios.get('/api/friendships/suggestions/');
+      const response = await axios.get("/api/friendships/suggestions/");
       setSuggestions(response.data);
     } catch (error) {
       toast({
-        title: 'Error fetching suggestions',
-        status: 'error',
+        title: "Error fetching suggestions",
+        status: "error",
         duration: 3000,
       });
     } finally {
@@ -47,18 +47,18 @@ export const FriendSuggestions: React.FC = () => {
 
   const sendFriendRequest = async (username: string) => {
     try {
-      await axios.post('/api/friendships/send_request/', { username });
+      await axios.post("/api/friendships/send_request/", { username });
       toast({
-        title: 'Friend request sent!',
-        status: 'success',
+        title: "Friend request sent!",
+        status: "success",
         duration: 3000,
       });
       // Remove from suggestions
-      setSuggestions(suggestions.filter(s => s.username !== username));
+      setSuggestions(suggestions.filter((s) => s.username !== username));
     } catch (error) {
       toast({
-        title: 'Error sending friend request',
-        status: 'error',
+        title: "Error sending friend request",
+        status: "error",
         duration: 3000,
       });
     }
@@ -93,7 +93,7 @@ export const FriendSuggestions: React.FC = () => {
             borderRadius="lg"
             borderWidth={1}
             borderColor="purple.500"
-            _hover={{ borderColor: 'purple.400' }}
+            _hover={{ borderColor: "purple.400" }}
           >
             <HStack justify="space-between">
               <HStack spacing={4}>
@@ -102,7 +102,9 @@ export const FriendSuggestions: React.FC = () => {
                   <Text fontWeight="bold">{suggestion.username}</Text>
                   <HStack spacing={2}>
                     {suggestion.mutual_friends > 0 && (
-                      <Tooltip label={`${suggestion.mutual_friends} mutual friends`}>
+                      <Tooltip
+                        label={`${suggestion.mutual_friends} mutual friends`}
+                      >
                         <Badge colorScheme="purple">
                           <HStack spacing={1}>
                             <PeopleIcon />
@@ -112,7 +114,9 @@ export const FriendSuggestions: React.FC = () => {
                       </Tooltip>
                     )}
                     {suggestion.shared_achievements > 0 && (
-                      <Tooltip label={`${suggestion.shared_achievements} shared achievements`}>
+                      <Tooltip
+                        label={`${suggestion.shared_achievements} shared achievements`}
+                      >
                         <Badge colorScheme="yellow">
                           <HStack spacing={1}>
                             <StarIcon />
@@ -137,4 +141,4 @@ export const FriendSuggestions: React.FC = () => {
       )}
     </VStack>
   );
-}; 
+};

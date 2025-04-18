@@ -17,4 +17,4 @@ export interface Rectangle {
 export interface Line {
   start: Vector2D;
   end: Vector2D;
-} 
+}

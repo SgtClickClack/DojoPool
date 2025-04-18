@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   InputLabel,
   Grid,
   Box,
-} from '@mui/material';
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -19,7 +19,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from "recharts";
 
 interface ModelMetricsProps {
   modelId: string | null;
@@ -45,7 +45,7 @@ export const ModelMetrics: React.FC<ModelMetricsProps> = ({
   }
 
   const formatMetricValue = (value: number) => {
-    return typeof value === 'number' ? value.toFixed(3) : value;
+    return typeof value === "number" ? value.toFixed(3) : value;
   };
 
   return (
@@ -55,13 +55,14 @@ export const ModelMetrics: React.FC<ModelMetricsProps> = ({
           <FormControl fullWidth>
             <InputLabel>Select Model</InputLabel>
             <Select
-              value={modelId || ''}
+              value={modelId || ""}
               onChange={(e) => onModelSelect(e.target.value as string)}
               label="Select Model"
             >
               {models.map((model) => (
                 <MenuItem key={model.id} value={model.id}>
-                  {model.type} - {new Date(model.trained_at).toLocaleDateString()}
+                  {model.type} -{" "}
+                  {new Date(model.trained_at).toLocaleDateString()}
                 </MenuItem>
               ))}
             </Select>
@@ -75,14 +76,18 @@ export const ModelMetrics: React.FC<ModelMetricsProps> = ({
         <Grid container spacing={2}>
           {metrics.metrics && (
             <>
-              {Object.entries(metrics.metrics).map(([key, value]: [string, any]) => (
-                <Grid item xs={6} key={key}>
-                  <Typography variant="subtitle2" color="textSecondary">
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </Typography>
-                  <Typography variant="h6">{formatMetricValue(value)}</Typography>
-                </Grid>
-              ))}
+              {Object.entries(metrics.metrics).map(
+                ([key, value]: [string, any]) => (
+                  <Grid item xs={6} key={key}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </Typography>
+                    <Typography variant="h6">
+                      {formatMetricValue(value)}
+                    </Typography>
+                  </Grid>
+                ),
+              )}
             </>
           )}
         </Grid>
@@ -94,18 +99,30 @@ export const ModelMetrics: React.FC<ModelMetricsProps> = ({
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart
-                data={metrics.feature_importance.features.map((feature: string, index: number) => ({
-                  feature,
-                  importance: metrics.feature_importance.importance[index],
-                }))}
+                data={metrics.feature_importance.features.map(
+                  (feature: string, index: number) => ({
+                    feature,
+                    importance: metrics.feature_importance.importance[index],
+                  }),
+                )}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="feature" angle={-45} textAnchor="end" height={70} />
+                <XAxis
+                  dataKey="feature"
+                  angle={-45}
+                  textAnchor="end"
+                  height={70}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="importance" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line
+                  type="monotone"
+                  dataKey="importance"
+                  stroke="#8884d8"
+                  activeDot={{ r: 8 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </Box>

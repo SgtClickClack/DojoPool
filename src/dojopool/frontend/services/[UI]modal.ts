@@ -1,12 +1,12 @@
-import stateService from './state';
-import analyticsService from './analytics';
+import stateService from "./state";
+import analyticsService from "./analytics";
 
 interface ModalConfig {
   id: string;
   title: string;
   content: string | HTMLElement;
-  size?: 'small' | 'medium' | 'large' | 'full';
-  position?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  size?: "small" | "medium" | "large" | "full";
+  position?: "center" | "top" | "bottom" | "left" | "right";
   closeOnEscape?: boolean;
   closeOnOverlayClick?: boolean;
   showCloseButton?: boolean;
@@ -15,7 +15,7 @@ interface ModalConfig {
   onClose?: () => void;
   buttons?: Array<{
     text: string;
-    type?: 'primary' | 'secondary' | 'danger';
+    type?: "primary" | "secondary" | "danger";
     onClick: () => void | Promise<void>;
   }>;
 }
@@ -41,18 +41,22 @@ class ModalService {
 
   private setupEscapeListener(): void {
     this.escapeListener = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && this.state.isOpen && this.state.config?.closeOnEscape) {
+      if (
+        e.key === "Escape" &&
+        this.state.isOpen &&
+        this.state.config?.closeOnEscape
+      ) {
         this.close();
       }
     };
-    window.addEventListener('keydown', this.escapeListener);
+    window.addEventListener("keydown", this.escapeListener);
   }
 
   public open(config: ModalConfig): void {
     // Track modal open in analytics
     analyticsService.trackUserEvent({
-      type: 'modal_opened',
-      userId: 'system',
+      type: "modal_opened",
+      userId: "system",
       details: {
         modalId: config.id,
         timestamp: new Date().toISOString(),
@@ -66,8 +70,8 @@ class ModalService {
 
     // Set default values
     const fullConfig: ModalConfig = {
-      size: 'medium',
-      position: 'center',
+      size: "medium",
+      position: "center",
       closeOnEscape: true,
       closeOnOverlayClick: true,
       showCloseButton: true,
@@ -82,7 +86,7 @@ class ModalService {
     };
 
     // Update UI state
-    stateService.setState('ui', {
+    stateService.setState("ui", {
       ...stateService.getState((state) => state.ui),
       activeModal: config.id,
     });
@@ -94,7 +98,7 @@ class ModalService {
     this.notifyListeners();
 
     // Prevent body scrolling
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   }
 
   public close(): void {
@@ -104,8 +108,8 @@ class ModalService {
 
     // Track modal close in analytics
     analyticsService.trackUserEvent({
-      type: 'modal_closed',
-      userId: 'system',
+      type: "modal_closed",
+      userId: "system",
       details: {
         modalId: this.state.config.id,
         timestamp: new Date().toISOString(),
@@ -127,7 +131,7 @@ class ModalService {
     };
 
     // Update UI state
-    stateService.setState('ui', {
+    stateService.setState("ui", {
       ...stateService.getState((state) => state.ui),
       activeModal: nextModal?.id || null,
     });
@@ -137,7 +141,7 @@ class ModalService {
 
     // Restore body scrolling if no modals are open
     if (!this.state.isOpen) {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
   }
 
@@ -174,26 +178,26 @@ class ModalService {
     message: string;
     confirmText?: string;
     cancelText?: string;
-    confirmType?: 'primary' | 'danger';
+    confirmType?: "primary" | "danger";
   }): Promise<boolean> {
     return new Promise((resolve) => {
       this.open({
-        id: 'confirm-dialog',
+        id: "confirm-dialog",
         title: options.title,
         content: options.message,
-        size: 'small',
+        size: "small",
         buttons: [
           {
-            text: options.cancelText || 'Cancel',
-            type: 'secondary',
+            text: options.cancelText || "Cancel",
+            type: "secondary",
             onClick: () => {
               this.close();
               resolve(false);
             },
           },
           {
-            text: options.confirmText || 'Confirm',
-            type: options.confirmType || 'primary',
+            text: options.confirmText || "Confirm",
+            type: options.confirmType || "primary",
             onClick: () => {
               this.close();
               resolve(true);
@@ -204,17 +208,21 @@ class ModalService {
     });
   }
 
-  public alert(options: { title: string; message: string; buttonText?: string }): Promise<void> {
+  public alert(options: {
+    title: string;
+    message: string;
+    buttonText?: string;
+  }): Promise<void> {
     return new Promise((resolve) => {
       this.open({
-        id: 'alert-dialog',
+        id: "alert-dialog",
         title: options.title,
         content: options.message,
-        size: 'small',
+        size: "small",
         buttons: [
           {
-            text: options.buttonText || 'OK',
-            type: 'primary',
+            text: options.buttonText || "OK",
+            type: "primary",
             onClick: () => {
               this.close();
               resolve();
@@ -233,13 +241,13 @@ class ModalService {
     cancelText?: string;
   }): Promise<string | null> {
     return new Promise((resolve) => {
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = options.defaultValue || '';
-      input.className = 'modal-prompt-input';
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = options.defaultValue || "";
+      input.className = "modal-prompt-input";
 
       this.open({
-        id: 'prompt-dialog',
+        id: "prompt-dialog",
         title: options.title,
         content: `
                     <div>
@@ -247,22 +255,22 @@ class ModalService {
                         ${input.outerHTML}
                     </div>
                 `,
-        size: 'small',
+        size: "small",
         buttons: [
           {
-            text: options.cancelText || 'Cancel',
-            type: 'secondary',
+            text: options.cancelText || "Cancel",
+            type: "secondary",
             onClick: () => {
               this.close();
               resolve(null);
             },
           },
           {
-            text: options.confirmText || 'OK',
-            type: 'primary',
+            text: options.confirmText || "OK",
+            type: "primary",
             onClick: () => {
               const inputElement = document.querySelector(
-                '.modal-prompt-input'
+                ".modal-prompt-input",
               ) as HTMLInputElement;
               this.close();
               resolve(inputElement.value);

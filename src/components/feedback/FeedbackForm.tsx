@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -10,8 +10,8 @@ import {
   TextField,
   Typography,
   Snackbar,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 
 interface FeedbackFormProps {
   isOpen: boolean;
@@ -28,31 +28,31 @@ export interface FeedbackData {
 }
 
 const categories = [
-  'Game Experience',
-  'Shot Analysis',
-  'Performance',
-  'UI/UX',
-  'Bug Report',
-  'Feature Request',
-  'Other'
+  "Game Experience",
+  "Shot Analysis",
+  "Performance",
+  "UI/UX",
+  "Bug Report",
+  "Feature Request",
+  "Other",
 ];
 
 export const FeedbackForm: React.FC<FeedbackFormProps> = ({
   isOpen,
   onClose,
-  onSubmit
+  onSubmit,
 }) => {
   const [rating, setRating] = useState<number>(0);
-  const [category, setCategory] = useState<string>('');
-  const [comment, setComment] = useState<string>('');
+  const [category, setCategory] = useState<string>("");
+  const [comment, setComment] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rating || !category || !comment) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
@@ -62,13 +62,13 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
         rating,
         category,
         comment,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       setShowSuccess(true);
       handleReset();
       onClose();
     } catch (err) {
-      setError('Failed to submit feedback. Please try again.');
+      setError("Failed to submit feedback. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,9 +76,9 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
 
   const handleReset = () => {
     setRating(0);
-    setCategory('');
-    setComment('');
-    setError('');
+    setCategory("");
+    setComment("");
+    setError("");
   };
 
   return (
@@ -109,7 +109,7 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               SelectProps={{
-                native: true
+                native: true,
               }}
               sx={{ mb: 3 }}
             >
@@ -158,4 +158,4 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
       </Snackbar>
     </>
   );
-}; 
+};

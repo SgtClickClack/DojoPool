@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -8,9 +8,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import { Box, Typography, useTheme } from '@mui/material';
-import { formatDate, parseDate } from '../../utils/dateUtils';
+} from "recharts";
+import { Box, Typography, useTheme } from "@mui/material";
+import { formatDate, parseDate } from "../../utils/dateUtils";
 
 interface MetricsChartProps {
   data: any[];
@@ -19,26 +19,30 @@ interface MetricsChartProps {
 }
 
 const COLORS = [
-  '#2196F3', // Blue
-  '#4CAF50', // Green
-  '#F44336', // Red
-  '#FF9800', // Orange
-  '#9C27B0', // Purple
-  '#00BCD4', // Cyan
+  "#2196F3", // Blue
+  "#4CAF50", // Green
+  "#F44336", // Red
+  "#FF9800", // Orange
+  "#9C27B0", // Purple
+  "#00BCD4", // Cyan
 ];
 
 const METRIC_LABELS: { [key: string]: string } = {
-  games_played: 'Games Played',
-  win_rate: 'Win Rate',
-  avg_score: 'Average Score',
-  occupancy_rate: 'Occupancy Rate',
-  revenue: 'Revenue',
-  response_time: 'Response Time',
-  error_rate: 'Error Rate',
-  cpu_usage: 'CPU Usage',
+  games_played: "Games Played",
+  win_rate: "Win Rate",
+  avg_score: "Average Score",
+  occupancy_rate: "Occupancy Rate",
+  revenue: "Revenue",
+  response_time: "Response Time",
+  error_rate: "Error Rate",
+  cpu_usage: "CPU Usage",
 };
 
-export const MetricsChart: React.FC<MetricsChartProps> = ({ data, metrics, period }) => {
+export const MetricsChart: React.FC<MetricsChartProps> = ({
+  data,
+  metrics,
+  period,
+}) => {
   const theme = useTheme();
 
   const chartData = useMemo(() => {
@@ -61,14 +65,14 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, metrics, perio
   const formatXAxis = (value: string) => {
     const date = parseDate(value);
     switch (period) {
-      case 'hourly':
-        return date.toLocaleTimeString([], { hour: '2-digit' });
-      case 'daily':
-        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-      case 'weekly':
+      case "hourly":
+        return date.toLocaleTimeString([], { hour: "2-digit" });
+      case "daily":
+        return date.toLocaleDateString([], { month: "short", day: "numeric" });
+      case "weekly":
         return `Week ${date.getWeek()}`;
-      case 'monthly':
-        return date.toLocaleDateString([], { month: 'short', year: '2-digit' });
+      case "monthly":
+        return date.toLocaleDateString([], { month: "short", year: "2-digit" });
       default:
         return value;
     }
@@ -80,7 +84,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, metrics, perio
 
   if (!data.length) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
+      <Box sx={{ p: 3, textAlign: "center" }}>
         <Typography variant="body1" color="text.secondary">
           No data available for the selected period
         </Typography>
@@ -89,9 +93,12 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, metrics, perio
   }
 
   return (
-    <Box sx={{ width: '100%', height: 400 }}>
+    <Box sx={{ width: "100%", height: 400 }}>
       <ResponsiveContainer>
-        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <LineChart
+          data={chartData}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="date"

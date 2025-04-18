@@ -1,8 +1,8 @@
-import api from './api';
-import { UserProfile } from '../../types/user';
+import api from "./api";
+import { UserProfile } from "../../types/user";
 
 export interface LeaderboardEntry {
-  user: Pick<UserProfile, 'id' | 'username'>;
+  user: Pick<UserProfile, "id" | "username">;
   rank: number;
   points: number;
   level: number;
@@ -11,7 +11,7 @@ export interface LeaderboardEntry {
 }
 
 export interface LeaderboardFilters {
-  timeframe?: 'daily' | 'weekly' | 'monthly' | 'all-time';
+  timeframe?: "daily" | "weekly" | "monthly" | "all-time";
   style?: string;
   skillLevel?: number;
   region?: string;
@@ -24,8 +24,10 @@ export interface LeaderboardResponse {
   lastUpdated: string;
 }
 
-export async function getLeaderboard(filters?: LeaderboardFilters): Promise<LeaderboardResponse> {
-  const response = await api.get('/leaderboard', { params: filters });
+export async function getLeaderboard(
+  filters?: LeaderboardFilters,
+): Promise<LeaderboardResponse> {
+  const response = await api.get("/leaderboard", { params: filters });
   return response.data;
 }
 
@@ -38,12 +40,16 @@ export async function getUserRanking(userId: string): Promise<{
   return response.data;
 }
 
-export async function getStyleLeaders(style: string): Promise<LeaderboardEntry[]> {
+export async function getStyleLeaders(
+  style: string,
+): Promise<LeaderboardEntry[]> {
   const response = await api.get(`/leaderboard/style/${style}`);
   return response.data;
 }
 
-export async function getRegionalLeaderboard(region: string): Promise<LeaderboardResponse> {
+export async function getRegionalLeaderboard(
+  region: string,
+): Promise<LeaderboardResponse> {
   const response = await api.get(`/leaderboard/region/${region}`);
   return response.data;
 }
@@ -56,12 +62,16 @@ export async function getLeaderboardHistory(userId: string): Promise<{
   return response.data;
 }
 
-export async function subscribeToLeaderboardUpdates(userId: string): Promise<void> {
-  await api.post('/leaderboard/subscribe', { userId });
+export async function subscribeToLeaderboardUpdates(
+  userId: string,
+): Promise<void> {
+  await api.post("/leaderboard/subscribe", { userId });
 }
 
-export async function unsubscribeFromLeaderboardUpdates(userId: string): Promise<void> {
-  await api.post('/leaderboard/unsubscribe', { userId });
+export async function unsubscribeFromLeaderboardUpdates(
+  userId: string,
+): Promise<void> {
+  await api.post("/leaderboard/unsubscribe", { userId });
 }
 
 export async function getLeaderboardStats(): Promise<{
@@ -70,13 +80,13 @@ export async function getLeaderboardStats(): Promise<{
   topStyles: Array<{ style: string; count: number }>;
   mostActiveRegions: Array<{ region: string; participants: number }>;
 }> {
-  const response = await api.get('/leaderboard/stats');
+  const response = await api.get("/leaderboard/stats");
   return response.data;
 }
 
 export async function getChallengeLeaderboard(challengeId: string): Promise<{
   entries: Array<{
-    user: Pick<UserProfile, 'id' | 'username'>;
+    user: Pick<UserProfile, "id" | "username">;
     score: number;
     completionTime: number;
     rank: number;

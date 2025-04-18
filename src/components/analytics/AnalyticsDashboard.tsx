@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -8,8 +8,8 @@ import {
   Tabs,
   Tab,
   CircularProgress,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -20,8 +20,8 @@ import {
   Legend,
   ResponsiveContainer,
   BarChart,
-  Bar
-} from 'recharts';
+  Bar,
+} from "recharts";
 
 interface AnalyticsData {
   shares?: {
@@ -88,7 +88,7 @@ export default function AnalyticsDashboard() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const types = ['shares', 'social', 'performance'];
+      const types = ["shares", "social", "performance"];
       const analytics = await Promise.all(
         types.map(async (type) => {
           const response = await fetch(`/api/analytics?type=${type}`);
@@ -96,16 +96,18 @@ export default function AnalyticsDashboard() {
             throw new Error(`Failed to fetch ${type} analytics`);
           }
           return response.json();
-        })
+        }),
       );
 
       setData({
         shares: analytics[0],
         social: analytics[1],
-        performance: analytics[2]
+        performance: analytics[2],
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch analytics",
+      );
     } finally {
       setLoading(false);
     }
@@ -117,7 +119,12 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -133,12 +140,12 @@ export default function AnalyticsDashboard() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ width: '100%', mt: 4 }}>
+      <Box sx={{ width: "100%", mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Analytics Dashboard
         </Typography>
 
-        <Paper sx={{ width: '100%', mb: 2 }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -158,7 +165,11 @@ export default function AnalyticsDashboard() {
                   Total Shares: {data.shares?.total_shares}
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={Object.entries(data.shares?.shares_by_type || {}).map(([type, count]) => ({ type, count }))}>
+                  <BarChart
+                    data={Object.entries(data.shares?.shares_by_type || {}).map(
+                      ([type, count]) => ({ type, count }),
+                    )}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="type" />
                     <YAxis />
@@ -193,9 +204,15 @@ export default function AnalyticsDashboard() {
                   <Typography variant="h6" gutterBottom>
                     Social Activity Overview
                   </Typography>
-                  <Typography>Total Activities: {data.social?.total_activities}</Typography>
-                  <Typography>Active Users: {data.social?.active_users}</Typography>
-                  <Typography>Total Friendships: {data.social?.total_friendships}</Typography>
+                  <Typography>
+                    Total Activities: {data.social?.total_activities}
+                  </Typography>
+                  <Typography>
+                    Active Users: {data.social?.active_users}
+                  </Typography>
+                  <Typography>
+                    Total Friendships: {data.social?.total_friendships}
+                  </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -204,7 +221,11 @@ export default function AnalyticsDashboard() {
                     Activity Types
                   </Typography>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={Object.entries(data.social?.activities_by_type || {}).map(([type, count]) => ({ type, count }))}>
+                    <BarChart
+                      data={Object.entries(
+                        data.social?.activities_by_type || {},
+                      ).map(([type, count]) => ({ type, count }))}
+                    >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="type" />
                       <YAxis />
@@ -225,7 +246,9 @@ export default function AnalyticsDashboard() {
                   <Typography variant="h6" gutterBottom>
                     Cache Performance
                   </Typography>
-                  <Typography>Cache Hits: {data.performance?.cache_hits}</Typography>
+                  <Typography>
+                    Cache Hits: {data.performance?.cache_hits}
+                  </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4}>
@@ -233,9 +256,15 @@ export default function AnalyticsDashboard() {
                   <Typography variant="h6" gutterBottom>
                     API Response Times
                   </Typography>
-                  <Typography>Average: {data.performance?.api_response_times.average}ms</Typography>
-                  <Typography>P95: {data.performance?.api_response_times.p95}ms</Typography>
-                  <Typography>P99: {data.performance?.api_response_times.p99}ms</Typography>
+                  <Typography>
+                    Average: {data.performance?.api_response_times.average}ms
+                  </Typography>
+                  <Typography>
+                    P95: {data.performance?.api_response_times.p95}ms
+                  </Typography>
+                  <Typography>
+                    P99: {data.performance?.api_response_times.p99}ms
+                  </Typography>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4}>
@@ -243,9 +272,17 @@ export default function AnalyticsDashboard() {
                   <Typography variant="h6" gutterBottom>
                     Database Metrics
                   </Typography>
-                  <Typography>Connections: {data.performance?.database_metrics.connections}</Typography>
-                  <Typography>Active Queries: {data.performance?.database_metrics.active_queries}</Typography>
-                  <Typography>Cache Size: {data.performance?.database_metrics.cache_size}</Typography>
+                  <Typography>
+                    Connections:{" "}
+                    {data.performance?.database_metrics.connections}
+                  </Typography>
+                  <Typography>
+                    Active Queries:{" "}
+                    {data.performance?.database_metrics.active_queries}
+                  </Typography>
+                  <Typography>
+                    Cache Size: {data.performance?.database_metrics.cache_size}
+                  </Typography>
                 </Paper>
               </Grid>
             </Grid>
@@ -254,4 +291,4 @@ export default function AnalyticsDashboard() {
       </Box>
     </Container>
   );
-} 
+}

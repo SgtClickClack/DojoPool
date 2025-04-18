@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { useState, useCallback } from "react";
+import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 interface PerformanceHistory {
   date: string;
@@ -34,10 +34,12 @@ export const usePredictiveAnalytics = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`${API_BASE_URL}/api/predictive/models/metrics`);
+      const response = await axios.get(
+        `${API_BASE_URL}/api/predictive/models/metrics`,
+      );
       setModelMetrics(response.data.data.metrics);
     } catch (err) {
-      setError('Failed to fetch model metrics');
+      setError("Failed to fetch model metrics");
       console.error(err);
     } finally {
       setLoading(false);
@@ -48,7 +50,7 @@ export const usePredictiveAnalytics = () => {
     async (
       performanceHistory: PerformanceHistory[],
       targetMetrics: string[],
-      horizonDays: number = 30
+      horizonDays: number = 30,
     ) => {
       try {
         setLoading(true);
@@ -61,26 +63,26 @@ export const usePredictiveAnalytics = () => {
               target_metrics: targetMetrics,
               horizon_days: horizonDays,
             },
-          }
+          },
         );
         setPerformanceForecast(response.data.data);
         return response.data.data;
       } catch (err) {
-        setError('Failed to generate performance forecast');
+        setError("Failed to generate performance forecast");
         console.error(err);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   const predictSkillProgression = useCallback(
     async (
       trainingHistory: TrainingHistory[],
       targetSkills: string[],
-      predictionWeeks: number = 12
+      predictionWeeks: number = 12,
     ) => {
       try {
         setLoading(true);
@@ -93,42 +95,45 @@ export const usePredictiveAnalytics = () => {
               target_skills: targetSkills,
               prediction_weeks: predictionWeeks,
             },
-          }
+          },
         );
         setSkillProgression(response.data.data);
         return response.data.data;
       } catch (err) {
-        setError('Failed to predict skill progression');
+        setError("Failed to predict skill progression");
         console.error(err);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
-  const predictMatchup = useCallback(async (opponentId: string, matchHistory: MatchHistory[]) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.post(
-        `${API_BASE_URL}/api/predictive/matchups/predict`,
-        matchHistory,
-        {
-          params: { opponent_id: opponentId },
-        }
-      );
-      setMatchupPrediction(response.data.data);
-      return response.data.data;
-    } catch (err) {
-      setError('Failed to predict matchup outcome');
-      console.error(err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const predictMatchup = useCallback(
+    async (opponentId: string, matchHistory: MatchHistory[]) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axios.post(
+          `${API_BASE_URL}/api/predictive/matchups/predict`,
+          matchHistory,
+          {
+            params: { opponent_id: opponentId },
+          },
+        );
+        setMatchupPrediction(response.data.data);
+        return response.data.data;
+      } catch (err) {
+        setError("Failed to predict matchup outcome");
+        console.error(err);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const clearError = useCallback(() => {
     setError(null);

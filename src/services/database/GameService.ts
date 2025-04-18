@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { Game, GameState, GameType } from '../../types/game';
+import { PrismaClient } from "@prisma/client";
+import { Game, GameState, GameType } from "../../types/game";
 
 const prisma = new PrismaClient();
 
@@ -9,7 +9,7 @@ export class GameService {
     player2Id: string,
     type: GameType,
     tableId: string,
-    venueId: string
+    venueId: string,
   ): Promise<Game> {
     return prisma.game.create({
       data: {
@@ -45,7 +45,7 @@ export class GameService {
     id: string,
     player1Score: number,
     player2Score: number,
-    winnerId: string
+    winnerId: string,
   ): Promise<Game> {
     return prisma.game.update({
       where: { id },
@@ -63,13 +63,10 @@ export class GameService {
   static async getPlayerGames(playerId: string): Promise<Game[]> {
     return prisma.game.findMany({
       where: {
-        OR: [
-          { player1Id: playerId },
-          { player2Id: playerId },
-        ],
+        OR: [{ player1Id: playerId }, { player2Id: playerId }],
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
@@ -83,7 +80,7 @@ export class GameService {
         venueId,
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: "asc",
       },
     });
   }
@@ -92,8 +89,8 @@ export class GameService {
     return prisma.game.findMany({
       where: { tableId },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
-} 
+}

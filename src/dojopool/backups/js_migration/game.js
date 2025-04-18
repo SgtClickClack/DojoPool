@@ -1,24 +1,24 @@
 // Update player's location on the server
 function updatePlayerLocation(position) {
-  fetch('/api/update-location', {
-    method: 'POST',
+  fetch("/api/update-location", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       lat: position.lat,
       lng: position.lng,
     }),
   }).catch((error) => {
-    showError('Failed to update location. Please check your connection.');
+    showError("Failed to update location. Please check your connection.");
   });
 }
 
 // Show success notification for coin collection
 function showSuccess(message) {
-  const successDiv = document.createElement('div');
+  const successDiv = document.createElement("div");
   successDiv.className =
-    'alert alert-success alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3';
+    "alert alert-success alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3";
   successDiv.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -29,7 +29,7 @@ function showSuccess(message) {
 
 // Update score with animation
 function updateScore(newScore) {
-  const scoreElement = document.getElementById('player-score');
+  const scoreElement = document.getElementById("player-score");
   const currentScore = parseInt(scoreElement.textContent);
 
   // Animate the score change
@@ -41,7 +41,7 @@ function updateScore(newScore) {
     frame++;
     if (frame <= frames) {
       scoreElement.textContent = Math.round(
-        currentScore + scoreIncrement * frame
+        currentScore + scoreIncrement * frame,
       );
       requestAnimationFrame(animateScore);
     } else {
@@ -58,7 +58,7 @@ function checkCoinCollection(playerPos) {
     const coinPos = coin.marker.getPosition();
     const distance = google.maps.geometry.spherical.computeDistanceBetween(
       new google.maps.LatLng(playerPos.lat, playerPos.lng),
-      coinPos
+      coinPos,
     );
 
     if (distance <= COLLECTION_RADIUS) {
@@ -69,16 +69,16 @@ function checkCoinCollection(playerPos) {
 
 // Update the nearby players list in the UI
 function updateNearbyPlayersList(players) {
-  const listContainer = document.getElementById('nearby-players-list');
-  const template = document.getElementById('player-item-template');
+  const listContainer = document.getElementById("nearby-players-list");
+  const template = document.getElementById("player-item-template");
 
   // Clear the current list
-  listContainer.innerHTML = '';
+  listContainer.innerHTML = "";
 
   if (players.length === 0) {
-    const emptyMessage = document.createElement('div');
-    emptyMessage.className = 'list-group-item text-muted';
-    emptyMessage.textContent = 'No players nearby';
+    const emptyMessage = document.createElement("div");
+    emptyMessage.className = "list-group-item text-muted";
+    emptyMessage.textContent = "No players nearby";
     listContainer.appendChild(emptyMessage);
     return;
   }
@@ -86,9 +86,9 @@ function updateNearbyPlayersList(players) {
   // Add each player to the list
   players.forEach((player) => {
     const playerItem = template.content.cloneNode(true);
-    const container = playerItem.querySelector('.list-group-item');
-    const nameSpan = container.querySelector('.player-name');
-    const scoreSpan = container.querySelector('.badge');
+    const container = playerItem.querySelector(".list-group-item");
+    const nameSpan = container.querySelector(".player-name");
+    const scoreSpan = container.querySelector(".badge");
 
     nameSpan.textContent = player.username;
     scoreSpan.textContent = `$${player.score}`;
@@ -135,10 +135,10 @@ function collectCoin(coin, index) {
 
 // Complete the coin collection on the server
 function completeCollection(coin, index) {
-  fetch('/api/collect-coin', {
-    method: 'POST',
+  fetch("/api/collect-coin", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       coin_id: coin.id,
@@ -146,7 +146,7 @@ function completeCollection(coin, index) {
   })
     .then((response) => response.json())
     .then((data) => {
-      if (data.status === 'success') {
+      if (data.status === "success") {
         coin.marker.setMap(null);
         coins.splice(index, 1);
         updateScore(data.new_score);
@@ -160,6 +160,6 @@ function completeCollection(coin, index) {
       }
     })
     .catch((error) => {
-      showError('Failed to collect coin. Please try again.');
+      showError("Failed to collect coin. Please try again.");
     });
 }

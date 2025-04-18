@@ -11,9 +11,9 @@ class NotificationManager {
     this.hasMorePages = true;
     this.isLoading = false;
     this.filters = {
-      type: 'all',
-      status: 'all',
-      time: 'all',
+      type: "all",
+      status: "all",
+      time: "all",
     };
 
     this.setupSocketListeners();
@@ -22,31 +22,31 @@ class NotificationManager {
   }
 
   setupSocketListeners() {
-    this.socket.on('connect', () => {
-      console.log('Connected to notification service');
+    this.socket.on("connect", () => {
+      console.log("Connected to notification service");
     });
 
-    this.socket.on('new_notification', (notification) => {
+    this.socket.on("new_notification", (notification) => {
       this.handleNewNotification(notification);
     });
 
-    this.socket.on('tournament_update', (update) => {
+    this.socket.on("tournament_update", (update) => {
       this.handleTournamentUpdate(update);
     });
   }
 
   setupEventListeners() {
     // Update notification badge when document becomes visible
-    document.addEventListener('visibilitychange', () => {
+    document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
         this.updateUnreadCount();
       }
     });
 
     // Initialize filter values
-    const typeFilter = document.getElementById('notification-type-filter');
-    const statusFilter = document.getElementById('notification-status-filter');
-    const timeFilter = document.getElementById('notification-time-filter');
+    const typeFilter = document.getElementById("notification-type-filter");
+    const statusFilter = document.getElementById("notification-status-filter");
+    const timeFilter = document.getElementById("notification-time-filter");
 
     if (typeFilter) this.filters.type = typeFilter.value;
     if (statusFilter) this.filters.status = statusFilter.value;
@@ -62,8 +62,8 @@ class NotificationManager {
       this.renderNotifications();
       this.updateUnreadCount();
     } catch (error) {
-      console.error('Error fetching notifications:', error);
-      this.showError('Failed to load notifications');
+      console.error("Error fetching notifications:", error);
+      this.showError("Failed to load notifications");
     } finally {
       this.hideLoading();
     }
@@ -79,7 +79,7 @@ class NotificationManager {
 
     const response = await fetch(`/api/notifications/?${params.toString()}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch notifications');
+      throw new Error("Failed to fetch notifications");
     }
     return await response.json();
   }
@@ -95,8 +95,8 @@ class NotificationManager {
       this.hasMorePages = response.has_more;
       this.renderNotifications();
     } catch (error) {
-      console.error('Error loading more notifications:', error);
-      this.showError('Failed to load more notifications');
+      console.error("Error loading more notifications:", error);
+      this.showError("Failed to load more notifications");
       this.currentPage--;
     } finally {
       this.hideLoadingMore();
@@ -104,9 +104,9 @@ class NotificationManager {
   }
 
   async applyFilters() {
-    const typeFilter = document.getElementById('notification-type-filter');
-    const statusFilter = document.getElementById('notification-status-filter');
-    const timeFilter = document.getElementById('notification-time-filter');
+    const typeFilter = document.getElementById("notification-type-filter");
+    const statusFilter = document.getElementById("notification-status-filter");
+    const timeFilter = document.getElementById("notification-time-filter");
 
     this.filters = {
       type: typeFilter.value,
@@ -121,12 +121,12 @@ class NotificationManager {
 
   async updateUnreadCount() {
     try {
-      const response = await fetch('/api/notifications/unread-count');
+      const response = await fetch("/api/notifications/unread-count");
       const data = await response.json();
       this.unreadCount = data.count;
       this.updateNotificationBadge();
     } catch (error) {
-      console.error('Error updating unread count:', error);
+      console.error("Error updating unread count:", error);
     }
   }
 
@@ -145,17 +145,17 @@ class NotificationManager {
   matchesFilters(notification) {
     // Type filter
     if (
-      this.filters.type !== 'all' &&
+      this.filters.type !== "all" &&
       notification.type !== this.filters.type
     ) {
       return false;
     }
 
     // Status filter
-    if (this.filters.status === 'read' && !notification.is_read) {
+    if (this.filters.status === "read" && !notification.is_read) {
       return false;
     }
-    if (this.filters.status === 'unread' && notification.is_read) {
+    if (this.filters.status === "unread" && notification.is_read) {
       return false;
     }
 
@@ -164,12 +164,12 @@ class NotificationManager {
     const now = new Date();
 
     switch (this.filters.time) {
-      case 'today':
+      case "today":
         return notificationDate.toDateString() === now.toDateString();
-      case 'week':
+      case "week":
         const weekAgo = new Date(now.setDate(now.getDate() - 7));
         return notificationDate >= weekAgo;
-      case 'month':
+      case "month":
         const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
         return notificationDate >= monthAgo;
       default:
@@ -179,13 +179,13 @@ class NotificationManager {
 
   handleTournamentUpdate(update) {
     switch (update.type) {
-      case 'match_ready':
+      case "match_ready":
         this.showMatchReadyNotification(update.data);
         break;
-      case 'tournament_started':
+      case "tournament_started":
         this.showTournamentStartedNotification(update.data);
         break;
-      case 'tournament_ended':
+      case "tournament_ended":
         this.showTournamentEndedNotification(update.data);
         break;
     }
@@ -196,13 +196,13 @@ class NotificationManager {
       const response = await fetch(
         `/api/notifications/${notificationId}/read`,
         {
-          method: 'POST',
-        }
+          method: "POST",
+        },
       );
-      if (!response.ok) throw new Error('Failed to mark notification as read');
+      if (!response.ok) throw new Error("Failed to mark notification as read");
 
       const notification = this.notifications.find(
-        (n) => n.id === notificationId
+        (n) => n.id === notificationId,
       );
       if (notification) {
         notification.is_read = true;
@@ -210,73 +210,73 @@ class NotificationManager {
       }
       this.updateUnreadCount();
     } catch (error) {
-      console.error('Error marking notification as read:', error);
-      this.showError('Failed to mark notification as read');
+      console.error("Error marking notification as read:", error);
+      this.showError("Failed to mark notification as read");
     }
   }
 
   async markAllAsRead() {
     try {
-      const response = await fetch('/api/notifications/mark-all-read', {
-        method: 'POST',
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
       });
       if (!response.ok)
-        throw new Error('Failed to mark all notifications as read');
+        throw new Error("Failed to mark all notifications as read");
 
       this.notifications.forEach((n) => (n.is_read = true));
       this.unreadCount = 0;
       this.updateNotificationBadge();
       this.renderNotifications();
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-      this.showError('Failed to mark all notifications as read');
+      console.error("Error marking all notifications as read:", error);
+      this.showError("Failed to mark all notifications as read");
     }
   }
 
   async deleteNotification(notificationId) {
     try {
       const response = await fetch(`/api/notifications/${notificationId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!response.ok) throw new Error('Failed to delete notification');
+      if (!response.ok) throw new Error("Failed to delete notification");
 
       this.notifications = this.notifications.filter(
-        (n) => n.id !== notificationId
+        (n) => n.id !== notificationId,
       );
       this.renderNotifications();
       this.updateUnreadCount();
     } catch (error) {
-      console.error('Error deleting notification:', error);
-      this.showError('Failed to delete notification');
+      console.error("Error deleting notification:", error);
+      this.showError("Failed to delete notification");
     }
   }
 
   updateNotificationBadge() {
-    const badge = document.getElementById('notification-badge');
+    const badge = document.getElementById("notification-badge");
     if (badge) {
       badge.textContent = this.unreadCount;
-      badge.style.display = this.unreadCount > 0 ? 'block' : 'none';
+      badge.style.display = this.unreadCount > 0 ? "block" : "none";
     }
   }
 
   renderNotifications() {
-    const container = document.getElementById('notification-list');
-    const emptyState = document.getElementById('notification-empty');
-    const loadMoreContainer = document.getElementById('load-more-container');
+    const container = document.getElementById("notification-list");
+    const emptyState = document.getElementById("notification-empty");
+    const loadMoreContainer = document.getElementById("load-more-container");
 
     if (!container) return;
 
     if (this.notifications.length === 0) {
-      emptyState.style.display = 'block';
-      loadMoreContainer.style.display = 'none';
+      emptyState.style.display = "block";
+      loadMoreContainer.style.display = "none";
       return;
     }
 
-    emptyState.style.display = 'none';
+    emptyState.style.display = "none";
     container.innerHTML = this.notifications
       .map(
         (notification) => `
-            <div class="notification-item ${notification.is_read ? 'read' : 'unread'}" data-id="${notification.id}">
+            <div class="notification-item ${notification.is_read ? "read" : "unread"}" data-id="${notification.id}">
                 <div class="notification-content">
                     <h4>${notification.title}</h4>
                     <p>${notification.message}</p>
@@ -290,26 +290,26 @@ class NotificationManager {
                             Mark as Read
                         </button>
                     `
-                        : ''
+                        : ""
                     }
                     <button class="btn btn-sm btn-danger" onclick="notificationManager.deleteNotification(${notification.id})">
                         Delete
                     </button>
                 </div>
             </div>
-        `
+        `,
       )
-      .join('');
+      .join("");
 
-    loadMoreContainer.style.display = this.hasMorePages ? 'block' : 'none';
+    loadMoreContainer.style.display = this.hasMorePages ? "block" : "none";
   }
 
   showNotificationToast(notification) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.setAttribute('aria-atomic', 'true');
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.setAttribute("role", "alert");
+    toast.setAttribute("aria-live", "assertive");
+    toast.setAttribute("aria-atomic", "true");
 
     toast.innerHTML = `
             <div class="toast-header">
@@ -321,7 +321,7 @@ class NotificationManager {
             </div>
         `;
 
-    const container = document.getElementById('toast-container');
+    const container = document.getElementById("toast-container");
     container.appendChild(toast);
 
     const bsToast = new bootstrap.Toast(toast, {
@@ -330,47 +330,47 @@ class NotificationManager {
     });
     bsToast.show();
 
-    toast.addEventListener('hidden.bs.toast', () => {
+    toast.addEventListener("hidden.bs.toast", () => {
       toast.remove();
     });
   }
 
   showMatchReadyNotification(data) {
     this.showNotificationToast({
-      title: 'Match Ready',
+      title: "Match Ready",
       message: `Your match in tournament ${data.tournament_name} is ready to begin!`,
     });
   }
 
   showTournamentStartedNotification(data) {
     this.showNotificationToast({
-      title: 'Tournament Started',
+      title: "Tournament Started",
       message: `The tournament ${data.tournament_name} has begun!`,
     });
   }
 
   showTournamentEndedNotification(data) {
     this.showNotificationToast({
-      title: 'Tournament Ended',
+      title: "Tournament Ended",
       message: `The tournament ${data.tournament_name} has ended. Congratulations to the winner!`,
     });
   }
 
   showLoading() {
     this.isLoading = true;
-    const loading = document.getElementById('notification-loading');
-    if (loading) loading.style.display = 'block';
+    const loading = document.getElementById("notification-loading");
+    if (loading) loading.style.display = "block";
   }
 
   hideLoading() {
     this.isLoading = false;
-    const loading = document.getElementById('notification-loading');
-    if (loading) loading.style.display = 'none';
+    const loading = document.getElementById("notification-loading");
+    if (loading) loading.style.display = "none";
   }
 
   showLoadingMore() {
     this.isLoading = true;
-    const button = document.querySelector('#load-more-container button');
+    const button = document.querySelector("#load-more-container button");
     if (button) {
       button.disabled = true;
       button.innerHTML =
@@ -380,23 +380,23 @@ class NotificationManager {
 
   hideLoadingMore() {
     this.isLoading = false;
-    const button = document.querySelector('#load-more-container button');
+    const button = document.querySelector("#load-more-container button");
     if (button) {
       button.disabled = false;
-      button.innerHTML = 'Load More';
+      button.innerHTML = "Load More";
     }
   }
 
   showError(message) {
-    if (typeof showErrorToast === 'function') {
+    if (typeof showErrorToast === "function") {
       showErrorToast(message);
     } else {
-      const toast = document.createElement('div');
+      const toast = document.createElement("div");
       toast.className =
-        'toast align-items-center text-white bg-danger border-0';
-      toast.setAttribute('role', 'alert');
-      toast.setAttribute('aria-live', 'assertive');
-      toast.setAttribute('aria-atomic', 'true');
+        "toast align-items-center text-white bg-danger border-0";
+      toast.setAttribute("role", "alert");
+      toast.setAttribute("aria-live", "assertive");
+      toast.setAttribute("aria-atomic", "true");
 
       toast.innerHTML = `
                 <div class="d-flex">
@@ -408,7 +408,7 @@ class NotificationManager {
                 </div>
             `;
 
-      const container = document.getElementById('toast-container');
+      const container = document.getElementById("toast-container");
       container.appendChild(toast);
 
       const bsToast = new bootstrap.Toast(toast, {
@@ -417,7 +417,7 @@ class NotificationManager {
       });
       bsToast.show();
 
-      toast.addEventListener('hidden.bs.toast', () => {
+      toast.addEventListener("hidden.bs.toast", () => {
         toast.remove();
       });
     }
@@ -425,6 +425,6 @@ class NotificationManager {
 }
 
 // Initialize notification manager when the page loads
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   window.notificationManager = new NotificationManager();
 });

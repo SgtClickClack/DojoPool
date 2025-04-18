@@ -1,15 +1,20 @@
 export type TournamentFormat =
-  | 'single_elimination'
-  | 'double_elimination'
-  | 'round_robin'
-  | 'swiss';
+  | "single_elimination"
+  | "double_elimination"
+  | "round_robin"
+  | "swiss";
 export type TournamentStatus =
-  | 'pending'
-  | 'registration'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled';
-export type MatchStatus = 'pending' | 'in_progress' | 'completed' | 'walkover' | 'cancelled';
+  | "pending"
+  | "registration"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+export type MatchStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "walkover"
+  | "cancelled";
 
 export interface Tournament {
   id: number;

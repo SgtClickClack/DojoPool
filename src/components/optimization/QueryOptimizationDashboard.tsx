@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -14,8 +14,8 @@ import {
   List,
   ListItem,
   ListItemText,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -24,8 +24,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
-} from 'recharts';
+  ResponsiveContainer,
+} from "recharts";
 
 interface QueryAnalysis {
   slow_queries: {
@@ -34,10 +34,13 @@ interface QueryAnalysis {
     average_time: number;
     max_time: number;
   };
-  table_stats: Record<string, {
-    row_count: number;
-    indexes: string[];
-  }>;
+  table_stats: Record<
+    string,
+    {
+      row_count: number;
+      indexes: string[];
+    }
+  >;
 }
 
 interface QueryAnalysisResult {
@@ -78,8 +81,9 @@ export default function QueryOptimizationDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
-  const [query, setQuery] = useState('');
-  const [analysisResult, setAnalysisResult] = useState<QueryAnalysisResult | null>(null);
+  const [query, setQuery] = useState("");
+  const [analysisResult, setAnalysisResult] =
+    useState<QueryAnalysisResult | null>(null);
 
   useEffect(() => {
     fetchAnalysis();
@@ -88,14 +92,14 @@ export default function QueryOptimizationDashboard() {
   const fetchAnalysis = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/query');
+      const response = await fetch("/api/optimization/query");
       if (!response.ok) {
-        throw new Error('Failed to fetch query analysis');
+        throw new Error("Failed to fetch query analysis");
       }
       const data = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch analysis');
+      setError(err instanceof Error ? err.message : "Failed to fetch analysis");
     } finally {
       setLoading(false);
     }
@@ -108,23 +112,23 @@ export default function QueryOptimizationDashboard() {
   const handleAnalyzeQuery = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/query', {
-        method: 'POST',
+      const response = await fetch("/api/optimization/query", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           query,
-          action: 'analyze'
+          action: "analyze",
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to analyze query');
+        throw new Error("Failed to analyze query");
       }
       const data = await response.json();
       setAnalysisResult(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to analyze query');
+      setError(err instanceof Error ? err.message : "Failed to analyze query");
     } finally {
       setLoading(false);
     }
@@ -132,7 +136,12 @@ export default function QueryOptimizationDashboard() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -148,12 +157,12 @@ export default function QueryOptimizationDashboard() {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ width: '100%', mt: 4 }}>
+      <Box sx={{ width: "100%", mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Query Optimization Dashboard
         </Typography>
 
-        <Paper sx={{ width: '100%', mb: 2 }}>
+        <Paper sx={{ width: "100%", mb: 2 }}>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -173,9 +182,12 @@ export default function QueryOptimizationDashboard() {
                   <Typography variant="h6" gutterBottom>
                     Slow Queries Overview
                   </Typography>
-                  <Typography>Total Slow Queries: {analysis?.slow_queries.total}</Typography>
                   <Typography>
-                    Average Time: {analysis?.slow_queries.average_time.toFixed(2)}ms
+                    Total Slow Queries: {analysis?.slow_queries.total}
+                  </Typography>
+                  <Typography>
+                    Average Time:{" "}
+                    {analysis?.slow_queries.average_time.toFixed(2)}ms
                   </Typography>
                   <Typography>
                     Max Time: {analysis?.slow_queries.max_time.toFixed(2)}ms
@@ -189,9 +201,9 @@ export default function QueryOptimizationDashboard() {
                   </Typography>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart
-                      data={Object.entries(analysis?.slow_queries.by_type || {}).map(
-                        ([type, count]) => ({ type, count })
-                      )}
+                      data={Object.entries(
+                        analysis?.slow_queries.by_type || {},
+                      ).map(([type, count]) => ({ type, count }))}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="type" />
@@ -208,24 +220,26 @@ export default function QueryOptimizationDashboard() {
 
           <TabPanel value={tabValue} index={1}>
             <Grid container spacing={3}>
-              {Object.entries(analysis?.table_stats || {}).map(([table, stats]) => (
-                <Grid item xs={12} md={6} key={table}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                      {table}
-                    </Typography>
-                    <Typography>Row Count: {stats.row_count}</Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Indexes:
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {stats.indexes.map((index) => (
-                        <Chip key={index} label={index} size="small" />
-                      ))}
-                    </Box>
-                  </Paper>
-                </Grid>
-              ))}
+              {Object.entries(analysis?.table_stats || {}).map(
+                ([table, stats]) => (
+                  <Grid item xs={12} md={6} key={table}>
+                    <Paper sx={{ p: 2 }}>
+                      <Typography variant="h6" gutterBottom>
+                        {table}
+                      </Typography>
+                      <Typography>Row Count: {stats.row_count}</Typography>
+                      <Typography variant="subtitle1" gutterBottom>
+                        Indexes:
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                        {stats.indexes.map((index) => (
+                          <Chip key={index} label={index} size="small" />
+                        ))}
+                      </Box>
+                    </Paper>
+                  </Grid>
+                ),
+              )}
             </Grid>
           </TabPanel>
 
@@ -285,11 +299,13 @@ export default function QueryOptimizationDashboard() {
                           Optimization Suggestions:
                         </Typography>
                         <List>
-                          {analysisResult.suggestions.map((suggestion, index) => (
-                            <ListItem key={index}>
-                              <ListItemText primary={suggestion} />
-                            </ListItem>
-                          ))}
+                          {analysisResult.suggestions.map(
+                            (suggestion, index) => (
+                              <ListItem key={index}>
+                                <ListItemText primary={suggestion} />
+                              </ListItem>
+                            ),
+                          )}
                         </List>
                       </>
                     )}
@@ -302,4 +318,4 @@ export default function QueryOptimizationDashboard() {
       </Box>
     </Container>
   );
-} 
+}

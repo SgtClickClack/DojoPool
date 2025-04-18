@@ -5,6 +5,7 @@
 When making changes to NGINX configurations, please follow these guidelines:
 
 ### Directory Structure
+
 ```
 deployment/
 ├── nginx/
@@ -20,12 +21,14 @@ deployment/
 ### Configuration Standards
 
 1. **Security**
+
    - Always include appropriate security headers
    - Use modern SSL/TLS configurations
    - Implement rate limiting
    - Follow least privilege principle
 
 2. **Performance**
+
    - Enable compression where appropriate
    - Configure caching correctly
    - Optimize buffer sizes
@@ -40,6 +43,7 @@ deployment/
 ### Testing
 
 Before submitting changes:
+
 1. Test configurations with `nginx -t`
 2. Verify SSL settings with SSL Labs
 3. Test WebSocket functionality
@@ -50,6 +54,7 @@ Before submitting changes:
 ### Documentation
 
 When updating NGINX configurations:
+
 1. Update `docs/NGINX_CONFIGURATION.md`
 2. Update deployment guides if necessary
 3. Document any new features or changes
@@ -66,6 +71,7 @@ When updating NGINX configurations:
 ### Review Process
 
 PRs modifying NGINX configurations will be reviewed for:
+
 1. Security implications
 2. Performance impact
 3. Documentation completeness
@@ -77,11 +83,13 @@ PRs modifying NGINX configurations will be reviewed for:
 ### Code Style
 
 1. **Python**
+
    - Follow PEP 8
    - Use type hints
    - Write docstrings
 
 2. **JavaScript**
+
    - Follow ESLint configuration
    - Use modern ES6+ features
    - Write JSDoc comments
@@ -94,11 +102,13 @@ PRs modifying NGINX configurations will be reviewed for:
 ### Testing
 
 1. **Unit Tests**
+
    - Write tests for new features
    - Maintain test coverage
    - Use meaningful test names
 
 2. **Integration Tests**
+
    - Test API endpoints
    - Verify WebSocket functionality
    - Test database interactions
@@ -111,12 +121,14 @@ PRs modifying NGINX configurations will be reviewed for:
 ### Git Workflow
 
 1. **Branches**
+
    - `main`: Production-ready code
    - `develop`: Development branch
    - Feature branches: `feature/description`
    - Hotfix branches: `hotfix/description`
 
 2. **Commits**
+
    - Write clear commit messages
    - Reference issue numbers
    - Keep commits focused
@@ -129,6 +141,7 @@ PRs modifying NGINX configurations will be reviewed for:
 ### Development Environment
 
 1. **Setup**
+
    ```bash
    # Clone repository
    git clone https://github.com/organization/dojopool.git
@@ -145,6 +158,7 @@ PRs modifying NGINX configurations will be reviewed for:
    ```
 
 2. **Running Tests**
+
    ```bash
    # Run unit tests
    pytest tests/unit
@@ -157,11 +171,12 @@ PRs modifying NGINX configurations will be reviewed for:
    ```
 
 3. **Code Quality**
+
    ```bash
    # Run linters
    flake8 src tests
    pylint src tests
-   
+
    # Run type checker
    mypy src
    ```
@@ -175,4 +190,4 @@ PRs modifying NGINX configurations will be reviewed for:
 
 ### Code of Conduct
 
-Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md). 
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).

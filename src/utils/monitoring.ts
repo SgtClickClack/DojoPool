@@ -2,8 +2,8 @@
 export const reportWebVitals = (metric: any) => {
   // Send to Google Analytics
   if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
-    window.gtag('event', metric.name, {
-      event_category: 'Web Vitals',
+    window.gtag("event", metric.name, {
+      event_category: "Web Vitals",
       event_label: metric.id,
       value: Math.round(metric.value),
       non_interaction: true,
@@ -13,12 +13,12 @@ export const reportWebVitals = (metric: any) => {
 
 // Error tracking
 export const captureError = (error: Error, context?: Record<string, any>) => {
-  console.error('Error:', error);
-  
+  console.error("Error:", error);
+
   // Send to Google Analytics
   if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
-    window.gtag('event', 'error', {
-      event_category: 'Error',
+    window.gtag("event", "error", {
+      event_category: "Error",
       event_label: error.message,
       value: 1,
       ...context,
@@ -34,8 +34,8 @@ export const measurePerformance = (name: string, callback: () => void) => {
 
   // Send to Google Analytics
   if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
-    window.gtag('event', 'performance', {
-      event_category: 'Performance',
+    window.gtag("event", "performance", {
+      event_category: "Performance",
       event_label: name,
       value: Math.round(duration),
     });
@@ -47,13 +47,13 @@ export const trackEvent = (
   category: string,
   action: string,
   label?: string,
-  value?: number
+  value?: number,
 ) => {
   if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
-    window.gtag('event', action, {
+    window.gtag("event", action, {
       event_category: category,
       event_label: label,
       value: value,
     });
   }
-}; 
+};

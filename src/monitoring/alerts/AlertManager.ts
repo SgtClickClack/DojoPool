@@ -1,10 +1,10 @@
-import { AlertThreshold, MonitoringConfig } from '../config';
-import { MetricsCollector, MetricsData } from '../collectors/MetricsCollector';
-import { EventEmitter } from 'events';
+import { AlertThreshold, MonitoringConfig } from "../config";
+import { MetricsCollector, MetricsData } from "../collectors/MetricsCollector";
+import { EventEmitter } from "events";
 
 export interface Alert {
   id: string;
-  type: 'warning' | 'critical';
+  type: "warning" | "critical";
   message: string;
   timestamp: number;
   metric: string;
@@ -13,13 +13,16 @@ export interface Alert {
 }
 
 export interface AlertEvents {
-  'alert': (alert: Alert) => void;
-  'resolved': (alert: Alert) => void;
+  alert: (alert: Alert) => void;
+  resolved: (alert: Alert) => void;
 }
 
 export declare interface AlertManager {
   on<K extends keyof AlertEvents>(event: K, listener: AlertEvents[K]): this;
-  emit<K extends keyof AlertEvents>(event: K, ...args: Parameters<AlertEvents[K]>): boolean;
+  emit<K extends keyof AlertEvents>(
+    event: K,
+    ...args: Parameters<AlertEvents[K]>
+  ): boolean;
 }
 
 export class AlertManager extends EventEmitter implements AlertManager {
@@ -38,7 +41,7 @@ export class AlertManager extends EventEmitter implements AlertManager {
 
   addCollector(name: string, collector: MetricsCollector<MetricsData>): void {
     this.collectors.set(name, collector);
-    collector.on('metrics', (metrics: MetricsData) => {
+    collector.on("metrics", (metrics: MetricsData) => {
       this.evaluateMetrics(name, metrics);
     });
   }
@@ -46,14 +49,17 @@ export class AlertManager extends EventEmitter implements AlertManager {
   removeCollector(name: string): void {
     const collector = this.collectors.get(name);
     if (collector) {
-      collector.removeAllListeners('metrics');
+      collector.removeAllListeners("metrics");
       this.collectors.delete(name);
     }
   }
 
   start(): void {
     if (this.checkInterval) return;
-    this.checkInterval = setInterval(() => this.checkThresholds(), this.config.collectionInterval);
+    this.checkInterval = setInterval(
+      () => this.checkThresholds(),
+      this.config.collectionInterval,
+    );
   }
 
   stop(): void {
@@ -80,9 +86,21 @@ export class AlertManager extends EventEmitter implements AlertManager {
       if (!thresholds) continue;
 
       if (value >= thresholds.critical) {
-        this.createAlert('critical', collectorName, metricName, value, thresholds.critical);
+        this.createAlert(
+          "critical",
+          collectorName,
+          metricName,
+          value,
+          thresholds.critical,
+        );
       } else if (value >= thresholds.warning) {
-        this.createAlert('warning', collectorName, metricName, value, thresholds.warning);
+        this.createAlert(
+          "warning",
+          collectorName,
+          metricName,
+          value,
+          thresholds.warning,
+        );
       } else {
         this.resolveAlert(`${collectorName}:${metricName}`);
       }
@@ -90,11 +108,11 @@ export class AlertManager extends EventEmitter implements AlertManager {
   }
 
   private createAlert(
-    type: 'warning' | 'critical',
+    type: "warning" | "critical",
     collector: string,
     metric: string,
     value: number,
-    threshold: number
+    threshold: number,
   ): void {
     const id = `${collector}:${metric}`;
     const alert: Alert = {
@@ -104,18 +122,18 @@ export class AlertManager extends EventEmitter implements AlertManager {
       timestamp: Date.now(),
       metric,
       value,
-      threshold
+      threshold,
     };
 
     this.activeAlerts.set(id, alert);
-    this.emit('alert', alert);
+    this.emit("alert", alert);
   }
 
   private resolveAlert(id: string): void {
     if (this.activeAlerts.has(id)) {
       const alert = this.activeAlerts.get(id)!;
       this.activeAlerts.delete(id);
-      this.emit('resolved', alert);
+      this.emit("resolved", alert);
     }
   }
 
@@ -123,7 +141,7 @@ export class AlertManager extends EventEmitter implements AlertManager {
     const thresholds = {
       ...this.config.consistencyThresholds,
       ...this.config.performanceThresholds,
-      ...this.config.nodeThresholds
+      ...this.config.nodeThresholds,
     } as Record<string, AlertThreshold>;
     return thresholds[metric];
   }
@@ -131,4 +149,4 @@ export class AlertManager extends EventEmitter implements AlertManager {
   getActiveAlerts(): Alert[] {
     return Array.from(this.activeAlerts.values());
   }
-} 
+}

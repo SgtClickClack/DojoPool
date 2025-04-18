@@ -34,4 +34,4 @@ export interface NetworkThresholds {
 export interface ThresholdLevels {
   warning: number;
   critical: number;
-} 
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Paper,
   Typography,
@@ -12,18 +12,18 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   SignalCellularAlt,
   People,
   Speed,
   Error as ErrorIcon,
-  Update
-} from '@mui/icons-material';
-import { useQuery } from 'react-query';
-import axios from 'axios';
-import { format } from 'date-fns';
+  Update,
+} from "@mui/icons-material";
+import { useQuery } from "react-query";
+import axios from "axios";
+import { format } from "date-fns";
 
 interface WebSocketStats {
   total_connections: number;
@@ -46,11 +46,11 @@ const StatCard: React.FC<{
       <Box
         sx={{
           backgroundColor: `${color}20`,
-          borderRadius: '50%',
+          borderRadius: "50%",
           p: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {React.cloneElement(icon as React.ReactElement, { sx: { color } })}
@@ -68,15 +68,19 @@ const StatCard: React.FC<{
 );
 
 const WebSocketMonitor: React.FC = () => {
-  const { data: stats, isLoading, error } = useQuery<WebSocketStats>(
-    'websocket-stats',
+  const {
+    data: stats,
+    isLoading,
+    error,
+  } = useQuery<WebSocketStats>(
+    "websocket-stats",
     async () => {
-      const response = await axios.get('/api/ws/stats');
+      const response = await axios.get("/api/ws/stats");
       return response.data;
     },
     {
       refetchInterval: 5000, // Refresh every 5 seconds
-    }
+    },
   );
 
   if (isLoading) {
@@ -99,9 +103,10 @@ const WebSocketMonitor: React.FC = () => {
     return null;
   }
 
-  const errorRate = stats.messages_sent > 0
-    ? ((stats.errors / stats.messages_sent) * 100).toFixed(2)
-    : '0.00';
+  const errorRate =
+    stats.messages_sent > 0
+      ? ((stats.errors / stats.messages_sent) * 100).toFixed(2)
+      : "0.00";
 
   return (
     <Box p={3}>
@@ -139,7 +144,7 @@ const WebSocketMonitor: React.FC = () => {
             title="Error Rate"
             value={`${errorRate}%`}
             icon={<ErrorIcon />}
-            color={Number(errorRate) > 5 ? '#f44336' : '#4caf50'}
+            color={Number(errorRate) > 5 ? "#f44336" : "#4caf50"}
           />
         </Grid>
       </Grid>
@@ -155,11 +160,15 @@ const WebSocketMonitor: React.FC = () => {
                 <TableBody>
                   <TableRow>
                     <TableCell>Peak Connections</TableCell>
-                    <TableCell align="right">{stats.peak_connections}</TableCell>
+                    <TableCell align="right">
+                      {stats.peak_connections}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Total Connections</TableCell>
-                    <TableCell align="right">{stats.total_connections}</TableCell>
+                    <TableCell align="right">
+                      {stats.total_connections}
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Total Errors</TableCell>
@@ -169,8 +178,8 @@ const WebSocketMonitor: React.FC = () => {
                     <TableCell>Last Update</TableCell>
                     <TableCell align="right">
                       {stats.last_update
-                        ? format(new Date(stats.last_update), 'PPpp')
-                        : 'Never'}
+                        ? format(new Date(stats.last_update), "PPpp")
+                        : "Never"}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -206,4 +215,4 @@ const WebSocketMonitor: React.FC = () => {
   );
 };
 
-export default WebSocketMonitor; 
+export default WebSocketMonitor;

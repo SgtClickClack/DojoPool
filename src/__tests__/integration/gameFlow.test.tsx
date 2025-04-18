@@ -1,28 +1,28 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { GameProvider } from '../../contexts/GameContext';
-import { Game } from '../../components/Game';
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { GameProvider } from "../../contexts/GameContext";
+import { Game } from "../../components/Game";
 
-describe('Game Flow Integration', () => {
+describe("Game Flow Integration", () => {
   beforeEach(() => {
     render(
       <GameProvider>
         <Game />
-      </GameProvider>
+      </GameProvider>,
     );
   });
 
-  it('completes a full game cycle', async () => {
+  it("completes a full game cycle", async () => {
     // Start new game
     const startButton = screen.getByText(/start game/i);
     fireEvent.click(startButton);
 
     // Verify game started
-    expect(screen.getByTestId('game-board')).toBeInTheDocument();
+    expect(screen.getByTestId("game-board")).toBeInTheDocument();
     expect(screen.getByText(/player 1's turn/i)).toBeInTheDocument();
 
     // Simulate shots
-    const gameBoard = screen.getByTestId('game-board');
+    const gameBoard = screen.getByTestId("game-board");
     fireEvent.click(gameBoard);
 
     // Wait for turn switch
@@ -31,10 +31,10 @@ describe('Game Flow Integration', () => {
     });
 
     // Verify score updates
-    expect(screen.getByTestId('player-1-score')).toHaveTextContent(/\d+/);
+    expect(screen.getByTestId("player-1-score")).toHaveTextContent(/\d+/);
   });
 
-  it('handles fouls and turn switching', async () => {
+  it("handles fouls and turn switching", async () => {
     // Start game
     fireEvent.click(screen.getByText(/start game/i));
 
@@ -49,15 +49,15 @@ describe('Game Flow Integration', () => {
     });
   });
 
-  it('completes game with winner declaration', async () => {
+  it("completes game with winner declaration", async () => {
     // Start game
     fireEvent.click(screen.getByText(/start game/i));
 
     // Simulate winning condition
     // This would typically involve multiple shots and score updates
     await waitFor(() => {
-      const winner = screen.getByTestId('game-winner');
+      const winner = screen.getByTestId("game-winner");
       expect(winner).toBeInTheDocument();
     });
   });
-}); 
+});

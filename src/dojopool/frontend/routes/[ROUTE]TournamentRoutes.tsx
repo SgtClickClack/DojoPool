@@ -1,10 +1,10 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-import TournamentList from '../components/tournaments/TournamentList';
-import TournamentDetail from '../components/tournaments/TournamentDetail';
-import TournamentForm from '../components/tournaments/TournamentForm';
-import { PrivateRoute } from './PrivateRoute';
+import TournamentList from "../components/tournaments/TournamentList";
+import TournamentDetail from "../components/tournaments/TournamentDetail";
+import TournamentForm from "../components/tournaments/TournamentForm";
+import { PrivateRoute } from "./PrivateRoute";
 
 const TournamentRoutes: React.FC = () => {
   return (

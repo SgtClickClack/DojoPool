@@ -1,7 +1,16 @@
-import React from 'react';
-import { Box, Heading, Text, SimpleGrid, Stat, StatLabel, StatNumber, StatHelpText } from '@chakra-ui/react';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
-import { AuthenticatedLayout } from '../../components/layout/AuthenticatedLayout';
+import React from "react";
+import {
+  Box,
+  Heading,
+  Text,
+  SimpleGrid,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+} from "@chakra-ui/react";
+import { ProtectedRoute } from "../../components/auth/ProtectedRoute";
+import { AuthenticatedLayout } from "../../components/layout/AuthenticatedLayout";
 
 const DashboardPage: React.FC = () => {
   return (
@@ -9,7 +18,7 @@ const DashboardPage: React.FC = () => {
       <AuthenticatedLayout>
         <Box p={8}>
           <Heading mb={8}>Dashboard</Heading>
-          
+
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
             <Stat
               p={4}
@@ -52,7 +61,9 @@ const DashboardPage: React.FC = () => {
           </SimpleGrid>
 
           <Box mt={8}>
-            <Heading size="md" mb={4}>Recent Activity</Heading>
+            <Heading size="md" mb={4}>
+              Recent Activity
+            </Heading>
             <Text color="gray.500">No recent activity to display.</Text>
           </Box>
         </Box>
@@ -61,4 +72,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage; 
+export default DashboardPage;

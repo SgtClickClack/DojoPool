@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -15,9 +15,17 @@ import {
   InputRightElement,
   FormErrorMessage,
   useColorModeValue,
-} from '@chakra-ui/react';
-import { FaGoogle, FaFacebook, FaTwitter, FaGithub, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { 
+} from "@chakra-ui/react";
+import {
+  FaGoogle,
+  FaFacebook,
+  FaTwitter,
+  FaGithub,
+  FaApple,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
+import {
   signUpWithEmail,
   signInWithGoogle,
   signInWithFacebook,
@@ -25,9 +33,9 @@ import {
   signInWithGithub,
   signInWithApple,
   createUserDocument,
-  isNicknameUnique
-} from '../../firebase/auth';
-import debounce from 'lodash/debounce';
+  isNicknameUnique,
+} from "../../firebase/auth";
+import debounce from "lodash/debounce";
 
 interface RegistrationFormData {
   email: string;
@@ -48,12 +56,12 @@ interface ValidationErrors {
 
 export const PlayerRegistration: React.FC = () => {
   const [formData, setFormData] = useState<RegistrationFormData>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    displayName: '',
-    playerNickname: '',
-    skillLevel: 'beginner'
+    email: "",
+    password: "",
+    confirmPassword: "",
+    displayName: "",
+    playerNickname: "",
+    skillLevel: "beginner",
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -64,24 +72,30 @@ export const PlayerRegistration: React.FC = () => {
   const [socialUser, setSocialUser] = useState<any>(null);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
 
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   // Debounced function to check nickname uniqueness
   const debouncedCheckNickname = debounce(async (nickname: string) => {
     if (!nickname) return;
-    
+
     setIsCheckingNickname(true);
     try {
       const isUnique = await isNicknameUnique(nickname);
       if (!isUnique) {
-        setErrors(prev => ({ ...prev, playerNickname: 'This nickname is already taken' }));
+        setErrors((prev) => ({
+          ...prev,
+          playerNickname: "This nickname is already taken",
+        }));
       } else {
-        setErrors(prev => ({ ...prev, playerNickname: undefined }));
+        setErrors((prev) => ({ ...prev, playerNickname: undefined }));
       }
     } catch (error: any) {
-      console.error('Error checking nickname:', error);
-      setErrors(prev => ({ ...prev, playerNickname: 'Error checking nickname availability' }));
+      console.error("Error checking nickname:", error);
+      setErrors((prev) => ({
+        ...prev,
+        playerNickname: "Error checking nickname availability",
+      }));
     } finally {
       setIsCheckingNickname(false);
     }
@@ -101,29 +115,29 @@ export const PlayerRegistration: React.FC = () => {
     const newErrors: ValidationErrors = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = "Password must be at least 8 characters";
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     if (!formData.displayName) {
-      newErrors.displayName = 'Name is required';
+      newErrors.displayName = "Name is required";
     }
 
     if (!formData.playerNickname) {
-      newErrors.playerNickname = 'Player nickname is required';
+      newErrors.playerNickname = "Player nickname is required";
     } else if (isCheckingNickname) {
-      newErrors.playerNickname = 'Checking nickname availability...';
+      newErrors.playerNickname = "Checking nickname availability...";
     }
 
     setErrors(newErrors);
@@ -131,19 +145,19 @@ export const PlayerRegistration: React.FC = () => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name as keyof ValidationErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const handleEmailRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!await validateForm()) return;
+    if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
@@ -152,14 +166,14 @@ export const PlayerRegistration: React.FC = () => {
         formData.password,
         formData.displayName,
         formData.playerNickname,
-        formData.skillLevel
+        formData.skillLevel,
       );
 
       if (result.success) {
         toast({
-          title: 'Registration successful!',
-          description: 'Welcome to DojoPool!',
-          status: 'success',
+          title: "Registration successful!",
+          description: "Welcome to DojoPool!",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -169,9 +183,9 @@ export const PlayerRegistration: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Registration failed',
+        title: "Registration failed",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -185,32 +199,32 @@ export const PlayerRegistration: React.FC = () => {
     try {
       let result;
       switch (provider) {
-        case 'google':
+        case "google":
           result = await signInWithGoogle();
           break;
-        case 'facebook':
+        case "facebook":
           result = await signInWithFacebook();
           break;
-        case 'twitter':
+        case "twitter":
           result = await signInWithTwitter();
           break;
-        case 'github':
+        case "github":
           result = await signInWithGithub();
           break;
-        case 'apple':
+        case "apple":
           result = await signInWithApple();
           break;
         default:
-          throw new Error('Invalid provider');
+          throw new Error("Invalid provider");
       }
 
       if (result.success) {
         setSocialUser(result.user);
         setShowProfileCompletion(true);
         toast({
-          title: 'Sign in successful!',
-          description: 'Please complete your profile',
-          status: 'success',
+          title: "Sign in successful!",
+          description: "Please complete your profile",
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -219,9 +233,9 @@ export const PlayerRegistration: React.FC = () => {
       }
     } catch (error: any) {
       toast({
-        title: 'Sign in failed',
+        title: "Sign in failed",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -238,22 +252,22 @@ export const PlayerRegistration: React.FC = () => {
     try {
       await createUserDocument(socialUser, {
         playerNickname: formData.playerNickname,
-        skillLevel: formData.skillLevel
+        skillLevel: formData.skillLevel,
       });
 
       toast({
-        title: 'Profile completed!',
-        description: 'Welcome to DojoPool!',
-        status: 'success',
+        title: "Profile completed!",
+        description: "Welcome to DojoPool!",
+        status: "success",
         duration: 5000,
         isClosable: true,
       });
       // Redirect to dashboard
     } catch (error: any) {
       toast({
-        title: 'Profile completion failed',
+        title: "Profile completion failed",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
@@ -275,7 +289,9 @@ export const PlayerRegistration: React.FC = () => {
         />
         {isCheckingNickname && (
           <InputRightElement>
-            <Text fontSize="sm" color="gray.500">Checking...</Text>
+            <Text fontSize="sm" color="gray.500">
+              Checking...
+            </Text>
           </InputRightElement>
         )}
       </InputGroup>
@@ -309,11 +325,11 @@ export const PlayerRegistration: React.FC = () => {
                   value={formData.skillLevel}
                   onChange={handleInputChange}
                   style={{
-                    width: '100%',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    border: '1px solid',
-                    borderColor: borderColor
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: "1px solid",
+                    borderColor: borderColor,
                   }}
                 >
                   <option value="beginner">Beginner</option>
@@ -357,31 +373,31 @@ export const PlayerRegistration: React.FC = () => {
           <IconButton
             aria-label="Sign in with Google"
             icon={<FaGoogle />}
-            onClick={() => handleSocialSignIn('google')}
+            onClick={() => handleSocialSignIn("google")}
             isLoading={isLoading}
           />
           <IconButton
             aria-label="Sign in with Facebook"
             icon={<FaFacebook />}
-            onClick={() => handleSocialSignIn('facebook')}
+            onClick={() => handleSocialSignIn("facebook")}
             isLoading={isLoading}
           />
           <IconButton
             aria-label="Sign in with Twitter"
             icon={<FaTwitter />}
-            onClick={() => handleSocialSignIn('twitter')}
+            onClick={() => handleSocialSignIn("twitter")}
             isLoading={isLoading}
           />
           <IconButton
             aria-label="Sign in with GitHub"
             icon={<FaGithub />}
-            onClick={() => handleSocialSignIn('github')}
+            onClick={() => handleSocialSignIn("github")}
             isLoading={isLoading}
           />
           <IconButton
             aria-label="Sign in with Apple"
             icon={<FaApple />}
-            onClick={() => handleSocialSignIn('apple')}
+            onClick={() => handleSocialSignIn("apple")}
             isLoading={isLoading}
           />
         </HStack>
@@ -418,13 +434,15 @@ export const PlayerRegistration: React.FC = () => {
               <InputGroup>
                 <Input
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleInputChange}
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     icon={showPassword ? <FaEyeSlash /> : <FaEye />}
                     onClick={() => setShowPassword(!showPassword)}
                     variant="ghost"
@@ -439,7 +457,7 @@ export const PlayerRegistration: React.FC = () => {
               <FormLabel>Confirm Password</FormLabel>
               <Input
                 name="confirmPassword"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
               />
@@ -453,11 +471,11 @@ export const PlayerRegistration: React.FC = () => {
                 value={formData.skillLevel}
                 onChange={handleInputChange}
                 style={{
-                  width: '100%',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  border: '1px solid',
-                  borderColor: borderColor
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid",
+                  borderColor: borderColor,
                 }}
               >
                 <option value="beginner">Beginner</option>
@@ -480,4 +498,4 @@ export const PlayerRegistration: React.FC = () => {
       </VStack>
     </Box>
   );
-}; 
+};

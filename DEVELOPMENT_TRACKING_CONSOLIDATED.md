@@ -1,44 +1,51 @@
 > **NOTICE (2025-04-18):**
 > This file has been split into multiple parts for easier management and navigation.
-> 
+>
 > Please refer to the new tracking files starting at:
+>
 > - [DEVELOPMENT_TRACKING_INDEX.md](./DEVELOPMENT_TRACKING_INDEX.md)
 > - [DEVELOPMENT_TRACKING_PART_01.md](./DEVELOPMENT_TRACKING_PART_01.md)
 > - [DEVELOPMENT_TRACKING_PART_02.md](./DEVELOPMENT_TRACKING_PART_02.md)
 > - [DEVELOPMENT_TRACKING_PART_03.md](./DEVELOPMENT_TRACKING_PART_03.md)
-> 
+>
 > The index file lists all parts in order. Update new progress in the split files, not here.
 
 # DojoPool Development Tracking
 
 > **NOTICE (2025-04-18):**
 > This file has been split into multiple parts for easier management and navigation.
-> 
+>
 > Please refer to the new tracking files starting at:
+>
 > - [DEVELOPMENT_TRACKING_INDEX.md](./DEVELOPMENT_TRACKING_INDEX.md)
 > - [DEVELOPMENT_TRACKING_PART_01.md](./DEVELOPMENT_TRACKING_PART_01.md)
 > - [DEVELOPMENT_TRACKING_PART_02.md](./DEVELOPMENT_TRACKING_PART_02.md)
 > - [DEVELOPMENT_TRACKING_PART_03.md](./DEVELOPMENT_TRACKING_PART_03.md)
-> 
+>
 > The index file lists all parts in order. Update new progress in the split files, not here.
 
 ## Project Overview
+
 DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experience, transforming traditional pool gaming into an immersive, tech-enhanced, AI-driven platform.
 
 ### Core Platform Components
+
 1. **Smart Venue Integration**
+
    - Overhead camera systems for real-time tracking
    - Local processing units for minimal latency
    - QR code table integration
    - Automated scoring and rule enforcement
 
 2. **Digital Ecosystem**
+
    - Cross-platform application (web/mobile)
    - Player profiles and matchmaking
    - Tournament management
    - Venue discovery and booking
 
 3. **Technical Foundation**
+
    - React/Material-UI frontend
    - Python/FastAPI backend
    - TensorFlow/OpenCV for game tracking
@@ -62,6 +69,7 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 ## Development Progress
 
 ### Phase 1: Foundation and Infrastructure (100% Complete)
+
 ✅ Core system architecture
 ✅ Database design
 ✅ Authentication system
@@ -69,6 +77,7 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 ✅ Development environment setup
 
 ### Phase 2: Core Features Development (100% Complete)
+
 ✅ Player profiles
 ✅ Game tracking
 ✅ Scoring system
@@ -76,6 +85,7 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 ✅ Venue management
 
 ### Phase 3: Enhanced Features (100% Complete)
+
 ✅ AI shot analysis
 ✅ Advanced matchmaking
 ✅ Social features
@@ -83,6 +93,7 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 ✅ In-game currency
 
 ### Phase 4: Scaling and Optimization (95% Complete)
+
 ✅ Database Optimization
 ✅ CDN Integration & Asset Optimization
 ✅ Security Enhancements
@@ -96,12 +107,14 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 ✅ Achievement Rewards Shop
 
 #### Technical Metrics and Performance
+
 - Shot Analysis Accuracy: 95%
 - Real-time Analysis Latency: <50ms
 - Test Coverage: 95%
 - Documentation Coverage: 90%
 
 #### Test Suite Status
+
 - PerformanceMonitor: 95% coverage
 - PerformanceBudgetManager: 95% coverage
 - ErrorRecoveryManager: 95% coverage
@@ -111,6 +124,7 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 - PerformanceOptimizer: 95% coverage
 
 #### UI/UX Refinement and Accessibility (In Progress)
+
 - [x] AlertItemOptimized Component
   - Added ARIA labels and roles
   - Enhanced keyboard navigation
@@ -136,6 +150,7 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
   - Enhanced type safety across WebSocket communication
 
 #### TypeScript and Linting Improvements (In Progress)
+
 - [x] Fixed VectorClock implementation to properly handle VectorTimestamp objects
 - [x] Added comprehensive type definitions for network-related interfaces
 - [x] Enhanced MonitoringConfig interface with complete threshold definitions
@@ -152,12 +167,14 @@ DojoPool revolutionizes pool gaming by creating a hybrid physical-digital experi
 Enhanced type safety and documentation across monitoring and database components.
 
 **Core Components Implemented:**
+
 - Improved NetworkMetricsCollector with proper TypeScript types and documentation
 - Enhanced AlertHistory model with comprehensive type definitions and JSDoc comments
 - Added database indexes for frequently queried fields
 - Installed @types/mongoose for proper database type declarations
 
 **File Paths:**
+
 - /src/monitoring/collectors/NetworkMetricsCollector.ts
 - /src/models/AlertHistory.ts
 - package.json
@@ -172,11 +189,13 @@ Expected completion time: 1 day
 Added necessary TypeScript type declarations for core dependencies.
 
 **Core Components Implemented:**
+
 - Installed @types/react for React type definitions
 - Installed @types/node for Node.js type definitions
 - Updated npm configuration for better type support
 
 **File Paths:**
+
 - package.json
 - tsconfig.json
 
@@ -190,6 +209,7 @@ Expected completion time: 2 days
 Implemented integration between NetworkTransport, ConsensusManager, and StateReplicator components.
 
 **Core Components Implemented:**
+
 - NetworkIntegration class for coordinating network communication
 - Type-safe event handling system
 - State synchronization with vector clocks
@@ -197,6 +217,7 @@ Implemented integration between NetworkTransport, ConsensusManager, and StateRep
 - Error handling and recovery
 
 **Key Features:**
+
 - Unified network communication layer
 - State replication with consistency guarantees
 - Consensus-based state updates
@@ -204,12 +225,14 @@ Implemented integration between NetworkTransport, ConsensusManager, and StateRep
 - Error handling and recovery mechanisms
 
 **Integration Points:**
+
 - NetworkTransport for peer communication
 - ConsensusManager for distributed consensus
 - StateReplicator for state synchronization
 - VectorClock for causality tracking
 
 **File Paths:**
+
 - /src/core/integration/NetworkIntegration.ts
 - /src/core/network/types.ts
 - /src/types/game.ts (updated)
@@ -224,6 +247,7 @@ Expected completion time: 2 days
 Implemented comprehensive network monitoring system for the transport layer.
 
 **Core Components Implemented:**
+
 - NetworkMetricsCollector for real-time network performance tracking
 - RTT measurement for consensus messages
 - Bandwidth usage monitoring
@@ -232,6 +256,7 @@ Implemented comprehensive network monitoring system for the transport layer.
 - Queue size tracking
 
 **Key Features:**
+
 - Real-time metrics collection
 - P95 latency calculation
 - Message success rate tracking
@@ -240,12 +265,14 @@ Implemented comprehensive network monitoring system for the transport layer.
 - Comprehensive event handling
 
 **Integration Points:**
+
 - NetworkTransport for raw metrics
 - AlertManager for threshold monitoring
 - MetricsCollector base class
 - NetworkMetricsPanel for visualization
 
 **File Paths:**
+
 - /src/monitoring/collectors/NetworkMetricsCollector.ts
 - /src/core/network/NetworkTransport.ts (monitored)
 - /src/monitoring/dashboard/components/NetworkMetricsPanel.tsx (visualization)
@@ -260,6 +287,7 @@ Expected completion time: 2 days
 Implemented comprehensive error recovery and resilience mechanisms for the network transport layer.
 
 **Core Components Implemented:**
+
 - NetworkErrorRecovery class with circuit breaker pattern
 - Exponential backoff with jitter for retries
 - Message timeout tracking and retry management
@@ -267,6 +295,7 @@ Implemented comprehensive error recovery and resilience mechanisms for the netwo
 - Queue size limiting for pending messages
 
 **Key Features:**
+
 - Circuit breaker with three states (CLOSED, OPEN, HALF_OPEN)
 - Configurable retry policies with exponential backoff
 - Automatic message retry with timeout detection
@@ -276,12 +305,14 @@ Implemented comprehensive error recovery and resilience mechanisms for the netwo
 - Type-safe error handling
 
 **Integration Points:**
+
 - NetworkTransport for message sending
 - Event system for error notifications
 - Monitoring system for metrics
 - Alert system for circuit breaker state changes
 
 **File Paths:**
+
 - /src/core/network/NetworkErrorRecovery.ts
 - /src/core/network/NetworkTransport.ts (integrated)
 - /src/core/network/types.ts (used)
@@ -292,6 +323,7 @@ Implement integration tests for error recovery mechanisms and verify resilience 
 Expected completion time: 2 days
 
 ### 2024-03-19: Rate Limiter Logic Finalized and All Tests Passing
+
 - Refined `TokenBucketStrategy` to only allow requests after full bucket refill when all tokens are consumed, matching strict test expectations.
 - Fixed `FixedWindowStrategy` and `RateLimiter` logic to ensure atomic request counting and correct window expiry.
 - Updated Redis request addition to use unique identifiers, preventing key collisions and ensuring accurate counting.
@@ -303,12 +335,14 @@ Expected completion time: 2 days
 Implemented core physics engine for pool game mechanics.
 
 **Core Components Implemented:**
+
 - PhysicsEngine class with ball collision detection and resolution
 - Vector and geometry type definitions
 - Friction and restitution physics
 - Table boundary collision handling
 
 **Key Features:**
+
 - Ball-to-ball collision detection and response
 - Cushion collision handling with restitution
 - Friction application to moving objects
@@ -316,30 +350,34 @@ Implemented core physics engine for pool game mechanics.
 - Physics state updates with delta time
 
 **Integration Points:**
+
 - GameState for ball position updates
 - Shot execution system
 - Game rules validation
 
 **File Paths:**
+
 - src/utils/physics.ts
 - src/types/geometry.ts
-- src/utils/__tests__/physics.test.ts
+- src/utils/**tests**/physics.test.ts
 
 **Next Priority Task:**
 Integrate physics engine with game state management system
-Expected completion time: 2 days 
+Expected completion time: 2 days
 
 ### 2025-04-14: Context Assurance System Implementation
 
 Implemented core context assurance systems for distributed state management.
 
 **Core Components Implemented:**
+
 - Vector Clock system for logical time tracking
 - CRDT (Conflict-free Replicated Data Types) for state management
 - Raft consensus protocol for leader election and log replication
 - State replication system for distributed state synchronization
 
 **Key Features:**
+
 - Distributed state consistency
 - Conflict resolution with vector clocks
 - Leader election with Raft consensus
@@ -347,12 +385,14 @@ Implemented core context assurance systems for distributed state management.
 - Event-based state updates
 
 **Integration Points:**
+
 - GameState management
 - Network transport layer
 - Event handling system
 - State persistence layer
 
 **File Paths:**
+
 - src/core/consistency/VectorClock.ts
 - src/core/consistency/CRDT.ts
 - src/core/consensus/RaftConsensus.ts
@@ -361,19 +401,21 @@ Implemented core context assurance systems for distributed state management.
 
 **Next Priority Task:**
 Implement monitoring and verification systems for context assurance
-Expected completion time: 1 week 
+Expected completion time: 1 week
 
 ### 2025-04-14: Monitoring and Verification System Implementation
 
 Implemented comprehensive monitoring and verification systems for the context assurance framework.
 
 **Core Components Implemented:**
+
 - Distributed tracing with OpenTelemetry
 - State invariant checking system
 - Metrics collection and reporting
 - Performance monitoring
 
 **Key Features:**
+
 - Consistency metrics tracking
 - State update monitoring
 - Consensus event tracing
@@ -381,25 +423,28 @@ Implemented comprehensive monitoring and verification systems for the context as
 - Performance metrics collection
 
 **Integration Points:**
+
 - OpenTelemetry integration
 - Metrics reporting system
 - State verification framework
 - Monitoring dashboards
 
 **File Paths:**
+
 - src/monitoring/tracing.ts
 - src/monitoring/types.ts
 - src/verification/invariants.ts
 
 **Next Priority Task:**
 Implement chaos testing and failure scenarios
-Expected completion time: 3 days 
+Expected completion time: 3 days
 
 ### 2025-04-14: Chaos Testing Framework Implementation
 
 Implemented comprehensive chaos testing framework for validating system resilience.
 
 **Core Components Implemented:**
+
 - ChaosTestRunner for orchestrating failure scenarios
 - Network partition simulation
 - Node failure simulation
@@ -407,6 +452,7 @@ Implemented comprehensive chaos testing framework for validating system resilien
 - Automated test execution and reporting
 
 **Key Features:**
+
 - Configurable failure scenarios
 - Real-time metrics collection
 - Invariant verification during tests
@@ -414,12 +460,14 @@ Implemented comprehensive chaos testing framework for validating system resilien
 - Detailed test reporting
 
 **Integration Points:**
+
 - State invariant checker
 - Distributed tracing system
 - Metrics collection
 - Event emission system
 
 **File Paths:**
+
 - src/testing/chaos/ChaosTestRunner.ts
 
 **Next Priority Task:**
@@ -429,40 +477,46 @@ Expected completion time: 2 days
 ### Context Assurance Implementation Plan Status
 
 ✅ Phase 1: Core Infrastructure
-  - Vector Clock system
-  - CRDT implementation
-  - Consensus protocol
-  - State management integration
+
+- Vector Clock system
+- CRDT implementation
+- Consensus protocol
+- State management integration
 
 ✅ Phase 2: State Management
-  - State verification
-  - Conflict resolution
-  - State replication
-  - Consistency protocols
+
+- State verification
+- Conflict resolution
+- State replication
+- Consistency protocols
 
 ✅ Phase 3: Monitoring
-  - Jaeger tracing setup
-  - Metrics configuration
-  - Automated checks
-  - Monitoring dashboard
+
+- Jaeger tracing setup
+- Metrics configuration
+- Automated checks
+- Monitoring dashboard
 
 ✅ Phase 4: Testing and Validation
-  - Consistency test suite
-  - Chaos testing
-  - Performance benchmarks
-  - Failure scenarios
+
+- Consistency test suite
+- Chaos testing
+- Performance benchmarks
+- Failure scenarios
 
 **Next Steps:**
+
 1. Set up production monitoring
 2. Configure alerting thresholds
 3. Document failure recovery procedures
-4. Train team on new systems 
+4. Train team on new systems
 
 ### 2024-03-19: Monitoring Configuration Implementation
 
 Implemented comprehensive monitoring configuration types and default settings to enable system health tracking and alerting.
 
 **Core Components Implemented:**
+
 - AlertThreshold interface for warning and critical thresholds
 - ConsistencyThresholds for tracking distributed system health
 - PerformanceThresholds for system performance metrics
@@ -470,18 +524,20 @@ Implemented comprehensive monitoring configuration types and default settings to
 - Default configuration with production-ready threshold values
 
 **File Paths:**
+
 - /src/monitoring/config.ts
 
 **Next Priority Task:**
 Implement monitoring service using the defined configuration types
 
-Expected completion time: 2 hours 
+Expected completion time: 2 hours
 
 ### 2024-03-19: Monitoring Service Implementation
 
 Implemented comprehensive monitoring service with alert management and metrics collection.
 
 **Core Components Implemented:**
+
 - MonitoringService for centralized metrics collection and monitoring
 - AlertManager for threshold-based alert generation
 - Type-safe event system for monitoring events
@@ -489,6 +545,7 @@ Implemented comprehensive monitoring service with alert management and metrics c
 - Real-time alert notifications
 
 **File Paths:**
+
 - /src/monitoring/MonitoringService.ts
 - /src/monitoring/AlertManager.ts
 - /src/monitoring/config.ts
@@ -497,19 +554,21 @@ Implemented comprehensive monitoring service with alert management and metrics c
 **Next Priority Task:**
 Implement metrics collection from actual system components (consistency, performance, and node metrics)
 
-Expected completion time: 3 days 
+Expected completion time: 3 days
 
 ### 2024-03-19: Metrics Collectors Implementation
 
 Implemented specialized metrics collectors for gathering system metrics from various components.
 
 **Core Components Implemented:**
+
 - ConsistencyMetricsCollector for consensus and replication metrics
 - PerformanceMetricsCollector for system performance metrics
 - NodeMetricsCollector for distributed node metrics
 - Integration with MonitoringService for centralized metrics collection
 
 **Key Features:**
+
 - Real-time consensus latency measurement
 - State replication success rate tracking
 - System resource usage monitoring (CPU, memory, network, disk)
@@ -519,6 +578,7 @@ Implemented specialized metrics collectors for gathering system metrics from var
 - Queue length tracking
 
 **File Paths:**
+
 - /src/monitoring/collectors/ConsistencyMetricsCollector.ts
 - /src/monitoring/collectors/PerformanceMetricsCollector.ts
 - /src/monitoring/collectors/NodeMetricsCollector.ts
@@ -532,11 +592,13 @@ Expected completion time: 2 days
 ### TypeScript and Linting Improvements
 
 **Core Components Implemented:**
+
 - Installed @types/mongoose package for proper type declarations
 - Fixed type-related linting errors in AlertHistory model
 - Improved type safety for mongoose schema and document interfaces
 
 **File Paths:**
+
 - DojoPool/src/models/AlertHistory.ts
 - package.json (updated dependencies)
 
@@ -548,11 +610,13 @@ Expected completion time: 2 hours
 ### March 19, 2024: Mongoose Type Declarations Verification
 
 **Core Components Implemented:**
+
 - Verified proper type declarations in AlertHistory model and service
 - Confirmed correct usage of mongoose types throughout the codebase
 - All mongoose-related linter errors resolved
 
 **File Paths:**
+
 - src/models/AlertHistory.ts
 - src/services/AlertHistoryService.ts
 
@@ -564,6 +628,7 @@ Continue addressing remaining TypeScript linter errors in other components
 ### 2024-03-21: Type System Improvements
 
 **Core Components Implemented:**
+
 - Enhanced type safety for network transport layer
 - Fixed type conflicts in NetworkMessageType enum
 - Improved event handling type definitions
@@ -571,6 +636,7 @@ Continue addressing remaining TypeScript linter errors in other components
 - Fixed WebSocket message handling types
 
 **Key Features:**
+
 - Type-safe event emission and handling
 - Proper type inference for network messages
 - Consistent enum usage across modules
@@ -578,6 +644,7 @@ Continue addressing remaining TypeScript linter errors in other components
 - Better TypeScript integration
 
 **Integration Points:**
+
 - EventEmitter type system
 - WebSocket message types
 - Network message type system
@@ -585,6 +652,7 @@ Continue addressing remaining TypeScript linter errors in other components
 - Event handling system
 
 **File Paths:**
+
 - `/src/core/network/types.ts`: Updated type definitions
 - `/src/core/network/NetworkTransport.ts`: Enhanced type safety
 
@@ -594,6 +662,7 @@ Implement monitoring and metrics collection for network transport layer
 ### 2024-03-21: Network Transport Implementation and Type Fixes
 
 **Core Components Implemented:**
+
 - NetworkTransport class with WebSocket-based peer-to-peer communication
 - Type-safe event handling with NetworkEventMap
 - Proper error handling with NetworkError interface
@@ -602,6 +671,7 @@ Implement monitoring and metrics collection for network transport layer
 - Automatic reconnection with exponential backoff
 
 **Key Features:**
+
 - Type-safe event emission and handling
 - Robust error handling with detailed error types
 - Automatic peer discovery and connection management
@@ -610,12 +680,14 @@ Implement monitoring and metrics collection for network transport layer
 - Message statistics tracking
 
 **Integration Points:**
+
 - WebSocket for peer-to-peer communication
 - EventEmitter for type-safe event handling
 - Buffer for byte length calculations
 - JSON for message serialization
 
 **File Paths:**
+
 - `/src/core/network/types.ts`: Network-related type definitions
 - `/src/core/network/NetworkTransport.ts`: Main network transport implementation
 
@@ -625,6 +697,7 @@ Implement the state synchronization layer using the NetworkTransport class
 ### 2024-03-21: Network Metrics Collection Implementation
 
 **Core Components Implemented:**
+
 - NetworkMetricsCollector for gathering network transport metrics
 - Base MetricsCollector interface for standardized metrics collection
 - Real-time network performance monitoring
@@ -632,6 +705,7 @@ Implement the state synchronization layer using the NetworkTransport class
 - Message latency measurement
 
 **Key Features:**
+
 - Message rate tracking (sent/received per second)
 - Bandwidth usage monitoring
 - Connection success rate calculation
@@ -641,12 +715,14 @@ Implement the state synchronization layer using the NetworkTransport class
 - Automatic metric aggregation
 
 **Integration Points:**
+
 - NetworkTransport event system
 - Monitoring service
 - Metrics collection system
 - Network statistics tracking
 
 **File Paths:**
+
 - `/src/monitoring/collectors/MetricsCollector.ts`: Base collector interface
 - `/src/monitoring/collectors/NetworkMetricsCollector.ts`: Network metrics implementation
 
@@ -660,11 +736,13 @@ Expected completion time: 1 day
 Enhanced the monitoring configuration system with comprehensive threshold definitions.
 
 **Core Components Implemented:**
+
 - Updated MonitoringConfig interface with complete threshold properties
 - Added default values for all monitoring thresholds
 - Implemented consistency, performance, and node-specific monitoring parameters
 
 **File Paths:**
+
 - DojoPool/src/monitoring/config.ts
 
 **Next Priority Task:**
@@ -675,6 +753,7 @@ Implement monitoring data collection and alert triggering based on the defined t
 Implemented comprehensive monitoring system with metrics collection and alerting.
 
 **Core Components Implemented:**
+
 - MetricsCollector base class for standardized metrics collection
 - ConsistencyMetricsCollector for consensus protocol monitoring
 - PerformanceMetricsCollector for system performance tracking
@@ -683,6 +762,7 @@ Implemented comprehensive monitoring system with metrics collection and alerting
 - MonitoringService for centralized metrics management
 
 **Key Features:**
+
 - Real-time metrics collection and monitoring
 - Configurable alert thresholds
 - Metrics history with retention policies
@@ -691,12 +771,14 @@ Implemented comprehensive monitoring system with metrics collection and alerting
 - Comprehensive system monitoring
 
 **Integration Points:**
+
 - ConsensusProtocol for consistency metrics
 - NetworkTransport for network metrics
 - System resources for performance metrics
 - Alert system for notifications
 
 **File Paths:**
+
 - /src/monitoring/MonitoringService.ts
 - /src/monitoring/AlertManager.ts
 - /src/monitoring/config.ts
@@ -715,6 +797,7 @@ Expected completion time: 3 days
 Implemented comprehensive monitoring dashboard with real-time metrics visualization and alert management.
 
 **Core Components Implemented:**
+
 - MonitoringDashboard component for centralized system monitoring
 - MetricsPanel component for displaying metrics with thresholds
 - AlertsPanel component for managing active alerts
@@ -723,6 +806,7 @@ Implemented comprehensive monitoring dashboard with real-time metrics visualizat
 - Responsive layout with Material-UI components
 
 **Key Features:**
+
 - Real-time metrics visualization
 - Threshold-based alert display
 - Metric value formatting and color coding
@@ -732,6 +816,7 @@ Implemented comprehensive monitoring dashboard with real-time metrics visualizat
 - Animated alert transitions
 
 **Integration Points:**
+
 - MonitoringService for metrics collection
 - AlertManager for alert handling
 - Material-UI for component styling
@@ -739,6 +824,7 @@ Implemented comprehensive monitoring dashboard with real-time metrics visualizat
 - WebSocket for real-time updates
 
 **File Paths:**
+
 - /src/monitoring/dashboard/MonitoringDashboard.tsx
 - /src/monitoring/dashboard/components/MetricsPanel.tsx
 - /src/monitoring/dashboard/components/AlertsPanel.tsx
@@ -754,6 +840,7 @@ Expected completion time: 2 days
 Implemented real-time metrics visualization with interactive charts and graphs.
 
 **Core Components Implemented:**
+
 - MetricsChart component for time-series data visualization
 - Real-time data updates with history tracking
 - Threshold visualization with warning and critical lines
@@ -762,6 +849,7 @@ Implemented real-time metrics visualization with interactive charts and graphs.
 - Color-coded metrics based on thresholds
 
 **Key Features:**
+
 - Line charts for time-series metrics
 - Automatic time range filtering
 - Warning and critical threshold indicators
@@ -772,6 +860,7 @@ Implemented real-time metrics visualization with interactive charts and graphs.
 - Real-time updates
 
 **Integration Points:**
+
 - MonitoringService for metrics data
 - Material-UI for styling
 - Recharts for visualization
@@ -779,6 +868,7 @@ Implemented real-time metrics visualization with interactive charts and graphs.
 - Metrics history management
 
 **File Paths:**
+
 - /src/monitoring/dashboard/components/MetricsChart.tsx
 - /src/monitoring/dashboard/MonitoringDashboard.tsx (updated)
 
@@ -792,11 +882,13 @@ Expected completion time: 2 days
 Moved test utilities from TSX to TS file format for better type handling and consistency.
 
 **Core Components Implemented:**
+
 - Refactored test utilities into proper TypeScript file
 - Implemented MockResponse interface and helper functions
 - Removed redundant TSX file
 
 **File Paths:**
+
 - `/src/tests/test-utils.ts` (new)
 - `/src/tests/test-utils.tsx` (removed)
 
@@ -810,6 +902,7 @@ Expected completion time: 1 hour
 Enhanced network monitoring capabilities with detailed performance metrics collection.
 
 **Core Components Implemented:**
+
 - Created NetworkPerformanceCollector for detailed network metrics
 - Added comprehensive network thresholds to monitoring configuration
 - Enhanced NetworkMessage and NetworkStats interfaces
@@ -817,6 +910,7 @@ Enhanced network monitoring capabilities with detailed performance metrics colle
 - Added connection stability monitoring
 
 **File Paths:**
+
 - /src/monitoring/collectors/NetworkPerformanceCollector.ts
 - /src/core/network/types.ts
 - /src/monitoring/config.ts
@@ -831,6 +925,7 @@ Expected completion time: 1 day
 Implemented comprehensive alert rules for network performance monitoring.
 
 **Core Components Implemented:**
+
 - Created NetworkAlertRules class for handling network performance alerts
 - Added alert rules for:
   - Latency (average and P95)
@@ -842,6 +937,7 @@ Implemented comprehensive alert rules for network performance monitoring.
 - Added proper type safety and error handling
 
 **File Paths:**
+
 - /src/monitoring/alerts/NetworkAlertRules.ts
 - /src/monitoring/AlertManager.ts (used types)
 
@@ -853,6 +949,7 @@ Expected completion time: 1 day
 ### 2024-03-21: Network Monitoring Dashboard Enhancement
 
 **Core Components Implemented:**
+
 - Enhanced NetworkMetricsPanel with comprehensive network performance visualization
 - Added real-time metrics tracking for RTT, error rate, throughput, and stability
 - Implemented historical metrics visualization with charts
@@ -860,6 +957,7 @@ Expected completion time: 1 day
 - Enhanced metric formatting utilities
 
 **Key Features:**
+
 - Real-time network performance monitoring
 - Historical metrics visualization
 - Threshold-based alerts
@@ -867,12 +965,14 @@ Expected completion time: 1 day
 - Comprehensive network statistics
 
 **Integration Points:**
+
 - Network performance collector
 - Monitoring dashboard
 - Metrics visualization system
 - Network transport layer
 
 **File Paths:**
+
 - /src/monitoring/dashboard/components/NetworkMetricsPanel.tsx
 - /src/monitoring/dashboard/components/MetricsChart.tsx
 - /src/monitoring/utils/formatters.ts
@@ -887,6 +987,7 @@ Expected completion time: 1 day
 Implemented comprehensive network performance visualization components.
 
 **Core Components Implemented:**
+
 - Created NetworkMetricsPanel component with:
   - Real-time metric cards with threshold-based coloring
   - Progress indicators for metric values
@@ -905,6 +1006,7 @@ Implemented comprehensive network performance visualization components.
   - Error rate monitoring
 
 **File Paths:**
+
 - /src/monitoring/dashboard/components/NetworkMetricsPanel.tsx
 - /src/monitoring/dashboard/utils/formatters.ts
 
@@ -916,12 +1018,14 @@ Expected completion time: 1 day
 ### Network Performance Monitoring Improvements (2024-03-21)
 
 **Core Components Implemented:**
+
 - Consolidated NetworkPerformanceData interface in dashboard types
 - Updated NetworkPerformanceCollector to match interface
 - Added comprehensive metrics collection for network performance
 - Implemented proper type safety and documentation
 
 **Key Features:**
+
 - Real-time network performance monitoring
 - P95 RTT calculations
 - Bandwidth usage tracking
@@ -930,11 +1034,13 @@ Expected completion time: 1 day
 - Error rate calculation
 
 **Integration Points:**
+
 - Dashboard types
 - Metrics collector system
 - Network transport layer
 
 **File Paths:**
+
 - src/monitoring/dashboard/types.ts
 - src/monitoring/collectors/NetworkPerformanceCollector.ts
 
@@ -946,24 +1052,28 @@ Expected completion time: 1 day
 ### TypeScript and Type Safety Improvements (2024-03-21)
 
 **Core Components Implemented:**
+
 - Added proper type definitions for API interfaces (Venue, Game, Player, etc.)
 - Enhanced Redux store with proper TypeScript types
 - Improved error handling with type-safe error messages
 - Added comprehensive type coverage for network-related components
 
 **Key Features:**
+
 - Type-safe API responses
 - Strongly-typed Redux actions and state
 - Improved error handling with proper type checking
 - Better IDE support and code completion
 
 **Integration Points:**
+
 - Mobile app API service
 - Redux store
 - Network transport layer
 - Error handling system
 
 **File Paths:**
+
 - /DojoPoolMobile/src/types/api.ts
 - /DojoPoolMobile/src/services/api.ts
 - /DojoPoolMobile/src/store/slices/appSlice.ts
@@ -976,6 +1086,7 @@ Expected completion time: 1 day
 ### Network Metrics Visualization Improvements (2024-03-21)
 
 **Core Components Implemented:**
+
 - Enhanced NetworkMetricsPanel with additional performance metrics
 - Added bandwidth usage visualization
 - Added in-flight messages tracking
@@ -984,6 +1095,7 @@ Expected completion time: 1 day
 - Added time since last message indicator
 
 **Key Features:**
+
 - Real-time visualization of network performance metrics
 - Historical data tracking and visualization
 - Threshold-based alerts
@@ -991,12 +1103,14 @@ Expected completion time: 1 day
 - Comprehensive network statistics
 
 **Integration Points:**
+
 - Network performance collector
 - Monitoring dashboard
 - Metrics visualization system
 - Network transport layer
 
 **File Paths:**
+
 - /src/monitoring/dashboard/components/NetworkMetricsPanel.tsx
 - /src/monitoring/dashboard/components/MetricsChart.tsx
 
@@ -1010,6 +1124,7 @@ Expected completion time: 1 day
 Fixed type system issues in network transport layer and enhanced type safety.
 
 **Core Components Implemented:**
+
 - Updated NetworkEventMap to properly extend Record type
 - Fixed NetworkStats interface with missing properties
 - Added proper event emission with required arguments
@@ -1018,6 +1133,7 @@ Fixed type system issues in network transport layer and enhanced type safety.
 - Replaced any types with unknown for better type safety
 
 **File Paths:**
+
 - /src/core/network/types.ts
 - /src/core/network/NetworkTransport.ts
 
@@ -1031,6 +1147,7 @@ Expected completion time: 1 day
 Implemented comprehensive integration tests for network error recovery mechanisms.
 
 **Core Components Implemented:**
+
 - Integration test suite for NetworkErrorRecovery class
 - Mock NetworkTransport for controlled testing
 - Test scenarios for:
@@ -1041,6 +1158,7 @@ Implemented comprehensive integration tests for network error recovery mechanism
   - Error handling and reporting
 
 **Key Features:**
+
 - Simulated network failures and delays
 - Circuit breaker state verification
 - Message retry behavior testing
@@ -1049,6 +1167,7 @@ Implemented comprehensive integration tests for network error recovery mechanism
 - Comprehensive error scenario coverage
 
 **Integration Points:**
+
 - NetworkErrorRecovery class
 - NetworkTransport interface
 - Event system for network events
@@ -1056,6 +1175,7 @@ Implemented comprehensive integration tests for network error recovery mechanism
 - Error recovery mechanisms
 
 **File Paths:**
+
 - /src/tests/network/NetworkErrorRecovery.test.ts
 - /src/core/network/NetworkErrorRecovery.ts (tested)
 - /src/core/network/types.ts (used)
@@ -1070,6 +1190,7 @@ Expected completion time: 2 days
 Implemented comprehensive performance benchmarks and stress tests for the network transport layer.
 
 **Core Components Implemented:**
+
 - NetworkBenchmark class for running performance tests
 - Throughput testing with configurable message rates
 - Latency testing with simulated network delays
@@ -1078,6 +1199,7 @@ Implemented comprehensive performance benchmarks and stress tests for the networ
 - Detailed performance metrics collection
 
 **Key Features:**
+
 - Configurable benchmark parameters:
   - Test duration
   - Message size
@@ -1098,12 +1220,14 @@ Implemented comprehensive performance benchmarks and stress tests for the networ
   - Stress testing
 
 **Integration Points:**
+
 - NetworkTransport for message handling
 - NetworkErrorRecovery for resilience
 - Performance monitoring system
 - Error tracking system
 
 **File Paths:**
+
 - /src/tests/benchmarks/NetworkTransport.bench.ts
 - /src/core/network/NetworkTransport.ts (tested)
 - /src/core/network/NetworkErrorRecovery.ts (tested)
@@ -1118,6 +1242,7 @@ Expected completion time: 2 days
 Implemented core frontend authentication flow using Firebase Authentication.
 
 **Core Components Implemented:**
+
 - Firebase configuration (`src/config/firebase.ts`)
 - Environment variable setup (`.env`)
 - `AuthContext` for managing auth state (`src/frontend/contexts/AuthContext.tsx`)
@@ -1128,6 +1253,7 @@ Implemented core frontend authentication flow using Firebase Authentication.
 - Installed `firebase`, `@mui/material`, `@emotion/react`, `@emotion/styled`, `@mui/icons-material` dependencies
 
 **Key Features:**
+
 - User registration via email/password
 - User login via email/password
 - User login via Google Sign-In
@@ -1137,11 +1263,13 @@ Implemented core frontend authentication flow using Firebase Authentication.
 - Modern UI using Material-UI
 
 **Integration Points:**
+
 - Firebase Authentication (Email/Password, Google)
 - React Router for navigation
 - Material-UI for components
 
 **File Paths:**
+
 - `/src/config/firebase.ts`
 - `/src/frontend/contexts/AuthContext.tsx`
 - `/src/frontend/components/Auth/Login.tsx`
@@ -1161,22 +1289,26 @@ Expected completion time: 5 days
 Implemented the basic UI structure for the main application dashboard using Material-UI components.
 
 **Core Components Implemented:**
+
 - `AppBar` with `Toolbar` for top navigation and user info/logout.
 - Main content `Box` using `flex` display.
 - `Container` for centering main content.
 - `CssBaseline` for consistent styling.
 
 **Key Features:**
+
 - Basic dashboard layout structure.
 - Top navigation bar displaying user email and sign-out button.
 - Designated main content area.
 
 **Integration Points:**
+
 - Material-UI components (`AppBar`, `Toolbar`, `Box`, `Container`, `CssBaseline`, `Button`, `Typography`)
 - `AuthContext` (for user email and sign out action)
 - React Router (`useNavigate` for sign out redirect)
 
 **File Paths:**
+
 - `DojoPool/src/frontend/components/Dashboard/Dashboard.tsx` (modified)
 
 **Next Priority Task:**
@@ -1189,17 +1321,21 @@ Expected completion time: 3 days
 Created a basic placeholder component (`CreateGameForm.tsx`) for initiating new games and integrated it into the main dashboard UI.
 
 **Core Components Implemented:**
+
 - `CreateGameForm.tsx`: New component with basic MUI form elements (Select for game type, TextField for opponent).
 
 **Key Features:**
+
 - Placeholder form structure for creating a new game.
 - Form is now visible within the main dashboard content area.
 
 **Integration Points:**
+
 - Imported `CreateGameForm` into `Dashboard.tsx`.
 - Placeholder state and button click handler in `CreateGameForm` (no backend connection yet).
 
 **File Paths:**
+
 - `DojoPool/src/frontend/components/Dashboard/CreateGameForm.tsx` (created)
 - `DojoPool/src/frontend/components/Dashboard/Dashboard.tsx` (modified)
 
@@ -1214,36 +1350,39 @@ Expected completion time: 1 day
 Performed a detailed analysis of the existing DojoPool codebase (`src/frontend/`, `src/dojopool/`). Mapped components, services, models, and APIs to the features outlined in the "Dojo Pool Game Flow Instructions" document. Created a Feature Box Mapping document (v1) summarizing findings and updated `ROADMAP.md` checklists and added an Audit Summary section.
 
 **Core Components Implemented/Reviewed:**
-*   Authentication & Profile (Frontend Contexts, Backend API/Models)
-*   Dashboard Hub (Basic Frontend)
-*   Game Management (Frontend Forms/Lists, Backend API/Models)
-*   Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
-*   Map & Dojo Discovery (Backend API/Models)
-*   Venue Interaction (Backend Services/Models, Frontend Check-in UI)
-*   Tournament System (Backend API/Models)
-*   AI Services (Backend Services/Models)
-*   Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
-*   Wallet System (Multiple Backend implementations found)
-*   Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
-*   Notifications (Backend Service/Models)
-*   Social Features (Backend API/Service/Models)
-*   Marketplace (Backend API/Models)
-*   Infrastructure/Testing/Monitoring components
+
+- Authentication & Profile (Frontend Contexts, Backend API/Models)
+- Dashboard Hub (Basic Frontend)
+- Game Management (Frontend Forms/Lists, Backend API/Models)
+- Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
+- Map & Dojo Discovery (Backend API/Models)
+- Venue Interaction (Backend Services/Models, Frontend Check-in UI)
+- Tournament System (Backend API/Models)
+- AI Services (Backend Services/Models)
+- Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
+- Wallet System (Multiple Backend implementations found)
+- Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
+- Notifications (Backend Service/Models)
+- Social Features (Backend API/Service/Models)
+- Marketplace (Backend API/Models)
+- Infrastructure/Testing/Monitoring components
 
 **Key Findings & Gaps:**
-*   Generally strong backend foundation with many services and models.
-*   Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
-*   **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
-*   Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
-*   NFT implementation details are unclear.
-*   Blockchain integration is marked as TODO.
-*   Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
+
+- Generally strong backend foundation with many services and models.
+- Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
+- **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
+- Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
+- NFT implementation details are unclear.
+- Blockchain integration is marked as TODO.
+- Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
 
 **File Paths:**
-*   `DojoPool/src/frontend/`
-*   `DojoPool/src/dojopool/`
-*   `DojoPool/ROADMAP.md`
-*   `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
+
+- `DojoPool/src/frontend/`
+- `DojoPool/src/dojopool/`
+- `DojoPool/ROADMAP.md`
+- `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
 
 **Next Priority Task:**
 Investigate and resolve the inconsistencies in the Wallet system implementation across different models (SQLAlchemy vs. potential MongoDB usage) and associated API endpoints (`/api/marketplace/wallet`). Determine the intended architecture and consolidate or refactor as needed.
@@ -1256,46 +1395,46 @@ Performed a high-level audit mapping existing codebase components to the core ga
 
 **Findings Summary:**
 
-*   **Physical-Digital Integration:** Basic camera setup (`physical_camera`) and table setup (`game_setup`) exist. Cue ball detection needs integration. Ball tracking (`ball_tracking`) is present but requires refinement. Shot detection (`shot_detection`) needs significant work.
-*   **Digital Platform:**
-    *   Game State (`game_state`): Partially implemented, rules need review.
-    *   Tournament System (`tournament_manager`, `src/components/TournamentDisplay.tsx`): Basic backend exists, frontend UI mostly done but needs linking and refinement. Prize distribution requires Wallet integration.
-    *   Social Features (`user_profile`, `friend_system`, `chat_service`, `achievement_system`): Basic backend structures exist for profiles, friends, chat. Frontend integration needed. Achievements backend is more advanced, frontend mostly done. Alliances/Rivalry missing.
-    *   Currency/Wallet (`wallet_models_sql`, `wallet_models_mongo`, `currency_service`): **CRITICAL ISSUE** - Conflicting data models (SQLAlchemy & MongoDB) and service logic found. Needs immediate investigation and reconciliation. Frontend UI missing. Smart contracts missing.
-*   **Analytics & AI:**
-    *   Shot Analysis (`shot_analyzer`): Partially implemented.
-    *   Performance Monitoring (`performance_tracker`): Advanced backend, frontend mostly done.
-*   **Technical Infrastructure:** Solid foundation (FastAPI, React, Docker). CI/CD needs setup. Logging/Monitoring needs implementation. Database schemas need reconciliation (see Currency/Wallet).
-*   **Venue Integration:** Basic backend models (`venue_manager`, `analytics_dashboard_backend`), but frontend UI and core revenue models are missing.
+- **Physical-Digital Integration:** Basic camera setup (`physical_camera`) and table setup (`game_setup`) exist. Cue ball detection needs integration. Ball tracking (`ball_tracking`) is present but requires refinement. Shot detection (`shot_detection`) needs significant work.
+- **Digital Platform:**
+  - Game State (`game_state`): Partially implemented, rules need review.
+  - Tournament System (`tournament_manager`, `src/components/TournamentDisplay.tsx`): Basic backend exists, frontend UI mostly done but needs linking and refinement. Prize distribution requires Wallet integration.
+  - Social Features (`user_profile`, `friend_system`, `chat_service`, `achievement_system`): Basic backend structures exist for profiles, friends, chat. Frontend integration needed. Achievements backend is more advanced, frontend mostly done. Alliances/Rivalry missing.
+  - Currency/Wallet (`wallet_models_sql`, `wallet_models_mongo`, `currency_service`): **CRITICAL ISSUE** - Conflicting data models (SQLAlchemy & MongoDB) and service logic found. Needs immediate investigation and reconciliation. Frontend UI missing. Smart contracts missing.
+- **Analytics & AI:**
+  - Shot Analysis (`shot_analyzer`): Partially implemented.
+  - Performance Monitoring (`performance_tracker`): Advanced backend, frontend mostly done.
+- **Technical Infrastructure:** Solid foundation (FastAPI, React, Docker). CI/CD needs setup. Logging/Monitoring needs implementation. Database schemas need reconciliation (see Currency/Wallet).
+- **Venue Integration:** Basic backend models (`venue_manager`, `analytics_dashboard_backend`), but frontend UI and core revenue models are missing.
 
 **Core Components Audited:**
 
-*   `physical_camera`, `game_setup`, `ball_tracking`, `shot_detection`
-*   `game_state`, `tournament_manager`, `src/components/TournamentDisplay.tsx`, `user_profile`, `friend_system`, `chat_service`, `achievement_system`
-*   `wallet_models_sql`, `wallet_models_mongo`, `currency_service`
-*   `shot_analyzer`, `performance_tracker`
-*   `venue_manager`, `analytics_dashboard_backend`
+- `physical_camera`, `game_setup`, `ball_tracking`, `shot_detection`
+- `game_state`, `tournament_manager`, `src/components/TournamentDisplay.tsx`, `user_profile`, `friend_system`, `chat_service`, `achievement_system`
+- `wallet_models_sql`, `wallet_models_mongo`, `currency_service`
+- `shot_analyzer`, `performance_tracker`
+- `venue_manager`, `analytics_dashboard_backend`
 
 **File Paths:**
 
-*   `DojoPool/services/physical_camera.py`
-*   `DojoPool/services/game_setup.py`
-*   `DojoPool/services/ball_tracking.py`
-*   `DojoPool/services/shot_detection.py`
-*   `DojoPool/services/game_state.py`
-*   `DojoPool/services/tournament_manager.py`
-*   `DojoPool/frontend/src/components/TournamentDisplay.tsx`
-*   `DojoPool/models/user_profile.py`
-*   `DojoPool/services/friend_system.py`
-*   `DojoPool/services/chat_service.py`
-*   `DojoPool/services/achievement_system.py`
-*   `DojoPool/models/wallet_models_sql.py`
-*   `DojoPool/models/wallet_models_mongo.py`
-*   `DojoPool/services/currency_service.py`
-*   `DojoPool/services/shot_analyzer.py`
-*   `DojoPool/services/performance_tracker.py`
-*   `DojoPool/services/venue_manager.py`
-*   `DojoPool/services/analytics_dashboard_backend.py`
+- `DojoPool/services/physical_camera.py`
+- `DojoPool/services/game_setup.py`
+- `DojoPool/services/ball_tracking.py`
+- `DojoPool/services/shot_detection.py`
+- `DojoPool/services/game_state.py`
+- `DojoPool/services/tournament_manager.py`
+- `DojoPool/frontend/src/components/TournamentDisplay.tsx`
+- `DojoPool/models/user_profile.py`
+- `DojoPool/services/friend_system.py`
+- `DojoPool/services/chat_service.py`
+- `DojoPool/services/achievement_system.py`
+- `DojoPool/models/wallet_models_sql.py`
+- `DojoPool/models/wallet_models_mongo.py`
+- `DojoPool/services/currency_service.py`
+- `DojoPool/services/shot_analyzer.py`
+- `DojoPool/services/performance_tracker.py`
+- `DojoPool/services/venue_manager.py`
+- `DojoPool/services/analytics_dashboard_backend.py`
 
 **Next Priority Task:**
 Investigate and reconcile conflicting Currency/Wallet implementations (SQLAlchemy vs. MongoDB models and related services).
@@ -1312,28 +1451,28 @@ Updated `cached_queries.py` to use only valid imports and undecorated functions,
 
 **Core Components Implemented:**
 
-*   Removed Django model code from `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py`.
-*   Removed non-existent cache decorators from `cached_queries.py`.
-*   Updated `cached_queries.py` to use only valid imports and undecorated functions.
+- Removed Django model code from `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py`.
+- Removed non-existent cache decorators from `cached_queries.py`.
+- Updated `cached_queries.py` to use only valid imports and undecorated functions.
 
 **Key Features:**
 
-*   Resolved `ModuleNotFoundError` for Django models.
-*   Removed non-existent cache decorators.
-*   Unblocked test runs.
+- Resolved `ModuleNotFoundError` for Django models.
+- Removed non-existent cache decorators.
+- Unblocked test runs.
 
 **Integration Points:**
 
-*   `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py` (Django model removal)
-*   `cached_queries.py` (cache decorator removal and update)
+- `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py` (Django model removal)
+- `cached_queries.py` (cache decorator removal and update)
 
 **File Paths:**
 
-*   `/src/dojopool/social_groups.py`
-*   `/src/dojopool/rankings.py`
-*   `/src/dojopool/tournaments.py`
-*   `/src/dojopool/game_analysis.py`
-*   `/src/dojopool/cached_queries.py`
+- `/src/dojopool/social_groups.py`
+- `/src/dojopool/rankings.py`
+- `/src/dojopool/tournaments.py`
+- `/src/dojopool/game_analysis.py`
+- `/src/dojopool/cached_queries.py`
 
 **Next Priority Task:**
 
@@ -1348,38 +1487,38 @@ Performed a detailed analysis of the existing DojoPool codebase (`src/frontend/`
 
 **Core Components Implemented/Reviewed:**
 
-*   Authentication & Profile (Frontend Contexts, Backend API/Models)
-*   Dashboard Hub (Basic Frontend)
-*   Game Management (Frontend Forms/Lists, Backend API/Models)
-*   Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
-*   Map & Dojo Discovery (Backend API/Models)
-*   Venue Interaction (Backend Services/Models, Frontend Check-in UI)
-*   Tournament System (Backend API/Models)
-*   AI Services (Backend Services/Models)
-*   Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
-*   Wallet System (Multiple Backend implementations found)
-*   Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
-*   Notifications (Backend Service/Models)
-*   Social Features (Backend API/Service/Models)
-*   Marketplace (Backend API/Models)
-*   Infrastructure/Testing/Monitoring components
+- Authentication & Profile (Frontend Contexts, Backend API/Models)
+- Dashboard Hub (Basic Frontend)
+- Game Management (Frontend Forms/Lists, Backend API/Models)
+- Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
+- Map & Dojo Discovery (Backend API/Models)
+- Venue Interaction (Backend Services/Models, Frontend Check-in UI)
+- Tournament System (Backend API/Models)
+- AI Services (Backend Services/Models)
+- Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
+- Wallet System (Multiple Backend implementations found)
+- Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
+- Notifications (Backend Service/Models)
+- Social Features (Backend API/Service/Models)
+- Marketplace (Backend API/Models)
+- Infrastructure/Testing/Monitoring components
 
 **Key Findings & Gaps:**
 
-*   Generally strong backend foundation with many services and models.
-*   Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
-*   **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
-*   Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
-*   NFT implementation details are unclear.
-*   Blockchain integration is marked as TODO.
-*   Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
+- Generally strong backend foundation with many services and models.
+- Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
+- **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
+- Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
+- NFT implementation details are unclear.
+- Blockchain integration is marked as TODO.
+- Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
 
 **File Paths:**
 
-*   `DojoPool/src/frontend/`
-*   `DojoPool/src/dojopool/`
-*   `DojoPool/ROADMAP.md`
-*   `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
+- `DojoPool/src/frontend/`
+- `DojoPool/src/dojopool/`
+- `DojoPool/ROADMAP.md`
+- `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
 
 **Next Priority Task:**
 
@@ -1392,11 +1531,13 @@ Investigate and resolve the inconsistencies in the Wallet system implementation 
 Applied fixes based on web compatibility, performance, and security audit recommendations.
 
 **Core Components Implemented:**
+
 - Updated CSS for `text-size-adjust` compatibility.
 - Modified backend header middleware (`__init__.py`, `core/middleware/security.py`) to remove deprecated headers (`X-XSS-Protection`, `Pragma`) and update clickjacking protection (`X-Frame-Options` -> CSP `frame-ancestors`).
 - Adjusted `Cache-Control` for API routes to remove `no-store`.
 
 **File Paths:**
+
 - `DojoPool/src/dojopool/static/css/mobile.css`
 - `DojoPool/src/dojopool/static/css/styles.css`
 - `DojoPool/DojoPool/src/dojopool/static/css/mobile.css`
@@ -1406,6 +1547,7 @@ Applied fixes based on web compatibility, performance, and security audit recomm
 - `DojoPool/DojoPool/src/dojopool/core/middleware/security.py`
 
 **Next Priority Task:**
+
 - Further investigation into centralizing HTTP header management to resolve potential conflicts from multiple setting locations.
 
 Expected completion time: Ongoing as part of general refactoring/cleanup.
@@ -1420,28 +1562,28 @@ Updated `cached_queries.py` to use only valid imports and undecorated functions,
 
 **Core Components Implemented:**
 
-*   Removed Django model code from `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py`.
-*   Removed non-existent cache decorators from `cached_queries.py`.
-*   Updated `cached_queries.py` to use only valid imports and undecorated functions.
+- Removed Django model code from `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py`.
+- Removed non-existent cache decorators from `cached_queries.py`.
+- Updated `cached_queries.py` to use only valid imports and undecorated functions.
 
 **Key Features:**
 
-*   Resolved `ModuleNotFoundError` for Django models.
-*   Removed non-existent cache decorators.
-*   Unblocked test runs.
+- Resolved `ModuleNotFoundError` for Django models.
+- Removed non-existent cache decorators.
+- Unblocked test runs.
 
 **Integration Points:**
 
-*   `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py` (Django model removal)
-*   `cached_queries.py` (cache decorator removal and update)
+- `social_groups.py`, `rankings.py`, `tournaments.py`, and `game_analysis.py` (Django model removal)
+- `cached_queries.py` (cache decorator removal and update)
 
 **File Paths:**
 
-*   `/src/dojopool/social_groups.py`
-*   `/src/dojopool/rankings.py`
-*   `/src/dojopool/tournaments.py`
-*   `/src/dojopool/game_analysis.py`
-*   `/src/dojopool/cached_queries.py`
+- `/src/dojopool/social_groups.py`
+- `/src/dojopool/rankings.py`
+- `/src/dojopool/tournaments.py`
+- `/src/dojopool/game_analysis.py`
+- `/src/dojopool/cached_queries.py`
 
 **Next Priority Task:**
 
@@ -1456,38 +1598,38 @@ Performed a detailed analysis of the existing DojoPool codebase (`src/frontend/`
 
 **Core Components Implemented/Reviewed:**
 
-*   Authentication & Profile (Frontend Contexts, Backend API/Models)
-*   Dashboard Hub (Basic Frontend)
-*   Game Management (Frontend Forms/Lists, Backend API/Models)
-*   Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
-*   Map & Dojo Discovery (Backend API/Models)
-*   Venue Interaction (Backend Services/Models, Frontend Check-in UI)
-*   Tournament System (Backend API/Models)
-*   AI Services (Backend Services/Models)
-*   Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
-*   Wallet System (Multiple Backend implementations found)
-*   Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
-*   Notifications (Backend Service/Models)
-*   Social Features (Backend API/Service/Models)
-*   Marketplace (Backend API/Models)
-*   Infrastructure/Testing/Monitoring components
+- Authentication & Profile (Frontend Contexts, Backend API/Models)
+- Dashboard Hub (Basic Frontend)
+- Game Management (Frontend Forms/Lists, Backend API/Models)
+- Core Gameplay (Frontend View Stub, Backend API/Models, Websockets)
+- Map & Dojo Discovery (Backend API/Models)
+- Venue Interaction (Backend Services/Models, Frontend Check-in UI)
+- Tournament System (Backend API/Models)
+- AI Services (Backend Services/Models)
+- Post-Game & Rewards (Backend Services/Models - Achievements/Prizes)
+- Wallet System (Multiple Backend implementations found)
+- Analytics & Stats (Extensive Backend Services/Models, Basic Frontend displays)
+- Notifications (Backend Service/Models)
+- Social Features (Backend API/Service/Models)
+- Marketplace (Backend API/Models)
+- Infrastructure/Testing/Monitoring components
 
 **Key Findings & Gaps:**
 
-*   Generally strong backend foundation with many services and models.
-*   Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
-*   **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
-*   Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
-*   NFT implementation details are unclear.
-*   Blockchain integration is marked as TODO.
-*   Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
+- Generally strong backend foundation with many services and models.
+- Significant number of Frontend UIs are missing or need creation/integration (Map, Avatar Editor, Virtual Dojo, Tournaments, Trophies, Wallet, Full Analytics, Notifications, Social, Marketplace).
+- **Critical:** Wallet system implementation shows inconsistencies (SQLAlchemy models in `models/marketplace.py` and `core/models/payment.py` vs. MongoDB usage suggested in `routes/api/marketplace.py`). Needs immediate investigation.
+- Potential duplication/overlap in Venue Check-in logic/models (`services/checkin_service.py`, `models/venue_checkin.py`, `core/models/venue.py`).
+- NFT implementation details are unclear.
+- Blockchain integration is marked as TODO.
+- Some API endpoints need clarification or completion (e.g., `/avatar`, venue map APIs).
 
 **File Paths:**
 
-*   `DojoPool/src/frontend/`
-*   `DojoPool/src/dojopool/`
-*   `DojoPool/ROADMAP.md`
-*   `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
+- `DojoPool/src/frontend/`
+- `DojoPool/src/dojopool/`
+- `DojoPool/ROADMAP.md`
+- `DojoPool/DEVELOPMENT_TRACKING_CONSOLIDATED.md`
 
 **Next Priority Task:**
 

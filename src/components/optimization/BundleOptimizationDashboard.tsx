@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Box,
   Container,
@@ -21,9 +21,9 @@ import {
   IconButton,
   Snackbar,
   AlertTitle,
-  Tooltip
-} from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
+  Tooltip,
+} from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   BarChart,
   Bar,
@@ -32,8 +32,8 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   Legend,
-  ResponsiveContainer
-} from 'recharts';
+  ResponsiveContainer,
+} from "recharts";
 
 // Types
 interface BundleAnalysis {
@@ -73,7 +73,7 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   render() {
@@ -81,7 +81,7 @@ class ErrorBoundary extends React.Component<
       return (
         <Alert severity="error" sx={{ m: 2 }}>
           <AlertTitle>Error</AlertTitle>
-          {this.state.error?.message || 'Something went wrong'}
+          {this.state.error?.message || "Something went wrong"}
         </Alert>
       );
     }
@@ -91,41 +91,43 @@ class ErrorBoundary extends React.Component<
 }
 
 // Optimized TabPanel Component
-const TabPanel = React.memo(({ children, value, index, ...other }: TabPanelProps) => {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`bundle-optimization-tabpanel-${index}`}
-      aria-labelledby={`bundle-optimization-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-});
+const TabPanel = React.memo(
+  ({ children, value, index, ...other }: TabPanelProps) => {
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`bundle-optimization-tabpanel-${index}`}
+        aria-labelledby={`bundle-optimization-tab-${index}`}
+        {...other}
+      >
+        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      </div>
+    );
+  },
+);
 
 // Optimized Loading Components
 const ChartLoadingSkeleton = React.memo(() => (
-  <Box 
-    sx={{ width: '100%', height: 300 }}
+  <Box
+    sx={{ width: "100%", height: 300 }}
     role="status"
     aria-label="Loading chart"
   >
-    <Skeleton 
-      variant="rectangular" 
-      height="100%" 
+    <Skeleton
+      variant="rectangular"
+      height="100%"
       animation="wave"
       sx={{
         borderRadius: 1,
-        backgroundColor: (theme) => theme.palette.action.hover
+        backgroundColor: (theme) => theme.palette.action.hover,
       }}
     />
   </Box>
 ));
 
 const StatLoadingSkeleton = React.memo(() => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, my: 1 }}>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1, my: 1 }}>
     <Skeleton variant="circular" width={24} height={24} animation="wave" />
     <Skeleton variant="text" width="60%" height={24} animation="wave" />
   </Box>
@@ -138,26 +140,34 @@ const BundleOptimizationDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
   const [threshold, setThreshold] = useState(100);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({
+    open: false,
+    message: "",
+  });
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Memoized fetch function with retry logic
   const fetchAnalysis = useCallback(async (retryCount = 0) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/optimization/bundle');
+      const response = await fetch("/api/optimization/bundle");
       if (!response.ok) {
-        throw new Error('Failed to fetch bundle analysis');
+        throw new Error("Failed to fetch bundle analysis");
       }
       const data = await response.json();
       setAnalysis(data);
       setError(null);
     } catch (err) {
       if (retryCount < 3) {
-        setTimeout(() => fetchAnalysis(retryCount + 1), 1000 * Math.pow(2, retryCount));
+        setTimeout(
+          () => fetchAnalysis(retryCount + 1),
+          1000 * Math.pow(2, retryCount),
+        );
       } else {
-        setError(err instanceof Error ? err.message : 'Failed to fetch analysis');
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch analysis",
+        );
       }
     } finally {
       setLoading(false);
@@ -169,17 +179,23 @@ const BundleOptimizationDashboard: React.FC = () => {
   }, [fetchAnalysis]);
 
   // Memoized handlers
-  const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  }, []);
+  const handleTabChange = useCallback(
+    (event: React.SyntheticEvent, newValue: number) => {
+      setTabValue(newValue);
+    },
+    [],
+  );
 
-  const handleThresholdChange = useCallback((event: Event, newValue: number | number[]) => {
-    setThreshold(typeof newValue === 'number' ? newValue : newValue[0]);
-  }, []);
+  const handleThresholdChange = useCallback(
+    (event: Event, newValue: number | number[]) => {
+      setThreshold(typeof newValue === "number" ? newValue : newValue[0]);
+    },
+    [],
+  );
 
   const handleRefresh = useCallback(() => {
     fetchAnalysis();
-    setSnackbar({ open: true, message: 'Refreshing bundle analysis...' });
+    setSnackbar({ open: true, message: "Refreshing bundle analysis..." });
   }, [fetchAnalysis]);
 
   // Memoized data transformations
@@ -187,20 +203,25 @@ const BundleOptimizationDashboard: React.FC = () => {
     if (!analysis) return [];
     return Object.entries(analysis.dependencies).map(([name, size]) => ({
       name,
-      size: size / 1024 // Convert to KB
+      size: size / 1024, // Convert to KB
     }));
   }, [analysis]);
 
   const largeChunks = useMemo(() => {
     if (!analysis) return [];
     return analysis.chunks
-      .filter(chunk => chunk.size > threshold * 1024)
+      .filter((chunk) => chunk.size > threshold * 1024)
       .sort((a, b) => b.size - a.size);
   }, [analysis, threshold]);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress aria-label="Loading bundle analysis" />
       </Box>
     );
@@ -209,8 +230,8 @@ const BundleOptimizationDashboard: React.FC = () => {
   if (error) {
     return (
       <Box p={3}>
-        <Alert 
-          severity="error" 
+        <Alert
+          severity="error"
           action={
             <Button color="inherit" size="small" onClick={handleRefresh}>
               Retry
@@ -226,8 +247,15 @@ const BundleOptimizationDashboard: React.FC = () => {
   return (
     <ErrorBoundary>
       <Container maxWidth="lg">
-        <Box sx={{ width: '100%', mt: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ width: "100%", mt: 4 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
             <Typography variant="h4" component="h1">
               Bundle Optimization Dashboard
             </Typography>
@@ -238,7 +266,7 @@ const BundleOptimizationDashboard: React.FC = () => {
             </Tooltip>
           </Box>
 
-          <Paper sx={{ width: '100%', mb: 2 }}>
+          <Paper sx={{ width: "100%", mb: 2 }}>
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
@@ -260,13 +288,15 @@ const BundleOptimizationDashboard: React.FC = () => {
                       Bundle Overview
                     </Typography>
                     <Typography>
-                      Total Size: {(analysis?.total_size / (1024 * 1024)).toFixed(2)} MB
+                      Total Size:{" "}
+                      {(analysis?.total_size / (1024 * 1024)).toFixed(2)} MB
                     </Typography>
                     <Typography>
                       Number of Chunks: {analysis?.chunks.length}
                     </Typography>
                     <Typography>
-                      Number of Dependencies: {Object.keys(analysis?.dependencies || {}).length}
+                      Number of Dependencies:{" "}
+                      {Object.keys(analysis?.dependencies || {}).length}
                     </Typography>
                   </Paper>
                 </Grid>
@@ -280,7 +310,13 @@ const BundleOptimizationDashboard: React.FC = () => {
                         <BarChart data={chartData}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="name" />
-                          <YAxis label={{ value: 'Size (KB)', angle: -90, position: 'insideLeft' }} />
+                          <YAxis
+                            label={{
+                              value: "Size (KB)",
+                              angle: -90,
+                              position: "insideLeft",
+                            }}
+                          />
                           <RechartsTooltip />
                           <Legend />
                           <Bar dataKey="size" fill="#8884d8" />
@@ -311,7 +347,7 @@ const BundleOptimizationDashboard: React.FC = () => {
                       valueLabelDisplay="auto"
                       aria-label="Size threshold slider"
                     />
-                    <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+                    <Box sx={{ maxHeight: 400, overflow: "auto" }}>
                       <List>
                         {largeChunks.map((chunk, index) => (
                           <ListItem key={index}>
@@ -321,7 +357,11 @@ const BundleOptimizationDashboard: React.FC = () => {
                             />
                             <Chip
                               label={`${(chunk.size / 1024).toFixed(0)} KB`}
-                              color={chunk.size > threshold * 1024 ? 'error' : 'warning'}
+                              color={
+                                chunk.size > threshold * 1024
+                                  ? "error"
+                                  : "warning"
+                              }
                             />
                           </ListItem>
                         ))}
@@ -340,11 +380,13 @@ const BundleOptimizationDashboard: React.FC = () => {
                       Optimization Suggestions
                     </Typography>
                     <List>
-                      {analysis?.optimization_suggestions.map((suggestion, index) => (
-                        <ListItem key={index}>
-                          <ListItemText primary={suggestion} />
-                        </ListItem>
-                      ))}
+                      {analysis?.optimization_suggestions.map(
+                        (suggestion, index) => (
+                          <ListItem key={index}>
+                            <ListItemText primary={suggestion} />
+                          </ListItem>
+                        ),
+                      )}
                     </List>
                   </Paper>
                 </Grid>

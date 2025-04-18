@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -6,7 +6,7 @@ import {
   CardContent,
   Grid,
   LinearProgress,
-} from '@mui/material';
+} from "@mui/material";
 
 interface Pattern {
   name: string;
@@ -47,7 +47,7 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
                 <Typography variant="body2" color="text.secondary" paragraph>
                   {pattern.description}
                 </Typography>
-                
+
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">
                     Frequency: {pattern.frequency}%
@@ -77,4 +77,4 @@ export const GamePatterns: React.FC<GamePatternsProps> = ({ patterns }) => {
       </Grid>
     </Box>
   );
-}; 
+};

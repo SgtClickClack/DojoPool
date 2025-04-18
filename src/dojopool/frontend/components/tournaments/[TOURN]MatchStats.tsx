@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Table, Statistic, Row, Col, Timeline, Tag } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Card, Table, Statistic, Row, Col, Timeline, Tag } from "antd";
 import {
   TrophyOutlined,
   FireOutlined,
   FieldTimeOutlined,
   SafetyOutlined,
   WarningOutlined,
-} from '@ant-design/icons';
-import moment from 'moment';
+} from "@ant-design/icons";
+import moment from "moment";
 
-import { TournamentMatch, TournamentParticipant } from '../../types/tournament';
-import { getMatchHistory, getParticipantStats } from '../../api/tournaments';
+import { TournamentMatch, TournamentParticipant } from "../../types/tournament";
+import { getMatchHistory, getParticipantStats } from "../../api/tournaments";
 
 interface Props {
   participantId: number;
@@ -46,7 +46,7 @@ const MatchStats: React.FC<Props> = ({ participantId }) => {
       setMatches(matchesData);
       setStats(statsData);
     } catch (error) {
-      console.error('Error fetching match data:', error);
+      console.error("Error fetching match data:", error);
     } finally {
       setLoading(false);
     }
@@ -54,41 +54,50 @@ const MatchStats: React.FC<Props> = ({ participantId }) => {
 
   const matchColumns = [
     {
-      title: 'Date',
-      dataIndex: 'end_time',
-      key: 'date',
-      render: (date: string) => moment(date).format('MMM D, YYYY'),
+      title: "Date",
+      dataIndex: "end_time",
+      key: "date",
+      render: (date: string) => moment(date).format("MMM D, YYYY"),
     },
     {
-      title: 'Tournament',
-      dataIndex: 'tournament',
-      key: 'tournament',
+      title: "Tournament",
+      dataIndex: "tournament",
+      key: "tournament",
       render: (tournament: any) => tournament.name,
     },
     {
-      title: 'Opponent',
-      key: 'opponent',
+      title: "Opponent",
+      key: "opponent",
       render: (_, record: TournamentMatch) => {
-        const opponent = record.player1_id === participantId ? record.player2 : record.player1;
-        return opponent ? opponent.username : 'TBD';
+        const opponent =
+          record.player1_id === participantId ? record.player2 : record.player1;
+        return opponent ? opponent.username : "TBD";
       },
     },
     {
-      title: 'Score',
-      dataIndex: 'score',
-      key: 'score',
-      render: (score: any) => score?.final_score || '-',
+      title: "Score",
+      dataIndex: "score",
+      key: "score",
+      render: (score: any) => score?.final_score || "-",
     },
     {
-      title: 'Result',
-      key: 'result',
+      title: "Result",
+      key: "result",
       render: (_, record: TournamentMatch) => (
         <Tag
           color={
-            record.winner_id === participantId ? 'success' : record.winner_id ? 'error' : 'default'
+            record.winner_id === participantId
+              ? "success"
+              : record.winner_id
+                ? "error"
+                : "default"
           }
         >
-          {record.winner_id === participantId ? 'Won' : record.winner_id ? 'Lost' : 'Pending'}
+          {record.winner_id === participantId
+            ? "Won"
+            : record.winner_id
+              ? "Lost"
+              : "Pending"}
         </Tag>
       ),
     },
@@ -114,7 +123,11 @@ const MatchStats: React.FC<Props> = ({ participantId }) => {
           <Card>
             <Statistic
               title="Win Rate"
-              value={stats.matches_played ? (stats.matches_won / stats.matches_played) * 100 : 0}
+              value={
+                stats.matches_played
+                  ? (stats.matches_won / stats.matches_played) * 100
+                  : 0
+              }
               precision={1}
               suffix="%"
               prefix={<FireOutlined />}
@@ -142,7 +155,11 @@ const MatchStats: React.FC<Props> = ({ participantId }) => {
         </Col>
       </Row>
 
-      <Card title="Match History" className="match-history" style={{ marginTop: 16 }}>
+      <Card
+        title="Match History"
+        className="match-history"
+        style={{ marginTop: 16 }}
+      >
         <Table
           columns={matchColumns}
           dataSource={matches}
@@ -163,13 +180,19 @@ const MatchStats: React.FC<Props> = ({ participantId }) => {
             </Timeline.Item>
           )}
           {stats.matches_won > 0 && (
-            <Timeline.Item color="blue">Won {stats.matches_won} matches</Timeline.Item>
+            <Timeline.Item color="blue">
+              Won {stats.matches_won} matches
+            </Timeline.Item>
           )}
           {stats.frames_won > 0 && (
-            <Timeline.Item color="blue">Won {stats.frames_won} frames</Timeline.Item>
+            <Timeline.Item color="blue">
+              Won {stats.frames_won} frames
+            </Timeline.Item>
           )}
           {stats.total_breaks > 0 && (
-            <Timeline.Item color="green">Made {stats.total_breaks} breaks</Timeline.Item>
+            <Timeline.Item color="green">
+              Made {stats.total_breaks} breaks
+            </Timeline.Item>
           )}
         </Timeline>
       </Card>

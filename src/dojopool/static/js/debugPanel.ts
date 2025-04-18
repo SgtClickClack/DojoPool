@@ -1,39 +1,38 @@
 // Generated type definitions
 
 class DebugPanel {
-    // Properties and methods
+  // Properties and methods
 }
 
 interface instance {
-    // Properties
+  // Properties
 }
 
 interface debugPanel {
-    // Properties
+  // Properties
 }
 
 // Type imports
 
-
 class DebugPanel {
-    constructor() {
-        this.panel = this.createPanel();
-        this.metrics = {
-            networkQuality: 'unknown',
-            bandwidthUsage: 0,
-            loadedImages: 0,
-            totalBandwidth: 0,
-            averageLoadTime: 0,
-            webpSupport: false,
-            failedLoads: 0
-        };
-        this.initializePanel();
-    }
+  constructor() {
+    this.panel = this.createPanel();
+    this.metrics = {
+      networkQuality: "unknown",
+      bandwidthUsage: 0,
+      loadedImages: 0,
+      totalBandwidth: 0,
+      averageLoadTime: 0,
+      webpSupport: false,
+      failedLoads: 0,
+    };
+    this.initializePanel();
+  }
 
-    createPanel() {
-        const panel: any = document.createElement('div');
-        panel.className = 'debug-panel';
-        panel.innerHTML = `
+  createPanel() {
+    const panel: any = document.createElement("div");
+    panel.className = "debug-panel";
+    panel.innerHTML = `
             <div class="debug-header">
                 <h3>Performance Monitor</h3>
                 <button class="debug-toggle">_</button>
@@ -82,109 +81,117 @@ class DebugPanel {
                 </div>
             </div>
         `;
-        document.body.appendChild(panel);
-        return panel;
+    document.body.appendChild(panel);
+    return panel;
+  }
+
+  initializePanel() {
+    // Toggle panel visibility
+    const toggle: any = this.panel.querySelector(".debug-toggle");
+    const content: any = this.panel.querySelector(".debug-content");
+    toggle.addEventListener("click", () => {
+      content.classList.toggle("collapsed");
+      toggle.textContent = content.classList.contains("collapsed") ? "+" : "_";
+    });
+
+    // Initialize event listeners
+    this.initializeEventListeners();
+
+    // Check WebP support
+    this.checkWebPSupport();
+  }
+
+  initializeEventListeners() {
+    // Listen for bandwidth optimization events
+    window.addEventListener("bandwidthOptimization", (event) => {
+      const { recommendations, stats } = event.detail;
+      this.updateMetrics({
+        bandwidthUsage: this.formatBandwidth(stats.bandwidth),
+        totalBandwidth: this.formatSize(stats.totalUsage),
+        averageLoadTime: `${Math.round(stats.averageLoadTime)}ms`,
+      });
+      this.logOptimization(recommendations);
+    });
+
+    // Listen for image load events
+    window.addEventListener("imageLoadComplete", (event) => {
+      const { success, size, loadTime } = event.detail;
+      this.metrics.loadedImages += success ? 1 : 0;
+      this.metrics.failedLoads += success ? 0 : 1;
+      this.updateMetrics(this.metrics);
+    });
+
+    // Listen for network quality changes
+    window.addEventListener("networkQualityChange", (event) => {
+      this.updateMetrics({
+        networkQuality: event.detail.quality,
+      });
+    });
+  }
+
+  async checkWebPSupport() {
+    const webpData: any =
+      "data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
+    try {
+      const blob: any = await fetch(webpData).then((r) => r.blob());
+      const supported: any = await createImageBitmap(blob).then(
+        () => true,
+        () => false,
+      );
+      this.updateMetrics({
+        webpSupport: supported ? "Supported" : "Not Supported",
+      });
+    } catch (e) {
+      this.updateMetrics({ webpSupport: "Not Supported" });
     }
+  }
 
-    initializePanel() {
-        // Toggle panel visibility
-        const toggle: any = this.panel.querySelector('.debug-toggle');
-        const content: any = this.panel.querySelector('.debug-content');
-        toggle.addEventListener('click', () => {
-            content.classList.toggle('collapsed');
-            toggle.textContent = content.classList.contains('collapsed') ? '+' : '_';
-        });
+  updateMetrics(newMetrics) {
+    Object.assign(this.metrics, newMetrics);
+    Object.entries(newMetrics).forEach(([key, value]) => {
+      const metric: any = this.panel.querySelector(
+        `[data-metric="${key}"] span`,
+      );
+      if (metric) {
+        metric.textContent = value;
+      }
+    });
+  }
 
-        // Initialize event listeners
-        this.initializeEventListeners();
-
-        // Check WebP support
-        this.checkWebPSupport();
-    }
-
-    initializeEventListeners() {
-        // Listen for bandwidth optimization events
-        window.addEventListener('bandwidthOptimization', (event) => {
-            const { recommendations, stats } = event.detail;
-            this.updateMetrics({
-                bandwidthUsage: this.formatBandwidth(stats.bandwidth),
-                totalBandwidth: this.formatSize(stats.totalUsage),
-                averageLoadTime: `${Math.round(stats.averageLoadTime)}ms`
-            });
-            this.logOptimization(recommendations);
-        });
-
-        // Listen for image load events
-        window.addEventListener('imageLoadComplete', (event) => {
-            const { success, size, loadTime } = event.detail;
-            this.metrics.loadedImages += success ? 1 : 0;
-            this.metrics.failedLoads += success ? 0 : 1;
-            this.updateMetrics(this.metrics);
-        });
-
-        // Listen for network quality changes
-        window.addEventListener('networkQualityChange', (event) => {
-            this.updateMetrics({
-                networkQuality: event.detail.quality
-            });
-        });
-    }
-
-    async checkWebPSupport() {
-        const webpData: any = 'data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=';
-        try {
-            const blob: any = await fetch(webpData).then(r => r.blob());
-            const supported: any = await createImageBitmap(blob).then(() => true, () => false);
-            this.updateMetrics({ webpSupport: supported ? 'Supported' : 'Not Supported' });
-        } catch (e) {
-            this.updateMetrics({ webpSupport: 'Not Supported' });
-        }
-    }
-
-    updateMetrics(newMetrics) {
-        Object.assign(this.metrics, newMetrics);
-        Object.entries(newMetrics).forEach(([key, value]) => {
-            const metric: any = this.panel.querySelector(`[data-metric="${key}"] span`);
-            if (metric) {
-                metric.textContent = value;
-            }
-        });
-    }
-
-    logOptimization(recommendations) {
-        const logEntries: any = this.panel.querySelector('.log-entries');
-        const entry: any = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `
+  logOptimization(recommendations) {
+    const logEntries: any = this.panel.querySelector(".log-entries");
+    const entry: any = document.createElement("div");
+    entry.className = "log-entry";
+    entry.innerHTML = `
             <span class="timestamp">${new Date().toLocaleTimeString()}</span>
             <ul>
-                ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                ${recommendations.map((rec) => `<li>${rec}</li>`).join("")}
             </ul>
         `;
-        logEntries.insertBefore(entry, logEntries.firstChild);
+    logEntries.insertBefore(entry, logEntries.firstChild);
 
-        // Keep only last 10 entries
-        while (logEntries.children.length > 10) {
-            logEntries.removeChild(logEntries.lastChild);
-        }
+    // Keep only last 10 entries
+    while (logEntries.children.length > 10) {
+      logEntries.removeChild(logEntries.lastChild);
     }
+  }
 
-    formatSize(bytes) {
-        const units: any = ['B', 'KB', 'MB', 'GB'];
-        let size = bytes;
-        let unitIndex = 0;
-        while (size >= 1024 && unitIndex < units.length - 1) {
-            size /= 1024;
-            unitIndex++;
-        }
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
+  formatSize(bytes) {
+    const units: any = ["B", "KB", "MB", "GB"];
+    let size = bytes;
+    let unitIndex = 0;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
     }
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+  }
 
-    formatBandwidth(bytesPerSecond) {
-        return `${this.formatSize(bytesPerSecond)}/s`;
-    }
+  formatBandwidth(bytesPerSecond) {
+    return `${this.formatSize(bytesPerSecond)}/s`;
+  }
 }
 
 // Initialize and export instance
 const debugPanel: any = new DebugPanel();
-export default debugPanel; 
+export default debugPanel;

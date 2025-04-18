@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 interface GameAnalytics {
   totalGames: number;
@@ -15,7 +15,7 @@ interface GameAnalytics {
     id: string;
     date: string;
     opponent: string;
-    result: 'win' | 'loss' | 'draw';
+    result: "win" | "loss" | "draw";
     score: {
       player: number;
       opponent: number;
@@ -100,9 +100,12 @@ class AnalyticsService {
     if (this.updateInterval) return;
 
     // Update analytics every 5 minutes
-    this.updateInterval = setInterval(() => {
-      this.updateAnalytics();
-    }, 5 * 60 * 1000);
+    this.updateInterval = setInterval(
+      () => {
+        this.updateAnalytics();
+      },
+      5 * 60 * 1000,
+    );
 
     // Initial update
     this.updateAnalytics();
@@ -119,7 +122,9 @@ class AnalyticsService {
     this.observers.push(callback);
     callback(this.data);
     return () => {
-      this.observers = this.observers.filter(observer => observer !== callback);
+      this.observers = this.observers.filter(
+        (observer) => observer !== callback,
+      );
     };
   }
 
@@ -128,17 +133,17 @@ class AnalyticsService {
   }
 
   public async trackGameEvent(event: {
-    type: 'shot' | 'game_end' | 'achievement';
+    type: "shot" | "game_end" | "achievement";
     data: any;
   }): Promise<void> {
     switch (event.type) {
-      case 'shot':
+      case "shot":
         await this.trackShot(event.data);
         break;
-      case 'game_end':
+      case "game_end":
         await this.trackGameEnd(event.data);
         break;
-      case 'achievement':
+      case "achievement":
         await this.trackAchievement(event.data);
         break;
     }
@@ -156,13 +161,13 @@ class AnalyticsService {
       };
       this.notifyObservers();
     } catch (error) {
-      console.error('Failed to update analytics:', error);
+      console.error("Failed to update analytics:", error);
     }
   }
 
   private async fetchAnalyticsData(): Promise<Partial<AnalyticsData>> {
     // TODO: Replace with actual API call
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
           gameAnalytics: {
@@ -185,10 +190,10 @@ class AnalyticsService {
   }): Promise<void> {
     // Update shot-related analytics
     this.data.gameAnalytics.totalShots++;
-    
+
     // Update shot distribution
     const shotTypeIndex = this.data.gameAnalytics.shotDistribution.findIndex(
-      s => s.type === data.type
+      (s) => s.type === data.type,
     );
     if (shotTypeIndex >= 0) {
       this.data.gameAnalytics.shotDistribution[shotTypeIndex].percentage =
@@ -205,13 +210,14 @@ class AnalyticsService {
 
     // Update most used shots
     const mostUsedShotIndex = this.data.gameAnalytics.mostUsedShots.findIndex(
-      s => s.type === data.type
+      (s) => s.type === data.type,
     );
     if (mostUsedShotIndex >= 0) {
       const shot = this.data.gameAnalytics.mostUsedShots[mostUsedShotIndex];
       shot.count++;
       shot.successRate =
-        (shot.successRate * (shot.count - 1) + (data.success ? 100 : 0)) / shot.count;
+        (shot.successRate * (shot.count - 1) + (data.success ? 100 : 0)) /
+        shot.count;
     } else {
       this.data.gameAnalytics.mostUsedShots.push({
         type: data.type,
@@ -225,7 +231,7 @@ class AnalyticsService {
   }
 
   private async trackGameEnd(data: {
-    result: 'win' | 'loss' | 'draw';
+    result: "win" | "loss" | "draw";
     score: { player: number; opponent: number };
     accuracy: number;
     duration: number;
@@ -241,9 +247,10 @@ class AnalyticsService {
 
     // Update win rate
     const wins = this.data.gameAnalytics.recentGames.filter(
-      g => g.result === 'win'
+      (g) => g.result === "win",
     ).length;
-    this.data.gameAnalytics.winRate = (wins / this.data.gameAnalytics.totalGames) * 100;
+    this.data.gameAnalytics.winRate =
+      (wins / this.data.gameAnalytics.totalGames) * 100;
 
     // Add to recent games
     this.data.gameAnalytics.recentGames.unshift({
@@ -271,9 +278,10 @@ class AnalyticsService {
     // Keep only last 30 days of progression
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    this.data.gameAnalytics.progression = this.data.gameAnalytics.progression.filter(
-      p => new Date(p.date) >= thirtyDaysAgo
-    );
+    this.data.gameAnalytics.progression =
+      this.data.gameAnalytics.progression.filter(
+        (p) => new Date(p.date) >= thirtyDaysAgo,
+      );
   }
 
   private async trackAchievement(data: {
@@ -282,7 +290,7 @@ class AnalyticsService {
     description: string;
   }): Promise<void> {
     // Add achievement if not already unlocked
-    if (!this.data.playerStats.achievements.some(a => a.id === data.id)) {
+    if (!this.data.playerStats.achievements.some((a) => a.id === data.id)) {
       this.data.playerStats.achievements.push({
         ...data,
         dateUnlocked: new Date().toISOString(),
@@ -291,7 +299,7 @@ class AnalyticsService {
   }
 
   private notifyObservers(): void {
-    this.observers.forEach(observer => observer(this.getAnalytics()));
+    this.observers.forEach((observer) => observer(this.getAnalytics()));
   }
 }
 
@@ -302,7 +310,7 @@ const useAnalytics = (callback?: (data: AnalyticsData) => void) => {
   useEffect(() => {
     analytics.startTracking();
 
-    const unsubscribe = analytics.subscribe(newData => {
+    const unsubscribe = analytics.subscribe((newData) => {
       setData(newData);
       callback?.(newData);
     });
@@ -314,10 +322,10 @@ const useAnalytics = (callback?: (data: AnalyticsData) => void) => {
   }, [callback]);
 
   const trackEvent = useCallback(
-    (event: { type: 'shot' | 'game_end' | 'achievement'; data: any }) => {
+    (event: { type: "shot" | "game_end" | "achievement"; data: any }) => {
       return analytics.trackGameEvent(event);
     },
-    []
+    [],
   );
 
   return {
@@ -328,4 +336,4 @@ const useAnalytics = (callback?: (data: AnalyticsData) => void) => {
 
 export type { GameAnalytics, PlayerStats, AnalyticsData };
 export { useAnalytics };
-export default AnalyticsService; 
+export default AnalyticsService;

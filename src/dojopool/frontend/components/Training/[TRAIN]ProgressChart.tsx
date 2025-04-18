@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   LineChart,
   Line,
@@ -8,8 +8,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import { Box, useTheme } from '@mui/material';
+} from "recharts";
+import { Box, useTheme } from "@mui/material";
 
 interface Progress {
   program: string;
@@ -36,7 +36,7 @@ export const ProgressChart: React.FC<Props> = ({ progress }) => {
   };
 
   return (
-    <Box sx={{ width: '100%', height: 300 }}>
+    <Box sx={{ width: "100%", height: 300 }}>
       <ResponsiveContainer>
         <LineChart
           data={prepareChartData()}
@@ -51,11 +51,11 @@ export const ProgressChart: React.FC<Props> = ({ progress }) => {
           <XAxis
             dataKey="date"
             stroke={theme.palette.text.secondary}
-            style={{ fontSize: '0.75rem' }}
+            style={{ fontSize: "0.75rem" }}
           />
           <YAxis
             stroke={theme.palette.text.secondary}
-            style={{ fontSize: '0.75rem' }}
+            style={{ fontSize: "0.75rem" }}
             domain={[0, 100]}
             unit="%"
           />

@@ -1,23 +1,22 @@
 // Generated type definitions
 
 class ThemeToggle extends HTMLElement {
-    // Properties and methods
+  // Properties and methods
 }
 
 // Type imports
-
 
 import {
   toggleTheme,
   getStoredTheme,
   THEME_LIGHT,
   THEME_DARK,
-} from '../theme.js';
+} from "../theme.js";
 
 class ThemeToggle extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
   }
 
   connectedCallback() {
@@ -61,15 +60,15 @@ class ThemeToggle extends HTMLElement {
                 }
             </style>
             
-            <button aria-label="Toggle theme" title="${isDark ? 'Switch to light theme' : 'Switch to dark theme'}">
+            <button aria-label="Toggle theme" title="${isDark ? "Switch to light theme" : "Switch to dark theme"}">
                 ${isDark ? this.moonIcon : this.sunIcon}
             </button>
         `;
   }
 
   addEventListeners() {
-    const button: any = this.shadowRoot.querySelector('button');
-    button.addEventListener('click', () => {
+    const button: any = this.shadowRoot.querySelector("button");
+    button.addEventListener("click", () => {
       toggleTheme();
       this.render();
     });
@@ -92,4 +91,4 @@ class ThemeToggle extends HTMLElement {
   }
 }
 
-customElements.define('theme-toggle', ThemeToggle);
+customElements.define("theme-toggle", ThemeToggle);

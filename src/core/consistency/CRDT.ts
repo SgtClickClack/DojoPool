@@ -1,5 +1,5 @@
-import { VectorClock } from './VectorClock';
-import { CRDTValue, VectorTimestamp } from '../../types/consistency';
+import { VectorClock } from "./VectorClock";
+import { CRDTValue, VectorTimestamp } from "../../types/consistency";
 
 /**
  * Last-Write-Wins Register CRDT implementation
@@ -13,7 +13,7 @@ export class LWWRegister<T> {
     this.vectorClock = new VectorClock(nodeId);
     this.value = {
       value: initialValue,
-      timestamp: this.vectorClock.getCurrentTimestamp()
+      timestamp: this.vectorClock.getCurrentTimestamp(),
     };
   }
 
@@ -31,7 +31,7 @@ export class LWWRegister<T> {
     this.vectorClock.increment();
     this.value = {
       value: newValue,
-      timestamp: this.vectorClock.getCurrentTimestamp()
+      timestamp: this.vectorClock.getCurrentTimestamp(),
     };
   }
 
@@ -66,7 +66,7 @@ export class LWWRegister<T> {
   snapshot(): { value: T; timestamp: VectorTimestamp } {
     return {
       value: this.value.value,
-      timestamp: { ...this.value.timestamp }
+      timestamp: { ...this.value.timestamp },
     };
   }
 }
@@ -103,7 +103,7 @@ export class GSet<T> {
    * Merge with another G-Set
    */
   merge(other: GSet<T>): void {
-    other.values().forEach(item => this.items.add(item));
+    other.values().forEach((item) => this.items.add(item));
     this.vectorClock.merge(other.vectorClock);
   }
 
@@ -157,7 +157,7 @@ export class TwoPhaseSet<T> {
    * Get all current items (added but not removed)
    */
   values(): T[] {
-    return this.added.values().filter(item => !this.removed.has(item));
+    return this.added.values().filter((item) => !this.removed.has(item));
   }
 
   /**
@@ -181,4 +181,4 @@ export class TwoPhaseSet<T> {
   size(): number {
     return this.values().length;
   }
-} 
+}

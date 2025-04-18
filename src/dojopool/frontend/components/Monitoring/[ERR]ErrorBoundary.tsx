@@ -1,5 +1,5 @@
-import React, { Component, ErrorInfo } from 'react';
-import { ErrorTracker } from '../../utils/monitoring';
+import React, { Component, ErrorInfo } from "react";
+import { ErrorTracker } from "../../utils/monitoring";
 
 interface Props {
   children: React.ReactNode;
@@ -66,7 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="error-boundary">
           <h2>Something went wrong</h2>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
+          <details style={{ whiteSpace: "pre-wrap" }}>
             {this.state.error && this.state.error.toString()}
             <br />
             {this.state.errorInfo && this.state.errorInfo.componentStack}

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import WebSocketMonitor from './WebSocketMonitor';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import WebSocketMonitor from "./WebSocketMonitor";
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -11,4 +11,4 @@ const AdminRoutes: React.FC = () => {
   );
 };
 
-export default AdminRoutes; 
+export default AdminRoutes;

@@ -3,7 +3,7 @@ export const CACHE_CONFIG = {
   MAX_SIZE: 1000,
   CLEANUP_INTERVAL: 60000, // 1 minute
   MAX_MEMORY_MB: 100, // 100 MB maximum memory usage
-  INVALIDATION_STRATEGY: 'lru' as const, // LRU by default
+  INVALIDATION_STRATEGY: "lru" as const, // LRU by default
   PERSISTENCE: {
     ENABLED: true,
     SYNC_INTERVAL: 300000, // 5 minutes
@@ -15,40 +15,40 @@ export const CACHE_CONFIG = {
   },
   CACHE_TYPES: {
     ASSETS: {
-      name: 'assets',
+      name: "assets",
       version: 1,
       maxAge: 86400000, // 24 hours
       maxItems: 500,
       maxMemoryMB: 50,
       persistToStorage: true,
-      invalidationStrategy: 'lru' as const,
+      invalidationStrategy: "lru" as const,
     },
     API: {
-      name: 'api',
+      name: "api",
       version: 1,
       maxAge: 300000, // 5 minutes
       maxItems: 200,
       maxMemoryMB: 20,
       persistToStorage: false,
-      invalidationStrategy: 'lfu' as const,
+      invalidationStrategy: "lfu" as const,
     },
     USER: {
-      name: 'user',
+      name: "user",
       version: 1,
       maxAge: 1800000, // 30 minutes
       maxItems: 100,
       maxMemoryMB: 10,
       persistToStorage: true,
-      invalidationStrategy: 'fifo' as const,
+      invalidationStrategy: "fifo" as const,
     },
     TEMP: {
-      name: 'temp',
+      name: "temp",
       version: 1,
       maxAge: 60000, // 1 minute
       maxItems: 50,
       maxMemoryMB: 5,
       persistToStorage: false,
-      invalidationStrategy: 'lru' as const,
+      invalidationStrategy: "lru" as const,
     },
   },
 };
@@ -84,7 +84,7 @@ export const ERROR_TRACKING_CONFIG = {
 };
 
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:3000",
   TIMEOUT: 5000,
   RETRY_COUNT: 3,
 };

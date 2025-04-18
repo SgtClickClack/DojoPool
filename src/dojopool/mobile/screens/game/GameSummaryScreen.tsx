@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Card, Button, Badge } from '@rneui/themed';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { LineChart } from 'react-native-chart-kit';
-import Share from 'react-native-share';
-import SyncManager from '../../utils/sync';
-import StorageManager from '../../utils/storage';
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
+import { Text, Card, Button, Badge } from "@rneui/themed";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { LineChart } from "react-native-chart-kit";
+import Share from "react-native-share";
+import SyncManager from "../../utils/sync";
+import StorageManager from "../../utils/storage";
 
 const GameSummaryScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const [gameData, setGameData] = useState(route.params?.gameData);
-  const [syncStatus, setSyncStatus] = useState('synced');
+  const [syncStatus, setSyncStatus] = useState("synced");
   const syncManager = SyncManager.getInstance();
   const storageManager = StorageManager.getInstance();
 
@@ -21,8 +21,10 @@ const GameSummaryScreen = () => {
 
   const checkSyncStatus = async () => {
     const pendingItems = syncManager.getPendingItems();
-    const hasPendingSync = pendingItems.some((item) => item.data.startTime === gameData.startTime);
-    setSyncStatus(hasPendingSync ? 'pending' : 'synced');
+    const hasPendingSync = pendingItems.some(
+      (item) => item.data.startTime === gameData.startTime,
+    );
+    setSyncStatus(hasPendingSync ? "pending" : "synced");
   };
 
   const chartData = {
@@ -37,7 +39,8 @@ const GameSummaryScreen = () => {
   const calculateStats = () => {
     const totalShots = gameData.shots.length;
     const accuracy =
-      gameData.shots.reduce((acc, shot) => acc + (shot.accuracy || 0), 0) / totalShots;
+      gameData.shots.reduce((acc, shot) => acc + (shot.accuracy || 0), 0) /
+      totalShots;
     const duration = Math.floor((gameData.endTime - gameData.startTime) / 1000);
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
@@ -45,7 +48,7 @@ const GameSummaryScreen = () => {
     return {
       totalShots,
       accuracy: `${(accuracy * 100).toFixed(1)}%`,
-      duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+      duration: `${minutes}:${seconds.toString().padStart(2, "0")}`,
     };
   };
 
@@ -56,15 +59,15 @@ const GameSummaryScreen = () => {
       const message = `Just finished a pool game!\nStats:\nTotal Shots: ${stats.totalShots}\nAccuracy: ${stats.accuracy}\nDuration: ${stats.duration}`;
       await Share.open({
         message,
-        title: 'Game Summary',
+        title: "Game Summary",
       });
     } catch (error) {
-      console.error('Error sharing results:', error);
+      console.error("Error sharing results:", error);
     }
   };
 
   const startNewGame = () => {
-    navigation.navigate('GameTracking');
+    navigation.navigate("GameTracking");
   };
 
   return (
@@ -73,8 +76,8 @@ const GameSummaryScreen = () => {
         <View style={styles.headerContainer}>
           <Card.Title>Game Summary</Card.Title>
           <Badge
-            value={syncStatus === 'synced' ? 'Synced' : 'Pending Sync'}
-            status={syncStatus === 'synced' ? 'success' : 'warning'}
+            value={syncStatus === "synced" ? "Synced" : "Pending Sync"}
+            status={syncStatus === "synced" ? "success" : "warning"}
             containerStyle={styles.badge}
           />
         </View>
@@ -101,9 +104,9 @@ const GameSummaryScreen = () => {
           width={300}
           height={200}
           chartConfig={{
-            backgroundColor: '#ffffff',
-            backgroundGradientFrom: '#ffffff',
-            backgroundGradientTo: '#ffffff',
+            backgroundColor: "#ffffff",
+            backgroundGradientFrom: "#ffffff",
+            backgroundGradientTo: "#ffffff",
             decimalPlaces: 2,
             color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
             style: {
@@ -127,9 +130,9 @@ const GameSummaryScreen = () => {
           onPress={shareResults}
           buttonStyle={styles.button}
           icon={{
-            name: 'share',
-            type: 'material',
-            color: 'white',
+            name: "share",
+            type: "material",
+            color: "white",
           }}
         />
         <Button
@@ -137,9 +140,9 @@ const GameSummaryScreen = () => {
           onPress={startNewGame}
           buttonStyle={[styles.button, styles.newGameButton]}
           icon={{
-            name: 'play-circle',
-            type: 'material',
-            color: 'white',
+            name: "play-circle",
+            type: "material",
+            color: "white",
           }}
         />
       </View>
@@ -151,47 +154,49 @@ const generateRecommendations = (stats) => {
   const recommendations = [];
 
   if (stats.totalShots < 10) {
-    recommendations.push('Try to play more shots to get better insights.');
+    recommendations.push("Try to play more shots to get better insights.");
   }
 
   if (parseFloat(stats.accuracy) < 70) {
-    recommendations.push('Focus on improving shot accuracy through practice drills.');
+    recommendations.push(
+      "Focus on improving shot accuracy through practice drills.",
+    );
   }
 
-  return recommendations.join(' ');
+  return recommendations.join(" ");
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 10,
   },
   badge: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginVertical: 10,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   statValue: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007AFF',
+    fontWeight: "bold",
+    color: "#007AFF",
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
   chart: {
     marginVertical: 8,
@@ -199,13 +204,13 @@ const styles = StyleSheet.create({
   },
   recommendation: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     lineHeight: 20,
     marginVertical: 10,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginVertical: 20,
   },
   button: {
@@ -213,7 +218,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   newGameButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
   },
 });
 

@@ -1,4 +1,4 @@
-import { ErrorInfo } from 'react';
+import { ErrorInfo } from "react";
 
 interface ErrorLog {
   timestamp: string;
@@ -23,12 +23,16 @@ class ErrorLoggingService {
     return ErrorLoggingService.instance;
   }
 
-  public log(error: Error, errorInfo?: ErrorInfo, context?: Record<string, unknown>): void {
+  public log(
+    error: Error,
+    errorInfo?: ErrorInfo,
+    context?: Record<string, unknown>,
+  ): void {
     const errorLog: ErrorLog = {
       timestamp: new Date().toISOString(),
       error,
       errorInfo,
-      context
+      context,
     };
 
     // Add to local logs
@@ -38,12 +42,12 @@ class ErrorLoggingService {
     }
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error logged:', errorLog);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error logged:", errorLog);
     }
 
     // Send to error tracking service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       this.sendToErrorTrackingService(errorLog);
     }
   }
@@ -58,19 +62,22 @@ class ErrorLoggingService {
 
   private async sendToErrorTrackingService(errorLog: ErrorLog): Promise<void> {
     try {
-      const response = await fetch('/api/error-tracking', {
-        method: 'POST',
+      const response = await fetch("/api/error-tracking", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(errorLog)
+        body: JSON.stringify(errorLog),
       });
 
       if (!response.ok) {
-        console.error('Failed to send error to tracking service:', response.statusText);
+        console.error(
+          "Failed to send error to tracking service:",
+          response.statusText,
+        );
       }
     } catch (err) {
-      console.error('Error sending to tracking service:', err);
+      console.error("Error sending to tracking service:", err);
     }
   }
 }
@@ -82,9 +89,9 @@ const errorLoggingService = ErrorLoggingService.getInstance();
 export const logError = (
   error: Error,
   errorInfo?: ErrorInfo,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): void => {
   errorLoggingService.log(error, errorInfo, context);
 };
 
-export default errorLoggingService; 
+export default errorLoggingService;

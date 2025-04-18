@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Button, Input, Text, useTheme } from '@rneui/themed';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { Button, Input, Text, useTheme } from "@rneui/themed";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 interface LoginScreenProps {
   navigation: any;
@@ -10,15 +16,15 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { theme } = useTheme();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleLogin = async () => {
     try {
       setLoading(true);
-      setError('');
+      setError("");
 
       // TODO: Implement actual login logic
       // const response = await authService.login(email, password);
@@ -31,16 +37,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       // - Update auth context
       // - Navigate to main app
     } catch (err) {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -58,7 +66,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
-              leftIcon={<Icon name="email" size={24} color={theme.colors.secondary} />}
+              leftIcon={
+                <Icon name="email" size={24} color={theme.colors.secondary} />
+              }
             />
 
             <Input
@@ -66,11 +76,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              leftIcon={<Icon name="lock" size={24} color={theme.colors.secondary} />}
+              leftIcon={
+                <Icon name="lock" size={24} color={theme.colors.secondary} />
+              }
             />
 
             {error ? (
-              <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
+              <Text style={[styles.error, { color: theme.colors.error }]}>
+                {error}
+              </Text>
             ) : null}
 
             <Button
@@ -83,7 +97,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <Button
               title="Create Account"
               type="outline"
-              onPress={() => navigation.navigate('Signup')}
+              onPress={() => navigation.navigate("Signup")}
               containerStyle={styles.buttonContainer}
             />
           </View>
@@ -102,24 +116,24 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
   },
   title: {
     marginTop: 16,
   },
   form: {
-    width: '100%',
+    width: "100%",
   },
   buttonContainer: {
     marginVertical: 8,
   },
   error: {
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 16,
   },
 });

@@ -2,7 +2,7 @@
  * State management module.
  * Provides a simple reactive store for managing application state.
  */
-import { Config } from '../config';
+import { Config } from "../config";
 
 type Listener<T> = (state: T) => void;
 type Selector<T, R> = (state: T) => R;
@@ -80,7 +80,7 @@ export class Store<T extends object> {
       try {
         listener(this.state);
       } catch (error) {
-        console.error('Error in store listener:', error);
+        console.error("Error in store listener:", error);
       }
     });
 
@@ -91,7 +91,7 @@ export class Store<T extends object> {
         try {
           listener(value);
         } catch (error) {
-          console.error('Error in selector listener:', error);
+          console.error("Error in selector listener:", error);
         }
       });
     });
@@ -132,7 +132,7 @@ const initialState: AppState = {
   },
   ui: {
     theme: localStorage.getItem(Config.STORAGE.THEME) || Config.THEME.SYSTEM,
-    language: localStorage.getItem(Config.STORAGE.LANGUAGE) || 'en',
+    language: localStorage.getItem(Config.STORAGE.LANGUAGE) || "en",
     isLoading: false,
     error: null,
   },

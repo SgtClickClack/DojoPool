@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
   Tabs,
@@ -15,15 +15,15 @@ import {
   Descriptions,
   Timeline,
   Select,
-} from 'antd';
+} from "antd";
 import {
   TrophyOutlined,
   TeamOutlined,
   FieldTimeOutlined,
   DollarOutlined,
   EditOutlined,
-} from '@ant-design/icons';
-import moment from 'moment';
+} from "@ant-design/icons";
+import moment from "moment";
 
 import {
   Tournament,
@@ -31,17 +31,17 @@ import {
   TournamentParticipant,
   TournamentStatus,
   MatchStatus,
-} from '../../types/tournament';
+} from "../../types/tournament";
 import {
   getTournament,
   getTournamentMatches,
   updateMatch,
   registerForTournament,
   generateBracket,
-} from '../../api/tournaments';
-import { useAuth } from '../../hooks/useAuth';
-import TournamentBracket from './TournamentBracket';
-import MatchStats from './MatchStats';
+} from "../../api/tournaments";
+import { useAuth } from "../../hooks/useAuth";
+import TournamentBracket from "./TournamentBracket";
+import MatchStats from "./MatchStats";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -75,8 +75,8 @@ const TournamentDetail: React.FC = () => {
       const data = await getTournament(parseInt(id));
       setTournament(data);
     } catch (error) {
-      console.error('Error fetching tournament:', error);
-      message.error('Failed to load tournament details');
+      console.error("Error fetching tournament:", error);
+      message.error("Failed to load tournament details");
     } finally {
       setLoading(false);
     }
@@ -87,31 +87,31 @@ const TournamentDetail: React.FC = () => {
       const data = await getTournamentMatches(parseInt(id));
       setMatches(data);
     } catch (error) {
-      console.error('Error fetching matches:', error);
-      message.error('Failed to load tournament matches');
+      console.error("Error fetching matches:", error);
+      message.error("Failed to load tournament matches");
     }
   };
 
   const handleRegister = async () => {
     try {
       await registerForTournament(parseInt(id));
-      message.success('Successfully registered for tournament');
+      message.success("Successfully registered for tournament");
       fetchTournament();
     } catch (error) {
-      console.error('Error registering for tournament:', error);
-      message.error('Failed to register for tournament');
+      console.error("Error registering for tournament:", error);
+      message.error("Failed to register for tournament");
     }
   };
 
   const handleGenerateBracket = async () => {
     try {
       await generateBracket(parseInt(id));
-      message.success('Tournament bracket generated successfully');
+      message.success("Tournament bracket generated successfully");
       fetchTournament();
       fetchMatches();
     } catch (error) {
-      console.error('Error generating bracket:', error);
-      message.error('Failed to generate tournament bracket');
+      console.error("Error generating bracket:", error);
+      message.error("Failed to generate tournament bracket");
     }
   };
 
@@ -120,54 +120,56 @@ const TournamentDetail: React.FC = () => {
 
     try {
       await updateMatch(selectedMatch.id, values);
-      message.success('Match updated successfully');
+      message.success("Match updated successfully");
       setIsModalVisible(false);
       fetchMatches();
     } catch (error) {
-      console.error('Error updating match:', error);
-      message.error('Failed to update match');
+      console.error("Error updating match:", error);
+      message.error("Failed to update match");
     }
   };
 
   const matchColumns = [
     {
-      title: 'Round',
-      dataIndex: 'round_number',
-      key: 'round_number',
+      title: "Round",
+      dataIndex: "round_number",
+      key: "round_number",
     },
     {
-      title: 'Match',
-      dataIndex: 'match_number',
-      key: 'match_number',
+      title: "Match",
+      dataIndex: "match_number",
+      key: "match_number",
     },
     {
-      title: 'Player 1',
-      dataIndex: 'player1',
-      key: 'player1',
-      render: (player: TournamentParticipant) => (player ? player.username : 'TBD'),
+      title: "Player 1",
+      dataIndex: "player1",
+      key: "player1",
+      render: (player: TournamentParticipant) =>
+        player ? player.username : "TBD",
     },
     {
-      title: 'Player 2',
-      dataIndex: 'player2',
-      key: 'player2',
-      render: (player: TournamentParticipant) => (player ? player.username : 'TBD'),
+      title: "Player 2",
+      dataIndex: "player2",
+      key: "player2",
+      render: (player: TournamentParticipant) =>
+        player ? player.username : "TBD",
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (status: MatchStatus) => (
         <Tag
           color={
-            status === 'completed'
-              ? 'success'
-              : status === 'in_progress'
-                ? 'processing'
-                : status === 'walkover'
-                  ? 'warning'
-                  : status === 'cancelled'
-                    ? 'error'
-                    : 'default'
+            status === "completed"
+              ? "success"
+              : status === "in_progress"
+                ? "processing"
+                : status === "walkover"
+                  ? "warning"
+                  : status === "cancelled"
+                    ? "error"
+                    : "default"
           }
         >
           {status.toUpperCase()}
@@ -175,11 +177,11 @@ const TournamentDetail: React.FC = () => {
       ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record: TournamentMatch) => (
         <Space>
-          {isAdmin && record.status !== 'completed' && (
+          {isAdmin && record.status !== "completed" && (
             <Button
               type="primary"
               onClick={() => {
@@ -210,27 +212,27 @@ const TournamentDetail: React.FC = () => {
               <h1>{tournament.name}</h1>
               <Tag
                 color={
-                  tournament.status === 'completed'
-                    ? 'success'
-                    : tournament.status === 'in_progress'
-                      ? 'processing'
-                      : tournament.status === 'registration'
-                        ? 'warning'
-                        : tournament.status === 'cancelled'
-                          ? 'error'
-                          : 'default'
+                  tournament.status === "completed"
+                    ? "success"
+                    : tournament.status === "in_progress"
+                      ? "processing"
+                      : tournament.status === "registration"
+                        ? "warning"
+                        : tournament.status === "cancelled"
+                          ? "error"
+                          : "default"
                 }
               >
                 {tournament.status.toUpperCase()}
               </Tag>
             </div>
             <Space>
-              {isAuthenticated && tournament.status === 'registration' && (
+              {isAuthenticated && tournament.status === "registration" && (
                 <Button type="primary" onClick={handleRegister}>
                   Register
                 </Button>
               )}
-              {isAdmin && tournament.status === 'registration' && (
+              {isAdmin && tournament.status === "registration" && (
                 <Button type="primary" onClick={handleGenerateBracket}>
                   Generate Bracket
                 </Button>
@@ -240,9 +242,11 @@ const TournamentDetail: React.FC = () => {
         </div>
 
         <Descriptions column={2}>
-          <Descriptions.Item label="Format">{tournament.format}</Descriptions.Item>
+          <Descriptions.Item label="Format">
+            {tournament.format}
+          </Descriptions.Item>
           <Descriptions.Item label="Start Date">
-            {moment(tournament.start_date).format('MMM D, YYYY')}
+            {moment(tournament.start_date).format("MMM D, YYYY")}
           </Descriptions.Item>
           <Descriptions.Item label="Entry Fee">
             ${tournament.entry_fee.toFixed(2)}
@@ -252,7 +256,7 @@ const TournamentDetail: React.FC = () => {
           </Descriptions.Item>
           {tournament.registration_deadline && (
             <Descriptions.Item label="Registration Deadline">
-              {moment(tournament.registration_deadline).format('MMM D, YYYY')}
+              {moment(tournament.registration_deadline).format("MMM D, YYYY")}
             </Descriptions.Item>
           )}
           {tournament.max_participants && (
@@ -271,7 +275,12 @@ const TournamentDetail: React.FC = () => {
 
         <Tabs defaultActiveKey="matches">
           <TabPane tab="Matches" key="matches">
-            <Table columns={matchColumns} dataSource={matches} rowKey="id" pagination={false} />
+            <Table
+              columns={matchColumns}
+              dataSource={matches}
+              rowKey="id"
+              pagination={false}
+            />
           </TabPane>
           <TabPane tab="Bracket" key="bracket">
             {matches.length > 0 && totalRounds > 0 ? (
@@ -282,7 +291,11 @@ const TournamentDetail: React.FC = () => {
           </TabPane>
           <TabPane tab="Statistics" key="stats">
             {tournament.participants.map((participant) => (
-              <Card key={participant.id} title={participant.username} style={{ marginBottom: 16 }}>
+              <Card
+                key={participant.id}
+                title={participant.username}
+                style={{ marginBottom: 16 }}
+              >
                 <MatchStats participantId={participant.id} />
               </Card>
             ))}
@@ -302,13 +315,21 @@ const TournamentDetail: React.FC = () => {
           initialValues={selectedMatch}
           layout="vertical"
         >
-          <Form.Item name="winner_id" label="Winner" rules={[{ required: true }]}>
+          <Form.Item
+            name="winner_id"
+            label="Winner"
+            rules={[{ required: true }]}
+          >
             <Select placeholder="Select winner">
               {selectedMatch?.player1 && (
-                <Option value={selectedMatch.player1.id}>{selectedMatch.player1.username}</Option>
+                <Option value={selectedMatch.player1.id}>
+                  {selectedMatch.player1.username}
+                </Option>
               )}
               {selectedMatch?.player2 && (
-                <Option value={selectedMatch.player2.id}>{selectedMatch.player2.username}</Option>
+                <Option value={selectedMatch.player2.id}>
+                  {selectedMatch.player2.username}
+                </Option>
               )}
             </Select>
           </Form.Item>

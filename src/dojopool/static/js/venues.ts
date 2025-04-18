@@ -24,7 +24,10 @@ interface PaginatedResponse<T> {
 }
 
 // Utility functions
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number,
+): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
   return function executedFunction(...args: Parameters<T>): void {
@@ -39,7 +42,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (..
   };
 }
 
-function showNotification(type: 'success' | 'error', message: string): void {
+function showNotification(type: "success" | "error", message: string): void {
   // Implementation will be provided by external notification system
   console.log(`${type}: ${message}`);
 }
@@ -54,8 +57,8 @@ class VenueManager {
     this.currentPage = 1;
     this.perPage = 20;
     this.filters = {
-      status: '',
-      sortBy: 'name',
+      status: "",
+      sortBy: "name",
     };
     this.initializeEventListeners();
     this.loadVenues();
@@ -63,23 +66,27 @@ class VenueManager {
 
   private initializeEventListeners(): void {
     // Search input
-    const searchInput = document.getElementById('venueSearch') as HTMLInputElement;
+    const searchInput = document.getElementById(
+      "venueSearch",
+    ) as HTMLInputElement;
     if (searchInput) {
       searchInput.addEventListener(
-        'input',
+        "input",
         debounce(() => {
           this.currentPage = 1;
           this.loadVenues();
-        }, 300)
+        }, 300),
       );
     }
 
     // Filters
-    const statusFilter = document.getElementById('statusFilter') as HTMLSelectElement;
-    const sortByFilter = document.getElementById('sortBy') as HTMLSelectElement;
+    const statusFilter = document.getElementById(
+      "statusFilter",
+    ) as HTMLSelectElement;
+    const sortByFilter = document.getElementById("sortBy") as HTMLSelectElement;
 
     if (statusFilter) {
-      statusFilter.addEventListener('change', () => {
+      statusFilter.addEventListener("change", () => {
         this.filters.status = statusFilter.value;
         this.currentPage = 1;
         this.loadVenues();
@@ -87,7 +94,7 @@ class VenueManager {
     }
 
     if (sortByFilter) {
-      sortByFilter.addEventListener('change', () => {
+      sortByFilter.addEventListener("change", () => {
         this.filters.sortBy = sortByFilter.value;
         this.currentPage = 1;
         this.loadVenues();
@@ -95,16 +102,20 @@ class VenueManager {
     }
 
     // Create venue form
-    const createForm = document.getElementById('createVenueForm') as HTMLFormElement;
+    const createForm = document.getElementById(
+      "createVenueForm",
+    ) as HTMLFormElement;
     if (createForm) {
-      createForm.addEventListener('submit', (e) => this.handleCreateVenue(e));
+      createForm.addEventListener("submit", (e) => this.handleCreateVenue(e));
     }
   }
 
   private async loadVenues(): Promise<void> {
     try {
-      const searchInput = document.getElementById('venueSearch') as HTMLInputElement;
-      const searchQuery = searchInput?.value || '';
+      const searchInput = document.getElementById(
+        "venueSearch",
+      ) as HTMLInputElement;
+      const searchQuery = searchInput?.value || "";
       const queryParams = new URLSearchParams({
         page: this.currentPage.toString(),
         per_page: this.perPage.toString(),
@@ -113,22 +124,22 @@ class VenueManager {
       });
 
       const response = await fetch(`/api/venues?${queryParams}`);
-      const data = await response.json() as PaginatedResponse<Venue>;
+      const data = (await response.json()) as PaginatedResponse<Venue>;
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to load venues');
+        throw new Error(data.error || "Failed to load venues");
       }
 
       this.renderVenues(data.items);
       this.renderPagination(data);
     } catch (error) {
-      console.error('Error loading venues:', error);
-      showNotification('error', 'Failed to load venues');
+      console.error("Error loading venues:", error);
+      showNotification("error", "Failed to load venues");
     }
   }
 
   private renderVenues(venues: Venue[]): void {
-    const grid = document.getElementById('venuesGrid');
+    const grid = document.getElementById("venuesGrid");
     if (!grid) return;
 
     grid.innerHTML = venues
@@ -136,7 +147,7 @@ class VenueManager {
         (venue) => `
           <div class="venue-card">
             <div class="venue-image">
-              <img src="${venue.images?.[0] || '/static/img/default-venue.jpg'}" alt="${venue.name}">
+              <img src="${venue.images?.[0] || "/static/img/default-venue.jpg"}" alt="${venue.name}">
             </div>
             <div class="venue-info">
               <h3>${venue.name}</h3>
@@ -151,20 +162,21 @@ class VenueManager {
               </div>
               <div class="venue-actions">
                 <a href="/venues/${venue.id}" class="btn btn-primary">View Details</a>
-                ${venue.is_owner
-            ? `
+                ${
+                  venue.is_owner
+                    ? `
                     <button class="btn btn-secondary" onclick="venueManager.editVenue(${venue.id})">
                       Edit
                     </button>
                     `
-            : ''
-          }
+                    : ""
+                }
               </div>
             </div>
           </div>
-        `
+        `,
       )
-      .join('');
+      .join("");
   }
 
   private renderStars(rating: number): string {
@@ -174,28 +186,28 @@ class VenueManager {
 
     return `
       ${'<i class="fas fa-star"></i>'.repeat(fullStars)}
-      ${hasHalfStar ? '<i class="fas fa-star-half-alt"></i>' : ''}
+      ${hasHalfStar ? '<i class="fas fa-star-half-alt"></i>' : ""}
       ${'<i class="far fa-star"></i>'.repeat(emptyStars)}
     `;
   }
 
   private renderPagination(data: PaginatedResponse<Venue>): void {
-    const pagination = document.getElementById('venuesPagination');
+    const pagination = document.getElementById("venuesPagination");
     if (!pagination) return;
 
     const totalPages = Math.ceil(data.total / this.perPage);
-    let paginationHtml = '';
+    let paginationHtml = "";
 
     if (totalPages > 1) {
       paginationHtml = `
         <button class="btn btn-secondary" 
-          ${this.currentPage === 1 ? 'disabled' : ''}
+          ${this.currentPage === 1 ? "disabled" : ""}
           onclick="venueManager.changePage(${this.currentPage - 1})">
           Previous
         </button>
         <span class="page-info">Page ${this.currentPage} of ${totalPages}</span>
         <button class="btn btn-secondary" 
-          ${this.currentPage === totalPages ? 'disabled' : ''}
+          ${this.currentPage === totalPages ? "disabled" : ""}
           onclick="venueManager.changePage(${this.currentPage + 1})">
           Next
         </button>
@@ -211,27 +223,27 @@ class VenueManager {
     const formData = new FormData(form);
 
     try {
-      const response = await fetch('/api/venues', {
-        method: 'POST',
+      const response = await fetch("/api/venues", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(Object.fromEntries(formData)),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create venue');
+        throw new Error(data.error || "Failed to create venue");
       }
 
-      showNotification('success', 'Venue created successfully');
-      (window as any).$('#createVenueModal').modal('hide');
+      showNotification("success", "Venue created successfully");
+      (window as any).$("#createVenueModal").modal("hide");
       form.reset();
       this.loadVenues();
     } catch (error) {
-      console.error('Error creating venue:', error);
+      console.error("Error creating venue:", error);
       if (error instanceof Error) {
-        showNotification('error', error.message);
+        showNotification("error", error.message);
       }
     }
   }
@@ -243,7 +255,7 @@ class VenueManager {
 
   public editVenue(venueId: number): void {
     // Implementation will be added later
-    console.log('Edit venue:', venueId);
+    console.log("Edit venue:", venueId);
   }
 }
 
@@ -258,16 +270,20 @@ class VenueDetailsManager {
   }
 
   private initializeEventListeners(): void {
-    const bookingForm = document.getElementById('bookingForm') as HTMLFormElement;
+    const bookingForm = document.getElementById(
+      "bookingForm",
+    ) as HTMLFormElement;
     if (bookingForm) {
-      bookingForm.addEventListener('submit', (e) => this.handleBooking(e));
+      bookingForm.addEventListener("submit", (e) => this.handleBooking(e));
     }
 
     // Image gallery
-    const thumbnails = document.querySelectorAll('.image-thumbnails img');
+    const thumbnails = document.querySelectorAll(".image-thumbnails img");
     thumbnails.forEach((thumb) => {
-      thumb.addEventListener('click', () => {
-        const mainImage = document.querySelector('.main-image img') as HTMLImageElement;
+      thumb.addEventListener("click", () => {
+        const mainImage = document.querySelector(
+          ".main-image img",
+        ) as HTMLImageElement;
         if (mainImage && thumb instanceof HTMLImageElement) {
           mainImage.src = thumb.src;
         }
@@ -277,7 +293,7 @@ class VenueDetailsManager {
 
   private initializeCalendar(): void {
     // Implementation will be added later
-    console.log('Initializing calendar for venue:', this.venueId);
+    console.log("Initializing calendar for venue:", this.venueId);
   }
 
   private async handleBooking(e: Event): Promise<void> {
@@ -287,24 +303,24 @@ class VenueDetailsManager {
 
     try {
       const response = await fetch(`/api/venues/${this.venueId}/bookings`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(Object.fromEntries(formData)),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create booking');
+        throw new Error(data.error || "Failed to create booking");
       }
 
-      showNotification('success', 'Booking created successfully');
+      showNotification("success", "Booking created successfully");
       form.reset();
     } catch (error) {
-      console.error('Error creating booking:', error);
+      console.error("Error creating booking:", error);
       if (error instanceof Error) {
-        showNotification('error', error.message);
+        showNotification("error", error.message);
       }
     }
   }
@@ -319,17 +335,17 @@ declare global {
 }
 
 // Initialize managers when document loads
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Initialize venue manager if on venue list page
-  const venuesGrid = document.getElementById('venuesGrid');
+  const venuesGrid = document.getElementById("venuesGrid");
   if (venuesGrid) {
     window.venueManager = new VenueManager();
   }
 
   // Initialize venue details manager if on venue details page
-  const venueDetails = document.getElementById('venueDetails');
+  const venueDetails = document.getElementById("venueDetails");
   if (venueDetails) {
-    const venueId = parseInt(venueDetails.dataset.venueId || '0', 10);
+    const venueId = parseInt(venueDetails.dataset.venueId || "0", 10);
     if (venueId) {
       window.venueDetailsManager = new VenueDetailsManager(venueId);
     }

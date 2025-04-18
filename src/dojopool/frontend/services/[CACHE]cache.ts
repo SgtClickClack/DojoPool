@@ -1,4 +1,4 @@
-import analyticsService from './analytics';
+import analyticsService from "./analytics";
 
 interface CacheConfig {
   name: string;
@@ -7,7 +7,7 @@ interface CacheConfig {
   maxItems?: number;
   maxMemoryMB?: number;
   persistToStorage?: boolean;
-  invalidationStrategy?: 'lru' | 'lfu' | 'fifo';
+  invalidationStrategy?: "lru" | "lfu" | "fifo";
 }
 
 interface CacheEntry<T = any> {
@@ -48,7 +48,7 @@ class MemoryManager {
   }
 
   estimateSize(value: any): number {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       return value.length * 2;
     }
     try {
@@ -81,7 +81,7 @@ class MemoryManager {
 
 class InvalidationStrategy {
   static getLRUKey(entries: Map<string, CacheEntry>): string {
-    let lruKey = '';
+    let lruKey = "";
     let lruTime = Infinity;
 
     entries.forEach((entry, key) => {
@@ -95,7 +95,7 @@ class InvalidationStrategy {
   }
 
   static getLFUKey(entries: Map<string, CacheEntry>): string {
-    let lfuKey = '';
+    let lfuKey = "";
     let lfuCount = Infinity;
 
     entries.forEach((entry, key) => {
@@ -109,7 +109,7 @@ class InvalidationStrategy {
   }
 
   static getFIFOKey(entries: Map<string, CacheEntry>): string {
-    let fifoKey = '';
+    let fifoKey = "";
     let oldestTime = Infinity;
 
     entries.forEach((entry, key) => {
@@ -129,54 +129,55 @@ class CacheHierarchy {
 
   constructor() {
     // Initialize default cache levels
-    this.levels.set('memory', new Map()); // Fastest, smallest
-    this.levels.set('storage', new Map()); // Slower, larger
+    this.levels.set("memory", new Map()); // Fastest, smallest
+    this.levels.set("storage", new Map()); // Slower, larger
 
     // Set default policies
-    this.policies.set('critical', {
-      name: 'critical',
+    this.policies.set("critical", {
+      name: "critical",
       priority: 1,
       shouldCache: (key, value) => true, // Cache all critical data
       shouldEvict: (entry) => false, // Never evict critical data
       onHit: (entry) => entry.accessCount++,
-      onMiss: (key) => console.warn(`Cache miss for critical data: ${key}`)
+      onMiss: (key) => console.warn(`Cache miss for critical data: ${key}`),
     });
 
-    this.policies.set('frequent', {
-      name: 'frequent',
+    this.policies.set("frequent", {
+      name: "frequent",
       priority: 2,
       shouldCache: (key, value) => true,
-      shouldEvict: (entry) => entry.accessCount < 5 && Date.now() - entry.timestamp > 3600000,
-      onHit: (entry) => entry.accessCount++
+      shouldEvict: (entry) =>
+        entry.accessCount < 5 && Date.now() - entry.timestamp > 3600000,
+      onHit: (entry) => entry.accessCount++,
     });
 
-    this.policies.set('temporary', {
-      name: 'temporary',
+    this.policies.set("temporary", {
+      name: "temporary",
       priority: 3,
       shouldCache: (key, value) => true,
-      shouldEvict: (entry) => Date.now() - entry.timestamp > 300000 // 5 minutes
+      shouldEvict: (entry) => Date.now() - entry.timestamp > 300000, // 5 minutes
     });
   }
 
-  async get(key: string, policy: string = 'frequent'): Promise<any> {
+  async get(key: string, policy: string = "frequent"): Promise<any> {
     const selectedPolicy = this.policies.get(policy);
     if (!selectedPolicy) {
       throw new Error(`Cache policy ${policy} not found`);
     }
 
     // Try memory first
-    const memoryEntry = this.levels.get('memory')?.get(key);
+    const memoryEntry = this.levels.get("memory")?.get(key);
     if (memoryEntry) {
       selectedPolicy.onHit?.(memoryEntry);
       return memoryEntry.value;
     }
 
     // Try storage
-    const storageEntry = this.levels.get('storage')?.get(key);
+    const storageEntry = this.levels.get("storage")?.get(key);
     if (storageEntry) {
       // Promote to memory if policy allows
       if (selectedPolicy.shouldCache(key, storageEntry.value)) {
-        this.levels.get('memory')?.set(key, storageEntry);
+        this.levels.get("memory")?.set(key, storageEntry);
       }
       selectedPolicy.onHit?.(storageEntry);
       return storageEntry.value;
@@ -186,7 +187,11 @@ class CacheHierarchy {
     return null;
   }
 
-  async set(key: string, value: any, policy: string = 'frequent'): Promise<void> {
+  async set(
+    key: string,
+    value: any,
+    policy: string = "frequent",
+  ): Promise<void> {
     const selectedPolicy = this.policies.get(policy);
     if (!selectedPolicy) {
       throw new Error(`Cache policy ${policy} not found`);
@@ -202,15 +207,17 @@ class CacheHierarchy {
       timestamp: Date.now(),
       accessCount: 0,
       lastAccessed: Date.now(),
-      size: 0 // Will be calculated by MemoryManager
+      size: 0, // Will be calculated by MemoryManager
     };
 
     // Store in appropriate levels based on policy priority
-    if (selectedPolicy.priority <= 2) { // Critical and frequent data
-      this.levels.get('memory')?.set(key, entry);
+    if (selectedPolicy.priority <= 2) {
+      // Critical and frequent data
+      this.levels.get("memory")?.set(key, entry);
     }
-    if (selectedPolicy.priority <= 3) { // All data
-      this.levels.get('storage')?.set(key, entry);
+    if (selectedPolicy.priority <= 3) {
+      // All data
+      this.levels.get("storage")?.set(key, entry);
     }
   }
 
@@ -229,7 +236,7 @@ class CacheHierarchy {
         }
       });
 
-      entriesToEvict.forEach(key => cache.delete(key));
+      entriesToEvict.forEach((key) => cache.delete(key));
     }
   }
 
@@ -257,38 +264,39 @@ class CacheService {
 
     // Add custom policies for different cache types
     this.hierarchy.addPolicy({
-      name: 'assets',
+      name: "assets",
       priority: 1,
       shouldCache: (key, value) => true,
-      shouldEvict: (entry) => entry.accessCount < 3 && Date.now() - entry.timestamp > 86400000, // 24 hours
+      shouldEvict: (entry) =>
+        entry.accessCount < 3 && Date.now() - entry.timestamp > 86400000, // 24 hours
       onHit: (entry) => {
         entry.accessCount++;
         analyticsService.trackUserEvent({
-          type: 'cache_asset_hit',
-          userId: 'system',
-          details: { key: entry.key }
+          type: "cache_asset_hit",
+          userId: "system",
+          details: { key: entry.key },
         });
-      }
+      },
     });
 
     this.hierarchy.addPolicy({
-      name: 'api',
+      name: "api",
       priority: 2,
       shouldCache: (key, value) => true,
       shouldEvict: (entry) => Date.now() - entry.timestamp > 300000, // 5 minutes
       onMiss: (key) => {
         analyticsService.trackUserEvent({
-          type: 'cache_api_miss',
-          userId: 'system',
-          details: { key }
+          type: "cache_api_miss",
+          userId: "system",
+          details: { key },
         });
-      }
+      },
     });
   }
 
   private async initializeFromStorage(): Promise<void> {
     try {
-      const storedCaches = localStorage.getItem('app:caches');
+      const storedCaches = localStorage.getItem("app:caches");
       if (storedCaches) {
         const parsed = JSON.parse(storedCaches);
         Object.entries(parsed).forEach(([name, config]) => {
@@ -302,8 +310,8 @@ class CacheService {
         });
       }
     } catch (error) {
-      console.error('Failed to initialize caches from storage:', error);
-      localStorage.removeItem('app:caches');
+      console.error("Failed to initialize caches from storage:", error);
+      localStorage.removeItem("app:caches");
     }
   }
 
@@ -331,7 +339,10 @@ class CacheService {
       // Check memory limits
       if (config.maxMemoryMB) {
         while (memoryManager.getCurrentUsage() > memoryManager.getLimit()) {
-          const keyToRemove = this.getKeyToInvalidate(cache, config.invalidationStrategy || 'lru');
+          const keyToRemove = this.getKeyToInvalidate(
+            cache,
+            config.invalidationStrategy || "lru",
+          );
           if (keyToRemove) {
             this.removeEntry(name, keyToRemove, cache.get(keyToRemove)!);
           } else {
@@ -346,13 +357,16 @@ class CacheService {
     });
   }
 
-  private getKeyToInvalidate(cache: Map<string, CacheEntry>, strategy: string): string {
+  private getKeyToInvalidate(
+    cache: Map<string, CacheEntry>,
+    strategy: string,
+  ): string {
     switch (strategy) {
-      case 'lru':
+      case "lru":
         return InvalidationStrategy.getLRUKey(cache);
-      case 'lfu':
+      case "lfu":
         return InvalidationStrategy.getLFUKey(cache);
-      case 'fifo':
+      case "fifo":
         return InvalidationStrategy.getFIFOKey(cache);
       default:
         return InvalidationStrategy.getLRUKey(cache);
@@ -367,12 +381,13 @@ class CacheService {
     memoryManager.releaseMemory(entry.size);
 
     analyticsService.trackUserEvent({
-      type: 'cache_entry_removed',
-      userId: 'system',
+      type: "cache_entry_removed",
+      userId: "system",
       details: {
         cacheName,
         key,
-        reason: entry.expiry && entry.expiry <= Date.now() ? 'expired' : 'evicted',
+        reason:
+          entry.expiry && entry.expiry <= Date.now() ? "expired" : "evicted",
         timestamp: new Date().toISOString(),
       },
     });
@@ -397,12 +412,12 @@ class CacheService {
 
     if (config.persistToStorage) {
       const caches = Object.fromEntries(this.configs.entries());
-      localStorage.setItem('app:caches', JSON.stringify(caches));
+      localStorage.setItem("app:caches", JSON.stringify(caches));
     }
 
     analyticsService.trackUserEvent({
-      type: 'cache_created',
-      userId: 'system',
+      type: "cache_created",
+      userId: "system",
       details: {
         cacheName: config.name,
         timestamp: new Date().toISOString(),
@@ -417,7 +432,7 @@ class CacheService {
     options: {
       maxAge?: number;
       tags?: string[];
-    } = {}
+    } = {},
   ): Promise<void> {
     const cache = this.caches.get(cacheName);
     const config = this.configs.get(cacheName);
@@ -434,7 +449,10 @@ class CacheService {
 
     if (!memoryManager.canStore(size)) {
       while (!memoryManager.canStore(size) && cache.size > 0) {
-        const keyToRemove = this.getKeyToInvalidate(cache, config.invalidationStrategy || 'lru');
+        const keyToRemove = this.getKeyToInvalidate(
+          cache,
+          config.invalidationStrategy || "lru",
+        );
         if (keyToRemove) {
           this.removeEntry(cacheName, keyToRemove, cache.get(keyToRemove)!);
         } else {
@@ -443,7 +461,9 @@ class CacheService {
       }
 
       if (!memoryManager.canStore(size)) {
-        console.warn(`Cannot cache ${key} in ${cacheName}: insufficient memory`);
+        console.warn(
+          `Cannot cache ${key} in ${cacheName}: insufficient memory`,
+        );
         return;
       }
     }
@@ -479,7 +499,10 @@ class CacheService {
 
     // Enforce max items limit
     if (config.maxItems && cache.size > config.maxItems) {
-      const keyToRemove = this.getKeyToInvalidate(cache, config.invalidationStrategy || 'lru');
+      const keyToRemove = this.getKeyToInvalidate(
+        cache,
+        config.invalidationStrategy || "lru",
+      );
       if (keyToRemove) {
         this.removeEntry(cacheName, keyToRemove, cache.get(keyToRemove)!);
       }
@@ -491,8 +514,8 @@ class CacheService {
     }
 
     analyticsService.trackUserEvent({
-      type: 'cache_set',
-      userId: 'system',
+      type: "cache_set",
+      userId: "system",
       details: {
         cacheName,
         key,
@@ -557,7 +580,7 @@ class CacheService {
     }
 
     cache.forEach((entry, key) => {
-      if (entry.tags?.some(tag => tags.includes(tag))) {
+      if (entry.tags?.some((tag) => tags.includes(tag))) {
         this.removeEntry(cacheName, key, entry);
       }
     });
@@ -592,8 +615,8 @@ class CacheService {
     }
 
     analyticsService.trackUserEvent({
-      type: 'cache_cleared',
-      userId: 'system',
+      type: "cache_cleared",
+      userId: "system",
       details: {
         cacheName,
         timestamp: new Date().toISOString(),

@@ -1,19 +1,19 @@
-import stateService from './state';
-import analyticsService from './analytics';
+import stateService from "./state";
+import analyticsService from "./analytics";
 
 interface ToastConfig {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: "info" | "success" | "warning" | "error";
   title?: string;
   message: string;
   duration?: number;
   position?:
-    | 'top-right'
-    | 'top-left'
-    | 'bottom-right'
-    | 'bottom-left'
-    | 'top-center'
-    | 'bottom-center';
+    | "top-right"
+    | "top-left"
+    | "bottom-right"
+    | "bottom-left"
+    | "top-center"
+    | "bottom-center";
   showProgress?: boolean;
   showIcon?: boolean;
   showCloseButton?: boolean;
@@ -33,9 +33,9 @@ class ToastService {
   };
   private listeners: Set<(state: ToastState) => void> = new Set();
   private defaultConfig: Partial<ToastConfig> = {
-    type: 'info',
+    type: "info",
     duration: 5000,
-    position: 'top-right',
+    position: "top-right",
     showProgress: true,
     showIcon: true,
     showCloseButton: true,
@@ -50,7 +50,9 @@ class ToastService {
       (state) => state.ui.notifications,
       (notifications) => {
         notifications.forEach((notification) => {
-          if (!this.state.toasts.some((toast) => toast.id === notification.id)) {
+          if (
+            !this.state.toasts.some((toast) => toast.id === notification.id)
+          ) {
             this.show({
               id: notification.id,
               type: notification.type,
@@ -59,7 +61,7 @@ class ToastService {
             });
           }
         });
-      }
+      },
     );
   }
 
@@ -73,8 +75,8 @@ class ToastService {
 
     // Track toast display in analytics
     analyticsService.trackUserEvent({
-      type: 'toast_displayed',
-      userId: 'system',
+      type: "toast_displayed",
+      userId: "system",
       details: {
         toastId: id,
         toastType: fullConfig.type,
@@ -89,7 +91,7 @@ class ToastService {
     if (this.state.toasts.length > this.state.maxToasts) {
       const removedToasts = this.state.toasts.splice(
         0,
-        this.state.toasts.length - this.state.maxToasts
+        this.state.toasts.length - this.state.maxToasts,
       );
       removedToasts.forEach((toast) => toast.onClose?.());
     }
@@ -108,7 +110,7 @@ class ToastService {
   public success(message: string, config: Partial<ToastConfig> = {}): void {
     this.show({
       ...config,
-      type: 'success',
+      type: "success",
       message,
     });
   }
@@ -116,7 +118,7 @@ class ToastService {
   public error(message: string, config: Partial<ToastConfig> = {}): void {
     this.show({
       ...config,
-      type: 'error',
+      type: "error",
       message,
     });
   }
@@ -124,7 +126,7 @@ class ToastService {
   public warning(message: string, config: Partial<ToastConfig> = {}): void {
     this.show({
       ...config,
-      type: 'warning',
+      type: "warning",
       message,
     });
   }
@@ -132,7 +134,7 @@ class ToastService {
   public info(message: string, config: Partial<ToastConfig> = {}): void {
     this.show({
       ...config,
-      type: 'info',
+      type: "info",
       message,
     });
   }
@@ -145,8 +147,8 @@ class ToastService {
 
     // Track toast dismissal in analytics
     analyticsService.trackUserEvent({
-      type: 'toast_dismissed',
-      userId: 'system',
+      type: "toast_dismissed",
+      userId: "system",
       details: {
         toastId: id,
         toastType: toast.type,
@@ -189,7 +191,10 @@ class ToastService {
   public setMaxToasts(max: number): void {
     this.state.maxToasts = max;
     if (this.state.toasts.length > max) {
-      const removedToasts = this.state.toasts.splice(0, this.state.toasts.length - max);
+      const removedToasts = this.state.toasts.splice(
+        0,
+        this.state.toasts.length - max,
+      );
       removedToasts.forEach((toast) => toast.onClose?.());
       this.notifyListeners();
     }

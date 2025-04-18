@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Card,
@@ -12,7 +12,7 @@ import {
   LinearProgress,
   useTheme,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -26,17 +26,17 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts';
-import { useAnalytics } from '../services/AnalyticsService';
+} from "recharts";
+import { useAnalytics } from "../services/AnalyticsService";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 const StatCard: React.FC<{
   title: string;
   value: string | number;
   subtitle?: string;
 }> = ({ title, value, subtitle }) => (
-  <Card sx={{ height: '100%' }}>
+  <Card sx={{ height: "100%" }}>
     <CardContent>
       <Typography variant="h6" gutterBottom>
         {title}
@@ -76,13 +76,13 @@ const RecentGamesList: React.FC<{
                   game.score.opponent
                 } • ${new Date(game.date).toLocaleDateString()}`}
                 sx={{
-                  '& .MuiListItemText-primary': {
+                  "& .MuiListItemText-primary": {
                     color:
-                      game.result === 'win'
-                        ? 'success.main'
-                        : game.result === 'loss'
-                        ? 'error.main'
-                        : 'text.primary',
+                      game.result === "win"
+                        ? "success.main"
+                        : game.result === "loss"
+                          ? "error.main"
+                          : "text.primary",
                   },
                 }}
               />
@@ -162,14 +162,19 @@ const ShotDistributionChart: React.FC<{
             cx={200}
             cy={150}
             labelLine={false}
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) =>
+              `${name} ${(percent * 100).toFixed(0)}%`
+            }
             outerRadius={100}
             fill="#8884d8"
             dataKey="percentage"
             nameKey="type"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip />
@@ -204,7 +209,12 @@ const MostUsedShotsChart: React.FC<{
           <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
           <Tooltip />
           <Legend />
-          <Bar yAxisId="left" dataKey="count" fill="#8884d8" name="Usage Count" />
+          <Bar
+            yAxisId="left"
+            dataKey="count"
+            fill="#8884d8"
+            name="Usage Count"
+          />
           <Bar
             yAxisId="right"
             dataKey="successRate"
@@ -236,7 +246,7 @@ const AchievementsList: React.FC<{
               <ListItemText
                 primary={achievement.name}
                 secondary={`${achievement.description} • Unlocked: ${new Date(
-                  achievement.dateUnlocked
+                  achievement.dateUnlocked,
                 ).toLocaleDateString()}`}
               />
             </ListItem>
@@ -263,11 +273,11 @@ const SkillLevels: React.FC<{
       <List>
         {skills.map((skill, index) => (
           <ListItem key={index}>
-            <Box sx={{ width: '100%' }}>
+            <Box sx={{ width: "100%" }}>
               <Box
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
+                  display: "flex",
+                  justifyContent: "space-between",
                   mb: 1,
                 }}
               >
@@ -386,4 +396,4 @@ export const AnalyticsDashboard: React.FC = () => {
       </Grid>
     </Box>
   );
-}; 
+};

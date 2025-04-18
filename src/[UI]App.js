@@ -1,13 +1,13 @@
-import { ThemeProvider } from '@mui/material';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { AuthProvider } from './components/auth/AuthContext';
-import Login from './components/auth/Login';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import ResetPassword from './components/auth/ResetPassword';
-import Signup from './components/auth/Signup';
-import Dashboard from './components/Dashboard';
-import theme from '../theme';
-import './index.css';
+import { ThemeProvider } from "@mui/material";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { AuthProvider } from "./components/auth/AuthContext";
+import Login from "./components/auth/Login";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ResetPassword from "./components/auth/ResetPassword";
+import Signup from "./components/auth/Signup";
+import Dashboard from "./components/Dashboard";
+import theme from "../theme";
+import "./index.css";
 
 function App() {
   return (

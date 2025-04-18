@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { LiveMatch } from '../../services/match-updates';
-import matchUpdateService from '../../services/match-updates';
-import { formatTimestamp } from '../../utils/date';
-import './LiveMatch.css';
+import React, { useEffect, useState } from "react";
+import { LiveMatch } from "../../services/match-updates";
+import matchUpdateService from "../../services/match-updates";
+import { formatTimestamp } from "../../utils/date";
+import "./LiveMatch.css";
 
 interface LiveMatchProps {
   matchId: string;
   onScoreUpdate?: (score: any) => void;
 }
 
-export const LiveMatchDisplay: React.FC<LiveMatchProps> = ({ matchId, onScoreUpdate }) => {
+export const LiveMatchDisplay: React.FC<LiveMatchProps> = ({
+  matchId,
+  onScoreUpdate,
+}) => {
   const [match, setMatch] = useState<LiveMatch | null>(null);
   const [isWatching, setIsWatching] = useState(false);
 
@@ -19,12 +22,15 @@ export const LiveMatchDisplay: React.FC<LiveMatchProps> = ({ matchId, onScoreUpd
       setIsWatching(true);
     }
 
-    const unsubscribe = matchUpdateService.subscribeToMatch(matchId, (updatedMatch) => {
-      setMatch(updatedMatch);
-      if (onScoreUpdate) {
-        onScoreUpdate(updatedMatch.currentScore);
-      }
-    });
+    const unsubscribe = matchUpdateService.subscribeToMatch(
+      matchId,
+      (updatedMatch) => {
+        setMatch(updatedMatch);
+        if (onScoreUpdate) {
+          onScoreUpdate(updatedMatch.currentScore);
+        }
+      },
+    );
 
     return () => {
       unsubscribe();
@@ -73,12 +79,16 @@ export const LiveMatchDisplay: React.FC<LiveMatchProps> = ({ matchId, onScoreUpd
 
         <div className="match-status">
           <div className="status-indicator">
-            {match.status === 'in_progress' && (
+            {match.status === "in_progress" && (
               <span className="badge badge-success">In Progress</span>
             )}
-            {match.status === 'paused' && <span className="badge badge-warning">Paused</span>}
+            {match.status === "paused" && (
+              <span className="badge badge-warning">Paused</span>
+            )}
           </div>
-          <div className="last-update">Last update: {formatTimestamp(match.lastUpdate)}</div>
+          <div className="last-update">
+            Last update: {formatTimestamp(match.lastUpdate)}
+          </div>
         </div>
       </div>
     </div>

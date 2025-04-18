@@ -1,4 +1,4 @@
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
 
 interface WebSocketState {
   connected: boolean;
@@ -18,32 +18,32 @@ class WebSocketService {
   }
 
   private initialize(): void {
-    const socket = io(process.env.REACT_APP_WS_URL || 'ws://localhost:8000', {
-      transports: ['websocket'],
+    const socket = io(process.env.REACT_APP_WS_URL || "ws://localhost:8000", {
+      transports: ["websocket"],
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
     });
 
-    socket.on('connect', () => {
-      console.log('WebSocket connected');
+    socket.on("connect", () => {
+      console.log("WebSocket connected");
       this.state.connected = true;
       this.handleReconnection();
     });
 
-    socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
+    socket.on("disconnect", () => {
+      console.log("WebSocket disconnected");
       this.state.connected = false;
     });
 
-    socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
+    socket.on("error", (error) => {
+      console.error("WebSocket error:", error);
     });
 
     // Handle notification events
-    socket.on('notification', (data) => {
-      this.notifySubscribers('notifications', data);
+    socket.on("notification", (data) => {
+      this.notifySubscribers("notifications", data);
     });
 
     this.state.socket = socket;
@@ -53,7 +53,7 @@ class WebSocketService {
     if (this.state.socket) {
       // Resubscribe to all channels
       this.state.subscriptions.forEach((_, channel) => {
-        this.state.socket?.emit('subscribe', { channel });
+        this.state.socket?.emit("subscribe", { channel });
       });
     }
   }
@@ -61,7 +61,7 @@ class WebSocketService {
   public subscribe(channel: string, callback: (data: any) => void): () => void {
     if (!this.state.subscriptions.has(channel)) {
       this.state.subscriptions.set(channel, new Set());
-      this.state.socket?.emit('subscribe', { channel });
+      this.state.socket?.emit("subscribe", { channel });
     }
 
     const subscribers = this.state.subscriptions.get(channel);
@@ -73,7 +73,7 @@ class WebSocketService {
         subscribers.delete(callback);
         if (subscribers.size === 0) {
           this.state.subscriptions.delete(channel);
-          this.state.socket?.emit('unsubscribe', { channel });
+          this.state.socket?.emit("unsubscribe", { channel });
         }
       }
     };
@@ -86,7 +86,7 @@ class WebSocketService {
         try {
           callback(data);
         } catch (error) {
-          console.error('Error in subscriber callback:', error);
+          console.error("Error in subscriber callback:", error);
         }
       });
     }

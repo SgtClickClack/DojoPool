@@ -1,6 +1,6 @@
-import stateService from './state';
-import storageService from './storage';
-import analyticsService from './analytics';
+import stateService from "./state";
+import storageService from "./storage";
+import analyticsService from "./analytics";
 
 interface ThemeColors {
   primary: string;
@@ -24,9 +24,9 @@ interface ThemeTypography {
     base: string;
     lg: string;
     xl: string;
-    '2xl': string;
-    '3xl': string;
-    '4xl': string;
+    "2xl": string;
+    "3xl": string;
+    "4xl": string;
   };
   fontWeight: {
     light: number;
@@ -51,9 +51,9 @@ interface ThemeSpacing {
   md: string;
   lg: string;
   xl: string;
-  '2xl': string;
-  '3xl': string;
-  '4xl': string;
+  "2xl": string;
+  "3xl": string;
+  "4xl": string;
 }
 
 interface ThemeBreakpoints {
@@ -62,7 +62,7 @@ interface ThemeBreakpoints {
   md: string;
   lg: string;
   xl: string;
-  '2xl': string;
+  "2xl": string;
 }
 
 interface ThemeAnimation {
@@ -93,22 +93,22 @@ interface Theme {
 interface ThemeState {
   currentTheme: Theme;
   themes: Map<string, Theme>;
-  systemPreference: 'light' | 'dark';
+  systemPreference: "light" | "dark";
   autoDetectSystemTheme: boolean;
 }
 
 class ThemeService {
   private state: ThemeState;
-  private readonly STORAGE_KEY = 'app:theme';
+  private readonly STORAGE_KEY = "app:theme";
   private mediaQuery: MediaQueryList;
   private listeners: Set<(theme: Theme) => void> = new Set();
 
   constructor() {
-    this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this.mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     this.state = {
       currentTheme: this.getDefaultTheme(),
       themes: new Map(),
-      systemPreference: this.mediaQuery.matches ? 'dark' : 'light',
+      systemPreference: this.mediaQuery.matches ? "dark" : "light",
       autoDetectSystemTheme: true,
     };
 
@@ -130,8 +130,8 @@ class ThemeService {
 
     // Track initialization
     analyticsService.trackUserEvent({
-      type: 'theme_service_initialized',
-      userId: 'system',
+      type: "theme_service_initialized",
+      userId: "system",
       details: {
         currentTheme: this.state.currentTheme.id,
         autoDetect: this.state.autoDetectSystemTheme,
@@ -142,32 +142,32 @@ class ThemeService {
 
   private getDefaultTheme(): Theme {
     return {
-      id: 'light',
-      name: 'Light Theme',
+      id: "light",
+      name: "Light Theme",
       colors: {
-        primary: '#007AFF',
-        secondary: '#5856D6',
-        accent: '#FF2D55',
-        background: '#FFFFFF',
-        surface: '#F2F2F7',
-        text: '#000000',
-        textSecondary: '#8E8E93',
-        error: '#FF3B30',
-        warning: '#FF9500',
-        success: '#34C759',
-        info: '#5856D6',
+        primary: "#007AFF",
+        secondary: "#5856D6",
+        accent: "#FF2D55",
+        background: "#FFFFFF",
+        surface: "#F2F2F7",
+        text: "#000000",
+        textSecondary: "#8E8E93",
+        error: "#FF3B30",
+        warning: "#FF9500",
+        success: "#34C759",
+        info: "#5856D6",
       },
       typography: {
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontFamily: "system-ui, -apple-system, sans-serif",
         fontSize: {
-          xs: '0.75rem',
-          sm: '0.875rem',
-          base: '1rem',
-          lg: '1.125rem',
-          xl: '1.25rem',
-          '2xl': '1.5rem',
-          '3xl': '1.875rem',
-          '4xl': '2.25rem',
+          xs: "0.75rem",
+          sm: "0.875rem",
+          base: "1rem",
+          lg: "1.125rem",
+          xl: "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
         },
         fontWeight: {
           light: 300,
@@ -186,33 +186,33 @@ class ThemeService {
         },
       },
       spacing: {
-        xs: '0.25rem',
-        sm: '0.5rem',
-        md: '1rem',
-        lg: '1.5rem',
-        xl: '2rem',
-        '2xl': '2.5rem',
-        '3xl': '3rem',
-        '4xl': '4rem',
+        xs: "0.25rem",
+        sm: "0.5rem",
+        md: "1rem",
+        lg: "1.5rem",
+        xl: "2rem",
+        "2xl": "2.5rem",
+        "3xl": "3rem",
+        "4xl": "4rem",
       },
       breakpoints: {
-        xs: '320px',
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1536px',
+        xs: "320px",
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
       },
       animation: {
         duration: {
-          fast: '150ms',
-          normal: '300ms',
-          slow: '500ms',
+          fast: "150ms",
+          normal: "300ms",
+          slow: "500ms",
         },
         easing: {
-          easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-          easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
-          easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          easeIn: "cubic-bezier(0.4, 0, 1, 1)",
+          easeOut: "cubic-bezier(0, 0, 0.2, 1)",
+          easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
         },
       },
       isDark: false,
@@ -223,20 +223,20 @@ class ThemeService {
     const lightTheme = this.getDefaultTheme();
     const darkTheme: Theme = {
       ...lightTheme,
-      id: 'dark',
-      name: 'Dark Theme',
+      id: "dark",
+      name: "Dark Theme",
       colors: {
-        primary: '#0A84FF',
-        secondary: '#5E5CE6',
-        accent: '#FF375F',
-        background: '#000000',
-        surface: '#1C1C1E',
-        text: '#FFFFFF',
-        textSecondary: '#8E8E93',
-        error: '#FF453A',
-        warning: '#FF9F0A',
-        success: '#32D74B',
-        info: '#5E5CE6',
+        primary: "#0A84FF",
+        secondary: "#5E5CE6",
+        accent: "#FF375F",
+        background: "#000000",
+        surface: "#1C1C1E",
+        text: "#FFFFFF",
+        textSecondary: "#8E8E93",
+        error: "#FF453A",
+        warning: "#FF9F0A",
+        success: "#32D74B",
+        info: "#5E5CE6",
       },
       isDark: true,
     };
@@ -246,8 +246,8 @@ class ThemeService {
   }
 
   private setupSystemThemeDetection(): void {
-    this.mediaQuery.addEventListener('change', (e) => {
-      this.state.systemPreference = e.matches ? 'dark' : 'light';
+    this.mediaQuery.addEventListener("change", (e) => {
+      this.state.systemPreference = e.matches ? "dark" : "light";
       if (this.state.autoDetectSystemTheme) {
         this.setTheme(this.state.systemPreference);
       }
@@ -268,7 +268,7 @@ class ThemeService {
         }
       }
     } catch (error) {
-      console.error('Failed to load theme preferences:', error);
+      console.error("Failed to load theme preferences:", error);
     }
   }
 
@@ -279,10 +279,10 @@ class ThemeService {
         JSON.stringify({
           themeId: this.state.currentTheme.id,
           autoDetect: this.state.autoDetectSystemTheme,
-        })
+        }),
       );
     } catch (error) {
-      console.error('Failed to save theme preferences:', error);
+      console.error("Failed to save theme preferences:", error);
     }
   }
 
@@ -296,7 +296,7 @@ class ThemeService {
     });
 
     // Typography
-    root.style.setProperty('--font-family', theme.typography.fontFamily);
+    root.style.setProperty("--font-family", theme.typography.fontFamily);
     Object.entries(theme.typography.fontSize).forEach(([key, value]) => {
       root.style.setProperty(`--font-size-${key}`, value);
     });
@@ -326,16 +326,16 @@ class ThemeService {
     });
 
     // Set theme mode
-    root.classList.toggle('dark-theme', theme.isDark);
-    root.classList.toggle('light-theme', !theme.isDark);
+    root.classList.toggle("dark-theme", theme.isDark);
+    root.classList.toggle("light-theme", !theme.isDark);
 
     // Notify listeners
     this.notifyListeners();
 
     // Track theme change
     analyticsService.trackUserEvent({
-      type: 'theme_changed',
-      userId: 'system',
+      type: "theme_changed",
+      userId: "system",
       details: {
         themeId: theme.id,
         isDark: theme.isDark,
@@ -349,8 +349,8 @@ class ThemeService {
 
     // Track theme registration
     analyticsService.trackUserEvent({
-      type: 'theme_registered',
-      userId: 'system',
+      type: "theme_registered",
+      userId: "system",
       details: {
         themeId: theme.id,
         themeName: theme.name,
@@ -392,8 +392,8 @@ class ThemeService {
 
     // Track auto-detect setting change
     analyticsService.trackUserEvent({
-      type: 'theme_auto_detect_changed',
-      userId: 'system',
+      type: "theme_auto_detect_changed",
+      userId: "system",
       details: {
         enabled,
         timestamp: new Date().toISOString(),
@@ -405,7 +405,7 @@ class ThemeService {
     return this.state.autoDetectSystemTheme;
   }
 
-  public getSystemPreference(): 'light' | 'dark' {
+  public getSystemPreference(): "light" | "dark" {
     return this.state.systemPreference;
   }
 

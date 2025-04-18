@@ -1,20 +1,20 @@
-import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { Register } from '../../../dojopool/frontend/components/Auth/[AUTH]Register';
-import { renderWithProviders } from '../../utils/testUtils';
-import { useAuth } from '../../../dojopool/frontend/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Register } from "../../../dojopool/frontend/components/Auth/[AUTH]Register";
+import { renderWithProviders } from "../../utils/testUtils";
+import { useAuth } from "../../../dojopool/frontend/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 // Mock the hooks
-jest.mock('../../../dojopool/frontend/hooks/useAuth');
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock("../../../dojopool/frontend/hooks/useAuth");
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
   useNavigate: jest.fn(),
   Link: jest.fn().mockImplementation(({ children }) => children),
 }));
 
-describe('Register Component', () => {
+describe("Register Component", () => {
   const mockRegister = jest.fn();
   const mockNavigate = jest.fn();
 
@@ -30,117 +30,123 @@ describe('Register Component', () => {
     jest.clearAllMocks();
   });
 
-  it('renders registration form correctly', () => {
+  it("renders registration form correctly", () => {
     renderWithProviders(<Register />);
-    
-    expect(screen.getByText('Create Account')).toBeInTheDocument();
-    expect(screen.getByLabelText('Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Confirm Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign Up' })).toBeInTheDocument();
+
+    expect(screen.getByText("Create Account")).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm Password")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sign Up" })).toBeInTheDocument();
     expect(screen.getByText(/Already have an account/)).toBeInTheDocument();
   });
 
-  it('handles form submission correctly', async () => {
+  it("handles form submission correctly", async () => {
     renderWithProviders(<Register />);
-    
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const confirmPasswordInput = screen.getByLabelText('Confirm Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign Up' });
 
-    await userEvent.type(nameInput, 'Test User');
-    await userEvent.type(emailInput, 'test@example.com');
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.type(confirmPasswordInput, 'password123');
+    const nameInput = screen.getByLabelText("Name");
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm Password");
+    const submitButton = screen.getByRole("button", { name: "Sign Up" });
+
+    await userEvent.type(nameInput, "Test User");
+    await userEvent.type(emailInput, "test@example.com");
+    await userEvent.type(passwordInput, "password123");
+    await userEvent.type(confirmPasswordInput, "password123");
     fireEvent.click(submitButton);
 
-    expect(mockRegister).toHaveBeenCalledWith('test@example.com', 'password123', 'Test User');
+    expect(mockRegister).toHaveBeenCalledWith(
+      "test@example.com",
+      "password123",
+      "Test User",
+    );
   });
 
-  it('displays error message when registration fails', () => {
+  it("displays error message when registration fails", () => {
     (useAuth as jest.Mock).mockReturnValue({
       register: mockRegister,
-      error: 'Email already exists',
+      error: "Email already exists",
     });
 
     renderWithProviders(<Register />);
-    
-    expect(screen.getByText('Email already exists')).toBeInTheDocument();
+
+    expect(screen.getByText("Email already exists")).toBeInTheDocument();
   });
 
-  it('validates password match', async () => {
+  it("validates password match", async () => {
     renderWithProviders(<Register />);
-    
-    const passwordInput = screen.getByLabelText('Password');
-    const confirmPasswordInput = screen.getByLabelText('Confirm Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign Up' });
 
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.type(confirmPasswordInput, 'password456');
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm Password");
+    const submitButton = screen.getByRole("button", { name: "Sign Up" });
+
+    await userEvent.type(passwordInput, "password123");
+    await userEvent.type(confirmPasswordInput, "password456");
     fireEvent.click(submitButton);
 
-    expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+    expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
     expect(mockRegister).not.toHaveBeenCalled();
   });
 
-  it('validates required fields', async () => {
+  it("validates required fields", async () => {
     renderWithProviders(<Register />);
-    
-    const submitButton = screen.getByRole('button', { name: 'Sign Up' });
+
+    const submitButton = screen.getByRole("button", { name: "Sign Up" });
     fireEvent.click(submitButton);
 
     // HTML5 validation messages
-    expect(screen.getByLabelText('Name')).toBeInvalid();
-    expect(screen.getByLabelText('Email')).toBeInvalid();
-    expect(screen.getByLabelText('Password')).toBeInvalid();
-    expect(screen.getByLabelText('Confirm Password')).toBeInvalid();
+    expect(screen.getByLabelText("Name")).toBeInvalid();
+    expect(screen.getByLabelText("Email")).toBeInvalid();
+    expect(screen.getByLabelText("Password")).toBeInvalid();
+    expect(screen.getByLabelText("Confirm Password")).toBeInvalid();
   });
 
-  it('navigates to login page', async () => {
+  it("navigates to login page", async () => {
     renderWithProviders(<Register />);
-    
-    const loginLink = screen.getByText('Sign in');
+
+    const loginLink = screen.getByText("Sign in");
     fireEvent.click(loginLink);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 
-  it('prevents form submission with invalid email', async () => {
+  it("prevents form submission with invalid email", async () => {
     renderWithProviders(<Register />);
-    
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const confirmPasswordInput = screen.getByLabelText('Confirm Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign Up' });
 
-    await userEvent.type(nameInput, 'Test User');
-    await userEvent.type(emailInput, 'invalid-email');
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.type(confirmPasswordInput, 'password123');
+    const nameInput = screen.getByLabelText("Name");
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm Password");
+    const submitButton = screen.getByRole("button", { name: "Sign Up" });
+
+    await userEvent.type(nameInput, "Test User");
+    await userEvent.type(emailInput, "invalid-email");
+    await userEvent.type(passwordInput, "password123");
+    await userEvent.type(confirmPasswordInput, "password123");
     fireEvent.click(submitButton);
 
     expect(mockRegister).not.toHaveBeenCalled();
     expect(emailInput).toBeInvalid();
   });
 
-  it('disables submit button during registration attempt', async () => {
-    mockRegister.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+  it("disables submit button during registration attempt", async () => {
+    mockRegister.mockImplementation(
+      () => new Promise((resolve) => setTimeout(resolve, 100)),
+    );
     renderWithProviders(<Register />);
-    
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const confirmPasswordInput = screen.getByLabelText('Confirm Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign Up' });
 
-    await userEvent.type(nameInput, 'Test User');
-    await userEvent.type(emailInput, 'test@example.com');
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.type(confirmPasswordInput, 'password123');
+    const nameInput = screen.getByLabelText("Name");
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm Password");
+    const submitButton = screen.getByRole("button", { name: "Sign Up" });
+
+    await userEvent.type(nameInput, "Test User");
+    await userEvent.type(emailInput, "test@example.com");
+    await userEvent.type(passwordInput, "password123");
+    await userEvent.type(confirmPasswordInput, "password123");
     fireEvent.click(submitButton);
 
     expect(submitButton).toBeDisabled();
@@ -150,25 +156,27 @@ describe('Register Component', () => {
     });
   });
 
-  it('clears password error when passwords match', async () => {
+  it("clears password error when passwords match", async () => {
     renderWithProviders(<Register />);
-    
-    const passwordInput = screen.getByLabelText('Password');
-    const confirmPasswordInput = screen.getByLabelText('Confirm Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign Up' });
+
+    const passwordInput = screen.getByLabelText("Password");
+    const confirmPasswordInput = screen.getByLabelText("Confirm Password");
+    const submitButton = screen.getByRole("button", { name: "Sign Up" });
 
     // First create a mismatch
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.type(confirmPasswordInput, 'password456');
+    await userEvent.type(passwordInput, "password123");
+    await userEvent.type(confirmPasswordInput, "password456");
     fireEvent.click(submitButton);
 
-    expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+    expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
 
     // Then fix the mismatch
     await userEvent.clear(confirmPasswordInput);
-    await userEvent.type(confirmPasswordInput, 'password123');
+    await userEvent.type(confirmPasswordInput, "password123");
     fireEvent.click(submitButton);
 
-    expect(screen.queryByText('Passwords do not match')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Passwords do not match"),
+    ).not.toBeInTheDocument();
   });
-}); 
+});

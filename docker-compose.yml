@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   web:
@@ -77,4 +77,4 @@ volumes:
 
 networks:
   dojopool_network:
-    driver: bridge 
+    driver: bridge

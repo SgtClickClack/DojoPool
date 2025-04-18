@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Location, watchLocation } from '@/utils/location';
+import { useState, useEffect } from "react";
+import { Location, watchLocation } from "@/utils/location";
 
 interface UseLocationOptions {
   onError?: (error: GeolocationPositionError) => void;

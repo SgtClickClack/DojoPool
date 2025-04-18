@@ -6,31 +6,31 @@
 export const Config = {
   // API endpoints
   API: {
-    BASE_URL: '/api/v1',
+    BASE_URL: "/api/v1",
     AUTH: {
-      LOGIN: '/auth/login',
-      REGISTER: '/auth/register',
-      LOGOUT: '/auth/logout',
-      VERIFY_EMAIL: '/auth/verify-email',
-      RESET_PASSWORD: '/auth/reset-password',
-      CHANGE_PASSWORD: '/auth/change-password',
-      CHANGE_EMAIL: '/auth/change-email',
+      LOGIN: "/auth/login",
+      REGISTER: "/auth/register",
+      LOGOUT: "/auth/logout",
+      VERIFY_EMAIL: "/auth/verify-email",
+      RESET_PASSWORD: "/auth/reset-password",
+      CHANGE_PASSWORD: "/auth/change-password",
+      CHANGE_EMAIL: "/auth/change-email",
     },
     USERS: {
-      PROFILE: '/users/profile',
-      AVATAR: '/users/avatar',
-      SETTINGS: '/users/settings',
+      PROFILE: "/users/profile",
+      AVATAR: "/users/avatar",
+      SETTINGS: "/users/settings",
     },
     GAMES: {
-      LIST: '/games',
-      CREATE: '/games/create',
+      LIST: "/games",
+      CREATE: "/games/create",
       DETAIL: (id: number) => `/games/${id}`,
       UPDATE: (id: number) => `/games/${id}`,
       DELETE: (id: number) => `/games/${id}`,
     },
     TOURNAMENTS: {
-      LIST: '/tournaments',
-      CREATE: '/tournaments/create',
+      LIST: "/tournaments",
+      CREATE: "/tournaments/create",
       DETAIL: (id: number) => `/tournaments/${id}`,
       JOIN: (id: number) => `/tournaments/${id}/join`,
       LEAVE: (id: number) => `/tournaments/${id}/leave`,
@@ -39,20 +39,20 @@ export const Config = {
 
   // WebSocket events
   SOCKET: {
-    CONNECT: 'connect',
-    DISCONNECT: 'disconnect',
-    ERROR: 'error',
-    GAME_UPDATE: 'game_update',
-    CHAT_MESSAGE: 'chat_message',
-    NOTIFICATION: 'notification',
+    CONNECT: "connect",
+    DISCONNECT: "disconnect",
+    ERROR: "error",
+    GAME_UPDATE: "game_update",
+    CHAT_MESSAGE: "chat_message",
+    NOTIFICATION: "notification",
   },
 
   // Local storage keys
   STORAGE: {
-    AUTH_TOKEN: 'auth_token',
-    USER_SETTINGS: 'user_settings',
-    THEME: 'theme',
-    LANGUAGE: 'language',
+    AUTH_TOKEN: "auth_token",
+    USER_SETTINGS: "user_settings",
+    THEME: "theme",
+    LANGUAGE: "language",
   },
 
   // UI settings
@@ -66,9 +66,9 @@ export const Config = {
 
   // Theme settings
   THEME: {
-    LIGHT: 'light',
-    DARK: 'dark',
-    SYSTEM: 'system',
+    LIGHT: "light",
+    DARK: "dark",
+    SYSTEM: "system",
   },
 
   // Validation settings
@@ -91,11 +91,11 @@ export const Config = {
 
   // Error messages
   ERRORS: {
-    NETWORK: 'Network error. Please check your connection.',
-    SERVER: 'Server error. Please try again later.',
-    VALIDATION: 'Please check your input and try again.',
-    UNAUTHORIZED: 'Please log in to continue.',
-    FORBIDDEN: 'You do not have permission to perform this action.',
-    NOT_FOUND: 'The requested resource was not found.',
+    NETWORK: "Network error. Please check your connection.",
+    SERVER: "Server error. Please try again later.",
+    VALIDATION: "Please check your input and try again.",
+    UNAUTHORIZED: "Please log in to continue.",
+    FORBIDDEN: "You do not have permission to perform this action.",
+    NOT_FOUND: "The requested resource was not found.",
   },
 } as const;

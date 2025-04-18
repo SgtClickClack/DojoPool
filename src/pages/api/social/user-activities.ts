@@ -1,52 +1,46 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { ActivityService } from '../../../../dojopool/services/social/activity';
-import { getCurrentUser } from '../../../../dojopool/services/auth/session';
+import { NextApiRequest, NextApiResponse } from "next";
+import { ActivityService } from "../../../../dojopool/services/social/activity";
+import { getCurrentUser } from "../../../../dojopool/services/auth/session";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     // Get current user
     const user = await getCurrentUser(req);
     if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     // Get query parameters
-    const {
-      user_id,
-      page = '1',
-      per_page = '20',
-      types,
-      days
-    } = req.query;
+    const { user_id, page = "1", per_page = "20", types, days } = req.query;
 
     // Validate user_id
-    if (!user_id || typeof user_id !== 'string') {
-      return res.status(400).json({ error: 'User ID is required' });
+    if (!user_id || typeof user_id !== "string") {
+      return res.status(400).json({ error: "User ID is required" });
     }
 
     const targetUserId = parseInt(user_id);
     if (isNaN(targetUserId)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
+      return res.status(400).json({ error: "Invalid user ID" });
     }
 
     // Parse and validate other parameters
     const pageNum = parseInt(page as string);
     const perPageNum = parseInt(per_page as string);
-    const activityTypes = types ? (types as string).split(',') : undefined;
+    const activityTypes = types ? (types as string).split(",") : undefined;
     const daysNum = days ? parseInt(days as string) : undefined;
 
     if (isNaN(pageNum) || pageNum < 1) {
-      return res.status(400).json({ error: 'Invalid page number' });
+      return res.status(400).json({ error: "Invalid page number" });
     }
     if (isNaN(perPageNum) || perPageNum < 1 || perPageNum > 100) {
-      return res.status(400).json({ error: 'Invalid per_page value' });
+      return res.status(400).json({ error: "Invalid per_page value" });
     }
 
     // Get user activities
@@ -54,12 +48,12 @@ export default async function handler(
       targetUserId,
       pageNum,
       perPageNum,
-      activityTypes
+      activityTypes,
     );
 
     return res.status(200).json(activities);
   } catch (error) {
-    console.error('Error getting user activities:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Error getting user activities:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
-} 
+}

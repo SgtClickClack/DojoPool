@@ -23,7 +23,7 @@ class WebSocketManager {
    * @returns {string|null} Authentication token
    */
   getAuthToken() {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem("auth_token");
   }
 
   /**
@@ -45,40 +45,40 @@ class WebSocketManager {
 
         this.socket = io(this.options.url, {
           auth: { token },
-          transports: ['websocket'],
+          transports: ["websocket"],
           reconnection: true,
           reconnectionAttempts: this.options.reconnectAttempts,
           reconnectionDelay: this.options.reconnectDelay,
         });
 
-        this.socket.on('connect', () => {
-          this.log('WebSocket connected');
+        this.socket.on("connect", () => {
+          this.log("WebSocket connected");
           this.isConnected = true;
           this.reconnectAttempts = 0;
           this.processPendingMessages();
           resolve();
         });
 
-        this.socket.on('disconnect', () => {
-          this.log('WebSocket closed');
+        this.socket.on("disconnect", () => {
+          this.log("WebSocket closed");
           this.isConnected = false;
         });
 
-        this.socket.on('error', (error) => {
-          this.log('WebSocket error:', error);
+        this.socket.on("error", (error) => {
+          this.log("WebSocket error:", error);
           reject(error);
         });
 
-        this.socket.on('message', (data) => {
+        this.socket.on("message", (data) => {
           try {
-            const message = typeof data === 'string' ? JSON.parse(data) : data;
+            const message = typeof data === "string" ? JSON.parse(data) : data;
             this.handleMessage(message);
           } catch (error) {
-            this.log('Error parsing message:', error);
+            this.log("Error parsing message:", error);
           }
         });
       } catch (error) {
-        this.log('Error connecting:', error);
+        this.log("Error connecting:", error);
         reject(error);
       }
     });
@@ -142,7 +142,7 @@ class WebSocketManager {
     } else {
       this.pendingMessages.push(message);
       this.connect().catch((error) => {
-        this.log('Failed to connect:', error);
+        this.log("Failed to connect:", error);
       });
     }
   }
@@ -168,7 +168,7 @@ class WebSocketManager {
         try {
           callback(message.payload);
         } catch (error) {
-          this.log('Error in message handler:', error);
+          this.log("Error in message handler:", error);
         }
       });
     }
@@ -180,7 +180,7 @@ class WebSocketManager {
    */
   log(...args) {
     if (this.options.debug) {
-      console.log('[WebSocketManager]', ...args);
+      console.log("[WebSocketManager]", ...args);
     }
   }
 }

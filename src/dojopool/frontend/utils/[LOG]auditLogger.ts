@@ -1,4 +1,4 @@
-import { AuthManager, UserRole } from './auth';
+import { AuthManager, UserRole } from "./auth";
 
 interface AuditEvent {
   id: string;
@@ -10,7 +10,7 @@ interface AuditEvent {
   action: string;
   resource: string;
   details: Record<string, any>;
-  status: 'success' | 'failure';
+  status: "success" | "failure";
   errorDetails?: string;
 }
 
@@ -22,7 +22,7 @@ interface AuditLogConfig {
 }
 
 const DEFAULT_AUDIT_CONFIG: AuditLogConfig = {
-  apiUrl: '/api/audit',
+  apiUrl: "/api/audit",
   batchSize: 50,
   flushInterval: 5000, // 5 seconds
   retentionDays: 90,
@@ -74,8 +74,8 @@ export class AuditLogger {
     action: string,
     resource: string,
     details: Record<string, any>,
-    status: 'success' | 'failure' = 'success',
-    errorDetails?: string
+    status: "success" | "failure" = "success",
+    errorDetails?: string,
   ): Promise<AuditEvent> {
     const user = await this.getCurrentUser();
 
@@ -100,10 +100,10 @@ export class AuditLogger {
 
     try {
       const response = await fetch(this.config.apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: this.authManager.getAuthorizationHeader() || '',
+          "Content-Type": "application/json",
+          Authorization: this.authManager.getAuthorizationHeader() || "",
         },
         body: JSON.stringify({ events }),
       });
@@ -111,10 +111,10 @@ export class AuditLogger {
       if (!response.ok) {
         // If failed, add events back to queue
         this.eventQueue.unshift(...events);
-        throw new Error('Failed to send audit logs');
+        throw new Error("Failed to send audit logs");
       }
     } catch (error) {
-      console.error('Error flushing audit logs:', error);
+      console.error("Error flushing audit logs:", error);
       // Add events back to queue
       this.eventQueue.unshift(...events);
     }
@@ -124,9 +124,15 @@ export class AuditLogger {
     type: string,
     action: string,
     resource: string,
-    details: Record<string, any> = {}
+    details: Record<string, any> = {},
   ): Promise<void> {
-    const event = await this.createAuditEvent(type, action, resource, details, 'success');
+    const event = await this.createAuditEvent(
+      type,
+      action,
+      resource,
+      details,
+      "success",
+    );
 
     this.eventQueue.push(event);
 
@@ -140,15 +146,15 @@ export class AuditLogger {
     action: string,
     resource: string,
     error: Error,
-    details: Record<string, any> = {}
+    details: Record<string, any> = {},
   ): Promise<void> {
     const event = await this.createAuditEvent(
       type,
       action,
       resource,
       details,
-      'failure',
-      error.message
+      "failure",
+      error.message,
     );
 
     this.eventQueue.push(event);
@@ -158,25 +164,25 @@ export class AuditLogger {
   async logSecurity(
     action: string,
     resource: string,
-    details: Record<string, any> = {}
+    details: Record<string, any> = {},
   ): Promise<void> {
-    return this.log('SECURITY', action, resource, details);
+    return this.log("SECURITY", action, resource, details);
   }
 
   async logDataAccess(
     action: string,
     resource: string,
-    details: Record<string, any> = {}
+    details: Record<string, any> = {},
   ): Promise<void> {
-    return this.log('DATA_ACCESS', action, resource, details);
+    return this.log("DATA_ACCESS", action, resource, details);
   }
 
   async logSystemChange(
     action: string,
     resource: string,
-    details: Record<string, any> = {}
+    details: Record<string, any> = {},
   ): Promise<void> {
-    return this.log('SYSTEM_CHANGE', action, resource, details);
+    return this.log("SYSTEM_CHANGE", action, resource, details);
   }
 
   async getAuditLogs(
@@ -186,46 +192,49 @@ export class AuditLogger {
       type?: string;
       userId?: string;
       resource?: string;
-      status?: 'success' | 'failure';
+      status?: "success" | "failure";
       limit?: number;
       offset?: number;
-    } = {}
+    } = {},
   ): Promise<AuditEvent[]> {
     const queryParams = new URLSearchParams();
 
     if (options.startDate) {
-      queryParams.set('startDate', options.startDate.toISOString());
+      queryParams.set("startDate", options.startDate.toISOString());
     }
     if (options.endDate) {
-      queryParams.set('endDate', options.endDate.toISOString());
+      queryParams.set("endDate", options.endDate.toISOString());
     }
     if (options.type) {
-      queryParams.set('type', options.type);
+      queryParams.set("type", options.type);
     }
     if (options.userId) {
-      queryParams.set('userId', options.userId);
+      queryParams.set("userId", options.userId);
     }
     if (options.resource) {
-      queryParams.set('resource', options.resource);
+      queryParams.set("resource", options.resource);
     }
     if (options.status) {
-      queryParams.set('status', options.status);
+      queryParams.set("status", options.status);
     }
     if (options.limit) {
-      queryParams.set('limit', options.limit.toString());
+      queryParams.set("limit", options.limit.toString());
     }
     if (options.offset) {
-      queryParams.set('offset', options.offset.toString());
+      queryParams.set("offset", options.offset.toString());
     }
 
-    const response = await fetch(`${this.config.apiUrl}/search?${queryParams.toString()}`, {
-      headers: {
-        Authorization: this.authManager.getAuthorizationHeader() || '',
+    const response = await fetch(
+      `${this.config.apiUrl}/search?${queryParams.toString()}`,
+      {
+        headers: {
+          Authorization: this.authManager.getAuthorizationHeader() || "",
+        },
       },
-    });
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch audit logs');
+      throw new Error("Failed to fetch audit logs");
     }
 
     return response.json();

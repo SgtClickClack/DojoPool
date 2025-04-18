@@ -3,13 +3,13 @@
  * @param bytes The number of bytes to format
  * @returns A formatted string with appropriate unit (B, KB, MB, GB)
  */
-const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
+const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB"];
 const TIME_UNITS = [
-  { unit: 'ms', threshold: 1000 },
-  { unit: 's', threshold: 60 * 1000 },
-  { unit: 'm', threshold: 60 * 60 * 1000 },
-  { unit: 'h', threshold: 24 * 60 * 60 * 1000 },
-  { unit: 'd', threshold: Infinity }
+  { unit: "ms", threshold: 1000 },
+  { unit: "s", threshold: 60 * 1000 },
+  { unit: "m", threshold: 60 * 60 * 1000 },
+  { unit: "h", threshold: 24 * 60 * 60 * 1000 },
+  { unit: "d", threshold: Infinity },
 ];
 
 export function formatBytes(bytes: number): string {
@@ -32,7 +32,10 @@ export function formatBytes(bytes: number): string {
 export function formatDuration(milliseconds: number): string {
   for (const { unit, threshold } of TIME_UNITS) {
     if (milliseconds < threshold) {
-      const value = unit === 'ms' ? Math.round(milliseconds) : (milliseconds / 1000).toFixed(1);
+      const value =
+        unit === "ms"
+          ? Math.round(milliseconds)
+          : (milliseconds / 1000).toFixed(1);
       return `${value} ${unit}`;
     }
     milliseconds /= threshold;
@@ -56,7 +59,11 @@ export function formatTimestamp(timestamp: number): string {
  * @param unit Optional unit to append
  * @returns A formatted string
  */
-export function formatNumber(value: number, decimals: number = 2, unit?: string): string {
+export function formatNumber(
+  value: number,
+  decimals: number = 2,
+  unit?: string,
+): string {
   const formatted = value.toFixed(decimals);
   return unit ? `${formatted} ${unit}` : formatted;
-} 
+}

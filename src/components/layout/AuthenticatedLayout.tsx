@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Flex,
@@ -12,30 +12,32 @@ import {
   useColorModeValue,
   Text,
   Avatar,
-} from '@chakra-ui/react';
-import { FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa';
-import { useAuth } from '../../hooks/useAuth';
-import { useRouter } from 'next/router';
+} from "@chakra-ui/react";
+import { FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
+import { useAuth } from "../../hooks/useAuth";
+import { useRouter } from "next/router";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
 }
 
-export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ children }) => {
+export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
+  children,
+}) => {
   const { user, signOutUser } = useAuth();
   const router = useRouter();
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const handleSignOut = async () => {
     const result = await signOutUser();
     if (result.success) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   };
 
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+    <Box minH="100vh" bg={useColorModeValue("gray.50", "gray.900")}>
       <Box
         as="nav"
         position="fixed"
@@ -62,15 +64,21 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
               >
                 <Avatar
                   size="sm"
-                  name={user?.displayName || 'User'}
+                  name={user?.displayName || "User"}
                   src={user?.photoURL || undefined}
                 />
               </MenuButton>
               <MenuList>
-                <MenuItem icon={<FaUser />} onClick={() => router.push('/profile')}>
+                <MenuItem
+                  icon={<FaUser />}
+                  onClick={() => router.push("/profile")}
+                >
                   Profile
                 </MenuItem>
-                <MenuItem icon={<FaCog />} onClick={() => router.push('/settings')}>
+                <MenuItem
+                  icon={<FaCog />}
+                  onClick={() => router.push("/settings")}
+                >
                   Settings
                 </MenuItem>
                 <MenuItem icon={<FaSignOutAlt />} onClick={handleSignOut}>
@@ -82,9 +90,7 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
         </Flex>
       </Box>
 
-      <Box pt={16}>
-        {children}
-      </Box>
+      <Box pt={16}>{children}</Box>
     </Box>
   );
-}; 
+};

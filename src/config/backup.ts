@@ -1,5 +1,5 @@
-import { BackupOptions } from '../types/backup';
-import path from 'path';
+import { BackupOptions } from "../types/backup";
+import path from "path";
 
 interface BackupConfig {
   enabled: boolean;
@@ -38,61 +38,61 @@ interface BackupConfig {
 }
 
 export const backupConfig: BackupConfig = {
-  enabled: process.env.ENABLE_BACKUPS === 'true',
-  backupDir: path.join(process.cwd(), 'backups'),
-  retentionDays: parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10),
+  enabled: process.env.ENABLE_BACKUPS === "true",
+  backupDir: path.join(process.cwd(), "backups"),
+  retentionDays: parseInt(process.env.BACKUP_RETENTION_DAYS || "30", 10),
   compression: true,
-  encryption: process.env.NODE_ENV === 'production',
-  
+  encryption: process.env.NODE_ENV === "production",
+
   schedules: {
     database: {
-      type: 'database',
-      frequency: 'daily',
-      time: '00:00',
+      type: "database",
+      frequency: "daily",
+      time: "00:00",
       maxBackups: 7,
-      include: ['game_data', 'user_data', 'tournament_data'],
-      exclude: ['logs', 'sessions'],
+      include: ["game_data", "user_data", "tournament_data"],
+      exclude: ["logs", "sessions"],
     },
     files: {
-      type: 'files',
-      frequency: 'weekly',
-      time: '01:00',
+      type: "files",
+      frequency: "weekly",
+      time: "01:00",
       maxBackups: 4,
-      include: ['uploads', 'generated'],
-      exclude: ['temp', 'cache'],
+      include: ["uploads", "generated"],
+      exclude: ["temp", "cache"],
     },
     configs: {
-      type: 'configs',
-      frequency: 'daily',
-      time: '00:30',
+      type: "configs",
+      frequency: "daily",
+      time: "00:30",
       maxBackups: 7,
-      include: ['.env.production', 'ssl', 'config'],
-      exclude: ['.env.development', '.env.local'],
+      include: [".env.production", "ssl", "config"],
+      exclude: [".env.development", ".env.local"],
     },
   },
-  
+
   storage: {
     local: {
       enabled: true,
-      path: path.join(process.cwd(), 'backups'),
+      path: path.join(process.cwd(), "backups"),
     },
     s3: {
-      enabled: process.env.NODE_ENV === 'production',
-      bucket: process.env.BACKUP_S3_BUCKET || '',
-      prefix: 'dojopool-backups',
-      region: process.env.AWS_REGION || 'us-east-1',
+      enabled: process.env.NODE_ENV === "production",
+      bucket: process.env.BACKUP_S3_BUCKET || "",
+      prefix: "dojopool-backups",
+      region: process.env.AWS_REGION || "us-east-1",
     },
   },
-  
+
   notifications: {
     email: {
-      enabled: process.env.BACKUP_EMAIL_NOTIFICATIONS === 'true',
-      recipients: (process.env.BACKUP_EMAIL_RECIPIENTS || '').split(','),
+      enabled: process.env.BACKUP_EMAIL_NOTIFICATIONS === "true",
+      recipients: (process.env.BACKUP_EMAIL_RECIPIENTS || "").split(","),
     },
     slack: {
-      enabled: process.env.BACKUP_SLACK_NOTIFICATIONS === 'true',
-      webhook: process.env.BACKUP_SLACK_WEBHOOK || '',
-      channel: process.env.BACKUP_SLACK_CHANNEL || '#backups',
+      enabled: process.env.BACKUP_SLACK_NOTIFICATIONS === "true",
+      webhook: process.env.BACKUP_SLACK_WEBHOOK || "",
+      channel: process.env.BACKUP_SLACK_CHANNEL || "#backups",
     },
   },
 };
@@ -105,23 +105,23 @@ export function validateBackupConfig(config: BackupConfig): boolean {
 
   // Validate backup directory
   if (!config.backupDir) {
-    throw new Error('Backup directory not configured');
+    throw new Error("Backup directory not configured");
   }
 
   // Validate retention period
   if (config.retentionDays < 1) {
-    throw new Error('Invalid retention period');
+    throw new Error("Invalid retention period");
   }
 
   // Validate storage configuration
   if (!config.storage.local.enabled && !config.storage.s3.enabled) {
-    throw new Error('No storage backend configured');
+    throw new Error("No storage backend configured");
   }
 
   // Validate S3 configuration if enabled
   if (config.storage.s3.enabled) {
     if (!config.storage.s3.bucket) {
-      throw new Error('S3 bucket not configured');
+      throw new Error("S3 bucket not configured");
     }
   }
 
@@ -138,15 +138,15 @@ export function validateBackupConfig(config: BackupConfig): boolean {
   // Validate notifications if enabled
   if (config.notifications.email.enabled) {
     if (!config.notifications.email.recipients.length) {
-      throw new Error('No email recipients configured for notifications');
+      throw new Error("No email recipients configured for notifications");
     }
   }
 
   if (config.notifications.slack.enabled) {
     if (!config.notifications.slack.webhook) {
-      throw new Error('Slack webhook not configured for notifications');
+      throw new Error("Slack webhook not configured for notifications");
     }
   }
 
   return true;
-} 
+}

@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
-import { VectorClock, VectorTimestamp } from '../consistency/VectorClock';
-import { GameState } from '../../types/game';
+import { EventEmitter } from "events";
+import { VectorClock, VectorTimestamp } from "../consistency/VectorClock";
+import { GameState } from "../../types/game";
 
 export interface ReplicationConfig {
   nodeId: string;
@@ -39,19 +39,19 @@ export class StateReplicator extends EventEmitter {
     this.vectorClock.increment();
     this.localState = {
       ...state,
-      timestamp: this.vectorClock.getCurrentTimestamp()
+      timestamp: this.vectorClock.getCurrentTimestamp(),
     };
-    this.emit('stateUpdated', this.localState);
+    this.emit("stateUpdated", this.localState);
   }
 
   private syncState(): void {
     if (this.localState) {
-      this.nodes.forEach(nodeId => {
+      this.nodes.forEach((nodeId) => {
         if (nodeId !== this.nodeId) {
-          this.emit('stateSyncRequest', {
+          this.emit("stateSyncRequest", {
             nodeId,
             state: this.localState,
-            timestamp: this.vectorClock.getCurrentTimestamp()
+            timestamp: this.vectorClock.getCurrentTimestamp(),
           });
         }
       });
@@ -66,13 +66,16 @@ export class StateReplicator extends EventEmitter {
     const remoteVectorClock = new VectorClock(request.nodeId);
     remoteVectorClock.restoreFromSnapshot(request.timestamp);
 
-    if (!this.localState || remoteVectorClock.isHappenedBefore(this.vectorClock)) {
+    if (
+      !this.localState ||
+      remoteVectorClock.isHappenedBefore(this.vectorClock)
+    ) {
       this.vectorClock.merge(remoteVectorClock);
       this.localState = {
         ...request.state,
-        timestamp: this.vectorClock.getCurrentTimestamp()
+        timestamp: this.vectorClock.getCurrentTimestamp(),
       };
-      this.emit('stateUpdated', this.localState);
+      this.emit("stateUpdated", this.localState);
     }
   }
 
@@ -86,4 +89,4 @@ export class StateReplicator extends EventEmitter {
       this.syncTimer = null;
     }
   }
-} 
+}

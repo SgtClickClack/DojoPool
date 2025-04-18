@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   List,
   Card,
@@ -11,14 +11,14 @@ import {
   InputNumber,
   message,
   Spin,
-} from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { useMutation, useQueryClient } from 'react-query';
-import moment from 'moment';
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { useMutation, useQueryClient } from "react-query";
+import moment from "moment";
 
-import { createEvent, registerForEvent } from '../../api/venues';
-import { VenueEvent } from '../../types/venue';
-import { useAuth } from '../../hooks/useAuth';
+import { createEvent, registerForEvent } from "../../api/venues";
+import { VenueEvent } from "../../types/venue";
+import { useAuth } from "../../hooks/useAuth";
 
 interface EventListProps {
   events?: VenueEvent[];
@@ -28,7 +28,11 @@ interface EventListProps {
 
 const { RangePicker } = DatePicker;
 
-const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) => {
+const EventList: React.FC<EventListProps> = ({
+  events = [],
+  loading,
+  venueId,
+}) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -36,23 +40,23 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
 
   const createEventMutation = useMutation(createEvent, {
     onSuccess: () => {
-      message.success('Event created successfully');
+      message.success("Event created successfully");
       setCreateModalVisible(false);
       form.resetFields();
-      queryClient.invalidateQueries(['venueEvents', venueId]);
+      queryClient.invalidateQueries(["venueEvents", venueId]);
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to create event');
+      message.error(error.message || "Failed to create event");
     },
   });
 
   const registerMutation = useMutation(registerForEvent, {
     onSuccess: () => {
-      message.success('Successfully registered for event');
-      queryClient.invalidateQueries(['venueEvents', venueId]);
+      message.success("Successfully registered for event");
+      queryClient.invalidateQueries(["venueEvents", venueId]);
     },
     onError: (error: any) => {
-      message.error(error.message || 'Failed to register for event');
+      message.error(error.message || "Failed to register for event");
     },
   });
 
@@ -74,7 +78,7 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
 
   const handleRegister = (eventId: number) => {
     if (!user) {
-      message.error('Please log in to register for events');
+      message.error("Please log in to register for events");
       return;
     }
     registerMutation.mutate(eventId);
@@ -82,22 +86,22 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'upcoming':
-        return 'blue';
-      case 'in_progress':
-        return 'green';
-      case 'completed':
-        return 'gray';
-      case 'cancelled':
-        return 'red';
+      case "upcoming":
+        return "blue";
+      case "in_progress":
+        return "green";
+      case "completed":
+        return "gray";
+      case "cancelled":
+        return "red";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '20px' }}>
+      <div style={{ textAlign: "center", padding: "20px" }}>
         <Spin size="large" />
       </div>
     );
@@ -131,18 +135,22 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
           <List.Item>
             <Card
               title={event.name}
-              extra={<Tag color={getStatusColor(event.status)}>{event.status}</Tag>}
+              extra={
+                <Tag color={getStatusColor(event.status)}>{event.status}</Tag>
+              }
             >
               <p>{event.description}</p>
               <p>
                 <strong>Type:</strong> {event.event_type}
               </p>
               <p>
-                <strong>Date:</strong> {moment(event.start_time).format('MMM D, YYYY')}
+                <strong>Date:</strong>{" "}
+                {moment(event.start_time).format("MMM D, YYYY")}
               </p>
               <p>
-                <strong>Time:</strong> {moment(event.start_time).format('h:mm A')} -{' '}
-                {moment(event.end_time).format('h:mm A')}
+                <strong>Time:</strong>{" "}
+                {moment(event.start_time).format("h:mm A")} -{" "}
+                {moment(event.end_time).format("h:mm A")}
               </p>
               {event.entry_fee > 0 && (
                 <p>
@@ -156,20 +164,24 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
               )}
               {event.max_participants && (
                 <p>
-                  <strong>Spots:</strong> {event.participants?.length || 0}/{event.max_participants}
+                  <strong>Spots:</strong> {event.participants?.length || 0}/
+                  {event.max_participants}
                 </p>
               )}
-              {event.status === 'upcoming' && (
+              {event.status === "upcoming" && (
                 <Button
                   type="primary"
                   block
                   onClick={() => handleRegister(event.id)}
                   loading={registerMutation.isLoading}
-                  disabled={!user || event.participants?.some((p) => p.user_id === user.id)}
+                  disabled={
+                    !user ||
+                    event.participants?.some((p) => p.user_id === user.id)
+                  }
                 >
                   {event.participants?.some((p) => p.user_id === user?.id)
-                    ? 'Registered'
-                    : 'Register'}
+                    ? "Registered"
+                    : "Register"}
                 </Button>
               )}
             </Card>
@@ -190,7 +202,7 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
             rules={[
               {
                 required: true,
-                message: 'Please enter the event name',
+                message: "Please enter the event name",
               },
             ]}
           >
@@ -202,7 +214,7 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
             rules={[
               {
                 required: true,
-                message: 'Please enter the event description',
+                message: "Please enter the event description",
               },
             ]}
           >
@@ -214,7 +226,7 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
             rules={[
               {
                 required: true,
-                message: 'Please enter the event type',
+                message: "Please enter the event type",
               },
             ]}
           >
@@ -226,7 +238,7 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
             rules={[
               {
                 required: true,
-                message: 'Please select the event time',
+                message: "Please select the event time",
               },
             ]}
           >
@@ -242,20 +254,29 @@ const EventList: React.FC<EventListProps> = ({ events = [], loading, venueId }) 
             <InputNumber
               min={0}
               precision={2}
-              formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+              formatter={(value) =>
+                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
             />
           </Form.Item>
           <Form.Item name="prize_pool" label="Prize Pool">
             <InputNumber
               min={0}
               precision={2}
-              formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+              formatter={(value) =>
+                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={createEventMutation.isLoading} block>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={createEventMutation.isLoading}
+              block
+            >
               Create Event
             </Button>
           </Form.Item>

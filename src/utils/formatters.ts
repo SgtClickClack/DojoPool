@@ -4,10 +4,10 @@
  * @returns Formatted string (e.g., "1.5 MB")
  */
 export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) return "0 B";
 
   const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
@@ -41,7 +41,7 @@ export const formatPercentage = (value: number, precision = 1): string => {
  * @returns Formatted string (e.g., "4/14/2024, 2:30:45 PM")
  */
 export const formatDateTime = (date: Date | number): string => {
-  const dateObj = typeof date === 'number' ? new Date(date) : date;
+  const dateObj = typeof date === "number" ? new Date(date) : date;
   return dateObj.toLocaleString();
 };
 
@@ -52,4 +52,4 @@ export const formatDateTime = (date: Date | number): string => {
  */
 export const formatNumber = (value: number): string => {
   return value.toLocaleString();
-}; 
+};

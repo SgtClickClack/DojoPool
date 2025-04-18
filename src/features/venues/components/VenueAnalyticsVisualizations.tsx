@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Paper,
@@ -15,7 +15,7 @@ import {
   Slider,
   FormControlLabel,
   Switch,
-} from '@mui/material';
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -35,12 +35,12 @@ import {
   ScatterChart,
   Scatter,
   ComposedChart,
-} from 'recharts';
+} from "recharts";
 import {
   Timeline as TimelineIcon,
   TrendingUp as TrendingUpIcon,
   CalendarMonth as CalendarIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface VenueAnalyticsData {
   totalRevenue: number;
@@ -79,28 +79,44 @@ interface VenueAnalyticsVisualizationsProps {
   onDateRangeChange: (range: { startDate: Date; endDate: Date }) => void;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884d8",
+  "#82ca9d",
+];
 
-export const VenueAnalyticsVisualizations: React.FC<VenueAnalyticsVisualizationsProps> = ({
-  data,
-  dateRange,
-  onDateRangeChange,
-}) => {
+export const VenueAnalyticsVisualizations: React.FC<
+  VenueAnalyticsVisualizationsProps
+> = ({ data, dateRange, onDateRangeChange }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [viewMode, setViewMode] = React.useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [viewMode, setViewMode] = React.useState<
+    "daily" | "weekly" | "monthly"
+  >("daily");
   const [showTrendLines, setShowTrendLines] = React.useState(true);
 
   const RevenueTrendChart = () => (
     <Paper sx={{ p: 2, height: 400 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Typography variant="h6">Revenue Trend</Typography>
         <Box>
           <FormControl size="small" sx={{ minWidth: 120, mr: 2 }}>
             <InputLabel>View</InputLabel>
             <Select
               value={viewMode}
-              onChange={(e) => setViewMode(e.target.value as 'daily' | 'weekly' | 'monthly')}
+              onChange={(e) =>
+                setViewMode(e.target.value as "daily" | "weekly" | "monthly")
+              }
               label="View"
             >
               <MenuItem value="daily">Daily</MenuItem>
@@ -153,7 +169,12 @@ export const VenueAnalyticsVisualizations: React.FC<VenueAnalyticsVisualizations
         Peak Hours Analysis
       </Typography>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={Object.entries(data.peakHours).map(([hour, rate]) => ({ hour, rate }))}>
+        <BarChart
+          data={Object.entries(data.peakHours).map(([hour, rate]) => ({
+            hour,
+            rate,
+          }))}
+        >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="hour" />
           <YAxis />
@@ -163,7 +184,13 @@ export const VenueAnalyticsVisualizations: React.FC<VenueAnalyticsVisualizations
             {Object.entries(data.peakHours).map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry[1] > 80 ? '#ff7300' : entry[1] > 50 ? '#82ca9d' : '#8884d8'}
+                fill={
+                  entry[1] > 80
+                    ? "#ff7300"
+                    : entry[1] > 50
+                      ? "#82ca9d"
+                      : "#8884d8"
+                }
               />
             ))}
           </Bar>
@@ -182,13 +209,23 @@ export const VenueAnalyticsVisualizations: React.FC<VenueAnalyticsVisualizations
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" dataKey="tableId" name="Table ID" />
           <YAxis type="number" dataKey="utilization" name="Utilization %" />
-          <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
+          <RechartsTooltip cursor={{ strokeDasharray: "3 3" }} />
           <Legend />
-          <Scatter name="Table Utilization" data={data.tableUtilization} fill="#8884d8">
+          <Scatter
+            name="Table Utilization"
+            data={data.tableUtilization}
+            fill="#8884d8"
+          >
             {data.tableUtilization.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.utilization > 80 ? '#ff7300' : entry.utilization > 50 ? '#82ca9d' : '#8884d8'}
+                fill={
+                  entry.utilization > 80
+                    ? "#ff7300"
+                    : entry.utilization > 50
+                      ? "#82ca9d"
+                      : "#8884d8"
+                }
               />
             ))}
           </Scatter>
@@ -205,21 +242,30 @@ export const VenueAnalyticsVisualizations: React.FC<VenueAnalyticsVisualizations
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={Object.entries(data.maintenanceStats.maintenanceByReason).map(([reason, count]) => ({
-              name: reason,
-              value: count,
-            }))}
+            data={Object.entries(data.maintenanceStats.maintenanceByReason).map(
+              ([reason, count]) => ({
+                name: reason,
+                value: count,
+              }),
+            )}
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) =>
+              `${name}: ${(percent * 100).toFixed(0)}%`
+            }
             outerRadius={80}
             fill="#8884d8"
             dataKey="value"
           >
-            {Object.entries(data.maintenanceStats.maintenanceByReason).map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
+            {Object.entries(data.maintenanceStats.maintenanceByReason).map(
+              (entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ),
+            )}
           </Pie>
           <RechartsTooltip />
           <Legend />
@@ -246,4 +292,4 @@ export const VenueAnalyticsVisualizations: React.FC<VenueAnalyticsVisualizations
   );
 };
 
-export default VenueAnalyticsVisualizations; 
+export default VenueAnalyticsVisualizations;

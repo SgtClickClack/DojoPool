@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useKeyboardNavigationContext } from '../contexts/KeyboardNavigationContext';
+import { useEffect, useRef } from "react";
+import { useKeyboardNavigationContext } from "../contexts/KeyboardNavigationContext";
 
 interface UseNavigableOptions {
   id: string;
@@ -9,7 +9,8 @@ interface UseNavigableOptions {
 
 export const useNavigable = ({ id, onFocus, onBlur }: UseNavigableOptions) => {
   const ref = useRef<HTMLElement>(null);
-  const { registerNavigable, unregisterNavigable } = useKeyboardNavigationContext();
+  const { registerNavigable, unregisterNavigable } =
+    useKeyboardNavigationContext();
 
   useEffect(() => {
     if (ref.current) {
@@ -24,16 +25,16 @@ export const useNavigable = ({ id, onFocus, onBlur }: UseNavigableOptions) => {
         onBlur?.();
       };
 
-      element.addEventListener('focus', handleFocus);
-      element.addEventListener('blur', handleBlur);
+      element.addEventListener("focus", handleFocus);
+      element.addEventListener("blur", handleBlur);
 
       return () => {
         unregisterNavigable(id);
-        element.removeEventListener('focus', handleFocus);
-        element.removeEventListener('blur', handleBlur);
+        element.removeEventListener("focus", handleFocus);
+        element.removeEventListener("blur", handleBlur);
       };
     }
   }, [id, registerNavigable, unregisterNavigable, onFocus, onBlur]);
 
   return ref;
-}; 
+};

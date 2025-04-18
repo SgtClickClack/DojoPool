@@ -1,12 +1,12 @@
-import { v4 as uuidv4 } from 'uuid';
-import { 
+import { v4 as uuidv4 } from "uuid";
+import {
   Tournament,
   TournamentPlayer,
   Match,
   MatchResult,
   TournamentState,
-  TournamentConfig
-} from './types';
+  TournamentConfig,
+} from "./types";
 
 interface DoubleEliminationBracket {
   winnersRounds: Match[][];
@@ -22,8 +22,13 @@ export class DoubleEliminationTournament implements Tournament {
   private config: TournamentConfig;
 
   constructor(players: TournamentPlayer[], config: TournamentConfig) {
-    if (players.length < config.minPlayers || players.length > config.maxPlayers) {
-      throw new Error(`Tournament requires between ${config.minPlayers} and ${config.maxPlayers} players`);
+    if (
+      players.length < config.minPlayers ||
+      players.length > config.maxPlayers
+    ) {
+      throw new Error(
+        `Tournament requires between ${config.minPlayers} and ${config.maxPlayers} players`,
+      );
     }
 
     this.players = players;
@@ -32,7 +37,9 @@ export class DoubleEliminationTournament implements Tournament {
     this.bracket = this.initializeBracket(players);
   }
 
-  private initializeBracket(players: TournamentPlayer[]): DoubleEliminationBracket {
+  private initializeBracket(
+    players: TournamentPlayer[],
+  ): DoubleEliminationBracket {
     const seededPlayers = this.seedPlayers(players);
     const winnersRounds: Match[][] = [];
     const losersRounds: Match[][] = [];
@@ -47,7 +54,7 @@ export class DoubleEliminationTournament implements Tournament {
         player2: i + 1 < seededPlayers.length ? seededPlayers[i + 1] : null,
         winner: null,
         loser: null,
-        status: 'pending'
+        status: "pending",
       });
     }
     winnersRounds.push(firstRoundMatches);
@@ -56,7 +63,7 @@ export class DoubleEliminationTournament implements Tournament {
       winnersRounds,
       losersRounds,
       grandFinals: null,
-      grandFinalsRematch: null
+      grandFinalsRematch: null,
     };
   }
 
@@ -67,7 +74,7 @@ export class DoubleEliminationTournament implements Tournament {
 
   getCurrentRoundMatches(): Match[] {
     const currentMatches: Match[] = [];
-    
+
     // Check winners bracket
     if (this.bracket.winnersRounds[this.currentRound - 1]) {
       currentMatches.push(...this.bracket.winnersRounds[this.currentRound - 1]);
@@ -84,27 +91,30 @@ export class DoubleEliminationTournament implements Tournament {
     }
 
     // Check grand finals rematch
-    if (this.bracket.grandFinalsRematch && !this.bracket.grandFinalsRematch.winner) {
+    if (
+      this.bracket.grandFinalsRematch &&
+      !this.bracket.grandFinalsRematch.winner
+    ) {
       currentMatches.push(this.bracket.grandFinalsRematch);
     }
 
-    return currentMatches.filter(match => match.status !== 'complete');
+    return currentMatches.filter((match) => match.status !== "complete");
   }
 
   submitMatchResult(matchId: string, result: MatchResult): void {
     const match = this.findMatch(matchId);
     if (!match) {
-      throw new Error('Match not found');
+      throw new Error("Match not found");
     }
 
-    if (match.status === 'complete') {
-      throw new Error('Match already completed');
+    if (match.status === "complete") {
+      throw new Error("Match already completed");
     }
 
     // Update match result
     match.winner = result.winner;
     match.loser = result.loser;
-    match.status = 'complete';
+    match.status = "complete";
     match.stats = result.stats;
 
     // Update player stats
@@ -117,13 +127,13 @@ export class DoubleEliminationTournament implements Tournament {
   private findMatch(matchId: string): Match | null {
     // Search in winners bracket
     for (const round of this.bracket.winnersRounds) {
-      const match = round.find(m => m.id === matchId);
+      const match = round.find((m) => m.id === matchId);
       if (match) return match;
     }
 
     // Search in losers bracket
     for (const round of this.bracket.losersRounds) {
-      const match = round.find(m => m.id === matchId);
+      const match = round.find((m) => m.id === matchId);
       if (match) return match;
     }
 
@@ -141,8 +151,8 @@ export class DoubleEliminationTournament implements Tournament {
   }
 
   private updatePlayerStats(result: MatchResult): void {
-    const winner = this.players.find(p => p.id === result.winner.id);
-    const loser = this.players.find(p => p.id === result.loser.id);
+    const winner = this.players.find((p) => p.id === result.winner.id);
+    const loser = this.players.find((p) => p.id === result.loser.id);
 
     if (winner) {
       winner.stats.wins++;
@@ -154,7 +164,7 @@ export class DoubleEliminationTournament implements Tournament {
 
   private advanceBrackets(): void {
     const currentMatches = this.getCurrentRoundMatches();
-    
+
     // If all matches in current round are complete, create next round
     if (currentMatches.length === 0) {
       this.createNextRound();
@@ -184,15 +194,19 @@ export class DoubleEliminationTournament implements Tournament {
       currentRound: this.currentRound,
       isComplete: this.isComplete(),
       bracket: this.bracket,
-      standings: this.getStandings()
+      standings: this.getStandings(),
     };
   }
 
   private isComplete(): boolean {
     // Tournament is complete when grand finals (and potential rematch) are done
     if (!this.bracket.grandFinals) return false;
-    if (this.bracket.grandFinals.status !== 'complete') return false;
-    if (this.bracket.grandFinalsRematch && this.bracket.grandFinalsRematch.status !== 'complete') return false;
+    if (this.bracket.grandFinals.status !== "complete") return false;
+    if (
+      this.bracket.grandFinalsRematch &&
+      this.bracket.grandFinalsRematch.status !== "complete"
+    )
+      return false;
     return true;
   }
-} 
+}

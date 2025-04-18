@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   Badge,
   IconButton,
@@ -21,7 +21,7 @@ import {
   Menu,
   MenuItem,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
@@ -30,9 +30,9 @@ import {
   NotificationsActive as ActiveIcon,
   NotificationsOff as MutedIcon,
   Schedule as ScheduleIcon,
-} from '@mui/icons-material';
-import notificationService from '../../services/[NET]notification';
-import { formatDistanceToNow } from 'date-fns';
+} from "@mui/icons-material";
+import notificationService from "../../services/[NET]notification";
+import { formatDistanceToNow } from "date-fns";
 
 interface NotificationCenterProps {
   className?: string;
@@ -40,12 +40,20 @@ interface NotificationCenterProps {
 
 const NotificationCenter = ({ className }: NotificationCenterProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [settingsAnchorEl, setSettingsAnchorEl] = useState<null | HTMLElement>(null);
-  const [notifications, setNotifications] = useState(notificationService.getNotifications());
-  const [unreadCount, setUnreadCount] = useState(notificationService.getUnreadCount());
-  const [preferences, setPreferences] = useState(notificationService.getPreferences());
+  const [settingsAnchorEl, setSettingsAnchorEl] = useState<null | HTMLElement>(
+    null,
+  );
+  const [notifications, setNotifications] = useState(
+    notificationService.getNotifications(),
+  );
+  const [unreadCount, setUnreadCount] = useState(
+    notificationService.getUnreadCount(),
+  );
+  const [preferences, setPreferences] = useState(
+    notificationService.getPreferences(),
+  );
   const [showSettings, setShowSettings] = useState(false);
 
   const handleNotificationUpdate = useCallback((state) => {
@@ -55,7 +63,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = notificationService.addListener(handleNotificationUpdate);
+    const unsubscribe = notificationService.addListener(
+      handleNotificationUpdate,
+    );
     return () => unsubscribe();
   }, [handleNotificationUpdate]);
 
@@ -102,11 +112,11 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
+      case "high":
         return theme.palette.error.main;
-      case 'medium':
+      case "medium":
         return theme.palette.warning.main;
-      case 'low':
+      case "low":
         return theme.palette.success.main;
       default:
         return theme.palette.primary.main;
@@ -120,20 +130,20 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
       onClick={() => handleNotificationClick(notification)}
       sx={{
         opacity: notification.read ? 0.7 : 1,
-        backgroundColor: notification.read ? 'transparent' : 'action.hover',
-        transition: 'all 0.2s',
-        '&:hover': {
-          backgroundColor: 'action.selected',
+        backgroundColor: notification.read ? "transparent" : "action.hover",
+        transition: "all 0.2s",
+        "&:hover": {
+          backgroundColor: "action.selected",
         },
       }}
     >
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+      <Box sx={{ width: "100%" }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
           <Typography
             variant="subtitle2"
             sx={{
               flexGrow: 1,
-              fontWeight: notification.read ? 'normal' : 'bold',
+              fontWeight: notification.read ? "normal" : "bold",
             }}
           >
             {notification.title}
@@ -141,14 +151,14 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           <Chip
             size="small"
             label={notification.type}
-            color={notification.type === 'error' ? 'error' : 'default'}
+            color={notification.type === "error" ? "error" : "default"}
             sx={{ ml: 1 }}
           />
         </Box>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
           {notification.message}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Typography variant="caption" color="text.secondary">
             {formatDistanceToNow(new Date(notification.timestamp), {
               addSuffix: true,
@@ -159,7 +169,7 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
               sx={{
                 width: 8,
                 height: 8,
-                borderRadius: '50%',
+                borderRadius: "50%",
                 backgroundColor: getPriorityColor(notification.priority),
               }}
             />
@@ -179,7 +189,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           control={
             <Switch
               checked={preferences.enabled}
-              onChange={(e) => handlePreferenceChange('enabled', e.target.checked)}
+              onChange={(e) =>
+                handlePreferenceChange("enabled", e.target.checked)
+              }
             />
           }
           label="Enable Notifications"
@@ -188,7 +200,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           control={
             <Switch
               checked={preferences.pushNotifications}
-              onChange={(e) => handlePreferenceChange('pushNotifications', e.target.checked)}
+              onChange={(e) =>
+                handlePreferenceChange("pushNotifications", e.target.checked)
+              }
             />
           }
           label="Push Notifications"
@@ -197,7 +211,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           control={
             <Switch
               checked={preferences.emailNotifications}
-              onChange={(e) => handlePreferenceChange('emailNotifications', e.target.checked)}
+              onChange={(e) =>
+                handlePreferenceChange("emailNotifications", e.target.checked)
+              }
             />
           }
           label="Email Notifications"
@@ -206,7 +222,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           control={
             <Switch
               checked={preferences.soundEnabled}
-              onChange={(e) => handlePreferenceChange('soundEnabled', e.target.checked)}
+              onChange={(e) =>
+                handlePreferenceChange("soundEnabled", e.target.checked)
+              }
             />
           }
           label="Sound Enabled"
@@ -220,7 +238,7 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
               <Switch
                 checked={preferences.doNotDisturb.enabled}
                 onChange={(e) =>
-                  handlePreferenceChange('doNotDisturb', {
+                  handlePreferenceChange("doNotDisturb", {
                     ...preferences.doNotDisturb,
                     enabled: e.target.checked,
                   })
@@ -232,7 +250,8 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           {preferences.doNotDisturb.enabled && (
             <Box sx={{ pl: 2, mt: 1 }}>
               <Typography variant="caption" display="block" gutterBottom>
-                From {preferences.doNotDisturb.startTime} to {preferences.doNotDisturb.endTime}
+                From {preferences.doNotDisturb.startTime} to{" "}
+                {preferences.doNotDisturb.endTime}
               </Typography>
             </Box>
           )}
@@ -247,7 +266,7 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
         color="inherit"
         onClick={handleClick}
         className={className}
-        size={isMobile ? 'small' : 'medium'}
+        size={isMobile ? "small" : "medium"}
       >
         <Badge badgeContent={unreadCount} color="error">
           <NotificationsIcon />
@@ -258,22 +277,22 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         PaperProps={{
           sx: {
-            width: isMobile ? '100%' : 400,
-            maxHeight: '80vh',
+            width: isMobile ? "100%" : 400,
+            maxHeight: "80vh",
           },
         }}
       >
         <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Notifications
             </Typography>
@@ -290,7 +309,9 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
               <MenuItem onClick={() => setShowSettings(!showSettings)}>
                 Notification Settings
               </MenuItem>
-              <MenuItem onClick={handleMarkAllAsRead}>Mark All as Read</MenuItem>
+              <MenuItem onClick={handleMarkAllAsRead}>
+                Mark All as Read
+              </MenuItem>
               <MenuItem onClick={handleClearAll}>Clear All</MenuItem>
             </Menu>
           </Box>
@@ -298,14 +319,14 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
           {notifications.length > 0 ? (
             <List
               sx={{
-                maxHeight: showSettings ? '30vh' : '60vh',
-                overflow: 'auto',
+                maxHeight: showSettings ? "30vh" : "60vh",
+                overflow: "auto",
               }}
             >
               {notifications.map(renderNotification)}
             </List>
           ) : (
-            <Box sx={{ py: 4, textAlign: 'center' }}>
+            <Box sx={{ py: 4, textAlign: "center" }}>
               <Typography color="text.secondary">No notifications</Typography>
             </Box>
           )}

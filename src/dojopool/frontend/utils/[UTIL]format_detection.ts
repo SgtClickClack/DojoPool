@@ -7,15 +7,19 @@
  * @returns Promise that resolves to true if AVIF is supported, false otherwise
  */
 export async function supportsAVIF(): Promise<boolean> {
-    const avifData = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=';
+  const avifData =
+    "data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=";
 
-    try {
-        const response = await fetch(avifData);
-        const blob = await response.blob();
-        return createImageBitmap(blob).then(() => true, () => false);
-    } catch {
-        return false;
-    }
+  try {
+    const response = await fetch(avifData);
+    const blob = await response.blob();
+    return createImageBitmap(blob).then(
+      () => true,
+      () => false,
+    );
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -23,29 +27,35 @@ export async function supportsAVIF(): Promise<boolean> {
  * @returns Promise that resolves to true if WebP is supported, false otherwise
  */
 export async function supportsWebP(): Promise<boolean> {
-    const webpData = 'data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=';
+  const webpData =
+    "data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
 
-    try {
-        const response = await fetch(webpData);
-        const blob = await response.blob();
-        return createImageBitmap(blob).then(() => true, () => false);
-    } catch {
-        return false;
-    }
+  try {
+    const response = await fetch(webpData);
+    const blob = await response.blob();
+    return createImageBitmap(blob).then(
+      () => true,
+      () => false,
+    );
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Get the best supported image format for the current browser.
  * @returns Promise that resolves to the best supported format ('avif', 'webp', or 'jpg')
  */
-export async function getBestSupportedFormat(): Promise<'avif' | 'webp' | 'jpg'> {
-    if (await supportsAVIF()) {
-        return 'avif';
-    }
-    if (await supportsWebP()) {
-        return 'webp';
-    }
-    return 'jpg';
+export async function getBestSupportedFormat(): Promise<
+  "avif" | "webp" | "jpg"
+> {
+  if (await supportsAVIF()) {
+    return "avif";
+  }
+  if (await supportsWebP()) {
+    return "webp";
+  }
+  return "jpg";
 }
 
 /**
@@ -54,8 +64,8 @@ export async function getBestSupportedFormat(): Promise<'avif' | 'webp' | 'jpg'>
  * @returns Promise that resolves to the URL with the appropriate extension
  */
 export async function getOptimalImageUrl(baseUrl: string): Promise<string> {
-    const format = await getBestSupportedFormat();
-    return `${baseUrl}.${format}`;
+  const format = await getBestSupportedFormat();
+  return `${baseUrl}.${format}`;
 }
 
 /**
@@ -65,8 +75,12 @@ export async function getOptimalImageUrl(baseUrl: string): Promise<string> {
  * @param className Optional CSS class name
  * @returns HTML string for the picture element
  */
-export function createPictureElement(baseUrl: string, alt: string, className?: string): string {
-    return `
+export function createPictureElement(
+  baseUrl: string,
+  alt: string,
+  className?: string,
+): string {
+  return `
         <picture>
             <source
                 srcset="${baseUrl}.avif"
@@ -79,7 +93,7 @@ export function createPictureElement(baseUrl: string, alt: string, className?: s
             <img
                 src="${baseUrl}.jpg"
                 alt="${alt}"
-                ${className ? `class="${className}"` : ''}
+                ${className ? `class="${className}"` : ""}
                 loading="lazy"
             />
         </picture>
@@ -95,50 +109,50 @@ export function createPictureElement(baseUrl: string, alt: string, className?: s
  * @returns HTML string for the responsive picture element
  */
 export function createResponsivePictureElement(
-    imageSizes: {
-        sm?: string;
-        md?: string;
-        lg?: string;
-        xl?: string;
-    },
-    alt: string,
-    sizes: string,
-    className?: string
+  imageSizes: {
+    sm?: string;
+    md?: string;
+    lg?: string;
+    xl?: string;
+  },
+  alt: string,
+  sizes: string,
+  className?: string,
 ): string {
-    const createSrcSet = (ext: string) => {
-        return Object.entries(imageSizes)
-            .map(([size, url]) => {
-                const width = {
-                    sm: '640w',
-                    md: '768w',
-                    lg: '1024w',
-                    xl: '1280w'
-                }[size];
-                return `${url}.${ext} ${width}`;
-            })
-            .join(', ');
-    };
+  const createSrcSet = (ext: string) => {
+    return Object.entries(imageSizes)
+      .map(([size, url]) => {
+        const width = {
+          sm: "640w",
+          md: "768w",
+          lg: "1024w",
+          xl: "1280w",
+        }[size];
+        return `${url}.${ext} ${width}`;
+      })
+      .join(", ");
+  };
 
-    return `
+  return `
         <picture>
             <source
-                srcset="${createSrcSet('avif')}"
+                srcset="${createSrcSet("avif")}"
                 type="image/avif"
                 sizes="${sizes}"
             />
             <source
-                srcset="${createSrcSet('webp')}"
+                srcset="${createSrcSet("webp")}"
                 type="image/webp"
                 sizes="${sizes}"
             />
             <img
-                srcset="${createSrcSet('jpg')}"
+                srcset="${createSrcSet("jpg")}"
                 src="${imageSizes.md || imageSizes.lg || Object.values(imageSizes)[0]}.jpg"
                 alt="${alt}"
                 sizes="${sizes}"
-                ${className ? `class="${className}"` : ''}
+                ${className ? `class="${className}"` : ""}
                 loading="lazy"
             />
         </picture>
     `;
-} 
+}

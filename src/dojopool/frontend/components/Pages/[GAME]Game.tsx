@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -10,17 +10,21 @@ import {
   Alert,
   IconButton,
   Drawer,
-} from '@mui/material';
-import { LocationOn as LocationIcon, Timer as TimerIcon, MonitorChart } from '@mui/icons-material';
-import { GameState } from '@/types/game';
-import { gameApi } from '@/services/api';
-import { gameSocket } from '@/services/websocket/gameSocket';
-import GameMap from '@/components/map/GameMap';
-import { useLocation } from '@/hooks/useLocation';
-import { Location, formatTime } from '@/utils/location';
-import { MonitoringDashboard } from '../monitoring/Dashboard';
-import { gameMetricsMonitor } from '@/utils/monitoring';
-import { locationValidator } from '@/utils/validation';
+} from "@mui/material";
+import {
+  LocationOn as LocationIcon,
+  Timer as TimerIcon,
+  MonitorChart,
+} from "@mui/icons-material";
+import { GameState } from "@/types/game";
+import { gameApi } from "@/services/api";
+import { gameSocket } from "@/services/websocket/gameSocket";
+import GameMap from "@/components/map/GameMap";
+import { useLocation } from "@/hooks/useLocation";
+import { Location, formatTime } from "@/utils/location";
+import { MonitoringDashboard } from "../monitoring/Dashboard";
+import { gameMetricsMonitor } from "@/utils/monitoring";
+import { locationValidator } from "@/utils/validation";
 
 interface ClueCompletion {
   clueId: string;
@@ -33,7 +37,9 @@ const Game = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [otherPlayerLocations, setOtherPlayerLocations] = useState<Record<string, Location>>({});
+  const [otherPlayerLocations, setOtherPlayerLocations] = useState<
+    Record<string, Location>
+  >({});
   const [showDashboard, setShowDashboard] = useState(false);
   const [completedClues, setCompletedClues] = useState<ClueCompletion[]>([]);
   const [gameStartTime] = useState<number>(Date.now());
@@ -45,7 +51,7 @@ const Game = () => {
     isLoading: locationLoading,
   } = useLocation({
     onError: (err) => {
-      console.error('Location error:', err);
+      console.error("Location error:", err);
     },
   });
 
@@ -60,7 +66,10 @@ const Game = () => {
 
     if (gameState) {
       // Record clue completion with metrics
-      gameMetricsMonitor.recordClueCompletion(gameState.playerId, gameState.totalClues);
+      gameMetricsMonitor.recordClueCompletion(
+        gameState.playerId,
+        gameState.totalClues,
+      );
 
       // Update game state
       setGameState((prev) => {
@@ -90,11 +99,14 @@ const Game = () => {
         // Initialize completed clues from saved state
         if (state.completedClues.length > 0) {
           state.completedClues.forEach((clueId) => {
-            gameMetricsMonitor.recordClueCompletion(state.playerId, state.totalClues);
+            gameMetricsMonitor.recordClueCompletion(
+              state.playerId,
+              state.totalClues,
+            );
           });
         }
       } catch (err) {
-        setError('Failed to load game state');
+        setError("Failed to load game state");
         setLoading(false);
       }
     };
@@ -107,7 +119,7 @@ const Game = () => {
 
       // Subscribe to game updates
       const gameUpdateCleanup = gameSocket.onGameUpdate((update) => {
-        if (update.type === 'game_over') {
+        if (update.type === "game_over") {
           const sessionDuration = Date.now() - gameStartTime;
           setGameState((prev) =>
             prev
@@ -116,27 +128,30 @@ const Game = () => {
                   isComplete: true,
                   sessionDuration,
                 }
-              : null
+              : null,
           );
 
           // Record final metrics
           if (gameState) {
-            const finalProgress = (completedClues.length / gameState.totalClues) * 100;
+            const finalProgress =
+              (completedClues.length / gameState.totalClues) * 100;
             gameMetricsMonitor.recordGameCompletion(
               gameState.playerId,
               finalProgress,
-              sessionDuration
+              sessionDuration,
             );
           }
-        } else if (update.type === 'clue_completed') {
+        } else if (update.type === "clue_completed") {
           handleClueCompletion(update.data.clueId, update.data.location);
         }
       });
 
       // Subscribe to player location updates
-      const locationUpdateCleanup = gameSocket.onPlayerLocations((locations) => {
-        setOtherPlayerLocations(locations);
-      });
+      const locationUpdateCleanup = gameSocket.onPlayerLocations(
+        (locations) => {
+          setOtherPlayerLocations(locations);
+        },
+      );
 
       return () => {
         gameUpdateCleanup?.();
@@ -149,7 +164,7 @@ const Game = () => {
           gameMetricsMonitor.recordPlayerLeave(
             gameState.playerId,
             completedClues.length,
-            sessionDuration
+            sessionDuration,
           );
         }
       };
@@ -172,8 +187,8 @@ const Game = () => {
       // Add safe play area
       if (gameState.boundaries.safeArea) {
         locationValidator.addBoundary({
-          id: 'safe_play_area',
-          type: 'safe',
+          id: "safe_play_area",
+          type: "safe",
           points: gameState.boundaries.safeArea,
         });
       }
@@ -182,7 +197,7 @@ const Game = () => {
       gameState.boundaries.unsafeAreas?.forEach((area, index) => {
         locationValidator.addBoundary({
           id: `unsafe_area_${index}`,
-          type: 'unsafe',
+          type: "unsafe",
           points: area,
         });
       });
@@ -198,7 +213,8 @@ const Game = () => {
   useEffect(() => {
     if (!currentLocation || !gameState) return;
 
-    const locationValidation = locationValidator.validateLocation(currentLocation);
+    const locationValidation =
+      locationValidator.validateLocation(currentLocation);
     if (!locationValidation.isValid) {
       // Show warning to player
       setError(`Warning: ${locationValidation.reason}`);
@@ -207,8 +223,8 @@ const Game = () => {
       if (gameState) {
         gameMetricsMonitor.recordSafetyIncident(
           gameState.playerId,
-          'boundary_violation',
-          locationValidation.reason || 'Unknown reason'
+          "boundary_violation",
+          locationValidation.reason || "Unknown reason",
         );
       }
     } else {
@@ -219,7 +235,12 @@ const Game = () => {
 
   if (loading || locationLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh"
+      >
         <CircularProgress />
       </Box>
     );
@@ -229,7 +250,7 @@ const Game = () => {
     return (
       <Container>
         <Typography color="error" align="center">
-          {error || 'Game not found'}
+          {error || "Game not found"}
         </Typography>
       </Container>
     );
@@ -243,9 +264,9 @@ const Game = () => {
           <Paper
             sx={{
               p: 2,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <Box display="flex" alignItems="center" gap={3}>
@@ -256,7 +277,11 @@ const Game = () => {
                 </Typography>
               </Box>
               <Typography variant="h6">
-                Progress: {((completedClues.length / gameState.totalClues) * 100).toFixed(1)}%
+                Progress:{" "}
+                {((completedClues.length / gameState.totalClues) * 100).toFixed(
+                  1,
+                )}
+                %
               </Typography>
             </Box>
             <Typography variant="h6">Score: {gameState.score}</Typography>
@@ -273,7 +298,7 @@ const Game = () => {
 
         {/* Map Area */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, height: '600px' }}>
+          <Paper sx={{ p: 2, height: "600px" }}>
             <GameMap
               currentLocation={currentLocation}
               otherPlayerLocations={otherPlayerLocations}
@@ -284,13 +309,13 @@ const Game = () => {
       <IconButton
         onClick={() => setShowDashboard(true)}
         sx={{
-          position: 'fixed',
+          position: "fixed",
           bottom: 16,
           right: 16,
-          backgroundColor: 'background.paper',
+          backgroundColor: "background.paper",
           boxShadow: 1,
-          '&:hover': {
-            backgroundColor: 'action.hover',
+          "&:hover": {
+            backgroundColor: "action.hover",
           },
         }}
       >
@@ -302,8 +327,8 @@ const Game = () => {
         open={showDashboard}
         onClose={() => setShowDashboard(false)}
         sx={{
-          '& .MuiDrawer-paper': {
-            width: '100%',
+          "& .MuiDrawer-paper": {
+            width: "100%",
             maxWidth: 1200,
           },
         }}

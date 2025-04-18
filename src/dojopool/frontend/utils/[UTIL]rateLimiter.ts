@@ -95,7 +95,8 @@ export class RateLimiter {
       };
     }
 
-    const timeToNextToken = config.interval - ((Date.now() - bucket.lastRefill) % config.interval);
+    const timeToNextToken =
+      config.interval - ((Date.now() - bucket.lastRefill) % config.interval);
 
     return {
       allowed: false,
@@ -104,7 +105,11 @@ export class RateLimiter {
     };
   }
 
-  async waitForTokens(key: string, cost: number = 1, timeout: number = 30000): Promise<boolean> {
+  async waitForTokens(
+    key: string,
+    cost: number = 1,
+    timeout: number = 30000,
+  ): Promise<boolean> {
     const startTime = Date.now();
 
     while (Date.now() - startTime < timeout) {
@@ -114,7 +119,9 @@ export class RateLimiter {
       }
 
       if (result.retryAfter) {
-        await new Promise((resolve) => setTimeout(resolve, Math.min(result.retryAfter, 1000)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(result.retryAfter, 1000)),
+        );
       }
     }
 
@@ -157,7 +164,8 @@ export class RateLimiter {
 
     this.refillTokens(key);
     const now = Date.now();
-    const timeToNextRefill = config.interval - ((now - bucket.lastRefill) % config.interval);
+    const timeToNextRefill =
+      config.interval - ((now - bucket.lastRefill) % config.interval);
 
     return {
       remaining: bucket.tokens,

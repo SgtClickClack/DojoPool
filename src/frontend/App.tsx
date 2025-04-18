@@ -1,19 +1,19 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { UserProvider } from './contexts/UserContext';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import React, { Suspense } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { UserProvider } from "./contexts/UserContext";
+import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 // Lazy load components with corrected paths (relative to App.tsx)
-const Login = React.lazy(() => import('./components/Auth/Login'));
-const Register = React.lazy(() => import('./components/Auth/Register'));
-const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard'));
-const GameView = React.lazy(() => import('./components/Game/GameView'));
+const Login = React.lazy(() => import("./components/Auth/Login"));
+const Register = React.lazy(() => import("./components/Auth/Register"));
+const Dashboard = React.lazy(() => import("./components/Dashboard/Dashboard"));
+const GameView = React.lazy(() => import("./components/Game/GameView"));
 
 // Basic theme (can be expanded)
 const theme = createTheme({
   palette: {
-    mode: 'dark', // Or 'light'
+    mode: "dark", // Or 'light'
   },
 });
 
@@ -33,7 +33,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 };
 
 const LoadingFallback = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+    }}
+  >
     Loading...
   </div>
 );
@@ -44,7 +51,9 @@ const App: React.FC = () => {
       <CssBaseline />
       <AuthProvider>
         <UserProvider>
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <BrowserRouter
+            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+          >
             <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 {/* Public routes */}
@@ -53,10 +62,21 @@ const App: React.FC = () => {
 
                 {/* Protected routes */}
                 <Route path="/" element={<NavigateToHome />} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route 
-                  path="/game/:gameId" 
-                  element={ <ProtectedRoute><GameView /></ProtectedRoute>} 
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/game/:gameId"
+                  element={
+                    <ProtectedRoute>
+                      <GameView />
+                    </ProtectedRoute>
+                  }
                 />
 
                 {/* Catch all route */}
@@ -76,7 +96,11 @@ const NavigateToHome: React.FC = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
-  return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+  return user ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/login" replace />
+  );
 };
 
-export default App; 
+export default App;

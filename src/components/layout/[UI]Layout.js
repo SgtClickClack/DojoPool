@@ -1,13 +1,13 @@
-import { Box } from '@mui/material';
-import Navbar from './Navbar';
+import { Box } from "@mui/material";
+import Navbar from "./Navbar";
 
 const Layout = ({ children }) => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Navbar />
@@ -15,10 +15,10 @@ const Layout = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          bgcolor: 'background.default',
-          color: 'text.primary',
+          display: "flex",
+          flexDirection: "column",
+          bgcolor: "background.default",
+          color: "text.primary",
         }}
       >
         {children}

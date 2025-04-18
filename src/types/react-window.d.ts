@@ -1,12 +1,17 @@
-import { ComponentType } from 'react';
-import { FixedSizeList as OriginalFixedSizeList, ListChildComponentProps as OriginalListChildComponentProps } from 'react-window';
+import { ComponentType } from "react";
+import {
+  FixedSizeList as OriginalFixedSizeList,
+  ListChildComponentProps as OriginalListChildComponentProps,
+} from "react-window";
 
-declare module 'react-window' {
-  export interface ListChildComponentProps<T = any> extends Omit<OriginalListChildComponentProps, 'data'> {
+declare module "react-window" {
+  export interface ListChildComponentProps<T = any>
+    extends Omit<OriginalListChildComponentProps, "data"> {
     data: T;
   }
 
-  export interface FixedSizeListProps<T = any> extends React.ComponentProps<typeof OriginalFixedSizeList> {
+  export interface FixedSizeListProps<T = any>
+    extends React.ComponentProps<typeof OriginalFixedSizeList> {
     itemData: T;
     children: ComponentType<ListChildComponentProps<T>>;
   }
@@ -16,8 +21,8 @@ declare module 'react-window' {
   }
 }
 
-declare module 'react-virtualized-auto-sizer' {
-  import * as React from 'react';
+declare module "react-virtualized-auto-sizer" {
+  import * as React from "react";
 
   export interface Size {
     height: number;
@@ -35,4 +40,4 @@ declare module 'react-virtualized-auto-sizer' {
   }
 
   export default class AutoSizer extends React.Component<AutoSizerProps> {}
-} 
+}

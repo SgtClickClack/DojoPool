@@ -2,7 +2,7 @@
  * API client module.
  * Provides a wrapper around fetch for making HTTP requests.
  */
-import { Config } from '../config';
+import { Config } from "../config";
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
@@ -20,10 +20,10 @@ class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public data?: any
+    public data?: any,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
@@ -63,9 +63,9 @@ export class ApiClient {
     if (requiresAuth) {
       const token = this.getAuthToken();
       if (!token) {
-        throw new ApiError('Authentication required', 401);
+        throw new ApiError("Authentication required", 401);
       }
-      headers.append('Authorization', `Bearer ${token}`);
+      headers.append("Authorization", `Bearer ${token}`);
     }
   }
 
@@ -73,10 +73,10 @@ export class ApiClient {
    * Process API response.
    */
   private async processResponse<T>(
-    response: Response
+    response: Response,
   ): Promise<ApiResponse<T>> {
-    const contentType = response.headers.get('content-type');
-    const isJson = contentType?.includes('application/json');
+    const contentType = response.headers.get("content-type");
+    const isJson = contentType?.includes("application/json");
 
     const data = isJson ? await response.json() : await response.text();
 
@@ -84,7 +84,7 @@ export class ApiClient {
       throw new ApiError(
         data.error || response.statusText,
         response.status,
-        data
+        data,
       );
     }
 
@@ -100,7 +100,7 @@ export class ApiClient {
    */
   private async request<T>(
     path: string,
-    options: RequestOptions = {}
+    options: RequestOptions = {},
   ): Promise<ApiResponse<T>> {
     const {
       params,
@@ -110,8 +110,8 @@ export class ApiClient {
     } = options;
 
     const headers = new Headers({
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
       ...customHeaders,
     });
 
@@ -138,9 +138,9 @@ export class ApiClient {
    */
   async get<T>(
     path: string,
-    options: Omit<RequestOptions, 'body' | 'method'> = {}
+    options: Omit<RequestOptions, "body" | "method"> = {},
   ): Promise<ApiResponse<T>> {
-    return this.request<T>(path, { ...options, method: 'GET' });
+    return this.request<T>(path, { ...options, method: "GET" });
   }
 
   /**
@@ -149,11 +149,11 @@ export class ApiClient {
   async post<T>(
     path: string,
     data?: any,
-    options: Omit<RequestOptions, 'body' | 'method'> = {}
+    options: Omit<RequestOptions, "body" | "method"> = {},
   ): Promise<ApiResponse<T>> {
     return this.request<T>(path, {
       ...options,
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
     });
   }
@@ -164,11 +164,11 @@ export class ApiClient {
   async put<T>(
     path: string,
     data?: any,
-    options: Omit<RequestOptions, 'body' | 'method'> = {}
+    options: Omit<RequestOptions, "body" | "method"> = {},
   ): Promise<ApiResponse<T>> {
     return this.request<T>(path, {
       ...options,
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(data),
     });
   }
@@ -179,11 +179,11 @@ export class ApiClient {
   async patch<T>(
     path: string,
     data?: any,
-    options: Omit<RequestOptions, 'body' | 'method'> = {}
+    options: Omit<RequestOptions, "body" | "method"> = {},
   ): Promise<ApiResponse<T>> {
     return this.request<T>(path, {
       ...options,
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(data),
     });
   }
@@ -193,9 +193,9 @@ export class ApiClient {
    */
   async delete<T>(
     path: string,
-    options: Omit<RequestOptions, 'body' | 'method'> = {}
+    options: Omit<RequestOptions, "body" | "method"> = {},
   ): Promise<ApiResponse<T>> {
-    return this.request<T>(path, { ...options, method: 'DELETE' });
+    return this.request<T>(path, { ...options, method: "DELETE" });
   }
 
   /**
@@ -204,14 +204,14 @@ export class ApiClient {
   async upload<T>(
     path: string,
     file: File,
-    options: Omit<RequestOptions, 'body' | 'method' | 'headers'> = {}
+    options: Omit<RequestOptions, "body" | "method" | "headers"> = {},
   ): Promise<ApiResponse<T>> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     return this.request<T>(path, {
       ...options,
-      method: 'POST',
+      method: "POST",
       body: formData,
       headers: {}, // Let browser set correct Content-Type
     });

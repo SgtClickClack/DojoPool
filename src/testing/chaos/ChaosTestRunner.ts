@@ -1,7 +1,10 @@
-import { EventEmitter } from 'events';
-import { GameState } from '../../types/game';
-import { StateInvariantChecker, InvariantResult } from '../../verification/invariants';
-import { DistributedTracer } from '../../monitoring/tracing';
+import { EventEmitter } from "events";
+import { GameState } from "../../types/game";
+import {
+  StateInvariantChecker,
+  InvariantResult,
+} from "../../verification/invariants";
+import { DistributedTracer } from "../../monitoring/tracing";
 
 export interface ChaosConfig {
   networkLatencyRange: [number, number];
@@ -37,7 +40,7 @@ export class ChaosTestRunner extends EventEmitter {
   constructor(
     config: ChaosConfig,
     invariantChecker: StateInvariantChecker,
-    tracer: DistributedTracer
+    tracer: DistributedTracer,
   ) {
     super();
     this.config = config;
@@ -47,7 +50,7 @@ export class ChaosTestRunner extends EventEmitter {
     this.partitionedNodes = new Set();
     this.testResults = new Map();
     this.isRunning = false;
-    this.nodeId = ''; // Assuming a default nodeId
+    this.nodeId = ""; // Assuming a default nodeId
   }
 
   public async runTests(scenarios: string[]): Promise<Map<string, TestResult>> {
@@ -59,7 +62,7 @@ export class ChaosTestRunner extends EventEmitter {
 
       const result = await this.runScenario(scenario);
       this.testResults.set(scenario, result);
-      this.emit('scenarioComplete', { scenario, result });
+      this.emit("scenarioComplete", { scenario, result });
     }
 
     this.isRunning = false;
@@ -73,16 +76,16 @@ export class ChaosTestRunner extends EventEmitter {
 
     try {
       switch (scenario) {
-        case 'network-partition':
+        case "network-partition":
           await this.simulateNetworkPartition();
           break;
-        case 'node-failure':
+        case "node-failure":
           await this.simulateNodeFailure();
           break;
-        case 'message-delay':
+        case "message-delay":
           await this.simulateMessageDelay();
           break;
-        case 'packet-loss':
+        case "packet-loss":
           await this.simulatePacketLoss();
           break;
         default:
@@ -91,7 +94,7 @@ export class ChaosTestRunner extends EventEmitter {
 
       const state = await this.getCurrentState();
       const invariantResults = this.invariantChecker.checkAll(state);
-      const success = invariantResults.every(result => result.valid);
+      const success = invariantResults.every((result) => result.valid);
 
       return {
         scenario,
@@ -101,9 +104,9 @@ export class ChaosTestRunner extends EventEmitter {
           latency: Date.now() - startTime,
           messageCount,
           failureCount,
-          recoveryTime: this.calculateRecoveryTime()
+          recoveryTime: this.calculateRecoveryTime(),
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     } catch (error) {
       console.error(`Scenario ${scenario} failed:`, error);
@@ -115,9 +118,9 @@ export class ChaosTestRunner extends EventEmitter {
           latency: Date.now() - startTime,
           messageCount,
           failureCount,
-          recoveryTime: -1
+          recoveryTime: -1,
         },
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     }
   }
@@ -125,7 +128,7 @@ export class ChaosTestRunner extends EventEmitter {
   private async simulateNetworkPartition(): Promise<void> {
     const nodes = Array.from(this.activeNodes);
     const partitionSize = Math.floor(nodes.length / 2);
-    
+
     for (let i = 0; i < partitionSize; i++) {
       this.partitionedNodes.add(nodes[i]);
     }
@@ -137,31 +140,31 @@ export class ChaosTestRunner extends EventEmitter {
   private async simulateNodeFailure(): Promise<void> {
     const nodes = Array.from(this.activeNodes);
     const failureCount = Math.floor(nodes.length * this.config.nodeFailureRate);
-    
+
     for (let i = 0; i < failureCount; i++) {
       const nodeId = nodes[Math.floor(Math.random() * nodes.length)];
       this.activeNodes.delete(nodeId);
-      this.emit('nodeFailure', nodeId);
+      this.emit("nodeFailure", nodeId);
     }
 
     await this.sleep(this.config.testDuration);
-    
+
     // Recover nodes
-    nodes.forEach(nodeId => this.activeNodes.add(nodeId));
+    nodes.forEach((nodeId) => this.activeNodes.add(nodeId));
   }
 
   private async simulateMessageDelay(): Promise<void> {
     const [minLatency, maxLatency] = this.config.networkLatencyRange;
     const delay = minLatency + Math.random() * (maxLatency - minLatency);
-    
-    this.emit('networkDelay', delay);
+
+    this.emit("networkDelay", delay);
     await this.sleep(delay);
   }
 
   private async simulatePacketLoss(): Promise<void> {
     const shouldDrop = Math.random() < this.config.packetLossRate;
     if (shouldDrop) {
-      this.emit('packetLoss');
+      this.emit("packetLoss");
     }
   }
 
@@ -177,14 +180,14 @@ export class ChaosTestRunner extends EventEmitter {
     return {
       tables: [],
       players: [],
-      currentTurn: '',
-      gamePhase: 'setup',
-      timestamp: { [this.nodeId]: Date.now() }
+      currentTurn: "",
+      gamePhase: "setup",
+      timestamp: { [this.nodeId]: Date.now() },
     };
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   public stop(): void {
@@ -207,4 +210,4 @@ export class ChaosTestRunner extends EventEmitter {
   public getPartitionedNodes(): string[] {
     return Array.from(this.partitionedNodes);
   }
-} 
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   FormControl,
@@ -9,7 +9,7 @@ import {
   OutlinedInput,
   SelectChangeEvent,
   useTheme,
-} from '@mui/material';
+} from "@mui/material";
 
 interface FilterPanelProps {
   selectedMetrics: string[];
@@ -22,27 +22,27 @@ interface FilterPanelProps {
 }
 
 const METRICS = [
-  { value: 'games_played', label: 'Games Played' },
-  { value: 'win_rate', label: 'Win Rate' },
-  { value: 'avg_score', label: 'Average Score' },
-  { value: 'occupancy_rate', label: 'Occupancy Rate' },
-  { value: 'revenue', label: 'Revenue' },
-  { value: 'response_time', label: 'Response Time' },
-  { value: 'error_rate', label: 'Error Rate' },
-  { value: 'cpu_usage', label: 'CPU Usage' },
+  { value: "games_played", label: "Games Played" },
+  { value: "win_rate", label: "Win Rate" },
+  { value: "avg_score", label: "Average Score" },
+  { value: "occupancy_rate", label: "Occupancy Rate" },
+  { value: "revenue", label: "Revenue" },
+  { value: "response_time", label: "Response Time" },
+  { value: "error_rate", label: "Error Rate" },
+  { value: "cpu_usage", label: "CPU Usage" },
 ];
 
 const DIMENSIONS = [
-  { value: 'user', label: 'User' },
-  { value: 'venue', label: 'Venue' },
-  { value: 'game', label: 'Game' },
+  { value: "user", label: "User" },
+  { value: "venue", label: "Venue" },
+  { value: "game", label: "Game" },
 ];
 
 const PERIODS = [
-  { value: 'hourly', label: 'Hourly' },
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
+  { value: "hourly", label: "Hourly" },
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
 ];
 
 const ITEM_HEIGHT = 48;
@@ -69,7 +69,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
 
   const handleMetricsChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value;
-    onMetricsChange(typeof value === 'string' ? value.split(',') : value);
+    onMetricsChange(typeof value === "string" ? value.split(",") : value);
   };
 
   const handleDimensionChange = (event: SelectChangeEvent) => {
@@ -81,7 +81,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
       <FormControl sx={{ minWidth: 200, flex: 1 }}>
         <InputLabel id="metrics-label">Metrics</InputLabel>
         <Select
@@ -92,7 +92,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           onChange={handleMetricsChange}
           input={<OutlinedInput id="select-metrics" label="Metrics" />}
           renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
               {selected.map((value) => (
                 <Chip
                   key={value}

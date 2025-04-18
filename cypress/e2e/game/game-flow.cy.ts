@@ -1,124 +1,124 @@
-describe('Game Flow', () => {
+describe("Game Flow", () => {
   beforeEach(() => {
     // Login before each test
-    cy.login('player1@example.com', 'password123');
+    cy.login("player1@example.com", "password123");
   });
 
-  it('should create and play a complete game', () => {
+  it("should create and play a complete game", () => {
     // Create new game
-    cy.createGame('player1', 'player2');
+    cy.createGame("player1", "player2");
 
     // Verify game creation
-    cy.url().should('match', /\/games\/[\w-]+$/);
-    cy.findByText('Game Controls').should('exist');
+    cy.url().should("match", /\/games\/[\w-]+$/);
+    cy.findByText("Game Controls").should("exist");
 
     // Simulate game play
     // Click ball buttons
-    cy.findByRole('button', { name: '1' }).click();
-    cy.findByRole('button', { name: '2' }).click();
-    cy.findByRole('button', { name: '3' }).click();
+    cy.findByRole("button", { name: "1" }).click();
+    cy.findByRole("button", { name: "2" }).click();
+    cy.findByRole("button", { name: "3" }).click();
 
     // End turn
-    cy.findByRole('button', { name: 'End Turn' }).click();
+    cy.findByRole("button", { name: "End Turn" }).click();
 
     // Verify turn change
-    cy.findByText(/Player 2's turn/i).should('exist');
+    cy.findByText(/Player 2's turn/i).should("exist");
 
     // End game
-    cy.findByRole('button', { name: 'End Game' }).click();
+    cy.findByRole("button", { name: "End Game" }).click();
 
     // Verify game completion
-    cy.findByText(/Game Complete/i).should('exist');
+    cy.findByText(/Game Complete/i).should("exist");
   });
 
-  it('should track game statistics correctly', () => {
-    cy.createGame('player1', 'player2');
+  it("should track game statistics correctly", () => {
+    cy.createGame("player1", "player2");
 
     // Make some shots
-    cy.findByRole('button', { name: '1' }).click();
-    cy.findByRole('button', { name: '2' }).click();
+    cy.findByRole("button", { name: "1" }).click();
+    cy.findByRole("button", { name: "2" }).click();
 
     // Check statistics
-    cy.findByText(/Successful Shots: 2/i).should('exist');
-    cy.findByText(/Total Shots: 2/i).should('exist');
-    cy.findByText(/100.0%/i).should('exist'); // Accuracy
+    cy.findByText(/Successful Shots: 2/i).should("exist");
+    cy.findByText(/Total Shots: 2/i).should("exist");
+    cy.findByText(/100.0%/i).should("exist"); // Accuracy
   });
 
-  it('should show game history', () => {
-    cy.createGame('player1', 'player2');
+  it("should show game history", () => {
+    cy.createGame("player1", "player2");
 
     // Make some moves
-    cy.findByRole('button', { name: '1' }).click();
-    cy.findByRole('button', { name: 'End Turn' }).click();
+    cy.findByRole("button", { name: "1" }).click();
+    cy.findByRole("button", { name: "End Turn" }).click();
 
     // Check history
-    cy.findByText('Game History').click();
-    cy.findByText(/SHOT/).should('exist');
-    cy.findByText(/Player 1/).should('exist');
+    cy.findByText("Game History").click();
+    cy.findByText(/SHOT/).should("exist");
+    cy.findByText(/Player 1/).should("exist");
   });
 
-  it('should handle game patterns analysis', () => {
-    cy.createGame('player1', 'player2');
+  it("should handle game patterns analysis", () => {
+    cy.createGame("player1", "player2");
 
     // Play multiple shots
-    ['1', '2', '3'].forEach(ball => {
-      cy.findByRole('button', { name: ball }).click();
+    ["1", "2", "3"].forEach((ball) => {
+      cy.findByRole("button", { name: ball }).click();
     });
 
     // Check patterns
-    cy.findByText('Shot Distribution').should('exist');
-    cy.findByText('Player Positioning').should('exist');
-    cy.findByText('Common Sequences').should('exist');
+    cy.findByText("Shot Distribution").should("exist");
+    cy.findByText("Player Positioning").should("exist");
+    cy.findByText("Common Sequences").should("exist");
   });
 
-  it('should update game map with player positions', () => {
-    cy.createGame('player1', 'player2');
+  it("should update game map with player positions", () => {
+    cy.createGame("player1", "player2");
 
     // Verify map elements
-    cy.findByTestId('google-map').should('exist');
-    cy.findByTestId('map-circle').should('exist');
+    cy.findByTestId("google-map").should("exist");
+    cy.findByTestId("map-circle").should("exist");
 
     // Mock location update
-    cy.window().then(win => {
+    cy.window().then((win) => {
       const mockGeolocation = {
         getCurrentPosition: (cb: Function) => {
           cb({
             coords: {
               latitude: 40.7128,
-              longitude: -74.0060
-            }
+              longitude: -74.006,
+            },
           });
-        }
+        },
       };
       // @ts-ignore
       win.navigator.geolocation = mockGeolocation;
     });
 
     // Verify position update
-    cy.findByTestId('player-marker').should('exist');
+    cy.findByTestId("player-marker").should("exist");
   });
 
-  it('should handle network issues gracefully', () => {
+  it("should handle network issues gracefully", () => {
     // Simulate offline state
-    cy.window().then(win => {
+    cy.window().then((win) => {
       // @ts-ignore
       win.navigator.onLine = false;
-      win.dispatchEvent(new Event('offline'));
+      win.dispatchEvent(new Event("offline"));
     });
 
-    cy.createGame('player1', 'player2');
+    cy.createGame("player1", "player2");
 
     // Should show offline warning
-    cy.findByText(/You are offline/i).should('exist');
+    cy.findByText(/You are offline/i).should("exist");
 
     // Restore online state
-    cy.window().then(win => {
+    cy.window().then((win) => {
       // @ts-ignore
       win.navigator.onLine = true;
-      win.dispatchEvent(new Event('online'));
+      win.dispatchEvent(new Event("online"));
     });
 
     // Warning should disappear
-    cy.findByText(/You are offline/i).should('not.exist');
+    cy.findByText(/You are offline/i).should("not.exist");
   });
-}); 
+});

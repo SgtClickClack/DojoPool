@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -25,18 +25,18 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  AlertTitle
-} from '@mui/material';
+  AlertTitle,
+} from "@mui/material";
 import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   Info as InfoIcon,
   CheckCircle as CheckCircleIcon,
   Refresh as RefreshIcon,
-  Download as DownloadIcon
-} from '@mui/icons-material';
-import { useSnackbar } from 'notistack';
-import { api } from '../services/api';
+  Download as DownloadIcon,
+} from "@mui/icons-material";
+import { useSnackbar } from "notistack";
+import { api } from "../services/api";
 
 interface QRAlertsDashboardProps {
   venueId?: string;
@@ -61,112 +61,115 @@ interface AlertData {
 export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
   venueId,
   tableId,
-  onExport
+  onExport,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
-  
+
   const [loading, setLoading] = useState(true);
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<AlertData | null>(null);
-  const [severityFilter, setSeverityFilter] = useState<string>('all');
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [acknowledgedFilter, setAcknowledgedFilter] = useState<boolean>(false);
   const [refreshInterval, setRefreshInterval] = useState<number>(60);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  
+
   useEffect(() => {
     loadAlerts();
     const interval = setInterval(loadAlerts, refreshInterval * 1000);
     return () => clearInterval(interval);
   }, [venueId, tableId, severityFilter, acknowledgedFilter, refreshInterval]);
-  
+
   const loadAlerts = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/qr/alerts', {
+      const response = await api.get("/qr/alerts", {
         params: {
           venue_id: venueId,
           table_id: tableId,
-          severity: severityFilter !== 'all' ? severityFilter : undefined,
-          include_acknowledged: acknowledgedFilter
-        }
+          severity: severityFilter !== "all" ? severityFilter : undefined,
+          include_acknowledged: acknowledgedFilter,
+        },
       });
       setAlerts(response.data);
     } catch (error) {
-      console.error('Error loading alerts:', error);
-      enqueueSnackbar('Failed to load alerts', { variant: 'error' });
+      console.error("Error loading alerts:", error);
+      enqueueSnackbar("Failed to load alerts", { variant: "error" });
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleAcknowledge = async (alert: AlertData) => {
     try {
       await api.post(`/qr/alerts/${alert.id}/acknowledge`);
-      enqueueSnackbar('Alert acknowledged', { variant: 'success' });
+      enqueueSnackbar("Alert acknowledged", { variant: "success" });
       loadAlerts();
     } catch (error) {
-      console.error('Error acknowledging alert:', error);
-      enqueueSnackbar('Failed to acknowledge alert', { variant: 'error' });
+      console.error("Error acknowledging alert:", error);
+      enqueueSnackbar("Failed to acknowledge alert", { variant: "error" });
     }
   };
-  
+
   const handleExport = async () => {
     try {
-      const response = await api.get('/qr/export', {
+      const response = await api.get("/qr/export", {
         params: {
           venue_id: venueId,
           table_id: tableId,
-          format: 'json',
-          include_errors: true
+          format: "json",
+          include_errors: true,
         },
-        responseType: 'blob'
+        responseType: "blob",
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', `qr_alerts_${new Date().toISOString()}.json`);
+      link.setAttribute(
+        "download",
+        `qr_alerts_${new Date().toISOString()}.json`,
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
-      
-      enqueueSnackbar('Alerts exported successfully', { variant: 'success' });
+
+      enqueueSnackbar("Alerts exported successfully", { variant: "success" });
     } catch (error) {
-      console.error('Error exporting alerts:', error);
-      enqueueSnackbar('Failed to export alerts', { variant: 'error' });
+      console.error("Error exporting alerts:", error);
+      enqueueSnackbar("Failed to export alerts", { variant: "error" });
     }
   };
-  
+
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'critical':
+      case "critical":
         return <ErrorIcon color="error" />;
-      case 'error':
+      case "error":
         return <ErrorIcon color="error" />;
-      case 'warning':
+      case "warning":
         return <WarningIcon color="warning" />;
-      case 'info':
+      case "info":
         return <InfoIcon color="info" />;
       default:
         return null;
     }
   };
-  
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical':
-        return 'error';
-      case 'error':
-        return 'error';
-      case 'warning':
-        return 'warning';
-      case 'info':
-        return 'info';
+      case "critical":
+        return "error";
+      case "error":
+        return "error";
+      case "warning":
+        return "warning";
+      case "info":
+        return "info";
       default:
-        return 'default';
+        return "default";
     }
   };
-  
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={4}>
@@ -174,7 +177,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
       </Box>
     );
   }
-  
+
   return (
     <Box>
       {/* Controls */}
@@ -193,7 +196,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
             <MenuItem value="info">Info</MenuItem>
           </Select>
         </FormControl>
-        
+
         <FormControl size="small">
           <InputLabel>Status</InputLabel>
           <Select
@@ -205,7 +208,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
             <MenuItem value={true}>All</MenuItem>
           </Select>
         </FormControl>
-        
+
         <FormControl size="small">
           <InputLabel>Refresh</InputLabel>
           <Select
@@ -218,18 +221,18 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
             <MenuItem value={300}>5 minutes</MenuItem>
           </Select>
         </FormControl>
-        
+
         <Box flex={1} />
-        
+
         <IconButton onClick={loadAlerts} title="Refresh">
           <RefreshIcon />
         </IconButton>
-        
+
         <IconButton onClick={handleExport} title="Export">
           <DownloadIcon />
         </IconButton>
       </Box>
-      
+
       {/* Alert Summary */}
       <Grid container spacing={2} mb={3}>
         <Grid item xs={12} sm={6} md={3}>
@@ -238,13 +241,11 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
               <Typography color="textSecondary" gutterBottom>
                 Total Alerts
               </Typography>
-              <Typography variant="h4">
-                {alerts.length}
-              </Typography>
+              <Typography variant="h4">{alerts.length}</Typography>
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -252,12 +253,16 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                 Critical/Error
               </Typography>
               <Typography variant="h4" color="error">
-                {alerts.filter(a => ['critical', 'error'].includes(a.severity)).length}
+                {
+                  alerts.filter((a) =>
+                    ["critical", "error"].includes(a.severity),
+                  ).length
+                }
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -265,12 +270,12 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                 Warnings
               </Typography>
               <Typography variant="h4" color="warning">
-                {alerts.filter(a => a.severity === 'warning').length}
+                {alerts.filter((a) => a.severity === "warning").length}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -278,13 +283,13 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                 Unacknowledged
               </Typography>
               <Typography variant="h4">
-                {alerts.filter(a => !a.acknowledged).length}
+                {alerts.filter((a) => !a.acknowledged).length}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
-      
+
       {/* Alert List */}
       <TableContainer component={Paper}>
         <Table>
@@ -303,15 +308,15 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
               <TableRow
                 key={alert.id}
                 sx={{
-                  backgroundColor: alert.acknowledged ? 'inherit' : 'action.hover'
+                  backgroundColor: alert.acknowledged
+                    ? "inherit"
+                    : "action.hover",
                 }}
               >
                 <TableCell>
                   <Box display="flex" alignItems="center" gap={1}>
                     {getSeverityIcon(alert.severity)}
-                    <Typography>
-                      {alert.severity.toUpperCase()}
-                    </Typography>
+                    <Typography>{alert.severity.toUpperCase()}</Typography>
                   </Box>
                 </TableCell>
                 <TableCell>{alert.type}</TableCell>
@@ -322,8 +327,8 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                 <TableCell>
                   <Chip
                     size="small"
-                    label={alert.acknowledged ? 'Acknowledged' : 'Active'}
-                    color={alert.acknowledged ? 'success' : 'warning'}
+                    label={alert.acknowledged ? "Acknowledged" : "Active"}
+                    color={alert.acknowledged ? "success" : "warning"}
                   />
                 </TableCell>
                 <TableCell>
@@ -351,7 +356,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
           </TableBody>
         </Table>
       </TableContainer>
-      
+
       {/* Alert Details Dialog */}
       <Dialog
         open={detailsOpen}
@@ -367,7 +372,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                 Alert Details
               </Box>
             </DialogTitle>
-            
+
             <DialogContent>
               <Alert
                 severity={getSeverityColor(selectedAlert.severity) as any}
@@ -376,7 +381,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                 <AlertTitle>{selectedAlert.type}</AlertTitle>
                 {selectedAlert.message}
               </Alert>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -386,7 +391,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                     {new Date(selectedAlert.timestamp).toLocaleString()}
                   </Typography>
                 </Grid>
-                
+
                 {selectedAlert.venue_id && (
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" gutterBottom>
@@ -395,7 +400,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                     <Typography>{selectedAlert.venue_id}</Typography>
                   </Grid>
                 )}
-                
+
                 {selectedAlert.table_id && (
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" gutterBottom>
@@ -404,7 +409,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                     <Typography>{selectedAlert.table_id}</Typography>
                   </Grid>
                 )}
-                
+
                 {selectedAlert.acknowledged && (
                   <>
                     <Grid item xs={12} sm={6}>
@@ -413,29 +418,31 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                       </Typography>
                       <Typography>{selectedAlert.acknowledged_by}</Typography>
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6}>
                       <Typography variant="subtitle2" gutterBottom>
                         Acknowledged At
                       </Typography>
                       <Typography>
-                        {new Date(selectedAlert.acknowledged_at!).toLocaleString()}
+                        {new Date(
+                          selectedAlert.acknowledged_at!,
+                        ).toLocaleString()}
                       </Typography>
                     </Grid>
                   </>
                 )}
               </Grid>
-              
+
               <Box mt={2}>
                 <Typography variant="subtitle2" gutterBottom>
                   Details
                 </Typography>
-                <pre style={{ whiteSpace: 'pre-wrap' }}>
+                <pre style={{ whiteSpace: "pre-wrap" }}>
                   {JSON.stringify(selectedAlert.details, null, 2)}
                 </pre>
               </Box>
             </DialogContent>
-            
+
             <DialogActions>
               {!selectedAlert.acknowledged && (
                 <Button
@@ -448,13 +455,11 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
                   Acknowledge
                 </Button>
               )}
-              <Button onClick={() => setDetailsOpen(false)}>
-                Close
-              </Button>
+              <Button onClick={() => setDetailsOpen(false)}>Close</Button>
             </DialogActions>
           </>
         )}
       </Dialog>
     </Box>
   );
-}; 
+};

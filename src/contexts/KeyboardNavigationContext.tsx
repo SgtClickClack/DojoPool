@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useRef, useCallback } from 'react';
-import { KeyboardNavigationContextValue } from '../hooks/useKeyboardNavigation';
+import React, { createContext, useContext, useRef, useCallback } from "react";
+import { KeyboardNavigationContextValue } from "../hooks/useKeyboardNavigation";
 
-const KeyboardNavigationContext = createContext<KeyboardNavigationContextValue | null>(null);
+const KeyboardNavigationContext =
+  createContext<KeyboardNavigationContextValue | null>(null);
 
 interface NavigableElement {
   ref: React.RefObject<HTMLElement>;
@@ -11,13 +12,18 @@ interface KeyboardNavigationProviderProps {
   children: React.ReactNode;
 }
 
-export const KeyboardNavigationProvider: React.FC<KeyboardNavigationProviderProps> = ({ children }) => {
+export const KeyboardNavigationProvider: React.FC<
+  KeyboardNavigationProviderProps
+> = ({ children }) => {
   const navigableElements = useRef<Map<string, NavigableElement>>(new Map());
   const currentFocus = useRef<string | null>(null);
 
-  const registerNavigable = useCallback((id: string, ref: React.RefObject<HTMLElement>) => {
-    navigableElements.current.set(id, { ref });
-  }, []);
+  const registerNavigable = useCallback(
+    (id: string, ref: React.RefObject<HTMLElement>) => {
+      navigableElements.current.set(id, { ref });
+    },
+    [],
+  );
 
   const unregisterNavigable = useCallback((id: string) => {
     navigableElements.current.delete(id);
@@ -55,9 +61,11 @@ export const KeyboardNavigationProvider: React.FC<KeyboardNavigationProviderProp
 export const useKeyboardNavigationContext = () => {
   const context = useContext(KeyboardNavigationContext);
   if (!context) {
-    throw new Error('useKeyboardNavigationContext must be used within a KeyboardNavigationProvider');
+    throw new Error(
+      "useKeyboardNavigationContext must be used within a KeyboardNavigationProvider",
+    );
   }
   return context;
 };
 
-export default KeyboardNavigationContext; 
+export default KeyboardNavigationContext;

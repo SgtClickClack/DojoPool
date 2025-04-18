@@ -1,8 +1,8 @@
 /// <reference types="jest" />
-import { ShotFeedbackService } from '../ShotFeedbackService';
-import { ShotData } from '../ShotAnalysisService';
+import { ShotFeedbackService } from "../ShotFeedbackService";
+import { ShotData } from "../ShotAnalysisService";
 
-describe('ShotFeedbackService', () => {
+describe("ShotFeedbackService", () => {
   let service: ShotFeedbackService;
   let mockShot: ShotData;
 
@@ -12,152 +12,154 @@ describe('ShotFeedbackService', () => {
       timestamp: Date.now(),
       ballPositions: {
         cueBall: { x: 100, y: 100 },
-        targetBall: { x: 200, y: 200 }
+        targetBall: { x: 200, y: 200 },
       },
-      shotType: 'straight',
+      shotType: "straight",
       power: 0.7,
       spin: { top: 0.2, side: 0.1 },
       success: true,
-      accuracy: 0.85
+      accuracy: 0.85,
     };
   });
 
-  describe('processShot', () => {
-    it('should process a shot and generate feedback', () => {
+  describe("processShot", () => {
+    it("should process a shot and generate feedback", () => {
       const spy = jest.fn();
-      service.on('feedbackGenerated', spy);
+      service.on("feedbackGenerated", spy);
 
       service.processShot(mockShot);
 
       expect(spy).toHaveBeenCalled();
       const feedback = service.getRecentFeedback();
       expect(feedback.length).toBeGreaterThan(0);
-      expect(feedback[0]).toHaveProperty('type');
-      expect(feedback[0]).toHaveProperty('message');
-      expect(feedback[0]).toHaveProperty('severity');
-      expect(feedback[0]).toHaveProperty('timestamp');
+      expect(feedback[0]).toHaveProperty("type");
+      expect(feedback[0]).toHaveProperty("message");
+      expect(feedback[0]).toHaveProperty("severity");
+      expect(feedback[0]).toHaveProperty("timestamp");
     });
 
-    it('should generate power feedback for high power shots', () => {
+    it("should generate power feedback for high power shots", () => {
       const highPowerShot = {
         ...mockShot,
         power: 0.9,
-        accuracy: 0.6
+        accuracy: 0.6,
       };
 
       service.processShot(highPowerShot);
-      const powerFeedback = service.getFeedbackByType('power');
+      const powerFeedback = service.getFeedbackByType("power");
 
       expect(powerFeedback.length).toBeGreaterThan(0);
-      expect(powerFeedback[0].message).toContain('Power too high');
-      expect(powerFeedback[0].severity).toBe('warning');
+      expect(powerFeedback[0].message).toContain("Power too high");
+      expect(powerFeedback[0].severity).toBe("warning");
     });
 
-    it('should generate accuracy feedback for low accuracy shots', () => {
+    it("should generate accuracy feedback for low accuracy shots", () => {
       const lowAccuracyShot = {
         ...mockShot,
-        accuracy: 0.5
+        accuracy: 0.5,
       };
 
       service.processShot(lowAccuracyShot);
-      const accuracyFeedback = service.getFeedbackByType('accuracy');
+      const accuracyFeedback = service.getFeedbackByType("accuracy");
 
       expect(accuracyFeedback.length).toBeGreaterThan(0);
-      expect(accuracyFeedback[0].message).toContain('Focus on fundamental');
-      expect(accuracyFeedback[0].severity).toBe('warning');
+      expect(accuracyFeedback[0].message).toContain("Focus on fundamental");
+      expect(accuracyFeedback[0].severity).toBe("warning");
     });
 
-    it('should generate spin feedback for high spin shots', () => {
+    it("should generate spin feedback for high spin shots", () => {
       const highSpinShot = {
         ...mockShot,
-        spin: { top: 0.2, side: 0.8 }
+        spin: { top: 0.2, side: 0.8 },
       };
 
       service.processShot(highSpinShot);
-      const spinFeedback = service.getFeedbackByType('spin');
+      const spinFeedback = service.getFeedbackByType("spin");
 
       expect(spinFeedback.length).toBeGreaterThan(0);
-      expect(spinFeedback[0].message).toContain('High side spin');
-      expect(spinFeedback[0].severity).toBe('warning');
+      expect(spinFeedback[0].message).toContain("High side spin");
+      expect(spinFeedback[0].severity).toBe("warning");
     });
 
-    it('should generate success feedback for successful shots', () => {
+    it("should generate success feedback for successful shots", () => {
       const successfulShot = {
         ...mockShot,
         success: true,
-        accuracy: 0.9
+        accuracy: 0.9,
       };
 
       service.processShot(successfulShot);
-      const successFeedback = service.getFeedbackByType('success');
+      const successFeedback = service.getFeedbackByType("success");
 
       expect(successFeedback.length).toBeGreaterThan(0);
-      expect(successFeedback[0].message).toContain('Great shot');
-      expect(successFeedback[0].severity).toBe('info');
+      expect(successFeedback[0].message).toContain("Great shot");
+      expect(successFeedback[0].severity).toBe("info");
     });
 
-    it('should generate success feedback for failed shots', () => {
+    it("should generate success feedback for failed shots", () => {
       const failedShot = {
         ...mockShot,
         success: false,
-        accuracy: 0.4
+        accuracy: 0.4,
       };
 
       service.processShot(failedShot);
-      const successFeedback = service.getFeedbackByType('success');
+      const successFeedback = service.getFeedbackByType("success");
 
       expect(successFeedback.length).toBeGreaterThan(0);
-      expect(successFeedback[0].message).toContain('Try again');
-      expect(successFeedback[0].severity).toBe('warning');
+      expect(successFeedback[0].message).toContain("Try again");
+      expect(successFeedback[0].severity).toBe("warning");
     });
 
-    it('should generate technique feedback for all shots', () => {
+    it("should generate technique feedback for all shots", () => {
       service.processShot(mockShot);
-      const techniqueFeedback = service.getFeedbackByType('technique');
+      const techniqueFeedback = service.getFeedbackByType("technique");
 
       expect(techniqueFeedback.length).toBeGreaterThan(0);
-      expect(techniqueFeedback[0].message).toContain('Technique:');
-      expect(techniqueFeedback[0].severity).toBe('info');
+      expect(techniqueFeedback[0].message).toContain("Technique:");
+      expect(techniqueFeedback[0].severity).toBe("info");
     });
 
-    it('should handle multiple feedback types for a single shot', () => {
+    it("should handle multiple feedback types for a single shot", () => {
       const complexShot = {
         ...mockShot,
         power: 0.9,
         accuracy: 0.5,
-        spin: { top: 0.2, side: 0.8 }
+        spin: { top: 0.2, side: 0.8 },
       };
 
       service.processShot(complexShot);
       const allFeedback = service.getRecentFeedback();
-      
-      const feedbackTypes = new Set(allFeedback.map(f => f.type));
+
+      const feedbackTypes = new Set(allFeedback.map((f) => f.type));
       expect(feedbackTypes.size).toBeGreaterThan(1);
-      expect(allFeedback.some(f => f.type === 'power')).toBe(true);
-      expect(allFeedback.some(f => f.type === 'accuracy')).toBe(true);
-      expect(allFeedback.some(f => f.type === 'spin')).toBe(true);
+      expect(allFeedback.some((f) => f.type === "power")).toBe(true);
+      expect(allFeedback.some((f) => f.type === "accuracy")).toBe(true);
+      expect(allFeedback.some((f) => f.type === "spin")).toBe(true);
     });
   });
 
-  describe('feedback history', () => {
-    it('should maintain feedback history', () => {
+  describe("feedback history", () => {
+    it("should maintain feedback history", () => {
       for (let i = 0; i < 5; i++) {
         service.processShot({
           ...mockShot,
-          timestamp: Date.now() + i
+          timestamp: Date.now() + i,
         });
       }
 
       const recentFeedback = service.getRecentFeedback();
       expect(recentFeedback.length).toBe(5);
-      expect(recentFeedback[0].timestamp).toBeGreaterThan(recentFeedback[4].timestamp);
+      expect(recentFeedback[0].timestamp).toBeGreaterThan(
+        recentFeedback[4].timestamp,
+      );
     });
 
-    it('should limit feedback history size', () => {
+    it("should limit feedback history size", () => {
       for (let i = 0; i < 150; i++) {
         service.processShot({
           ...mockShot,
-          timestamp: Date.now() + i
+          timestamp: Date.now() + i,
         });
       }
 
@@ -165,9 +167,9 @@ describe('ShotFeedbackService', () => {
       expect(recentFeedback.length).toBeLessThanOrEqual(100);
     });
 
-    it('should clear feedback history', () => {
+    it("should clear feedback history", () => {
       const spy = jest.fn();
-      service.on('feedbackCleared', spy);
+      service.on("feedbackCleared", spy);
 
       service.processShot(mockShot);
       service.clearFeedbackHistory();
@@ -176,12 +178,12 @@ describe('ShotFeedbackService', () => {
       expect(service.getRecentFeedback().length).toBe(0);
     });
 
-    it('should maintain feedback order by timestamp', () => {
+    it("should maintain feedback order by timestamp", () => {
       const timestamps = [1000, 2000, 3000];
-      timestamps.forEach(timestamp => {
+      timestamps.forEach((timestamp) => {
         service.processShot({
           ...mockShot,
-          timestamp
+          timestamp,
         });
       });
 
@@ -191,35 +193,35 @@ describe('ShotFeedbackService', () => {
       expect(recentFeedback[2].timestamp).toBe(1000);
     });
 
-    it('should handle duplicate timestamps', () => {
+    it("should handle duplicate timestamps", () => {
       const timestamp = Date.now();
       for (let i = 0; i < 3; i++) {
         service.processShot({
           ...mockShot,
-          timestamp
+          timestamp,
         });
       }
 
       const recentFeedback = service.getRecentFeedback();
       expect(recentFeedback.length).toBe(3);
-      expect(recentFeedback.every(f => f.timestamp === timestamp)).toBe(true);
+      expect(recentFeedback.every((f) => f.timestamp === timestamp)).toBe(true);
     });
   });
 
-  describe('feedback filtering', () => {
-    it('should filter feedback by type', () => {
+  describe("feedback filtering", () => {
+    it("should filter feedback by type", () => {
       service.processShot(mockShot);
-      const techniqueFeedback = service.getFeedbackByType('technique');
+      const techniqueFeedback = service.getFeedbackByType("technique");
 
       expect(techniqueFeedback.length).toBeGreaterThan(0);
-      expect(techniqueFeedback.every(f => f.type === 'technique')).toBe(true);
+      expect(techniqueFeedback.every((f) => f.type === "technique")).toBe(true);
     });
 
-    it('should limit recent feedback count', () => {
+    it("should limit recent feedback count", () => {
       for (let i = 0; i < 15; i++) {
         service.processShot({
           ...mockShot,
-          timestamp: Date.now() + i
+          timestamp: Date.now() + i,
         });
       }
 
@@ -227,16 +229,18 @@ describe('ShotFeedbackService', () => {
       expect(limitedFeedback.length).toBe(5);
     });
 
-    it('should return empty array for non-existent feedback type', () => {
-      const nonExistentFeedback = service.getFeedbackByType('nonExistent' as any);
+    it("should return empty array for non-existent feedback type", () => {
+      const nonExistentFeedback = service.getFeedbackByType(
+        "nonExistent" as any,
+      );
       expect(nonExistentFeedback).toHaveLength(0);
     });
 
-    it('should return all feedback when limit is greater than history size', () => {
+    it("should return all feedback when limit is greater than history size", () => {
       for (let i = 0; i < 3; i++) {
         service.processShot({
           ...mockShot,
-          timestamp: Date.now() + i
+          timestamp: Date.now() + i,
         });
       }
 
@@ -244,38 +248,38 @@ describe('ShotFeedbackService', () => {
       expect(feedback.length).toBe(3);
     });
 
-    it('should handle negative limit values', () => {
+    it("should handle negative limit values", () => {
       service.processShot(mockShot);
       const feedback = service.getRecentFeedback(-1);
       expect(feedback).toHaveLength(0);
     });
 
-    it('should handle zero limit value', () => {
+    it("should handle zero limit value", () => {
       service.processShot(mockShot);
       const feedback = service.getRecentFeedback(0);
       expect(feedback).toHaveLength(0);
     });
   });
 
-  describe('event handling', () => {
-    it('should emit events in the correct order', () => {
+  describe("event handling", () => {
+    it("should emit events in the correct order", () => {
       const events: string[] = [];
-      service.on('feedbackGenerated', () => events.push('feedbackGenerated'));
-      service.on('feedbackCleared', () => events.push('feedbackCleared'));
+      service.on("feedbackGenerated", () => events.push("feedbackGenerated"));
+      service.on("feedbackCleared", () => events.push("feedbackCleared"));
 
       service.processShot(mockShot);
       service.clearFeedbackHistory();
 
-      expect(events).toEqual(['feedbackGenerated', 'feedbackCleared']);
+      expect(events).toEqual(["feedbackGenerated", "feedbackCleared"]);
     });
 
-    it('should remove event listeners correctly', () => {
+    it("should remove event listeners correctly", () => {
       const spy = jest.fn();
-      service.on('feedbackGenerated', spy);
-      service.removeAllListeners('feedbackGenerated');
+      service.on("feedbackGenerated", spy);
+      service.removeAllListeners("feedbackGenerated");
 
       service.processShot(mockShot);
       expect(spy).not.toHaveBeenCalled();
     });
   });
-}); 
+});

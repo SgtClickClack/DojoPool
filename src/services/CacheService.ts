@@ -1,4 +1,4 @@
-import { CacheConfig } from '../types/cache';
+import { CacheConfig } from "../types/cache";
 
 interface CacheEntry<T> {
   value: T;
@@ -34,7 +34,7 @@ export class CacheService {
     this.cache.set(key, {
       value,
       timestamp: Date.now(),
-      ttl
+      ttl,
     });
   }
 
@@ -43,7 +43,7 @@ export class CacheService {
    */
   get<T>(key: string): T | null {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       return null;
     }
@@ -62,12 +62,12 @@ export class CacheService {
   has(key: string): boolean {
     const entry = this.cache.get(key);
     if (!entry) return false;
-    
+
     if (this.isExpired(entry)) {
       this.cache.delete(key);
       return false;
     }
-    
+
     return true;
   }
 
@@ -100,7 +100,7 @@ export class CacheService {
   getStats(): { size: number; maxEntries: number } {
     return {
       size: this.cache.size,
-      maxEntries: this.maxEntries
+      maxEntries: this.maxEntries,
     };
   }
 
@@ -123,4 +123,4 @@ export class CacheService {
       this.cache.delete(oldestKey);
     }
   }
-} 
+}
