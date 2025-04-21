@@ -16,6 +16,7 @@ import {
 import axiosInstance from "../../api/axiosInstance"; // Import the configured instance
 import { useUserProfile } from "../../contexts/UserContext"; // Import useUserProfile
 import debounce from "lodash.debounce"; // Import debounce
+import * as tournamentApi from '../../api/tournamentApi';
 
 // Define interfaces for API data
 interface Venue {
@@ -66,6 +67,14 @@ const CreateGameForm = () => {
   const [fetchVenuesError, setFetchVenuesError] = useState<string | null>(null);
   const [isFetchingTables, setIsFetchingTables] = useState(false);
   const [fetchTablesError, setFetchTablesError] = useState<string | null>(null);
+
+  // Add tournament creation form state
+  const [tournamentName, setTournamentName] = useState('');
+  const [tournamentType, setTournamentType] = useState('single_elimination');
+  const [tournamentGameType, setTournamentGameType] = useState('eight_ball');
+  const [format, setFormat] = useState('bracket');
+  const [tournamentError, setTournamentError] = useState<string | null>(null);
+  const [tournamentLoading, setTournamentLoading] = useState(false);
 
   // Debounced function to search for users
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -224,6 +233,29 @@ const CreateGameForm = () => {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleTournamentCreate = async () => {
+    setTournamentLoading(true);
+    setTournamentError(null);
+    try {
+      if (!userProfile?.id) throw new Error('User not loaded');
+      await tournamentApi.createTournament({
+        name: tournamentName,
+        organizer_id: userProfile.id,
+        tournament_type: tournamentType,
+        game_type: tournamentGameType,
+        format,
+      });
+      setTournamentName('');
+      // Optionally: trigger a refresh of tournament list elsewhere
+    } catch (err: any) {
+      setTournamentError(
+        err.response?.data?.error || err.message || 'Failed to create tournament.'
+      );
+    } finally {
+      setTournamentLoading(false);
     }
   };
 
@@ -425,6 +457,41 @@ const CreateGameForm = () => {
             }}
           />
         )}
+      </Box>
+
+      {/* Tournament Creation Form */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6">Create Tournament</Typography>
+        <TextField label="Tournament Name" value={tournamentName} onChange={e => setTournamentName(e.target.value)} fullWidth margin="normal" />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Tournament Type</InputLabel>
+          <Select value={tournamentType} onChange={e => setTournamentType(e.target.value)}>
+            <MenuItem value="single_elimination">Single Elimination</MenuItem>
+            <MenuItem value="double_elimination">Double Elimination</MenuItem>
+            <MenuItem value="round_robin">Round Robin</MenuItem>
+            <MenuItem value="swiss">Swiss</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Game Type</InputLabel>
+          <Select value={tournamentGameType} onChange={e => setTournamentGameType(e.target.value)}>
+            <MenuItem value="eight_ball">8-Ball</MenuItem>
+            <MenuItem value="nine_ball">9-Ball</MenuItem>
+            <MenuItem value="ten_ball">10-Ball</MenuItem>
+            <MenuItem value="straight_pool">Straight Pool</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Format</InputLabel>
+          <Select value={format} onChange={e => setFormat(e.target.value)}>
+            <MenuItem value="bracket">Bracket</MenuItem>
+            <MenuItem value="league">League</MenuItem>
+          </Select>
+        </FormControl>
+        <Button variant="contained" onClick={handleTournamentCreate} disabled={tournamentLoading} sx={{ mt: 2 }}>
+          {tournamentLoading ? <CircularProgress size={20} /> : 'Create Tournament'}
+        </Button>
+        {tournamentError && <Alert severity="error" sx={{ mt: 2 }}>{tournamentError}</Alert>}
       </Box>
     </Box>
   );

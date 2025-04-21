@@ -27,6 +27,65 @@ Previous: c:/dev/DojoPoolONE/DojoPool/DEVELOPMENT_TRACKING_PART_02.md
 - Monitor consistency levels across regions
 - Implement adaptive consistency mechanisms
 
+# USER JOURNEY GAME FLOW CHECKLIST (NEW SECTION)
+
+This section reflects the complete user-centric journey for Dojo Pool, mapping each major step to current implementation status. See ROADMAP.md for detailed descriptions.
+
+**Legend:**
+- [x] Complete
+- [ ] In Progress/Pending
+
+1. **Landing Page & Account Creation**
+    - [x] User encounters landing page
+    - [x] Login/Sign Up (player profile, wallet, avatar linkage)
+2. **Dashboard – Central Hub**
+    - [x] Personalized dashboard after login
+    - [x] Avatar creation/management access
+    - [ ] Map access (find/interact with Dojos)
+    - [ ] Marketplace access (NFTs/coins)
+    - [ ] Analytics & statistics (performance, rankings)
+    - [ ] Trophy cabinet (NFT trophies, rings, items)
+    - [ ] Dojo Coins balance (wallet integration)
+3. **Avatar Creation & Customization**
+    - [x] Camera setup prompt
+    - [x] Body/face scan for avatar
+    - [ ] Text-to-image avatar customization
+    - [ ] Achievement-based avatar evolution/unlocks
+4. **Map – Finding a Dojo**
+    - [ ] Map UI (Kung Fu movie style, Google Maps SDK)
+    - [ ] Geolocation for user position
+    - [ ] Display nearby Dojos (venue integration)
+    - [ ] Dojo info (profile, analytics, promos)
+    - [ ] Live occupancy visualization
+    - [ ] Navigation/directions to Dojo
+5. **Entering the Virtual Dojo**
+    - [ ] Geolocation triggers virtual dojo entry
+    - [ ] Stylized dojo interior view
+    - [ ] Live game visualization (Diception AI)
+    - [ ] Venue interaction (deals, menu, posters)
+    - [ ] Social avatars in dojo, messaging
+6. **Tournament Registration & Logistics**
+    - [ ] Tournament discovery/registration UI
+    - [ ] Entry fee payment (Dojo Coins)
+    - [ ] Bracket generation, real-time updates
+7. **Physical Check-in at Venue**
+    - [ ] QR code/geolocation check-in
+    - [ ] Digital-physical presence linkage
+8. **Playing a Real-Life Game (Enhanced)**
+    - [x] Table integration (cameras, hardware)
+    - [x] AI ball tracking (Diception)
+    - [ ] AI referee (Sky-T1) integration
+    - [ ] Real-time tracking UI (scores, fouls, rules)
+    - [ ] AI commentary/audio (AudioCraft)
+9. **Post-Game & Rewards**
+    - [ ] Results auto-recorded, analytics update
+    - [ ] Content generation (Wan 2.1 video highlights)
+    - [ ] Content sharing (social features)
+    - [ ] Tournament outcome processing (brackets, prizes)
+    - [ ] Rewards: Dojo Coins, NFT trophies/items, avatar unlocks
+
+---
+
 ### 2024-03-19: Consensus Protocol Implementation
 
 Implemented a robust consensus protocol using a simplified Raft algorithm with vector clocks for distributed state management.

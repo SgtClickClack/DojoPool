@@ -108,10 +108,10 @@ const Login: React.FC = () => {
               margin="normal"
               required
               fullWidth
+              id="password"
               name="password"
               label="Password"
               type={showPassword ? "text" : "password"}
-              id="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

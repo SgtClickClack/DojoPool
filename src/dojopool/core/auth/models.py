@@ -65,12 +65,11 @@ class UserRole(db.Model):
     """Association table for User-Role relationship."""
 
     __tablename__ = "user_roles"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "role_id", name="unique_user_role"),
+        {"extend_existing": True},
+    )
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), primary_key=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    # Unique constraint to prevent duplicate user-role assignments
-    __table_args__ = (db.UniqueConstraint("user_id", "role_id", name="unique_user_role"),)

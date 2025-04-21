@@ -6,9 +6,9 @@ from flask import current_app, request
 from flask_login import current_user
 from marshmallow import Schema, fields, validate, validates_schema
 
-from src.core.security import require_auth, require_roles
-from src.core.exceptions import NotFoundError, AuthorizationError, ValidationError
-from src.core.auth.models import User
+from dojopool.core.security import require_auth, require_roles
+from dojopool.core.exceptions import NotFoundError, AuthorizationError, ValidationError
+from dojopool.core.auth.models import User
 from .base import BaseResource
 
 class UserSchema(Schema):

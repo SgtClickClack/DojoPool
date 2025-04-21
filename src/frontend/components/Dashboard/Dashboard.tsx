@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -21,11 +21,14 @@ import PeopleIcon from "@mui/icons-material/People";
 import MessageIcon from "@mui/icons-material/Message";
 import CreateGameForm from "./CreateGameForm";
 import ActiveGamesList from "./ActiveGamesList";
+import TournamentList from "./TournamentList";
+import axiosInstance from "../../api/axiosInstance";
 
 const Dashboard: React.FC = () => {
   const { signOut } = useAuth();
   const { profile: userProfile, isLoading: profileLoading } = useUserProfile();
   const navigate = useNavigate();
+  const [apiStatus, setApiStatus] = useState<string>("Checking backend connectivity...");
 
   const handleSignOut = async () => {
     try {
@@ -35,6 +38,16 @@ const Dashboard: React.FC = () => {
       console.error("Failed to sign out:", error);
     }
   };
+
+  useEffect(() => {
+    axiosInstance.get("/")
+      .then(res => {
+        setApiStatus(`Backend API reachable: ${res.data}`);
+      })
+      .catch(err => {
+        setApiStatus(`Backend API unreachable: ${err.message}`);
+      });
+  }, []);
 
   const displayName = profileLoading
     ? "Loading..."
@@ -64,12 +77,17 @@ const Dashboard: React.FC = () => {
           <Typography variant="h4" gutterBottom>
             Welcome, {userProfile?.username || "Player"}!
           </Typography>
+          <Typography variant="body1" gutterBottom>
+            {apiStatus}
+          </Typography>
 
           {/* Main Content Area - Grid Layout */}
           <Grid container spacing={3}>
-            {/* Left Column: Create Game & Active Games */}
+            {/* Left Column: Create Game & Active Games & Tournaments */}
             <Grid item xs={12} md={8}>
               <CreateGameForm />
+              <Divider sx={{ my: 4 }} />
+              <TournamentList />
               <Divider sx={{ my: 4 }} />
               <ActiveGamesList />
             </Grid>

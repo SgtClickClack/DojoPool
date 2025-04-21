@@ -3,6 +3,63 @@
 ## Vision
 DojoPool is an innovative platform that transforms traditional pool gaming into an immersive, tech-enhanced experience by bridging physical and digital gameplay. It combines real-world pool venues with advanced technology, creating a unique social gaming ecosystem.
 
+## Dojo Pool Game Flow Checklist (User Journey)
+
+This section tracks the end-to-end user experience, ensuring all digital and real-world interactions are implemented and aligned with the platform vision.
+
+**Legend:**
+- [x] Complete
+- [ ] In Progress/Pending
+
+1. **Landing Page & Account Creation**
+    - [x] User encounters landing page
+    - [x] Login/Sign Up (player profile, wallet, avatar linkage)
+2. **Dashboard – Central Hub**
+    - [x] Personalized dashboard after login
+    - [x] Avatar creation/management access
+    - [ ] Map access (find/interact with Dojos)
+    - [ ] Marketplace access (NFTs/coins)
+    - [ ] Analytics & statistics (performance, rankings)
+    - [ ] Trophy cabinet (NFT trophies, rings, items)
+    - [ ] Dojo Coins balance (wallet integration)
+3. **Avatar Creation & Customization**
+    - [x] Camera setup prompt
+    - [x] Body/face scan for avatar
+    - [ ] Text-to-image avatar customization
+    - [ ] Achievement-based avatar evolution/unlocks
+4. **Map – Finding a Dojo**
+    - [ ] Map UI (Kung Fu movie style, Google Maps SDK)
+    - [ ] Geolocation for user position
+    - [ ] Display nearby Dojos (venue integration)
+    - [ ] Dojo info (profile, analytics, promos)
+    - [ ] Live occupancy visualization
+    - [ ] Navigation/directions to Dojo
+5. **Entering the Virtual Dojo**
+    - [ ] Geolocation triggers virtual dojo entry
+    - [ ] Stylized dojo interior view
+    - [ ] Live game visualization (Diception AI)
+    - [ ] Venue interaction (deals, menu, posters)
+    - [ ] Social avatars in dojo, messaging
+6. **Tournament Registration & Logistics**
+    - [ ] Tournament discovery/registration UI
+    - [ ] Entry fee payment (Dojo Coins)
+    - [ ] Bracket generation, real-time updates
+7. **Physical Check-in at Venue**
+    - [ ] QR code/geolocation check-in
+    - [ ] Digital-physical presence linkage
+8. **Playing a Real-Life Game (Enhanced)**
+    - [x] Table integration (cameras, hardware)
+    - [x] AI ball tracking (Diception)
+    - [ ] AI referee (Sky-T1) integration
+    - [ ] Real-time tracking UI (scores, fouls, rules)
+    - [ ] AI commentary/audio (AudioCraft)
+9. **Post-Game & Rewards**
+    - [ ] Results auto-recorded, analytics update
+    - [ ] Content generation (Wan 2.1 video highlights)
+    - [ ] Content sharing (social features)
+    - [ ] Tournament outcome processing (brackets, prizes)
+    - [ ] Rewards: Dojo Coins, NFT trophies/items, avatar unlocks
+
 ## Codebase Audit Summary (as of 2024-07-29)
 *   **Overall:** Strong backend foundation with many services and models implemented. Significant progress in scaling, optimization, and context assurance systems.
 *   **Frontend:** Major bottleneck. Many critical UIs are missing or incomplete (Wallet, Tournaments, Venues, Social, AI Features, Map, etc.).

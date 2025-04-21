@@ -9,7 +9,7 @@ from flask import request
 from flask_restful import Resource
 from marshmallow import Schema, ValidationError
 
-from src.core.exceptions import APIError, AuthenticationError, AuthorizationError, NotFoundError
+from dojopool.core.exceptions import APIError, AuthenticationError, AuthorizationError, NotFoundError
 
 
 class BaseResource(Resource):

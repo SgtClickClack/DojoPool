@@ -26,10 +26,6 @@ def start_collector() -> None:
     metrics_collector.start()
 
 
-# Register the start_collector function to run before first request
-health_bp.record(lambda s: s.app.before_first_request(start_collector))
-
-
 @health_bp.route("/health")
 def health_check() -> Response:
     """Basic health check endpoint.
@@ -98,3 +94,5 @@ def prometheus_metrics() -> Response:
 def init_app(app: Flask) -> None:
     """Initialize health check endpoints."""
     app.register_blueprint(health_bp, url_prefix="/api")
+    # Start metrics collector immediately (since Flask hooks are not supported)
+    start_collector()

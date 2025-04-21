@@ -176,25 +176,22 @@ class ChatRoom(BaseModel):
         return f"<ChatRoom {self.name}>"
 
 
-class ChatParticipant(BaseModel):
-    """Chat participant model."""
-
-    __tablename__ = "chat_participants"
-    __table_args__ = {"extend_existing": True}
-
-    id = Column(Integer, primary_key=True)
-    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    joined_at = Column(DateTime, default=datetime.utcnow)
-    last_read_at = Column(DateTime)
-    is_admin = Column(Boolean, default=False)
-
-    # Relationships
-    room = relationship("ChatRoom", back_populates="participants")
-    user = relationship("User", backref="chat_participations")
-
-    def __repr__(self):
-        return f"<ChatParticipant {self.user_id} in Room {self.room_id}>"
+# REMOVED: Duplicate ChatParticipant model class to resolve table mapping conflict
+# class ChatParticipant(BaseModel):
+#     __tablename__ = "chat_participants"
+#     __table_args__ = (
+#         PrimaryKeyConstraint("user_id", "room_id"),
+#         {"extend_existing": True}
+#     )
+#     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+#     room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
+#     joined_at = Column(DateTime, default=datetime.utcnow)
+#     last_read_at = Column(DateTime)
+#     is_admin = Column(Boolean, default=False)
+#     room = relationship("ChatRoom", back_populates="participants")
+#     user = relationship("User", backref="chat_participations")
+#     def __repr__(self):
+#         return f"<ChatParticipant {self.user_id} in Room {self.room_id}>"
 
 
 class Review(BaseModel):

@@ -20,6 +20,8 @@ from .resources.tournaments import (
     TournamentStandingsResource,
 )
 from .resources.users import UserListResource, UserProfileResource, UserResource
+from .resources.user_me import UserMeResource
+from .resources.venues import VenuesResource
 
 # Create blueprint
 api_v1_bp = Blueprint("api_v1", __name__)
@@ -36,6 +38,7 @@ api.add_resource(PasswordResetConfirmResource, "/auth/password-reset/confirm")
 api.add_resource(UserResource, "/users/<int:user_id>")
 api.add_resource(UserListResource, "/users")
 api.add_resource(UserProfileResource, "/users/<int:user_id>/profile")
+api.add_resource(UserMeResource, "/users/me")
 
 # Game routes
 api.add_resource(GameResource, "/games/<int:game_id>")
@@ -46,3 +49,6 @@ api.add_resource(GameStatsResource, "/games/<int:game_id>/stats")
 api.add_resource(TournamentResource, "/tournaments/<int:tournament_id>")
 api.add_resource(TournamentListResource, "/tournaments")
 api.add_resource(TournamentStandingsResource, "/tournaments/<int:tournament_id>/standings")
+
+# Venues route
+api.add_resource(VenuesResource, "/venues")

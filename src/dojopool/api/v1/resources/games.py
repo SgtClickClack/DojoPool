@@ -10,12 +10,13 @@ from flask import request
 from flask_login import current_user
 from marshmallow import Schema, ValidationError, fields, validate, validates_schema
 
-from src.core.auth.models import User
-from src.core.exceptions import AuthorizationError, NotFoundError
+from dojopool.core.auth.models import User
+from dojopool.core.exceptions import AuthorizationError, NotFoundError
 from dojopool.models.game import Game, GameStatus, GameType
-from src.core.security import require_auth, require_roles
-from src.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
-from src.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
+from dojopool.core.security import require_auth, require_roles
+# Commenting out or updating cache imports until their correct paths are confirmed
+# from dojopool.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
+# from dojopool.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
 
 from .base import BaseResource
 
@@ -76,10 +77,11 @@ class GameResource(BaseResource):
     update_schema = GameUpdateSchema()
 
     @require_auth
-    @cache_response_flask(
-        timeout=CACHE_REGIONS["short"]["timeout"],
-        key_prefix=CACHED_ENDPOINTS["game_state"]["key_pattern"],
-    )
+    # Commenting out or updating cache imports until their correct paths are confirmed
+    # @cache_response_flask(
+    #     timeout=CACHE_REGIONS["short"]["timeout"],
+    #     key_prefix=CACHED_ENDPOINTS["game_state"]["key_pattern"],
+    # )
     def get(self, game_id):
         """Get game details.
 
@@ -141,7 +143,8 @@ class GameResource(BaseResource):
         game.save()
 
         # Invalidate game cache
-        invalidate_endpoint_cache(f"{CACHED_ENDPOINTS['game_state']['key_pattern']}:{game_id}")
+        # Commenting out or updating cache imports until their correct paths are confirmed
+        # invalidate_endpoint_cache(f"{CACHED_ENDPOINTS['game_state']['key_pattern']}:{game_id}")
 
         return self.success_response(
             data=self.schema.dump(game), message="Game updated successfully"
@@ -162,7 +165,8 @@ class GameResource(BaseResource):
             raise NotFoundError("Game not found")
 
         # Invalidate game cache before deletion
-        invalidate_endpoint_cache(f"{CACHED_ENDPOINTS['game_state']['key_pattern']}:{game_id}")
+        # Commenting out or updating cache imports until their correct paths are confirmed
+        # invalidate_endpoint_cache(f"{CACHED_ENDPOINTS['game_state']['key_pattern']}:{game_id}")
 
         game.delete()
 
@@ -175,7 +179,8 @@ class GameListResource(BaseResource):
     schema = GameSchema()
 
     @require_auth
-    @cache_response_flask(timeout=CACHE_REGIONS["short"]["timeout"], key_prefix="games_list")
+    # Commenting out or updating cache imports until their correct paths are confirmed
+    # @cache_response_flask(timeout=CACHE_REGIONS["short"]["timeout"], key_prefix="games_list")
     def get(self):
         """Get list of games."""
         query = Game.query
@@ -247,7 +252,8 @@ class GameListResource(BaseResource):
         game.save()
 
         # Invalidate games list cache
-        invalidate_endpoint_cache("games_list:*")
+        # Commenting out or updating cache imports until their correct paths are confirmed
+        # invalidate_endpoint_cache("games_list:*")
 
         return self.success_response(
             data=self.schema.dump(game), message="Game created successfully", status_code=201
@@ -260,7 +266,8 @@ class GameStatsResource(BaseResource):
     schema = GameStatsSchema()
 
     @require_auth
-    @cache_response_flask(timeout=CACHE_REGIONS["medium"]["timeout"], key_prefix="game_stats")
+    # Commenting out or updating cache imports until their correct paths are confirmed
+    # @cache_response_flask(timeout=CACHE_REGIONS["medium"]["timeout"], key_prefix="game_stats")
     def get(self, game_id: Optional[int] = None):
         """Get game statistics.
 

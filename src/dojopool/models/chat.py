@@ -1,8 +1,7 @@
 """Chat models for messaging between users."""
 
 from datetime import datetime
-
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -54,11 +53,13 @@ class ChatParticipant(BaseModel):
     """Chat participant model."""
 
     __tablename__ = "chat_participants"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        PrimaryKeyConstraint("user_id", "room_id"),
+        {"extend_existing": True}
+    )
 
-    id = Column(Integer, primary_key=True)
-    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    room_id = Column(Integer, ForeignKey("chat_rooms.id"), nullable=False)
     joined_at = Column(DateTime, default=datetime.utcnow)
     last_read_at = Column(DateTime)
     is_admin = Column(Boolean, default=False)

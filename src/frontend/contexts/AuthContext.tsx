@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
   User,
 } from "firebase/auth";
-import { auth } from "../../config/firebase";
+import { auth } from "../../dojopool/frontend/config/[FB]firebase";
 
 interface AuthContextType {
   user: User | null;

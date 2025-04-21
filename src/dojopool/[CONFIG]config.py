@@ -9,7 +9,7 @@ class Config:
 
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = "sqlite:///dojopool.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
     # Mail settings
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
@@ -38,22 +38,21 @@ class DevelopmentConfig(Config):
     """Development configuration."""
 
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///dojopool_dev.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
 
 class TestingConfig(Config):
     """Testing configuration."""
 
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///dojopool_test.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
 
 class ProductionConfig(Config):
     """Production configuration."""
 
     DEBUG = False
-    # Use SQLite for now, can be changed to PostgreSQL later
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///dojopool_prod.db")
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
 
 config = {

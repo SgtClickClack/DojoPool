@@ -1,9 +1,17 @@
-"""Main application module."""
-
-import logging
 import os
 import sys
 
+# --- Ensure eventlet monkey_patch is called before any other imports ---
+# try:
+#     import eventlet
+#     eventlet.monkey_patch()
+# except ImportError:
+#     print("[INFO] Eventlet not installed. Skipping monkey_patch.")
+# ---------------------------------------------------------------------
+
+"""Main application module."""
+
+import logging
 from dotenv import load_dotenv
 from flask import Flask
 from flask_login import LoginManager
@@ -26,6 +34,11 @@ eventlet_monkey_patch_needed = False
 def create_app(config_name=None, test_config=None):
     """Application factory function."""
     app = Flask(__name__, instance_relative_config=True)
+
+    # --- CORS MIDDLEWARE: Ensure CORS is enabled for all routes and blueprints ---
+    from dojopool.core.monitoring.cors_middleware import init_cors
+    init_cors(app)
+    # ---------------------------------------------------------------------------
 
     # Import ALL models before initializing extensions (required for table registration)
     import dojopool.models.achievement
@@ -151,10 +164,27 @@ def create_app(config_name=None, test_config=None):
         from dojopool.models.user import User
         return User.query.get(int(user_id))
 
-    # Register blueprints
-    from dojopool.core.health import health_bp # Keep imports inside factory if needed
+    # --- Register Health Check Blueprint ---
+    try:
+        from dojopool.api.health import init_app as init_health
+        init_health(app)
+    except ImportError as e:
+        print(f"[ERROR] Could not import health check blueprint: {e}")
+    except Exception as e:
+        print(f"[ERROR] Could not register health check blueprint: {e}")
 
-    app.register_blueprint(health_bp)
+    # --- Register Tournament/Game Blueprint ---
+    try:
+        from dojopool.api.tournament import tournament_bp
+        app.register_blueprint(tournament_bp, url_prefix="/api")
+    except ImportError as e:
+        print(f"[ERROR] Could not import tournament blueprint: {e}")
+    except Exception as e:
+        print(f"[ERROR] Could not register tournament blueprint: {e}")
+
+    # Register blueprints
+    from dojopool.api.v1 import api_v1_bp
+    app.register_blueprint(api_v1_bp, url_prefix="/api/v1")
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(performance_bp) # Adjust prefix if needed
     app.register_blueprint(main_bp) # Adjust prefix if needed
@@ -168,17 +198,16 @@ def create_app(config_name=None, test_config=None):
 
 
 if __name__ == "__main__":
+    print("[DIAG] Starting app.py")
+    print("[DIAG] Entered __main__ block")
     try:
-        import eventlet
-        eventlet.monkey_patch()
-        eventlet_monkey_patch_needed = True
-    except ImportError:
-        print("[INFO] Eventlet not installed. Skipping monkey_patch.")
-
-    app = create_app()
-    # Use socketio.run for development server with WebSocket support
-    # Host='0.0.0.0' makes it accessible on the network
-    socketio.run(app, host='0.0.0.0', port=8000, debug=app.config.get("DEBUG", True), use_reloader=app.config.get("DEBUG", True))
-    # Note: Uvicorn command might not be needed if running directly like this,
-    # unless specific ASGI features beyond Flask-SocketIO are required.
-    # If using uvicorn, the app instance passed should be 'app', not 'socketio'.
+        print("[DIAG] Calling create_app()...")
+        app = create_app()
+        print("[DIAG] App created, starting socketio.run()...")
+        socketio.run(app, host='0.0.0.0', port=8000, debug=app.config.get("DEBUG", True), use_reloader=app.config.get("DEBUG", True))
+        print("[DIAG] socketio.run() exited")
+    except Exception as e:
+        import traceback
+        print("\n[ERROR] Exception during app startup:\n")
+        traceback.print_exc()
+        raise

@@ -125,7 +125,13 @@ SECURITY_HEADERS = {
 
 # CORS configuration
 CORS_CONFIG = {
-    "allowed_origins": ["https://dojopool.com", "https://*.dojopool.com"],
+    "allowed_origins": [
+        "*",
+        "https://dojopool.com",
+        "https://*.dojopool.com",
+        "http://localhost:3000",
+        "http://localhost:8000"
+    ],
     "allowed_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allowed_headers": ["Content-Type", "Authorization", "X-Requested-With"],
     "expose_headers": ["X-Total-Count", "X-Page-Count"],

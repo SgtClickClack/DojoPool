@@ -1,3 +1,14 @@
+// Debug logging for Firebase configuration
+console.log('[Firebase Config Debug]', {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+});
+
 import { Analytics, getAnalytics } from "firebase/analytics";
 import { FirebaseApp, getApps, initializeApp } from "firebase/app";
 import { Auth, getAuth } from "firebase/auth";
@@ -10,14 +21,19 @@ import {
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "demo-mode",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "demo-mode",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-mode",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "demo-mode",
-  messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "demo-mode",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "demo-mode",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-mode",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-mode",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-mode",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "demo-mode",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "demo-mode",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "demo-mode",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "demo-mode",
 };
+
+// Validate required configuration
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "demo-mode") {
+  console.error('Firebase API Key is missing or set to demo-mode');
+}
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;

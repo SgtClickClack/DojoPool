@@ -62,15 +62,23 @@ venue_features = Table(
     Column("created_at", DateTime, default=datetime.utcnow),
 )
 
-# Chat-Participant association table
-chat_participants = Table(
-    "chat_participants",
-    db.metadata,
-    Column("chat_id", Integer, ForeignKey("chats.id"), primary_key=True),
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-    Column("last_read_at", DateTime, nullable=True),
-)
+# REMOVED: Duplicate chat_participants Table definition to resolve table mapping conflict
+# chat_participants = Table(
+#     "chat_participants",
+#     db.metadata,
+#     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+#     Column("room_id", Integer, ForeignKey("chat_rooms.id"), primary_key=True)
+# )
+
+# REMOVED: Conflicting chat_participants Table definition to resolve model/table mapping conflict
+# chat_participants = Table(
+#     "chat_participants",
+#     db.metadata,
+#     Column("chat_id", Integer, ForeignKey("chats.id"), primary_key=True),
+#     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+#     Column("last_read_at", DateTime, nullable=True),
+# )
 
 # Match-Player association table
 match_players = Table(

@@ -46,17 +46,9 @@ const validateRequest = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, "../public")));
-
-// Serve the React app for all other routes
-app.get("*", (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
-
 // Basic routes for testing
 app.get("/", (req: Request, res: Response) => {
-  res.send("DojoPool Platform");
+  res.send("DojoPool Platform Backend API");
 });
 
 // Auth endpoint with validation
