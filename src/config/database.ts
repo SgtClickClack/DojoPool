@@ -41,7 +41,7 @@ export const redis = new Redis({
   port: process.env.REDIS_URL
     ? parseInt(parse(process.env.REDIS_URL).port || "6379", 10)
     : 6379,
-  password: process.env.REDIS_PASSWORD,
+  password: process.env.REDIS_PASSWORD || "A16aql5hjk86zqm2ham78r9rnmgkyz6bk88vih6sugp23giq8ht",
 
   // Connection settings
   maxRetriesPerRequest: 3,

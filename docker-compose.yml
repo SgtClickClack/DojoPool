@@ -12,6 +12,7 @@ services:
       - DJANGO_SETTINGS_MODULE=dojopool.settings.production
       - DATABASE_URL=postgresql://dojopool:${POSTGRES_PASSWORD}@postgres:5432/dojopool
       - REDIS_URL=redis://redis:6379/0
+      - REDIS_PASSWORD=A16aql5hjk86zqm2ham78r9rnmgkyz6bk88vih6sugp23giq8ht
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,7 +59,7 @@ services:
       - redis_data:/data
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    command: redis-server --appendonly yes --requirepass A16aql5hjk86zqm2ham78r9rnmgkyz6bk88vih6sugp23giq8ht
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

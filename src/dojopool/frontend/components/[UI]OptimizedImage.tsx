@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getBestSupportedFormat } from "../utils/format_detection";
+import { getBestSupportedFormat } from "../utils/[UTIL]format_detection";
 
 interface OptimizedImageProps {
   baseUrl: string;

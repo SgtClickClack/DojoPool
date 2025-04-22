@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { PlayArrow, Pause, Loop, Stop } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import { avatarService } from "../services/avatar";
 
 interface AnimationConfig {
   name: string;
@@ -66,28 +67,29 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   // Fetch available animations
-  const { data: animations, isLoading: loadingAnimations } = useQuery<
-    AnimationConfig[]
-  >(["animations"], async () => {
-    const response = await fetch("/api/avatars/animations");
-    if (!response.ok) throw new Error("Failed to fetch animations");
-    return response.json();
+  const { data: animations = [], isLoading: loadingAnimations } = useQuery<AnimationConfig[]>({
+    queryKey: ["animations"],
+    queryFn: async () => {
+      const response = await fetch("/api/avatars/animations");
+      if (!response.ok) throw new Error("Failed to fetch animations");
+      return response.json();
+    },
   });
 
   // Fetch user's avatar
-  const { data: avatarUrl, isLoading: loadingAvatar } = useQuery<string>(
-    ["avatar", userId],
-    async () => {
+  const { data: avatarUrl = "", isLoading: loadingAvatar } = useQuery<string>({
+    queryKey: ["avatar", userId],
+    queryFn: async () => {
       const response = await fetch(`/api/avatars/user/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch avatar");
       const blob = await response.blob();
       return URL.createObjectURL(blob);
     },
-  );
+  });
 
   // Animation mutation
-  const animateMutation = useMutation(
-    async ({ animation, frame }: { animation: string; frame?: number }) => {
+  const animateMutation = useMutation({
+    mutationFn: async ({ animation, frame }: { animation: string; frame?: number }) => {
       const response = await fetch("/api/avatars/animate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +99,7 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
       const blob = await response.blob();
       return URL.createObjectURL(blob);
     },
-  );
+  });
 
   // Load animation
   const loadAnimation = useCallback(
@@ -111,7 +113,7 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
         }
 
         // Get animation config
-        const config = animations?.find((a) => a.name === animationName);
+        const config = (animations || []).find((a) => a.name === animationName);
         if (!config) throw new Error("Animation not found");
 
         // Create new animation
@@ -251,7 +253,7 @@ const AnimatedAvatar: React.FC<AnimatedAvatarProps> = ({
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        {animations?.map((animation) => (
+        {(animations || []).map((animation) => (
           <MenuItem
             key={animation.name}
             onClick={() => handleAnimationSelect(animation.name)}
