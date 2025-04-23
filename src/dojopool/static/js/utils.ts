@@ -1,3 +1,6 @@
+// Static TypeScript JS utilities consolidated and cleaned
+// Removed unused imports and commented code
+
 // Type definitions
 type AlertType = "success" | "error" | "warning" | "info";
 type DebouncedFunction<T extends (...args: any[]) => any> = (

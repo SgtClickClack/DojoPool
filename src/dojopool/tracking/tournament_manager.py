@@ -8,6 +8,7 @@ import logging
 import uuid
 import math
 from .player_rankings import PlayerRankingSystem, PlayerStats, MatchResult
+from dojopool.story.progression import story_progression
 
 logger = logging.getLogger(__name__)
 
@@ -146,6 +147,22 @@ class TournamentManager:
         logger.info(f"Registered player {player_id} for tournament {tournament_id}")
         return True
 
+    def unregister_player(self, tournament_id: str, player_id: str) -> bool:
+        """Unregister a player from a tournament (before it starts)."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return False
+        if tournament.status != TournamentStatus.REGISTRATION:
+            logger.warning(f"Cannot unregister after registration: {tournament_id}")
+            return False
+        if player_id not in tournament.registered_players:
+            logger.warning(f"Player not registered: {player_id}")
+            return False
+        tournament.registered_players.remove(player_id)
+        logger.info(f"Player {player_id} unregistered from tournament {tournament_id}")
+        return True
+
     def start_tournament(self, tournament_id: str) -> bool:
         """Start a tournament if minimum players reached."""
         tournament = self._tournaments.get(tournament_id)
@@ -160,10 +177,15 @@ class TournamentManager:
         tournament.status = TournamentStatus.IN_PROGRESS
         tournament.timestamps["started"] = datetime.now()
 
+        # After starting, advance all players' story
+        for player_id in tournament.registered_players:
+            story_progression.advance_chapter(player_id, new_chapter="The Grand Tournament", quest="Win your matches!")
+
         # Generate initial bracket
         self._generate_bracket(tournament)
 
         logger.info(f"Started tournament: {tournament_id}")
+        self.notify_tournament_status(tournament_id, "Tournament has started!")
         return True
 
     def _generate_bracket(self, tournament: Tournament) -> None:
@@ -386,6 +408,13 @@ class TournamentManager:
         # Record match in ranking system
         self.ranking_system.record_match(match_result)
 
+        # Advance winner's story, complete quest for both
+        story_progression.complete_quest(match_result.winner_id, quest_name="Win a tournament match")
+        story_progression.set_flag(match_result.loser_id, flag="lost_a_match")
+
+        # Notify both players
+        self.notify_match_result(tournament_id, match)
+
         # Check if round is complete
         self._check_round_completion(tournament)
 
@@ -556,9 +585,13 @@ class TournamentManager:
             # Calculate points for each player
             points: Dict[str, int] = {}
             for match in tournament.matches:
-                if match.winner_id is not None:
+                if match.winner_id is not None and match.loser_id is not None:
+                    # Record the pairing
+                    pair = tuple(sorted([match.winner_id, match.loser_id]))
+                    played_pairs.add(cast(Tuple[str, str], pair))
+
+                    # Update scores
                     points[match.winner_id] = points.get(match.winner_id, 0) + 2
-                if match.loser_id is not None:
                     points[match.loser_id] = points.get(match.loser_id, 0) + 1
 
             # Sort players by points
@@ -612,15 +645,20 @@ class TournamentManager:
 
         # Pair top half against bottom half
         for i in range(num_players // 2):
-            match = TournamentMatch(
-                match_id=str(uuid.uuid4()),
-                round_number=1,
-                match_number=match_number,
-                player1_id=players[i],
-                player2_id=players[num_players // 2 + i],
-            )
-            matches.append(match)
-            match_number += 1
+            player1 = players[i]
+            player2 = players[num_players // 2 + i]
+
+            # Skip matches involving bye
+            if player1 is not None and player2 is not None:
+                match = TournamentMatch(
+                    match_id=str(uuid.uuid4()),
+                    round_number=1,
+                    match_number=match_number,
+                    player1_id=player1,
+                    player2_id=player2,
+                )
+                matches.append(match)
+                match_number += 1
 
         # Handle odd number of players with bye
         if num_players % 2 != 0:
@@ -722,8 +760,15 @@ class TournamentManager:
         """Complete Swiss tournament and calculate final rankings."""
         # Calculate final scores
         scores: Dict[str, float] = {}
+        played_pairs: Set[Tuple[str, str]] = set()
+
         for match in tournament.matches:
             if match.winner_id is not None and match.loser_id is not None:
+                # Record the pairing
+                pair = tuple(sorted([match.winner_id, match.loser_id]))
+                played_pairs.add(cast(Tuple[str, str], pair))
+
+                # Update scores
                 scores[match.winner_id] = scores.get(match.winner_id, 0) + 1
                 scores[match.loser_id] = scores.get(match.loser_id, 0)
             elif match.winner_id is not None:  # Bye
@@ -744,9 +789,7 @@ class TournamentManager:
         )
 
         # Assign rankings
-        rankings: Dict[str, int] = {
-            player_id: rank + 1 for rank, player_id in enumerate(ranked_players)
-        }
+        rankings: Dict[str, int] = {p: i + 1 for i, p in enumerate(ranked_players)}
 
         tournament.rankings = rankings
         tournament.status = TournamentStatus.COMPLETED
@@ -754,3 +797,132 @@ class TournamentManager:
 
         # Distribute prizes
         self._distribute_prizes(tournament)
+
+    def get_bracket(self, tournament_id: str) -> list:
+        """Return the current bracket (list of matches) for the tournament."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return []
+        return [match for match in tournament.matches]
+
+    def get_match_status(self, tournament_id: str, match_id: str) -> dict:
+        """Return the status of a specific match in the tournament."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return {}
+        match = next((m for m in tournament.matches if m.match_id == match_id), None)
+        if not match:
+            logger.error(f"Match not found: {match_id}")
+            return {}
+        return {
+            'match_id': match.match_id,
+            'round_number': match.round_number,
+            'match_number': match.match_number,
+            'player1_id': match.player1_id,
+            'player2_id': match.player2_id,
+            'winner_id': match.winner_id,
+            'loser_id': match.loser_id,
+            'scheduled_time': match.scheduled_time,
+            'completed_time': match.completed_time,
+            'result': match.result
+        }
+
+    def cancel_tournament(self, tournament_id: str, reason: str = "") -> bool:
+        """Cancel a tournament (admin action)."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return False
+        if tournament.status in [TournamentStatus.COMPLETED, TournamentStatus.CANCELLED]:
+            logger.warning(f"Tournament already completed or cancelled: {tournament_id}")
+            return False
+        tournament.status = TournamentStatus.CANCELLED
+        tournament.timestamps["cancelled"] = datetime.now()
+        logger.info(f"Tournament {tournament_id} cancelled. Reason: {reason}")
+        self.notify_tournament_status(tournament_id, f"Tournament cancelled. {reason}")
+        return True
+
+    def force_complete(self, tournament_id: str) -> bool:
+        """Force-complete a tournament and assign current rankings (admin action)."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return False
+        if tournament.status == TournamentStatus.COMPLETED:
+            logger.warning(f"Tournament already completed: {tournament_id}")
+            return False
+        # Assign rankings based on current match results
+        # (Simple: by number of wins, then rating)
+        scores = {pid: 0 for pid in tournament.registered_players}
+        for match in tournament.matches:
+            if match.winner_id:
+                scores[match.winner_id] = scores.get(match.winner_id, 0) + 1
+        ranked_players = list(tournament.registered_players)
+        ranked_players.sort(
+            key=lambda p: (
+                scores.get(p, 0),
+                self.ranking_system.get_player_stats(p).elo_rating if self.ranking_system.get_player_stats(p) else 0
+            ),
+            reverse=True
+        )
+        tournament.rankings = {p: i + 1 for i, p in enumerate(ranked_players)}
+        tournament.status = TournamentStatus.COMPLETED
+        tournament.timestamps["completed"] = datetime.now()
+        logger.info(f"Tournament {tournament_id} force-completed.")
+        self.notify_tournament_status(tournament_id, "Tournament force-completed. Rankings assigned.")
+        return True
+
+    def admin_advance_round(self, tournament_id: str) -> bool:
+        """Manually advance the tournament to the next round (admin action)."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return False
+        if tournament.status != TournamentStatus.IN_PROGRESS:
+            logger.warning(f"Tournament not in progress: {tournament_id}")
+            return False
+        # Use the internal bracket generator for the format
+        self._generate_bracket(tournament)
+        logger.info(f"Admin advanced tournament {tournament_id} to next round.")
+        return True
+
+    def _notify_players(self, user_ids, notif_type, title, message, data=None):
+        """Send notifications to a list of users (helper)."""
+        from dojopool.services.notification_service import NotificationService
+        for uid in user_ids:
+            NotificationService.send_notification(uid, notif_type, title, message, data)
+
+    def notify_tournament_status(self, tournament_id: str, status_message: str):
+        """Notify all registered players of a tournament status update."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament:
+            logger.error(f"Tournament not found: {tournament_id}")
+            return
+        title = f"Tournament Update: {tournament.name}"
+        data = {"tournament_id": tournament_id, "status": tournament.status}
+        self._notify_players(
+            tournament.registered_players,
+            "tournament_update",
+            title,
+            status_message,
+            data
+        )
+
+    def notify_match_result(self, tournament_id: str, match):
+        """Notify both players of a match result."""
+        tournament = self._tournaments.get(tournament_id)
+        if not tournament or not match:
+            logger.error(f"Tournament or match not found for notify_match_result")
+            return
+        title = f"Match Result: {tournament.name}"
+        data = {"tournament_id": tournament_id, "match_id": match.match_id}
+        msg = f"Match {match.match_number} completed. Winner: {match.winner_id}, Loser: {match.loser_id}"
+        self._notify_players(
+            [match.player1_id, match.player2_id],
+            "match_result",
+            title,
+            msg,
+            data
+        )

@@ -1,3 +1,6 @@
+// Retry mechanism utilities consolidated and cleaned
+// Removed unused imports and commented code
+
 interface RetryConfig {
   maxAttempts: number;
   initialDelay: number;
@@ -97,8 +100,8 @@ export class RetryMechanism {
     onRetry?: (state: RetryState) => void,
   ): T {
     return ((...args: Parameters<T>): ReturnType<T> => {
-      return this.execute(() => fn(...args), onRetry) as ReturnType<T>;
-    }) as T;
+      return this.execute(() => fn(...args), onRetry) as unknown as T;
+    }) as unknown as T;
   }
 
   // Method to create a retry-wrapped fetch

@@ -4,8 +4,10 @@ from flask import Blueprint
 
 from .api import api_bp
 from .auth import auth_bp
+from .chat_routes import chat_bp
 from .game import game_bp
 from .main import main_bp
+from .message_routes import message_bp
 from .narrative import narrative_bp
 from .ranking import ranking_bp
 from .spectator import spectator_bp
@@ -20,3 +22,5 @@ def register_routes(app):
     app.register_blueprint(ranking_bp, url_prefix="/ranking")
     app.register_blueprint(spectator_bp, url_prefix="/spectator")
     app.register_blueprint(narrative_bp, url_prefix="/narrative")
+    app.register_blueprint(message_bp, url_prefix="/message")
+    app.register_blueprint(chat_bp, url_prefix="/chat")

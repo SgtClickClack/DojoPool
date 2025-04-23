@@ -74,19 +74,19 @@ class Database:
             self.db.session.rollback()
             raise
 
-    def add_record(self, record: Any) -> None:
+    def add_or_update_record(self, record: Any) -> None:
         """
-        Add a record (typically a SQLAlchemy model instance) to the session and commit.
+        Add or update a record (typically a SQLAlchemy model instance) to the session and commit.
 
         Args:
-            record (Any): The record to add to the database.
+            record (Any): The record to add or update in the database.
         """
         try:
             self.db.session.add(record)
             self.db.session.commit()
-            logger.info("Record added successfully: %s", record)
+            logger.info("Record added or updated successfully: %s", record)
         except Exception as e:
-            logger.error("Error adding record '%s': %s", record, e)
+            logger.error("Error adding or updating record '%s': %s", record, e)
             self.db.session.rollback()
             raise
 
@@ -103,17 +103,5 @@ class Database:
             logger.info("Record deleted successfully: %s", record)
         except Exception as e:
             logger.error("Error deleting record '%s': %s", record, e)
-            self.db.session.rollback()
-            raise
-
-    def update_record(self) -> None:
-        """
-        Commit the changes for all pending modifications in the session.
-        """
-        try:
-            self.db.session.commit()
-            logger.info("Session updated successfully.")
-        except Exception as e:
-            logger.error("Error updating records: %s", e)
             self.db.session.rollback()
             raise

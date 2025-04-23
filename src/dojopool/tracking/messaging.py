@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Set
 from enum import Enum
 import uuid
+from dojopool.story.story_engine import story_engine
 
 
 class MessageType(Enum):
@@ -64,8 +65,15 @@ class MessageManager:
         content: str,
         message_type: MessageType,
         metadata: Optional[Dict[str, str]] = None,
+        notify: bool = True,
+        story_context: Optional[dict] = None,
     ) -> Message:
-        """Send a message."""
+        """Send a message, enriched with story context if available."""
+        # Enrich content with story context for direct/system messages
+        if message_type in [MessageType.DIRECT, MessageType.SYSTEM, MessageType.CHALLENGE, MessageType.TOURNAMENT]:
+            enriched_content = story_engine.enrich_chat_message(recipient_id, content, story_context)
+        else:
+            enriched_content = content
         message_id = str(uuid.uuid4())
 
         message = Message(
@@ -73,7 +81,7 @@ class MessageManager:
             sender_id=sender_id,
             recipient_id=recipient_id,
             message_type=message_type,
-            content=content,
+            content=enriched_content,
             created_at=datetime.now(),
             metadata=metadata or {},
         )
@@ -89,6 +97,25 @@ class MessageManager:
             if recipient_id not in self._player_messages:
                 self._player_messages[recipient_id] = []
             self._player_messages[recipient_id].append(message_id)
+
+        # Real-time notification (if enabled)
+        if notify:
+            try:
+                from dojopool.utils.notifications import NotificationManager
+                NotificationManager.emit_notification(
+                    user_id=recipient_id,
+                    notification_type="new_message",
+                    data={
+                        "message_id": message_id,
+                        "sender_id": sender_id,
+                        "content": enriched_content,
+                        "message_type": message_type.value,
+                        "metadata": metadata or {},
+                        "created_at": message.created_at.isoformat(),
+                    },
+                )
+            except Exception as e:
+                pass
 
         return message
 
@@ -225,4 +252,33 @@ class MessageManager:
             metadata=metadata,
         )
 
+        return True
+
+    def get_inbox_summary(self, player_id: str) -> dict:
+        """Get summary stats for a player's inbox (unread counts by type, total messages)."""
+        message_ids = self._player_messages.get(player_id, [])
+        total = len(message_ids)
+        unread = 0
+        by_type = {mt.value: 0 for mt in MessageType}
+        for message_id in message_ids:
+            message = self._messages.get(message_id)
+            if message:
+                if message.read_at is None:
+                    unread += 1
+                    by_type[message.message_type.value] += 1
+        return {
+            "total": total,
+            "unread": unread,
+            "unread_by_type": by_type
+        }
+
+    def delete_message(self, player_id: str, message_id: str) -> bool:
+        """Delete a message from a player's inbox (soft delete)."""
+        if message_id not in self._messages:
+            return False
+        if player_id not in self._player_messages:
+            return False
+        if message_id not in self._player_messages[player_id]:
+            return False
+        self._player_messages[player_id].remove(message_id)
         return True

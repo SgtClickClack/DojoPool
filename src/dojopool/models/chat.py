@@ -1,7 +1,12 @@
 """Chat models for messaging between users."""
 
 from datetime import datetime
+<<<<<<< HEAD
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, PrimaryKeyConstraint
+=======
+
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
+>>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -14,7 +19,14 @@ class ChatRoom(BaseModel):
     __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String(100), unique=True, nullable=False)
+    is_dojo = Column(Boolean, default=True)  # All dojos are venues
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=True)
+    place_id = Column(String(64), nullable=True)  # Google Place ID
+    address = Column(String(255), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    venue_owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     description = Column(Text)
     is_private = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

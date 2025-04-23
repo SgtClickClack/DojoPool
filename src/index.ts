@@ -4,6 +4,8 @@ import { logger } from "./utils/logger";
 import rateLimit from "express-rate-limit";
 import { body, validationResult } from "express-validator";
 import helmet from "helmet";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -46,6 +48,17 @@ const validateRequest = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+<<<<<<< HEAD
+=======
+// Serve static files from the public directory
+// app.use(express.static(path.join(__dirname, "../public")));
+
+// Updated fallback route
+// app.get("*", (req: Request, res: Response) => {
+//   res.sendFile(path.join(__dirname, "../index.html"));
+// });
+
+>>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 // Basic routes for testing
 app.get("/", (req: Request, res: Response) => {
   res.send("DojoPool Platform Backend API");
@@ -142,14 +155,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader(
     "Strict-Transport-Security",
-    "max-age=31536000; includeSubDomains",
+    "max-age=31536000; includeSubDomains"
   );
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=()");
   next();
 });
 
-// Error handling middleware
+// Insert fallback route here:
+app.get(/^\/(?!api).*/, (req: Request, res: Response) => {
+  const indexPath = path.join(__dirname, "../index.html");
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(500).send(err.message);
+    }
+  });
+});
+
+// Then the error handling middleware follows:
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error("Unhandled error:", err);
   res.status(500).json({ error: "Internal server error" });

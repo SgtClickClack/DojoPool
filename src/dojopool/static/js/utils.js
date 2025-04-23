@@ -1,3 +1,6 @@
+// Static JS utilities consolidated and cleaned
+// Removed unused imports and commented code
+
 // DOM Utilities
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);

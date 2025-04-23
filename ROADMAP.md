@@ -3,6 +3,7 @@
 ## Vision
 DojoPool is an innovative platform that transforms traditional pool gaming into an immersive, tech-enhanced experience by bridging physical and digital gameplay. It combines real-world pool venues with advanced technology, creating a unique social gaming ecosystem.
 
+<<<<<<< HEAD
 ## Dojo Pool Game Flow Checklist (User Journey)
 
 This section tracks the end-to-end user experience, ensuring all digital and real-world interactions are implemented and aligned with the platform vision.
@@ -59,6 +60,95 @@ This section tracks the end-to-end user experience, ensuring all digital and rea
     - [ ] Content sharing (social features)
     - [ ] Tournament outcome processing (brackets, prizes)
     - [ ] Rewards: Dojo Coins, NFT trophies/items, avatar unlocks
+=======
+## GAME FLOW & USER JOURNEY (2025 Integration)
+
+This section outlines the step-by-step user journey and the required feature/component integration for a seamless Dojo Pool experience. Each step references the relevant backend/frontend components and file paths for clarity and AI agent handoff.
+
+### 1. Landing Page & Account Creation
+- **Features:** User registration, login, wallet linking, avatar setup
+- **Paths:**
+  - `src/dojopool/routes/auth/views.py`
+  - `src/dojopool/models/user.py`
+  - `src/dojopool/coins/dojo_coins.py`
+  - `src/frontend/pages/register.tsx`, `login.tsx`
+- **TODO:** Ensure onboarding flow links wallet and avatar creation immediately after registration.
+
+### 2. Dashboard (Main Hub)
+- **Features:** Avatar, map, marketplace, analytics, trophy cabinet, Dojo Coin balance
+- **Paths:**
+  - `src/dojopool/routes/dashboard.py`
+  - `src/frontend/pages/dashboard.tsx`
+  - `src/frontend/components/MapView.tsx`, `Marketplace.tsx`, `StatsPanel.tsx`
+- **TODO:** Integrate live stats, avatar, and map widgets. Show contextual onboarding if first login.
+
+### 3. Avatar Creation & Customization
+- **Features:** Scan, customize, unlock via achievements
+- **Paths:**
+  - `src/dojopool/routes/features.py`
+  - `src/frontend/pages/avatar.tsx`, `components/AvatarEditor.tsx`
+- **TODO:** Implement avatar scan/upload and unlock logic. Link to achievements.
+
+### 4. Map & Venue Discovery
+- **Features:** Google Maps SDK, stylized, nearby venues, live occupancy
+- **Paths:**
+  - `src/dojopool/routes/venue.py`
+  - `src/frontend/components/MapView.tsx`
+- **TODO:** Show live venue occupancy/status. Enable venue click-through for details/check-in.
+
+### 5. Entering Dojo (Venue Check-in)
+- **Features:** Geolocation/QR check-in, virtual venue, live games, avatars of checked-in users
+- **Paths:**
+  - `src/dojopool/routes/venue.py`
+  - `src/frontend/pages/venue/[id].tsx`, `components/CheckInButton.tsx`, `VenueSocial.tsx`
+- **TODO:** Gate all venue features by check-in status. Show virtual venue UI with live users/games.
+
+### 6. Venue Interaction
+- **Features:** Deals, ordering, tournaments, user interaction
+- **Paths:**
+  - `src/dojopool/routes/venue.py`, `services/event_service.py`
+  - `src/frontend/components/DealsPanel.tsx`, `OrderPanel.tsx`, `TournamentsPanel.tsx`, `VenueChat.tsx`
+- **TODO:** Implement digital ordering (if supported), show live deals, enable venue chat for checked-in users.
+
+### 7. Tournament Registration & Participation
+- **Features:** Register, pay with Dojo Coin, check-in at venue
+- **Paths:**
+  - `src/dojopool/services/tournament_service.py`, `routes/tournament_routes.py`
+  - `src/frontend/pages/tournaments.tsx`, `components/TournamentList.tsx`, `TournamentRegistration.tsx`
+- **TODO:** Integrate wallet payment, show registration deadlines, enable bracket viewing.
+
+### 8. Playing a Game (Live Session)
+- **Features:** Real-world play tracked by AI/camera, live analytics, AI referee, commentary
+- **Paths:**
+  - `src/dojopool/services/game_service.py`, `services/analytics_service.py`
+  - `src/frontend/pages/game/[id].tsx`, `components/GameAnalytics.tsx`, `AICommentary.tsx`
+- **TODO:** Surface live game data, integrate AI commentary, show analytics overlays.
+
+### 9. Post-Game: Results & Rewards
+- **Features:** Results, analytics, rewards (Dojo Coin, NFTs, avatar unlocks), dashboard display
+- **Paths:**
+  - `src/dojopool/services/reward_service.py`, `services/activity_service.py`
+  - `src/frontend/pages/dashboard.tsx`, `components/RewardsPanel.tsx`, `TrophyCabinet.tsx`
+- **TODO:** Show post-game summary, distribute rewards, update user dashboard.
+
+### 10. Social & Chat
+- **Features:** Venue chat (checked-in users only), notifications, activity feed, friend invites
+- **Paths:**
+  - `src/dojopool/services/notification_service.py`, `services/social/friend.py`, `services/social/activity.py`
+  - `src/frontend/components/ChatRoom.tsx`, `NotificationsPanel.tsx`, `FriendsList.tsx`, `ActivityFeed.tsx`
+- **TODO:** Ensure chat is venue-scoped and presence-verified, integrate friend/invite system, show real-time notifications.
+
+---
+
+## DEV TRACKING & HANDOFF INSTRUCTIONS
+
+- Each step above should be tracked as a distinct Epic or Feature in all `DEVELOPMENT_TRACKING_PART_*` files.
+- Use the provided file paths to organize sub-tasks and implementation notes.
+- When creating new features, always update this roadmap and the corresponding dev tracking part file.
+- Ensure all glue code, transitions, and onboarding flows are documented for seamless AI agent handoff.
+
+---
+>>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 
 ## Codebase Audit Summary (as of 2024-07-29)
 *   **Overall:** Strong backend foundation with many services and models implemented. Significant progress in scaling, optimization, and context assurance systems.

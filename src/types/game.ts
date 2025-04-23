@@ -61,7 +61,9 @@ export type GameActionType =
   | "STATE_SYNC"
   | "CONSENSUS_STATE_CHANGE"
   | "LEADER_ELECTED"
-  | "ENTRY_COMMITTED";
+  | "ENTRY_COMMITTED"
+  | "CHANGE_TURN"
+  | "PLACE_BALL";
 
 export interface GameAction {
   type: GameActionType;

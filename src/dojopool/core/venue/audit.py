@@ -5,7 +5,7 @@ import logging
 import os
 import threading
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -22,6 +22,12 @@ class AuditEventType(Enum):
     RATE_LIMIT_EXCEED = "rate_limit_exceed"
     RATE_LIMIT_BLOCK = "rate_limit_block"
     CONFIG_CHANGE = "config_change"
+    WALLET_FREEZE = "wallet_freeze"
+    WALLET_REACTIVATE = "wallet_reactivate"
+    WALLET_AUDIT = "wallet_audit"
+    WALLET_CREDIT = "wallet_credit"
+    WALLET_DEBIT = "wallet_debit"
+    WALLET_TRANSFER = "wallet_transfer"
 
 
 @dataclass

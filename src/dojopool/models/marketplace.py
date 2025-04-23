@@ -4,14 +4,19 @@ This module contains the models for the marketplace feature.
 """
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional, List
 
 from sqlalchemy import JSON
 
 from dojopool.core.database.db_utils import reference_col
 from dojopool.core.extensions import db
+from dojopool.core.venue.audit import AuditLogger, AuditEventType
 
 from .base import TimestampedModel
+
+# Instantiate AuditLogger (Consider dependency injection or app context for better practice)
+# Assuming log directory setup is handled elsewhere or defaults are okay
+audit_logger = AuditLogger()
 
 
 class MarketplaceItem(TimestampedModel):
@@ -82,6 +87,217 @@ class Wallet(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
+    def _log_wallet_event(self, event_type: AuditEventType, action: str, status: str, details: Dict[str, Any], reference_id: Optional[str] = None):
+        """Helper method to log wallet-related audit events."""
+        # Assuming admin actions might not have a specific user context directly here
+        # This might need adjustment based on how admin actions are tracked
+        audit_logger.log_event(
+            event_type=event_type,
+            user_id=str(self.user_id), # Log the affected user ID
+            ip_address=None, # Admin actions might not have request IP
+            resource_id=str(self.id), # Wallet ID
+            action=action,
+            status=status,
+            details=details,
+            venue_id=None, # Wallet actions are not venue-specific
+            table_id=None
+        )
+
+    def credit(self, amount: float, description: str = "", reference_id: str = None, admin_user_id: Optional[str] = None) -> "Transaction":
+        """Add Dojo Coins to the wallet and record a credit transaction."""
+        if not self.is_active:
+            self._log_wallet_event(AuditEventType.WALLET_CREDIT, "Credit Attempt (Inactive Wallet)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Wallet is inactive"})
+            raise ValueError("Wallet is inactive.")
+        if amount <= 0:
+            self._log_wallet_event(AuditEventType.WALLET_CREDIT, "Credit Attempt (Invalid Amount)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Credit amount must be positive"})
+            raise ValueError("Credit amount must be positive.")
+
+        self.balance += amount
+        txn = Transaction(
+            wallet_id=self.id,
+            user_id=self.user_id,
+            amount=amount,
+            currency=self.currency,
+            type="credit",
+            status="completed",
+            description=description,
+            reference_id=reference_id
+        )
+        db.session.add(txn)
+        db.session.commit()
+
+        # Log audit event after successful commit
+        self._log_wallet_event(
+            event_type=AuditEventType.WALLET_CREDIT,
+            action="Wallet Credit",
+            status="success",
+            details={
+                "amount": amount,
+                "new_balance": self.balance,
+                "description": description,
+                "reference_id": reference_id,
+                "transaction_id": txn.id,
+                "admin_user_id": admin_user_id
+            }
+        )
+        return txn
+
+    def debit(self, amount: float, description: str = "", reference_id: str = None, admin_user_id: Optional[str] = None) -> "Transaction":
+        """Subtract Dojo Coins from the wallet and record a debit transaction."""
+        if not self.is_active:
+            self._log_wallet_event(AuditEventType.WALLET_DEBIT, "Debit Attempt (Inactive Wallet)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Wallet is inactive"})
+            raise ValueError("Wallet is inactive.")
+        if amount <= 0:
+            self._log_wallet_event(AuditEventType.WALLET_DEBIT, "Debit Attempt (Invalid Amount)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Debit amount must be positive"})
+            raise ValueError("Debit amount must be positive.")
+        if self.balance < amount:
+            self._log_wallet_event(AuditEventType.WALLET_DEBIT, "Debit Attempt (Insufficient Funds)", "failure", {"amount": amount, "current_balance": self.balance, "description": description, "reference_id": reference_id, "reason": "Insufficient funds"})
+            raise ValueError("Insufficient funds.")
+
+        self.balance -= amount
+        txn = Transaction(
+            wallet_id=self.id,
+            user_id=self.user_id,
+            amount=-amount,
+            currency=self.currency,
+            type="debit",
+            status="completed",
+            description=description,
+            reference_id=reference_id
+        )
+        db.session.add(txn)
+        db.session.commit()
+
+        # Log audit event after successful commit
+        self._log_wallet_event(
+            event_type=AuditEventType.WALLET_DEBIT,
+            action="Wallet Debit",
+            status="success",
+            details={
+                "amount": amount,
+                "new_balance": self.balance,
+                "description": description,
+                "reference_id": reference_id,
+                "transaction_id": txn.id,
+                "admin_user_id": admin_user_id
+            }
+        )
+        return txn
+
+    def transfer_to(self, target_wallet: "Wallet", amount: float, description: str = "", reference_id: str = None, admin_user_id: Optional[str] = None) -> ("Transaction", "Transaction"):
+        """Transfer Dojo Coins to another wallet, recording debit and credit transactions."""
+        if not self.is_active:
+            self._log_wallet_event(AuditEventType.WALLET_TRANSFER, "Transfer Attempt (Sender Inactive)", "failure", {"amount": amount, "target_wallet_id": target_wallet.id, "description": description, "reference_id": reference_id, "reason": "Sender wallet is inactive"})
+            raise ValueError("Sender wallet is inactive.")
+        if not target_wallet.is_active:
+            self._log_wallet_event(AuditEventType.WALLET_TRANSFER, "Transfer Attempt (Recipient Inactive)", "failure", {"amount": amount, "target_wallet_id": target_wallet.id, "description": description, "reference_id": reference_id, "reason": "Recipient wallet is inactive"})
+            raise ValueError("Recipient wallet is inactive.")
+        if amount <= 0:
+            self._log_wallet_event(AuditEventType.WALLET_TRANSFER, "Transfer Attempt (Invalid Amount)", "failure", {"amount": amount, "target_wallet_id": target_wallet.id, "description": description, "reference_id": reference_id, "reason": "Transfer amount must be positive"})
+            raise ValueError("Transfer amount must be positive.")
+        if self.balance < amount:
+            self._log_wallet_event(AuditEventType.WALLET_TRANSFER, "Transfer Attempt (Insufficient Funds)", "failure", {"amount": amount, "current_balance": self.balance, "target_wallet_id": target_wallet.id, "description": description, "reference_id": reference_id, "reason": "Insufficient funds for transfer"})
+            raise ValueError("Insufficient funds for transfer.")
+
+        # Use existing debit/credit methods which handle balance update, transaction, and audit logging
+        try:
+            # Note: Pass admin_user_id to debit/credit if needed for those logs too
+            debit_desc = f"Transfer to user {target_wallet.user_id}. {description}"
+            credit_desc = f"Transfer from user {self.user_id}. {description}"
+            debit_txn = self.debit(amount, description=debit_desc, reference_id=reference_id, admin_user_id=admin_user_id)
+            credit_txn = target_wallet.credit(amount, description=credit_desc, reference_id=reference_id, admin_user_id=admin_user_id)
+
+            # Log a specific transfer event summarizing the operation
+            self._log_wallet_event(
+                event_type=AuditEventType.WALLET_TRANSFER,
+                action="Wallet Transfer",
+                status="success",
+                details={
+                    "amount": amount,
+                    "sender_wallet_id": self.id,
+                    "sender_new_balance": self.balance,
+                    "recipient_wallet_id": target_wallet.id,
+                    "recipient_new_balance": target_wallet.balance,
+                    "description": description,
+                    "reference_id": reference_id,
+                    "debit_transaction_id": debit_txn.id,
+                    "credit_transaction_id": credit_txn.id,
+                    "admin_user_id": admin_user_id
+                }
+            )
+            return debit_txn, credit_txn
+        except Exception as e:
+            # If credit fails after debit, we need to handle rollback or compensation
+            # For simplicity now, just log the failure. Real implementation needs robust transaction management.
+            self._log_wallet_event(
+                event_type=AuditEventType.WALLET_TRANSFER,
+                action="Wallet Transfer",
+                status="failure",
+                details={
+                    "amount": amount,
+                    "sender_wallet_id": self.id,
+                    "recipient_wallet_id": target_wallet.id,
+                    "description": description,
+                    "reference_id": reference_id,
+                    "error": str(e)
+                }
+            )
+            raise e
+
+    def freeze(self) -> None:
+        """Freeze the wallet (disable all outgoing transactions)."""
+        self.is_active = False
+        db.session.commit()
+
+    def reactivate(self) -> None:
+        """Reactivate a previously frozen wallet."""
+        self.is_active = True
+        db.session.commit()
+
+    def audit(self) -> dict:
+        """Return a summary audit of the wallet: balance, total credits, total debits, transaction count."""
+        credits = sum(txn.amount for txn in self.transactions.filter(Transaction.type == "credit"))
+        debits = sum(-txn.amount for txn in self.transactions.filter(Transaction.type == "debit"))
+        txn_count = self.transactions.count()
+        return {
+            "user_id": self.user_id,
+            "balance": self.balance,
+            "total_credits": credits,
+            "total_debits": debits,
+            "transaction_count": txn_count,
+            "is_active": self.is_active
+        }
+
+    def get_audit_trail(self, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> List[Dict]:
+        """Retrieve the audit trail for this specific wallet."""
+        # Log the audit access itself
+        # Consider who is accessing this - needs admin context
+        # self._log_wallet_event(AuditEventType.WALLET_AUDIT, "Wallet Audit Accessed", "success", {})
+
+        return audit_logger.get_events(
+            resource_id=str(self.id),
+            start_time=start_time,
+            end_time=end_time
+            # Potentially add relevant event types:
+            # event_type=[AuditEventType.WALLET_CREDIT, AuditEventType.WALLET_DEBIT, ...]
+        )
+
+    def get_transactions(self, limit: int = 20, offset: int = 0, txn_type: str = None, status: str = None) -> list:
+        """
+        Return a list of this wallet's transactions, optionally filtered by type/status.
+        Results are ordered by most recent first.
+        """
+        query = self.transactions.order_by(Transaction.created_at.desc())
+        if txn_type:
+            query = query.filter(Transaction.type == txn_type)
+        if status:
+            query = query.filter(Transaction.status == status)
+        return [txn.to_dict() for txn in query.offset(offset).limit(limit)]
+
+    def get_balance(self) -> float:
+        """Return the current wallet balance."""
+        return self.balance
 
 
 class Transaction(db.Model):

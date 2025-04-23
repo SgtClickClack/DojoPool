@@ -7,6 +7,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
+  root: path.resolve(__dirname),
+  publicDir: path.resolve(__dirname, 'public'),
   server: {
     port: 3100,
     strictPort: true,
@@ -42,7 +44,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist',
+    outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
@@ -60,8 +62,6 @@ export default defineConfig({
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
   },
-  root: path.resolve(__dirname),
-  publicDir: 'public',
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
   },

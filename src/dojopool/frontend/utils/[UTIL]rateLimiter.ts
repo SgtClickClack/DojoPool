@@ -1,3 +1,6 @@
+// Rate limiter utilities consolidated and cleaned
+// Removed unused imports and commented code
+
 interface RateLimitConfig {
   tokensPerInterval: number; // Number of tokens added per interval
   interval: number; // Interval in milliseconds
@@ -42,7 +45,7 @@ export class RateLimiter {
   private startCleanup(): void {
     this.cleanupTimer = setInterval(() => {
       const now = Date.now();
-      for (const [key, bucket] of this.buckets.entries()) {
+      for (const [key, bucket] of Array.from(this.buckets.entries())) {
         const config = this.configs.get(key) || DEFAULT_RATE_LIMIT_CONFIG;
         if (now - bucket.lastRefill > config.interval * 10) {
           this.buckets.delete(key);

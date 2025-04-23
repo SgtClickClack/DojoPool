@@ -11,6 +11,7 @@ import {
   GameActionType,
   Game,
 } from "../../types/game";
+import { Vector2D } from "../../types/geometry";
 import { PhysicsEngine, PhysicsObject } from "../../utils/physics";
 
 // --- Shot Outcome Analysis ---
@@ -22,6 +23,15 @@ interface ShotCollisionInfo {
 interface Pocket {
   position: { x: number; y: number };
   radius: number;
+}
+
+// --- Shot Outcome Analysis Data ---
+interface ShotAnalysisData {
+  firstObjectBallHit: number | null;
+  cueBallHitRail: boolean;
+  objectBallHitRailAfterContact: boolean;
+  isBreakShot: boolean; // Flag for the first shot
+  // Add more fields as needed, e.g., ballsPocketedDuringShot: number[];
 }
 
 export interface GameTable {
@@ -45,6 +55,7 @@ export interface GameTable {
   pocketedBallsBeforeShot: number[];
   playerBallTypes: Record<string, "solids" | "stripes" | "open">;
   ballInHand: boolean;
+  ballInHandFromBreakScratch: boolean; // Flag for special placement rule
 }
 
 export interface BallState extends PhysicsObject {
@@ -102,6 +113,7 @@ export class GameState extends EventEmitter {
     currentTurn: LWWRegister<string | null>;
     gamePhase: LWWRegister<string>;
   };
+  private currentShotAnalysis: Map<string, ShotAnalysisData>; // Track analysis per table
 
   constructor(nodeId: string, consensusConfig: ConsensusConfig) {
     super();
@@ -117,6 +129,7 @@ export class GameState extends EventEmitter {
       currentTurn: new LWWRegister<string | null>(null, nodeId),
       gamePhase: new LWWRegister<string>("setup", nodeId),
     };
+    this.currentShotAnalysis = new Map();
 
     this.setupConsensusListeners();
   }
@@ -269,6 +282,70 @@ export class GameState extends EventEmitter {
         }
         break;
 
+      case "PLACE_BALL":
+        if (gameTable && tableRegister) {
+            if (gameTable.currentTurn !== action.playerId) {
+                console.warn(`PLACE_BALL: Player ${action.playerId} attempted to place ball, but it's ${gameTable.currentTurn}'s turn.`);
+                return;
+            }
+            if (!gameTable.ballInHand) {
+                console.warn(`PLACE_BALL: Player ${action.playerId} attempted to place ball, but does not have ball-in-hand.`);
+                return;
+            }
+            const newPosition = action.data?.position as Vector2D | undefined;
+            if (!newPosition) {
+                console.error(`PLACE_BALL: Action missing position data.`);
+                return;
+            }
+
+            // Basic validation: Is position on the table?
+            if (newPosition.x < 0 || newPosition.x > gameTable.tableWidth ||
+                newPosition.y < 0 || newPosition.y > gameTable.tableHeight) {
+                console.warn(`PLACE_BALL: Invalid position (${newPosition.x}, ${newPosition.y}) - out of bounds.`);
+                // Potentially revert or ask for re-placement? For now, just reject.
+                return;
+            }
+
+            // TODO: Add more specific validation (e.g., behind head string after break scratch)
+            // TODO: Check for overlap with other balls?
+
+            const cueBall = gameTable.balls.find(b => b.number === 0);
+            if (!cueBall) {
+                console.error(`PLACE_BALL: Cue ball not found on table ${action.tableId}.`);
+                return; // Should not happen in normal play
+            }
+
+            // If cue ball was pocketed (scratch), un-pocket it.
+            if (cueBall.pocketed) {
+                console.log(`PLACE_BALL: Un-pocketing cue ball for placement.`);
+                cueBall.pocketed = false;
+                // Remove from pocketedBalls list if it's there
+                const pocketedIndex = gameTable.pocketedBalls.indexOf(0);
+                if (pocketedIndex > -1) {
+                    gameTable.pocketedBalls.splice(pocketedIndex, 1);
+                }
+            }
+
+            // Update cue ball position and ensure velocity is zero
+            cueBall.position = newPosition;
+            cueBall.velocity = { x: 0, y: 0 };
+
+            // Consume ball-in-hand
+            gameTable.ballInHand = false;
+            gameTable.lastUpdatedLocally = Date.now();
+
+            console.log(`Applied PLACE_BALL: Player ${action.playerId} placed cue ball at (${newPosition.x}, ${newPosition.y}) on table ${action.tableId}. Ball-in-hand consumed.`);
+
+            // Emit state update after placement
+            this.emit("state:updated", { tableId: action.tableId, state: gameTable });
+
+        } else {
+          console.error(
+            `PLACE_BALL failed: Table register or local cache not found for ${action.tableId}`,
+          );
+        }
+        break;
+
       case "LEAVE_TABLE":
         if (tableRegister && gameTable) {
           const currentBase = tableRegister.getValue();
@@ -313,7 +390,7 @@ export class GameState extends EventEmitter {
         }
         break;
 
-      case "CHANGE_TURN" as GameActionType:
+      case "CHANGE_TURN":
         if (tableRegister && gameTable && !gameTable.gameEnded) {
           const nextPlayerId = action.data?.nextPlayerId;
           const hasBallInHand = action.data?.ballInHand === true;
@@ -419,6 +496,10 @@ export class GameState extends EventEmitter {
     if (!table.gameStarted || table.gameEnded)
       throw new Error("Game not in progress");
     if (table.currentTurn !== playerId) throw new Error("Not your turn");
+    // Add check for ball-in-hand
+    if (table.ballInHand) {
+        throw new Error("Cannot make shot: Player has ball-in-hand. Place the cue ball first.");
+    }
     // Check ball-in-hand condition before proposing
     // TODO: If ballInHand is true, potentially require a separate PLACE_BALL action first
     this.proposeAction({
@@ -458,12 +539,40 @@ export class GameState extends EventEmitter {
       throw new Error("Game not active");
     // TODO: More validation (is requestingPlayerId allowed to do this?)
     this.proposeAction({
-      type: "CHANGE_TURN" as GameActionType,
+      type: "CHANGE_TURN",
       tableId,
       playerId: requestingPlayerId,
       data: { nextPlayerId },
       timestamp: Date.now(),
     });
+  }
+
+  public requestPlaceBall(
+      tableId: string,
+      playerId: string,
+      position: Vector2D
+  ): void {
+      const table = this.tables.get(tableId);
+      if (!table) throw new Error(`Table ${tableId} not found`);
+      if (!table.gameStarted || table.gameEnded)
+          throw new Error("Game not in progress");
+      if (table.currentTurn !== playerId) throw new Error("Not your turn");
+      if (!table.ballInHand) {
+          throw new Error("Cannot place ball: Player does not have ball-in-hand.");
+      }
+      // Basic position validation (can add more specific rules later)
+      if (position.x < 0 || position.x > table.tableWidth ||
+          position.y < 0 || position.y > table.tableHeight) {
+          throw new Error("Invalid position: Out of table bounds.");
+      }
+
+      this.proposeAction({
+          type: "PLACE_BALL",
+          tableId,
+          playerId,
+          data: { position },
+          timestamp: Date.now(),
+      });
   }
 
   // --- Private Helper Methods ---
@@ -544,6 +653,7 @@ export class GameState extends EventEmitter {
       table.playerBallTypes[playerId] = "open";
     });
     table.ballInHand = false;
+    table.ballInHandFromBreakScratch = false;
     table.lastUpdatedLocally = Date.now();
 
     this.state.currentTurn.update(table.currentTurn);
@@ -562,26 +672,66 @@ export class GameState extends EventEmitter {
     playerId: string,
     shot: { force: number; angle: number },
   ): void {
-    const table = this.tables.get(tableId);
-    if (!table || !table.balls) {
-      console.error(`makeShot: Invalid table ${tableId}`);
+    const gameTable = this.tables.get(tableId);
+    if (!gameTable || !gameTable.currentGame) {
+      console.error(`makeShot: Table ${tableId} or game not found.`);
       return;
     }
-    if (!table.gameStarted || table.gameEnded) return;
-    if (table.currentTurn !== playerId) return;
-    const cueBall = table.balls.find((b) => b.number === 0);
-    if (!cueBall) {
-      console.error(`Cue ball not found: ${tableId}`);
+    if (gameTable.currentTurn !== playerId) {
+      console.warn(`makeShot: Not player ${playerId}'s turn.`);
+      return; // Or handle as error/foul?
+    }
+    // Add check for ball-in-hand here as well for internal consistency
+    if (gameTable.ballInHand) {
+        console.error(`makeShot Error: Player ${playerId} has ball-in-hand. PLACE_BALL action required first.`);
+        // Stop the physics simulation if it was somehow started
+        this.stopGameLoop(tableId);
+        return; // Prevent shot execution
+    }
+    if (gameTable.physicsActive) {
+      console.warn(`makeShot: Physics already active on table ${tableId}.`);
       return;
     }
 
-    const force = Math.min(shot.force, 10);
-    const angle = shot.angle;
+    const cueBall = gameTable.balls.find((b) => b.number === 0);
+    if (!cueBall) {
+      console.error(`makeShot: Cue ball not found on table ${tableId}.`);
+      return;
+    }
+
+    // Determine if it's the break shot
+    // Simple check: is it the very first shot after the game started?
+    // Assumes pocketedBalls is empty only before the break.
+    // A more robust method might involve turn count or a dedicated game phase.
+    const isBreak = gameTable.pocketedBalls.length === 0 && gameTable.pocketedBallsBeforeShot.length === 0;
+    if (isBreak) {
+        console.log(`makeShot: Detected break shot on table ${tableId}.`);
+    }
+
+    // Reset shot analysis data for this table
+    this.currentShotAnalysis.set(tableId, {
+        firstObjectBallHit: null,
+        cueBallHitRail: false,
+        objectBallHitRailAfterContact: false,
+        isBreakShot: isBreak,
+    });
+    // Ensure pocketedBallsBeforeShot is set *before* applying velocity
+    // Moved this up from analyzeShotOutcome originally, ensure it's set correctly here.
+    gameTable.pocketedBallsBeforeShot = [...gameTable.pocketedBalls];
+
+    // Apply force and angle
+    const radians = (shot.angle * Math.PI) / 180;
     cueBall.velocity = {
-      x: force * Math.cos(angle),
-      y: force * Math.sin(angle),
+      x: shot.force * Math.cos(radians),
+      y: shot.force * Math.sin(radians),
     };
-    table.lastUpdatedLocally = Date.now();
+
+    console.log(
+      `makeShot: Applied shot for player ${playerId} on table ${tableId}. Force: ${shot.force}, Angle: ${shot.angle}`,
+    );
+
+    // Start physics simulation loop
+    this.startGameLoop(tableId);
   }
 
   private pocketBall(tableId: string, ballNumber: number): void {
@@ -673,17 +823,23 @@ export class GameState extends EventEmitter {
       pocketedBallsBeforeShot: [],
       playerBallTypes: {},
       ballInHand: false,
+      ballInHandFromBreakScratch: false,
     };
   }
 
   // --- Shot Outcome Analysis ---
   private analyzeShotOutcome(tableId: string): void {
     const table = this.tables.get(tableId);
+    // Retrieve the shot analysis data collected during the tick loop
+    const shotData = this.currentShotAnalysis.get(tableId);
+
     // --- Pre-checks ---
-    if (!table || !table.currentTurn || !table.players[table.currentTurn]) {
+    if (!table || !table.currentTurn || !table.players[table.currentTurn] || !shotData) {
       console.error(
-        `AnalyzeOutcome: Invalid table/player state for ${tableId}`,
+        `AnalyzeOutcome: Invalid table/player/shotData state for ${tableId}`,
       );
+      // Clear analysis data even on error?
+      this.currentShotAnalysis.delete(tableId);
       return;
     }
     const currentPlayerId = table.currentTurn;
@@ -694,15 +850,9 @@ export class GameState extends EventEmitter {
       console.error(
         `AnalyzeOutcome: Cannot find opponent player for ${tableId}`,
       );
+      this.currentShotAnalysis.delete(tableId);
       return;
     }
-
-    // --- Placeholder Collision Data ---
-    // TODO: Replace with real data from physics/vision
-    const collisionInfo: ShotCollisionInfo = {
-      firstObjectBallHit: null, // Example: 1 if cue ball hit 1-ball first
-      didHitRailAfterContact: true, // Example: false if no rail hit after contact
-    };
 
     // --- Identify Newly Pocketed Balls ---
     const newlyPocketed = table.pocketedBalls.filter(
@@ -711,77 +861,90 @@ export class GameState extends EventEmitter {
     console.log(
       `AnalyzeOutcome: Newly pocketed balls: [${newlyPocketed.join(", ")}] by ${currentPlayerId}`,
     );
+    console.log(`AnalyzeOutcome: Shot Analysis Data:`, shotData);
 
     // --- Determine Player/Opponent Types ---
     let currentPlayerBallType = table.playerBallTypes[currentPlayerId];
     const opponentBallType = table.playerBallTypes[opponentPlayerId];
     let ballTypeAssignedThisTurn = false;
 
-    // --- Foul Checks ---
+    // --- Foul Checks --- Initial foul state
     let isFoul = false;
     let foulReason = "";
+    let givesBallInHand = false; // Flag to indicate if foul grants ball-in-hand
+    let breakScratchOccurred = false; // Track specifically if a scratch happened on the break
 
-    // Scratch
+    // 1. Scratch
     if (newlyPocketed.includes(0)) {
       isFoul = true;
       foulReason = "Cue ball scratch";
-    }
-
-    // Check if player group is cleared (needed for 8-ball checks)
-    let playerGroupCleared = false;
-    if (!isFoul && currentPlayerBallType !== "open") {
-      const targetBalls =
-        currentPlayerBallType === "solids"
-          ? [1, 2, 3, 4, 5, 6, 7]
-          : [9, 10, 11, 12, 13, 14, 15];
-      playerGroupCleared = targetBalls.every((num) =>
-        table.pocketedBalls.includes(num),
-      );
-    }
-
-    // Wrong Ball First (requires collisionInfo)
-    if (!isFoul && collisionInfo.firstObjectBallHit !== null) {
-      const firstHit = collisionInfo.firstObjectBallHit;
-      if (firstHit !== null) {
-        // Check for null before passing to getBallType
-        const firstHitType = getBallType(firstHit);
-        if (currentPlayerBallType === "solids" && firstHitType === "stripe") {
-          isFoul = true;
-          foulReason = "Hit opponent's ball first (stripe)";
-        } else if (
-          currentPlayerBallType === "stripes" &&
-          firstHitType === "solid"
-        ) {
-          isFoul = true;
-          foulReason = "Hit opponent's ball first (solid)";
-        } else if (
-          currentPlayerBallType !== "open" &&
-          firstHitType === "eight" &&
-          !playerGroupCleared
-        ) {
-          isFoul = true;
-          foulReason = "Hit 8-ball first before group cleared";
-        } else if (
-          currentPlayerBallType === "open" &&
-          firstHitType === "eight"
-        ) {
-          isFoul = true;
-          foulReason = "Hit 8-ball first when table open"; // TODO: Break rules?
-        }
+      givesBallInHand = true;
+      if (shotData.isBreakShot) {
+          breakScratchOccurred = true;
+          console.log("AnalyzeOutcome: Scratch occurred on the break shot.");
       }
     }
 
-    // No Rail After Contact (requires collisionInfo)
-    if (
-      !isFoul &&
-      newlyPocketed.length > 0 &&
-      !newlyPocketed.includes(0) &&
-      !collisionInfo.didHitRailAfterContact
-    ) {
-      if (collisionInfo.firstObjectBallHit !== null) {
-        // Ensure contact was made
+    // 2. No Contact
+    // If the cue ball didn't hit *any* object ball (and wasn't a scratch)
+    if (!isFoul && shotData.firstObjectBallHit === null && !newlyPocketed.includes(0)) {
         isFoul = true;
-        foulReason = "No rail contacted after initial hit";
+        foulReason = "No object ball contacted";
+        givesBallInHand = true;
+    }
+
+    // --- Checks requiring initial contact ---
+    if (!isFoul && shotData.firstObjectBallHit !== null) {
+      const firstHit = shotData.firstObjectBallHit;
+      const firstHitType = getBallType(firstHit);
+
+      // 3. Wrong Ball First
+      if (currentPlayerBallType === "solids" && firstHitType === "stripe") {
+        isFoul = true;
+        foulReason = `Hit opponent's ball first (Stripe ${firstHit})`;
+        givesBallInHand = true;
+      } else if (
+        currentPlayerBallType === "stripes" &&
+        firstHitType === "solid"
+      ) {
+        isFoul = true;
+        foulReason = `Hit opponent's ball first (Solid ${firstHit})`;
+        givesBallInHand = true;
+      } else if (currentPlayerBallType !== "open") {
+          // Check if player group is cleared (needed for 8-ball checks)
+          const targetBalls =
+              currentPlayerBallType === "solids"
+              ? [1, 2, 3, 4, 5, 6, 7]
+              : [9, 10, 11, 12, 13, 14, 15];
+          const playerGroupCleared = targetBalls.every((num) =>
+              table.pocketedBalls.includes(num),
+          );
+          if (firstHitType === "eight" && !playerGroupCleared) {
+              isFoul = true;
+              foulReason = "Hit 8-ball first before group cleared";
+              givesBallInHand = true;
+          }
+      } else if (currentPlayerBallType === "open" && firstHitType === "eight") {
+          // Special case for break maybe? For now, always a foul if 8 is hit first on open table.
+          isFoul = true;
+          foulReason = "Hit 8-ball first when table open";
+          givesBallInHand = true;
+      }
+
+      // 4. No Rail After Contact
+      // Check if any legal ball was pocketed
+      const pocketedLegalBall = newlyPocketed.some(num => {
+          const type = getBallType(num);
+          return (currentPlayerBallType === 'open' && (type === 'solid' || type === 'stripe')) ||
+                 (currentPlayerBallType === 'solids' && type === 'solid') ||
+                 (currentPlayerBallType === 'stripes' && type === 'stripe');
+      });
+
+      // Foul if no ball hit rail *after* contact AND no legal ball was pocketed
+      if (!isFoul && !pocketedLegalBall && !shotData.cueBallHitRail && !shotData.objectBallHitRailAfterContact) {
+          isFoul = true;
+          foulReason = "No rail contacted after initial hit (and no ball pocketed)";
+          givesBallInHand = true;
       }
     }
     // TODO: Add other fouls (e.g., ball off table, double hit, push shot)
@@ -790,6 +953,9 @@ export class GameState extends EventEmitter {
       console.log(
         `AnalyzeOutcome: Foul detected for ${currentPlayerId}: ${foulReason}`,
       );
+      // Increment player foul count (optional)
+      table.fouls[currentPlayerId] = (table.fouls[currentPlayerId] || 0) + 1;
+      table.lastUpdatedLocally = Date.now(); // Update timestamp for foul logging
     }
     // --- End Foul Checks ---
 
@@ -821,8 +987,8 @@ export class GameState extends EventEmitter {
       if (type === "eight") {
         pocketedEightBall = true;
       } else if (type === "solid" || type === "stripe") {
-        if (currentPlayerBallType === "open") {
-          pocketedOwnBall = true;
+        if (currentPlayerBallType === "open" && !ballTypeAssignedThisTurn) {
+          pocketedOwnBall = true; // Any non-8-ball pocketed on open table is 'good' initially
         } else if (
           (currentPlayerBallType === "solids" && type === "solid") ||
           (currentPlayerBallType === "stripes" && type === "stripe")
@@ -833,8 +999,9 @@ export class GameState extends EventEmitter {
     }
 
     // --- Check Win/Loss Conditions ---
-    // Re-check if group cleared AFTER processing newly pocketed balls
-    if (!playerGroupCleared && currentPlayerBallType !== "open") {
+    // Check if player group is cleared (re-check needed after ball assignment/pocketing)
+    let playerGroupCleared = false;
+    if (currentPlayerBallType !== "open") {
       const targetBalls =
         currentPlayerBallType === "solids"
           ? [1, 2, 3, 4, 5, 6, 7]
@@ -842,10 +1009,10 @@ export class GameState extends EventEmitter {
       playerGroupCleared = targetBalls.every((num) =>
         table.pocketedBalls.includes(num),
       );
-      if (playerGroupCleared) {
-        console.log(
-          `AnalyzeOutcome: Player ${currentPlayerId} has cleared their group (${currentPlayerBallType})`,
-        );
+      if (playerGroupCleared && newlyPocketed.some(n => targetBalls.includes(n))) {
+          console.log(
+              `AnalyzeOutcome: Player ${currentPlayerId} has cleared their group (${currentPlayerBallType}) on this shot.`,
+          );
       }
     }
 
@@ -855,11 +1022,11 @@ export class GameState extends EventEmitter {
       if (isFoul) {
         console.log(`AnalyzeOutcome: Loss - Pocketed 8-ball with foul.`);
         gameShouldEnd = true;
-        winnerId = opponentPlayerId; // opponentPlayerId is guaranteed string here
+        winnerId = opponentPlayerId;
       } else if (!playerGroupCleared && currentPlayerBallType !== "open") {
         console.log(`AnalyzeOutcome: Loss - Pocketed 8-ball too early.`);
         gameShouldEnd = true;
-        winnerId = opponentPlayerId; // opponentPlayerId is guaranteed string here
+        winnerId = opponentPlayerId;
       } else {
         console.log(`AnalyzeOutcome: Win - Legally pocketed 8-ball.`);
         gameShouldEnd = true;
@@ -867,135 +1034,181 @@ export class GameState extends EventEmitter {
       }
     }
 
-    // --- Determine Next Action ---
+    // --- Determine Next Action --- (modified to use givesBallInHand and breakScratchOccurred)
     let nextActionType: GameActionType | null = null;
     let actionData: any = {};
-    let givesBallInHand = false;
 
     if (gameShouldEnd) {
       nextActionType = "END_GAME";
-      actionData = { winnerId }; // winnerId is string | null, compatible
+      actionData = { winnerId };
     } else if (isFoul) {
-      nextActionType = "CHANGE_TURN" as GameActionType; // Use type assertion for now
-      givesBallInHand = true;
+      nextActionType = "CHANGE_TURN";
       actionData = {
         nextPlayerId: opponentPlayerId,
         ballInHand: givesBallInHand,
+        isBreakScratch: breakScratchOccurred,
       };
-    } else if (pocketedOwnBall) {
+    } else if (pocketedOwnBall || (ballTypeAssignedThisTurn && newlyPocketed.length > 0 && !newlyPocketed.includes(0))) {
       console.log(`AnalyzeOutcome: Player ${currentPlayerId} continues turn.`);
-      nextActionType = null; // Continue turn
+      nextActionType = null;
     } else {
       console.log(
-        `AnalyzeOutcome: Player ${currentPlayerId} turn ends (no legal pot).`,
+        `AnalyzeOutcome: Player ${currentPlayerId} turn ends (no legal pot or foul occurred without ball-in-hand).`,
       );
-      nextActionType = "CHANGE_TURN" as GameActionType; // Use type assertion for now
-      givesBallInHand = false;
+      nextActionType = "CHANGE_TURN";
       actionData = {
         nextPlayerId: opponentPlayerId,
-        ballInHand: givesBallInHand,
+        ballInHand: false,
+        isBreakScratch: false,
       };
     }
 
-    // --- Propose Action ---
+    // --- Propose Action --- (Ensure breakScratch flag is in data for CHANGE_TURN)
     if (nextActionType) {
-      console.log(`AnalyzeOutcome: Proposing action: ${nextActionType}`);
-      // Ensure actionData is correct based on type before proposing
-      if (nextActionType === "END_GAME") {
-        actionData = { winnerId };
-      } else if (nextActionType === "CHANGE_TURN") {
-        actionData = {
-          nextPlayerId: opponentPlayerId,
-          ballInHand: givesBallInHand,
-        };
-      }
+      console.log(`AnalyzeOutcome: Proposing action: ${nextActionType} with data:`, actionData);
       this.proposeAction({
-        // Use type assertion for workaround if necessary
         type: nextActionType as GameActionType,
-        tableId: tableId, // Pass tableId explicitly
+        tableId: tableId,
         playerId: currentPlayerId,
         data: actionData,
         timestamp: Date.now(),
       });
-    } else {
-      console.log(
-        `AnalyzeOutcome: No state-changing action proposed (player continues turn).`,
-      );
     }
 
-    // Clear pocketed balls for the next shot analysis
-    table.pocketedBallsBeforeShot = [];
+    // --- Cleanup --- Clean shot analysis data after processing
+    this.currentShotAnalysis.delete(tableId);
+    table.pocketedBallsBeforeShot = []; // Clear this as well
   }
 
   // --- End Shot Outcome Analysis ---
 
   public tick(tableId: string, deltaTime: number): void {
-    const table = this.tables.get(tableId);
-    if (!table || !table.gameStarted || table.gameEnded || !table.balls) {
-      return;
+    const gameTable = this.tables.get(tableId);
+    if (!gameTable || !gameTable.currentGame || !gameTable.physicsActive) return;
+
+    const shotData = this.currentShotAnalysis.get(tableId);
+    if (!shotData) {
+        console.error(`Tick error: Shot analysis data not found for table ${tableId}`);
+        this.stopGameLoop(tableId);
+        return;
     }
 
-    const activeBalls = table.balls.filter((ball) => !ball.pocketed);
-    if (activeBalls.length === 0) {
-      if (table.physicsActive) {
-        console.log(
-          `No active balls left, stopping physics for table ${tableId}`,
-        );
-        table.physicsActive = false;
-        // Re-enable call
-        this.analyzeShotOutcome(tableId);
-      }
-      return;
-    }
+    const initialPositions = gameTable.balls.map(b => ({ ...b.position }));
+    let cueBallContactMade = shotData.firstObjectBallHit !== null;
 
-    const areBallsMoving = activeBalls.some(
-      (b) => Math.sqrt(b.velocity.x ** 2 + b.velocity.y ** 2) > MIN_BALL_SPEED,
-    );
+    // --- Physics Update --- //
+    const previousVelocities = gameTable.balls.map(b => ({ ...b.velocity }));
 
-    if (!areBallsMoving) {
-      if (table.physicsActive) {
-        console.log(`Physics simulation ended for table ${tableId}`);
-        table.physicsActive = false;
-        // Re-enable call
-        this.analyzeShotOutcome(tableId);
-      }
-      return;
-    }
-
-    table.physicsActive = true;
-
-    const physicsObjects: PhysicsObject[] = activeBalls.map((ball) => ({
-      position: ball.position,
-      velocity: ball.velocity,
-      mass: ball.mass,
-      radius: ball.radius,
-      _originalNumber: ball.number, // Keep track of original ball number
+    // Map current balls to PhysicsObject for the engine
+    const physicsInput: PhysicsObject[] = gameTable.balls.map(b => ({
+        position: b.position,
+        velocity: b.velocity,
+        mass: b.mass,
+        radius: b.radius,
     }));
 
+    // Get updated physics data
     const updatedPhysicsObjects = this.physicsEngine.updatePhysics(
-      physicsObjects,
-      table.tableWidth,
-      table.tableHeight,
+      physicsInput, // Use the mapped array
+      gameTable.tableWidth,
+      gameTable.tableHeight,
       deltaTime,
     );
 
-    updatedPhysicsObjects.forEach((updatedObj) => {
-      // Find the original ball using the temporary _originalNumber property
-      const originalBall = activeBalls.find(
-        (b) => b.number === (updatedObj as any)._originalNumber,
-      );
-      if (originalBall) {
-        originalBall.position = updatedObj.position;
-        originalBall.velocity = updatedObj.velocity;
-
-        if (this.isPocketed(originalBall.position, table.pockets)) {
-          this.pocketBall(tableId, originalBall.number);
+    // Map updated data back to BallState, preserving number and pocketed status
+    gameTable.balls = gameTable.balls.map((originalBall, index) => {
+        const updatedPhysics = updatedPhysicsObjects[index];
+        if (!updatedPhysics) {
+            // Should not happen if lengths match, but handle defensively
+            console.error(`Mismatch in physics update for ball index ${index}, number ${originalBall.number}`);
+            return originalBall; // Return original state on error
         }
-      }
+        return {
+            ...originalBall, // Preserves number, pocketed, etc.
+            position: updatedPhysics.position,
+            velocity: updatedPhysics.velocity,
+        };
     });
 
-    table.lastUpdatedLocally = Date.now();
-    this.emit("state:updated", { tableId, state: table });
+    let anyBallMoving = false;
+    let railHitOccurredThisTick = false;
+
+    for (let i = 0; i < gameTable.balls.length; i++) {
+      const ball = gameTable.balls[i];
+      const prevVelocity = previousVelocities[i];
+      const initialPos = initialPositions[i];
+
+      // Check for pocketing
+      if (!ball.pocketed && this.isPocketed(ball.position, gameTable.pockets)) {
+        this.pocketBall(tableId, ball.number);
+        // Stop the ball once pocketed (or handle in pocketBall)
+        ball.velocity = { x: 0, y: 0 };
+      }
+
+      if (ball.pocketed) continue; // Ignore pocketed balls for physics checks
+
+      // Check if any ball is still moving
+      const speed = Math.sqrt(ball.velocity.x ** 2 + ball.velocity.y ** 2);
+      if (speed >= MIN_BALL_SPEED) {
+        anyBallMoving = true;
+      }
+
+      // --- Collision/Rail Hit Tracking for Fouls --- //
+      // 1. Check for first cue ball contact with an object ball
+      if (ball.number === 0 && !cueBallContactMade) {
+          for (let j = 0; j < gameTable.balls.length; j++) {
+              if (i === j || gameTable.balls[j].number === 0 || gameTable.balls[j].pocketed) continue;
+              const objBall = gameTable.balls[j];
+              const collision = this.physicsEngine.detectCollision(ball, objBall);
+              // Use position change or velocity change to detect actual collision event more reliably?
+              // For now, assume detectCollision is accurate for the *moment* of collision check.
+              // A more robust way might be to check distance < radii sum over the delta time.
+              if (collision.collided) {
+                  shotData.firstObjectBallHit = objBall.number;
+                  cueBallContactMade = true;
+                  console.log(`Tick: Cue ball first hit object ball ${objBall.number}`);
+                  break; // Only care about the first hit in this tick
+              }
+          }
+      }
+
+      // 2. Check for rail hits (crude check based on velocity change at boundary)
+      const pos = ball.position;
+      const radius = ball.radius;
+      let hitRail = false;
+      if ( (pos.x - radius <= 0 && ball.velocity.x < 0 && prevVelocity.x >= 0) ||
+           (pos.x + radius >= gameTable.tableWidth && ball.velocity.x > 0 && prevVelocity.x <= 0) ||
+           (pos.y - radius <= 0 && ball.velocity.y < 0 && prevVelocity.y >= 0) ||
+           (pos.y + radius >= gameTable.tableHeight && ball.velocity.y > 0 && prevVelocity.y <= 0) )
+      {
+            hitRail = true;
+            railHitOccurredThisTick = true; // Track if *any* rail hit happened this tick
+            //console.log(`Tick: Ball ${ball.number} hit rail.`);
+      }
+
+      // 3. Update rail hit flags in shotData
+      if (hitRail) {
+          if (ball.number === 0) {
+              shotData.cueBallHitRail = true;
+          } else if (cueBallContactMade) { // Only track object ball rail hits *after* contact
+              shotData.objectBallHitRailAfterContact = true;
+              //console.log(`Tick: Object ball ${ball.number} hit rail AFTER contact.`);
+          }
+      }
+      // --- End Collision/Rail Tracking --- //
+
+    }
+
+    gameTable.lastUpdatedLocally = Date.now();
+    this.emit("state:updated", { tableId, state: gameTable });
+
+    // Stop loop if nothing is moving
+    if (!anyBallMoving) {
+      console.log(`Tick: All balls stopped on table ${tableId}.`);
+      this.stopGameLoop(tableId);
+      // Now analyze the outcome using the collected shotData
+      this.analyzeShotOutcome(tableId);
+    }
   }
 
   // --- Game Loop Management ---

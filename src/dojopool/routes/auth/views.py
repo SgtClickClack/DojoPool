@@ -89,11 +89,16 @@ def register():
             generate_confirmation_token(user_id)
             # TODO: Send confirmation email
 
+            # --- ONBOARDING GLUE: Create wallet and redirect to avatar setup ---
+            from dojopool.coins.dojo_coins import DojoCoinsManager
+            wallet_manager = DojoCoinsManager()
+            wallet_manager.create_wallet(user_id)
+
             flash(
-                "Registration successful. Please check your email to confirm your account.",
+                "Registration successful. Please create your avatar.",
                 "success",
             )
-            return redirect(url_for("auth.login"))
+            return redirect(url_for("features.avatar_view"))
 
         flash("Error creating user account", "error")
         return render_template("auth/register.html")

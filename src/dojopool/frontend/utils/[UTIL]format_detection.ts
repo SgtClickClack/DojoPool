@@ -3,35 +3,14 @@
  */
 
 /**
- * Check if the browser supports AVIF format.
- * @returns Promise that resolves to true if AVIF is supported, false otherwise
+ * Check if the browser supports a specific image format.
+ * @param format The image format to check (e.g. 'avif', 'webp')
+ * @param data The base64-encoded image data for the format
+ * @returns Promise that resolves to true if the format is supported, false otherwise
  */
-export async function supportsAVIF(): Promise<boolean> {
-  const avifData =
-    "data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=";
-
+async function supportsFormat(format: string, data: string): Promise<boolean> {
   try {
-    const response = await fetch(avifData);
-    const blob = await response.blob();
-    return createImageBitmap(blob).then(
-      () => true,
-      () => false,
-    );
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Check if the browser supports WebP format.
- * @returns Promise that resolves to true if WebP is supported, false otherwise
- */
-export async function supportsWebP(): Promise<boolean> {
-  const webpData =
-    "data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
-
-  try {
-    const response = await fetch(webpData);
+    const response = await fetch(`data:image/${format};base64,${data}`);
     const blob = await response.blob();
     return createImageBitmap(blob).then(
       () => true,
@@ -49,11 +28,15 @@ export async function supportsWebP(): Promise<boolean> {
 export async function getBestSupportedFormat(): Promise<
   "avif" | "webp" | "jpg"
 > {
-  if (await supportsAVIF()) {
-    return "avif";
-  }
-  if (await supportsWebP()) {
-    return "webp";
+  const formats = [
+    { format: 'avif', data: "AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=" },
+    { format: 'webp', data: "UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=" },
+  ];
+
+  for (const { format, data } of formats) {
+    if (await supportsFormat(format, data)) {
+      return format;
+    }
   }
   return "jpg";
 }
@@ -155,4 +138,21 @@ export function createResponsivePictureElement(
             />
         </picture>
     `;
+}
+
+/**
+ * Detect the format of an image URL.
+ * @param url The image URL to detect the format for
+ * @returns The detected format ('avif', 'webp', or 'jpg') or undefined if unknown
+ */
+export function detectFormat(url: string): 'avif' | 'webp' | 'jpg' | undefined {
+  const ext = url.split('.').pop();
+  // Fix type assignment for format detection
+  const detectedFormat = (['avif', 'webp', 'jpg'] as const).find(
+    (format): format is 'avif' | 'webp' | 'jpg' => format === ext
+  );
+  if (detectedFormat) {
+    return detectedFormat;
+  }
+  return undefined;
 }

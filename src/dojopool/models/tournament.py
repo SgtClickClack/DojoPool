@@ -12,6 +12,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from enum import Enum
 from dojopool.core.extensions import db  # type: ignore
+from dojopool.models.user import User # Import User model
 
 
 class TournamentStatus(str, Enum):
@@ -58,12 +59,15 @@ class Tournament(db.Model):
     venue = db.relationship("dojopool.models.venue.Venue", backref=db.backref("tournaments", lazy=True))
     organizer = db.relationship("dojopool.models.user.User", backref=db.backref("organized_tournaments", lazy=True))
     matches = db.relationship("dojopool.models.tournament.TournamentMatch", backref="tournament", lazy=True)
+    participants = db.relationship("TournamentParticipant", backref="tournament", lazy='dynamic', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Tournament {self.name}>'
 
     def to_dict(self):
         """Convert tournament to dictionary."""
+        participant_count = self.participants.count() if self.participants else 0
+
         return {
             'id': self.id,
             'name': self.name,
@@ -80,7 +84,7 @@ class Tournament(db.Model):
             'format': self.format,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
-            'participant_count': len(self.participants),
+            'participant_count': participant_count,
             'venue': self.venue.to_dict() if self.venue else None,
             'organizer': self.organizer.to_dict() if self.organizer else None
         }
@@ -106,7 +110,7 @@ class Tournament(db.Model):
     @hybrid_property
     def participant_count(self) -> int:
         """Get number of participants."""
-        return len(self.participants)
+        return self.participants.count() if self.participants else 0
 
     def get_player_placement(self, user_id: int) -> Optional[int]:
         """Get player's placement in tournament."""
@@ -215,11 +219,10 @@ class TournamentParticipant(db.Model):
     payment_status = db.Column(db.String(50), default='pending')  # pending, paid, refunded
 
     # Relationships
-    user = db.relationship(
-        "dojopool.models.user.User",
-        back_populates="tournament_participations",
-        foreign_keys=[user_id]
-    )
+    user = db.relationship("User", back_populates="tournament_participations")
+
+    # Unique constraint to prevent double registration
+    __table_args__ = (db.UniqueConstraint('tournament_id', 'user_id', name='_tournament_user_uc'),)
 
     def __repr__(self):
         return f'<TournamentParticipant {self.user_id} in Tournament {self.tournament_id}>'
@@ -247,6 +250,7 @@ class TournamentMatch(db.Model):
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
     round = db.Column(db.Integer, nullable=False)
     match_number = db.Column(db.Integer, nullable=False)
+    bracket_type = db.Column(db.String(20), nullable=True)
     player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     winner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
@@ -283,6 +287,7 @@ class TournamentMatch(db.Model):
             'tournament_id': self.tournament_id,
             'round': self.round,
             'match_number': self.match_number,
+            'bracket_type': self.bracket_type,
             'player1_id': self.player1_id,
             'player2_id': self.player2_id,
             'winner_id': self.winner_id,
@@ -298,7 +303,6 @@ class TournamentMatch(db.Model):
 
 # --- Explicit imports to resolve SQLAlchemy mapping ---
 from dojopool.models.venue import Venue
-from dojopool.models.user import User
 from dojopool.models.tournament import TournamentParticipant
 
 # Attach participants relationship after TournamentParticipant is defined

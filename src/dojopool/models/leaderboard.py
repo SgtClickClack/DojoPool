@@ -37,7 +37,7 @@ class LeaderboardEntry(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     leaderboard_type = db.Column(db.String(50), nullable=False)  # global, regional, venue, tournament
     period = db.Column(db.String(50), nullable=False)  # all_time, monthly, weekly, daily
-    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'), nullable=True)
+    # region_id = db.Column(db.Integer, db.ForeignKey('regions.id'), nullable=True)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=True)
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=True)
     rank = db.Column(db.Integer, nullable=False)
@@ -50,7 +50,7 @@ class LeaderboardEntry(db.Model):
 
     # Relationships
     user = db.relationship('User', backref=db.backref('leaderboard_entries', lazy=True))
-    region = db.relationship('Region', backref=db.backref('leaderboard_entries', lazy=True))
+    # region = db.relationship('Region', backref=db.backref('leaderboard_entries', lazy=True))
     venue = db.relationship('Venue', backref=db.backref('leaderboard_entries', lazy=True))
     tournament = db.relationship('Tournament', backref=db.backref('leaderboard_entries', lazy=True))
 

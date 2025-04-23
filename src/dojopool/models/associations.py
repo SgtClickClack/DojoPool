@@ -54,14 +54,15 @@ user_roles = Table(
 )
 
 # Venue-Feature association table
-venue_features = Table(
-    "venue_features",
-    db.metadata,
-    Column("venue_id", Integer, ForeignKey("venues.id"), primary_key=True),
-    Column("feature_id", Integer, ForeignKey("features.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-)
+# venue_features = Table(
+#     "venue_features",
+#     db.metadata,
+#     Column("venue_id", Integer, ForeignKey("venues.id"), primary_key=True),
+#     Column("feature_id", Integer, ForeignKey("features.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+# )
 
+<<<<<<< HEAD
 # REMOVED: Duplicate chat_participants Table definition to resolve table mapping conflict
 # chat_participants = Table(
 #     "chat_participants",
@@ -71,6 +72,9 @@ venue_features = Table(
 # )
 
 # REMOVED: Conflicting chat_participants Table definition to resolve model/table mapping conflict
+=======
+# Chat-Participant association table
+>>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 # chat_participants = Table(
 #     "chat_participants",
 #     db.metadata,

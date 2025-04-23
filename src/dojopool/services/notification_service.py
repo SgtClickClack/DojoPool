@@ -12,6 +12,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
+from dojopool.story.story_engine import story_engine
 
 from dojopool.models.notification import Notification, NotificationType
 from dojopool.core.extensions import db
@@ -64,10 +65,12 @@ class NotificationService:
 
     @staticmethod
     def send_notification(user_id, type, title, message, data=None):
-        """Send a notification to a user."""
+        """Send a notification to a user, enriched with story context."""
+        # Enrich message with story context
+        enriched_message = story_engine.enrich_notification(user_id, type, message, data)
         # Create notification in database
         notification = Notification.create(
-            user_id=user_id, type=type, title=title, message=message, data=data
+            user_id=user_id, type=type, title=title, message=enriched_message, data=data
         )
 
         # Emit real-time notification

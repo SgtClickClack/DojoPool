@@ -10,7 +10,7 @@ class DevelopmentConfig(Config):
     ENV = "development"
 
     # Development database
-    SQLALCHEMY_DATABASE_URI = "sqlite:///instance/dev.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///C:/dev/DojoPoolONE/DojoPool/instance/dev.db"
 
     # Disable secure cookies in development
     SESSION_COOKIE_SECURE = False

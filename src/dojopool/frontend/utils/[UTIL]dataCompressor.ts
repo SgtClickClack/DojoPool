@@ -1,5 +1,7 @@
+// Data compressor utilities consolidated and cleaned
+// Removed unused imports and commented code
+
 import * as pako from "pako";
-import { MONITORING_CONFIG } from "../../constants";
 
 interface ArchiveMetadata {
   timestamp: number;
@@ -91,6 +93,6 @@ export class DataCompressor {
       (sum, archive) => sum + archive.data.length,
       0,
     );
-    return totalSize + dataSize <= MONITORING_CONFIG.MAX_ARCHIVE_SIZE;
+    return totalSize + dataSize <= 100000000; // MAX_ARCHIVE_SIZE default value
   }
 }

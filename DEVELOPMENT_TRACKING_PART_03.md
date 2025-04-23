@@ -284,6 +284,26 @@ Implemented comprehensive chaos testing framework for validating system resilien
 
 ---
 
+### 2025-04-19: Batch Maintenance Commit
+
+**Description:**
+Staged, committed, and pushed 39 files including configuration, source code, and test updates. This batch commit brings the local and remote repositories fully in sync and ensures all recent work is tracked. No merge artifacts or corrupted files remain.
+
+**Core Components Implemented/Updated:**
+- Updated project configuration files (`requirements.txt`, `package.json`, etc.)
+- Refactored and updated multiple backend scripts and modules
+- Updated and added tests for integration and unit coverage
+
+**File Paths:**
+- See commit `eeceb83` on GitHub for the full list of affected files.
+
+**Next Priority Task:**
+Review and update documentation, and continue with the next roadmap milestone.
+
+Expected completion time: 1 day
+
+---
+
 ### 2025-04-18: Wallet System Unification Initiative
 
 **Description:**
@@ -380,6 +400,7 @@ Refine `analyzeShotOutcome` in `GameState.ts` with detailed foul detection (no r
 
 Expected completion time: Ongoing (Frontend sprints), 2-3 days (GameState refinement)
 
+<<<<<<< HEAD
 ## Manual QA and Feature Testing (2025-04-22)
 
 - [x] Core gameplay (table integration, ball tracking, scoring)
@@ -484,3 +505,145 @@ Expected completion time: Ongoing (Frontend sprints), 2-3 days (GameState refine
 - [ ] Reporting (findings, risk assessment, remediation)
 
 **Reference:** See `security/pentest/plan.md` for full methodology and checklist. Update this section as each phase is completed.
+=======
+### 2024-07-29: Wallet Admin Helpers and Tournament Logic (Part 1)
+
+**Description:**
+Added admin/lifecycle helper methods (freeze, reactivate, get_audit_trail) to the `Wallet` model, integrating with the existing `AuditLogger`. Created corresponding protected API endpoints (`/admin/wallet/<user_id>/freeze`, etc.) and associated tests. Began implementation of the core `TournamentService` logic, including participant registration, starting tournaments (SE, RR, DE formats with initial match generation), completing matches, and checking for tournament completion (SE, RR, basic DE).
+
+**Core Components Implemented/Updated:**
+
+- `models.marketplace.Wallet`: Added `freeze`, `reactivate`, `get_audit_trail` methods; integrated `AuditLogger`; added `is_active` checks.
+- `core.venue.audit.AuditEventType`: Added wallet-specific event types.
+- `routes.api.marketplace`: Added admin endpoints for wallet management.
+- `tests.test_wallet_api`: Added tests for admin wallet endpoints.
+- `models.tournament.TournamentMatch`: Added `bracket_type` field.
+- `services.tournament_service`: Refactored `register_player`, `start_tournament`. Implemented match generation (`_create_single_elimination_brackets`, `_create_round_robin_matches`, `_create_double_elimination_brackets`). Implemented `complete_match` with advancement logic for SE and DE (winners/losers). Implemented `_check_tournament_completion` for SE, RR, and basic DE.
+- `tests.test_tournament_service`: Added initial tests for `register_player`, `start_tournament`, and `complete_match`.
+
+**File Paths:**
+
+- `DojoPool/src/dojopool/models/marketplace.py`
+- `DojoPool/src/dojopool/core/venue/audit.py`
+- `DojoPool/src/dojopool/routes/api/marketplace.py`
+- `DojoPool/tests/test_wallet_api.py`
+- `DojoPool/src/dojopool/models/tournament.py`
+- `DojoPool/src/dojopool/services/tournament_service.py`
+- `DojoPool/src/dojopool/routes/tournament_routes.py`
+- `DojoPool/tests/test_tournament_service.py`
+
+**Next Priority Task:**
+Complete remaining Tournament Logic: Implement Swiss pairing, enhance DE logic (Grand Finals, bracket reset), add more comprehensive tests, potentially refactor bracket generation for clarity/robustness, update/add API endpoints as needed.
+
+Expected completion time: 3-5 days (depending on complexity of Swiss/DE edge cases)
+
+---
+
+## [2025-04-19] GAME FLOW & USER JOURNEY EPICS
+
+This section tracks the step-by-step game flow, mapping each Epic/Feature to backend/frontend file paths and sub-tasks for clear AI/dev handoff. See `ROADMAP.md` for narrative context.
+
+### Epic 1: Landing Page & Account Creation
+- **Features:** Registration, login, wallet linking, avatar setup
+- **Paths:**
+  - `src/dojopool/routes/auth/views.py`
+  - `src/dojopool/models/user.py`
+  - `src/dojopool/coins/dojo_coins.py`
+  - `src/frontend/pages/register.tsx`, `login.tsx`
+- **Subtasks:**
+  - [ ] Ensure onboarding flow links wallet and avatar creation after registration
+  - [ ] Test login/logout/session flow
+
+### Epic 2: Dashboard (Main Hub)
+- **Features:** Avatar, map, marketplace, analytics, trophy cabinet, Dojo Coin balance
+- **Paths:**
+  - `src/dojopool/routes/dashboard.py`
+  - `src/frontend/pages/dashboard.tsx`
+  - `src/frontend/components/MapView.tsx`, `Marketplace.tsx`, `StatsPanel.tsx`
+- **Subtasks:**
+  - [ ] Integrate live stats, avatar, and map widgets
+  - [ ] Show contextual onboarding if first login
+
+### Epic 3: Avatar Creation & Customization
+- **Features:** Scan, customize, unlock via achievements
+- **Paths:**
+  - `src/dojopool/routes/features.py`
+  - `src/frontend/pages/avatar.tsx`, `components/AvatarEditor.tsx`
+- **Subtasks:**
+  - [ ] Implement avatar scan/upload and unlock logic
+  - [ ] Link avatar to achievements
+
+### Epic 4: Map & Venue Discovery
+- **Features:** Google Maps SDK, stylized, nearby venues, live occupancy
+- **Paths:**
+  - `src/dojopool/routes/venue.py`
+  - `src/frontend/components/MapView.tsx`
+- **Subtasks:**
+  - [ ] Show live venue occupancy/status
+  - [ ] Enable venue click-through for details/check-in
+
+### Epic 5: Entering Dojo (Venue Check-in)
+- **Features:** Geolocation/QR check-in, virtual venue, live games, avatars of checked-in users
+- **Paths:**
+  - `src/dojopool/routes/venue.py`
+  - `src/frontend/pages/venue/[id].tsx`, `components/CheckInButton.tsx`, `VenueSocial.tsx`
+- **Subtasks:**
+  - [ ] Gate all venue features by check-in status
+  - [ ] Show virtual venue UI with live users/games
+
+### Epic 6: Venue Interaction
+- **Features:** Deals, ordering, tournaments, user interaction
+- **Paths:**
+  - `src/dojopool/routes/venue.py`, `services/event_service.py`
+  - `src/frontend/components/DealsPanel.tsx`, `OrderPanel.tsx`, `TournamentsPanel.tsx`, `VenueChat.tsx`
+- **Subtasks:**
+  - [ ] Implement digital ordering (if supported)
+  - [ ] Show live deals
+  - [ ] Enable venue chat for checked-in users
+
+### Epic 7: Tournament Registration & Participation
+- **Features:** Register, pay with Dojo Coin, check-in at venue
+- **Paths:**
+  - `src/dojopool/services/tournament_service.py`, `routes/tournament_routes.py`
+  - `src/frontend/pages/tournaments.tsx`, `components/TournamentList.tsx`, `TournamentRegistration.tsx`
+- **Subtasks:**
+  - [ ] Integrate wallet payment for registration
+  - [ ] Show registration deadlines
+  - [ ] Enable bracket viewing
+
+### Epic 8: Playing a Game (Live Session)
+- **Features:** Real-world play tracked by AI/camera, live analytics, AI referee, commentary
+- **Paths:**
+  - `src/dojopool/services/game_service.py`, `services/analytics_service.py`
+  - `src/frontend/pages/game/[id].tsx`, `components/GameAnalytics.tsx`, `AICommentary.tsx`
+- **Subtasks:**
+  - [ ] Surface live game data
+  - [ ] Integrate AI commentary
+  - [ ] Show analytics overlays
+
+### Epic 9: Post-Game: Results & Rewards
+- **Features:** Results, analytics, rewards (Dojo Coin, NFTs, avatar unlocks), dashboard display
+- **Paths:**
+  - `src/dojopool/services/reward_service.py`, `services/activity_service.py`
+  - `src/frontend/pages/dashboard.tsx`, `components/RewardsPanel.tsx`, `TrophyCabinet.tsx`
+- **Subtasks:**
+  - [ ] Show post-game summary
+  - [ ] Distribute rewards
+  - [ ] Update user dashboard
+
+### Epic 10: Social & Chat
+- **Features:** Venue chat (checked-in users only), notifications, activity feed, friend invites
+- **Paths:**
+  - `src/dojopool/services/notification_service.py`, `services/social/friend.py`, `services/social/activity.py`
+  - `src/frontend/components/ChatRoom.tsx`, `NotificationsPanel.tsx`, `FriendsList.tsx`, `ActivityFeed.tsx`
+- **Subtasks:**
+  - [ ] Ensure chat is venue-scoped and presence-verified
+  - [ ] Integrate friend/invite system
+  - [ ] Show real-time notifications
+
+---
+
+- All epics above should be kept in sync with `ROADMAP.md`.
+- When new features or glue code are added, update both this file and the roadmap.
+- Use the file paths to organize further sub-tasks and implementation notes for each epic.
+>>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
