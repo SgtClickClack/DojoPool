@@ -114,7 +114,9 @@ class ShotRecommender:
                 narrative="",
                 visualization_data={}
             )
-            shots.append(expert_shot)
+            # Always ensure at least one EXPERT shot for expert players
+            if not any(s.difficulty == ShotDifficulty.EXPERT for s in shots):
+                shots.append(expert_shot)
         # Always include an EASY shot for novice players
         if player_skill_level <= 3:
             easy_shot = ShotRecommendation(
