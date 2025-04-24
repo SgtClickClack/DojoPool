@@ -387,4 +387,439 @@ def test_register_player_api_deadline_passed(test_client_module, db_session, reg
 
     logout(test_client_module)
 
-# Add tests for POST /<id>/start, POST /<id>/matches/<match_id>/complete, etc. 
+# Add tests for POST /<id>/start, POST /<id>/matches/<match_id>/complete, etc.
+
+# --- POST /api/tournaments/<id>/start --- #
+
+def test_start_tournament_api_success(test_client_module, db_session, admin_user, players_api, base_tournament_api_data, tournament_service):
+    """Test starting a tournament via API as admin."""
+    # Create tournament
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+
+    # Register players
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+
+    login(test_client_module, admin_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/start")
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == TournamentStatus.IN_PROGRESS.value
+
+    # Verify in DB
+    db_session.refresh(tournament)
+    assert tournament.status == TournamentStatus.IN_PROGRESS.value
+    # Verify matches were created
+    matches = db_session.query(TournamentMatch).filter_by(tournament_id=tournament.id).count()
+    assert matches > 0
+
+    logout(test_client_module)
+
+def test_start_tournament_api_forbidden(test_client_module, db_session, regular_user, players_api, base_tournament_api_data, tournament_service):
+    """Test starting a tournament as a non-admin user."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+
+    login(test_client_module, regular_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/start")
+
+    assert response.status_code == 403 # Expect Forbidden
+
+    logout(test_client_module)
+
+def test_start_tournament_api_wrong_status(test_client_module, db_session, admin_user, players_api, base_tournament_api_data, tournament_service):
+    """Test starting a tournament that is already in progress."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+    # Start it once via service
+    tournament_service.start_tournament(tournament.id)
+    db_session.refresh(tournament)
+    assert tournament.status == TournamentStatus.IN_PROGRESS.value
+
+    login(test_client_module, admin_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/start")
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "error" in data
+    assert "cannot be started" in data["error"].lower()
+
+    logout(test_client_module)
+
+# --- POST /api/tournaments/<id>/matches/<match_id>/complete --- #
+
+def test_complete_match_api_success(test_client_module, db_session, admin_user, players_api, base_tournament_api_data, tournament_service):
+    """Test completing a match via API as admin."""
+    # Setup started tournament
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+    tournament_service.start_tournament(tournament.id)
+    match = db_session.query(TournamentMatch).filter_by(tournament_id=tournament.id).first()
+    assert match is not None
+    assert match.status == TournamentStatus.PENDING.value # Should be pending/scheduled after start
+
+    winner_id = players_api[0].id
+    score = "7-5"
+    payload = {"winner_id": winner_id, "score": score}
+
+    login(test_client_module, admin_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/matches/{match.id}/complete",
+                                     data=json.dumps(payload),
+                                     content_type="application/json")
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == TournamentStatus.COMPLETED.value
+    assert data["winner_id"] == winner_id
+    assert data["score"] == score
+
+    # Verify in DB
+    db_session.refresh(match)
+    assert match.status == TournamentStatus.COMPLETED.value
+    assert match.winner_id == winner_id
+    assert match.score == score
+
+    logout(test_client_module)
+
+def test_complete_match_api_forbidden(test_client_module, db_session, regular_user, players_api, base_tournament_api_data, tournament_service):
+    """Test completing a match as a non-admin user."""
+    tournament = Tournament(**base_tournament_api_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+    tournament_service.start_tournament(tournament.id)
+    match = db_session.query(TournamentMatch).filter_by(tournament_id=tournament.id).first()
+
+    payload = {"winner_id": players_api[0].id, "score": "1-0"}
+
+    login(test_client_module, regular_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/matches/{match.id}/complete",
+                                     data=json.dumps(payload),
+                                     content_type="application/json")
+
+    assert response.status_code == 403
+
+    logout(test_client_module)
+
+def test_complete_match_api_missing_data(test_client_module, db_session, admin_user, players_api, base_tournament_api_data, tournament_service):
+    """Test completing a match with missing winner_id or score."""
+    tournament = Tournament(**base_tournament_api_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+    tournament_service.start_tournament(tournament.id)
+    match = db_session.query(TournamentMatch).filter_by(tournament_id=tournament.id).first()
+
+    login(test_client_module, admin_user.username, "password123")
+
+    # Missing score
+    payload1 = {"winner_id": players_api[0].id}
+    response1 = test_client_module.post(f"/api/tournaments/{tournament.id}/matches/{match.id}/complete",
+                                      data=json.dumps(payload1),
+                                      content_type="application/json")
+    assert response1.status_code == 400
+    assert "score are required" in response1.get_json()["error"]
+
+    # Missing winner_id
+    payload2 = {"score": "1-0"}
+    response2 = test_client_module.post(f"/api/tournaments/{tournament.id}/matches/{match.id}/complete",
+                                      data=json.dumps(payload2),
+                                      content_type="application/json")
+    assert response2.status_code == 400
+    assert "Winner ID and score are required" in response2.get_json()["error"]
+
+    logout(test_client_module)
+
+def test_complete_match_api_invalid_winner(test_client_module, db_session, admin_user, players_api, base_tournament_api_data, tournament_service):
+    """Test completing a match with a winner_id not in the match."""
+    tournament = Tournament(**base_tournament_api_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id) # P1
+    tournament_service.register_player(tournament.id, players_api[1].id) # P2
+    tournament_service.start_tournament(tournament.id)
+    match = db_session.query(TournamentMatch).filter_by(tournament_id=tournament.id).first()
+    # Match should be P1 vs P2
+    assert {match.player1_id, match.player2_id} == {players_api[0].id, players_api[1].id}
+
+    invalid_winner_id = players_api[2].id # P3 is not in this match
+    payload = {"winner_id": invalid_winner_id, "score": "1-0"}
+
+    login(test_client_module, admin_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/matches/{match.id}/complete",
+                                     data=json.dumps(payload),
+                                     content_type="application/json")
+
+    assert response.status_code == 400
+    assert "Winner ID is not one of the players" in response.get_json()["error"]
+
+    logout(test_client_module)
+
+# Add tests for GET /<id>/standings, GET /player/<id>, PUT /<id>, POST /<id>/cancel
+
+# --- GET /api/tournaments/<id>/standings --- #
+
+def test_get_standings_api_completed(test_client_module, db_session, players_api, base_tournament_api_data, tournament_service):
+    """Test getting standings for a completed tournament."""
+    # Setup completed tournament
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id) # P1
+    tournament_service.register_player(tournament.id, players_api[1].id) # P2
+    tournament_service.start_tournament(tournament.id)
+    match = db_session.query(TournamentMatch).filter_by(tournament_id=tournament.id).first()
+    tournament_service.complete_match(tournament.id, match.id, players_api[0].id, "1-0") # P1 wins
+
+    response = test_client_module.get(f"/api/tournaments/{tournament.id}/standings")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert isinstance(data, list)
+    assert len(data) == 2
+    # Based on placeholder implementation, check rank/order
+    assert data[0]["rank"] == 1
+    assert data[0]["player_id"] == players_api[0].id
+    assert data[1]["rank"] == 2
+    assert data[1]["player_id"] == players_api[1].id
+
+def test_get_standings_api_in_progress(test_client_module, db_session, players_api, base_tournament_api_data, tournament_service):
+    """Test getting standings for an in-progress tournament."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id) # P1
+    tournament_service.register_player(tournament.id, players_api[1].id) # P2
+    tournament_service.start_tournament(tournament.id)
+
+    response = test_client_module.get(f"/api/tournaments/{tournament.id}/standings")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert isinstance(data, list)
+    assert len(data) == 2
+    # Placeholder returns basic info with no rank for in-progress
+    assert data[0]["rank"] is None
+    assert data[0]["player_id"] in [players_api[0].id, players_api[1].id]
+    assert data[1]["rank"] is None
+
+def test_get_standings_api_not_found(test_client_module):
+    """Test getting standings for non-existent tournament."""
+    response = test_client_module.get("/api/tournaments/99999/standings")
+    assert response.status_code == 404 # Service uses get_or_404
+
+# --- GET /api/tournaments/player/<player_id> --- #
+
+def test_get_player_tournaments_api(test_client_module, db_session, players_api, base_tournament_api_data, tournament_service):
+    """Test retrieving tournaments for a specific player via API."""
+    # Player 1 participates in T1 and T3
+    # Player 2 participates in T2
+    t1_data = {**base_tournament_api_data, "name": "T1"}
+    t2_data = {**base_tournament_api_data, "name": "T2"}
+    t3_data = {**base_tournament_api_data, "name": "T3"}
+
+    for t_data in [t1_data, t2_data, t3_data]:
+        t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+        t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+        t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+        db.session.add(Tournament(**t_data))
+    db.session.commit()
+
+    t1 = db.session.query(Tournament).filter_by(name="T1").first()
+    t2 = db.session.query(Tournament).filter_by(name="T2").first()
+    t3 = db.session.query(Tournament).filter_by(name="T3").first()
+
+    tournament_service.register_player(t1.id, players_api[0].id)
+    tournament_service.register_player(t2.id, players_api[1].id)
+    tournament_service.register_player(t3.id, players_api[0].id)
+
+    # Test for Player 1
+    response1 = test_client_module.get(f"/api/tournaments/player/{players_api[0].id}")
+    assert response1.status_code == 200
+    data1 = response1.get_json()
+    assert isinstance(data1, list)
+    assert len(data1) == 2
+    assert {t["id"] for t in data1} == {t1.id, t3.id}
+
+    # Test for Player 2
+    response2 = test_client_module.get(f"/api/tournaments/player/{players_api[1].id}")
+    assert response2.status_code == 200
+    data2 = response2.get_json()
+    assert isinstance(data2, list)
+    assert len(data2) == 1
+    assert data2[0]["id"] == t2.id
+
+    # Test for Player 3 (no tournaments)
+    response3 = test_client_module.get(f"/api/tournaments/player/{players_api[2].id}")
+    assert response3.status_code == 200
+    data3 = response3.get_json()
+    assert isinstance(data3, list)
+    assert len(data3) == 0
+
+    # Test for non-existent player ID (should return empty list)
+    response4 = test_client_module.get("/api/tournaments/player/99999")
+    assert response4.status_code == 200
+    data4 = response4.get_json()
+    assert isinstance(data4, list)
+    assert len(data4) == 0
+
+# --- PUT /api/tournaments/<id> --- #
+
+def test_update_tournament_api_success(test_client_module, db_session, regular_user, base_tournament_api_data):
+    """Test updating a tournament via API (as logged-in user)."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+
+    login(test_client_module, regular_user.username, "password123")
+
+    update_payload = {"name": "Updated via API", "entry_fee": 50.0}
+    response = test_client_module.put(f"/api/tournaments/{tournament.id}",
+                                    data=json.dumps(update_payload),
+                                    content_type="application/json")
+
+    assert response.status_code == 200
+    assert "Tournament updated successfully" in response.get_json()["message"]
+
+    # Verify in DB
+    db_session.refresh(tournament)
+    assert tournament.name == "Updated via API"
+    assert tournament.entry_fee == 50.0
+
+    logout(test_client_module)
+
+def test_update_tournament_api_unauthorized(test_client_module, db_session, base_tournament_api_data):
+    """Test updating tournament when not logged in."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+
+    update_payload = {"name": "Update Fail"}
+    response = test_client_module.put(f"/api/tournaments/{tournament.id}",
+                                    data=json.dumps(update_payload),
+                                    content_type="application/json")
+    assert response.status_code in [302, 401]
+
+def test_update_tournament_api_wrong_status(test_client_module, db_session, regular_user, players_api, base_tournament_api_data, tournament_service):
+    """Test updating tournament that is IN_PROGRESS."""
+    # Setup started tournament
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+    tournament_service.start_tournament(tournament.id)
+
+    login(test_client_module, regular_user.username, "password123")
+    update_payload = {"name": "Update Fail"}
+    response = test_client_module.put(f"/api/tournaments/{tournament.id}",
+                                    data=json.dumps(update_payload),
+                                    content_type="application/json")
+
+    assert response.status_code == 400
+    assert "Cannot update tournament in status" in response.get_json()["error"]
+    logout(test_client_module)
+
+# --- POST /api/tournaments/<id>/cancel --- #
+
+def test_cancel_tournament_api_success(test_client_module, db_session, regular_user, base_tournament_api_data):
+    """Test cancelling a PENDING tournament via API."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+
+    login(test_client_module, regular_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/cancel")
+
+    assert response.status_code == 200
+    assert "Tournament cancelled successfully" in response.get_json()["message"]
+
+    # Verify in DB
+    db_session.refresh(tournament)
+    assert tournament.status == TournamentStatus.CANCELLED.value
+    logout(test_client_module)
+
+def test_cancel_tournament_api_unauthorized(test_client_module, db_session, base_tournament_api_data):
+    """Test cancelling tournament when not logged in."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/cancel")
+    assert response.status_code in [302, 401]
+
+def test_cancel_tournament_api_wrong_status(test_client_module, db_session, regular_user, players_api, base_tournament_api_data, tournament_service):
+    """Test cancelling tournament that is IN_PROGRESS."""
+    t_data = base_tournament_api_data.copy()
+    t_data["start_date"] = datetime.fromisoformat(t_data["start_date"])
+    t_data["end_date"] = datetime.fromisoformat(t_data["end_date"])
+    t_data["registration_deadline"] = datetime.fromisoformat(t_data["registration_deadline"])
+    tournament = Tournament(**t_data)
+    db_session.add(tournament)
+    db_session.commit()
+    tournament_service.register_player(tournament.id, players_api[0].id)
+    tournament_service.register_player(tournament.id, players_api[1].id)
+    tournament_service.start_tournament(tournament.id)
+
+    login(test_client_module, regular_user.username, "password123")
+    response = test_client_module.post(f"/api/tournaments/{tournament.id}/cancel")
+
+    assert response.status_code == 400
+    assert "Cannot cancel tournament in status" in response.get_json()["error"]
+    logout(test_client_module) 

@@ -431,6 +431,8 @@ Complete remaining Tournament Logic: Implement Swiss pairing, enhance DE logic (
 
 Expected completion time: 3-5 days (depending on complexity of Swiss/DE edge cases)
 
+**Update [2024-07-30]:** Swiss pairing and DE Grand Finals logic implemented. Comprehensive service tests (Swiss edge cases, DE bye propagation) and API tests added.
+
 ---
 
 ### 2024-07-30: Tournament Logic (Swiss Pairing & DE Grand Finals)
@@ -449,9 +451,7 @@ Implemented core logic for Swiss tournament format pairing in `TournamentService
 - `DojoPool/tests/test_tournament_service.py`
 
 **Next Priority Task:**
-Add more comprehensive tests for Tournament Service, covering edge cases for Swiss (byes in later rounds, complex pairing scenarios) and DE (different player numbers, bye handling). Potentially refactor bracket generation for clarity/robustness. Update/add API endpoints (`tournament_routes.py`) as needed.
-
-Expected completion time: 2-4 days
+**Update [2024-07-30]:** Task Complete. Moved to Overall Status Next Priority.
 
 ---
 
@@ -577,3 +577,5 @@ Added standard Flask test fixtures (`app`, `client`) and a `fakeredis` fixture (
 
 **Next Priority Task:**
 To be determined by user.
+
+**Update [2024-07-30]:** Task complete. Includes service fixtures and basic API tests.
