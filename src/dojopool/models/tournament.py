@@ -38,6 +38,7 @@ class Tournament(db.Model):
     """Model for managing tournaments."""
 
     __tablename__ = 'tournaments'
+    __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
@@ -205,110 +206,113 @@ class Tournament(db.Model):
         return len(sorted_players)
 
 
-class TournamentParticipant(db.Model):
-    """Model for tournament participants."""
+# class TournamentParticipant(db.Model):
+#     """Model for tournament participants."""
+#
+#     __tablename__ = 'tournament_participants'
+#     __table_args__ = {"extend_existing": True}
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+#     status = db.Column(db.String(50), default='registered')  # registered, checked_in, eliminated
+#     seed = db.Column(db.Integer, nullable=True)
+#     payment_status = db.Column(db.String(50), default='pending')  # pending, paid, refunded
+#     received_bye_round = db.Column(db.Integer, nullable=True) # Round number player received a bye, null if none
+#
+#     # Relationships
+#     user = db.relationship("User", back_populates="tournament_participations")
+#
+#     # Unique constraint to prevent double registration
+#     __table_args__ = (db.UniqueConstraint('tournament_id', 'user_id', name='_tournament_user_uc'),)
+#
+#     def __repr__(self):
+#         return f'<TournamentParticipant {self.user_id} in Tournament {self.tournament_id}>'
+#
+#     def to_dict(self):
+#         """Convert participant to dictionary."""
+#         return {
+#             'id': self.id,
+#             'tournament_id': self.tournament_id,
+#             'user_id': self.user_id,
+#             'registration_date': self.registration_date.isoformat(),
+#             'status': self.status,
+#             'seed': self.seed,
+#             'payment_status': self.payment_status,
+#             'received_bye_round': self.received_bye_round,
+#             'user': self.user.to_dict() if self.user else None
+#         }
 
-    __tablename__ = 'tournament_participants'
 
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    status = db.Column(db.String(50), default='registered')  # registered, checked_in, eliminated
-    seed = db.Column(db.Integer, nullable=True)
-    payment_status = db.Column(db.String(50), default='pending')  # pending, paid, refunded
-
-    # Relationships
-    user = db.relationship("User", back_populates="tournament_participations")
-
-    # Unique constraint to prevent double registration
-    __table_args__ = (db.UniqueConstraint('tournament_id', 'user_id', name='_tournament_user_uc'),)
-
-    def __repr__(self):
-        return f'<TournamentParticipant {self.user_id} in Tournament {self.tournament_id}>'
-
-    def to_dict(self):
-        """Convert participant to dictionary."""
-        return {
-            'id': self.id,
-            'tournament_id': self.tournament_id,
-            'user_id': self.user_id,
-            'registration_date': self.registration_date.isoformat(),
-            'status': self.status,
-            'seed': self.seed,
-            'payment_status': self.payment_status,
-            'user': self.user.to_dict() if self.user else None
-        }
-
-
-class TournamentMatch(db.Model):
-    """Model for tournament matches."""
-
-    __tablename__ = 'tournament_matches'
-
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
-    round = db.Column(db.Integer, nullable=False)
-    match_number = db.Column(db.Integer, nullable=False)
-    bracket_type = db.Column(db.String(20), nullable=True)
-    player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    winner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    status = db.Column(db.String(50), default='scheduled')  # scheduled, in_progress, completed
-    start_time = db.Column(db.DateTime, nullable=True)
-    end_time = db.Column(db.DateTime, nullable=True)
-    score = db.Column(db.String(50), nullable=True)  # Format: "7-5, 6-4"
-    table_number = db.Column(db.Integer, nullable=True)
-
-    # Relationships
-    player1 = db.relationship(
-        "dojopool.models.user.User",
-        foreign_keys=[player1_id],
-        backref=db.backref("matches_as_player1", lazy=True)
-    )
-    player2 = db.relationship(
-        "dojopool.models.user.User",
-        foreign_keys=[player2_id],
-        backref=db.backref("matches_as_player2", lazy=True)
-    )
-    winner = db.relationship(
-        "dojopool.models.user.User",
-        foreign_keys=[winner_id],
-        backref=db.backref("matches_won", lazy=True)
-    )
-
-    def __repr__(self):
-        return f'<TournamentMatch {self.match_number} in Round {self.round}>'
-
-    def to_dict(self):
-        """Convert match to dictionary."""
-        return {
-            'id': self.id,
-            'tournament_id': self.tournament_id,
-            'round': self.round,
-            'match_number': self.match_number,
-            'bracket_type': self.bracket_type,
-            'player1_id': self.player1_id,
-            'player2_id': self.player2_id,
-            'winner_id': self.winner_id,
-            'status': self.status,
-            'start_time': self.start_time.isoformat() if self.start_time else None,
-            'end_time': self.end_time.isoformat() if self.end_time else None,
-            'score': self.score,
-            'table_number': self.table_number,
-            'player1': self.player1.to_dict() if self.player1 else None,
-            'player2': self.player2.to_dict() if self.player2 else None,
-            'winner': self.winner.to_dict() if self.winner else None
-        }
+# class TournamentMatch(db.Model):
+#     """Model for tournament matches."""
+#
+#     __tablename__ = 'tournament_matches'
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'), nullable=False)
+#     round = db.Column(db.Integer, nullable=False)
+#     match_number = db.Column(db.Integer, nullable=False)
+#     bracket_type = db.Column(db.String(20), nullable=True)
+#     player1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+#     player2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+#     winner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+#     status = db.Column(db.String(50), default='scheduled')  # scheduled, in_progress, completed
+#     start_time = db.Column(db.DateTime, nullable=True)
+#     end_time = db.Column(db.DateTime, nullable=True)
+#     score = db.Column(db.String(50), nullable=True)  # Format: "7-5, 6-4"
+#     table_number = db.Column(db.Integer, nullable=True)
+#
+#     # Relationships
+#     player1 = db.relationship(
+#         "dojopool.models.user.User",
+#         foreign_keys=[player1_id],
+#         backref=db.backref("matches_as_player1", lazy=True)
+#     )
+#     player2 = db.relationship(
+#         "dojopool.models.user.User",
+#         foreign_keys=[player2_id],
+#         backref=db.backref("matches_as_player2", lazy=True)
+#     )
+#     winner = db.relationship(
+#         "dojopool.models.user.User",
+#         foreign_keys=[winner_id],
+#         backref=db.backref("matches_won", lazy=True)
+#     )
+#
+#     def __repr__(self):
+#         return f'<TournamentMatch {self.match_number} in Round {self.round}>'
+#
+#     def to_dict(self):
+#         """Convert match to dictionary."""
+#         return {
+#             'id': self.id,
+#             'tournament_id': self.tournament_id,
+#             'round': self.round,
+#             'match_number': self.match_number,
+#             'bracket_type': self.bracket_type,
+#             'player1_id': self.player1_id,
+#             'player2_id': self.player2_id,
+#             'winner_id': self.winner_id,
+#             'status': self.status,
+#             'start_time': self.start_time.isoformat() if self.start_time else None,
+#             'end_time': self.end_time.isoformat() if self.end_time else None,
+#             'score': self.score,
+#             'table_number': self.table_number,
+#             'player1': self.player1.to_dict() if self.player1 else None,
+#             'player2': self.player2.to_dict() if self.player2 else None,
+#             'winner': self.winner.to_dict() if self.winner else None
+#         }
 
 # --- Explicit imports to resolve SQLAlchemy mapping ---
 from dojopool.models.venue import Venue
-from dojopool.models.tournament import TournamentParticipant
+# from dojopool.models.tournament import TournamentParticipant
 
 # Attach participants relationship after TournamentParticipant is defined
 Tournament.participants = db.relationship(
     "dojopool.models.tournament.TournamentParticipant",
     backref="tournament",
     lazy=True,
-    foreign_keys=[TournamentParticipant.tournament_id]
+    foreign_keys=["TournamentParticipant.tournament_id"]
 )

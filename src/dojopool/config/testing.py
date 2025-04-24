@@ -46,7 +46,6 @@ class TestingConfig(Config):
 
     # Redis settings
     REDIS_URL = None  # Will use FakeRedis for testing
-    redis_client = FakeRedis()
 
     # Rate limiting settings
     RATELIMIT_ENABLED = False
@@ -58,6 +57,9 @@ class TestingConfig(Config):
     # File upload settings
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tests", "uploads")
+
+    # Note: Uvicorn command might not be needed if running directly like this,
+    # Add a descriptive comment for the MAIL_SERVER setting
 
     @classmethod
     def init_app(cls, app):
@@ -106,6 +108,7 @@ class TestingConfig(Config):
 
         # Clear Redis
         try:
-            cls.redis_client.flushall()
+            # cls.redis_client.flushall() <-- REMOVE THIS LINE
+            pass
         except:
             pass  # Ignore errors during cleanup

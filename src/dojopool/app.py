@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # try:
 #     import eventlet
 #     eventlet.monkey_patch()
@@ -9,7 +7,6 @@
 """Main application module."""
 
 import logging
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 import os
 import sys
 
@@ -174,16 +171,6 @@ def create_app(config_name=None, test_config=None):
         from dojopool.models.user import User
         return User.query.get(int(user_id))
 
-<<<<<<< HEAD
-    # --- Register Health Check Blueprint ---
-    try:
-        from dojopool.api.health import init_app as init_health
-        init_health(app)
-    except ImportError as e:
-        print(f"[ERROR] Could not import health check blueprint: {e}")
-    except Exception as e:
-        print(f"[ERROR] Could not register health check blueprint: {e}")
-=======
     # === Flask-DebugToolbar ===
     from flask_debugtoolbar import DebugToolbarExtension
     app.debug = True
@@ -197,7 +184,6 @@ def create_app(config_name=None, test_config=None):
     print(f"[DEBUG] main_bp object: {correct_main_bp}")
     app.register_blueprint(correct_main_bp)
     # Remove/comment out any other main_bp registrations here
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 
     # --- Register Tournament/Game Blueprint ---
     try:
@@ -228,21 +214,6 @@ def create_app(config_name=None, test_config=None):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    print("[DIAG] Starting app.py")
-    print("[DIAG] Entered __main__ block")
-    try:
-        print("[DIAG] Calling create_app()...")
-        app = create_app()
-        print("[DIAG] App created, starting socketio.run()...")
-        socketio.run(app, host='0.0.0.0', port=8000, debug=app.config.get("DEBUG", True), use_reloader=app.config.get("DEBUG", True))
-        print("[DIAG] socketio.run() exited")
-    except Exception as e:
-        import traceback
-        print("\n[ERROR] Exception during app startup:\n")
-        traceback.print_exc()
-        raise
-=======
     app = create_app()
     # Use socketio.run for development server with WebSocket support
     # Host='0.0.0.0' makes it accessible on the network
@@ -250,4 +221,3 @@ if __name__ == "__main__":
     # Note: Uvicorn command might not be needed if running directly like this,
     # unless specific ASGI features beyond Flask-SocketIO are required.
     # If using uvicorn, the app instance passed should be 'app', not 'socketio'.
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)

@@ -5,7 +5,7 @@ from ..core.extensions import db
 # Import all models to ensure SQLAlchemy sees all relationships and FKs
 from .user import *
 from .game import *
-from .tournament import *
+# from .tournament import *
 from .marketplace import *
 from .role import *
 from .player import *
@@ -36,7 +36,7 @@ from .ranking_history import *
 from .rankings import *
 from .cached_queries import *
 from .base import *
-from .associations import *
+# from .associations import *  # Commented out to prevent duplicate association table definitions
 from .session import *
 from .venue_amenity import *
 from .venue_checkin import *

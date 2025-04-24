@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request, current_app
 from flask_login import current_user, login_required
 
-from dojopool.models.tournament import Tournament
+from dojopool.core.tournaments.models import Tournament
 from dojopool.services.tournament_service import TournamentService
 from dojopool.utils.validators import validate_tournament_data
 from dojopool.core.decorators import admin_required

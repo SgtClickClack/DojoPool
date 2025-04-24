@@ -1,6 +1,6 @@
 import pytest
-from ...dojopool.game_analysis import GameAnalyzer, ShotAnalysis, GameState
-from ...dojopool.types import Shot, Ball, Position
+from dojopool.game_analysis import GameAnalyzer, ShotAnalysis, GameState
+from dojopool.types import Shot, Ball, Position
 
 # Test data
 test_game_state = {

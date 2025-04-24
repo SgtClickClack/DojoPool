@@ -6,7 +6,7 @@ from typing import Any, Dict
 from dojopool.models.achievements import Achievement
 from dojopool.models.game import Game
 from dojopool.models.rating import Rating
-from dojopool.models.tournament import Tournament
+from dojopool.core.tournaments.models import Tournament
 
 
 class StatisticsService:

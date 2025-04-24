@@ -135,15 +135,15 @@ class User(db.Model, UserMixin):
 
 # --- Explicit imports to resolve SQLAlchemy mapping ---
 from dojopool.models.game import Game
-from dojopool.models.tournament import TournamentParticipant
 from dojopool.models.role import Role
 
 # Attach tournament_participations relationship after TournamentParticipant is defined
-User.tournament_participations = relationship(
-    "dojopool.models.tournament.TournamentParticipant",
-    back_populates="user",
-    foreign_keys=[TournamentParticipant.user_id]
-)
+# from dojopool.models.tournament import TournamentParticipant
+# User.tournament_participations = relationship(
+#     "dojopool.models.tournament.TournamentParticipant",
+#     back_populates="user",
+#     foreign_keys=[TournamentParticipant.user_id]
+# )
 # Attach games_won relationship after Game is defined
 User.games_won = relationship(
     "dojopool.models.game.Game",

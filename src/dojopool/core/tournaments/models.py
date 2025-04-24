@@ -66,24 +66,37 @@ class Tournament(BaseModel):
     prizes = relationship("TournamentPrize", backref="tournament")
 
 
-class TournamentParticipant(BaseModel):
-    """Tournament participant model."""
+# --- REMOVED: TournamentParticipant model to resolve duplicate table definition ---
+# The canonical TournamentParticipant model is now only in dojopool/models/tournament.py
 
-    id = Column(Integer, primary_key=True)
-    tournament_id = Column(Integer, ForeignKey("tournaments.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    status = Column(
-        String(20), default="registered"
-    )  # registered, checked_in, active, eliminated, winner
-    seed = Column(Integer)
-    payment_status = Column(String(20), default="pending")  # pending, paid, refunded
-    check_in_time = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
-    user = relationship("User", backref="tournament_participations")
-    matches = relationship("TournamentMatchPlayer", backref="participant")
+# class TournamentParticipant(BaseModel):
+#     """Tournament participant model."""
+#     __tablename__ = "tournament_participants"
+#     id = Column(Integer, primary_key=True)
+#     tournament_id = Column(Integer, ForeignKey("tournaments.id"), nullable=False)
+#     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+#     registration_date = Column(DateTime, default=datetime.utcnow)
+#     status = Column(String(20), default="registered")
+#     seed = Column(Integer)
+#     payment_status = Column(String(20), default="unpaid")
+#     received_bye_round = Column(Integer)
+#     user = relationship("User", backref="tournament_participations")
+#     __table_args__ = (UniqueConstraint('tournament_id', 'user_id', name='_tournament_user_uc'),)
+#     def __repr__(self):
+#         return f'<TournamentParticipant {self.user_id} in Tournament {self.tournament_id}>'
+#     def to_dict(self):
+#         return {
+#             'id': self.id,
+#             'tournament_id': self.tournament_id,
+#             'user_id': self.user_id,
+#             'registration_date': self.registration_date.isoformat(),
+#             'status': self.status,
+#             'seed': self.seed,
+#             'payment_status': self.payment_status,
+#             'received_bye_round': self.received_bye_round,
+#             'user': self.user.to_dict() if self.user else None
+#         }
 
 
 class TournamentBracket(BaseModel):

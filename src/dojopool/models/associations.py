@@ -1,5 +1,8 @@
 """Association tables for many-to-many relationships."""
 
+# All association tables in this file are now commented out to avoid duplicate table definition errors.
+# If you need to add a new association table, ensure it is not defined elsewhere.
+
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table
@@ -43,15 +46,15 @@ from .base import db
 #     Column("created_at", DateTime, default=datetime.utcnow),
 # )
 
-# User-Role association table
-user_roles = Table(
-    "user_roles",
-    db.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("role_id", Integer, ForeignKey("roles.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-    extend_existing=True,
-)
+# The canonical user_roles association table is defined in user_roles.py. This definition is commented out to prevent duplicate table errors.
+# user_roles = Table(
+#     "user_roles",
+#     db.metadata,
+#     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+#     Column("role_id", Integer, ForeignKey("roles.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+#     extend_existing=True,
+# )
 
 # Venue-Feature association table
 # venue_features = Table(
@@ -62,7 +65,6 @@ user_roles = Table(
 #     Column("created_at", DateTime, default=datetime.utcnow),
 # )
 
-<<<<<<< HEAD
 # REMOVED: Duplicate chat_participants Table definition to resolve table mapping conflict
 # chat_participants = Table(
 #     "chat_participants",
@@ -72,9 +74,8 @@ user_roles = Table(
 # )
 
 # REMOVED: Conflicting chat_participants Table definition to resolve model/table mapping conflict
-=======
-# Chat-Participant association table
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
+
+# Canonical chat_participants association table is defined elsewhere (chat.py). This definition is commented out to prevent duplicate table errors, following the established modular model pattern.
 # chat_participants = Table(
 #     "chat_participants",
 #     db.metadata,
@@ -84,11 +85,11 @@ user_roles = Table(
 #     Column("last_read_at", DateTime, nullable=True),
 # )
 
-# Match-Player association table
-match_players = Table(
-    "match_players",
-    db.metadata,
-    Column("match_id", Integer, ForeignKey("matches.id"), primary_key=True),
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("created_at", DateTime, default=datetime.utcnow),
-)
+# Canonical match_players association table is defined elsewhere (core or matches.py). This definition is commented out to prevent duplicate table errors, following the established modular model pattern.
+# match_players = Table(
+#     "match_players",
+#     db.metadata,
+#     Column("match_id", Integer, ForeignKey("matches.id"), primary_key=True),
+#     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+#     Column("created_at", DateTime, default=datetime.utcnow),
+# )
