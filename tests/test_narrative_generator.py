@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from src.narrative.narrative_generator import NarrativeGenerator, Event, EventType
+from dojopool.narrative.narrative_generator import NarrativeGenerator, Event, EventType
 
 
 @pytest.fixture

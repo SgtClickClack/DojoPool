@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from unittest.mock import Mock, patch
 from datetime import datetime, timedelta
-from src.api.api_handler import APIHandler
+from dojopool.api.api_handler import APIHandler
 
 
 # Fixture for API Handler

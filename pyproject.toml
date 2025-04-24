@@ -73,3 +73,14 @@ exclude_lines = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
 ]
+
+[tool.uv.sources]
+dojopool = { path = "src/dojopool", editable = true }
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-flask",
+    "fakeredis[lua]",
+]

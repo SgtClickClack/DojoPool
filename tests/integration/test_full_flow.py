@@ -1,8 +1,8 @@
 import pytest
-from src.api.api_handler import APIHandler
-from src.narrative.narrative_generator import NarrativeGenerator
-from src.ranking.ranking_system import RankingSystem
-from src.spectator.spectator_system import SpectatorSystem
+from dojopool.api.api_handler import APIHandler
+from dojopool.narrative.narrative_generator import NarrativeGenerator
+from dojopool.ranking.ranking_system import RankingSystem
+from dojopool.spectator.spectator_system import SpectatorSystem
 
 
 @pytest.mark.asyncio
