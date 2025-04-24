@@ -17,10 +17,11 @@
     "ws": "^8.18.1"
   },
   "dependencies": {
-    "@mui/icons-material": "^5.15.10",
-    "@mui/material": "^5.17.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.17.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-jaeger": "^2.0.0",
     "@opentelemetry/sdk-node": "^0.200.0",
