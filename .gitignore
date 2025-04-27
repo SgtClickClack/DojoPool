@@ -77,3 +77,8 @@ build/
 # Logs
 *.log
 logs/
+
+# Next.js build files
+.next/
+out/
+build/
