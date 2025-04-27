@@ -29,3 +29,8 @@ def terms():
 def privacy():
     """Privacy policy."""
     return render_template("privacy.html")
+
+
+@main_bp.route("/test-cascade")
+def test_cascade():
+    return "CASCADE FLASK ROUTE OK"

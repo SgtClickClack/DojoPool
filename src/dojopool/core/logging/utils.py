@@ -3,7 +3,6 @@
 import functools
 import logging
 import time
-import traceback
 from typing import Any, Callable, Optional
 
 from flask import current_app, has_request_context, request
@@ -50,7 +49,7 @@ def log_function_call(func: Callable) -> Callable:
 
             # Log error with traceback
             context.update(
-                {"duration": duration, "error": str(e), "traceback": traceback.format_exc()}
+                {"duration": duration, "error": str(e), "traceback": logging.Formatter().formatException(e)}
             )
             logger.error(f"Error in {func.__name__}: {str(e)}", extra=context)
             raise
@@ -75,7 +74,7 @@ def log_error(
     context = {
         "error_type": type(error).__name__,
         "error_message": str(error),
-        "traceback": traceback.format_exc(),
+        "traceback": logging.Formatter().formatException(error),
         **kwargs,
     }
 

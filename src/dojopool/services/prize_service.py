@@ -5,8 +5,8 @@ from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
 from dojopool.core.extensions import db
+from dojopool.core.tournaments.models import Tournament, TournamentParticipant
 from dojopool.models.notification import Notification
-from dojopool.models.tournament import Tournament, TournamentParticipant
 
 
 class PrizeDistributionRule:

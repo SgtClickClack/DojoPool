@@ -124,70 +124,77 @@ class ShotPhysics:
         collision_point = ball1.position + ball1.velocity * t
 
         # Determine collision type
-        angle = rel_pos.angle(rel_vel)
-        if angle < np.pi / 6:  # 30 degrees
-            collision_type = CollisionType.DIRECT
-        else:
-            collision_type = CollisionType.GLANCING
+        # If the relative velocity is nearly parallel to the line joining centers, treat as DIRECT
+        n = rel_pos.normalize()
+        v_dir = rel_vel.normalize()
+        direction_dot = abs(n.dot(v_dir))
+        print(f"predict_collision: rel_pos={rel_pos}, rel_vel={rel_vel}")
+        print(f"predict_collision: n={n}, v_dir={v_dir}, direction_dot={direction_dot}")
 
+        # Debug output for test diagnosis
+        if direction_dot > 0.999:
+            print("CollisionType: DIRECT")
+            collision_type = CollisionType.DIRECT
+        elif abs(rel_pos.angle(rel_vel)) <= np.pi / 2:
+            print("CollisionType: GLANCING")
+            collision_type = CollisionType.GLANCING
+        else:
+            print("CollisionType: NONE")
+            collision_type = CollisionType.NONE
+
+        print(f"collision_point={collision_point}, collision_type={collision_type}")
         return collision_point, collision_type
 
     def calculate_post_collision_velocities(
         self, ball1: Ball, ball2: Ball
     ) -> Tuple[Vector2D, Vector2D]:
         """Calculate velocities after collision."""
-        # Get normal and tangent vectors
-        normal = (ball2.position - ball1.position).normalize()
-        tangent = Vector2D(-normal.y, normal.x)
-
-        # Project velocities onto normal and tangent
-        v1n = normal.dot(ball1.velocity)
-        v1t = tangent.dot(ball1.velocity)
-        v2n = normal.dot(ball2.velocity)
-        v2t = tangent.dot(ball2.velocity)
-
-        # Calculate new normal velocities (elastic collision)
         m1, m2 = ball1.mass, ball2.mass
-        e = ball1.elasticity
+        u1, u2 = ball1.velocity, ball2.velocity
+        x1, x2 = ball1.position, ball2.position
 
-        v1n_new = (m1 * v1n + m2 * v2n - m2 * e * (v1n - v2n)) / (m1 + m2)
-        v2n_new = (m1 * v1n + m2 * v2n + m1 * e * (v1n - v2n)) / (m1 + m2)
+        n = (x2 - x1).normalize()
+        rel_vel = (u1 - u2).dot(n)
+        print(f"calculate_post_collision_velocities: u1={u1}, u2={u2}, n={n}, rel_vel={rel_vel}")
+        if rel_vel >= 0:
+            print("Balls are not moving together, no collision.")
+            return u1, u2
 
-        # Combine normal and tangential components
-        v1_new = normal * v1n_new + tangent * v1t
-        v2_new = normal * v2n_new + tangent * v2t
+        e = min(ball1.elasticity, ball2.elasticity)
+        j = -(1 + e) * rel_vel / (1/m1 + 1/m2)
+        v1 = u1 + n * (j / m1)
+        v2 = u2 - n * (j / m2)
+        print(f"calculate_post_collision_velocities: v1={v1}, v2={v2}")
+        return v1, v2
 
-        return v1_new, v2_new
-
-    def check_rail_collision(
-        self, ball: Ball, dt: float = 0.001
-    ) -> Tuple[Optional[Vector2D], bool]:
+    def check_rail_collision(self, ball: Ball, dt: float = 0.001) -> Tuple[Vector2D, bool]:
         """Check for collision with rails."""
-        # Project position forward
-        next_pos = ball.position + ball.velocity * dt
-
-        # Check boundaries
-        hit_vertical = False
-        hit_horizontal = False
-
-        if next_pos.x - ball.radius < 0:
-            next_pos.x = ball.radius
-            hit_vertical = True
-        elif next_pos.x + ball.radius > self.table.width:
-            next_pos.x = self.table.width - ball.radius
-            hit_vertical = True
-
-        if next_pos.y - ball.radius < 0:
-            next_pos.y = ball.radius
-            hit_horizontal = True
-        elif next_pos.y + ball.radius > self.table.height:
-            next_pos.y = self.table.height - ball.radius
-            hit_horizontal = True
-
-        if hit_vertical or hit_horizontal:
-            return next_pos, True
-
-        return None, False
+        x, y = ball.position.x, ball.position.y
+        r = ball.radius
+        w, h = self.table.width, self.table.height
+        hit = False
+        pos = ball.position
+        print(f"check_rail_collision: x={x}, y={y}, r={r}, w={w}, h={h}")
+        # Check left and right rails
+        if x - r <= 2e-3:
+            print("Rail collision: LEFT")
+            pos = Vector2D(r, y)
+            hit = True
+        elif x + r >= w - 2e-3:
+            print("Rail collision: RIGHT")
+            pos = Vector2D(w - r, y)
+            hit = True
+        # Check top and bottom rails
+        if y - r <= 2e-3:
+            print("Rail collision: TOP")
+            pos = Vector2D(pos.x, r)
+            hit = True
+        elif y + r >= h - 2e-3:
+            print("Rail collision: BOTTOM")
+            pos = Vector2D(pos.x, h - r)
+            hit = True
+        print(f"check_rail_collision: pos={pos}, hit={hit}")
+        return pos, hit
 
     def calculate_rail_bounce(self, ball: Ball, hit_vertical: bool) -> Vector2D:
         """Calculate velocity after rail bounce."""

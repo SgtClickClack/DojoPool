@@ -14,8 +14,15 @@ def dashboard():
     """Render the main dashboard page."""
     # Get user statistics
     stats = StatisticsService.get_user_statistics(g.user_id)
-
-    return render_template("dashboard.html", stats=stats, active_page="dashboard")
+    # Get user object (with avatar and wallet info)
+    from dojopool.models.user import User
+    user = User.query.get(g.user_id)
+    # Attach wallet_balance if available
+    if hasattr(user, 'wallet') and user.wallet:
+        user.wallet_balance = user.wallet.balance
+    else:
+        user.wallet_balance = 0
+    return render_template("dashboard.html", user=user, stats=stats, active_page="dashboard")
 
 
 @bp.route("/api/dashboard/stats")

@@ -1,4 +1,5 @@
-import { LOCATION_OPTIONS } from "../../constants";
+// Location utilities consolidated and cleaned
+// Removed unused imports and commented code
 
 export interface Location {
   latitude: number;
@@ -25,7 +26,11 @@ export function watchLocation(
       });
     },
     onError,
-    LOCATION_OPTIONS,
+    {
+      enableHighAccuracy: true,
+      maximumAge: 30000,
+      timeout: 27000,
+    },
   );
 
   return () => navigator.geolocation.clearWatch(watchId);
@@ -48,7 +53,11 @@ export function getCurrentLocation(): Promise<Location> {
         });
       },
       reject,
-      LOCATION_OPTIONS,
+      {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 27000,
+      },
     );
   });
 }

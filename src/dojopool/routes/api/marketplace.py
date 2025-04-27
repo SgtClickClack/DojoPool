@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, g
 from sqlalchemy import or_, desc, asc
 
 from ...models.marketplace import MarketplaceItem, Transaction, Wallet, UserInventory
 from ...services.auth import login_required
 from ...core.extensions import db # Import the SQLAlchemy db session
+from ...core.decorators import admin_required # Assuming this exists
 
 # Imports are correct, using unified models
 # --- All API endpoint logic below should now use the unified Wallet and Transaction models ---
@@ -219,3 +220,79 @@ def get_item_preview(item_id):
         current_app.logger.error(f"Error fetching item preview {item_id}: {str(e)}", exc_info=True)
         current_app.logger.error(f"Error fetching item preview: {str(e)}")
         return jsonify({"error": "Failed to fetch item preview"}), 500
+
+# --- Admin Wallet Routes ---
+
+@marketplace.route("/admin/wallet/<int:user_id>/freeze", methods=["POST"])
+@login_required
+@admin_required
+def admin_freeze_wallet(user_id):
+    """Admin endpoint to freeze a user's wallet."""
+    reason = request.json.get("reason", "Admin action")
+    admin_user_id = str(g.user.id) # Get admin ID from context (adjust if needed)
+
+    wallet = db.session.query(Wallet).filter_by(user_id=user_id).first()
+    if not wallet:
+        return jsonify({"error": "Wallet not found for user"}), 404
+
+    try:
+        wallet.freeze(reason=reason, admin_user_id=admin_user_id)
+        return jsonify({"success": True, "message": f"Wallet for user {user_id} frozen.", "status": wallet.is_active}), 200
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error freezing wallet {user_id}: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to freeze wallet"}), 500
+
+@marketplace.route("/admin/wallet/<int:user_id>/reactivate", methods=["POST"])
+@login_required
+@admin_required
+def admin_reactivate_wallet(user_id):
+    """Admin endpoint to reactivate a user's wallet."""
+    reason = request.json.get("reason", "Admin action")
+    admin_user_id = str(g.user.id) # Get admin ID from context
+
+    wallet = db.session.query(Wallet).filter_by(user_id=user_id).first()
+    if not wallet:
+        return jsonify({"error": "Wallet not found for user"}), 404
+
+    try:
+        wallet.reactivate(reason=reason, admin_user_id=admin_user_id)
+        return jsonify({"success": True, "message": f"Wallet for user {user_id} reactivated.", "status": wallet.is_active}), 200
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error reactivating wallet {user_id}: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to reactivate wallet"}), 500
+
+@marketplace.route("/admin/wallet/<int:user_id>/audit", methods=["GET"])
+@login_required
+@admin_required
+def admin_get_wallet_audit(user_id):
+    """Admin endpoint to get the audit trail for a user's wallet."""
+    wallet = db.session.query(Wallet).filter_by(user_id=user_id).first()
+    if not wallet:
+        return jsonify({"error": "Wallet not found for user"}), 404
+
+    try:
+        # Potential parameters for filtering audit trail (start_date, end_date)
+        start_date_str = request.args.get("start_date")
+        end_date_str = request.args.get("end_date")
+        start_time = datetime.fromisoformat(start_date_str) if start_date_str else None
+        end_time = datetime.fromisoformat(end_date_str) if end_date_str else None
+
+        audit_trail = wallet.get_audit_trail(start_time=start_time, end_time=end_time)
+
+        # Log the audit access by the admin
+        admin_user_id = str(g.user.id)
+        wallet._log_wallet_event(
+            event_type=AuditEventType.WALLET_AUDIT,
+            action="Wallet Audit Accessed by Admin",
+            status="success",
+            details={"admin_user_id": admin_user_id, "filters": {"start_time": start_date_str, "end_time": end_date_str}}
+        )
+
+        return jsonify(audit_trail), 200
+    except ValueError as ve:
+         return jsonify({"error": f"Invalid date format: {ve}"}), 400
+    except Exception as e:
+        current_app.logger.error(f"Error fetching audit trail for wallet {user_id}: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to fetch audit trail"}), 500

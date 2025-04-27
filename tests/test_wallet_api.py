@@ -34,6 +34,25 @@ def login_user(client, username="testuser", password="password123"):
     assert resp.status_code == 200
     return resp.get_json()["access_token"]
 
+def create_admin_user(client, username="adminuser", email="admin@example.com"):
+    resp = client.post(
+        url_for("auth.register"),
+        json={"username": username, "email": email, "password": "password123"},
+    )
+    assert resp.status_code == 201
+    user_id = resp.get_json()["user"]["id"]
+    # Assign admin role
+    with client.application.app_context():
+        user = db.session.query(User).get(user_id)
+        admin_role = db.session.query(Role).filter_by(name='admin').first()
+        if not admin_role:
+            admin_role = Role(name='admin')
+            db.session.add(admin_role)
+            db.session.commit()
+        user.roles.append(admin_role)
+        db.session.commit()
+    return user_id
+
 @pytest.fixture(scope="module")
 def client():
     app = create_app(config_name="testing")
@@ -51,6 +70,13 @@ def auth_client(client):
     token = login_user(client, username="testuser", password="password123")
     client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
     return client, user_id
+
+@pytest.fixture
+def admin_auth_client(client):
+    admin_user_id = create_admin_user(client)
+    token = login_user(client, username="adminuser", password="password123")
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
+    return client, admin_user_id
 
 def test_wallet_creation_and_fetch(auth_client):
     client, user_id = auth_client
@@ -94,3 +120,76 @@ def test_wallet_transactions_endpoint(auth_client):
         assert "amount" in tx
         assert "status" in tx
         assert "type" in tx
+
+def test_admin_freeze_wallet(admin_auth_client, auth_client):
+    admin_client, _ = admin_auth_client
+    _, normal_user_id = auth_client # Get a regular user's ID
+
+    # Ensure wallet exists
+    resp = admin_client.get(url_for("marketplace.get_wallet", _external=False), headers={"Authorization": admin_client.environ_base["HTTP_AUTHORIZATION"].replace(str(normal_user_id), str(admin_client[1]))}) # Need to fix how client is passed/used
+    # Hacky way to get normal user wallet, fix fixture interaction later
+    normal_client, normal_user_id = auth_client
+    resp_get = normal_client.get(url_for("marketplace.get_wallet"))
+    assert resp_get.status_code == 200
+    assert resp_get.get_json()["is_active"] is True
+
+    # Freeze the wallet
+    freeze_resp = admin_client.post(url_for("marketplace.admin_freeze_wallet", user_id=normal_user_id), json={"reason": "Test freeze"})
+    assert freeze_resp.status_code == 200
+    assert freeze_resp.get_json()["success"] is True
+    assert freeze_resp.get_json()["status"] is False
+
+    # Verify wallet is inactive
+    resp_check = normal_client.get(url_for("marketplace.get_wallet"))
+    assert resp_check.status_code == 200
+    assert resp_check.get_json()["is_active"] is False
+
+def test_admin_reactivate_wallet(admin_auth_client, auth_client):
+    admin_client, _ = admin_auth_client
+    normal_client, normal_user_id = auth_client
+
+    # First, freeze the wallet (using admin client)
+    freeze_resp = admin_client.post(url_for("marketplace.admin_freeze_wallet", user_id=normal_user_id), json={"reason": "Test setup"})
+    assert freeze_resp.status_code == 200
+    assert freeze_resp.get_json()["status"] is False
+
+    # Reactivate the wallet
+    reactivate_resp = admin_client.post(url_for("marketplace.admin_reactivate_wallet", user_id=normal_user_id), json={"reason": "Test reactivate"})
+    assert reactivate_resp.status_code == 200
+    assert reactivate_resp.get_json()["success"] is True
+    assert reactivate_resp.get_json()["status"] is True
+
+    # Verify wallet is active again
+    resp_check = normal_client.get(url_for("marketplace.get_wallet"))
+    assert resp_check.status_code == 200
+    assert resp_check.get_json()["is_active"] is True
+
+def test_admin_get_wallet_audit(admin_auth_client, auth_client):
+    admin_client, _ = admin_auth_client
+    _, normal_user_id = auth_client
+
+    # Perform some actions to generate audit logs (e.g., freeze/reactivate)
+    admin_client.post(url_for("marketplace.admin_freeze_wallet", user_id=normal_user_id), json={"reason": "Audit test freeze"})
+    admin_client.post(url_for("marketplace.admin_reactivate_wallet", user_id=normal_user_id), json={"reason": "Audit test reactivate"})
+
+    # Get audit trail
+    audit_resp = admin_client.get(url_for("marketplace.admin_get_wallet_audit", user_id=normal_user_id))
+    assert audit_resp.status_code == 200
+    audit_data = audit_resp.get_json()
+    assert isinstance(audit_data, list)
+    # Check for expected events
+    assert len(audit_data) >= 3 # Freeze, Reactivate, Audit Access Logged
+    event_types = [event["event_type"] for event in audit_data]
+    assert "wallet_freeze" in event_types
+    assert "wallet_reactivate" in event_types
+    assert "wallet_audit" in event_types
+
+def test_admin_access_control(auth_client):
+    normal_client, normal_user_id = auth_client
+
+    # Try to access admin endpoint as normal user
+    freeze_resp = normal_client.post(url_for("marketplace.admin_freeze_wallet", user_id=normal_user_id), json={"reason": "Attempted freeze"})
+    assert freeze_resp.status_code == 403 # Expect Forbidden
+
+    audit_resp = normal_client.get(url_for("marketplace.admin_get_wallet_audit", user_id=normal_user_id))
+    assert audit_resp.status_code == 403 # Expect Forbidden

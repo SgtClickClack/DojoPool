@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from dojopool.core.extensions import db
-from dojopool.models.tournament import MatchStatus, TournamentMatch, TournamentParticipant
+from dojopool.core.tournaments.models import MatchStatus, TournamentMatch, TournamentParticipant
 
 
 class MatchStatsService:

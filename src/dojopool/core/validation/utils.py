@@ -3,7 +3,6 @@
 This module provides validation helper functions.
 """
 
-import re
 from datetime import time
 from typing import List, Optional
 

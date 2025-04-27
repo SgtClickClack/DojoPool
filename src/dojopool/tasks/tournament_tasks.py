@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from dojopool.models.tournament import Tournament
+from dojopool.core.tournaments.models import Tournament
 from dojopool.services.notification_service import NotificationService
 from dojopool.services.tournament_service import TournamentService
 

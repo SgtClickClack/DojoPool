@@ -1,3 +1,12 @@
+# try:
+#     import eventlet
+#     eventlet.monkey_patch()
+# except ImportError:
+#     print("[INFO] Eventlet not installed. Skipping monkey_patch.")
+
+"""Main application module."""
+
+import logging
 import os
 import sys
 
@@ -20,16 +29,14 @@ from flask_login import LoginManager
 from dojopool.core.config import get_config
 # Import the main extensions initializer and instances
 from dojopool.core.extensions import db, init_extensions, login_manager
-from dojopool.core.main.views import bp as main_bp
 from dojopool.core.sockets import init_socketio, socketio
 from dojopool.routes.auth import auth_bp
 from dojopool.routes.game import game_bp
 from dojopool.routes.performance import bp as performance_bp
 from dojopool.routes.venue import bp as venue_bp
+from dojopool.core.health import health_bp
 
 logger = logging.getLogger(__name__)
-
-eventlet_monkey_patch_needed = False
 
 def create_app(config_name=None, test_config=None):
     """Application factory function."""
@@ -41,7 +48,7 @@ def create_app(config_name=None, test_config=None):
     # ---------------------------------------------------------------------------
 
     # Import ALL models before initializing extensions (required for table registration)
-    import dojopool.models.achievement
+    # import dojopool.models.achievement  # Removed duplicate, use achievements
     import dojopool.models.achievements
     import dojopool.models.activity
     import dojopool.models.analytics
@@ -164,14 +171,19 @@ def create_app(config_name=None, test_config=None):
         from dojopool.models.user import User
         return User.query.get(int(user_id))
 
-    # --- Register Health Check Blueprint ---
-    try:
-        from dojopool.api.health import init_app as init_health
-        init_health(app)
-    except ImportError as e:
-        print(f"[ERROR] Could not import health check blueprint: {e}")
-    except Exception as e:
-        print(f"[ERROR] Could not register health check blueprint: {e}")
+    # === Flask-DebugToolbar ===
+    from flask_debugtoolbar import DebugToolbarExtension
+    app.debug = True
+    app.config['SECRET_KEY'] = app.config.get('SECRET_KEY', 'dev')
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    toolbar = DebugToolbarExtension(app)
+
+    # === Register blueprints (force correct main_bp) ===
+    from dojopool.routes.main import main_bp as correct_main_bp
+    print(f"[DEBUG] main_bp imported from: {correct_main_bp.__module__}")
+    print(f"[DEBUG] main_bp object: {correct_main_bp}")
+    app.register_blueprint(correct_main_bp)
+    # Remove/comment out any other main_bp registrations here
 
     # --- Register Tournament/Game Blueprint ---
     try:
@@ -187,9 +199,13 @@ def create_app(config_name=None, test_config=None):
     app.register_blueprint(api_v1_bp, url_prefix="/api/v1")
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(performance_bp) # Adjust prefix if needed
-    app.register_blueprint(main_bp) # Adjust prefix if needed
     app.register_blueprint(game_bp, url_prefix="/game")
     app.register_blueprint(venue_bp) # Adjust prefix if needed
+
+    # === DEBUG: Print all registered routes ===
+    print("[ROUTES]")
+    for rule in app.url_map.iter_rules():
+        print(rule)
 
     # Initialize SocketIO
     init_socketio(app)
@@ -198,16 +214,10 @@ def create_app(config_name=None, test_config=None):
 
 
 if __name__ == "__main__":
-    print("[DIAG] Starting app.py")
-    print("[DIAG] Entered __main__ block")
-    try:
-        print("[DIAG] Calling create_app()...")
-        app = create_app()
-        print("[DIAG] App created, starting socketio.run()...")
-        socketio.run(app, host='0.0.0.0', port=8000, debug=app.config.get("DEBUG", True), use_reloader=app.config.get("DEBUG", True))
-        print("[DIAG] socketio.run() exited")
-    except Exception as e:
-        import traceback
-        print("\n[ERROR] Exception during app startup:\n")
-        traceback.print_exc()
-        raise
+    app = create_app()
+    # Use socketio.run for development server with WebSocket support
+    # Host='0.0.0.0' makes it accessible on the network
+    socketio.run(app, host='0.0.0.0', port=8000, debug=app.config.get("DEBUG", True), use_reloader=app.config.get("DEBUG", True))
+    # Note: Uvicorn command might not be needed if running directly like this,
+    # unless specific ASGI features beyond Flask-SocketIO are required.
+    # If using uvicorn, the app instance passed should be 'app', not 'socketio'.

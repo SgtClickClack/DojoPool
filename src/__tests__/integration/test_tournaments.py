@@ -1,6 +1,6 @@
 import pytest
-from ...tournament.types import TournamentPlayer, TournamentConfig, MatchResult
-from ...tournament.TournamentService import TournamentService
+from DojoPool.tournament.types import TournamentPlayer, TournamentConfig, MatchResult
+from DojoPool.tournament.TournamentService import TournamentService
 
 # Test data
 test_players = [

@@ -14,7 +14,7 @@ import numpy as np
 import psutil
 from PIL import Image
 
-from .compression import ImageCompressionService
+from dojopool.core.image.compression import ImageCompressionService
 
 logger = logging.getLogger(__name__)
 

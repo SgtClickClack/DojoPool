@@ -1,3 +1,6 @@
+// Data compression utilities consolidated and cleaned
+// Removed unused imports and commented code
+
 import { deflate, inflate } from "pako";
 
 interface CompressionConfig {

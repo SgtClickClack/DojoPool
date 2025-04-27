@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Welcome to Your Dojo Pool Dashboard</h2>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Your Avatar</h5>
+                    {% if user.avatar_url %}
+                        <img src="{{ url_for('static', filename=user.avatar_url) }}" class="img-thumbnail mb-2" style="max-width: 180px;">
+                    {% else %}
+                        <div class="text-muted">No avatar set</div>
+                    {% endif %}
+                    <a href="{{ url_for('features.avatar_view') }}" class="btn btn-outline-primary btn-sm mt-2">Edit Avatar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Wallet Balance</h5>
+                    <p class="card-text display-6">{{ user.wallet_balance or 0 }} <span class="fw-bold">Dojo Coin</span></p>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Stats & Achievements</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Games Played: {{ stats.games_played or 0 }}</li>
+                        <li class="list-group-item">Wins: {{ stats.wins or 0 }}</li>
+                        <li class="list-group-item">Tournaments: {{ stats.tournaments or 0 }}</li>
+                        <li class="list-group-item">Achievements: {{ stats.achievements or 0 }}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Links</h5>
+                    <a href="{{ url_for('features.map_view') }}" class="btn btn-success me-2">Explore Map</a>
+                    <a href="{{ url_for('venue_list') }}" class="btn btn-info me-2">Nearby Dojos</a>
+                    <a href="{{ url_for('tournaments') }}" class="btn btn-warning">Tournaments</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info">All features are contextualized to your real-world Dojo experience. Check in at a venue to unlock chat, live games, and rewards!</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

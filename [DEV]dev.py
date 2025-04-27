@@ -2,6 +2,7 @@
 
 import logging
 import sys
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -9,28 +10,57 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Professional dev entrypoint for Flask+SocketIO
+from dojopool.core.extensions import socketio
+from dojopool.app import create_app
 
 def start_development_server():
-    """Start the development server with proper error handling."""
+    """Start the development server with proper error handling and diagnostics."""
+    app = create_app("development")
+    port = int(os.environ.get("PORT", 5000))
+    ssl_mode = os.environ.get("FLASK_SSL", "off").lower() == "on"
+    protocol = "https" if ssl_mode else "http"
+    ws_protocol = "wss" if ssl_mode else "ws"
+
+    logging.info("\n========== Flask/SocketIO Startup ==========")
+    logging.info(f"App: [DEV]dev.py")
+    logging.info(f"Port: {port}")
+    logging.info(f"SSL Mode: {'ON' if ssl_mode else 'OFF'}")
+    logging.info(f"URL: {protocol}://127.0.0.1:{port}")
+    logging.info(f"WebSocket URL: {ws_protocol}://127.0.0.1:{port}")
+    logging.info("============================================\n")
+
+    # Check if port is available before starting
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        from dojopool.app import create_app
-
-        # Create and configure the application
-        app = create_app("development")
-
-        # Log startup information
-        logger.info("Starting development server...")
-        logger.info(f"Main application port: {app.config.get('PORT', 5000)}")
-        logger.info(f"WebSocket port: {app.config.get('WEBSOCKET_PORT', 5001)}")
-
-        return app
-
-    except ImportError as e:
-        logger.error(f"Failed to import required modules: {e}")
+        sock.bind(("127.0.0.1", port))
+        sock.close()
+    except OSError as e:
+        logging.error(f"Port {port} is already in use or unavailable: {e}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Failed to start development server: {e}")
-        sys.exit(1)
+
+    # Run the app with correct async/SSL handling
+    import eventlet
+    async_mode = getattr(socketio, 'async_mode', 'eventlet')
+    if async_mode in ('eventlet', 'gevent'):
+        socketio.run(
+            app,
+            host="127.0.0.1",
+            port=port,
+            debug=True,
+            use_reloader=False,
+        )
+    else:
+        socketio.run(
+            app,
+            host="127.0.0.1",
+            port=port,
+            debug=True,
+            ssl_context='adhoc' if ssl_mode else None,
+            use_reloader=False,
+        )
+    return app
 
 
 app = start_development_server()

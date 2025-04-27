@@ -1,6 +1,6 @@
 """Feature routes for map and avatar functionality."""
 
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request, redirect, url_for
 from flask_login import current_user, login_required
 
 from src.models.venue import Venue
@@ -26,6 +26,11 @@ def get_venues():
 @login_required
 def avatar_view():
     """Render the avatar creation/customization page."""
+    # --- ONBOARDING GLUE: If avatar exists, redirect to dashboard ---
+    avatar_service = AvatarService()
+    avatar = avatar_service.get_avatar(current_user.id)
+    if avatar:
+        return redirect(url_for("dashboard.dashboard_view"))
     return render_template("features/avatar.html")
 
 
@@ -34,19 +39,55 @@ def avatar_view():
 def generate_avatar():
     """Generate a new avatar using AI."""
     if "image" not in request.files:
-        return jsonify({"error": "No image provided"}), 400
+        return render_template(
+            "features/avatar.html",
+            error="No image provided. Please upload a photo.",
+        )
 
     file = request.files["image"]
+    style = request.form.get("style", "anime")
+    prompt = request.form.get("prompt", "")
     if not file.filename:
-        return jsonify({"error": "No image selected"}), 400
+        return render_template(
+            "features/avatar.html",
+            error="No image selected. Please choose a file.",
+        )
 
     try:
         avatar_service = AvatarService()
-        result = avatar_service.generate_avatar(file, current_user.id)
-        return jsonify(result)
+        # Read file as bytes
+        image_data = file.read()
+        # Pass prompt to avatar_service, ensure pool cue is always included
+        full_prompt = prompt.strip()
+        if full_prompt:
+            full_prompt += ", pool cue"
+        else:
+            full_prompt = "pool cue"
+        avatar_bytes, error = avatar_service.transform_avatar(image_data, style, full_prompt)
+        if error:
+            return render_template(
+                "features/avatar.html",
+                error=error,
+            )
+        # Save avatar
+        avatar_url, save_error = avatar_service.save_avatar(current_user.id, avatar_bytes)
+        if save_error:
+            return render_template(
+                "features/avatar.html",
+                error=save_error,
+            )
+        # Optionally, update user profile with avatar_url here
+        return render_template(
+            "features/avatar.html",
+            avatar_url=avatar_url,
+            success="Avatar created successfully! Welcome to Dojo Pool.",
+        )
     except Exception as e:
         current_app.logger.error(f"Avatar generation error: {str(e)}")
-        return jsonify({"error": "Failed to generate avatar"}), 500
+        return render_template(
+            "features/avatar.html",
+            error="Failed to generate avatar. Please try again.",
+        )
 
 
 @features_bp.route("/api/avatar/customize", methods=["POST"])

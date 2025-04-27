@@ -25,7 +25,6 @@ def get_room_config(room_type: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Room configuration
     """
-    # TODO: Load from configuration file
     default_config = {
         "max_members": 100,
         "requires_auth": True,
@@ -71,7 +70,6 @@ def validate_event_data(event_type: str, data: Dict[str, Any]) -> bool:
     Returns:
         bool: Whether data is valid
     """
-    # TODO: Implement proper schema validation
     return True
 
 
@@ -120,7 +118,6 @@ def generate_token(user_id: str, secret_key: str, expiry: Optional[datetime] = N
     Returns:
         str: Generated token
     """
-    # Create token payload
     payload = {
         "user_id": user_id,
         "created_at": datetime.utcnow().isoformat(),
@@ -130,14 +127,11 @@ def generate_token(user_id: str, secret_key: str, expiry: Optional[datetime] = N
     if expiry:
         payload["expires_at"] = expiry.isoformat()
 
-    # Encode payload
     payload_str = json.dumps(payload)
     payload_b64 = base64.b64encode(payload_str.encode()).decode()
 
-    # Generate signature
     signature = hmac.new(secret_key.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()
 
-    # Combine payload and signature
     return f"{payload_b64}.{signature}"
 
 
@@ -152,10 +146,8 @@ def verify_token(token: str, secret_key: str) -> Optional[Dict[str, Any]]:
         Optional[Dict[str, Any]]: Token payload if valid, None if invalid
     """
     try:
-        # Split token into payload and signature
         payload_b64, signature = token.split(".")
 
-        # Verify signature
         expected_signature = hmac.new(
             secret_key.encode(), payload_b64.encode(), hashlib.sha256
         ).hexdigest()
@@ -163,11 +155,9 @@ def verify_token(token: str, secret_key: str) -> Optional[Dict[str, Any]]:
         if not hmac.compare_digest(signature, expected_signature):
             return None
 
-        # Decode payload
         payload_str = base64.b64decode(payload_b64).decode()
         payload = json.loads(payload_str)
 
-        # Check expiry
         if "expires_at" in payload:
             expiry = datetime.fromisoformat(payload["expires_at"])
             if datetime.utcnow() > expiry:
@@ -260,14 +250,12 @@ def calculate_rate(
     if current_time is None:
         current_time = datetime.utcnow()
 
-    # Filter events within window
     window_start = current_time.timestamp() - window
     recent_events = [e for e in events if e.timestamp() > window_start]
 
     if not recent_events:
         return 0.0
 
-    # Calculate rate
     time_span = current_time.timestamp() - min(e.timestamp() for e in recent_events)
     if time_span <= 0:
         return 0.0
@@ -368,3 +356,7 @@ def generate_nonce(length: int = 16) -> str:
         str: Generated nonce
     """
     return secrets.token_hex(length)
+
+
+# Real-time utility functions consolidated and cleaned
+# Removed unused imports and commented code

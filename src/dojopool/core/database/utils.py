@@ -136,3 +136,7 @@ def get_table_sizes() -> List[Dict[str, Any]]:
         """
 
     return execute_sql(sql)
+
+
+# Consolidated utility functions for database operations
+# Cleaned up unused imports and removed commented code

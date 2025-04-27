@@ -3,6 +3,7 @@
 import pytest
 import numpy as np
 from datetime import datetime
+from typing import List
 from .shot_recommendation import (
     ShotRecommender,
     ShotType,
@@ -37,7 +38,7 @@ def sample_ball_positions() -> List[BallPosition]:
 
 
 @pytest.fixture
-def sample_game_context() -> Dict:
+def sample_game_context() -> dict:
     """Create sample game context."""
     return {
         "game_type": "8-ball",
@@ -128,7 +129,7 @@ class TestShotRecommender:
         self,
         shot_recommender: ShotRecommender,
         sample_ball_positions: List[BallPosition],
-        sample_game_context: Dict,
+        sample_game_context: dict,
     ) -> None:
         """Test narrative generation."""
         # Get a shot to describe
@@ -156,7 +157,7 @@ class TestShotRecommender:
         self,
         shot_recommender: ShotRecommender,
         sample_table_state: np.ndarray,
-        sample_game_context: Dict,
+        sample_game_context: dict,
     ) -> None:
         """Test full recommendation pipeline."""
         recommendations = shot_recommender.get_recommendations(
@@ -180,7 +181,7 @@ class TestShotRecommender:
         self,
         shot_recommender: ShotRecommender,
         sample_table_state: np.ndarray,
-        sample_game_context: Dict,
+        sample_game_context: dict,
     ) -> None:
         """Test adaptation to different player skill levels."""
         # Get recommendations for novice player

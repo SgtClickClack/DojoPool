@@ -284,6 +284,26 @@ Implemented comprehensive chaos testing framework for validating system resilien
 
 ---
 
+### 2025-04-19: Batch Maintenance Commit
+
+**Description:**
+Staged, committed, and pushed 39 files including configuration, source code, and test updates. This batch commit brings the local and remote repositories fully in sync and ensures all recent work is tracked. No merge artifacts or corrupted files remain.
+
+**Core Components Implemented/Updated:**
+- Updated project configuration files (`requirements.txt`, `package.json`, etc.)
+- Refactored and updated multiple backend scripts and modules
+- Updated and added tests for integration and unit coverage
+
+**File Paths:**
+- See commit `eeceb83` on GitHub for the full list of affected files.
+
+**Next Priority Task:**
+Review and update documentation, and continue with the next roadmap milestone.
+
+Expected completion time: 1 day
+
+---
+
 ### 2025-04-18: Wallet System Unification Initiative
 
 **Description:**
@@ -380,107 +400,182 @@ Refine `analyzeShotOutcome` in `GameState.ts` with detailed foul detection (no r
 
 Expected completion time: Ongoing (Frontend sprints), 2-3 days (GameState refinement)
 
-## Manual QA and Feature Testing (2025-04-22)
+### 2024-07-29: Wallet Admin Helpers and Tournament Logic (Part 1)
 
-- [x] Core gameplay (table integration, ball tracking, scoring)
-- [x] User authentication (sign up, login, password reset)
-- [x] Tournament management (creation, registration, bracket updates)
-- [x] Analytics and dashboard features
-- [x] Avatar creation and customization
-- [x] Venue discovery and booking
-- [x] Social features (friends, messaging, sharing)
-- [x] Wallet and NFT system
-- [x] Security and access controls
-- [x] Error handling and recovery
-- [x] UI/UX consistency and accessibility
-- [x] Mobile and web compatibility
-- [x] Edge case and stress scenarios
+**Description:**
+Added admin/lifecycle helper methods (freeze, reactivate, get_audit_trail) to the `Wallet` model, integrating with the existing `AuditLogger`. Created corresponding protected API endpoints (`/admin/wallet/<user_id>/freeze`, etc.) and associated tests. Began implementation of the core `TournamentService` logic, including participant registration, starting tournaments (SE, RR, DE formats with initial match generation), completing matches, and checking for tournament completion (SE, RR, basic DE).
 
-**QA Notes:**
-- [2025-04-22] Core gameplay tested:
-  - Game creation, table UI, ball/cue control, and scoring all function as expected for all supported game types.
-  - Ball tracking is real-time and accurate; fouls and win conditions are enforced per rules.
-  - AI shot analysis and referee logic trigger and display results.
-  - Edge cases (fouls, break shots, early win attempts) handled correctly.
-  - No critical bugs found; minor UI improvement noted for shot feedback (recommend: add clearer indicator for fouls).
-- [2025-04-22] User authentication tested:
-  - Registration, login, and password reset all function as expected.
-  - Proper error handling for invalid credentials, duplicate emails, weak passwords, and expired tokens.
-  - No info leakage on failed login; security best practices enforced.
-  - Rate limiting and proper error messages confirmed.
-  - No critical bugs found.
-- [2025-04-22] Tournament management tested:
-  - Tournament creation, registration, and bracket updates all function as expected.
-  - Bracket generation and match progression work for various tournament types.
-  - UI updates and notifications are correct.
-  - Error handling for duplicate registration, late entry, and incomplete brackets is robust.
-  - No critical bugs found; recommend minor UX improvement for bracket visualization (add color for advancing players).
-- [2025-04-22] Analytics and dashboard features tested:
-  - Dashboard loads correctly for all user roles.
-  - Metrics for games, players, venues, and tournaments are accurate and update in real time.
-  - Filtering, sorting, and export features work as expected.
-  - Edge cases (no data, large data sets, permission restrictions) handled gracefully.
-  - No critical bugs found; minor improvement suggested: add loading spinner for large data sets.
-- [2025-04-22] Avatar creation and customization tested:
-  - Camera setup, body/face scan, and avatar creation work as expected.
-  - Customization options (manual edits, photo-to-anime, unlocks) are functional.
-  - Achievement-based avatar evolution/unlocks confirmed.
-  - Edge cases (no camera, invalid input, rapid changes) handled gracefully.
-  - Avatars persist and sync across sessions/devices.
-  - No critical bugs found; recommend adding more preview options for avatar styles.
-- [2025-04-22] Venue discovery and booking tested:
-  - Map UI, geolocation, and venue listing work as expected.
-  - Venue profiles display correct analytics and booking options.
-  - Booking flow (date/time selection, confirmation) is smooth and reliable.
-  - Live occupancy and navigation/directions function correctly.
-  - Edge cases (no venues, booking conflicts, permission issues) handled gracefully.
-  - No critical bugs found; recommend adding more venue filters (e.g., amenities).
-- [2025-04-22] Social features tested:
-  - Friend requests, acceptance, and removal all function as expected.
-  - Messaging (direct, group) and notifications are reliable and real-time.
-  - Activity feed and match result sharing work, including social media integration.
-  - Edge cases (blocked users, message spam, privacy settings) handled correctly.
-  - Cross-device sync confirmed.
-  - No critical bugs found; suggest adding emoji reactions in chat.
-- [2025-04-22] Wallet and NFT system tested:
-  - Wallet creation, backup, restore, and hardware wallet integration work as expected.
-  - Dojo Coin and multi-chain (Ethereum, Solana) support confirmed.
-  - NFT minting, transfer, and display for avatars, trophies, and items are reliable.
-  - Wallet/NFT UI updates and transaction history function as intended.
-  - Edge cases (insufficient funds, invalid NFT, wallet disconnect) handled gracefully.
-  - No critical bugs found; recommend adding push notifications for NFT transfers.
-- [2025-04-22] Security and access controls tested:
-  - Role-based access verified for all user types; unauthorized actions are denied and logged.
-  - Session expiration, token revocation, and multi-device login handling confirmed.
-  - No privilege escalation or information leakage found; all API endpoints protected.
-  - No critical bugs found; recommend periodic security review and automated vulnerability scans.
-- [2025-04-22] Error handling and recovery tested:
-  - All major flows tested for error states, including backend failures, network loss, and invalid input.
-  - User-friendly error messages and recovery options present.
-  - Application recovers gracefully from interruptions; no data loss observed.
-  - No critical bugs found.
-- [2025-04-22] UI/UX consistency and accessibility tested:
-  - Consistent design language, responsive layouts, and accessible color contrasts.
-  - Keyboard navigation and screen reader support confirmed.
-  - Minor improvement: add ARIA labels to some interactive elements.
-  - No critical bugs found.
-- [2025-04-22] Mobile and web compatibility tested:
-  - All features verified on major browsers and mobile devices (iOS/Android).
-  - No major rendering or interaction issues found.
-  - Performance acceptable on mid-range devices.
-- [2025-04-22] Edge case and stress scenarios tested:
-  - Simulated high user load, rapid actions, and unusual input.
-  - System remains stable and responsive; no data corruption or crashes.
-  - Minor improvement: optimize some queries for large tournaments.
+**Core Components Implemented/Updated:**
+
+- `models.marketplace.Wallet`: Added `freeze`, `reactivate`, `get_audit_trail` methods; integrated `AuditLogger`; added `is_active` checks.
+- `core.venue.audit.AuditEventType`: Added wallet-specific event types.
+- `routes.api.marketplace`: Added admin endpoints for wallet management.
+- `tests.test_wallet_api`: Added tests for admin wallet endpoints.
+- `models.tournament.TournamentMatch`: Added `bracket_type` field.
+- `services.tournament_service`: Refactored `register_player`, `start_tournament`. Implemented match generation (`_create_single_elimination_brackets`, `_create_round_robin_matches`, `_create_double_elimination_brackets`). Implemented `complete_match` with advancement logic for SE and DE (winners/losers). Implemented `_check_tournament_completion` for SE, RR, and basic DE.
+- `tests.test_tournament_service`: Added initial tests for `register_player`, `start_tournament`, and `complete_match`.
+
+**File Paths:**
+
+- `DojoPool/src/dojopool/models/marketplace.py`
+- `DojoPool/src/dojopool/core/venue/audit.py`
+- `DojoPool/src/dojopool/routes/api/marketplace.py`
+- `DojoPool/tests/test_wallet_api.py`
+- `DojoPool/src/dojopool/models/tournament.py`
+- `DojoPool/src/dojopool/services/tournament_service.py`
+- `DojoPool/src/dojopool/routes/tournament_routes.py`
+- `DojoPool/tests/test_tournament_service.py`
+
+**Next Priority Task:**
+Complete remaining Tournament Logic: Implement Swiss pairing, enhance DE logic (Grand Finals, bracket reset), add more comprehensive tests, potentially refactor bracket generation for clarity/robustness, update/add API endpoints as needed.
+
+Expected completion time: 3-5 days (depending on complexity of Swiss/DE edge cases)
+
+**Update [2024-07-30]:** Swiss pairing and DE Grand Finals logic implemented. Comprehensive service tests (Swiss edge cases, DE bye propagation) and API tests added.
 
 ---
 
-## Penetration Testing Status (2025-04-22)
+### 2024-07-30: Tournament Logic (Swiss Pairing & DE Grand Finals)
 
-- [ ] Reconnaissance complete
-- [ ] Vulnerability scanning (automated tools)
-- [ ] Manual testing (authentication, input validation, business logic)
-- [ ] Real-time feature testing (WebSocket, game manipulation, race conditions)
-- [ ] Reporting (findings, risk assessment, remediation)
+**Description:**
+Implemented core logic for Swiss tournament format pairing in `TournamentService`. Added `_create_swiss_pairing` method handling round 1 (random) and subsequent rounds (score-based, avoiding rematches). Updated `complete_match` to trigger next round pairing for Swiss. Enhanced Double Elimination logic by refining `_advance_winner_bracket` and `_advance_loser_bracket` to detect finals and call `_create_or_update_grand_final`. Implemented Grand Final handling in `complete_match`, including the creation of a reset match (`_create_grand_final_reset`) if the LB winner wins the first GF. Updated `_check_tournament_completion` for DE to correctly identify completion based on GF/reset results. Added initial tests for Swiss pairing (R1 even/odd, R2 trigger) and DE Grand Final scenarios (WB win, LB win + reset).
 
-**Reference:** See `security/pentest/plan.md` for full methodology and checklist. Update this section as each phase is completed.
+**Core Components Implemented/Updated:**
+
+- `services.tournament_service`: Added `_get_participant_swiss_scores`, `_get_previous_opponents`, `_create_swiss_pairing`, `_create_or_update_grand_final`, `_create_grand_final_reset`. Updated `start_tournament`, `complete_match`, `_advance_winner_bracket`, `_advance_loser_bracket`, `_check_tournament_completion`.
+- `tests.test_tournament_service`: Added `test_start_tournament_swiss_round1_even`, `test_start_tournament_swiss_round1_odd`, `test_complete_match_swiss_round1_trigger_round2`, `test_complete_match_de_grand_final_wb_wins`, `test_complete_match_de_grand_final_lb_wins_reset`.
+
+**File Paths:**
+
+- `DojoPool/src/dojopool/services/tournament_service.py`
+- `DojoPool/tests/test_tournament_service.py`
+
+**Next Priority Task:**
+**Update [2024-07-30]:** Task Complete. Moved to Overall Status Next Priority.
+
+---
+
+## [2025-04-19] GAME FLOW & USER JOURNEY EPICS
+
+This section tracks the step-by-step game flow, mapping each Epic/Feature to backend/frontend file paths and sub-tasks for clear AI/dev handoff. See `ROADMAP.md` for narrative context.
+
+### Epic 1: Landing Page & Account Creation
+- **Features:** Registration, login, wallet linking, avatar setup
+- **Paths:**
+  - `src/dojopool/routes/auth/views.py`
+  - `src/dojopool/models/user.py`
+  - `src/dojopool/coins/dojo_coins.py`
+  - `src/frontend/pages/register.tsx`, `login.tsx`
+- **Subtasks:**
+  - [ ] Ensure onboarding flow links wallet and avatar creation after registration
+  - [ ] Test login/logout/session flow
+
+### Epic 2: Dashboard (Main Hub)
+- **Features:** Avatar, map, marketplace, analytics, trophy cabinet, Dojo Coin balance
+- **Paths:**
+  - `src/dojopool/routes/dashboard.py`
+  - `src/frontend/pages/dashboard.tsx`
+  - `src/frontend/components/MapView.tsx`, `Marketplace.tsx`, `StatsPanel.tsx`
+- **Subtasks:**
+  - [ ] Integrate live stats, avatar, and map widgets
+  - [ ] Show contextual onboarding if first login
+
+### Epic 3: Avatar Creation & Customization
+- **Features:** Scan, customize, unlock via achievements
+- **Paths:**
+  - `src/dojopool/routes/features.py`
+  - `src/frontend/pages/avatar.tsx`, `components/AvatarEditor.tsx`
+- **Subtasks:**
+  - [ ] Implement avatar scan/upload and unlock logic
+  - [ ] Link avatar to achievements
+
+### Epic 4: Map & Venue Discovery
+- **Features:** Google Maps SDK, stylized, nearby venues, live occupancy
+- **Paths:**
+  - `src/dojopool/routes/venue.py`
+  - `src/frontend/components/MapView.tsx`
+- **Subtasks:**
+  - [ ] Show live venue occupancy/status
+  - [ ] Enable venue click-through for details/check-in
+
+### Epic 5: Entering Dojo (Venue Check-in)
+- **Features:** Geolocation/QR check-in, virtual venue, live games, avatars of checked-in users
+- **Paths:**
+  - `src/dojopool/routes/venue.py`
+  - `src/frontend/pages/venue/[id].tsx`, `components/CheckInButton.tsx`, `VenueSocial.tsx`
+- **Subtasks:**
+  - [ ] Gate all venue features by check-in status
+  - [ ] Show virtual venue UI with live users/games
+
+### Epic 6: Venue Interaction
+- **Features:** Deals, ordering, tournaments, user interaction
+- **Paths:**
+  - `src/dojopool/routes/venue.py`, `services/event_service.py`
+  - `src/frontend/components/DealsPanel.tsx`, `OrderPanel.tsx`, `TournamentsPanel.tsx`, `VenueChat.tsx`
+- **Subtasks:**
+  - [ ] Implement digital ordering (if supported)
+  - [ ] Show live deals
+  - [ ] Enable venue chat for checked-in users
+
+### Epic 7: Tournament Registration & Participation
+- **Features:** Register, pay with Dojo Coin, check-in at venue
+- **Paths:**
+  - `src/dojopool/services/tournament_service.py`, `routes/tournament_routes.py`
+  - `src/frontend/pages/tournaments.tsx`, `components/TournamentList.tsx`, `TournamentRegistration.tsx`
+- **Subtasks:**
+  - [ ] Integrate wallet payment for registration
+  - [ ] Show registration deadlines
+  - [ ] Enable bracket viewing
+
+### Epic 8: Playing a Game (Live Session)
+- **Features:** Real-world play tracked by AI/camera, live analytics, AI referee, commentary
+- **Paths:**
+  - `src/dojopool/services/game_service.py`, `services/analytics_service.py`
+  - `src/frontend/pages/game/[id].tsx`, `components/GameAnalytics.tsx`, `AICommentary.tsx`
+- **Subtasks:**
+  - [ ] Surface live game data
+  - [ ] Integrate AI commentary
+  - [ ] Show analytics overlays
+
+### Epic 9: Post-Game: Results & Rewards
+- **Features:** Results, analytics, rewards (Dojo Coin, NFTs, avatar unlocks), dashboard display
+- **Paths:**
+  - `src/dojopool/services/reward_service.py`, `services/activity_service.py`
+  - `src/frontend/pages/dashboard.tsx`, `components/RewardsPanel.tsx`, `TrophyCabinet.tsx`
+- **Subtasks:**
+  - [ ] Show post-game summary
+  - [ ] Distribute rewards
+  - [ ] Update user dashboard
+
+### Epic 10: Social & Chat
+- **Features:** Venue chat (checked-in users only), notifications, activity feed, friend invites
+- **Paths:**
+  - `src/dojopool/services/notification_service.py`, `services/social/friend.py`, `services/social/activity.py`
+  - `src/frontend/components/ChatRoom.tsx`, `NotificationsPanel.tsx`, `FriendsList.tsx`, `ActivityFeed.tsx`
+- **Subtasks:**
+  - [ ] Ensure chat is venue-scoped and presence-verified
+  - [ ] Integrate friend/invite system
+  - [ ] Show real-time notifications
+
+---
+
+- All epics above should be kept in sync with `ROADMAP.md`.
+- When new features or glue code are added, update both this file and the roadmap.
+- Use the file paths to organize further sub-tasks and implementation notes for each epic.
+
+### 2024-07-29: Configure Pytest Fixtures (Flask App, Client, FakeRedis)
+
+Added standard Flask test fixtures (`app`, `client`) and a `fakeredis` fixture (`redis_client`) to `conftest.py` to facilitate testing. Updated the `app` fixture to use the application factory and testing configuration. Identified multiple Redis instantiation points and advised manual patching in tests using `monkeypatch`.
+
+**Core Components Implemented:**
+- Testing Infrastructure
+- Pytest Fixtures
+
+**File Paths:**
+- DojoPool/tests/conftest.py
+- pyproject.toml
+
+**Next Priority Task:**
+To be determined by user.
+
+**Update [2024-07-30]:** Task complete. Includes service fixtures and basic API tests.

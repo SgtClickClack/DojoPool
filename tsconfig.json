@@ -20,8 +20,17 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "vite.config.ts"],
-  "exclude": ["node_modules"],
+  "include": [
+    "src", 
+    "tests", 
+    "**/__tests__", 
+    "vite.config.ts", 
+    "jest.config.js", 
+    "src/setupTests.ts",
+    "src/scripts",
+    "src/scripts/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "dist", "build"],
   "references": [{ "path": "./tsconfig.node.json" }],
   "ts-node": {
     "compilerOptions": {

@@ -14,7 +14,6 @@ import qrcode
 
 logger = logging.getLogger(__name__)
 
-
 def generate_password(length: int = 16) -> str:
     """Generate a secure random password.
 
