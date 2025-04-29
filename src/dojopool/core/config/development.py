@@ -1,6 +1,7 @@
 """Development configuration."""
 
 from .config import Config
+import os
 
 
 class DevelopmentConfig(Config):
@@ -10,7 +11,12 @@ class DevelopmentConfig(Config):
     ENV = "development"
 
     # Development database
-    SQLALCHEMY_DATABASE_URI = "sqlite:///C:/dev/DojoPoolONE/DojoPool/instance/dev.db"
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DEV_DATABASE_URL", "sqlite:///../instance/dojopool_dev.db"
+    )
+    SQLALCHEMY_ECHO = True  # Log SQL queries
+    SQLALCHEMY_RECORD_QUERIES = True # Record queries for debugging
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
     # Disable secure cookies in development
     SESSION_COOKIE_SECURE = False
