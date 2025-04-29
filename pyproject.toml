@@ -23,6 +23,7 @@ dependencies = [
     "python-socketio",
     "pyopenssl",
     "werkzeug>=3.0.6",
+    "flask-caching",
 ]
 
 [tool.black]
