@@ -17,6 +17,7 @@ from werkzeug.utils import secure_filename
 from ..core.database import db
 from ..core.forms.venue_forms import VenueForm, VenueSearchForm
 from ..core.models.venue import Venue, VenueCheckin
+from ..core.extensions import cache
 
 venue_bp = Blueprint("venue", __name__)
 
@@ -114,6 +115,7 @@ def create_venue():
 
 
 @venue_bp.route("/venues/<int:venue_id>")
+@cache.cached(timeout=600)
 def get_venue(venue_id):
     """Get venue details."""
     venue = Venue.query.get_or_404(venue_id)

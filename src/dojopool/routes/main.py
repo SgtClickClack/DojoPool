@@ -34,3 +34,13 @@ def privacy():
 @main_bp.route("/test-cascade")
 def test_cascade():
     return "CASCADE FLASK ROUTE OK"
+
+
+# Error handlers
+@main_bp.app_errorhandler(404)
+def not_found_error(error):
+    return render_template("404.html"), 404
+
+@main_bp.app_errorhandler(500)
+def internal_error(error):
+    return render_template("500.html"), 500
