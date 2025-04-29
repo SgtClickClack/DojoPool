@@ -128,21 +128,14 @@ class ShotPhysics:
         n = rel_pos.normalize()
         v_dir = rel_vel.normalize()
         direction_dot = abs(n.dot(v_dir))
-        print(f"predict_collision: rel_pos={rel_pos}, rel_vel={rel_vel}")
-        print(f"predict_collision: n={n}, v_dir={v_dir}, direction_dot={direction_dot}")
 
-        # Debug output for test diagnosis
         if direction_dot > 0.999:
-            print("CollisionType: DIRECT")
             collision_type = CollisionType.DIRECT
         elif abs(rel_pos.angle(rel_vel)) <= np.pi / 2:
-            print("CollisionType: GLANCING")
             collision_type = CollisionType.GLANCING
         else:
-            print("CollisionType: NONE")
             collision_type = CollisionType.NONE
 
-        print(f"collision_point={collision_point}, collision_type={collision_type}")
         return collision_point, collision_type
 
     def calculate_post_collision_velocities(
@@ -155,16 +148,13 @@ class ShotPhysics:
 
         n = (x2 - x1).normalize()
         rel_vel = (u1 - u2).dot(n)
-        print(f"calculate_post_collision_velocities: u1={u1}, u2={u2}, n={n}, rel_vel={rel_vel}")
         if rel_vel >= 0:
-            print("Balls are not moving together, no collision.")
             return u1, u2
 
         e = min(ball1.elasticity, ball2.elasticity)
         j = -(1 + e) * rel_vel / (1/m1 + 1/m2)
         v1 = u1 + n * (j / m1)
         v2 = u2 - n * (j / m2)
-        print(f"calculate_post_collision_velocities: v1={v1}, v2={v2}")
         return v1, v2
 
     def check_rail_collision(self, ball: Ball, dt: float = 0.001) -> Tuple[Vector2D, bool]:
@@ -174,26 +164,20 @@ class ShotPhysics:
         w, h = self.table.width, self.table.height
         hit = False
         pos = ball.position
-        print(f"check_rail_collision: x={x}, y={y}, r={r}, w={w}, h={h}")
         # Check left and right rails
         if x - r <= 2e-3:
-            print("Rail collision: LEFT")
             pos = Vector2D(r, y)
             hit = True
         elif x + r >= w - 2e-3:
-            print("Rail collision: RIGHT")
             pos = Vector2D(w - r, y)
             hit = True
         # Check top and bottom rails
         if y - r <= 2e-3:
-            print("Rail collision: TOP")
             pos = Vector2D(pos.x, r)
             hit = True
         elif y + r >= h - 2e-3:
-            print("Rail collision: BOTTOM")
             pos = Vector2D(pos.x, h - r)
             hit = True
-        print(f"check_rail_collision: pos={pos}, hit={hit}")
         return pos, hit
 
     def calculate_rail_bounce(self, ball: Ball, hit_vertical: bool) -> Vector2D:
