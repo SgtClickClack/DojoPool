@@ -24,6 +24,20 @@ interface TypedEventEmitter<
   ): boolean;
 }
 
+// --- Circuit Breaker States ---
+enum CircuitBreakerState {
+  CLOSED = "CLOSED",
+  OPEN = "OPEN",
+  HALF_OPEN = "HALF_OPEN",
+}
+
+interface PeerCircuitBreaker {
+  state: CircuitBreakerState;
+  lastFailure: number;
+  failureCount: number;
+  nextAttempt: number;
+}
+
 export class NetworkTransport extends (EventEmitter as {
   new (): TypedEventEmitter<NetworkEventMap>;
 }) {
@@ -38,6 +52,13 @@ export class NetworkTransport extends (EventEmitter as {
   private server: WebSocket.Server | null = null;
   private connections: Map<string, WebSocket> = new Map();
   private connectionRetries: Map<string, number> = new Map();
+  private peerBreakers: Map<string, PeerCircuitBreaker> = new Map();
+  private readonly maxFailures = 5;
+  private readonly openTimeout = 30000; // 30s before HALF_OPEN
+  private readonly halfOpenTimeout = 5000; // 5s test window
+  private readonly queueLimit = 100;
+  private pendingMessageQueue: Array<{ target: string; message: any; resolve: Function; reject: Function }> = [];
+  private messageTimeout = 10000; // 10s
 
   constructor(config: NetworkTransportConfig) {
     super();
@@ -124,44 +145,129 @@ export class NetworkTransport extends (EventEmitter as {
       throw error;
     }
 
-    const message: NetworkMessage<T> = {
-      id: `${this.nodeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type,
-      source: this.nodeId,
-      target: targetNodeId,
-      payload,
-      timestamp: Date.now(),
-    };
-
-    try {
-      const connection = this.connections.get(targetNodeId);
-      if (!connection) {
-        const error: NetworkError = {
-          code: "NO_CONNECTION",
-          message: `No connection to node ${targetNodeId}`,
-          timestamp: Date.now(),
-          details: "",
-        };
-        this.handleError(error);
-        throw error;
+    // Circuit breaker check
+    const breaker = this.peerBreakers.get(targetNodeId);
+    if (breaker) {
+      if (breaker.state === CircuitBreakerState.OPEN) {
+        if (Date.now() < breaker.nextAttempt) {
+          const error: NetworkError = {
+            code: "CIRCUIT_BREAKER_OPEN",
+            message: `Circuit breaker open for peer ${targetNodeId}`,
+            timestamp: Date.now(),
+            details: "",
+          };
+          this.handleError(error);
+          throw error;
+        } else {
+          breaker.state = CircuitBreakerState.HALF_OPEN;
+        }
       }
-
-      const messageString = JSON.stringify(message);
-      connection.send(messageString);
-      this.stats.messagesSent++;
-      this.stats.bytesTransferred += messageString.length;
-      this.emit("message", message);
-    } catch (error) {
-      const networkError: NetworkError = {
-        code: "SEND_FAILED",
-        message:
-          error instanceof Error ? error.message : "Failed to send message",
-        timestamp: Date.now(),
-        details: JSON.stringify(error),
-      };
-      this.handleError(networkError);
-      throw networkError;
     }
+
+    // Queue limit
+    if (this.pendingMessageQueue.length >= this.queueLimit) {
+      const error: NetworkError = {
+        code: "QUEUE_LIMIT_EXCEEDED",
+        message: `Pending message queue limit exceeded for peer ${targetNodeId}`,
+        timestamp: Date.now(),
+        details: "",
+      };
+      this.handleError(error);
+      throw error;
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const message: NetworkMessage<T> = {
+        id: `${this.nodeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type,
+        source: this.nodeId,
+        target: targetNodeId,
+        payload,
+        timestamp: Date.now(),
+      };
+      this.pendingMessageQueue.push({ target: targetNodeId, message, resolve, reject });
+      this.processPendingMessages();
+    });
+  }
+
+  private processPendingMessages() {
+    while (this.pendingMessageQueue.length > 0) {
+      const { target, message, resolve, reject } = this.pendingMessageQueue.shift()!;
+      const connection = this.connections.get(target);
+      if (!connection) {
+        // Retry logic: requeue message if connection unavailable
+        setTimeout(() => {
+          this.pendingMessageQueue.push({ target, message, resolve, reject });
+          this.processPendingMessages();
+        }, this.getBackoffDelay(target));
+        continue;
+      }
+      // Send with timeout
+      let timeoutId: NodeJS.Timeout | null = setTimeout(() => {
+        this.handleSendFailure(target, message, resolve, reject, "TIMEOUT");
+      }, this.messageTimeout);
+      connection.send(JSON.stringify(message), (err) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        if (err) {
+          this.handleSendFailure(target, message, resolve, reject, err.message);
+        } else {
+          this.handleSendSuccess(target);
+          resolve();
+        }
+      });
+    }
+  }
+
+  private handleSendFailure(target: string, message: any, resolve: Function, reject: Function, reason: string) {
+    let breaker = this.peerBreakers.get(target);
+    if (!breaker) {
+      breaker = { state: CircuitBreakerState.CLOSED, lastFailure: 0, failureCount: 0, nextAttempt: 0 };
+      this.peerBreakers.set(target, breaker);
+    }
+    breaker.failureCount++;
+    breaker.lastFailure = Date.now();
+    if (breaker.failureCount >= this.maxFailures) {
+      breaker.state = CircuitBreakerState.OPEN;
+      breaker.nextAttempt = Date.now() + this.openTimeout + this.getJitter();
+    }
+    const error: NetworkError = {
+      code: "SEND_FAILED",
+      message: `Send failed to peer ${target}: ${reason}`,
+      timestamp: Date.now(),
+      details: JSON.stringify(message),
+    };
+    this.handleError(error);
+    // Retry with exponential backoff
+    setTimeout(() => {
+      this.pendingMessageQueue.push({ target, message, resolve, reject });
+      this.processPendingMessages();
+    }, this.getBackoffDelay(target));
+    reject(error);
+  }
+
+  private handleSendSuccess(target: string) {
+    let breaker = this.peerBreakers.get(target);
+    if (breaker) {
+      if (breaker.state === CircuitBreakerState.HALF_OPEN || breaker.state === CircuitBreakerState.OPEN) {
+        breaker.state = CircuitBreakerState.CLOSED;
+        breaker.failureCount = 0;
+      }
+    }
+  }
+
+  private getBackoffDelay(target: string): number {
+    let breaker = this.peerBreakers.get(target);
+    let failures = breaker ? breaker.failureCount : 0;
+    // Exponential backoff with jitter
+    const base = Math.min(1000 * Math.pow(2, failures), 30000);
+    return base + this.getJitter();
+  }
+
+  private getJitter(): number {
+    return Math.floor(Math.random() * 1000); // up to 1s
   }
 
   async broadcast<T>(type: NetworkMessageType, payload: T): Promise<void> {
@@ -184,7 +290,9 @@ export class NetworkTransport extends (EventEmitter as {
           const networkError: NetworkError = {
             code: "SERVER_ERROR",
             message:
-              error instanceof Error ? error.message : "WebSocket server error",
+              error instanceof Error
+                ? error.message
+                : "WebSocket server error",
             timestamp: Date.now(),
             details: JSON.stringify(error),
           };
