@@ -113,7 +113,7 @@ A real-time multiplayer location-based game built with Flask and Google Maps SDK
 
 ### Short-term Goals
 1. **Performance Optimization**
-   - Implement caching for map data
+   - ✅ Implement caching for map data (Venue details cached)
    - Optimize database queries
    - Add request rate limiting
 
