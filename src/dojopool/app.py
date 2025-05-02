@@ -67,6 +67,12 @@ def create_app(config_name=None, test_config=None):
     if test_config:
         app.config.update(test_config)
 
+    # --- Caching Configuration ---
+    app.config["CACHE_TYPE"] = "RedisCache"
+    app.config["CACHE_DEFAULT_TIMEOUT"] = 300 # Default timeout 5 minutes
+    app.config["CACHE_REDIS_URL"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    # ---------------------------
+
     # Print selected config for debugging (optional)
     logger.info(f"Loading configuration: {ConfigClass.__name__}")
 

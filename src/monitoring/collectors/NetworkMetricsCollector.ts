@@ -31,6 +31,15 @@ export interface NetworkMetricsState {
   lastError: NetworkError | null;
 }
 
+/**
+ * NetworkErrorLogEntry: Captures error details for diagnostics.
+ */
+export interface NetworkErrorLogEntry {
+  timestamp: number;
+  error: NetworkError;
+  context?: string;
+}
+
 const INITIAL_METRICS_STATE: NetworkMetricsData = {
   messagesSent: 0,
   messagesReceived: 0,
@@ -65,6 +74,13 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
   private lastCollectionTime: number;
   private totalMessages: number = 0;
   private successfulMessages: number = 0;
+  // --- Enhanced error log ---
+  private readonly errorLog: NetworkErrorLogEntry[] = [];
+  private readonly maxErrorLog: number = 50;
+  // --- Rolling averages ---
+  private readonly latencyWindow: number[] = [];
+  private readonly bandwidthWindow: number[] = [];
+  private readonly errorRateWindow: number[] = [];
 
   constructor(networkTransport: NetworkTransport, config: MonitoringConfig) {
     super();
@@ -118,52 +134,54 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     if (timeDiff > 0) {
       const bytesDiff =
         this.metricsState.metrics.bytesTransferred - this.lastBytesTransferred;
-      this.metricsState.metrics.bandwidthUsage = bytesDiff / timeDiff / 1024; // Convert to KB/s
+      const bandwidth = bytesDiff / timeDiff / 1024; // KB/s
+      this.metricsState.metrics.bandwidthUsage = bandwidth;
+      this.bandwidthWindow.push(bandwidth);
+      if (this.bandwidthWindow.length > this.maxLatencyHistory) {
+        this.bandwidthWindow.shift();
+      }
       this.lastBytesTransferred = this.metricsState.metrics.bytesTransferred;
       this.lastBytesTimestamp = now;
     }
 
     if (this.lastMessageTime.has(message.source)) {
-      const latency = now - this.lastMessageTime.get(message.source)!;
+      const prev = this.lastMessageTime.get(message.source)!;
+      const latency = now - prev;
       this.messageLatencies.push(latency);
+      this.latencyWindow.push(latency);
       if (this.messageLatencies.length > this.maxLatencyHistory) {
         this.messageLatencies.shift();
       }
-      this.metricsState.metrics.messageLatency = this.calculateAverageLatency();
-      this.metricsState.metrics.p95Latency = this.calculateP95Latency();
+      if (this.latencyWindow.length > this.maxLatencyHistory) {
+        this.latencyWindow.shift();
+      }
     }
     this.lastMessageTime.set(message.source, now);
 
-    // Calculate RTT for responses
-    if (
-      message.type === NetworkMessageType.APPEND_ENTRIES_RESPONSE ||
-      message.type === NetworkMessageType.REQUEST_VOTE_RESPONSE ||
-      message.type === NetworkMessageType.STATE_SYNC_RESPONSE
-    ) {
-      const requestId = message.id.replace("_RESPONSE", "");
-      if (this.messageTimestamps.has(requestId)) {
-        const sendTime = this.messageTimestamps.get(requestId)!;
-        const rtt = now - sendTime;
-        this.rttValues.push(rtt);
-        this.messageTimestamps.delete(requestId);
-      }
-    }
-
-    // Store timestamp for sent messages
-    if (
-      message.type === NetworkMessageType.APPEND_ENTRIES ||
-      message.type === NetworkMessageType.REQUEST_VOTE ||
-      message.type === NetworkMessageType.STATE_SYNC
-    ) {
-      this.messageTimestamps.set(message.id, now);
+    // Track error rate window (0 for success)
+    this.errorRateWindow.push(0);
+    if (this.errorRateWindow.length > this.maxLatencyHistory) {
+      this.errorRateWindow.shift();
     }
   }
 
   private handleError(error: NetworkError): void {
-    this.totalMessages++;
-    this.metricsState.metrics.errors++;
     this.metricsState.lastError = error;
-    this.metricsState.metrics.messageSuccessRate = this.calculateSuccessRate();
+    this.metricsState.metrics.errors++;
+    // Add to error log
+    this.errorLog.push({
+      timestamp: Date.now(),
+      error,
+      context: error.message || undefined,
+    });
+    if (this.errorLog.length > this.maxErrorLog) {
+      this.errorLog.shift();
+    }
+    // Track error rate for rolling average
+    this.errorRateWindow.push(1);
+    if (this.errorRateWindow.length > this.maxLatencyHistory) {
+      this.errorRateWindow.shift();
+    }
   }
 
   private handleConnect(nodeId: string): void {
@@ -309,5 +327,44 @@ export class NetworkMetricsCollector extends MetricsCollector<NetworkMetricsData
     this.totalMessages = 0;
     this.successfulMessages = 0;
     this.lastBytesTransferred = 0;
+  }
+
+  /**
+   * Returns the last N network errors for diagnostics.
+   * @param count Number of errors to return (default: 10)
+   */
+  public getRecentErrors(count = 10): NetworkErrorLogEntry[] {
+    return this.errorLog.slice(-count);
+  }
+
+  /**
+   * Returns the rolling average of message latency (ms) over the last N samples.
+   * @param window Number of samples to average (default: 20)
+   */
+  public getRollingAverageLatency(window = 20): number {
+    const arr = this.latencyWindow.slice(-window);
+    if (arr.length === 0) return 0;
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  /**
+   * Returns the rolling average bandwidth usage (KB/s) over the last N samples.
+   * @param window Number of samples to average (default: 20)
+   */
+  public getRollingAverageBandwidth(window = 20): number {
+    const arr = this.bandwidthWindow.slice(-window);
+    if (arr.length === 0) return 0;
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  /**
+   * Returns the rolling error rate (%) over the last N samples.
+   * @param window Number of samples to average (default: 20)
+   */
+  public getRollingErrorRate(window = 20): number {
+    const arr = this.errorRateWindow.slice(-window);
+    if (arr.length === 0) return 0;
+    const errors = arr.filter((v) => v === 1).length;
+    return (errors / arr.length) * 100;
   }
 }

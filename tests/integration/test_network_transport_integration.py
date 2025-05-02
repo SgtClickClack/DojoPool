@@ -142,21 +142,68 @@ async def test_message_handling(network_integration):
     # Add assertions for message handling
 
 async def test_error_recovery(network_integration):
-    """Test error recovery mechanisms."""
+    """Test error recovery mechanisms and circuit breaker transitions."""
     # Test network disconnect recovery
     network_integration.networkTransport.emit("disconnect", "test-node-2")
     await asyncio.sleep(0.1)  # Allow for reconnection attempt
-    # Add assertions for reconnection attempt
-    
-    # Test consensus error recovery
-    mock_error = Exception("Consensus error")
-    network_integration.consensusManager.emit("error", mock_error)
-    # Add assertions for consensus error recovery
-    
-    # Test state replication error recovery
-    mock_error = Exception("Replication error")
-    network_integration.stateReplicator.emit("error", mock_error)
-    # Add assertions for replication error recovery
+    # Assert reconnection attempt logic (mocked)
+    assert network_integration.networkTransport.connectToPeer.called
+
+    # Test circuit breaker transitions
+    # Simulate repeated send failures to trigger circuit breaker
+    peer_id = "test-node-2"
+    breaker = network_integration.networkTransport.peerBreakers.get(peer_id)
+    if breaker:
+        breaker.failureCount = network_integration.networkTransport.maxFailures
+        breaker.state = network_integration.networkTransport.CircuitBreakerState.OPEN
+        breaker.nextAttempt = 0
+    else:
+        network_integration.networkTransport.peerBreakers[peer_id] = type('MockBreaker', (), {
+            'failureCount': network_integration.networkTransport.maxFailures,
+            'state': network_integration.networkTransport.CircuitBreakerState.OPEN,
+            'nextAttempt': 0
+        })()
+    # Attempt to send and expect circuit breaker error
+    with pytest.raises(Exception) as excinfo:
+        await network_integration.networkTransport.send(peer_id, NetworkMessageType.STATE_SYNC, {"state": MOCK_GAME_STATE})
+    assert "CIRCUIT_BREAKER_OPEN" in str(excinfo.value)
+
+    # Test queue limit enforcement
+    network_integration.networkTransport.pendingMessageQueue = [None] * network_integration.networkTransport.queueLimit
+    with pytest.raises(Exception) as excinfo:
+        await network_integration.networkTransport.send(peer_id, NetworkMessageType.STATE_SYNC, {"state": MOCK_GAME_STATE})
+    assert "QUEUE_LIMIT_EXCEEDED" in str(excinfo.value)
+
+    # Test message timeout and automatic retry
+    # Simulate connection loss so message will timeout and be retried
+    network_integration.networkTransport.connections.pop(peer_id, None)
+    # Patch processPendingMessages to check retry
+    retry_called = False
+    orig_process = network_integration.networkTransport.processPendingMessages
+    def retry_patch():
+        nonlocal retry_called
+        retry_called = True
+        orig_process()
+    network_integration.networkTransport.processPendingMessages = retry_patch
+    await network_integration.networkTransport.send(peer_id, NetworkMessageType.STATE_SYNC, {"state": MOCK_GAME_STATE})
+    await asyncio.sleep(0.2)
+    assert retry_called
+    network_integration.networkTransport.processPendingMessages = orig_process
+
+    # Test exponential backoff (mock getBackoffDelay)
+    network_integration.networkTransport.getBackoffDelay = lambda t: 1000
+    # Simulate send failure to trigger backoff
+    with patch.object(network_integration.networkTransport, 'handleSendFailure') as mock_fail:
+        await network_integration.networkTransport.send(peer_id, NetworkMessageType.STATE_SYNC, {"state": MOCK_GAME_STATE})
+        assert mock_fail.called
+
+    # Test recovery from peer/network failures
+    # Simulate peer recovery by resetting breaker and sending again
+    if breaker:
+        breaker.state = network_integration.networkTransport.CircuitBreakerState.CLOSED
+        breaker.failureCount = 0
+    # Should succeed now (mocked send)
+    await network_integration.networkTransport.send(peer_id, NetworkMessageType.STATE_SYNC, {"state": MOCK_GAME_STATE})
 
 async def test_vector_clock_integration(network_integration):
     """Test vector clock integration."""
