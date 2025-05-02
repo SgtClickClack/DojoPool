@@ -14,4 +14,5 @@ psutil
 redis
 joblib
 aiohttp
-aiosmtplib 
+aiosmtplib
+Flask-DebugToolbar 

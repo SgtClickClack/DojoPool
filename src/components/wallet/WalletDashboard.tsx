@@ -3,38 +3,39 @@ import { Card, Grid, Typography, Button, Box, CircularProgress } from '@mui/mate
 import { useTheme } from '@mui/material/styles';
 import { AccountBalanceWallet, SwapHoriz, Timeline, EmojiEvents } from '@mui/icons-material';
 
-import { WalletService } from '../../services/wallet';
+import { WalletService } from '../../services/wallet/WalletService';
 import { WalletTransactionList } from './WalletTransactionList';
-import { WalletStats } from './WalletStats';
+import { WalletStatsDisplay as WalletStatsComponent } from './WalletStats';
 import { TransferDialog } from './TransferDialog';
 import { formatCurrency } from '../../utils/format';
 import { useAuth } from '../../hooks/useAuth';
-import { useNotification } from '../../hooks/useNotification';
+// import { useNotification } from '../../hooks/useNotification'; // Comment out
+import { Wallet, Transaction, WalletStats } from '../../types/wallet';
 
 export const WalletDashboard: React.FC = () => {
   const theme = useTheme();
   const { user } = useAuth();
-  const { showNotification } = useNotification();
+  // const { showNotification } = useNotification(); // Comment out
   const [loading, setLoading] = useState(true);
-  const [wallet, setWallet] = useState<any>(null);
-  const [stats, setStats] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [wallet, setWallet] = useState<Wallet | null>(null);
+  const [stats, setStats] = useState<WalletStats | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+
+  // Instantiate the service once
+  const walletService = React.useMemo(() => new WalletService(), []);
 
   useEffect(() => {
     loadWalletData();
-  }, []);
+  }, [walletService]); // Add service to dependency array
 
   const loadWalletData = async () => {
     try {
       setLoading(true);
-      const walletService = new WalletService();
-      
-      // Load wallet details
+      // Use the component-level instance
       const walletData = await walletService.getWallet();
       setWallet(walletData);
 
-      // Load wallet stats
       if (walletData?.id) {
         const [statsData, transactionsData] = await Promise.all([
           walletService.getWalletStats(walletData.id),
@@ -42,10 +43,17 @@ export const WalletDashboard: React.FC = () => {
         ]);
         setStats(statsData);
         setTransactions(transactionsData);
+      } else {
+        setStats(null);
+        setTransactions([]);
       }
     } catch (error) {
-      showNotification('Error loading wallet data', 'error');
+      // Comment out notification call
+      // showNotification('Error loading wallet data', 'error'); 
       console.error('Error loading wallet data:', error);
+      setWallet(null);
+      setStats(null);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
@@ -53,14 +61,15 @@ export const WalletDashboard: React.FC = () => {
 
   const handleTransfer = async (recipientId: number, amount: number, description: string) => {
     try {
-      const walletService = new WalletService();
+      // Use the component-level instance
       await walletService.transferCoins(recipientId, amount, description);
-      showNotification('Transfer successful', 'success');
-      loadWalletData(); // Reload wallet data
+      // showNotification('Transfer successful', 'success'); // Comment out
+      console.log('Transfer successful'); // Replace with console log for now
+      loadWalletData();
       setTransferDialogOpen(false);
     } catch (error) {
-      showNotification('Transfer failed', 'error');
-      console.error('Transfer error:', error);
+      // showNotification('Transfer failed', 'error'); // Comment out
+      console.error('Transfer error:', error); // Keep console error
     }
   };
 
@@ -75,7 +84,6 @@ export const WalletDashboard: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Grid container spacing={3}>
-        {/* Balance Card */}
         <Grid item xs={12} md={6} lg={3}>
           <Card sx={{ p: 2, height: '100%' }}>
             <Box display="flex" alignItems="center" mb={2}>
@@ -97,7 +105,6 @@ export const WalletDashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* Stats Cards */}
         <Grid item xs={12} md={6} lg={3}>
           <Card sx={{ p: 2, height: '100%' }}>
             <Box display="flex" alignItems="center" mb={2}>
@@ -105,10 +112,10 @@ export const WalletDashboard: React.FC = () => {
               <Typography variant="h6">Transactions</Typography>
             </Box>
             <Typography variant="h4" component="div">
-              {stats?.total_transactions || 0}
+              {stats?.total_transactions ?? 0}
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              Total Volume: {formatCurrency(stats?.total_volume || 0, 'DP')}
+              Total Volume: {formatCurrency(typeof stats?.total_volume === 'number' ? stats.total_volume : 0, 'DP')}
             </Typography>
           </Card>
         </Grid>
@@ -120,18 +127,19 @@ export const WalletDashboard: React.FC = () => {
               <Typography variant="h6">Rewards</Typography>
             </Box>
             <Typography variant="h4" component="div">
-              {Object.values(stats?.rewards || {}).reduce((acc: number, reward: any) => acc + reward.count, 0)}
+              {/* Sum counts from the rewards object */}
+              {stats?.rewards ? Object.values(stats.rewards).reduce((acc, reward) => acc + (reward?.count || 0), 0) : 0}
             </Typography>
             <Typography variant="body2" color="textSecondary">
               Total Earned: {formatCurrency(
-                Object.values(stats?.rewards || {}).reduce((acc: number, reward: any) => acc + reward.total_amount, 0),
+                /* Sum total_amount from the rewards object */
+                stats?.rewards ? Object.values(stats.rewards).reduce((acc, reward) => acc + (reward?.total_amount || 0), 0) : 0,
                 'DP'
               )}
             </Typography>
           </Card>
         </Grid>
 
-        {/* Transaction History */}
         <Grid item xs={12} lg={8}>
           <Card sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>Transaction History</Typography>
@@ -139,16 +147,14 @@ export const WalletDashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* Stats */}
         <Grid item xs={12} lg={4}>
           <Card sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>Statistics</Typography>
-            <WalletStats stats={stats} />
+            <WalletStatsComponent stats={stats} />
           </Card>
         </Grid>
       </Grid>
 
-      {/* Transfer Dialog */}
       <TransferDialog
         open={transferDialogOpen}
         onClose={() => setTransferDialogOpen(false)}

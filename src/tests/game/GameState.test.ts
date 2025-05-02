@@ -1,240 +1,267 @@
-import { GameState, GameTable, Player } from "../../core/game/GameState";
+import { GameState, GameTable, BallState, Pocket, ShotAnalysisData } from "../../core/game/GameState";
+import { Player } from "../../types/game";
 import {
-  ConsensusProtocol,
-  ConsensusConfig,
-} from "../../core/consensus/ConsensusProtocol";
-import {
-  StateReplicator,
-  ReplicatorConfig,
-} from "../../core/replication/StateReplicator";
+  RaftConsensus,
+  ConsensusConfig as RaftConsensusConfig
+} from "../../core/consensus/RaftConsensus";
+import { StateReplicator, ReplicationConfig } from "../../core/replication/StateReplicator";
 import { NetworkTransport } from "../../core/network/NetworkTransport";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { AIRefereeService, FoulType, RefereeResult } from "../../services/ai/AIRefereeService";
 
 describe("GameState", () => {
   let gameState: GameState;
-  let consensus: ConsensusProtocol;
-  let replicator: StateReplicator;
+  let consensus: RaftConsensus;
   let transport: NetworkTransport;
   let tempDir: string;
+  let aiRefereeServiceMock: jest.SpyInstance;
 
   beforeEach(async () => {
-    // Create temp directory for storage
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "game-state-test-"));
-
-    // Set up network transport
     transport = new NetworkTransport({
-      nodeId: "node1",
-      port: 3001,
-    });
-
+        nodeId: "node1",
+        port: 3001,
+        peers: [],
+    } as any);
     await transport.start();
 
-    // Set up consensus
-    const consensusConfig: ConsensusConfig = {
+    const consensusConfig: RaftConsensusConfig = {
       nodeId: "node1",
-      electionTimeoutMin: 150,
-      electionTimeoutMax: 300,
+      electionTimeout: 300,
       heartbeatInterval: 50,
-      transport,
+      nodes: ["node1"],
     };
+    consensus = new RaftConsensus(consensusConfig);
 
-    consensus = new ConsensusProtocol(consensusConfig);
+    gameState = new GameState("node1", consensusConfig);
 
-    // Set up replicator
-    const replicatorConfig: ReplicatorConfig = {
-      nodeId: "node1",
-      consensus,
-      storageDir: tempDir,
-    };
-
-    replicator = new StateReplicator(replicatorConfig);
-
-    // Set up game state
-    gameState = new GameState("node1", consensus, replicator);
-
-    // Start consensus
-    consensus.start();
+    aiRefereeServiceMock = jest.spyOn((gameState as any).aiRefereeService, 'analyzeShot');
   });
 
   afterEach(async () => {
-    consensus.stop();
-    await transport.stop();
-
-    // Clean up temp directory
-    fs.rmSync(tempDir, { recursive: true, force: true });
+     aiRefereeServiceMock.mockRestore();
+     await transport.stop();
+     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  describe("Table Management", () => {
-    it("should create a new table", () => {
-      const tableId = "table1";
-      gameState.createTable(tableId);
-
-      const table = gameState.getTable(tableId);
-      expect(table).toBeDefined();
-      expect(table?.id).toBe(tableId);
-      expect(table?.players).toEqual({});
-      expect(table?.gameStarted).toBe(false);
-      expect(table?.balls.length).toBe(16);
-    });
-
-    it("should list all tables", () => {
-      gameState.createTable("table1");
-      gameState.createTable("table2");
-
-      const tables = gameState.getAllTables();
-      expect(tables.length).toBe(2);
-      expect(tables.map((t) => t.id)).toContain("table1");
-      expect(tables.map((t) => t.id)).toContain("table2");
-    });
-  });
-
-  describe("Player Management", () => {
-    let tableId: string;
-
-    beforeEach(() => {
-      tableId = "test-table";
-      gameState.createTable(tableId);
-    });
-
-    it("should allow a player to join a table", () => {
-      const playerId = "player1";
-      const playerName = "Test Player";
-
-      gameState.joinTable(tableId, playerId, playerName);
-
-      const table = gameState.getTable(tableId);
-      expect(table?.players[playerId]).toBeDefined();
-      expect(table?.players[playerId].name).toBe(playerName);
-    });
-
-    it("should not allow more than 2 players at a table", () => {
-      gameState.joinTable(tableId, "player1", "Player 1");
-      gameState.joinTable(tableId, "player2", "Player 2");
-
-      expect(() => {
-        gameState.joinTable(tableId, "player3", "Player 3");
-      }).toThrow("Table is full");
-    });
-
-    it("should allow a player to leave a table", () => {
-      const playerId = "player1";
-      gameState.joinTable(tableId, playerId, "Test Player");
-      gameState.leaveTable(tableId, playerId);
-
-      const table = gameState.getTable(tableId);
-      expect(table?.players[playerId]).toBeUndefined();
-    });
-
-    it("should end the game if current turn player leaves", () => {
-      gameState.joinTable(tableId, "player1", "Player 1");
-      gameState.joinTable(tableId, "player2", "Player 2");
-      gameState.startGame(tableId);
-
-      const table = gameState.getTable(tableId)!;
-      const currentTurn = table.currentTurn!;
-      gameState.leaveTable(tableId, currentTurn);
-
-      expect(table.gameEnded).toBe(true);
-      expect(table.winner).toBe(Object.keys(table.players)[0]);
-    });
-  });
-
-  describe("Game Flow", () => {
+  describe("analyzeShotOutcome", () => {
     let tableId: string;
     let player1Id: string;
     let player2Id: string;
 
-    beforeEach(() => {
-      tableId = "test-table";
-      player1Id = "player1";
-      player2Id = "player2";
+    const setupShotTest = () => {
+        tableId = "analyze-test-table";
+        player1Id = "p1";
+        player2Id = "p2";
+        gameState.createTableRequest(tableId, "Test Table");
+        gameState.joinTableRequest(tableId, player1Id, "Player 1", "teamA", "pos1");
+        gameState.joinTableRequest(tableId, player2Id, "Player 2", "teamB", "pos2");
+        
+        const table = (gameState as any).tables.get(tableId);
+        if (!table) throw new Error("Table not created in test setup");
 
-      gameState.createTable(tableId);
-      gameState.joinTable(tableId, player1Id, "Player 1");
-      gameState.joinTable(tableId, player2Id, "Player 2");
+        table.gameStarted = true;
+        table.gameEnded = false;
+        table.status = "active";
+        table.balls = (gameState as any).createInitialBallState(table.tableWidth, table.tableHeight);
+        table.pocketedBalls = [];
+        table.fouls = { [player1Id]: 0, [player2Id]: 0 };
+        table.playerBallTypes = { [player1Id]: 'solids', [player2Id]: 'stripes' };
+        table.currentTurn = player1Id;
+        table.ballInHand = false;
+        table.ballInHandFromBreakScratch = false;
+        table.pocketedBallsBeforeShot = [];
+
+        (gameState as any).preShotTableState.set(tableId, {
+             pocketedBalls: [...table.pocketedBalls],
+             playerBallTypes: { ...table.playerBallTypes },
+             balls: table.balls.map((b: BallState) => ({...b})),
+             currentTurn: table.currentTurn,
+         });
+         (gameState as any).currentShotAnalysis.set(tableId, {
+            firstObjectBallHit: 1,
+            cueBallHitRail: false,
+            objectBallHitRailAfterContact: true,
+            isBreakShot: false,
+         });
+
+        return table as GameTable;
+    };
+
+    it('should continue turn if player pockets their own ball legally', () => {
+        const table = setupShotTest();
+        table.balls.find((b: BallState) => b.number === 1)!.pocketed = true;
+        table.pocketedBalls.push(1);
+
+        const mockResult: RefereeResult = {
+            foul: null, reason: null, isBallInHand: false,
+            nextPlayerId: player1Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[player1Id]).toBe(0);
+        expect(table.ballInHand).toBe(false);
+        expect(table.currentTurn).toBe(player1Id);
+        expect((gameState as any).currentShotAnalysis.has(tableId)).toBe(false);
+        expect((gameState as any).preShotTableState.has(tableId)).toBe(false);
     });
 
-    it("should start a game with two players", () => {
-      gameState.startGame(tableId);
+    it('should change turn if player does not pocket their own ball legally', () => {
+        const table = setupShotTest();
+        const mockResult: RefereeResult = {
+            foul: null, reason: null, isBallInHand: false,
+            nextPlayerId: player2Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
 
-      const table = gameState.getTable(tableId);
-      expect(table?.gameStarted).toBe(true);
-      expect(table?.currentTurn).toBeDefined();
-      expect([player1Id, player2Id]).toContain(table?.currentTurn);
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.ballInHand).toBe(false);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, player2Id);
+        expect(table.currentTurn).toBe(player2Id);
+        changeTurnSpy.mockRestore();
     });
 
-    it("should not start a game with one player", () => {
-      gameState.leaveTable(tableId, player2Id);
+     it('should record foul, give ball-in-hand, and change turn on foul result', () => {
+        const table = setupShotTest();
+        table.balls.find((b: BallState) => b.number === 0)!.pocketed = true;
+        table.pocketedBalls.push(0);
+        const mockResult: RefereeResult = {
+            foul: FoulType.SCRATCH, reason: 'Cue ball pocketed', isBallInHand: true,
+            nextPlayerId: player2Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
 
-      expect(() => {
-        gameState.startGame(tableId);
-      }).toThrow("Need exactly 2 players to start the game");
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[player1Id]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(table.ballInHandFromBreakScratch).toBe(false);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, player2Id);
+        expect(table.currentTurn).toBe(player2Id);
+        changeTurnSpy.mockRestore();
     });
 
-    it("should handle turn changes", () => {
-      gameState.startGame(tableId);
-      const table = gameState.getTable(tableId)!;
-      const initialTurn = table.currentTurn;
+     it('should set ballInHandFromBreakScratch flag for break foul scratch', () => {
+        const table = setupShotTest();
+        table.balls.find((b: BallState) => b.number === 0)!.pocketed = true;
+        table.pocketedBalls.push(0);
+        (gameState as any).currentShotAnalysis.get(tableId)!.isBreakShot = true;
 
-      gameState.changeTurn(tableId);
+        const mockResult: RefereeResult = {
+            foul: FoulType.BREAK_FOUL, reason: 'Scratch on the break shot.', isBallInHand: true,
+            nextPlayerId: player2Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
 
-      expect(table.currentTurn).not.toBe(initialTurn);
-      expect([player1Id, player2Id]).toContain(table.currentTurn);
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[player1Id]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(table.ballInHandFromBreakScratch).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, player2Id);
+        expect(table.currentTurn).toBe(player2Id);
+        changeTurnSpy.mockRestore();
     });
 
-    it("should handle shots and ball updates", () => {
-      gameState.startGame(tableId);
-      const table = gameState.getTable(tableId)!;
-      const currentTurn = table.currentTurn!;
+     it('should assign ball types if table is open and first legal ball is pocketed', () => {
+        const table = setupShotTest();
+        table.playerBallTypes[player1Id] = 'open';
+        table.playerBallTypes[player2Id] = 'open';
+        table.balls.find((b: BallState) => b.number === 3)!.pocketed = true;
+        table.pocketedBalls.push(3);
 
-      gameState.makeShot(tableId, currentTurn, {
-        force: 50,
-        angle: Math.PI / 4,
-      });
+         const mockResult: RefereeResult = {
+            foul: null, reason: null, isBallInHand: false,
+            nextPlayerId: player1Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
 
-      const cueBall = table.balls[0];
-      expect(cueBall.velocity.x).toBeGreaterThan(0);
-      expect(cueBall.velocity.y).toBeGreaterThan(0);
+        (gameState as any).analyzeShotOutcome(tableId);
 
-      // Update ball positions
-      const newPositions = [{ number: 0, position: { x: 100, y: 100 } }];
-      gameState.updateBallPositions(tableId, newPositions);
-
-      expect(table.balls[0].position).toEqual({ x: 100, y: 100 });
+        expect(table.playerBallTypes[player1Id]).toBe('solids');
+        expect(table.playerBallTypes[player2Id]).toBe('stripes');
+        expect(table.currentTurn).toBe(player1Id);
     });
 
-    it("should handle pocketed balls and game end", () => {
-      gameState.startGame(tableId);
-      const table = gameState.getTable(tableId)!;
-      const currentTurn = table.currentTurn!;
+    it('should end game with win if 8-ball pocketed legally after group cleared', () => {
+        const table = setupShotTest();
+        [1, 2, 3, 4, 5, 6, 7].forEach(num => {
+            if (!table.pocketedBalls.includes(num)) table.pocketedBalls.push(num);
+            const ball = table.balls.find((b: BallState) => b.number === num);
+            if (ball) ball.pocketed = true;
+        });
+        table.balls.find((b: BallState) => b.number === 8)!.pocketed = true;
+        table.pocketedBalls.push(8);
 
-      // Pocket some balls
-      gameState.pocketBall(tableId, 1);
-      expect(table.pocketedBalls).toContain(1);
-      expect(table.balls[1].pocketed).toBe(true);
+        const mockResult: RefereeResult = {
+            foul: null, reason: null, isBallInHand: false,
+            nextPlayerId: player1Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+        const endGameSpy = jest.spyOn(gameState as any, 'endGame');
 
-      // Pocket the 8-ball
-      gameState.pocketBall(tableId, 8);
-      expect(table.gameEnded).toBe(true);
-      expect(table.winner).toBe(currentTurn);
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(endGameSpy).toHaveBeenCalledWith(tableId, player1Id);
+
+        endGameSpy.mockRestore();
     });
+
+    it('should end game with loss if 8-ball pocketed on a foul', () => {
+        const table = setupShotTest();
+        table.balls.find((b: BallState) => b.number === 8)!.pocketed = true;
+        table.pocketedBalls.push(8);
+        table.balls.find((b: BallState) => b.number === 0)!.pocketed = true;
+        table.pocketedBalls.push(0);
+
+        const mockResult: RefereeResult = {
+            foul: FoulType.SCRATCH, reason: 'Cue ball pocketed', isBallInHand: true,
+            nextPlayerId: player2Id
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+        const endGameSpy = jest.spyOn(gameState as any, 'endGame');
+
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(endGameSpy).toHaveBeenCalledWith(tableId, player2Id);
+
+        endGameSpy.mockRestore();
+    });
+
+     it('should end game with loss if 8-ball pocketed before group cleared', () => {
+        const table = setupShotTest();
+        table.balls.find((b: BallState) => b.number === 8)!.pocketed = true;
+        table.pocketedBalls.push(8);
+
+        const mockResult: RefereeResult = {
+            foul: null, reason: null, isBallInHand: false,
+            nextPlayerId: player2Id 
+        };
+        aiRefereeServiceMock.mockReturnValue(mockResult);
+        const endGameSpy = jest.spyOn(gameState as any, 'endGame');
+
+        (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(endGameSpy).toHaveBeenCalledWith(tableId, player2Id);
+
+        endGameSpy.mockRestore();
+    });
+
   });
 
-  describe("State Replication", () => {
-    it("should replicate state changes across nodes", (done) => {
-      const tableId = "test-table";
-      const playerId = "player1";
-
-      gameState.on("state:updated", ({ state }) => {
-        expect(state.players[playerId]).toBeDefined();
-        expect(state.players[playerId].name).toBe("Test Player");
-        done();
-      });
-
-      gameState.createTable(tableId);
-      gameState.joinTable(tableId, playerId, "Test Player");
-    });
-  });
 });

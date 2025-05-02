@@ -7,9 +7,11 @@ with detailed docstrings, secure password handling, and complete type safety.
 """
 
 from datetime import datetime
+from typing import Optional
 
 from flask_login import UserMixin  # type: ignore
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey # Added Float, ForeignKey
 from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
 
 from dojopool.core.extensions import db  # type: ignore
@@ -23,18 +25,22 @@ class User(db.Model, UserMixin):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
 
-    id = db.Column(db.Integer, primary_key=True, index=True)  # type: int
-    username = db.Column(db.String(80), unique=True, index=True)  # type: str
-    email = db.Column(db.String(120), unique=True, index=True)  # type: str
-    password_hash = db.Column(db.String(128), nullable=False)  # type: str
-    google_id = db.Column(db.String(120), unique=True, nullable=True)
-    profile_picture = db.Column(db.String(255), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # type: datetime
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-    last_login = db.Column(db.DateTime, nullable=True)
-    _is_active = db.Column("is_active", db.Boolean, nullable=False, default=True)
-    is_verified = db.Column(db.Boolean, nullable=False, default=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    # Using Mapped type hints for clearer column definitions
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(db.String(80), unique=True, index=True)
+    email: Mapped[str] = mapped_column(db.String(120), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(db.String(128), nullable=False)
+    google_id: Mapped[Optional[str]] = mapped_column(db.String(120), unique=True, nullable=True)
+    profile_picture: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login: Mapped[Optional[datetime]] = mapped_column(db.DateTime, nullable=True)
+    _is_active: Mapped[bool] = mapped_column("is_active", db.Boolean, nullable=False, default=True)
+    is_verified: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=False)
+    is_admin: Mapped[bool] = mapped_column(db.Boolean, default=False)
+
+    # Wallet Balance
+    balance: Mapped[float] = mapped_column(Float, default=0.0)
 
     # Global Ranking Fields
     global_rating = db.Column(db.Float, default=1000.0)
@@ -55,9 +61,16 @@ class User(db.Model, UserMixin):
     ranking_history = db.Column(db.JSON)  # Store historical ranking data
 
     # Relationships
-    # games_won relationship is attached after Game is imported below
     roles = relationship(
         "dojopool.models.role.Role", secondary=user_roles, lazy="subquery", backref=db.backref("users", lazy=True)
+    )
+    wallet_transactions = relationship('WalletTransaction', back_populates='user', cascade='all, delete-orphan') # Added relationship
+
+    # Define games_won relationship here
+    games_won = relationship(
+        "dojopool.models.game.Game",
+        foreign_keys="dojopool.models.game.Game.winner_id", # Use string for foreign keys
+        back_populates="winner"
     )
 
     def __repr__(self) -> str:
@@ -108,10 +121,10 @@ class User(db.Model, UserMixin):
     def to_dict(self):
         """Convert user to dictionary."""
         created_at_str = (
-            self.created_at.isoformat() if hasattr(self.created_at, "isoformat") else None
+            self.created_at.isoformat() if self.created_at else None
         )
         last_login_str = (
-            self.last_login.isoformat() if hasattr(self.last_login, "isoformat") else None
+            self.last_login.isoformat() if self.last_login else None
         )
 
         return {
@@ -125,11 +138,7 @@ class User(db.Model, UserMixin):
             "roles": [role.name for role in self.roles],
         }
 
-    def __init__(self, id: int, username: str) -> None:
-        self.id = id
-        self.username = username
-
-    def is_active(self) -> bool:
+    def check_is_active(self) -> bool:
         # Dummy implementation.
         return True
 
@@ -144,9 +153,18 @@ from dojopool.models.role import Role
 #     back_populates="user",
 #     foreign_keys=[TournamentParticipant.user_id]
 # )
-# Attach games_won relationship after Game is defined
-User.games_won = relationship(
-    "dojopool.models.game.Game",
-    foreign_keys=[Game.winner_id],
-    back_populates="winner"
-)
+
+# Attach games_won relationship after Game is defined - MOVED INSIDE CLASS
+# User.games_won = relationship(
+#     "dojopool.models.game.Game",
+#     foreign_keys=[Game.winner_id],
+#     back_populates="winner"
+# )
+
+# Attach wallet_transactions relationship after WalletTransaction is defined
+# This might need adjustment if WalletTransaction is in a different file
+# User.wallet_transactions = relationship(
+#     "dojopool.models.marketplace.WalletTransaction", # Assuming it's in marketplace.py
+#     back_populates="user",
+#     cascade="all, delete-orphan"
+# )

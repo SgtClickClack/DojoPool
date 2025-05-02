@@ -1,13 +1,16 @@
 """Tournament service module."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload # Import joinedload
 
-from dojopool.core.tournaments.models import Tournament, TournamentParticipant, TournamentStatus, TournamentFormat, TournamentMatch
 from dojopool.core.extensions import db
+from dojopool.models.user import User
+from dojopool.models.venue import Venue
+from dojopool.models.tournament import Tournament, TournamentParticipant, TournamentStatus, TournamentFormat
+from dojopool.models.match import Match
 import math
 import random
 
@@ -25,6 +28,9 @@ class TournamentService:
         Returns:
             Tournament: Created tournament
         """
+        # Ensure status is handled correctly (using enum value if passed)
+        if 'status' in data and isinstance(data['status'], TournamentStatus):
+            data['status'] = data['status'].value
         tournament = Tournament(
             name=data["name"],
             description=data.get("description"),
@@ -185,10 +191,10 @@ class TournamentService:
             score: Final score string (e.g., "7-5")
         """
         # Fetch match and related data eagerly
-        match = TournamentMatch.query.options(
-            joinedload(TournamentMatch.tournament).joinedload(Tournament.participants), # Load tournament and its participants
-            joinedload(TournamentMatch.player1),
-            joinedload(TournamentMatch.player2)
+        match = Match.query.options(
+            joinedload(Match.tournament).joinedload(Tournament.participants), # Load tournament and its participants
+            joinedload(Match.player1),
+            joinedload(Match.player2)
         ).get(match_id)
 
         if not match:
@@ -289,7 +295,7 @@ class TournamentService:
 
         if tournament.format == TournamentFormat.SWISS.value:
             # Check if all matches for the *current* round are completed
-            current_round_matches = TournamentMatch.query.filter_by(
+            current_round_matches = Match.query.filter_by(
                 tournament_id=tournament.id,
                 round=match.round # Check matches from the round just completed
             ).all()
@@ -326,10 +332,10 @@ class TournamentService:
             print(f"Error completing match {match_id} or proceeding: {e}")
             raise ValueError("An error occurred while finalizing the match completion.")
 
-    def _create_grand_final_reset(self, tournament: Tournament, first_gf_match: TournamentMatch):
+    def _create_grand_final_reset(self, tournament: Tournament, first_gf_match: Match):
         """Creates the second Grand Final (reset) match."""
         # Players are the same as the first GF, but match type indicates it's the reset
-        reset_match = TournamentMatch(
+        reset_match = Match(
             tournament_id=tournament.id,
             round=first_gf_match.round + 1, # Typically next round, or same round + high match number
             match_number=1, # Or 2 if GF1 was 1
@@ -341,7 +347,7 @@ class TournamentService:
         db.session.add(reset_match)
         print(f"Created Grand Final Reset match (R{reset_match.round} M{reset_match.match_number}) between {reset_match.player1_id} and {reset_match.player2_id}")
 
-    def _advance_single_elimination_winner(self, tournament: Tournament, completed_match: TournamentMatch, winner_id: int):
+    def _advance_single_elimination_winner(self, tournament: Tournament, completed_match: Match, winner_id: int):
         """Find or create the next match for the winner in a single elimination bracket."""
         current_round = completed_match.round
         # Determine the match number in the *next* round the winner advances to
@@ -349,7 +355,7 @@ class TournamentService:
         next_round = current_round + 1
 
         # Find if the corresponding match in the next round already exists
-        next_match = TournamentMatch.query.filter_by(
+        next_match = Match.query.filter_by(
             tournament_id=tournament.id,
             round=next_round,
             match_number=next_round_match_number
@@ -374,7 +380,7 @@ class TournamentService:
 
         else:
             # Match doesn't exist, create it with the winner as player1
-            new_match = TournamentMatch(
+            new_match = Match(
                 tournament_id=tournament.id,
                 round=next_round,
                 match_number=next_round_match_number,
@@ -385,7 +391,7 @@ class TournamentService:
             db.session.add(new_match)
             print(f"Creating Round {next_round} Match {next_round_match_number} with User {winner_id} as Player 1.")
 
-    def _advance_winner_bracket(self, tournament: Tournament, completed_match: TournamentMatch, winner_id: int):
+    def _advance_winner_bracket(self, tournament: Tournament, completed_match: Match, winner_id: int):
         """Advance the winner in the winner's bracket and potentially create the Grand Final."""
         current_round = completed_match.round
         next_round = current_round + 1
@@ -422,7 +428,7 @@ class TournamentService:
 
 
         # Find or create the next match
-        next_match = TournamentMatch.query.filter_by(
+        next_match = Match.query.filter_by(
             tournament_id=tournament.id,
             round=next_round,
             match_number=next_match_num,
@@ -442,7 +448,7 @@ class TournamentService:
         else:
             player1_id = winner_id if completed_match.match_number % 2 != 0 else None
             player2_id = winner_id if completed_match.match_number % 2 == 0 else None
-            new_match = TournamentMatch(
+            new_match = Match(
                 tournament_id=tournament.id,
                 round=next_round,
                 match_number=next_match_num,
@@ -454,7 +460,7 @@ class TournamentService:
             db.session.add(new_match)
             print(f"Creating WB R{next_round} M{next_match_num} with User {winner_id} as Player{1 if player1_id else 2}.")
 
-    def _drop_to_losers_bracket(self, tournament: Tournament, completed_match: TournamentMatch, loser_id: int):
+    def _drop_to_losers_bracket(self, tournament: Tournament, completed_match: Match, loser_id: int):
         """Drop the loser of a WB match to the appropriate LB match, creating it if necessary."""
         wb_round = completed_match.round
         wb_match_num = completed_match.match_number
@@ -475,7 +481,7 @@ class TournamentService:
         print(f"Attempting to drop User {loser_id} from WB R{wb_round} M{wb_match_num} to LB R{target_lb_round} M{target_lb_match_num}")
 
         # Find the specific target LB match
-        lb_match_slot = TournamentMatch.query.filter_by(
+        lb_match_slot = Match.query.filter_by(
             tournament_id=tournament.id,
             bracket_type='losers',
             round=target_lb_round,
@@ -506,7 +512,7 @@ class TournamentService:
         else:
             # Target LB match doesn't exist, create it
             print(f"  -> Target LB match R{target_lb_round} M{target_lb_match_num} not found. Creating.")
-            new_lb_match = TournamentMatch(
+            new_lb_match = Match(
                 tournament_id=tournament.id,
                 bracket_type='losers',
                 round=target_lb_round,
@@ -518,7 +524,7 @@ class TournamentService:
             db.session.add(new_lb_match)
             print(f"  -> Created LB R{target_lb_round} M{target_lb_match_num} with User {loser_id} as Player 1.")
 
-    def _advance_loser_bracket(self, tournament: Tournament, completed_match: TournamentMatch, winner_id: int):
+    def _advance_loser_bracket(self, tournament: Tournament, completed_match: Match, winner_id: int):
         """Advance the winner in the LB, creating the next match if necessary."""
         # (Keep existing logic, but it now assumes target matches might exist)
         current_round = completed_match.round
@@ -527,9 +533,9 @@ class TournamentService:
         num_participants = tournament.participants.count()
         if num_participants < 2: return
         winners_bracket_rounds = math.ceil(math.log2(num_participants))
-        max_generated_lb_round = db.session.query(db.func.max(TournamentMatch.round)).filter(
-            TournamentMatch.tournament_id == tournament.id,
-            TournamentMatch.bracket_type == 'losers'
+        max_generated_lb_round = db.session.query(db.func.max(Match.round)).filter(
+            Match.tournament_id == tournament.id,
+            Match.bracket_type == 'losers'
         ).scalar() or 0
 
         is_lb_final = (current_round == max_generated_lb_round)
@@ -558,7 +564,7 @@ class TournamentService:
 
 
         # Find or create the next match
-        next_match = TournamentMatch.query.filter_by(
+        next_match = Match.query.filter_by(
             tournament_id=tournament.id,
             round=next_round,
             match_number=next_match_num,
@@ -578,7 +584,7 @@ class TournamentService:
         else:
             player1_id = winner_id if completed_match.match_number % 2 != 0 else None
             player2_id = winner_id if completed_match.match_number % 2 == 0 else None
-            new_match = TournamentMatch(
+            new_match = Match(
                 tournament_id=tournament.id,
                 round=next_round,
                 match_number=next_match_num,
@@ -598,7 +604,7 @@ class TournamentService:
         winners_bracket_rounds = math.ceil(math.log2(num_participants))
         grand_final_round = winners_bracket_rounds + 1
 
-        grand_final_match = TournamentMatch.query.filter_by(
+        grand_final_match = Match.query.filter_by(
             tournament_id=tournament.id,
             round=grand_final_round,
             match_number=1, # Assuming GF is always match 1 in its round
@@ -623,7 +629,7 @@ class TournamentService:
 
         else:
             # Create new GF match
-            new_match = TournamentMatch(
+            new_match = Match(
                 tournament_id=tournament.id,
                 round=grand_final_round,
                 match_number=1,
@@ -647,11 +653,11 @@ class TournamentService:
 
         # Single Elimination Check
         if tournament.format == TournamentFormat.SINGLE_ELIMINATION.value:
-            max_round = db.session.query(db.func.max(TournamentMatch.round)).filter(
-                TournamentMatch.tournament_id == tournament.id
+            max_round = db.session.query(db.func.max(Match.round)).filter(
+                Match.tournament_id == tournament.id
             ).scalar()
             if max_round:
-                final_match = TournamentMatch.query.filter_by(
+                final_match = Match.query.filter_by(
                     tournament_id=tournament.id,
                     round=max_round,
                     match_number=1
@@ -664,16 +670,16 @@ class TournamentService:
 
         # Round Robin Check
         elif tournament.format == TournamentFormat.ROUND_ROBIN.value:
-            incomplete_matches = TournamentMatch.query.filter(
-                TournamentMatch.tournament_id == tournament.id,
-                TournamentMatch.status != TournamentStatus.COMPLETED.value
+            incomplete_matches = Match.query.filter(
+                Match.tournament_id == tournament.id,
+                Match.status != TournamentStatus.COMPLETED.value
             ).count()
 
             if incomplete_matches == 0:
                 tournament.status = TournamentStatus.COMPLETED.value
                 # Find the latest match end time for the tournament end date
-                latest_match_end_time = db.session.query(db.func.max(TournamentMatch.end_time)).filter(
-                    TournamentMatch.tournament_id == tournament.id
+                latest_match_end_time = db.session.query(db.func.max(Match.end_time)).filter(
+                    Match.tournament_id == tournament.id
                 ).scalar()
                 tournament.end_date = latest_match_end_time or datetime.utcnow()
                 completion_status_updated = True
@@ -682,15 +688,15 @@ class TournamentService:
         # Double Elimination Check (Revised)
         elif tournament.format == TournamentFormat.DOUBLE_ELIMINATION.value:
             # Find the Grand Final match(es)
-            gf_match = TournamentMatch.query.filter(
-                TournamentMatch.tournament_id == tournament.id,
-                TournamentMatch.bracket_type == 'grand_final'
-            ).order_by(TournamentMatch.round, TournamentMatch.match_number).first()
+            gf_match = Match.query.filter(
+                Match.tournament_id == tournament.id,
+                Match.bracket_type == 'grand_final'
+            ).order_by(Match.round, Match.match_number).first()
 
-            gf_reset_match = TournamentMatch.query.filter(
-                TournamentMatch.tournament_id == tournament.id,
-                TournamentMatch.bracket_type == 'grand_final_reset'
-            ).order_by(TournamentMatch.round, TournamentMatch.match_number).first()
+            gf_reset_match = Match.query.filter(
+                Match.tournament_id == tournament.id,
+                Match.bracket_type == 'grand_final_reset'
+            ).order_by(Match.round, Match.match_number).first()
 
             is_complete = False
             final_winner_id = None
@@ -786,12 +792,12 @@ class TournamentService:
             joinedload(Tournament.matches)
         ).get(tournament_id)
 
-    def get_match(self, match_id: int) -> Optional[TournamentMatch]:
+    def get_match(self, match_id: int) -> Optional[Match]:
         """Get a single match by its ID."""
-        return TournamentMatch.query.options(
-             joinedload(TournamentMatch.player1),
-             joinedload(TournamentMatch.player2),
-             joinedload(TournamentMatch.tournament) # Load tournament for context
+        return Match.query.options(
+             joinedload(Match.player1),
+             joinedload(Match.player2),
+             joinedload(Match.tournament) # Load tournament for context
         ).get(match_id)
 
     def get_player_tournaments(self, player_id: int) -> List[Tournament]:
@@ -902,7 +908,7 @@ class TournamentService:
             player1 = participants[participant_index]
             player2 = participants[participant_index + 1]
 
-            match = TournamentMatch(
+            match = Match(
                 tournament_id=tournament.id,
                 round=1,
                 match_number=match_number_in_round,
@@ -939,7 +945,7 @@ class TournamentService:
         print(f"WB Rounds: {num_rounds_wb}, WB R1 Matches (total slots): {num_matches_wb_r1}")
 
         matches_to_add = {}
-        # Key: (bracket_type, round, match_num), Value: TournamentMatch object
+        # Key: (bracket_type, round, match_num), Value: Match object
 
         # --- Generate Winners Bracket Structure --- #
         current_round_matches = {}
@@ -956,7 +962,7 @@ class TournamentService:
         for i in range(wb_r1_actual_matches):
             p1 = players_in_matches[player_match_idx]
             p2 = players_in_matches[player_match_idx + 1]
-            match = TournamentMatch(
+            match = Match(
                 tournament_id=tournament.id, round=1, match_number=wb_r1_match_num,
                 bracket_type='winners', player1_id=p1.user_id, player2_id=p2.user_id,
                 status=TournamentStatus.PENDING.value
@@ -989,7 +995,7 @@ class TournamentService:
 
                 if ('winners', 2, r2_match_num) not in matches_to_add:
                     # Create R2 match if it doesn't exist yet
-                    r2_match = TournamentMatch(
+                    r2_match = Match(
                         tournament_id=tournament.id, round=2, match_number=r2_match_num,
                         bracket_type='winners', status='waiting'
                     )
@@ -1014,7 +1020,7 @@ class TournamentService:
                 match_key = ('winners', r, m_num)
                 if match_key not in matches_to_add:
                     # Only create if not already created by bye logic
-                    match = TournamentMatch(
+                    match = Match(
                         tournament_id=tournament.id, round=r, match_number=m_num,
                         bracket_type='winners', status='waiting'
                     )
@@ -1046,7 +1052,7 @@ class TournamentService:
         match_num = 1
         for i in range(len(participants)):
             for j in range(i + 1, len(participants)):
-                match = TournamentMatch(
+                match = Match(
                     tournament_id=tournament.id,
                     round=1, # Round Robin is effectively one large round
                     match_number=match_num,
@@ -1071,9 +1077,9 @@ class TournamentService:
         for p in participants:
             scores[p.user_id] = 0.0 # Initialize score
 
-        completed_matches = TournamentMatch.query.filter(
-            TournamentMatch.tournament_id == tournament_id,
-            TournamentMatch.status == TournamentStatus.COMPLETED.value
+        completed_matches = Match.query.filter(
+            Match.tournament_id == tournament_id,
+            Match.status == TournamentStatus.COMPLETED.value
         ).all()
 
         for match in completed_matches:
@@ -1091,9 +1097,9 @@ class TournamentService:
     def _get_previous_opponents(self, tournament_id: int, player_id: int) -> List[int]:
         """Get a list of opponents a player has already faced."""
         opponents = set()
-        matches = TournamentMatch.query.filter(
-            TournamentMatch.tournament_id == tournament_id,
-            (TournamentMatch.player1_id == player_id) | (TournamentMatch.player2_id == player_id)
+        matches = Match.query.filter(
+            Match.tournament_id == tournament_id,
+            (Match.player1_id == player_id) | (Match.player2_id == player_id)
         ).all()
 
         for match in matches:
@@ -1143,7 +1149,7 @@ class TournamentService:
             print(f"Assigning Bye for round {round_number} to Player {bye_player_id} (Score: {scores.get(bye_player_id, 0)}, Seed: {bye_participant.seed})")
 
             # Create and auto-complete a match for the bye
-            bye_match = TournamentMatch(
+            bye_match = Match(
                 tournament_id=tournament.id,
                 round=round_number,
                 match_number=0, # Special match number for bye
@@ -1220,7 +1226,7 @@ class TournamentService:
 
         # Create match objects for the pairings found
         for i, (p1, p2) in enumerate(current_matches):
-                matches_to_create.append(TournamentMatch(
+                matches_to_create.append(Match(
                 tournament_id=tournament.id,
                 round=round_number,
                 match_number=match_num_start + i,
@@ -1235,3 +1241,37 @@ class TournamentService:
             db.session.add(match)
 
         print(f"Created {len(matches_to_create)} matches for Swiss round {round_number}")
+
+    @staticmethod
+    def get_tournament_matches(tournament_id: int) -> List[Match]: # Return Match objects
+        """Retrieves all matches for a specific tournament."""
+        # Use Match model for querying
+        return Match.query.filter_by(tournament_id=tournament_id).order_by(Match.round, Match.match_number).all()
+
+    @staticmethod
+    def create_match(**kwargs) -> Match: # Return Match object
+        """Creates a new match within a tournament."""
+        # Use Match model for creation
+        match = Match(**kwargs)
+        db.session.add(match)
+        db.session.commit()
+        return match
+
+    @staticmethod
+    def update_match_result(match_id: int, winner_id: int, score: str) -> Optional[Match]: # Return Match object
+        """Updates the result of a match."""
+        # Use Match model for querying and updating
+        match = Match.query.get(match_id)
+        if match and match.status != 'completed': # Check status using string
+            match.winner_id = winner_id
+            match.score = score
+            match.status = 'completed' # Set status using string
+            match.end_time = datetime.utcnow()
+            # Determine loser
+            if match.player1_id == winner_id:
+                match.loser_id = match.player2_id
+            elif match.player2_id == winner_id:
+                match.loser_id = match.player1_id
+            db.session.commit()
+            return match
+        return None

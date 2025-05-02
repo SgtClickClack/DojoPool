@@ -6,6 +6,15 @@ export interface GameState {
   currentTurn: string;
   gamePhase: string;
   timestamp?: VectorTimestamp;
+  score: {
+    home: number;
+    away: number;
+  };
+  time: {
+    minutes: number;
+    seconds: number;
+  };
+  possession: string; // team id
 }
 
 export enum GameType {
@@ -18,6 +27,8 @@ export enum GameType {
 export interface Player {
   id: string;
   name: string;
+  team: string;
+  position: string;
   score: number;
   isActive: boolean;
   lastAction: number;
@@ -74,7 +85,17 @@ export interface GameAction {
 }
 
 export interface GameEvent {
-  action: GameAction;
-  timestamp: VectorTimestamp;
-  nodeId: string;
+  type: string;
+  description: string;
+  timestamp: number;
+  playerId?: string;
+  teamId?: string;
+}
+
+export interface RuleViolation {
+  type: string;
+  players: string[];
+  severity: 'minor' | 'major';
+  action: string;
+  rule: string;
 }

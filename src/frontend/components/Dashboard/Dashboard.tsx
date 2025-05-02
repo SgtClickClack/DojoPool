@@ -16,28 +16,25 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserProfile } from "../../contexts/UserContext";
+import { useSocket } from "../../contexts/SocketContext";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PeopleIcon from "@mui/icons-material/People";
 import MessageIcon from "@mui/icons-material/Message";
 import CreateGameForm from "./CreateGameForm";
 import ActiveGamesList from "./ActiveGamesList";
 import TournamentList from "./TournamentList";
+import Wallet from "./Wallet";
+import Profile from "../Social/Profile";
+import Feed from "../Social/Feed";
 import axiosInstance from "../../api/axiosInstance";
+import LiveGameDisplay from '../Game/LiveGameDisplay';
 
 const Dashboard: React.FC = () => {
   const { signOut } = useAuth();
   const { profile: userProfile, isLoading: profileLoading } = useUserProfile();
+  const { gameTable, isConnected, subscribeToGame } = useSocket();
   const navigate = useNavigate();
   const [apiStatus, setApiStatus] = useState<string>("Checking backend connectivity...");
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate("/login");
-    } catch (error) {
-      console.error("Failed to sign out:", error);
-    }
-  };
 
   useEffect(() => {
     axiosInstance.get("/")
@@ -48,6 +45,22 @@ const Dashboard: React.FC = () => {
         setApiStatus(`Backend API unreachable: ${err.message}`);
       });
   }, []);
+
+  useEffect(() => {
+    const exampleGameId = "game123";
+    if (isConnected) {
+      subscribeToGame(exampleGameId);
+    }
+  }, [isConnected, subscribeToGame]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/login");
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  };
 
   const displayName = profileLoading
     ? "Loading..."
@@ -90,10 +103,16 @@ const Dashboard: React.FC = () => {
               <TournamentList />
               <Divider sx={{ my: 4 }} />
               <ActiveGamesList />
+              <Divider sx={{ my: 4 }} />
+              <LiveGameDisplay gameTable={gameTable} />
             </Grid>
 
             {/* Right Column: Social & Notifications Placeholders */}
             <Grid item xs={12} md={4}>
+              <Profile />
+              <Divider sx={{ my: 3 }} />
+              <Feed />
+              <Divider sx={{ my: 3 }} />
               <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="h6" gutterBottom>
                   Notifications

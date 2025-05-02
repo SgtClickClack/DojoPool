@@ -17,39 +17,34 @@ import {
 } from '@mui/icons-material';
 import { formatCurrency } from '../../utils/format';
 import { formatDistanceToNow } from 'date-fns';
-
-interface Transaction {
-  id: number;
-  transaction_type: string;
-  amount: number;
-  description: string;
-  created_at: string;
-  metadata: {
-    reward_type?: string;
-    recipient_user_id?: number;
-  };
-}
+import { Transaction } from '../../types/wallet';
 
 interface WalletTransactionListProps {
   transactions: Transaction[];
 }
 
 export const WalletTransactionList: React.FC<WalletTransactionListProps> = ({ transactions }) => {
-  const getTransactionIcon = (type: string, amount: number) => {
-    if (type === 'REWARD') return <EmojiEvents color="primary" />;
-    if (type === 'PURCHASE') return <ShoppingCart color="secondary" />;
+  const getTransactionIcon = (type: string | undefined, amount: number) => {
+    const upperType = type?.toUpperCase();
+    if (upperType === 'REWARD') return <EmojiEvents color="primary" />;
+    if (upperType === 'PURCHASE') return <ShoppingCart color="secondary" />;
     return amount > 0 ? <CallReceived color="success" /> : <CallMade color="error" />;
   };
 
-  const getTransactionColor = (type: string, amount: number) => {
-    if (type === 'REWARD') return 'primary';
-    if (type === 'PURCHASE') return 'secondary';
+  const getTransactionColor = (type: string | undefined, amount: number) => {
+    const upperType = type?.toUpperCase();
+    if (upperType === 'REWARD') return 'primary';
+    if (upperType === 'PURCHASE') return 'secondary';
     return amount > 0 ? 'success' : 'error';
   };
 
   const getTransactionLabel = (transaction: Transaction) => {
-    if (transaction.transaction_type === 'REWARD') return 'Reward';
-    if (transaction.transaction_type === 'PURCHASE') return 'Purchase';
+    const upperType = transaction.type?.toUpperCase();
+    if (upperType === 'REWARD') return 'Reward';
+    if (upperType === 'PURCHASE') return 'Purchase';
+    if (upperType === 'TRANSFER') {
+        return transaction.amount > 0 ? 'Received Transfer' : 'Sent Transfer';
+    }
     return transaction.amount > 0 ? 'Received' : 'Sent';
   };
 
@@ -67,25 +62,25 @@ export const WalletTransactionList: React.FC<WalletTransactionListProps> = ({ tr
         <React.Fragment key={transaction.id}>
           <ListItem alignItems="flex-start">
             <ListItemIcon>
-              {getTransactionIcon(transaction.transaction_type, transaction.amount)}
+              {getTransactionIcon(transaction.type, transaction.amount)}
             </ListItemIcon>
             <ListItemText
               primary={
                 <Box display="flex" alignItems="center" gap={1}>
                   <Typography variant="subtitle1" component="span">
-                    {transaction.description}
+                    {transaction.description || 'Transaction'}
                   </Typography>
                   <Chip
                     label={getTransactionLabel(transaction)}
                     size="small"
-                    color={getTransactionColor(transaction.transaction_type, transaction.amount) as any}
+                    color={getTransactionColor(transaction.type, transaction.amount) as any}
                   />
                 </Box>
               }
               secondary={
                 <React.Fragment>
                   <Typography component="span" variant="body2" color="textSecondary">
-                    {formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true })}
+                    {transaction.created_at ? formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true }) : 'Date unavailable'}
                   </Typography>
                   <Typography
                     component="span"
@@ -93,7 +88,7 @@ export const WalletTransactionList: React.FC<WalletTransactionListProps> = ({ tr
                     color={transaction.amount > 0 ? 'success.main' : 'error.main'}
                     sx={{ display: 'block', fontWeight: 'bold', mt: 0.5 }}
                   >
-                    {formatCurrency(Math.abs(transaction.amount), 'DP')}
+                    {formatCurrency(Math.abs(transaction.amount), transaction.currency || 'DP')}
                   </Typography>
                 </React.Fragment>
               }

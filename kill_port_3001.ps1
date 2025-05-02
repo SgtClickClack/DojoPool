@@ -13,7 +13,10 @@ if ($pids.Count -eq 0) {
             Stop-Process -Id $pid -Force
             Write-Host "Killed process with PID $pid using port $port."
         } catch {
-            Write-Host ("Failed to kill PID $pid: " + $_.Exception.Message)
+            # Assign the error message to a variable first
+            $errorMessage = $_.Exception.Message
+            # Explicitly delimit the variable name using ${}
+            Write-Host "Failed to kill PID ${pid}: $errorMessage"
         }
     }
 }

@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { ProtectedRoute } from "../../components/auth/ProtectedRoute";
 import { AuthenticatedLayout } from "../../components/layout/AuthenticatedLayout";
+import MapView from "../../components/MapView";
 
 const DashboardPage: React.FC = () => {
   return (
@@ -65,6 +66,13 @@ const DashboardPage: React.FC = () => {
               Recent Activity
             </Heading>
             <Text color="gray.500">No recent activity to display.</Text>
+          </Box>
+
+          <Box mt={8}>
+            <Heading size="md" mb={4}>
+              Find a Dojo
+            </Heading>
+            <MapView />
           </Box>
         </Box>
       </AuthenticatedLayout>

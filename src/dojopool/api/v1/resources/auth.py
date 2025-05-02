@@ -14,7 +14,7 @@ from dojopool.core.security import (
     verify_reset_token,
 )
 from dojopool.core.exceptions import AuthenticationError, ValidationError
-from dojopool.core.auth.models import User
+from dojopool.models.user import User
 from .base import BaseResource
 
 
@@ -99,7 +99,12 @@ class RegisterResource(BaseResource):
 
     def post(self):
         """Handle registration request."""
+        # Import db within the method to avoid potential circular imports
+        from dojopool.core.extensions import db
+        
         data = self.get_json_data()
+        if data is None: # Ensure payload exists
+             raise ValidationError('Request body cannot be empty.')
 
         if data["password"] != data["confirm_password"]:
             raise ValidationError("Passwords do not match")
@@ -110,22 +115,32 @@ class RegisterResource(BaseResource):
         if User.query.filter_by(username=data["username"]).first():
             raise ValidationError("Username already taken")
 
-        user = User(
-            email=data["email"],
-            username=data["username"],
-            first_name=data["first_name"],
-            last_name=data["last_name"],
-            password=generate_password_hash_with_method(data["password"]),
-        )
-        user.save()
+        # Create empty user instance (no __init__ args needed)
+        user = User()
+        user.username = data["username"] # Set username
+        user.email = data["email"]
+        # Assuming User model has first_name/last_name attributes - uncomment if they exist
+        # user.first_name = data["first_name"]
+        # user.last_name = data["last_name"]
+        user.set_password(data["password"])
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        # Flush to get the generated ID for the token
+        # db.session.flush() # Optional: only needed if ID is used immediately
+        # If token generation relies on user.id, ensure commit happens first or flush
 
         # Send confirmation email
-        token = generate_reset_token(user.id)
+        # token = generate_reset_token(user.id) # Needs user.id after commit/flush
         # TODO: Implement email sending
+
+        # Return user ID from the committed instance
+        user_id_to_return = user.id 
 
         return self.success_response(
             message="Registration successful",
-            data={"user_id": user.id},
+            data={"user_id": user_id_to_return},
             status_code=201,
         )
 

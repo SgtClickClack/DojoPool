@@ -1,21 +1,21 @@
 import '@testing-library/jest-dom';
-import * as matchers from '@testing-library/jest-dom/matchers';
+// import * as matchers from '@testing-library/jest-dom/matchers'; // Removed - main import handles extend
 import fetch from 'node-fetch';
 import { TextEncoder, TextDecoder } from 'util';
 import { configure } from '@testing-library/react';
 
-// Extend Jest matchers
-expect.extend(matchers);
+// // Extend Jest matchers - Removed - handled by main import
+// expect.extend(matchers);
 
 // Set default timeout for performance tests
 jest.setTimeout(60000);
 
 // Mock fetch globally
-global.fetch = fetch;
+global.fetch = fetch as any;
 
 // TextEncoder/TextDecoder polyfills
 global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+global.TextDecoder = TextDecoder as any;
 
 // Mock the performance.memory API
 Object.defineProperty(performance, 'memory', {
@@ -30,19 +30,17 @@ Object.defineProperty(performance, 'memory', {
 
 // Enhanced WebGL context mock
 class MockWebGLRenderingContext {
-    constructor() {
-        this.drawingBufferWidth = 1920;
-        this.drawingBufferHeight = 1080;
-        this.isContextLost = () => false;
-        this.getExtension = jest.fn().mockReturnValue({
-            beginQuery: jest.fn(),
-            endQuery: jest.fn(),
-            getQueryObject: jest.fn().mockReturnValue(0)
-        });
-        this.getParameter = jest.fn().mockReturnValue(0);
-        this.createTexture = jest.fn().mockReturnValue({});
-        this.deleteTexture = jest.fn();
-    }
+    drawingBufferWidth = 1920;
+    drawingBufferHeight = 1080;
+    isContextLost = () => false;
+    getExtension = jest.fn().mockReturnValue({
+        beginQuery: jest.fn(),
+        endQuery: jest.fn(),
+        getQueryObject: jest.fn().mockReturnValue(0)
+    });
+    getParameter = jest.fn().mockReturnValue(0);
+    createTexture = jest.fn().mockReturnValue({});
+    deleteTexture = jest.fn();
 }
 
 // Enhanced canvas mock
@@ -51,30 +49,32 @@ class MockCanvas extends HTMLCanvasElement {
         super();
         this.width = 1920;
         this.height = 1080;
-        this.getContext = jest.fn().mockReturnValue(new MockWebGLRenderingContext());
+        this.getContext = jest.fn().mockReturnValue(new MockWebGLRenderingContext() as any);
     }
 }
 
 // Register mocks globally
-global.WebGLRenderingContext = MockWebGLRenderingContext;
-global.HTMLCanvasElement = MockCanvas;
+global.WebGLRenderingContext = MockWebGLRenderingContext as any;
+global.HTMLCanvasElement = MockCanvas as any;
 
 // Mock Worker since it's not available in jsdom
 global.Worker = class {
-  constructor(stringUrl) {
+  url: string;
+  onmessage: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+
+  constructor(stringUrl: string) {
     this.url = stringUrl;
-    this.onmessage = () => {};
-    this.onerror = () => {};
   }
 
-  postMessage(msg) {
+  postMessage(msg: any) {
     // Mock implementation
   }
 
   terminate() {
     // Mock implementation
   }
-};
+} as any;
 
 // Clean up after each test
 afterEach(() => {
@@ -196,55 +196,69 @@ configure({
   testIdAttribute: 'data-testid',
 });
 
-// Mock TensorFlow.js
-jest.mock('@tensorflow/tfjs', () => ({
-  loadLayersModel: jest.fn(),
-  tensor2d: jest.fn(),
-  sequential: jest.fn(),
-  layers: {
-    dense: jest.fn(),
-    flatten: jest.fn()
-  }
-}));
+// // Mock TensorFlow.js
+// jest.mock('@tensorflow/tfjs', () => ({
+//   loadLayersModel: jest.fn(),
+//   tensor2d: jest.fn(),
+//   sequential: jest.fn(),
+//   layers: {
+//     dense: jest.fn(),
+//     flatten: jest.fn()
+//   }
+// }));
 
 // Mock console.error to keep test output clean
 global.console.error = jest.fn();
 
 // Mock canvas and WebGL context
 class OffscreenCanvas {
-  constructor(width, height) {
+  width: number;
+  height: number;
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
   }
 
-  getContext() {
+  getContext(contextId: string, options?: any) {
+    if (contextId === '2d' || contextId === 'webgl') {
+        return {
+            fillRect: jest.fn(),
+            clearColor: jest.fn(),
+            clear: jest.fn(),
+            getExtension: jest.fn(),
+            getParameter: jest.fn(),
+            createTexture: jest.fn(),
+            deleteTexture: jest.fn(),
+            isContextLost: jest.fn().mockReturnValue(false)
+        };
+    }
     return null;
   }
 }
 
-global.OffscreenCanvas = OffscreenCanvas;
+global.OffscreenCanvas = OffscreenCanvas as any;
 
 // Mock performance.now()
 global.performance = {
   now: () => Date.now(),
-};
+} as any;
 
 // Mock URL.createObjectURL and URL.revokeObjectURL
 global.URL.createObjectURL = jest.fn();
 global.URL.revokeObjectURL = jest.fn();
 
-// Mock WebGL context
-global.WebGLRenderingContext = class {
-    getExtension() { return {}; }
-    getParameter() { return 0; }
-    createTexture() { return {}; }
-    deleteTexture() {}
-    isContextLost() { return false; }
-};
+// // Mock WebGL context (simplified) - REMOVED as covered by earlier MockWebGLRenderingContext
+// global.WebGLRenderingContext = class {
+//     getExtension() { return {}; }
+//     getParameter() { return 0; }
+//     createTexture() { return {}; }
+//     deleteTexture() {}
+//     isContextLost() { return false; }
+// } as any;
 
-// Mock HTMLCanvasElement
-global.HTMLCanvasElement = class {
-    getContext() { return new WebGLRenderingContext(); }
-    addEventListener() {}
-    removeEventListener() {}
-};
+// // Mock HTMLCanvasElement (simplified) - REMOVED as covered by earlier MockCanvas
+// global.HTMLCanvasElement = class {
+//     getContext() { return new WebGLRenderingContext() as any; }
+//     addEventListener() {}
+//     removeEventListener() {}
+// } as any;

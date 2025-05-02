@@ -24,6 +24,7 @@ import logging
 from dotenv import load_dotenv
 from flask import Flask
 from flask_login import LoginManager
+from flask_cors import CORS
 
 # Import the function to get the correct config class
 from dojopool.core.config import get_config
@@ -42,60 +43,21 @@ def create_app(config_name=None, test_config=None):
     """Application factory function."""
     app = Flask(__name__, instance_relative_config=True)
 
-    # --- CORS MIDDLEWARE: Ensure CORS is enabled for all routes and blueprints ---
-    from dojopool.core.monitoring.cors_middleware import init_cors
-    init_cors(app)
-    # ---------------------------------------------------------------------------
+    # --- Simpler Flask-CORS Initialization ---
+    # Apply CORS globally, allowing credentials and specific origin
+    CORS(app, origins="http://localhost:3100", supports_credentials=True)
+    # -----------------------------------------
 
-    # Import ALL models before initializing extensions (required for table registration)
-    # import dojopool.models.achievement  # Removed duplicate, use achievements
-    import dojopool.models.achievements
-    import dojopool.models.activity
-    import dojopool.models.analytics
-    import dojopool.models.associations
-    import dojopool.models.base
-    import dojopool.models.cached_queries
-    import dojopool.models.chat
-    import dojopool.models.device
-    import dojopool.models.event
-    import dojopool.models.event_participant
-    import dojopool.models.forum
-    import dojopool.models.friend
-    import dojopool.models.friendship
-    import dojopool.models.game
-    import dojopool.models.game_analysis
-    import dojopool.models.inventory
-    import dojopool.models.leaderboard
-    import dojopool.models.location
-    import dojopool.models.marketplace
-    import dojopool.models.match
-    import dojopool.models.notification
-    import dojopool.models.notification_settings
-    import dojopool.models.player
-    import dojopool.models.player_ratings
-    import dojopool.models.player_status
-    import dojopool.models.player_titles
-    import dojopool.models.ranking_history
-    import dojopool.models.rankings
-    import dojopool.models.rating
-    import dojopool.models.review
-    import dojopool.models.reward
-    import dojopool.models.role
-    import dojopool.models.session
-    import dojopool.models.share
-    import dojopool.models.shot
-    import dojopool.models.social
-    import dojopool.models.social_groups
-    import dojopool.models.token
-    import dojopool.models.tournament
-    import dojopool.models.tournaments
-    import dojopool.models.user
-    import dojopool.models.user_roles
-    import dojopool.models.venue
-    import dojopool.models.venue_amenity
-    import dojopool.models.venue_checkin
-    import dojopool.models.venue_leaderboard
-    import dojopool.models.venue_operating_hours
+    # Trigger model discovery via models/__init__.py
+    import dojopool.models
+
+    # --- REMOVED REDUNDANT EXPLICIT MODEL IMPORTS ---
+    # import dojopool.models.achievement # Removed duplicate, use achievements
+    # import dojopool.models.achievements
+    # import dojopool.models.activity
+    # ... (many imports removed for brevity) ...
+    # import dojopool.models.venue_operating_hours
+    # --- END REMOVED IMPORTS ---
 
     # Determine which config class to use
     ConfigClass = get_config(config_name) # Use the provided function
@@ -165,18 +127,16 @@ def create_app(config_name=None, test_config=None):
         # db.init_app(app) # No longer needed here, handled by init_extensions
         # db.create_all() # Keep disabled - workaround for startup issue
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        # Use the User model imported correctly earlier
-        from dojopool.models.user import User
-        return User.query.get(int(user_id))
-
     # === Flask-DebugToolbar ===
-    from flask_debugtoolbar import DebugToolbarExtension
-    app.debug = True
-    app.config['SECRET_KEY'] = app.config.get('SECRET_KEY', 'dev')
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    toolbar = DebugToolbarExtension(app)
+    if app.debug: # Only initialize toolbar in debug mode
+        try:
+            from flask_debugtoolbar import DebugToolbarExtension
+            app.config['SECRET_KEY'] = app.config.get('SECRET_KEY', 'dev') # Ensure secret key is set
+            app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+            toolbar = DebugToolbarExtension(app)
+            print("[INFO] Flask-DebugToolbar initialized.")
+        except ImportError:
+            print("[WARNING] Flask-DebugToolbar not installed. Skipping initialization.")
 
     # === Register blueprints (force correct main_bp) ===
     from dojopool.routes.main import main_bp as correct_main_bp
@@ -186,13 +146,13 @@ def create_app(config_name=None, test_config=None):
     # Remove/comment out any other main_bp registrations here
 
     # --- Register Tournament/Game Blueprint ---
-    try:
-        from dojopool.api.tournament import tournament_bp
-        app.register_blueprint(tournament_bp, url_prefix="/api")
-    except ImportError as e:
-        print(f"[ERROR] Could not import tournament blueprint: {e}")
-    except Exception as e:
-        print(f"[ERROR] Could not register tournament blueprint: {e}")
+    # try:
+    #     from dojopool.api.tournament import tournament_bp
+    #     app.register_blueprint(tournament_bp, url_prefix="/api")
+    # except ImportError as e:
+    #     print(f"[ERROR] Could not import tournament blueprint: {e}")
+    # except Exception as e:
+    #     print(f"[ERROR] Could not register tournament blueprint: {e}")
 
     # Register blueprints
     from dojopool.api.v1 import api_v1_bp

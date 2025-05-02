@@ -5,7 +5,7 @@ from ..core.extensions import db
 # Import all models to ensure SQLAlchemy sees all relationships and FKs
 from .user import *
 from .game import *
-# from .tournament import *
+from .tournament import *
 from .marketplace import *
 from .role import *
 from .player import *

@@ -4,9 +4,10 @@ This module contains the models for the marketplace feature.
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Tuple
 
-from sqlalchemy import JSON
+from sqlalchemy import JSON, Column, Integer, String, DateTime, Boolean, Float, ForeignKey, desc
+from sqlalchemy.orm import relationship
 
 from dojopool.core.database.db_utils import reference_col
 from dojopool.core.extensions import db
@@ -90,6 +91,8 @@ class Wallet(db.Model):
 
     def _log_wallet_event(self, event_type: AuditEventType, action: str, status: str, details: Dict[str, Any], reference_id: Optional[str] = None):
         """Helper method to log wallet-related audit events."""
+        # Ensure reference_id is a string for logging
+        log_ref_id = str(reference_id) if reference_id is not None else "N/A"
         # Assuming admin actions might not have a specific user context directly here
         # This might need adjustment based on how admin actions are tracked
         audit_logger.log_event(
@@ -101,16 +104,17 @@ class Wallet(db.Model):
             status=status,
             details=details,
             venue_id=None, # Wallet actions are not venue-specific
-            table_id=None
+            table_id=None,
+            reference_id=log_ref_id # Use the processed string reference ID
         )
 
-    def credit(self, amount: float, description: str = "", reference_id: str = None, admin_user_id: Optional[str] = None) -> "Transaction":
+    def credit(self, amount: float, description: str = "", reference_id: Optional[str] = None, admin_user_id: Optional[str] = None) -> "Transaction":
         """Add Dojo Coins to the wallet and record a credit transaction."""
         if not self.is_active:
-            self._log_wallet_event(AuditEventType.WALLET_CREDIT, "Credit Attempt (Inactive Wallet)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Wallet is inactive"})
+            self._log_wallet_event(AuditEventType.WALLET_CREDIT, "Credit Attempt (Inactive Wallet)", "failure", {"amount": amount, "description": description, "reason": "Wallet is inactive"}, reference_id=reference_id)
             raise ValueError("Wallet is inactive.")
         if amount <= 0:
-            self._log_wallet_event(AuditEventType.WALLET_CREDIT, "Credit Attempt (Invalid Amount)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Credit amount must be positive"})
+            self._log_wallet_event(AuditEventType.WALLET_CREDIT, "Credit Attempt (Invalid Amount)", "failure", {"amount": amount, "description": description, "reason": "Credit amount must be positive"}, reference_id=reference_id)
             raise ValueError("Credit amount must be positive.")
 
         self.balance += amount
@@ -143,7 +147,7 @@ class Wallet(db.Model):
         )
         return txn
 
-    def debit(self, amount: float, description: str = "", reference_id: str = None, admin_user_id: Optional[str] = None) -> "Transaction":
+    def debit(self, amount: float, description: str = "", reference_id: Optional[str] = None, admin_user_id: Optional[str] = None) -> "Transaction":
         """Subtract Dojo Coins from the wallet and record a debit transaction."""
         if not self.is_active:
             self._log_wallet_event(AuditEventType.WALLET_DEBIT, "Debit Attempt (Inactive Wallet)", "failure", {"amount": amount, "description": description, "reference_id": reference_id, "reason": "Wallet is inactive"})
@@ -185,7 +189,7 @@ class Wallet(db.Model):
         )
         return txn
 
-    def transfer_to(self, target_wallet: "Wallet", amount: float, description: str = "", reference_id: str = None, admin_user_id: Optional[str] = None) -> ("Transaction", "Transaction"):
+    def transfer_to(self, target_wallet: "Wallet", amount: float, description: str = "", reference_id: Optional[str] = None, admin_user_id: Optional[str] = None) -> Tuple["Transaction", "Transaction"]:
         """Transfer Dojo Coins to another wallet, recording debit and credit transactions."""
         if not self.is_active:
             self._log_wallet_event(AuditEventType.WALLET_TRANSFER, "Transfer Attempt (Sender Inactive)", "failure", {"amount": amount, "target_wallet_id": target_wallet.id, "description": description, "reference_id": reference_id, "reason": "Sender wallet is inactive"})
@@ -248,12 +252,16 @@ class Wallet(db.Model):
     def freeze(self) -> None:
         """Freeze the wallet (disable all outgoing transactions)."""
         self.is_active = False
+        db.session.add(self)
         db.session.commit()
+        self._log_wallet_event(AuditEventType.WALLET_FREEZE, "Wallet Freeze", "success", {"wallet_id": self.id, "reason": "Admin action"})
 
     def reactivate(self) -> None:
-        """Reactivate a previously frozen wallet."""
+        """Reactivate a frozen wallet."""
         self.is_active = True
+        db.session.add(self)
         db.session.commit()
+        self._log_wallet_event(AuditEventType.WALLET_REACTIVATE, "Wallet Reactivate", "success", {"wallet_id": self.id, "reason": "Admin action"})
 
     def audit(self) -> dict:
         """Return a summary audit of the wallet: balance, total credits, total debits, transaction count."""
@@ -276,14 +284,15 @@ class Wallet(db.Model):
         # self._log_wallet_event(AuditEventType.WALLET_AUDIT, "Wallet Audit Accessed", "success", {})
 
         return audit_logger.get_events(
-            resource_id=str(self.id),
+            event_type=AuditEventType.WALLET_AUDIT,
+            user_id=str(self.user_id),
             start_time=start_time,
             end_time=end_time
             # Potentially add relevant event types:
             # event_type=[AuditEventType.WALLET_CREDIT, AuditEventType.WALLET_DEBIT, ...]
         )
 
-    def get_transactions(self, limit: int = 20, offset: int = 0, txn_type: str = None, status: str = None) -> list:
+    def get_transactions(self, limit: int = 20, offset: int = 0, txn_type: Optional[str] = None, status: Optional[str] = None) -> list:
         """
         Return a list of this wallet's transactions, optionally filtered by type/status.
         Results are ordered by most recent first.
@@ -319,6 +328,18 @@ class Transaction(db.Model):
 
     user = db.relationship("User", backref="transactions")
 
+    # Add explicit __init__ to help type checkers
+    def __init__(self, wallet_id: int, user_id: int, amount: float, currency: str, type: str, status: str, description: Optional[str] = None, reference_id: Optional[str] = None):
+        self.wallet_id = wallet_id
+        self.user_id = user_id
+        self.amount = amount
+        self.currency = currency
+        self.type = type
+        self.status = status
+        self.description = description
+        self.reference_id = reference_id
+        # created_at and updated_at have defaults
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
@@ -351,6 +372,14 @@ class UserInventory(TimestampedModel):
     # Relationships
     user = db.relationship("User", backref="inventory_items")
 
+    # Add explicit __init__
+    def __init__(self, user_id: int, item_id: int, quantity: int = 1, expires_at: Optional[datetime] = None, is_active: bool = True):
+        self.user_id = user_id
+        self.item_id = item_id
+        self.quantity = quantity
+        self.expires_at = expires_at
+        self.is_active = is_active
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert inventory item to dictionary."""
         return {
@@ -379,4 +408,20 @@ class UserInventory(TimestampedModel):
         db.session.commit()
 
 
-__all__ = ["MarketplaceItem", "Wallet", "Transaction", "UserInventory"]
+# --- Add New WalletTransaction Model ---
+class WalletTransaction(db.Model): # Assuming db.Model is the correct base
+    """Wallet transaction model."""
+    __tablename__ = 'wallet_transactions'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    type = Column(String(16), nullable=False)  # deposit, withdraw
+    amount = Column(Float, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    # Ensure relationship name matches the one added in User model
+    user = relationship('User', back_populates='wallet_transactions')
+
+# --- End New WalletTransaction Model ---
+
+__all__ = ["MarketplaceItem", "Wallet", "Transaction", "UserInventory", "WalletTransaction"]

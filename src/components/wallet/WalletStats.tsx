@@ -13,22 +13,10 @@ import {
   SwapHoriz
 } from '@mui/icons-material';
 import { formatCurrency, formatNumber } from '../../utils/format';
-
-interface WalletStats {
-  total_transactions: number;
-  total_volume: number;
-  total_incoming: number;
-  total_outgoing: number;
-  rewards: {
-    [key: string]: {
-      count: number;
-      total_amount: number;
-    };
-  };
-}
+import type { WalletStats as WalletStatsType } from '../../types/wallet';
 
 interface WalletStatsProps {
-  stats: WalletStats | null;
+  stats: WalletStatsType | null;
 }
 
 const StatCard: React.FC<{
@@ -80,23 +68,23 @@ const StatCard: React.FC<{
   );
 };
 
-export const WalletStats: React.FC<WalletStatsProps> = ({ stats }) => {
+export const WalletStatsDisplay: React.FC<WalletStatsProps> = ({ stats }) => {
   const theme = useTheme();
 
   if (!stats) {
     return null;
   }
 
-  const totalRewards = Object.values(stats.rewards).reduce((acc, reward) => acc + reward.total_amount, 0);
-  const rewardCount = Object.values(stats.rewards).reduce((acc, reward) => acc + reward.count, 0);
+  const totalRewards = stats.rewards ? Object.values(stats.rewards).reduce((acc, reward) => acc + reward.total_amount, 0) : 0;
+  const rewardCount = stats.rewards ? Object.values(stats.rewards).reduce((acc, reward) => acc + reward.count, 0) : 0;
 
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} sm={6}>
         <StatCard
           title="Total Volume"
-          value={formatCurrency(stats.total_volume, 'DP')}
-          subValue={`${formatNumber(stats.total_transactions)} transactions`}
+          value={formatCurrency(stats?.total_volume ?? 0, 'DP')}
+          subValue={`${formatNumber(stats?.total_transactions ?? 0)} transactions`}
           icon={<SwapHoriz sx={{ color: 'white' }} />}
           color={theme.palette.primary.main}
         />
@@ -113,7 +101,7 @@ export const WalletStats: React.FC<WalletStatsProps> = ({ stats }) => {
       <Grid item xs={12} sm={6}>
         <StatCard
           title="Total Received"
-          value={formatCurrency(stats.total_incoming, 'DP')}
+          value={formatCurrency(stats?.total_incoming ?? 0, 'DP')}
           icon={<TrendingUp sx={{ color: 'white' }} />}
           color={theme.palette.info.main}
         />
@@ -121,7 +109,7 @@ export const WalletStats: React.FC<WalletStatsProps> = ({ stats }) => {
       <Grid item xs={12} sm={6}>
         <StatCard
           title="Total Sent"
-          value={formatCurrency(stats.total_outgoing, 'DP')}
+          value={formatCurrency(stats?.total_outgoing ?? 0, 'DP')}
           icon={<TrendingDown sx={{ color: 'white' }} />}
           color={theme.palette.error.main}
         />

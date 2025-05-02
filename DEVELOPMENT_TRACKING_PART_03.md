@@ -174,8 +174,8 @@ Implemented core physics engine for pool game mechanics.
 - src/utils/**tests**/physics.test.ts
 
 **Next Priority Task:**
-Integrate physics engine with game state management system
-Expected completion time: 2 days
+Integrate AI Referee (Sky-T1) for rule interpretation and foul detection
+Expected completion time: 3 days
 
 ### 2025-04-14: Context Assurance System Implementation
 
@@ -211,9 +211,12 @@ Implemented core context assurance systems for distributed state management.
 - src/core/replication/StateReplicator.ts
 - src/types/game.ts
 
+**Note (2025-04-15):** Verified that the physics engine (`src/utils/physics.ts`) is already integrated into the game state management (`src/core/game/GameState.ts`) via the `tick` method, likely completed during context assurance work.
+
 **Next Priority Task:**
-Implement monitoring and verification systems for context assurance
-Expected completion time: 1 week
+Integrate AI Referee (Sky-T1) for rule interpretation and foul detection.
+
+Expected completion time: 3 days
 
 ### 2025-04-14: Monitoring and Verification System Implementation
 
@@ -442,140 +445,119 @@ Implemented core logic for Swiss tournament format pairing in `TournamentService
 
 **Core Components Implemented/Updated:**
 
-- `services.tournament_service`: Added `_get_participant_swiss_scores`, `_get_previous_opponents`, `_create_swiss_pairing`, `_create_or_update_grand_final`, `_create_grand_final_reset`. Updated `start_tournament`, `complete_match`, `_advance_winner_bracket`, `_advance_loser_bracket`, `_check_tournament_completion`.
-- `tests.test_tournament_service`: Added `test_start_tournament_swiss_round1_even`, `test_start_tournament_swiss_round1_odd`, `test_complete_match_swiss_round1_trigger_round2`, `test_complete_match_de_grand_final_wb_wins`, `test_complete_match_de_grand_final_lb_wins_reset`.
+- `services.tournament_service`: Added `_get_participant_swiss_scores`, `_get_previous_opponents`, `_create_swiss_pairing`, `_advance_winner_bracket`, `_advance_loser_bracket`, `_create_or_update_grand_final`, `_create_grand_final_reset`, `_check_tournament_completion`.
 
-**File Paths:**
+### 2024-03-20: App Store Assets Preparation
 
-- `DojoPool/src/dojopool/services/tournament_service.py`
-- `DojoPool/tests/test_tournament_service.py`
-
-**Next Priority Task:**
-**Update [2024-07-30]:** Task Complete. Moved to Overall Status Next Priority.
-
----
-
-## [2025-04-19] GAME FLOW & USER JOURNEY EPICS
-
-This section tracks the step-by-step game flow, mapping each Epic/Feature to backend/frontend file paths and sub-tasks for clear AI/dev handoff. See `ROADMAP.md` for narrative context.
-
-### Epic 1: Landing Page & Account Creation
-- **Features:** Registration, login, wallet linking, avatar setup
-- **Paths:**
-  - `src/dojopool/routes/auth/views.py`
-  - `src/dojopool/models/user.py`
-  - `src/dojopool/coins/dojo_coins.py`
-  - `src/frontend/pages/register.tsx`, `login.tsx`
-- **Subtasks:**
-  - [ ] Ensure onboarding flow links wallet and avatar creation after registration
-  - [ ] Test login/logout/session flow
-
-### Epic 2: Dashboard (Main Hub)
-- **Features:** Avatar, map, marketplace, analytics, trophy cabinet, Dojo Coin balance
-- **Paths:**
-  - `src/dojopool/routes/dashboard.py`
-  - `src/frontend/pages/dashboard.tsx`
-  - `src/frontend/components/MapView.tsx`, `Marketplace.tsx`, `StatsPanel.tsx`
-- **Subtasks:**
-  - [ ] Integrate live stats, avatar, and map widgets
-  - [ ] Show contextual onboarding if first login
-
-### Epic 3: Avatar Creation & Customization
-- **Features:** Scan, customize, unlock via achievements
-- **Paths:**
-  - `src/dojopool/routes/features.py`
-  - `src/frontend/pages/avatar.tsx`, `components/AvatarEditor.tsx`
-- **Subtasks:**
-  - [ ] Implement avatar scan/upload and unlock logic
-  - [ ] Link avatar to achievements
-
-### Epic 4: Map & Venue Discovery
-- **Features:** Google Maps SDK, stylized, nearby venues, live occupancy
-- **Paths:**
-  - `src/dojopool/routes/venue.py`
-  - `src/frontend/components/MapView.tsx`
-- **Subtasks:**
-  - [ ] Show live venue occupancy/status
-  - [ ] Enable venue click-through for details/check-in
-
-### Epic 5: Entering Dojo (Venue Check-in)
-- **Features:** Geolocation/QR check-in, virtual venue, live games, avatars of checked-in users
-- **Paths:**
-  - `src/dojopool/routes/venue.py`
-  - `src/frontend/pages/venue/[id].tsx`, `components/CheckInButton.tsx`, `VenueSocial.tsx`
-- **Subtasks:**
-  - [ ] Gate all venue features by check-in status
-  - [ ] Show virtual venue UI with live users/games
-
-### Epic 6: Venue Interaction
-- **Features:** Deals, ordering, tournaments, user interaction
-- **Paths:**
-  - `src/dojopool/routes/venue.py`, `services/event_service.py`
-  - `src/frontend/components/DealsPanel.tsx`, `OrderPanel.tsx`, `TournamentsPanel.tsx`, `VenueChat.tsx`
-- **Subtasks:**
-  - [ ] Implement digital ordering (if supported)
-  - [ ] Show live deals
-  - [ ] Enable venue chat for checked-in users
-
-### Epic 7: Tournament Registration & Participation
-- **Features:** Register, pay with Dojo Coin, check-in at venue
-- **Paths:**
-  - `src/dojopool/services/tournament_service.py`, `routes/tournament_routes.py`
-  - `src/frontend/pages/tournaments.tsx`, `components/TournamentList.tsx`, `TournamentRegistration.tsx`
-- **Subtasks:**
-  - [ ] Integrate wallet payment for registration
-  - [ ] Show registration deadlines
-  - [ ] Enable bracket viewing
-
-### Epic 8: Playing a Game (Live Session)
-- **Features:** Real-world play tracked by AI/camera, live analytics, AI referee, commentary
-- **Paths:**
-  - `src/dojopool/services/game_service.py`, `services/analytics_service.py`
-  - `src/frontend/pages/game/[id].tsx`, `components/GameAnalytics.tsx`, `AICommentary.tsx`
-- **Subtasks:**
-  - [ ] Surface live game data
-  - [ ] Integrate AI commentary
-  - [ ] Show analytics overlays
-
-### Epic 9: Post-Game: Results & Rewards
-- **Features:** Results, analytics, rewards (Dojo Coin, NFTs, avatar unlocks), dashboard display
-- **Paths:**
-  - `src/dojopool/services/reward_service.py`, `services/activity_service.py`
-  - `src/frontend/pages/dashboard.tsx`, `components/RewardsPanel.tsx`, `TrophyCabinet.tsx`
-- **Subtasks:**
-  - [ ] Show post-game summary
-  - [ ] Distribute rewards
-  - [ ] Update user dashboard
-
-### Epic 10: Social & Chat
-- **Features:** Venue chat (checked-in users only), notifications, activity feed, friend invites
-- **Paths:**
-  - `src/dojopool/services/notification_service.py`, `services/social/friend.py`, `services/social/activity.py`
-  - `src/frontend/components/ChatRoom.tsx`, `NotificationsPanel.tsx`, `FriendsList.tsx`, `ActivityFeed.tsx`
-- **Subtasks:**
-  - [ ] Ensure chat is venue-scoped and presence-verified
-  - [ ] Integrate friend/invite system
-  - [ ] Show real-time notifications
-
----
-
-- All epics above should be kept in sync with `ROADMAP.md`.
-- When new features or glue code are added, update both this file and the roadmap.
-- Use the file paths to organize further sub-tasks and implementation notes for each epic.
-
-### 2024-07-29: Configure Pytest Fixtures (Flask App, Client, FakeRedis)
-
-Added standard Flask test fixtures (`app`, `client`) and a `fakeredis` fixture (`redis_client`) to `conftest.py` to facilitate testing. Updated the `app` fixture to use the application factory and testing configuration. Identified multiple Redis instantiation points and advised manual patching in tests using `monkeypatch`.
+Prepared comprehensive App Store submission assets and documentation.
 
 **Core Components Implemented:**
-- Testing Infrastructure
-- Pytest Fixtures
+- App Store description and marketing content
+- Screenshot organization and naming structure
+- App icon generation script
+- Screenshot capture helper script
+- Asset directory structure
+
+**Key Features:**
+- Detailed app description with key features
+- Optimized keywords for App Store search
+- Structured screenshot requirements for different devices
+- Automated icon generation for all required sizes
+- Comprehensive marketing materials
+
+**Integration Points:**
+- App Store Connect
+- Marketing website
+- Support system
+- Privacy policy
+- Terms of service
 
 **File Paths:**
-- DojoPool/tests/conftest.py
-- pyproject.toml
+- /app-store-assets/README.md
+- /app-store-assets/marketing/app-store-description.md
+- /app-store-assets/scripts/generate-icons.ps1
+- /app-store-assets/scripts/capture-screenshots.ps1
 
 **Next Priority Task:**
-To be determined by user.
+Implement AI Referee (Sky-T1) for rule interpretation and foul detection
 
-**Update [2024-07-30]:** Task complete. Includes service fixtures and basic API tests.
+Expected completion time: 3 days
+
+### 2025-04-15: AI Referee Rule Logic Integration
+
+Integrated the rule-based AI referee service (`AIRefereeService`) into the game state (`GameState.ts`) to analyze shot outcomes. Added logic in `analyzeShotOutcome` to handle foul detection, ball-in-hand status, turn changes, and basic 8-ball win/loss conditions based on referee results. Added unit tests for the `analyzeShotOutcome` method, mocking the referee service.
+
+**Update 2025-04-16:** Refined `AIRefereeService` rule coverage. Added specific checks for 8-ball break fouls (scratch, illegal 8-ball pocket, insufficient balls driven to rail) by extending `ShotAnalysisData` (in `GameState.ts`) and updating the `GameState.tick` method to track necessary break shot details. Added unit tests for these new break foul rules in `AIRefereeService.test.ts`.
+
+**Core Components Implemented/Updated:**
+
+- GameState integration with AIRefereeService
+- Foul handling logic based on RefereeResult
+- Unit tests for analyzeShotOutcome
+- `GameState.tick` method (break shot tracking)
+- `ShotAnalysisData` interface
+- `AIRefereeService` (break foul logic)
+- `AIRefereeService.test.ts` (break foul tests)
+
+**File Paths:**
+
+- src/core/game/GameState.ts
+- src/tests/game/GameState.test.ts
+- src/services/ai/AIRefereeService.ts
+- src/services/ai/AIRefereeService.test.ts
+
+**Next Priority Task:**
+Further refine `AIRefereeService` rule coverage (e.g., add non-break fouls like double-hit, push-shot if feasible with current physics data) or integrate actual Sky-T1 AI model based on requirements. Alternatively, shift focus to high-priority frontend UI development (Wallet, Tournaments, Venues) as per overall status update.
+
+Expected completion time: 2-3 days (Rules) / Ongoing (Frontend)
+
+### 2025-04-15: Wallet UI Implementation and Testing
+
+Created and refactored frontend components for the user wallet interface. Integrated components with a new frontend `WalletService` and shared TypeScript types derived from backend models. Added unit tests for the main dashboard component and its children, resolving Jest configuration issues along the way.
+
+**Core Components Implemented:**
+
+- `src/services/wallet/WalletService.ts` (Frontend API service)
+- `src/types/wallet.ts` (Shared frontend/backend types)
+- `src/components/wallet/WalletDashboard.tsx` (Main view)
+- `src/components/wallet/WalletTransactionList.tsx` (Transaction display)
+- `src/components/wallet/WalletStats.tsx` (Stats display, renamed to `WalletStatsDisplay` internally)
+- `src/__tests__/components/WalletDashboard.test.tsx`
+- `src/__tests__/components/WalletTransactionList.test.tsx`
+- `src/__tests__/components/WalletStats.test.tsx`
+
+**Key Features:**
+
+- Display wallet balance.
+- Display transaction history.
+- Display wallet statistics.
+- Mocked transfer functionality (dialog interaction).
+- Type safety using shared interfaces.
+- Unit tests for core components.
+
+**Integration Points:**
+
+- Backend Wallet API endpoints (via `axiosInstance`)
+- `useAuth` hook for user context
+- Shared utility functions (`formatCurrency`, `formatNumber`, `date-fns`)
+
+**File Paths:**
+
+- `src/types/wallet.ts`
+- `src/services/wallet/WalletService.ts`
+- `src/components/wallet/WalletDashboard.tsx`
+- `src/components/wallet/WalletTransactionList.tsx`
+- `src/components/wallet/WalletStats.tsx`
+- `src/__tests__/components/WalletDashboard.test.tsx`
+- `src/__tests__/components/WalletTransactionList.test.tsx`
+- `src/__tests__/components/WalletStats.test.tsx`
+- `jest.config.js` (updated)
+- `jest.setup.ts` (updated)
+- `package.json` (dependencies added/updated)
+
+**Next Priority Task:**
+Refactor remaining outdated tests (e.g., `GameState.test.ts`, other component tests) to align with current configurations and fix failures.
+
+Expected completion time: 2-3 days (depending on test complexity)
+
+---

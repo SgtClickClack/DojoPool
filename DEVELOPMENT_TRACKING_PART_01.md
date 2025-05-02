@@ -270,4 +270,8 @@ Start the development server to confirm the project builds and runs without erro
 
 Expected completion time: 15 minutes
 
+### 2025-04-29: Import Path and Test Setup Fixes
+- Cleaned up `tests/conftest.py` imports and sys.path setup.
+- Guidance given for IDE PYTHONPATH configuration.
+
 Next: c:/dev/DojoPoolONE/DojoPool/DEVELOPMENT_TRACKING_PART_02.md

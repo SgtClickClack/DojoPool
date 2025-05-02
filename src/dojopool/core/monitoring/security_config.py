@@ -129,7 +129,7 @@ CORS_CONFIG = {
         "*",
         "https://dojopool.com",
         "https://*.dojopool.com",
-        "http://localhost:3000",
+        "http://localhost:3100",
         "http://localhost:8000"
     ],
     "allowed_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

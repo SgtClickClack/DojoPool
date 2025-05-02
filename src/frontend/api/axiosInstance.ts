@@ -1,13 +1,8 @@
 import axios from "axios";
 import { auth } from "../../config/firebase"; // Import Firebase auth instance
 
-<<<<<<< HEAD
-// Correct API base URL for local backend
-const API_BASE_URL = "http://localhost:3001";
-=======
-// Updated relative URL for proxy
-const API_BASE_URL = "/api/v1";
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
+// Use import.meta.env now that vite.config defines it
+const API_BASE_URL = import.meta.env.VITE_NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

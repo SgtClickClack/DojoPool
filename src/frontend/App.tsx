@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
+import { SocketProvider } from "./contexts/SocketContext";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 // Lazy load components with corrected paths (relative to App.tsx)
@@ -52,47 +53,49 @@ const App: React.FC = () => {
       <CssBaseline />
       <AuthProvider>
         <UserProvider>
-          <BrowserRouter
-            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-          >
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+          <SocketProvider>
+            <BrowserRouter
+              future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            >
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
 
-                {/* Protected routes */}
-                <Route path="/" element={<NavigateToHome />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/game/:gameId"
-                  element={
-                    <ProtectedRoute>
-                      <GameView />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/tournament/:tournamentId"
-                  element={
-                    <ProtectedRoute>
-                      <TournamentDetail />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/* Protected routes */}
+                  <Route path="/" element={<NavigateToHome />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/game/:gameId"
+                    element={
+                      <ProtectedRoute>
+                        <GameView />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/tournament/:tournamentId"
+                    element={
+                      <ProtectedRoute>
+                        <TournamentDetail />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Catch all route */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
+                  {/* Catch all route */}
+                  <Route path="*" element={<Navigate to="/login" replace />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </SocketProvider>
         </UserProvider>
       </AuthProvider>
     </ThemeProvider>

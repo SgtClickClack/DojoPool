@@ -1,12 +1,7 @@
 """Chat models for messaging between users."""
 
 from datetime import datetime
-<<<<<<< HEAD
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, PrimaryKeyConstraint
-=======
-
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel

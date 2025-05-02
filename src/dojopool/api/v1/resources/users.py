@@ -8,7 +8,7 @@ from marshmallow import Schema, fields, validate, validates_schema
 
 from dojopool.core.security import require_auth, require_roles
 from dojopool.core.exceptions import NotFoundError, AuthorizationError, ValidationError
-from dojopool.core.auth.models import User
+from dojopool.models.user import User
 from .base import BaseResource
 
 class UserSchema(Schema):
@@ -80,6 +80,7 @@ class UserResource(BaseResource):
         user = User.query.get(user_id)
         if not user:
             raise NotFoundError('User not found')
+        assert user is not None
         
         if user.id != current_user.id and not current_user.has_role('admin'):
             raise AuthorizationError()
@@ -102,12 +103,23 @@ class UserResource(BaseResource):
         user = User.query.get(user_id)
         if not user:
             raise NotFoundError('User not found')
+        assert user is not None
         
-        data = self.update_schema.load(self.get_json_data())
+        json_payload = self.get_json_data()
+        if json_payload is None: # Ensure payload exists
+             raise ValidationError('Request body cannot be empty.')
+        data = self.update_schema.load(json_payload)
         
+        # Add check to ensure data is a dictionary after loading
+        if not isinstance(data, dict):
+            # This case might indicate a schema loading issue rather than bad input
+            current_app.logger.error(f"Schema loading resulted in non-dict type: {type(data)}")
+            raise ValidationError('Invalid data format after processing.')
+
         # Handle password update
         if 'new_password' in data:
             # Check if the provided current password is correct
+            # Use .get() for safer access in case 'current_password' is missing despite schema
             if not user.check_password(data.get('current_password', '')):
                 raise ValidationError('Current password is incorrect')
             # Set the new password
@@ -120,6 +132,8 @@ class UserResource(BaseResource):
         
         user.save()
         
+        # Add assertion here too before dumping
+        assert user is not None
         return self.success_response(
             data=self.schema.dump(user),
             message='User updated successfully'
@@ -156,10 +170,12 @@ class UserListResource(BaseResource):
         # Apply filters
         username = request.args.get('username')
         if username:
+            # Reverted cast
             query = query.filter(User.username.ilike(f'%{username}%'))
         
         email = request.args.get('email')
         if email:
+            # Reverted cast
             query = query.filter(User.email.ilike(f'%{email}%'))
         
         is_active = request.args.get('is_active')
@@ -195,5 +211,6 @@ class UserProfileResource(BaseResource):
         user = User.query.get(user_id)
         if not user:
             raise NotFoundError('User not found')
+        assert user is not None
         
         return self.success_response(data=self.schema.dump(user)) 

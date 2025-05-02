@@ -1,9 +1,18 @@
 import logging
 from logging.config import fileConfig
+import os
+import sys
+
+# Ensure the src directory is in the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from flask import current_app
+from dojopool.app import create_app
 
 from alembic import context
+
+# Create a Flask app instance for context
+flask_app = create_app(os.getenv('FLASK_CONFIG') or 'development')
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -11,7 +20,8 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+if config.config_file_name:
+    fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
 
@@ -36,8 +46,15 @@ def get_engine_url():
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-config.set_main_option('sqlalchemy.url', get_engine_url())
-target_db = current_app.extensions['migrate'].db
+
+# --- Configure Database URL within App Context ---
+def configure_url():
+    with flask_app.app_context():
+        config.set_main_option('sqlalchemy.url', get_engine_url())
+configure_url()
+# --- End Context Block ---
+
+#target_db = current_app.extensions['migrate'].db # This might fail if called outside context later
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -46,9 +63,12 @@ target_db = current_app.extensions['migrate'].db
 
 
 def get_metadata():
-    if hasattr(target_db, 'metadatas'):
-        return target_db.metadatas[None]
-    return target_db.metadata
+    # Access target_db within app context if needed
+    with flask_app.app_context():
+        target_db = current_app.extensions['migrate'].db
+        if hasattr(target_db, 'metadatas'):
+            return target_db.metadatas[None]
+        return target_db.metadata
 
 
 def run_migrations_offline():
@@ -79,32 +99,34 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    # --- Create App Context for Online Mode ---
+    with flask_app.app_context():
+        # this callback is used to prevent an auto-migration from being generated
+        # when there are no changes to the schema
+        # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
+        def process_revision_directives(context, revision, directives):
+            if getattr(config.cmd_opts, 'autogenerate', False):
+                script = directives[0]
+                if script.upgrade_ops.is_empty():
+                    directives[:] = []
+                    logger.info('No changes in schema detected.')
 
-    # this callback is used to prevent an auto-migration from being generated
-    # when there are no changes to the schema
-    # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
-    def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, 'autogenerate', False):
-            script = directives[0]
-            if script.upgrade_ops.is_empty():
-                directives[:] = []
-                logger.info('No changes in schema detected.')
+        conf_args = current_app.extensions['migrate'].configure_args
+        if conf_args.get("process_revision_directives") is None:
+            conf_args["process_revision_directives"] = process_revision_directives
 
-    conf_args = current_app.extensions['migrate'].configure_args
-    if conf_args.get("process_revision_directives") is None:
-        conf_args["process_revision_directives"] = process_revision_directives
+        connectable = get_engine() # get_engine() uses current_app
 
-    connectable = get_engine()
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=get_metadata(), # get_metadata() now uses context
+                **conf_args
+            )
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=get_metadata(),
-            **conf_args
-        )
-
-        with context.begin_transaction():
-            context.run_migrations()
+            with context.begin_transaction():
+                context.run_migrations()
+    # --- End App Context for Online Mode ---
 
 
 if context.is_offline_mode():

@@ -16,6 +16,7 @@ from flask_marshmallow import Marshmallow  # type: ignore
 from flask_migrate import Migrate  # type: ignore
 from flask_socketio import SocketIO  # type: ignore
 from flask_sqlalchemy import SQLAlchemy  # type: ignore
+from flask import jsonify # Import jsonify
 
 # Initialize extensions
 db: SQLAlchemy = SQLAlchemy()  # type: ignore
@@ -30,6 +31,20 @@ socketio: SocketIO = SocketIO()  # type: ignore
 # Import services
 from .services.cache_service import cache_service
 from .services.db_service import db_service
+
+
+# Add handler for unauthorized API access
+@login_manager.unauthorized_handler
+def unauthorized():
+    # Return a 401 Unauthorized JSON response for API requests
+    # Check if request expects JSON or is targeting an API endpoint
+    # Simple check: if path starts with /api
+    from flask import request # Local import
+    if request.path.startswith('/api'):
+        return jsonify(message="Authentication required"), 401
+    # For non-API requests, you might still want to redirect to a login page
+    # For now, return JSON for all unauthorized as this is primarily an API
+    return jsonify(message="Authentication required"), 401
 
 
 def init_extensions(app: Any) -> None:
@@ -49,7 +64,7 @@ def init_extensions(app: Any) -> None:
     socketio.init_app(app)
 
     # Configure login manager
-    login_manager.login_view = "auth.login"
+    login_manager.login_view = "api_v1.loginresource"
     login_manager.login_message_category = "info"
 
     @login_manager.user_loader

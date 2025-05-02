@@ -6,10 +6,10 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: 'tsconfig.json',
-      useESM: true
+      // useESM: true // Often causes issues with commonjs setup files, removing for now
     }]
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'], // Updated file extension
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   }

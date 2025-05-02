@@ -3,64 +3,6 @@
 ## Vision
 DojoPool is an innovative platform that transforms traditional pool gaming into an immersive, tech-enhanced experience by bridging physical and digital gameplay. It combines real-world pool venues with advanced technology, creating a unique social gaming ecosystem.
 
-<<<<<<< HEAD
-## Dojo Pool Game Flow Checklist (User Journey)
-
-This section tracks the end-to-end user experience, ensuring all digital and real-world interactions are implemented and aligned with the platform vision.
-
-**Legend:**
-- [x] Complete
-- [ ] In Progress/Pending
-
-1. **Landing Page & Account Creation**
-    - [x] User encounters landing page
-    - [x] Login/Sign Up (player profile, wallet, avatar linkage)
-2. **Dashboard – Central Hub**
-    - [x] Personalized dashboard after login
-    - [x] Avatar creation/management access
-    - [ ] Map access (find/interact with Dojos)
-    - [ ] Marketplace access (NFTs/coins)
-    - [ ] Analytics & statistics (performance, rankings)
-    - [ ] Trophy cabinet (NFT trophies, rings, items)
-    - [ ] Dojo Coins balance (wallet integration)
-3. **Avatar Creation & Customization**
-    - [x] Camera setup prompt
-    - [x] Body/face scan for avatar
-    - [ ] Text-to-image avatar customization
-    - [ ] Achievement-based avatar evolution/unlocks
-4. **Map – Finding a Dojo**
-    - [ ] Map UI (Kung Fu movie style, Google Maps SDK)
-    - [ ] Geolocation for user position
-    - [ ] Display nearby Dojos (venue integration)
-    - [ ] Dojo info (profile, analytics, promos)
-    - [ ] Live occupancy visualization
-    - [ ] Navigation/directions to Dojo
-5. **Entering the Virtual Dojo**
-    - [ ] Geolocation triggers virtual dojo entry
-    - [ ] Stylized dojo interior view
-    - [ ] Live game visualization (Diception AI)
-    - [ ] Venue interaction (deals, menu, posters)
-    - [ ] Social avatars in dojo, messaging
-6. **Tournament Registration & Logistics**
-    - [ ] Tournament discovery/registration UI
-    - [ ] Entry fee payment (Dojo Coins)
-    - [ ] Bracket generation, real-time updates
-7. **Physical Check-in at Venue**
-    - [ ] QR code/geolocation check-in
-    - [ ] Digital-physical presence linkage
-8. **Playing a Real-Life Game (Enhanced)**
-    - [x] Table integration (cameras, hardware)
-    - [x] AI ball tracking (Diception)
-    - [ ] AI referee (Sky-T1) integration
-    - [ ] Real-time tracking UI (scores, fouls, rules)
-    - [ ] AI commentary/audio (AudioCraft)
-9. **Post-Game & Rewards**
-    - [ ] Results auto-recorded, analytics update
-    - [ ] Content generation (Wan 2.1 video highlights)
-    - [ ] Content sharing (social features)
-    - [ ] Tournament outcome processing (brackets, prizes)
-    - [ ] Rewards: Dojo Coins, NFT trophies/items, avatar unlocks
-=======
 ## GAME FLOW & USER JOURNEY (2025 Integration)
 
 This section outlines the step-by-step user journey and the required feature/component integration for a seamless Dojo Pool experience. Each step references the relevant backend/frontend components and file paths for clarity and AI agent handoff.
@@ -100,22 +42,22 @@ This section outlines the step-by-step user journey and the required feature/com
 - **Features:** Geolocation/QR check-in, virtual venue, live games, avatars of checked-in users
 - **Paths:**
   - `src/dojopool/routes/venue.py`
-  - `src/frontend/pages/venue/[id].tsx`, `components/CheckInButton.tsx`, `VenueSocial.tsx`
-- **TODO:** Gate all venue features by check-in status. Show virtual venue UI with live users/games.
+  - `src/frontend/components/VenueCheckIn.tsx`
+- **TODO:** Implement QR scanning and geolocation check-in. Show virtual venue view with live games.
 
-### 6. Venue Interaction
-- **Features:** Deals, ordering, tournaments, user interaction
+### 6. Venue Interactions
+- **Features:** Digital ordering, deals, tournaments, venue chat
 - **Paths:**
   - `src/dojopool/routes/venue.py`, `services/event_service.py`
   - `src/frontend/components/DealsPanel.tsx`, `OrderPanel.tsx`, `TournamentsPanel.tsx`, `VenueChat.tsx`
 - **TODO:** Implement digital ordering (if supported), show live deals, enable venue chat for checked-in users.
 
-### 7. Tournament Registration & Participation
-- **Features:** Register, pay with Dojo Coin, check-in at venue
+### 7. Tournament System
+- **Features:** Single/double elimination, round robin, Swiss systems
 - **Paths:**
-  - `src/dojopool/services/tournament_service.py`, `routes/tournament_routes.py`
-  - `src/frontend/pages/tournaments.tsx`, `components/TournamentList.tsx`, `TournamentRegistration.tsx`
-- **TODO:** Integrate wallet payment, show registration deadlines, enable bracket viewing.
+  - `src/dojopool/routes/tournaments.py`
+  - `src/frontend/pages/tournaments.tsx`, `components/TournamentBracket.tsx`
+- **TODO:** Implement tournament registration, bracket generation, and real-time updates. wallet payment, show registration deadlines, enable bracket viewing.
 
 ### 8. Playing a Game (Live Session)
 - **Features:** Real-world play tracked by AI/camera, live analytics, AI referee, commentary
