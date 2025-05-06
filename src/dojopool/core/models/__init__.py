@@ -1,6 +1,7 @@
 """Core models package."""
 
-from .tournament import Tournament, TournamentGame
 from .base import BaseModel
+from .tournament import Tournament
+from .venue import Venue, VenueOperatingHours
 
-__all__ = ["Tournament", "TournamentGame", "BaseModel"]
+__all__ = ["Tournament", "BaseModel", "Venue", "VenueOperatingHours"]

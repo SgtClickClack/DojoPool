@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash, generate_password_hash  # typ
 from dojopool.core.extensions import db  # type: ignore
 
 from .user_roles import user_roles
+from .friendship import Friendship # Import Friendship
 
 
 class User(db.Model, UserMixin):
@@ -66,12 +67,14 @@ class User(db.Model, UserMixin):
     )
     wallet_transactions = relationship('WalletTransaction', back_populates='user', cascade='all, delete-orphan') # Added relationship
 
-    # Define games_won relationship here
-    games_won = relationship(
-        "dojopool.models.game.Game",
-        foreign_keys="dojopool.models.game.Game.winner_id", # Use string for foreign keys
-        back_populates="winner"
-    )
+    # One-to-one relationship to UserProfile
+    profile = db.relationship("UserProfile", uselist=False, back_populates="user")
+    social_profile = db.relationship("SocialProfile", uselist=False, back_populates="user")
+
+    # Friendships
+    friendships_as_user1 = relationship("Friendship", foreign_keys="Friendship.user1_id", back_populates="user1")
+    friendships_as_user2 = relationship("Friendship", foreign_keys="Friendship.user2_id", back_populates="user2")
+    friendship_actions = relationship("Friendship", foreign_keys="Friendship.action_user_id", back_populates="action_user")
 
     def __repr__(self) -> str:
         """
@@ -146,15 +149,8 @@ class User(db.Model, UserMixin):
 from dojopool.models.game import Game
 from dojopool.models.role import Role
 
-# Attach tournament_participations relationship after TournamentParticipant is defined
-# from dojopool.models.tournament import TournamentParticipant
-# User.tournament_participations = relationship(
-#     "dojopool.models.tournament.TournamentParticipant",
-#     back_populates="user",
-#     foreign_keys=[TournamentParticipant.user_id]
-# )
-
-# Attach games_won relationship after Game is defined - MOVED INSIDE CLASS
+# TODO: The games_won relationship causes a NoForeignKeysError due to SQLAlchemy model loading order or circular import issues.
+# It is not critical for wallet or user flows. Uncomment and debug this relationship if/when needed for game analytics.
 # User.games_won = relationship(
 #     "dojopool.models.game.Game",
 #     foreign_keys=[Game.winner_id],

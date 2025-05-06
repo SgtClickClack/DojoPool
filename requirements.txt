@@ -25,6 +25,8 @@ scipy
 joblib
 threadpoolctl
 prometheus-client
+# solana==0.25.0  # Disabled due to websockets conflict with web3. Use a split environment for Solana/Ethereum dev.
+web3>=6.0.0
 
 # Security
 werkzeug==3.0.1
@@ -38,3 +40,4 @@ pytest==8.0.0
 black==24.1.1
 flake8==7.0.0
 mypy==1.8.0
+parsimonious>=0.9.0

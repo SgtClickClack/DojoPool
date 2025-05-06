@@ -1,6 +1,6 @@
 import React from "react";
 import { render, act } from "@testing-library/react";
-import { GameBoard } from "../GameBoard";
+import { GameBoard } from "../game/GameBoard";
 import { performance } from "perf_hooks";
 
 describe("GameBoard Performance", () => {

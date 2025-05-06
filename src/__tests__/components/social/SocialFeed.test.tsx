@@ -1,7 +1,7 @@
 import React from "react";
 import { screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders } from "../../utils/testUtils";
+import { render } from "test-utils";
 import SocialFeed from "../../../components/social/SocialFeed";
 
 // Mock WebSocket
@@ -77,12 +77,12 @@ describe("SocialFeed Component", () => {
   });
 
   it("renders loading state initially", () => {
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
     expect(screen.getByTestId("feed-loading")).toBeInTheDocument();
   });
 
   it("fetches and displays feed items", async () => {
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
 
     await waitFor(() => {
       expect(
@@ -95,7 +95,7 @@ describe("SocialFeed Component", () => {
   });
 
   it("fetches and displays friend suggestions", async () => {
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
 
     await waitFor(() => {
       expect(screen.getByText("Player2")).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe("SocialFeed Component", () => {
   });
 
   it("handles post interactions", async () => {
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
 
     await waitFor(() => {
       expect(
@@ -143,7 +143,7 @@ describe("SocialFeed Component", () => {
   });
 
   it("handles friend requests", async () => {
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
 
     await waitFor(() => {
       expect(screen.getByText("Player2")).toBeInTheDocument();
@@ -161,7 +161,7 @@ describe("SocialFeed Component", () => {
   });
 
   it("handles WebSocket updates", async () => {
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
 
     await waitFor(() => {
       expect(
@@ -199,7 +199,7 @@ describe("SocialFeed Component", () => {
     // Mock fetch to simulate error
     global.fetch = jest.fn().mockRejectedValue(new Error("Network error"));
 
-    renderWithProviders(<SocialFeed />);
+    render(<SocialFeed />);
 
     await waitFor(() => {
       expect(screen.getByText("Error loading feed")).toBeInTheDocument();

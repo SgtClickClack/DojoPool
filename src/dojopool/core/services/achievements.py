@@ -14,7 +14,7 @@ from src.core.config.achievements import (
 )
 from src.core.database import cache, db
 from src.core.events import emit_event
-from src.core.models import Game, GameResult, User
+from dojopool.models.user import User
 
 
 class AchievementManager:
@@ -449,40 +449,3 @@ class AchievementManager:
 
         # Consider it quick if game duration is less than average
         return game.duration < game.type.average_duration * 0.6  # 40% faster than average
-
-
-class Achievement(db.Model):
-    """Achievement model."""
-
-    __tablename__ = "achievements"
-    __table_args__ = (
-        db.Index("idx_achievements_user", "user_id"),
-        db.Index("idx_achievements_type", "type"),
-        {"extend_existing": True},
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    tier = db.Column(db.String(20))  # bronze, silver, gold
-    points = db.Column(db.Integer, nullable=False)
-    icon = db.Column(db.String(50))
-    earned_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # Relationships
-    user = db.relationship("User", backref=db.backref("achievements", lazy="dynamic"))
-
-    def to_dict(self):
-        """Convert achievement to dictionary.
-
-        Returns:
-            dict: Achievement data
-        """
-        return {
-            "id": self.id,
-            "type": self.type,
-            "tier": self.tier,
-            "points": self.points,
-            "icon": self.icon,
-            "earned_at": self.earned_at.isoformat(),
-        }

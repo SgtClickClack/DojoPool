@@ -1,8 +1,7 @@
 import React from "react";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Register } from "../../../dojopool/frontend/components/Auth/[AUTH]Register";
-import { renderWithProviders } from "../../utils/testUtils";
 import { useAuth } from "../../../dojopool/frontend/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -15,12 +14,15 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("Register Component", () => {
-  const mockRegister = jest.fn();
-  const mockNavigate = jest.fn();
+  let mockRegister: jest.Mock;
+  let mockNavigate: jest.Mock;
 
   beforeEach(() => {
+    mockRegister = jest.fn();
+    mockNavigate = jest.fn();
     (useAuth as jest.Mock).mockReturnValue({
       register: mockRegister,
+      loading: false,
       error: null,
     });
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
@@ -30,8 +32,12 @@ describe("Register Component", () => {
     jest.clearAllMocks();
   });
 
+  const renderComponent = () => {
+    return render(<Register />);
+  };
+
   it("renders registration form correctly", () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     expect(screen.getByText("Create Account")).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
@@ -43,7 +49,7 @@ describe("Register Component", () => {
   });
 
   it("handles form submission correctly", async () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const nameInput = screen.getByLabelText("Name");
     const emailInput = screen.getByLabelText("Email");
@@ -70,13 +76,13 @@ describe("Register Component", () => {
       error: "Email already exists",
     });
 
-    renderWithProviders(<Register />);
+    renderComponent();
 
     expect(screen.getByText("Email already exists")).toBeInTheDocument();
   });
 
   it("validates password match", async () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const passwordInput = screen.getByLabelText("Password");
     const confirmPasswordInput = screen.getByLabelText("Confirm Password");
@@ -91,7 +97,7 @@ describe("Register Component", () => {
   });
 
   it("validates required fields", async () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const submitButton = screen.getByRole("button", { name: "Sign Up" });
     fireEvent.click(submitButton);
@@ -104,7 +110,7 @@ describe("Register Component", () => {
   });
 
   it("navigates to login page", async () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const loginLink = screen.getByText("Sign in");
     fireEvent.click(loginLink);
@@ -113,7 +119,7 @@ describe("Register Component", () => {
   });
 
   it("prevents form submission with invalid email", async () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const nameInput = screen.getByLabelText("Name");
     const emailInput = screen.getByLabelText("Email");
@@ -135,7 +141,7 @@ describe("Register Component", () => {
     mockRegister.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 100)),
     );
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const nameInput = screen.getByLabelText("Name");
     const emailInput = screen.getByLabelText("Email");
@@ -157,7 +163,7 @@ describe("Register Component", () => {
   });
 
   it("clears password error when passwords match", async () => {
-    renderWithProviders(<Register />);
+    renderComponent();
 
     const passwordInput = screen.getByLabelText("Password");
     const confirmPasswordInput = screen.getByLabelText("Confirm Password");

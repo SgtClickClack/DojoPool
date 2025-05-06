@@ -10,10 +10,11 @@ from flask import request
 from flask_login import current_user
 from marshmallow import Schema, ValidationError, fields, validate, validates_schema
 
-from dojopool.core.auth.models import User
+from dojopool.models.user import User
 from dojopool.core.exceptions import AuthorizationError, NotFoundError
-from dojopool.models.game import Game, GameStatus, GameType
+from dojopool.models.game import Game, GameStatus, GameType, GameMode
 from dojopool.core.security import require_auth, require_roles
+from dojopool.core.extensions import db
 # Commenting out or updating cache imports until their correct paths are confirmed
 # from dojopool.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
 # from dojopool.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
@@ -102,7 +103,7 @@ class GameResource(BaseResource):
         ):
             raise AuthorizationError()
 
-        return self.success_response(data=self.schema.dump(game))
+        return self.success_response(data=self.schema.dump(game))  # type: ignore
 
     @require_auth
     def put(self, game_id):
@@ -128,9 +129,9 @@ class GameResource(BaseResource):
         data = self.update_schema.load(self.get_json_data())
 
         # Update game status and scores
-        game.status = data["status"]
-        game.player1.score = data["player1_score"]
-        game.player2.score = data["player2_score"]
+        game.status = data["status"]  # type: ignore
+        game.player1.score = data["player1_score"]  # type: ignore
+        game.player2.score = data["player2_score"]  # type: ignore
 
         # Set winner if game is completed
         if game.status == GameStatus.COMPLETED:
@@ -239,24 +240,23 @@ class GameListResource(BaseResource):
 
         # Create game
         game = Game(
-            type=data["type"],
+            player1_id=player1.id,
+            player2_id=player2.id,
+            game_type=data["type"],
+            game_mode=data.get("mode", GameMode.CASUAL),
             status=GameStatus.IN_PROGRESS,
-            tournament_id=data.get("tournament_id"),
-            started_at=datetime.utcnow(),
         )
-
-        # Set players and initial scores
-        game.set_player1(player1, data["player1"]["score"])
-        game.set_player2(player2, data["player2"]["score"])
-
-        game.save()
+        game.started_at = datetime.utcnow()
+        game.score = f"{data['player1']['score']}-{data['player2']['score']}"
+        db.session.add(game)
+        db.session.commit()
 
         # Invalidate games list cache
         # Commenting out or updating cache imports until their correct paths are confirmed
         # invalidate_endpoint_cache("games_list:*")
 
         return self.success_response(
-            data=self.schema.dump(game), message="Game created successfully", status_code=201
+            data=self.schema.dump(game), message="Game created successfully", status_code=201  # type: ignore
         )
 
 

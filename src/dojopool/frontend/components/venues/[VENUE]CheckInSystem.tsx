@@ -14,6 +14,10 @@ import {
   Col,
   Timeline,
   message,
+  Alert,
+  Box,
+  CircularProgress,
+  Typography,
 } from "antd";
 import {
   UserOutlined,
@@ -25,6 +29,7 @@ import {
 } from "@ant-design/icons";
 import moment from "moment";
 import { Line } from "@ant-design/charts";
+import QRCodeScanner from '../../../../frontend/components/QRCodeScanner';
 
 import { useAuth } from "../../hooks/useAuth";
 import {
@@ -53,6 +58,11 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({
   const [checkinHistory, setCheckinHistory] = useState<any[]>([]);
   const [occupancyStats, setOccupancyStats] = useState<any>(null);
   const [checkInModalVisible, setCheckInModalVisible] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [qrScanResult, setQrScanResult] = useState<string | null>(null);
+  const [geoLocation, setGeoLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [qrCheckInLoading, setQrCheckInLoading] = useState(false);
+  const [qrCheckInError, setQrCheckInError] = useState<string | null>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -101,6 +111,50 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({
     } catch (error) {
       console.error("Error checking out:", error);
       message.error("Failed to check out");
+    }
+  };
+
+  const handleOpenQrDialog = () => {
+    setQrDialogOpen(true);
+    setQrScanResult(null);
+    setGeoLocation(null);
+    setQrCheckInError(null);
+  };
+
+  const handleQrScan = (code: string) => {
+    setQrScanResult(code);
+    // Get geolocation after QR scan
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setGeoLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        },
+        (err) => {
+          setQrCheckInError('Failed to get geolocation.');
+        }
+      );
+    } else {
+      setQrCheckInError('Geolocation not supported.');
+    }
+  };
+
+  const handleQrCheckIn = async () => {
+    if (!qrScanResult || !geoLocation) return;
+    setQrCheckInLoading(true);
+    setQrCheckInError(null);
+    try {
+      await checkIn(venueId, {
+        qrCode: qrScanResult,
+        latitude: geoLocation.latitude,
+        longitude: geoLocation.longitude,
+      });
+      message.success('Checked in with QR/Geolocation!');
+      setQrDialogOpen(false);
+      fetchData();
+    } catch (err) {
+      setQrCheckInError('Failed to check in with QR/Geolocation.');
+    } finally {
+      setQrCheckInLoading(false);
     }
   };
 
@@ -190,13 +244,23 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({
               Check Out
             </Button>
           ) : (
-            <Button
-              type="primary"
-              icon={<CheckCircleOutlined />}
-              onClick={() => setCheckInModalVisible(true)}
-            >
-              Check In
-            </Button>
+            <>
+              <Button
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                onClick={() => setCheckInModalVisible(true)}
+              >
+                Check In
+              </Button>
+              <Button
+                type="default"
+                icon={<CheckCircleOutlined />}
+                onClick={handleOpenQrDialog}
+                style={{ marginLeft: 8 }}
+              >
+                Check In with QR/Geolocation
+              </Button>
+            </>
           )
         }
       >
@@ -324,6 +388,37 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="QR/Geolocation Check-In"
+        visible={qrDialogOpen}
+        onCancel={() => setQrDialogOpen(false)}
+        footer={null}
+      >
+        {qrCheckInError && <Alert type="error" message={qrCheckInError} style={{ marginBottom: 16 }} />}
+        {!qrScanResult ? (
+          <QRCodeScanner onScan={handleQrScan} />
+        ) : !geoLocation ? (
+          <Box display="flex" alignItems="center" justifyContent="center" minHeight={120}>
+            <CircularProgress />
+            <Typography style={{ marginLeft: 16 }}>Getting your location...</Typography>
+          </Box>
+        ) : (
+          <Box>
+            <Typography>QR Code: {qrScanResult}</Typography>
+            <Typography>Latitude: {geoLocation.latitude.toFixed(6)}</Typography>
+            <Typography>Longitude: {geoLocation.longitude.toFixed(6)}</Typography>
+            <Button
+              type="primary"
+              loading={qrCheckInLoading}
+              onClick={handleQrCheckIn}
+              style={{ marginTop: 16 }}
+            >
+              Confirm Check-In
+            </Button>
+          </Box>
+        )}
       </Modal>
     </div>
   );

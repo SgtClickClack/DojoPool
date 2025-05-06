@@ -380,6 +380,12 @@ export class WebGLContextManager extends BaseManager<WebGLContextManager> {
   private progressiveLoaderId: number | null = null;
   private atlasCleanupTimer: number | null = null;
 
+  public static override getInstance(options: WebGLContextOptions): WebGLContextManager {
+    // Use the BaseManager's getInstance to handle the singleton logic
+    // The 'call' method is used to set the 'this' context for getInstance
+    return BaseManager.getInstance.call(this, options);
+  }
+
   protected constructor(options: WebGLContextOptions) {
     super();
     this.canvas = options.canvas;
@@ -1497,62 +1503,11 @@ export class WebGLContextManager extends BaseManager<WebGLContextManager> {
     };
   }
 
-  private findAtlasRegion(
-    width: number,
-    height: number,
-  ): { atlas: TextureAtlas; region: TextureAtlasRegion } | null {
-    if (!this.contextState) return null;
-
-    // Round up to nearest power of 2
-    width = Math.max(
-      WebGLContextManager.MIN_ATLAS_REGION,
-      Math.pow(2, Math.ceil(Math.log2(width))),
-    );
-    height = Math.max(
-      WebGLContextManager.MIN_ATLAS_REGION,
-      Math.pow(2, Math.ceil(Math.log2(height))),
-    );
-
-    // Try to find space in existing atlases
-    for (const atlas of this.contextState.textureAtlases) {
-      const region = this.findFreeRegion(atlas, width, height);
-      if (region) {
-        return { atlas, region };
-      }
-    }
-
-    // Create new atlas if possible
-    if (
-      this.contextState.textureAtlases.length <
-      WebGLContextManager.MAX_ATLAS_COUNT
-    ) {
-      const atlas = await this.createAtlas();
-      if (atlas) {
-        this.contextState.textureAtlases.push(atlas);
-        const region = this.findFreeRegion(atlas, width, height);
-        if (region) {
-          return { atlas, region };
-        }
-      }
-    }
-
-    // Try to defragment and retry
-    this.defragmentAtlases();
-    for (const atlas of this.contextState.textureAtlases) {
-      const region = this.findFreeRegion(atlas, width, height);
-      if (region) {
-        return { atlas, region };
-      }
-    }
-
-    return null;
-  }
-
-  private findFreeRegion(
+  private async findFreeRegion(
     atlas: TextureAtlas,
     width: number,
     height: number,
-  ): TextureAtlasRegion | null {
+  ): Promise<TextureAtlasRegion | null> {
     // Simple skyline placement algorithm
     const used = new Set<number>();
     for (const region of atlas.regions.values()) {
@@ -1620,7 +1575,7 @@ export class WebGLContextManager extends BaseManager<WebGLContextManager> {
     return null;
   }
 
-  private defragmentAtlases(): void {
+  private async defragmentAtlases(): Promise<void> {
     if (!this.contextState?.gl) return;
 
     const { textureAtlases, gl } = this.contextState;
@@ -1652,7 +1607,7 @@ export class WebGLContextManager extends BaseManager<WebGLContextManager> {
 
         // Copy regions to new atlas
         for (const [id, region] of atlas.regions) {
-          const newRegion = this.findFreeRegion(
+          const newRegion = await this.findFreeRegion(
             newAtlas,
             region.width,
             region.height,

@@ -63,6 +63,48 @@ export class TrainingService extends EventEmitter {
       throw new Error("A training session is already in progress");
     }
 
+    // Add validation for exercises array
+    if (!Array.isArray(exercises) || exercises.length === 0) {
+        throw new Error("Training session requires a non-empty array of exercises.");
+    }
+
+    // Validate each exercise in the array
+    for (const exercise of exercises) {
+        if (!exercise || typeof exercise.id !== 'string' || exercise.id.length === 0) {
+            throw new Error("Invalid exercise: Missing or invalid ID.");
+        }
+        if (!this.EXERCISE_TYPES.includes(exercise.type)) {
+            throw new Error(`Invalid exercise type: ${exercise.type}. Must be one of ${this.EXERCISE_TYPES.join(', ')}.`);
+        }
+        if (typeof exercise.difficulty !== 'number' || exercise.difficulty <= 0) {
+            throw new Error(`Invalid exercise '${exercise.id}': Difficulty must be a positive number.`);
+        }
+        if (typeof exercise.description !== 'string' || exercise.description.length === 0) {
+            throw new Error(`Invalid exercise '${exercise.id}': Missing or empty description.`);
+        }
+        if (!exercise.targetMetrics) {
+             throw new Error(`Invalid exercise '${exercise.id}': Missing targetMetrics.`);
+        }
+        if (typeof exercise.targetMetrics.accuracy !== 'number' || exercise.targetMetrics.accuracy < 0 || exercise.targetMetrics.accuracy > 1) {
+            throw new Error(`Invalid exercise '${exercise.id}': Accuracy must be a number between 0 and 1.`);
+        }
+        // Add more detailed validation for other metrics (power, spin) if necessary based on requirements
+
+        if (!exercise.successCriteria) {
+             throw new Error(`Invalid exercise '${exercise.id}': Missing successCriteria.`);
+        }
+        if (typeof exercise.successCriteria.requiredShots !== 'number' || exercise.successCriteria.requiredShots <= 0) {
+            throw new Error(`Invalid exercise '${exercise.id}': requiredShots must be a positive integer.`);
+        }
+        if (typeof exercise.successCriteria.successRate !== 'number' || exercise.successCriteria.successRate < 0 || exercise.successCriteria.successRate > 1) {
+            throw new Error(`Invalid exercise '${exercise.id}': successRate must be a number between 0 and 1.`);
+        }
+         // Add validation for consecutiveSuccesses if applicable
+         if (exercise.successCriteria.consecutiveSuccesses !== undefined && (typeof exercise.successCriteria.consecutiveSuccesses !== 'number' || exercise.successCriteria.consecutiveSuccesses < 0)) {
+             throw new Error(`Invalid exercise '${exercise.id}': consecutiveSuccesses must be a non-negative integer.`);
+         }
+    }
+
     this.currentSession = {
       id: `session-${Date.now()}`,
       startTime: Date.now(),

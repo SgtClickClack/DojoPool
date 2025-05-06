@@ -1,10 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { TournamentService } from "../TournamentService";
-import {
-  Tournament,
-  TournamentState,
-  TournamentType,
-} from "../../../types/tournament";
+import { Tournament } from "../../../types/tournament";
 
 jest.mock("@prisma/client", () => {
   const mockPrisma = {
@@ -22,57 +18,64 @@ jest.mock("@prisma/client", () => {
 });
 
 describe("TournamentService", () => {
+  const actualPrisma = jest.requireActual("@prisma/client") as any;
+  const { TournamentState, TournamentType } = actualPrisma;
+
   let prisma: jest.Mocked<PrismaClient>;
-  let service: TournamentService;
   let mockTournament: Tournament;
 
   beforeEach(() => {
     prisma = new PrismaClient() as jest.Mocked<PrismaClient>;
-    service = new TournamentService(prisma);
 
     mockTournament = {
       id: "tournament-1",
       name: "Test Tournament",
-      type: TournamentType.SINGLES,
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 86400000),
+      format: TournamentType.SINGLES,
+      startDate: new Date('2024-01-01T10:00:00Z'),
+      endDate: new Date('2024-01-02T10:00:00Z'),
       venueId: "venue-1",
       organizerId: "user-1",
       maxParticipants: 16,
       entryFee: 50,
-      state: TournamentState.REGISTRATION,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+      status: TournamentState.REGISTRATION,
+      createdAt: new Date('2024-01-01T09:00:00Z'),
+      updatedAt: new Date('2024-01-01T09:00:00Z'),
+      participants: 0,
+      matches: [],
+      prizePool: 500,
+    } as Tournament;
   });
 
   describe("createTournament", () => {
     it("should create a new tournament", async () => {
       prisma.tournament.create.mockResolvedValue(mockTournament);
 
-      const result = await service.createTournament({
-        name: "Test Tournament",
-        type: TournamentType.SINGLES,
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 86400000),
-        venueId: "venue-1",
-        organizerId: "user-1",
-        maxParticipants: 16,
-        entryFee: 50,
-      });
+      const result = await TournamentService.createTournament(
+        mockTournament.name,
+        mockTournament.format,
+        mockTournament.venueId!,
+        new Date(mockTournament.startDate) as Date,
+        new Date(mockTournament.endDate!) as Date,
+        mockTournament.maxParticipants,
+        mockTournament.entryFee!,
+        mockTournament.prizePool!
+      );
 
       expect(result).toEqual(mockTournament);
       expect(prisma.tournament.create).toHaveBeenCalledWith({
         data: {
           name: "Test Tournament",
-          type: TournamentType.SINGLES,
+          format: TournamentType.SINGLES,
           startDate: expect.any(Date),
           endDate: expect.any(Date),
           venueId: "venue-1",
           organizerId: "user-1",
           maxParticipants: 16,
           entryFee: 50,
-          state: TournamentState.REGISTRATION,
+          status: TournamentState.REGISTRATION,
+          participants: 0,
+          matches: [],
+          prizePool: 500,
         },
       });
     });
@@ -82,7 +85,7 @@ describe("TournamentService", () => {
     it("should return a tournament by id", async () => {
       prisma.tournament.findUnique.mockResolvedValue(mockTournament);
 
-      const result = await service.getTournament("tournament-1");
+      const result = await TournamentService.getTournament("tournament-1");
 
       expect(result).toEqual(mockTournament);
       expect(prisma.tournament.findUnique).toHaveBeenCalledWith({
@@ -93,7 +96,7 @@ describe("TournamentService", () => {
     it("should return null if tournament not found", async () => {
       prisma.tournament.findUnique.mockResolvedValue(null);
 
-      const result = await service.getTournament("non-existent-id");
+      const result = await TournamentService.getTournament("non-existent-id");
 
       expect(result).toBeNull();
     });
@@ -103,11 +106,11 @@ describe("TournamentService", () => {
     it("should update tournament state", async () => {
       const updatedTournament = {
         ...mockTournament,
-        state: TournamentState.IN_PROGRESS,
+        status: TournamentState.IN_PROGRESS,
       };
       prisma.tournament.update.mockResolvedValue(updatedTournament);
 
-      const result = await service.updateTournamentState(
+      const result = await TournamentService.updateTournamentState(
         "tournament-1",
         TournamentState.IN_PROGRESS,
       );
@@ -115,7 +118,9 @@ describe("TournamentService", () => {
       expect(result).toEqual(updatedTournament);
       expect(prisma.tournament.update).toHaveBeenCalledWith({
         where: { id: "tournament-1" },
-        data: { state: TournamentState.IN_PROGRESS },
+        data: {
+          status: TournamentState.IN_PROGRESS,
+        },
       });
     });
   });
@@ -125,12 +130,12 @@ describe("TournamentService", () => {
       const activeTournaments = [mockTournament];
       prisma.tournament.findMany.mockResolvedValue(activeTournaments);
 
-      const result = await service.getActiveTournaments();
+      const result = await TournamentService.getActiveTournaments(mockTournament.venueId!);
 
       expect(result).toEqual(activeTournaments);
       expect(prisma.tournament.findMany).toHaveBeenCalledWith({
         where: {
-          state: {
+          status: {
             in: [TournamentState.REGISTRATION, TournamentState.IN_PROGRESS],
           },
         },
@@ -142,14 +147,14 @@ describe("TournamentService", () => {
     it("should update tournament results", async () => {
       const completedTournament = {
         ...mockTournament,
-        state: TournamentState.COMPLETED,
+        status: TournamentState.COMPLETED,
         winnerId: "winner-1",
         runnerUpId: "runner-up-1",
         endedAt: new Date(),
       };
       prisma.tournament.update.mockResolvedValue(completedTournament);
 
-      const result = await service.updateTournamentResults(
+      const result = await TournamentService.updateTournamentResults(
         "tournament-1",
         "winner-1",
         "runner-up-1",
@@ -159,7 +164,7 @@ describe("TournamentService", () => {
       expect(prisma.tournament.update).toHaveBeenCalledWith({
         where: { id: "tournament-1" },
         data: {
-          state: TournamentState.COMPLETED,
+          status: TournamentState.COMPLETED,
           winnerId: "winner-1",
           runnerUpId: "runner-up-1",
           endedAt: expect.any(Date),

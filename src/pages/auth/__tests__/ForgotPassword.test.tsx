@@ -1,5 +1,6 @@
+import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, createSystem, defaultConfig } from "@chakra-ui/react";
 import ForgotPassword from "../forgot-password";
 import { useRouter } from "next/router";
 
@@ -11,19 +12,24 @@ jest.mock("next/router", () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
+// Create a basic theme system using createSystem
+const themeSystem = createSystem(defaultConfig, {}); // Create a basic system
+
 describe("ForgotPassword", () => {
   const mockRouter = {
     push: jest.fn(),
+    query: {},
   };
 
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (global.fetch as jest.Mock).mockReset();
+    jest.clearAllMocks();
   });
 
   const renderComponent = () => {
     return render(
-      <ChakraProvider>
+      <ChakraProvider value={themeSystem}>
         <ForgotPassword />
       </ChakraProvider>,
     );

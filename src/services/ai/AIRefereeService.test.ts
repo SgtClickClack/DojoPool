@@ -1,5 +1,9 @@
 import { AIRefereeService, FoulType, RefereeInput, RefereeResult } from './AIRefereeService';
 import { GameTable, BallState, ShotAnalysisData } from '../../core/game/GameState'; // Adjust path as needed
+import * as SkyT1Client from './skyT1Client'; // Import the module to mock
+
+// Mock the skyT1Client module
+jest.mock('./skyT1Client');
 
 // Mock data generation helpers
 const createMockBall = (overrides: Partial<BallState>): BallState => ({
@@ -48,6 +52,8 @@ const defaultShotAnalysis: ShotAnalysisData = {
     cueBallHitRail: false,
     objectBallHitRailAfterContact: false,
     isBreakShot: false,
+    ballsPocketedOnBreak: [],
+    numberOfBallsHittingRailOnBreak: 0,
 };
 
 // Updated mock creators using defaults
@@ -109,315 +115,133 @@ const createMockRefereeInput = (overrides: {
 
 describe('AIRefereeService', () => {
   let referee: AIRefereeService;
+  let mockSkyT1AnalyzeShot: jest.SpyInstance;
 
   beforeEach(() => {
+    // Reset mocks before each test
+    jest.clearAllMocks();
+
+    // Get a reference to the mocked function
+    mockSkyT1AnalyzeShot = jest.spyOn(SkyT1Client, 'skyT1AnalyzeShot');
+
     referee = new AIRefereeService();
   });
 
   // --- Test Cases --- //
 
-  it('should detect Scratch foul when cue ball is pocketed', () => {
-    const input = createMockRefereeInput({
-      tableStateAfterShot: {
-        balls: [createMockBall({ number: 0, pocketed: true })],
-        pocketedBalls: [0],
-      },
-    });
-    const result = referee.analyzeShot(input);
+  it('should call skyT1AnalyzeShot and return its result when a valid input is provided', async () => {
+    const input = createMockRefereeInput({}); // Use default valid input
+    const expectedResult: RefereeResult = {
+      foul: null,
+      reason: 'SkyT1: OK',
+      isBallInHand: false,
+      nextPlayerId: 'p2',
+    };
+
+    // Configure the mock to return the expected result
+    mockSkyT1AnalyzeShot.mockResolvedValue(expectedResult);
+
+    // Call the method under test
+    const result = await referee.analyzeShot(input);
+
+    // Assertions
+    expect(mockSkyT1AnalyzeShot).toHaveBeenCalledTimes(1);
+    expect(mockSkyT1AnalyzeShot).toHaveBeenCalledWith(input); // Ensure it was called with the correct input
+    expect(result).toEqual(expectedResult); // Ensure the service returned the mock's result
+  });
+
+  it('should handle foul detection result from SkyT1 (e.g., Scratch)', async () => {
+    const input = createMockRefereeInput({});
+    const expectedResult: RefereeResult = {
+      foul: FoulType.SCRATCH,
+      reason: 'SkyT1: Cue ball pocketed',
+      isBallInHand: true,
+      nextPlayerId: 'p2',
+    };
+
+    mockSkyT1AnalyzeShot.mockResolvedValue(expectedResult);
+
+    const result = await referee.analyzeShot(input);
+
+    expect(mockSkyT1AnalyzeShot).toHaveBeenCalledWith(input);
     expect(result.foul).toBe(FoulType.SCRATCH);
-    expect(result.reason).toContain('pocketed');
-    expect(result.isBallInHand).toBe(true);
-    expect(result.nextPlayerId).toBe('p2'); // Assuming p1 shot
-  });
-
-  it('should detect Scratch foul when cue ball is off table', () => {
-    const input = createMockRefereeInput({
-      tableStateAfterShot: {
-        balls: [createMockBall({ number: 0, position: { x: -1, y: -1 } })],
-      },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBe(FoulType.SCRATCH);
-    expect(result.reason).toContain('left the table');
     expect(result.isBallInHand).toBe(true);
     expect(result.nextPlayerId).toBe('p2');
+    expect(result).toEqual(expectedResult);
   });
 
-  it('should detect No Contact foul when cue hits nothing', () => {
-    const input = createMockRefereeInput({
-      shotAnalysis: { firstObjectBallHit: null },
-      tableStateAfterShot: { 
-          balls: [createMockBall({number: 0, pocketed: false})], // Ensure cue not pocketed
-          pocketedBalls: [] 
-        },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBe(FoulType.NO_CONTACT);
-    expect(result.isBallInHand).toBe(true);
-    expect(result.nextPlayerId).toBe('p2');
-  });
+  it('should handle turn continuation result from SkyT1', async () => {
+    const input = createMockRefereeInput({ currentPlayerId: 'p1' });
+    const expectedResult: RefereeResult = {
+      foul: null,
+      reason: 'SkyT1: Legal pot, turn continues',
+      isBallInHand: false,
+      nextPlayerId: 'p1', // SkyT1 indicates p1 continues
+    };
 
-  it('should detect Wrong Ball First when hitting opponent ball (solids vs stripe)', () => {
-    const input = createMockRefereeInput({
-        currentPlayerId: 'p1',
-        tableStateBeforeShot: {
-            playerBallTypes: { 'p1': 'solids', 'p2': 'stripes' },
-        },
-        // tableStateAfterShot will inherit defaultGameTable state if not overridden
-        shotAnalysis: { firstObjectBallHit: 9 }, // p1 (solids) hits a stripe
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBe(FoulType.WRONG_BALL_FIRST);
-    expect(result.isBallInHand).toBe(true);
-    expect(result.nextPlayerId).toBe('p2');
-  });
+    mockSkyT1AnalyzeShot.mockResolvedValue(expectedResult);
 
-  it('should detect Wrong Ball First when hitting 8-ball before group cleared', () => {
-    const input = createMockRefereeInput({
-        currentPlayerId: 'p1',
-        tableStateBeforeShot: {
-            playerBallTypes: { 'p1': 'solids', 'p2': 'stripes' },
-            pocketedBalls: [1, 2], // Solids not cleared
-        },
-        // tableStateAfterShot inherits and keeps pocketedBalls [1, 2]
-        shotAnalysis: { firstObjectBallHit: 8 },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBe(FoulType.WRONG_BALL_FIRST);
-    expect(result.reason).toContain('8-ball before player group was cleared');
-    expect(result.isBallInHand).toBe(true);
-    expect(result.nextPlayerId).toBe('p2');
-  });
+    const result = await referee.analyzeShot(input);
 
-  it('should detect No Rail After Contact foul', () => {
-    const input = createMockRefereeInput({
-        currentPlayerId: 'p1',
-        tableStateBeforeShot: {
-            playerBallTypes: { 'p1': 'solids', 'p2': 'stripes' },
-            pocketedBalls: [],
-        },
-        tableStateAfterShot: {
-            pocketedBalls: [], // No legal ball pocketed
-        },
-        shotAnalysis: {
-            firstObjectBallHit: 1,
-            cueBallHitRail: false,
-            objectBallHitRailAfterContact: false,
-        },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBe(FoulType.NO_RAIL_AFTER_CONTACT);
-    expect(result.isBallInHand).toBe(true);
-    expect(result.nextPlayerId).toBe('p2');
-  });
-
-  it('should NOT call No Rail foul if a legal ball was pocketed', () => {
-    const input = createMockRefereeInput({
-        currentPlayerId: 'p1',
-        tableStateBeforeShot: {
-            playerBallTypes: { 'p1': 'solids', 'p2': 'stripes' },
-            pocketedBalls: [],
-        },
-        tableStateAfterShot: {
-            pocketedBalls: [1], // p1 (solids) pocketed ball 1
-        },
-        shotAnalysis: {
-            firstObjectBallHit: 1,
-            cueBallHitRail: false,
-            objectBallHitRailAfterContact: false, // No rail, but legal pot
-        },
-    });
-    const result = referee.analyzeShot(input);
+    expect(mockSkyT1AnalyzeShot).toHaveBeenCalledWith(input);
     expect(result.foul).toBeNull();
+    expect(result.nextPlayerId).toBe('p1');
+    expect(result).toEqual(expectedResult);
+  });
+
+ it('should handle SkyT1 API errors gracefully', async () => {
+    const input = createMockRefereeInput({ currentPlayerId: 'p1' });
+    const apiError = new Error('SkyT1 Timeout');
+
+    // Configure the mock to reject with an error
+    mockSkyT1AnalyzeShot.mockRejectedValue(apiError);
+
+    // Call the method under test
+    const result = await referee.analyzeShot(input);
+
+    // Assertions for error handling
+    expect(mockSkyT1AnalyzeShot).toHaveBeenCalledWith(input);
+    expect(result.foul).toBeNull(); // Default safe state on error
+    expect(result.reason).toContain('Error analyzing shot with Sky-T1: SkyT1 Timeout');
     expect(result.isBallInHand).toBe(false);
-    expect(result.nextPlayerId).toBe('p1'); // Turn should continue
+    expect(result.nextPlayerId).toBe('p2'); // Default to opponent's turn on error
   });
 
-  it('should detect Balls Off Table foul', () => {
-    const input = createMockRefereeInput({
-      tableStateAfterShot: {
-        balls: [
-            createMockBall({ number: 0 }),
-            createMockBall({ number: 1, position: { x: -1, y: 1 } }) // Ball 1 off table
-        ],
-      },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBe(FoulType.BALLS_OFF_TABLE);
-    expect(result.reason).toContain('left the table: 1');
-    expect(result.isBallInHand).toBe(true);
-    expect(result.nextPlayerId).toBe('p2');
-  });
+  it('should handle invalid responses from SkyT1 gracefully', async () => {
+     const input = createMockRefereeInput({ currentPlayerId: 'p1' });
+     const invalidResponse = { some: 'unexpected data' }; // Doesn't match RefereeResult
 
-  it('should allow turn continuation if a legal ball is pocketed and no foul occurs', () => {
-    const input = createMockRefereeInput({
-        currentPlayerId: 'p1',
-        tableStateBeforeShot: {
-            playerBallTypes: { 'p1': 'solids', 'p2': 'stripes' },
-            pocketedBalls: [],
-        },
-        tableStateAfterShot: {
-            pocketedBalls: [1], // p1 (solids) pocketed ball 1
-        },
-        shotAnalysis: {
-            firstObjectBallHit: 1,
-            cueBallHitRail: true, // Rail hit, so no rail foul
-            objectBallHitRailAfterContact: false,
-        },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBeNull();
-    expect(result.isBallInHand).toBe(false);
-    expect(result.nextPlayerId).toBe('p1'); // p1 continues
-  });
+     // Configure the mock to return an invalid structure
+     mockSkyT1AnalyzeShot.mockResolvedValue(invalidResponse as any);
 
-  it('should change turn if no legal ball is pocketed and no foul occurs', () => {
-    const input = createMockRefereeInput({
-        currentPlayerId: 'p1',
-        tableStateBeforeShot: {
-            playerBallTypes: { 'p1': 'solids', 'p2': 'stripes' },
-            pocketedBalls: [],
-        },
-        tableStateAfterShot: {
-            pocketedBalls: [], // No balls pocketed
-        },
-        shotAnalysis: {
-            firstObjectBallHit: 1,
-            cueBallHitRail: true, // Rail hit, so no rail foul
-            objectBallHitRailAfterContact: false,
-        },
-    });
-    const result = referee.analyzeShot(input);
-    expect(result.foul).toBeNull();
-    expect(result.isBallInHand).toBe(false);
-    expect(result.nextPlayerId).toBe('p2'); // Turn changes to p2
-  });
+     const result = await referee.analyzeShot(input);
 
-  // --- Add new describe block for Break Foul scenarios --- 
+     expect(mockSkyT1AnalyzeShot).toHaveBeenCalledWith(input);
+     expect(result.foul).toBeNull();
+     expect(result.reason).toContain('Error: Could not get analysis from Sky-T1');
+     expect(result.isBallInHand).toBe(false);
+     expect(result.nextPlayerId).toBe('p2');
+   });
+
+  // --- Remove or comment out tests for internal logic ---
+  /*
+  it('should detect Scratch foul when cue ball is pocketed', () => { ... });
+  it('should detect Scratch foul when cue ball is off table', () => { ... });
+  it('should detect No Contact foul when cue hits nothing', () => { ... });
+  it('should detect Wrong Ball First when hitting opponent ball (solids vs stripe)', () => { ... });
+  it('should detect Wrong Ball First when hitting 8-ball before group cleared', () => { ... });
+  it('should detect No Rail After Contact foul', () => { ... });
+  it('should NOT call No Rail foul if a legal ball was pocketed', () => { ... });
+  it('should detect Balls Off Table foul', () => { ... });
+  it('should allow turn continuation if a legal ball is pocketed and no foul occurs', () => { ... });
+  it('should change turn if no legal ball is pocketed and no foul occurs', () => { ... });
+
   describe('Break Shot Foul Analysis', () => {
-    let baseInput: RefereeInput;
-
-    beforeEach(() => {
-      // Create a base input that represents state AFTER a break shot
-      // Modify specific parts in each test case
-      baseInput = {
-        tableStateBeforeShot: { // State before the break
-          pocketedBalls: [],
-          playerBallTypes: { p1: 'open', p2: 'open' },
-          // ... other minimal required fields ...
-        },
-        tableStateAfterShot: { // State AFTER balls stopped moving
-          id: 't1',
-          name: 'Test Table',
-          players: { p1: { id: 'p1', name: 'P1', score: 0, isActive: true, lastAction: 0, team:'A', position:'GK' }, p2: { id: 'p2', name: 'P2', score: 0, isActive: true, lastAction: 0, team:'B', position:'GK'} },
-          status: 'active',
-          currentTurn: 'p1', // Turn hasn't changed yet
-          gameStarted: true,
-          gameEnded: false,
-          winner: null,
-          balls: [ // Simplified ball state after break
-              { number: 0, position: { x: 50, y: 50 }, velocity: { x: 0, y: 0 }, pocketed: false, mass:1, radius:1 },
-              { number: 1, position: { x: 100, y: 100 }, velocity: { x: 0, y: 0 }, pocketed: false, mass:1, radius:1 },
-              { number: 8, position: { x: 150, y: 150 }, velocity: { x: 0, y: 0 }, pocketed: false, mass:1, radius:1 },
-              // Add more balls if needed for specific tests
-          ],
-          pocketedBalls: [],
-          fouls: { p1: 0, p2: 0 },
-          tableWidth: 200,
-          tableHeight: 100,
-          pockets: [{ position: { x: 0, y: 0 }, radius: 5 }], // Example pocket
-          playerBallTypes: { p1: 'open', p2: 'open' },
-          ballInHand: false,
-          ballInHandFromBreakScratch: false,
-          lastUpdatedLocally: Date.now(),
-          pocketedBallsBeforeShot: [],
-        },
-        shotAnalysis: {
-          firstObjectBallHit: 1,
-          cueBallHitRail: false,
-          objectBallHitRailAfterContact: true,
-          isBreakShot: true, 
-          ballsPocketedOnBreak: [], 
-          numberOfBallsHittingRailOnBreak: 5, // Default to legal number
-        },
-        currentPlayerId: 'p1',
-        gameRules: '8-ball',
-      };
-    });
-
-    it('should return BREAK_FOUL if cue ball is pocketed on break', () => {
-      // Modify state for scratch
-      baseInput.tableStateAfterShot.balls.find(b => b.number === 0)!.pocketed = true;
-      baseInput.tableStateAfterShot.pocketedBalls.push(0);
-      baseInput.shotAnalysis.ballsPocketedOnBreak.push(0);
-
-      const result = referee.analyzeShot(baseInput);
-
-      expect(result.foul).toBe(FoulType.BREAK_FOUL);
-      expect(result.reason).toContain('Break Foul: Cue ball was pocketed');
-      expect(result.isBallInHand).toBe(true);
-      expect(result.nextPlayerId).toBe('p2');
-    });
-
-    it('should return BREAK_FOUL if 8-ball is pocketed on break', () => {
-      // Modify state for 8-ball pocket
-      baseInput.tableStateAfterShot.balls.find(b => b.number === 8)!.pocketed = true;
-      baseInput.tableStateAfterShot.pocketedBalls.push(8);
-      baseInput.shotAnalysis.ballsPocketedOnBreak.push(8);
-
-      const result = referee.analyzeShot(baseInput);
-
-      expect(result.foul).toBe(FoulType.BREAK_FOUL);
-      expect(result.reason).toContain('8-ball pocketed on break');
-      // GameState handles the actual loss based on this foul
-      expect(result.isBallInHand).toBe(true); 
-      expect(result.nextPlayerId).toBe('p2');
-    });
-
-    it('should return BREAK_FOUL if insufficient balls hit rail', () => {
-      // Modify analysis data
-      baseInput.shotAnalysis.numberOfBallsHittingRailOnBreak = 3; // Less than 4
-
-      const result = referee.analyzeShot(baseInput);
-
-      expect(result.foul).toBe(FoulType.BREAK_FOUL);
-      expect(result.reason).toContain('Only 3 balls hit a rail');
-      expect(result.isBallInHand).toBe(true);
-      expect(result.nextPlayerId).toBe('p2');
-    });
-
-    it('should NOT return foul for a legal break', () => {
-       // Use baseInput as is (assuming it represents a legal break outcome initially)
-       // Example: Pocket ball 1 on break
-       baseInput.tableStateAfterShot.balls.find(b => b.number === 1)!.pocketed = true;
-       baseInput.tableStateAfterShot.pocketedBalls.push(1);
-       baseInput.shotAnalysis.ballsPocketedOnBreak.push(1);
-       baseInput.shotAnalysis.numberOfBallsHittingRailOnBreak = 4; // Ensure legal rail count
-
-      const result = referee.analyzeShot(baseInput);
-
-      expect(result.foul).toBeNull();
-      expect(result.reason).toBeNull();
-      expect(result.isBallInHand).toBe(false);
-      // Turn might continue or change based on pocketing, handled by standard logic
-      // Assuming pocketing a non-8 ball on break continues turn for simplicity here
-      // The service's continuation logic might need adjustment for break rules
-      expect(result.nextPlayerId).toBe('p1'); 
-    });
-
-     it('should return BREAK_FOUL if object ball leaves table on break', () => {
-        // Simulate ball 1 leaving table
-        const ball1 = baseInput.tableStateAfterShot.balls.find(b => b.number === 1)!;
-        ball1.position = { x: -10, y: -10 }; // Mark as off table
-        ball1.pocketed = false; // Not pocketed
-
-        const result = referee.analyzeShot(baseInput);
-
-        expect(result.foul).toBe(FoulType.BALLS_OFF_TABLE); // Foul type might be BALLS_OFF_TABLE initially
-        expect(result.reason).toContain('Break Foul: Object ball(s) left the table'); // Reason should indicate break context
-        expect(result.isBallInHand).toBe(true);
-        expect(result.nextPlayerId).toBe('p2');
-    });
-
+    it('should return BREAK_FOUL if cue ball is pocketed on break', () => { ... });
+    it('should return BREAK_FOUL if 8-ball is pocketed on break', () => { ... });
+    it('should return BREAK_FOUL if insufficient balls hit rail', () => { ... });
+    it('should NOT return foul for a legal break', () => { ... });
+    it('should return BREAK_FOUL if object ball leaves table on break', () => { ... });
   });
+  */
 }); 

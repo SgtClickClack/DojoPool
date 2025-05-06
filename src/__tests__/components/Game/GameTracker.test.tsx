@@ -1,7 +1,7 @@
 import React from "react";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { GameTracker } from "../../../dojopool/frontend/components/Game/[GAME]GameTracker";
-import { renderWithProviders } from "../../utils/testUtils";
+import { render } from "@testing-library/react";
 import { useGameState } from "../../../dojopool/frontend/hooks/useGameState";
 
 // Mock the useGameState hook
@@ -55,7 +55,7 @@ describe("GameTracker Component", () => {
       endGame: mockEndGame,
     });
 
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -63,7 +63,7 @@ describe("GameTracker Component", () => {
   });
 
   it("renders game state when loaded", () => {
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -78,7 +78,7 @@ describe("GameTracker Component", () => {
   });
 
   it("renders all ball buttons", () => {
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -91,7 +91,7 @@ describe("GameTracker Component", () => {
   });
 
   it("disables pocketed ball buttons", () => {
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -107,7 +107,7 @@ describe("GameTracker Component", () => {
   });
 
   it("calls updateBallStatus when clicking a ball button", () => {
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -117,7 +117,7 @@ describe("GameTracker Component", () => {
   });
 
   it("calls endTurn when clicking End Turn button", () => {
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -126,7 +126,7 @@ describe("GameTracker Component", () => {
   });
 
   it("calls endGame when clicking End Game button", () => {
-    renderWithProviders(
+    render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 
@@ -135,7 +135,7 @@ describe("GameTracker Component", () => {
   });
 
   it("updates display when game state changes", async () => {
-    const { rerender } = renderWithProviders(
+    const { rerender } = render(
       <GameTracker gameId="game123" player1Id="player1" player2Id="player2" />,
     );
 

@@ -1,12 +1,13 @@
 import React from "react";
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "../../../dojopool/frontend/src/components/Pages/Home";
-import { renderWithProviders } from "../../utils/testUtils";
+// Use direct testing-library import
+// import { renderWithProviders } from "../../utils/testUtils";
 
 describe("Home Component", () => {
   it("renders the welcome message", () => {
-    renderWithProviders(<Home />);
+    render(<Home />);
     expect(screen.getByText("Welcome to DojoPool")).toBeInTheDocument();
     expect(
       screen.getByText("Where Pool Meets Digital Innovation"),
@@ -14,20 +15,20 @@ describe("Home Component", () => {
   });
 
   it("renders the description text", () => {
-    renderWithProviders(<Home />);
+    render(<Home />);
     expect(
       screen.getByText(/Experience pool like never before/),
     ).toBeInTheDocument();
   });
 
   it("renders action buttons", () => {
-    renderWithProviders(<Home />);
+    render(<Home />);
     expect(screen.getByText("Find a Dojo")).toBeInTheDocument();
     expect(screen.getByText("Learn More")).toBeInTheDocument();
   });
 
   it("applies correct styling to buttons", () => {
-    renderWithProviders(<Home />);
+    render(<Home />);
     const findDojoButton = screen.getByText("Find a Dojo");
     const learnMoreButton = screen.getByText("Learn More");
 
@@ -42,7 +43,7 @@ describe("Home Component", () => {
   });
 
   it("renders with correct layout structure", () => {
-    renderWithProviders(<Home />);
+    render(<Home />);
     const container = screen.getByRole("main");
 
     expect(container).toHaveStyle({
@@ -55,7 +56,7 @@ describe("Home Component", () => {
   });
 
   it("applies gradient background to title", () => {
-    renderWithProviders(<Home />);
+    render(<Home />);
     const title = screen.getByRole("heading", { level: 1 });
 
     expect(title).toHaveStyle({

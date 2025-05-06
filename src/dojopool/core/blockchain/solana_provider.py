@@ -8,7 +8,7 @@ from decimal import Decimal
 from solana.rpc.api import Client
 from solana.keypair import Keypair
 from solana.transaction import Transaction
-from solana.system_program import TransferParams, transfer
+from solana.system_program import transfer
 from solana.rpc.commitment import Confirmed
 from dojopool.models.marketplace import Transaction as MarketplaceTransaction
 from dojopool.core.blockchain.base_provider import BlockchainProvider
@@ -119,12 +119,11 @@ class SolanaProvider(BlockchainProvider):
             lamports = int(amount * Decimal(1e9))
             
             # Create transfer instruction
-            transfer_params = TransferParams(
+            transfer_ix = transfer(
                 from_pubkey=from_address,
                 to_pubkey=to_address,
                 lamports=lamports
             )
-            transfer_ix = transfer(transfer_params)
             
             # Build transaction
             transaction = Transaction()

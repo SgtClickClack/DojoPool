@@ -447,20 +447,36 @@ export class GameState extends EventEmitter {
     const preShotState = this.preShotTableState.get(tableId);
     const shotAnalysis = this.currentShotAnalysis.get(tableId);
 
-    if (!gameTable || !preShotState || !shotAnalysis || !gameTable.currentTurn) {
-      console.error(`GameState: Cannot prepare referee input for table ${tableId}, missing data.`);
+    if (!gameTable || !preShotState || !shotAnalysis) {
+      console.error(
+        `Cannot prepare referee input for table ${tableId}: missing state data.`,
+      );
       return null;
     }
 
-     const gameRules = '8-ball';
+    // Ensure required pre-shot data exists and has a player ID
+    if (!preShotState.currentTurn) {
+      console.error(
+        `Cannot prepare referee input for table ${tableId}: missing current turn in pre-shot state.`,
+      );
+      return null;
+    }
 
-    return {
-      tableStateBeforeShot: preShotState,
-      tableStateAfterShot: gameTable,
+    // TODO: Determine actual game rules dynamically if needed
+    const gameRules = "8-ball";
+
+    const input: RefereeInput = {
+      // Pass only the necessary parts of the state, not the full GameTable
+      // Cast to Partial<GameTable> to satisfy the type, assuming AIRefereeService
+      // knows which parts are essential (balls, player assignments, etc.)
+      tableStateBeforeShot: preShotState as Partial<GameTable>,
+      tableStateAfterShot: gameTable, // Pass the full current state
       shotAnalysis: shotAnalysis,
-      currentPlayerId: gameTable.currentTurn,
-      gameRules: gameRules,
+      currentPlayerId: preShotState.currentTurn,
+      gameRules: gameRules, // Assuming 8-ball for now
     };
+
+    return input;
   }
 
   public createTableRequest(tableId: string, tableName: string): void {
@@ -806,116 +822,232 @@ export class GameState extends EventEmitter {
     }
   }
 
-  private analyzeShotOutcome(tableId: string): void {
+  // Make this method async to handle the promise from AIRefereeService
+  private async analyzeShotOutcome(tableId: string): Promise<void> {
     const gameTable = this.tables.get(tableId);
-    if (!gameTable || !gameTable.currentTurn) {
-      console.error(
-        `GameState: Cannot analyze shot outcome for table ${tableId}, no game or current turn.`,
-      );
+    const analysisData = this.currentShotAnalysis.get(tableId);
+
+    if (!gameTable) {
+      console.error(`analyzeShotOutcome: Missing gameTable for table ${tableId}`);
       return;
     }
-    console.log(`Analyzing shot outcome for table ${tableId}, player ${gameTable.currentTurn}`);
 
-    const preShotState = this.preShotTableState.get(tableId);
-    const shotAnalysisData = this.currentShotAnalysis.get(tableId);
-    if (!preShotState || !shotAnalysisData) {
-        console.error(`GameState: Missing pre-shot state or analysis data for table ${tableId}. Cannot call referee.`);
-        return;
-    }
+    console.log(`Analyzing shot outcome for table: ${tableId}`);
 
-    const newlyPocketed = gameTable.pocketedBalls.filter(
-      (num) => !preShotState.pocketedBalls?.includes(num),
-    );
-    const currentPlayerId = gameTable.currentTurn;
-    const playerIds = Object.keys(gameTable.players);
-    const opponentPlayerId =
-      playerIds.find((id) => id !== currentPlayerId) || currentPlayerId;
-
+    // 1. Prepare input for the AI Referee
     const refereeInput = this.prepareRefereeInput(tableId);
     if (!refereeInput) {
-        return;
+      console.error(
+        `Failed to prepare referee input for table ${tableId}. Cannot determine outcome.`,
+      );
+      // Fallback: Change turn, no foul, no ball-in-hand
+      const currentPlayerId = gameTable.currentTurn;
+      const opponentPlayerId =
+        Object.keys(gameTable.players).find((id) => id !== currentPlayerId) ||
+        currentPlayerId ||
+        "";
+      if (currentPlayerId !== opponentPlayerId) {
+          this.changeTurn(tableId, opponentPlayerId);
+      } else {
+          console.warn(`Cannot determine opponent for table ${tableId}, turn remains.`);
+      }
+      this.currentShotAnalysis.delete(tableId);
+      this.preShotTableState.delete(tableId);
+      this.emit("state:updated", { tableId, state: gameTable });
+      return;
     }
 
-    const refereeResult = this.aiRefereeService.analyzeShot(refereeInput);
-    console.log(`Referee Result for table ${tableId}:`, refereeResult);
+    // 2. Call the AI Referee Service
+    let refereeResult: RefereeResult;
+    try {
+      console.log(`Calling AI Referee for table ${tableId}...`);
+      refereeResult = await this.aiRefereeService.analyzeShot(refereeInput);
+      console.log(`AI Referee result for table ${tableId}:`, refereeResult);
+    } catch (error) {
+      console.error(`Error calling AI Referee service for table ${tableId}:`, error);
+      // Handle error - Award ball-in-hand and change turn as a safe default
+      const opponentPlayerId =
+        Object.keys(gameTable.players).find(
+          (id) => id !== refereeInput.currentPlayerId,
+        ) || refereeInput.currentPlayerId; // Fallback to current player if opponent not found
+      refereeResult = {
+        foul: null, // Indicate no specific foul, but an error occurred
+        reason: `Service Error: ${error instanceof Error ? error.message : "Unknown"}`,
+        isBallInHand: true,
+        nextPlayerId: opponentPlayerId,
+      };
+    }
 
-    let turnChanged = false;
+    // 3. Process the Referee's Decision
+    gameTable.ballInHand = refereeResult.isBallInHand;
 
+    // Apply foul (if any)
     if (refereeResult.foul) {
-        console.log(`Foul detected: ${refereeResult.foul} - ${refereeResult.reason}`);
-        gameTable.fouls[currentPlayerId] = (gameTable.fouls[currentPlayerId] || 0) + 1;
-        gameTable.ballInHand = refereeResult.isBallInHand;
+      console.log(
+        `Foul detected: ${refereeResult.foul} - ${refereeResult.reason}`,
+      );
+      const currentPlayerId = refereeInput.currentPlayerId; // Use ID from input
+      if (currentPlayerId) {
+        gameTable.fouls[currentPlayerId] =
+          (gameTable.fouls[currentPlayerId] || 0) + 1;
+        // TODO: Implement specific foul consequences (e.g., 3 consecutive fouls lose game)
+      }
+      // If foul, ball-in-hand is typically awarded to the NEXT player (handled below)
+      console.log(`Ball-in-hand awarded due to foul: ${refereeResult.isBallInHand}`);
 
-        if (refereeResult.foul === FoulType.BREAK_FOUL && refereeResult.reason?.includes('Scratch')) {
+      // Handle special case: Break foul scratch gives different placement rules
+       if (refereeResult.foul === FoulType.BREAK_FOUL && refereeResult.reason?.includes('Scratch')) {
             gameTable.ballInHandFromBreakScratch = true;
-        } else {
-             gameTable.ballInHandFromBreakScratch = false;
-        }
+            console.log("Ball in hand from break scratch set to true.");
+       } else {
+            gameTable.ballInHandFromBreakScratch = false;
+       }
 
-        this.changeTurn(tableId, refereeResult.nextPlayerId);
-        turnChanged = true;
     } else {
-        gameTable.ballInHand = false;
-        gameTable.ballInHandFromBreakScratch = false;
+      // No foul occurred
+      gameTable.ballInHandFromBreakScratch = false; // Ensure reset if no foul
+      console.log("No foul detected.");
+      // Ball-in-hand state should be false if no foul and not explicitly awarded
+       if (!refereeResult.isBallInHand) {
+           gameTable.ballInHand = false;
+       }
+    }
 
-        if (gameTable.playerBallTypes[currentPlayerId] === 'open') {
-            const firstLegalPocket = newlyPocketed.find(num => {
-                const type = getBallType(num);
-                return type === 'solid' || type === 'stripe';
-            });
+    // TODO: Assign ball types (solids/stripes) after the break if the table is open
+    // This logic might depend on pocketed balls and refereeResult.foul state
+    if (
+      refereeInput.shotAnalysis.isBreakShot &&
+      !refereeResult.foul &&
+      Object.values(gameTable.playerBallTypes).every((type) => type === "open")
+    ) {
+      // Determine pocketed balls during this shot
+      const pocketedThisShot = gameTable.balls
+        .filter(
+          (b) =>
+            b.pocketed &&
+            !refereeInput.tableStateBeforeShot.balls?.find((pb) => pb.number === b.number)?.pocketed,
+        )
+        .map((b) => b.number);
 
-            if (firstLegalPocket) {
-                const pocketedType = getBallType(firstLegalPocket);
-                if (pocketedType === 'solid') {
-                    gameTable.playerBallTypes[currentPlayerId] = 'solids';
-                    gameTable.playerBallTypes[opponentPlayerId] = 'stripes';
-                    console.log(`Assigned Solids to ${currentPlayerId}, Stripes to ${opponentPlayerId}`);
-                } else if (pocketedType === 'stripe') {
-                    gameTable.playerBallTypes[currentPlayerId] = 'stripes';
-                    gameTable.playerBallTypes[opponentPlayerId] = 'solids';
-                     console.log(`Assigned Stripes to ${currentPlayerId}, Solids to ${opponentPlayerId}`);
-                }
+        const firstLegalPocket = pocketedThisShot.find(num => {
+            const type = getBallType(num);
+            return type === 'solid' || type === 'stripe';
+        });
+
+        if (firstLegalPocket) {
+            const pocketedType = getBallType(firstLegalPocket);
+            const currentPlayerId = refereeInput.currentPlayerId;
+            const opponentPlayerId = Object.keys(gameTable.players).find(id => id !== currentPlayerId) || currentPlayerId;
+
+            if (pocketedType === 'solid') {
+                gameTable.playerBallTypes[currentPlayerId] = 'solids';
+                gameTable.playerBallTypes[opponentPlayerId] = 'stripes';
+                console.log(`Assigned Solids to ${currentPlayerId}, Stripes to ${opponentPlayerId}`);
+            } else if (pocketedType === 'stripe') {
+                gameTable.playerBallTypes[currentPlayerId] = 'stripes';
+                gameTable.playerBallTypes[opponentPlayerId] = 'solids';
+                 console.log(`Assigned Stripes to ${currentPlayerId}, Solids to ${opponentPlayerId}`);
             }
         }
-
-        if (refereeResult.nextPlayerId !== currentPlayerId) {
-            this.changeTurn(tableId, refereeResult.nextPlayerId);
-            turnChanged = true;
-        } else {
-             console.log(`Player ${currentPlayerId}'s turn continues.`);
-        }
     }
 
-    const eightBallPocketed = newlyPocketed.includes(8);
-    if (eightBallPocketed) {
+    // Check for game over (e.g., 8-ball pocketed illegally or legally)
+    // THIS LOGIC NEEDS REFINEMENT based on official 8-ball rules and referee output
+    const eightBallPocketed = gameTable.balls.find(b => b.number === 8)?.pocketed === true;
+    const wasEightBallPocketedBefore = refereeInput.tableStateBeforeShot.balls?.find(b => b.number === 8)?.pocketed === true;
+
+    if (eightBallPocketed && !wasEightBallPocketedBefore) {
+        const currentPlayerId = refereeInput.currentPlayerId;
         const playerType = gameTable.playerBallTypes[currentPlayerId];
+        const opponentPlayerId = Object.keys(gameTable.players).find(id => id !== currentPlayerId) || currentPlayerId;
+
+        // Check if player's group is cleared (excluding 8-ball)
         const legalTargets = playerType === 'solids'
             ? [1, 2, 3, 4, 5, 6, 7]
             : playerType === 'stripes'
             ? [9, 10, 11, 12, 13, 14, 15]
             : [];
+        const playerGroupCleared = legalTargets.every(num => gameTable.balls.find(b => b.number === num)?.pocketed);
 
-        const playerGroupCleared = legalTargets.every(num => gameTable.pocketedBalls.includes(num));
+        let winnerId: string | null = null;
+        let loserId: string | null = null;
 
         if (refereeResult.foul) {
-            console.log(`Game Over: ${currentPlayerId} pocketed 8-ball on foul. ${opponentPlayerId} wins.`);
-            this.endGame(tableId, opponentPlayerId);
-            return;
+            console.log(`Game Over: ${currentPlayerId} pocketed 8-ball on a foul shot. ${opponentPlayerId} wins.`);
+            winnerId = opponentPlayerId;
+            loserId = currentPlayerId;
         } else if (playerType !== 'open' && !playerGroupCleared) {
-             console.log(`Game Over: ${currentPlayerId} pocketed 8-ball before group cleared. ${opponentPlayerId} wins.`);
-            this.endGame(tableId, opponentPlayerId);
-            return;
+             console.log(`Game Over: ${currentPlayerId} pocketed 8-ball before their group was cleared. ${opponentPlayerId} wins.`);
+             winnerId = opponentPlayerId;
+             loserId = currentPlayerId;
         } else if (playerType !== 'open' && playerGroupCleared) {
-             console.log(`Game Over: ${currentPlayerId} legally pocketed 8-ball. ${currentPlayerId} wins.`);
-            this.endGame(tableId, currentPlayerId);
-            return;
+             console.log(`Game Over: ${currentPlayerId} legally pocketed the 8-ball. ${currentPlayerId} wins.`);
+             winnerId = currentPlayerId;
+             loserId = opponentPlayerId;
+        } else if (playerType === 'open') {
+            // Pocketing 8-ball on break is usually a win (unless scratch), but rules vary.
+            // Assuming simple rule: pocketing 8-ball on break without foul wins.
+            if (!refereeResult.foul) {
+                 console.log(`Game Over: ${currentPlayerId} pocketed the 8-ball on the break shot legally. ${currentPlayerId} wins.`);
+                 winnerId = currentPlayerId;
+                 loserId = opponentPlayerId;
+            } else {
+                // Pocketing 8-ball on break WITH a foul (e.g. scratch)
+                 console.log(`Game Over: ${currentPlayerId} pocketed the 8-ball on break but committed a foul. ${opponentPlayerId} wins.`);
+                 winnerId = opponentPlayerId;
+                 loserId = currentPlayerId;
+            }
+        }
+
+        if (winnerId) {
+            this.endGame(tableId, winnerId);
+            this.stopGameLoop(tableId);
+            this.emit("game:ended", { tableId: tableId, winner: gameTable.players[winnerId] });
+            gameTable.lastUpdatedLocally = Date.now();
+            this.emit("state:updated", { tableId, state: gameTable });
+            return; // Stop further processing if game ended
         }
     }
 
-     this.currentShotAnalysis.delete(tableId);
-     this.preShotTableState.delete(tableId);
+    // Determine and change turn if necessary
+    // Use the playerId from the referee result
+    if (gameTable.currentTurn !== refereeResult.nextPlayerId) {
+      console.log(
+        `Changing turn from ${gameTable.currentTurn} to ${refereeResult.nextPlayerId}`,
+      );
+      this.changeTurn(tableId, refereeResult.nextPlayerId);
+      // Ball-in-hand applies to the player whose turn it *now* is.
+      // If the turn changed TO this player, and ballInHand is true, they get it.
+      if(refereeResult.isBallInHand) {
+          console.log(`Ball-in-hand set for incoming player ${refereeResult.nextPlayerId}`);
+          gameTable.ballInHand = true; // This is now the state for the next player
+      }
 
-    console.log(`Shot analysis complete for table ${tableId}. Ball in hand: ${gameTable.ballInHand}`);
+    } else {
+      console.log(`Player ${gameTable.currentTurn} retains the turn.`);
+      // If the current player keeps the turn, ballInHand is applied directly if true.
+      if (refereeResult.isBallInHand) {
+        console.log(
+          `Ball-in-hand awarded to current player ${gameTable.currentTurn}`,
+        );
+        gameTable.ballInHand = true;
+      } else if (!refereeResult.foul) {
+          // If player keeps turn, no foul, no explicit ball-in-hand = ball-in-hand is false
+          gameTable.ballInHand = false;
+      }
+      // If player keeps turn AND foul occurred, ball-in-hand is handled by turn change logic (opponent gets it)
+       // which shouldn't happen based on refereeResult.nextPlayerId logic, but being explicit.
+    }
+
+    // Clean up shot-specific state
+    this.currentShotAnalysis.delete(tableId);
+    this.preShotTableState.delete(tableId);
+
+    // Final state update emission
+    gameTable.lastUpdatedLocally = Date.now();
+    console.log(
+      `Shot analysis complete for table ${tableId}. Final state:`, gameTable
+    );
     this.emit("state:updated", { tableId, state: gameTable });
   }
 
@@ -1024,7 +1156,14 @@ export class GameState extends EventEmitter {
           delete shotData.ballsHittingRailOnBreak;
       }
 
-      this.analyzeShotOutcome(tableId);
+      // analyzeShotOutcome is now async, but tick is synchronous.
+      // We need to handle the promise here. Fire-and-forget for now, but
+      // consider implications (e.g., state updates might appear slightly delayed).
+      this.analyzeShotOutcome(tableId).catch(error => {
+          console.error(`Error during async analyzeShotOutcome for table ${tableId}:`, error);
+          // Decide how to handle errors - stop game? Log? Emit error event?
+          this.stopGameLoop(tableId); // Example: Stop loop on analysis error
+      });
     }
   }
 

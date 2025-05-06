@@ -1,0 +1,28 @@
+Detailed match analysis for Game #{match_id}:
+
+Player: {user_name}
+Type: {match_type}
+Duration: {duration} minutes
+Final Score: {score}
+
+Performance Metrics:
+- Accuracy: {accuracy}%
+- Shot Selection: {shot_selection_rating}
+- Position Play: {position_play_rating}
+- Speed: {speed_rating}
+
+Key Statistics:
+{key_stats}
+
+Tactical Analysis:
+{tactical_analysis}
+
+Recommendations:
+{recommendations}
+
+Include specific examples from the match to illustrate points.
+Focus on both strengths demonstrated and areas for improvement.
+Provide actionable insights for future matches.
+
+Additional Notes:
+{notes} 

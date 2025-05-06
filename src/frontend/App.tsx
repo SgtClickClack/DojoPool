@@ -5,12 +5,13 @@ import { UserProvider } from "./contexts/UserContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
-// Lazy load components with corrected paths (relative to App.tsx)
+// Lazy load components
 const Login = React.lazy(() => import("./components/Auth/Login"));
 const Register = React.lazy(() => import("./components/Auth/Register"));
 const Dashboard = React.lazy(() => import("./components/Dashboard/Dashboard"));
 const GameView = React.lazy(() => import("./components/Game/GameView"));
-const TournamentDetail = React.lazy(() => import("./components/Dashboard/TournamentDetail"));
+const TournamentDetail = React.lazy(() => import("../components/tournaments/TournamentDetail"));
+const TournamentList = React.lazy(() => import("../components/tournaments/TournamentList"));
 
 // Basic theme (can be expanded)
 const theme = createTheme({
@@ -81,6 +82,16 @@ const App: React.FC = () => {
                       </ProtectedRoute>
                     }
                   />
+                  {/* Tournaments List Route */}
+                  <Route
+                    path="/tournaments"
+                    element={
+                      <ProtectedRoute>
+                        <TournamentList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/* Tournament Detail Route */}
                   <Route
                     path="/tournament/:tournamentId"
                     element={

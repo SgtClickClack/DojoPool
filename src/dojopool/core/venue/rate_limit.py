@@ -2,7 +2,7 @@
 
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from functools import wraps
 from typing import Dict, Optional, Tuple
@@ -176,7 +176,7 @@ def rate_limit(limit_type: str = "default"):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             # Get client IP
-            client_ip = request.remote_addr
+            client_ip = request.remote_addr or 'unknown'
 
             # Check rate limit
             allowed, error, retry_after = rate_limiter.check_limit(

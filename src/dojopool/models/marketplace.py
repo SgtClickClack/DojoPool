@@ -39,7 +39,7 @@ class MarketplaceItem(TimestampedModel):
     purchase_count = db.Column(db.Integer, default=0)
 
     # Relationships
-    transactions = db.relationship("Transaction", backref="item", lazy="dynamic")
+    transactions = db.relationship("Transaction", back_populates="item", lazy="dynamic")
     inventory_items = db.relationship("UserInventory", backref="item", lazy="dynamic")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ class Wallet(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = db.relationship("User", backref=db.backref("wallet", uselist=False))
+    user = db.relationship("dojopool.models.user.User", backref=db.backref("wallet", uselist=False))
     transactions = db.relationship("Transaction", backref="wallet", lazy="dynamic")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -317,6 +317,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     wallet_id = db.Column(db.Integer, db.ForeignKey("wallets.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    marketplace_item_id = db.Column(db.Integer, db.ForeignKey("marketplace_items.id"), nullable=True)
     amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(10), nullable=False, default="DP")
     type = db.Column(db.String(50), nullable=False)  # credit, debit, purchase, refund, etc.
@@ -326,7 +327,8 @@ class Transaction(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = db.relationship("User", backref="transactions")
+    user = db.relationship("dojopool.models.user.User", backref="transactions")
+    item = db.relationship("MarketplaceItem", back_populates="transactions")
 
     # Add explicit __init__ to help type checkers
     def __init__(self, wallet_id: int, user_id: int, amount: float, currency: str, type: str, status: str, description: Optional[str] = None, reference_id: Optional[str] = None):
@@ -345,6 +347,7 @@ class Transaction(db.Model):
             "id": self.id,
             "wallet_id": self.wallet_id,
             "user_id": self.user_id,
+            "marketplace_item_id": self.marketplace_item_id,
             "amount": self.amount,
             "currency": self.currency,
             "type": self.type,
@@ -370,7 +373,7 @@ class UserInventory(TimestampedModel):
     is_active = db.Column(db.Boolean, default=True)
 
     # Relationships
-    user = db.relationship("User", backref="inventory_items")
+    user = db.relationship("dojopool.models.user.User", backref="inventory_items")
 
     # Add explicit __init__
     def __init__(self, user_id: int, item_id: int, quantity: int = 1, expires_at: Optional[datetime] = None, is_active: bool = True):
@@ -420,7 +423,7 @@ class WalletTransaction(db.Model): # Assuming db.Model is the correct base
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     # Ensure relationship name matches the one added in User model
-    user = relationship('User', back_populates='wallet_transactions')
+    user = relationship('dojopool.models.user.User', back_populates='wallet_transactions')
 
 # --- End New WalletTransaction Model ---
 

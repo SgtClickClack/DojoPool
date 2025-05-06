@@ -1,32 +1,14 @@
 import axiosInstance from './axiosInstance';
-
-export interface Tournament {
-  id: string;
-  name: string;
-  type: 'single_elimination' | 'double_elimination' | 'round_robin';
-  matches: {
-    id: string;
-    player1: string | null;
-    player2: string | null;
-    score1: number;
-    score2: number;
-    winner: string | null;
-    status: 'pending' | 'in_progress' | 'completed';
-  }[];
-  registrationDeadline: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  entryFee: number;
-  divisions: string[];
-}
+import { Tournament } from '@/types/tournament';
 
 export const getTournaments = async (): Promise<Tournament[]> => {
   const response = await axiosInstance.get('/tournaments');
-  return response.data;
+  return response.data as Tournament[];
 };
 
 export const getTournament = async (id: string): Promise<Tournament> => {
   const response = await axiosInstance.get(`/tournaments/${id}`);
-  return response.data;
+  return response.data as Tournament;
 };
 
 export const joinTournament = async (id: string): Promise<void> => {

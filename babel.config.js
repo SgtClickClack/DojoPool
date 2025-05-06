@@ -1,5 +1,8 @@
-module.exports = {
-  presets: [
+module.exports = function (api) {
+  // Configure Babel caching based on the environment
+  api.cache.using(() => process.env.NODE_ENV);
+
+  const presets = [
     [
       "@babel/preset-env",
       {
@@ -15,13 +18,22 @@ module.exports = {
         runtime: "automatic",
       },
     ],
-  ],
-  plugins: [
+  ];
+
+  const plugins = [
     [
       "@babel/plugin-transform-runtime",
       {
         regenerator: true,
       },
     ],
-  ],
+    // Ensure import.meta plugins always run
+    "babel-plugin-transform-import-meta",
+    "@babel/plugin-syntax-import-meta",
+  ];
+
+  return {
+    presets,
+    plugins,
+  };
 };

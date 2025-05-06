@@ -47,7 +47,7 @@ class PoolTable(db.Model):
     )
 
     # Relationships
-    venue = db.relationship("Venue", back_populates="tables")
+    venue = db.relationship("Venue", back_populates="pool_tables")
     games = db.relationship("Game", back_populates="table")
 
 
@@ -74,21 +74,21 @@ class Venue(db.Model):
     )
 
     # Relationships
-    tables = db.relationship("PoolTable", back_populates="venue")
-    staff = db.relationship("User", secondary="venue_staff")
+    pool_tables = db.relationship("PoolTable", back_populates="venue")
+    staff = db.relationship("dojopool.models.user.User", secondary="venue_staff")
 
 
 class VenueStaff(db.Model):
     """Association table for Venue-User (staff) relationship."""
 
     __tablename__ = "venue_staff"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        db.UniqueConstraint("venue_id", "user_id", name="unique_venue_staff"),
+        {"extend_existing": True}
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     role = db.Column(db.String(50), nullable=False)  # e.g., "manager", "staff"
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    # Unique constraint to prevent duplicate venue-staff assignments
-    __table_args__ = (db.UniqueConstraint("venue_id", "user_id", name="unique_venue_staff"),)

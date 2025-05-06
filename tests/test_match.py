@@ -6,7 +6,7 @@ from datetime import datetime
 import pytest
 from dojopool.app import create_app
 from dojopool.models.match import Match
-from dojopool.core.database.models import User
+from dojopool.models.user import User
 from dojopool.core.extensions import db
 from dojopool.core.config.testing import TestingConfig
 

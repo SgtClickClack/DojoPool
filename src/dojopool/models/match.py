@@ -37,7 +37,7 @@ class Match(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    tournament_game = relationship("TournamentGame", backref="matches")
+    tournament_game = relationship("TournamentGame", back_populates="matches")
     player1 = relationship("User", foreign_keys=[player1_id])
     player2 = relationship("User", foreign_keys=[player2_id])
     winner = relationship("User", foreign_keys=[winner_id])

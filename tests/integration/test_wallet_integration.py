@@ -12,7 +12,7 @@ from dojopool.core.exceptions import WalletError, InsufficientFundsError
 
 
 @pytest.fixture
-def users(db):
+def users(app):
     """Create test users."""
     users = [
         User(username=f"test_user_{i}", email=f"test{i}@example.com", password="password123")
@@ -30,7 +30,7 @@ def wallet_service():
 
 
 @pytest.fixture
-def wallets(db, users, wallet_service):
+def wallets(app, users, wallet_service):
     """Create test wallets."""
     wallets = []
     for user in users:
@@ -39,7 +39,7 @@ def wallets(db, users, wallet_service):
     return wallets
 
 
-def test_reward_and_transfer_flow(db, users, wallets, wallet_service):
+def test_reward_and_transfer_flow(app, users, wallets, wallet_service):
     """Test complete flow of rewards and transfers."""
     # Award coins to first user for winning a match
     transaction1 = wallet_service.award_coins(
@@ -92,7 +92,7 @@ def test_reward_and_transfer_flow(db, users, wallets, wallet_service):
     assert wallet2.balance == 5.0  # Received transfer
 
 
-def test_concurrent_transfers(db, users, wallets, wallet_service):
+def test_concurrent_transfers(app, users, wallets, wallet_service):
     """Test handling of concurrent transfers."""
     # Award initial coins to first user
     wallet_service.award_coins(users[0].id, RewardType.MATCH_WIN)
@@ -137,7 +137,7 @@ def test_concurrent_transfers(db, users, wallets, wallet_service):
     assert wallet2.balance == 4.0
 
 
-def test_transaction_history_and_stats(db, users, wallets, wallet_service):
+def test_transaction_history_and_stats(app, users, wallets, wallet_service):
     """Test transaction history retrieval and statistics calculation."""
     # Create various transactions
     wallet_service.award_coins(users[0].id, RewardType.MATCH_WIN)
@@ -179,7 +179,7 @@ def test_transaction_history_and_stats(db, users, wallets, wallet_service):
     assert rewards[RewardType.TRICK_SHOT.value]["total_amount"] == 25.0
 
 
-def test_error_handling(db, users, wallets, wallet_service):
+def test_error_handling(app, users, wallets, wallet_service):
     """Test error handling in various scenarios."""
     # Try to create duplicate wallet
     with pytest.raises(WalletError) as exc:

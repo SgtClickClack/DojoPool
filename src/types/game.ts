@@ -55,10 +55,10 @@ export interface Game {
 
 export interface Ball {
   id: number;
-  position: { x: number; y: number };
-  velocity: { x: number; y: number };
-  type: "cue" | "solid" | "stripe" | "eight";
-  pocketed: boolean;
+  x: number;
+  y: number;
+  color: string;
+  number?: number;
 }
 
 export type GameActionType =

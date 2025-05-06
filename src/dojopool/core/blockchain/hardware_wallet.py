@@ -9,22 +9,20 @@ from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
 from solana.rpc.api import Client
 from solana.transaction import Transaction
-from solana.system_program import TransferParams, transfer
+from solana.system_program import transfer
 from web3 import Web3
-from web3.contract import Contract
-from web3.exceptions import ContractLogicError
-from web3.gas_strategies.time_based import medium_gas_price_strategy
-from web3.middleware import geth_poa_middleware
+from web3.contract.contract import Contract
+from web3.middleware import ExtraDataToPOAMiddleware
+from web3.types import TxParams, Wei, FilterParams
+from eth_utils.address import to_checksum_address
 from trezorlib.client import TrezorClient
 from trezorlib.transport import get_transport
-from dojopool.core.exceptions import BlockchainError, WalletError
+from dojopool.core.exceptions import BlockchainError, WalletError, NetworkError
 from dojopool.core.blockchain.utils import validate_address
 from dojopool.core.blockchain.token_interfaces import ERC20Token
-from web3.types import TxParams, Wei, HexStr, FilterParams
 from eth_typing import BlockIdentifier, ChecksumAddress
 import asyncio
 import time
-from eth_utils import to_checksum_address
 
 # Load environment variables
 load_dotenv()
@@ -405,12 +403,11 @@ class SolanaHardwareWallet(HardwareWallet):
             lamports = int(Decimal(amount) * Decimal(1e9))
             
             # Create transfer instruction
-            transfer_params = TransferParams(
+            transfer_ix = transfer(
                 from_pubkey=from_address,
                 to_pubkey=to_address,
                 lamports=lamports
             )
-            transfer_ix = transfer(transfer_params)
             
             # Build transaction
             transaction = Transaction()
@@ -458,7 +455,7 @@ class EthereumHardwareWallet(HardwareWallet):
         
         # Add network-specific middleware
         if network in ['optimism', 'polygon', 'base', 'linea', 'scroll', 'arbitrum_nova', 'metis', 'mantle']:
-            self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self.web3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         
         # Set gas price strategy for EIP-1559 networks
         if self.network_config['supports_eip1559']:

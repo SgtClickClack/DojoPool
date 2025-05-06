@@ -1,11 +1,11 @@
 import { createMocks } from "node-mocks-http";
 import handler from "../cost";
-import { getCurrentUser } from "../../../../dojopool/services/auth/session";
-import { CDNCostOptimizer } from "../../../../dojopool/services/cdn/cost_optimizer";
+import { getCurrentUser } from "../../../services/auth/session"; // Path likely incorrect
+import { CDNCostOptimizer } from "../../../services/cdn/cost_optimizer";
 
 // Mock the auth and cost optimizer modules
-jest.mock("../../../../dojopool/services/auth/session");
-jest.mock("../../../../dojopool/services/cdn/cost_optimizer");
+// jest.mock("../../../services/auth/session"); // Comment out until path confirmed
+jest.mock("../../../services/cdn/cost_optimizer");
 
 describe("CDN Cost API", () => {
   const mockUser = {

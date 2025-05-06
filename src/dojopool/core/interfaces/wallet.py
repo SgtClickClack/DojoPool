@@ -11,7 +11,7 @@ from typing import Optional, List, Dict, Any
 from decimal import Decimal
 
 from dojopool.models.marketplace import Wallet, Transaction
-from dojopool.services.wallet_service import TransactionType, RewardType
+from dojopool.core.types.wallet_types import TransactionType, RewardType
 
 
 class IWalletService(ABC):

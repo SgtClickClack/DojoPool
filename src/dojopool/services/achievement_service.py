@@ -2,25 +2,24 @@ from datetime import datetime
 from typing import Dict
 
 from dojopool.core.extensions import db
-from ..core.models.reward import Achievement, UserAchievement
+from dojopool.models.achievements import Achievement, UserAchievement
 
 
 class AchievementService:
     def create_achievement(self, data: Dict) -> Dict:
         """Create a new achievement"""
         try:
-            achievement = Achievement(
-                name=data["name"],
-                description=data["description"],
-                category=data["category"],
-                requirements=data["requirements"],
-                points=data.get("points", 0),
-                icon_url=data.get("icon_url"),
-                reward_type=data.get("reward_type"),
-                reward_value=data.get("reward_value"),
-                is_hidden=data.get("is_hidden", False),
-                is_active=data.get("is_active", True),
-            )
+            achievement = Achievement()
+            achievement.name = data["name"]
+            achievement.description = data.get("description")
+            achievement.category_id = data.get("category_id")
+            achievement.icon = data.get("icon")
+            achievement.points = data.get("points", 0)
+            achievement.has_progress = data.get("has_progress", False)
+            achievement.target_value = data.get("target_value")
+            achievement.progress_description = data.get("progress_description")
+            achievement.is_secret = data.get("is_secret", False)
+            achievement.conditions = data.get("conditions", {})
 
             db.session.add(achievement)
             db.session.commit()
@@ -41,19 +40,18 @@ class AchievementService:
             for field in [
                 "name",
                 "description",
-                "category",
+                "category_id",
+                "icon",
                 "points",
-                "icon_url",
-                "requirements",
-                "reward_type",
-                "reward_value",
-                "is_hidden",
-                "is_active",
+                "has_progress",
+                "target_value",
+                "progress_description",
+                "is_secret",
+                "conditions",
             ]:
                 if field in data:
                     setattr(achievement, field, data[field])
 
-            achievement.updated_at = datetime.utcnow()
             db.session.commit()
 
             return {"message": "Achievement updated successfully"}
@@ -83,7 +81,20 @@ class AchievementService:
             if not achievement:
                 return {"error": "Achievement not found"}
 
-            return achievement.to_dict()
+            return {
+                "id": achievement.id,
+                "name": achievement.name,
+                "description": achievement.description,
+                "category_id": achievement.category_id,
+                "icon": achievement.icon,
+                "points": achievement.points,
+                "has_progress": achievement.has_progress,
+                "target_value": achievement.target_value,
+                "progress_description": achievement.progress_description,
+                "is_secret": achievement.is_secret,
+                "rarity": achievement.rarity,
+                "conditions": achievement.conditions,
+            }
         except Exception as e:
             return {"error": str(e)}
 
@@ -91,89 +102,48 @@ class AchievementService:
         """Get all achievements for a user"""
         try:
             user_achievements = UserAchievement.query.filter_by(user_id=user_id).all()
-            return {"achievements": [ua.to_dict() for ua in user_achievements]}
+            return {"achievements": [
+                {
+                    "id": ua.id,
+                    "achievement_id": ua.achievement_id,
+                    "current_progress": ua.current_progress,
+                    "is_unlocked": ua.is_unlocked,
+                    "unlocked_at": ua.unlocked_at,
+                    "shared_count": ua.shared_count,
+                    "last_shared_at": ua.last_shared_at,
+                }
+                for ua in user_achievements
+            ]}
         except Exception as e:
             return {"error": str(e)}
 
-    def track_achievement_progress(
-        self, user_id: int, achievement_id: int, progress_update: Dict
-    ) -> Dict:
-        """Track progress for an achievement"""
+    def track_achievement_progress(self, user_id: int, achievement_id: int, progress_update: int) -> Dict:
+        """Track progress for an achievement (integer progress only)"""
         try:
             user_achievement = UserAchievement.query.filter_by(
                 user_id=user_id, achievement_id=achievement_id
             ).first()
-
             achievement = Achievement.query.get(achievement_id)
             if not achievement:
                 return {"error": "Achievement not found"}
 
             # Create user achievement if it doesn't exist
             if not user_achievement:
-                user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id)
+                user_achievement = UserAchievement()
+                user_achievement.user_id = user_id
+                user_achievement.achievement_id = achievement_id
                 db.session.add(user_achievement)
+                db.session.commit()
 
             # Update progress
-            current_progress = user_achievement.progress or {}
-            for key, value in progress_update.items():
-                if key in current_progress:
-                    current_progress[key] += value
-                else:
-                    current_progress[key] = value
-
-            user_achievement.progress = current_progress
-            user_achievement.updated_at = datetime.utcnow()
-
-            # Check if achievement is completed
-            is_complete = self._check_achievement_completion(
-                achievement.requirements, current_progress
-            )
-
-            if is_complete and not user_achievement.completed:
-                user_achievement.completed = True
-                user_achievement.completed_at = datetime.utcnow()
-
-            db.session.commit()
+            new_progress = user_achievement.current_progress + progress_update
+            unlocked = user_achievement.update_progress(new_progress)
 
             return {
                 "message": "Progress updated successfully",
-                "is_complete": is_complete,
-                "progress": current_progress,
+                "is_unlocked": user_achievement.is_unlocked,
+                "current_progress": user_achievement.current_progress,
             }
-        except Exception as e:
-            db.session.rollback()
-            return {"error": str(e)}
-
-    def claim_achievement_reward(self, user_id: int, achievement_id: int) -> Dict:
-        """Claim reward for a completed achievement"""
-        try:
-            user_achievement = UserAchievement.query.filter_by(
-                user_id=user_id, achievement_id=achievement_id
-            ).first()
-
-            if not user_achievement:
-                return {"error": "Achievement not found for user"}
-
-            if not user_achievement.completed:
-                return {"error": "Achievement not completed"}
-
-            if user_achievement.reward_claimed:
-                return {"error": "Reward already claimed"}
-
-            achievement = Achievement.query.get(achievement_id)
-            if not achievement:
-                return {"error": "Achievement not found"}
-
-            # Process reward
-            reward = {"type": achievement.reward_type, "value": achievement.reward_value}
-
-            user_achievement.reward_claimed = True
-            user_achievement.reward_claimed_at = datetime.utcnow()
-            user_achievement.updated_at = datetime.utcnow()
-
-            db.session.commit()
-
-            return {"message": "Reward claimed successfully", "reward": reward}
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}
@@ -181,17 +151,17 @@ class AchievementService:
     def get_achievement_stats(self, user_id: int) -> Dict:
         """Get achievement statistics for a user"""
         try:
-            total_achievements = Achievement.query.filter_by(is_active=True).count()
+            total_achievements = Achievement.query.count()
             user_achievements = UserAchievement.query.filter_by(user_id=user_id).all()
 
-            completed = sum(1 for ua in user_achievements if ua.completed)
-            total_points = sum(ua.achievement.points for ua in user_achievements if ua.completed)
+            unlocked = sum(1 for ua in user_achievements if ua.is_unlocked)
+            total_points = sum(ua.achievement.points for ua in user_achievements if ua.is_unlocked)
 
             stats = {
                 "total_achievements": total_achievements,
-                "completed_achievements": completed,
+                "unlocked_achievements": unlocked,
                 "completion_rate": (
-                    (completed / total_achievements * 100) if total_achievements > 0 else 0
+                    (unlocked / total_achievements * 100) if total_achievements > 0 else 0
                 ),
                 "total_points": total_points,
             }
@@ -203,15 +173,14 @@ class AchievementService:
     def get_achievement_leaderboard(self, limit: int = 10) -> Dict:
         """Get achievement leaderboard"""
         try:
-            # Get users with most completed achievements
             leaderboard = (
                 db.session.query(
                     UserAchievement.user_id,
-                    db.func.count(UserAchievement.id).label("completed_achievements"),
+                    db.func.count(UserAchievement.id).label("unlocked_achievements"),
                     db.func.sum(Achievement.points).label("total_points"),
                 )
                 .join(Achievement)
-                .filter(UserAchievement.completed is True)
+                .filter_by(is_unlocked=True)
                 .group_by(UserAchievement.user_id)
                 .order_by(db.desc("total_points"))
                 .limit(limit)
@@ -222,7 +191,7 @@ class AchievementService:
                 "leaderboard": [
                     {
                         "user_id": entry[0],
-                        "completed_achievements": entry[1],
+                        "unlocked_achievements": entry[1],
                         "total_points": entry[2] or 0,
                     }
                     for entry in leaderboard
@@ -230,15 +199,3 @@ class AchievementService:
             }
         except Exception as e:
             return {"error": str(e)}
-
-    def _check_achievement_completion(self, requirements: Dict, progress: Dict) -> bool:
-        """Check if achievement requirements are met"""
-        try:
-            for key, required_value in requirements.items():
-                if key not in progress:
-                    return False
-                if progress[key] < required_value:
-                    return False
-            return True
-        except Exception:
-            return False

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { SocketIOService } from '../services/WebSocketService';
+import { SocketIOService } from '../../services/WebSocketService';
 import { GameTable } from '../../core/game/GameState'; // Import GameTable type
 
 // Define an interface matching the Python backend's get_game_details structure

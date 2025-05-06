@@ -1,14 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Box, useColorModeValue } from "@chakra-ui/react";
 import Konva from "konva";
-
-interface Ball {
-  id: number;
-  x: number;
-  y: number;
-  color: string;
-  number?: number;
-}
+import { Ball } from "../../types/game";
+import { KonvaEventObject } from "konva";
 
 interface GameBoardProps {
   width: number;

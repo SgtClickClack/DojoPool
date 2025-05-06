@@ -4,7 +4,7 @@ from flask_login import current_user
 from flask_socketio import emit, join_room, leave_room
 
 from ..extensions import db
-from ..models.game import Game
+from dojopool.models.game import Game
 from . import socketio
 from .chat_events import *
 

@@ -2,11 +2,37 @@ import React from "react";
 import { screen, render } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import PrivateRoute from "../../../dojopool/frontend/components/Auth/[AUTH]PrivateRoute";
-import { useAuth } from "../../../dojopool/frontend/contexts/AuthContext";
+import { useAuth } from "../../../hooks/useAuth";
 
-// Mock the auth context
-jest.mock("../../../dojopool/frontend/contexts/AuthContext", () => ({
-  useAuth: jest.fn(),
+// Mock the auth hook from the correct path
+jest.mock("../../../hooks/useAuth");
+
+// Mock the firebase/auth module directly in this test file
+jest.mock("firebase/auth", () => ({
+  // Mock specific functions and providers used by the useAuth hook or other auth-related logic
+  // that might be indirectly called by this test.
+  // This ensures OAuthProvider is mocked as a constructor.
+  // Provide mocks for all imports used in src/firebase/auth.ts
+  GoogleAuthProvider: jest.fn().mockImplementation(() => ({})),
+  FacebookAuthProvider: jest.fn().mockImplementation(() => ({})),
+  TwitterAuthProvider: jest.fn().mockImplementation(() => ({})),
+  GithubAuthProvider: jest.fn().mockImplementation(() => ({})),
+  OAuthProvider: jest.fn().mockImplementation((providerId) => ({
+    providerId: providerId,
+    // Include other methods/properties if needed by the code under test
+  })),
+  // Add other firebase/auth mocks if necessary for this test suite
+  getAuth: jest.fn(() => ({ /* mock auth instance */ })), // Example if getAuth is used
+  signInWithPopup: jest.fn(), // Example if signInWithPopup is used
+  createUserWithEmailAndPassword: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(),
+  signOut: jest.fn(),
+  sendPasswordResetEmail: jest.fn(),
+  updateProfile: jest.fn(),
+  sendEmailVerification: jest.fn(),
+  deleteUser: jest.fn(),
+  // Mock the auth instance itself
+  auth: {},
 }));
 
 describe("PrivateRoute Component", () => {

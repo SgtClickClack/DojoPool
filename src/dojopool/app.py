@@ -39,7 +39,7 @@ from dojopool.core.health import health_bp
 
 logger = logging.getLogger(__name__)
 
-def create_app(config_name=None, test_config=None):
+def create_app(config_name=None, test_config=None, testing=False):
     """Application factory function."""
     app = Flask(__name__, instance_relative_config=True)
 
@@ -66,6 +66,9 @@ def create_app(config_name=None, test_config=None):
     # Apply test config overrides BEFORE extensions are initialized
     if test_config:
         app.config.update(test_config)
+    if testing:
+        app.config["TESTING"] = True
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
 
     # --- Caching Configuration ---
     app.config["CACHE_TYPE"] = "RedisCache"

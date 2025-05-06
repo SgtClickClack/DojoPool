@@ -100,6 +100,7 @@ export class NetworkErrorRecovery extends EventEmitter {
 
   private handleError(error: NetworkError): void {
     const nodeId = this.extractNodeId(error);
+    console.log('DEBUG: handleError called with nodeId', nodeId, 'error:', error);
     if (nodeId) {
       this.incrementFailureCount(nodeId);
       this.checkCircuitBreaker(nodeId);
@@ -141,10 +142,12 @@ export class NetworkErrorRecovery extends EventEmitter {
   private incrementFailureCount(nodeId: string): void {
     const count = (this.failureCount.get(nodeId) || 0) + 1;
     this.failureCount.set(nodeId, count);
+    console.log('DEBUG: incrementFailureCount', nodeId, 'new count:', count, 'full map:', Array.from(this.failureCount.entries()));
   }
 
   private resetFailureCount(nodeId: string): void {
     this.failureCount.set(nodeId, 0);
+    console.log('DEBUG: resetFailureCount', nodeId, 'full map:', Array.from(this.failureCount.entries()));
   }
 
   private checkCircuitBreaker(nodeId: string): void {
@@ -279,18 +282,24 @@ export class NetworkErrorRecovery extends EventEmitter {
     type: NetworkMessageType,
     payload: T,
   ): Promise<void> {
+    // DEBUG: Log failureCount map at the start of send
+    console.log('DEBUG: failureCount at send start', Array.from(this.failureCount.entries()));
+    // DEBUG: Log circuit breaker state before check
+    // @ts-ignore
+    console.log('DEBUG: circuitState before check', target, this.circuitState.get(target));
     // Check circuit breaker
     const state = this.circuitState.get(target) || CircuitState.CLOSED;
     if (state === CircuitState.OPEN) {
+      console.log('DEBUG: circuit breaker is OPEN, throwing error');
       throw new Error(`Circuit breaker is open for node ${target}`);
     }
-
+    console.log('DEBUG: circuit breaker is not open, proceeding');
     // Check queue limit
     if (this.pendingMessages.size >= this.config.queueLimit) {
       throw new Error("Message queue limit exceeded");
     }
-
     try {
+      console.log('DEBUG: calling transport.send');
       await this.transport.send(target, type, payload);
       const message: NetworkMessage<T> = {
         id: `${this.transport["nodeId"]}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -307,6 +316,13 @@ export class NetworkErrorRecovery extends EventEmitter {
       });
     } catch (error) {
       this.handleError(error as NetworkError);
+      // PATCH: Immediately check if circuit breaker is now open and throw that error if so
+      const newState = this.circuitState.get(target) || CircuitState.CLOSED;
+      console.log('DEBUG: circuitState after error', target, newState);
+      if (newState === CircuitState.OPEN) {
+        console.log('DEBUG: circuit breaker is now OPEN after error, throwing error');
+        throw new Error(`Circuit breaker is open for node ${target}`);
+      }
       throw error;
     }
   }

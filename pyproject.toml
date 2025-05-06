@@ -58,7 +58,7 @@ disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=dojopool --cov-report=term-missing"
+addopts = "-ra -q"
 testpaths = [
     "tests",
 ]

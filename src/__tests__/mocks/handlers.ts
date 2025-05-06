@@ -1,8 +1,20 @@
-import { rest } from "msw";
+import * as msw from 'msw';
+
+// Log the keys to see what's actually exported
+console.log('--- MSW Namespace Keys ---');
+console.log(msw ? Object.keys(msw) : 'MSW namespace is undefined/null');
+console.log('--- MSW Default Export Keys ---');
+console.log(msw && msw.default ? Object.keys(msw.default) : 'MSW has no default export or is undefined');
+
+// Try accessing rest via namespace or default export
+const rest = msw?.rest || msw?.default?.rest;
+console.log('--- MSW Rest Object ---');
+console.log(rest ? 'rest object exists' : 'rest object is UNDEFINED');
 
 export const handlers = [
   // Mock authentication endpoints
-  rest.post("/api/auth/login", (req, res, ctx) => {
+  rest?.post?.("/api/auth/login", (req, res, ctx) => {
+    if (!rest || !res || !ctx) return; // Guard against undefined
     return res(
       ctx.status(200),
       ctx.json({
@@ -17,7 +29,8 @@ export const handlers = [
   }),
 
   // Mock game data endpoints
-  rest.get("/api/games", (req, res, ctx) => {
+  rest?.get?.("/api/games", (req, res, ctx) => {
+    if (!rest || !res || !ctx) return;
     return res(
       ctx.status(200),
       ctx.json([
@@ -33,7 +46,8 @@ export const handlers = [
   }),
 
   // Mock venue endpoints
-  rest.get("/api/venues", (req, res, ctx) => {
+  rest?.get?.("/api/venues", (req, res, ctx) => {
+    if (!rest || !res || !ctx) return;
     return res(
       ctx.status(200),
       ctx.json([
@@ -49,7 +63,8 @@ export const handlers = [
   }),
 
   // Mock user profile endpoints
-  rest.get("/api/profile", (req, res, ctx) => {
+  rest?.get?.("/api/profile", (req, res, ctx) => {
+    if (!rest || !res || !ctx) return;
     return res(
       ctx.status(200),
       ctx.json({
@@ -64,4 +79,4 @@ export const handlers = [
       }),
     );
   }),
-];
+].filter(Boolean); // Filter out undefined handlers if rest is missing

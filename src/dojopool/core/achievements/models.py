@@ -2,138 +2,14 @@ from datetime import datetime
 
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from src.core.auth.models import User
+from dojopool.models.user import User
 from src.core.database import db
 from src.core.validation import AchievementValidator
 
 
-class Achievement(db.Model):
-    """Achievement model."""
-
-    __tablename__ = "achievements"
-    __table_args__ = {"extend_existing": True}
-
-    # Basic fields
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    icon = db.Column(db.String(255))  # URL or identifier for achievement icon
-
-    # Requirements
-    category = db.Column(db.String(50))  # e.g., tournament, game, social
-    requirement_type = db.Column(db.String(50))  # e.g., win_count, score_threshold
-    requirement_value = db.Column(db.Float)  # Value needed to earn achievement
-    requirement_details = db.Column(db.JSON)  # Additional requirements
-
-    # Rewards
-    points = db.Column(db.Integer, default=0)  # Points awarded for earning
-    reward_type = db.Column(db.String(50))  # e.g., badge, title, bonus
-    reward_details = db.Column(db.JSON)  # Additional reward details
-
-    # Status and metadata
-    is_active = db.Column(db.Boolean, default=True)
-    is_hidden = db.Column(db.Boolean, default=False)  # Hidden achievements
-    is_rare = db.Column(db.Boolean, default=False)  # Rare/special achievements
-    rarity = db.Column(db.Float)  # Percentage of users who have earned it
-    priority = db.Column(db.Integer, default=0)  # Display priority
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Validation
-    validator_class = AchievementValidator
-
-    def __repr__(self):
-        return f"<Achievement {self.name}>"
-
-    @hybrid_property
-    def total_earned(self):
-        """Get total number of users who earned this achievement."""
-        return self.user_achievements.filter_by(completed=True).count()
-
-    def update_rarity(self):
-        """Update achievement rarity based on total users."""
-        total_users = User.query.count()
-        if total_users > 0:
-            self.rarity = (self.total_earned / total_users) * 100
-            db.session.commit()
-
-    def check_requirement(self, value, details=None):
-        """Check if a value meets the achievement requirement.
-
-        Args:
-            value: Value to check
-            details: Additional details to check
-
-        Returns:
-            bool: True if requirement is met
-        """
-        if not self.requirement_type or not self.requirement_value:
-            return False
-
-        if self.requirement_type == "threshold":
-            return value >= self.requirement_value
-        elif self.requirement_type == "exact":
-            return value == self.requirement_value
-        elif self.requirement_type == "count":
-            return value >= self.requirement_value
-        elif self.requirement_type == "custom":
-            # Custom logic based on requirement_details
-            return False
-
-        return False
-
-    def get_progress(self, value):
-        """Calculate progress towards achievement.
-
-        Args:
-            value: Current value
-
-        Returns:
-            float: Progress percentage (0-100)
-        """
-        if not self.requirement_type or not self.requirement_value:
-            return 0.0
-
-        if self.requirement_type in ["threshold", "count"]:
-            progress = (value / self.requirement_value) * 100
-            return min(progress, 100.0)
-        elif self.requirement_type == "exact":
-            return 100.0 if value == self.requirement_value else 0.0
-
-        return 0.0
-
-    @classmethod
-    def get_available(cls, category=None, hidden=False):
-        """Get available achievements.
-
-        Args:
-            category: Category filter
-            hidden: Include hidden achievements
-
-        Returns:
-            list: Available achievements
-        """
-        query = cls.query.filter_by(is_active=True)
-
-        if not hidden:
-            query = query.filter_by(is_hidden=False)
-
-        if category:
-            query = query.filter_by(category=category)
-
-        return query.order_by(cls.priority.desc()).all()
-
-    @classmethod
-    def get_by_requirement(cls, requirement_type):
-        """Get achievements by requirement type.
-
-        Args:
-            requirement_type: Type of requirement
-
-        Returns:
-            list: Matching achievements
-        """
-        return cls.query.filter_by(is_active=True, requirement_type=requirement_type).all()
+# TODO: Remove duplicate Achievement model to resolve SQLAlchemy registry conflicts.
+# class Achievement(db.Model):
+#     ...
 
 
 class UserAchievement(db.Model):

@@ -8,13 +8,14 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from fastapi import Request
 from fastapi.responses import Response
-from ..models import User, Activity, Share, Achievement
+from ..models import User, Activity, Share
 from ..extensions import db
 from ..cache.decorators import cached
 import logging
 import gzip
 import json
 from concurrent.futures import ThreadPoolExecutor
+from dojopool.models.achievements import Achievement, UserAchievement
 
 logger = logging.getLogger(__name__)
 

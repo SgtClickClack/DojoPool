@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 
 from ..core.extensions import db
-from .achievements import Achievement, UserAchievement
+from dojopool.models.achievements import Achievement, UserAchievement
 from .social import UserProfile
 
 
@@ -84,10 +84,10 @@ class Game(db.Model):
     # Relationships
     player1 = db.relationship("User", foreign_keys=[player1_id])
     player2 = db.relationship("User", foreign_keys=[player2_id])
-    winner = db.relationship("User", foreign_keys=[winner_id], back_populates="games_won")
+    winner = db.relationship("User", foreign_keys=[winner_id])
     shots = db.relationship("Shot", back_populates="game", lazy="dynamic")
     tournament_games = db.relationship(
-        "TournamentGame", backref="game", cascade="all, delete-orphan"
+        "TournamentGame", cascade="all, delete-orphan", back_populates="game"
     )
 
     def __init__(self, player1_id, player2_id, game_type, game_mode, status=GameStatus.PENDING):
@@ -128,12 +128,13 @@ class Game(db.Model):
         """Update player statistics."""
         for player in [self.player1, self.player2]:
             profile = UserProfile.query.filter_by(user=player).first()
-            profile.total_matches += 1
-
-            if player.id == self.winner_id:
-                profile.wins += 1
-
-            db.session.add(profile)
+            if profile is not None:
+                if hasattr(profile, "total_matches"):
+                    profile.total_matches += 1
+                if player and hasattr(player, "id") and player.id == self.winner_id:
+                    if hasattr(profile, "wins"):
+                        profile.wins += 1
+                db.session.add(profile)
         db.session.commit()
 
     def _check_achievements(self):
@@ -150,26 +151,26 @@ class Game(db.Model):
         self._check_first_win(winner_profile)
 
         # Check perfect game
-        if self.player1 == self.winner and self.player2_score == 0:
+        if self.player1 == self.winner and hasattr(self, "player2_score") and self.player2_score == 0:
             self._award_achievement(winner_profile, "perfect_game")
-        elif self.player2 == self.winner and self.player1_score == 0:
+        elif self.player2 == self.winner and hasattr(self, "player1_score") and self.player1_score == 0:
             self._award_achievement(winner_profile, "perfect_game")
 
         # Check high difficulty win
-        if self.difficulty_rating >= 8:
+        if hasattr(self, "difficulty_rating") and self.difficulty_rating >= 8:
             self._award_achievement(winner_profile, "difficult_victory")
 
     def _check_win_streak(self, profile):
         """Check and award win streak achievements."""
         recent_games = Game.query.filter(
-            (Game.player1_id == profile.user.id) | (Game.player2_id == profile.user.id),
-            Game.status == GameStatus.COMPLETED,
-            Game.completed_at <= datetime.utcnow()
-        ).order_by(Game.completed_at.desc()).limit(10).all()
+            ((self.player1_id == profile.user.id) | (self.player2_id == profile.user.id)),
+            self.status == GameStatus.COMPLETED,
+            self.completed_at <= datetime.utcnow()
+        ).order_by(self.completed_at.desc()).limit(10).all()  # type: ignore
 
         streak = 0
         for game in recent_games:
-            if game.winner == profile.user:
+            if hasattr(game, "winner") and game.winner == profile.user:
                 streak += 1
             else:
                 break
@@ -183,7 +184,7 @@ class Game(db.Model):
 
     def _check_first_win(self, profile):
         """Award first win achievement."""
-        if profile.wins == 1:
+        if hasattr(profile, "wins") and profile.wins == 1:
             self._award_achievement(profile, "first_win")
 
     def _award_achievement(self, profile, achievement_code):

@@ -1,193 +1,242 @@
 /// <reference types="jest" />
 
-import { PrismaClient } from "@prisma/client";
-import { TournamentService } from "../TournamentService";
+// Remove duplicate import
+// import { PrismaClient } from "@prisma/client";
+import { TournamentDBService } from "../TournamentService";
 import {
   Tournament,
-  TournamentState,
-  TournamentType,
+  // Keep import of Tournament type from types file
+  // TournamentStatus, // Remove import of enums from types file
+  // TournamentFormat, // Remove import of enums from types file
 } from "../../../types/tournament";
 
+// Import actual enums from @prisma/client using jest.requireActual
+const actualPrisma = jest.requireActual("@prisma/client") as any;
+// Removed top-level destructuring
+// const { TournamentType, MatchState, TournamentStatus, TournamentFormat } = actualPrisma;
+
+// Mock the Prisma client
 jest.mock("@prisma/client", () => {
+  // Define mock methods and client inside the mock factory
+  const mockTournamentMethods = {
+    create: jest.fn(),
+    findUnique: jest.fn(),
+    update: jest.fn(),
+    findMany: jest.fn(),
+  };
+
+  const mockPrismaClient = { tournament: mockTournamentMethods };
+
   return {
-    PrismaClient: jest.fn().mockImplementation(() => ({
-      tournament: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        update: jest.fn(),
-      },
-    })),
+    PrismaClient: jest.fn(() => mockPrismaClient),
+    // Do NOT export enums from the mock - access actual enums directly
   };
 });
 
-describe("TournamentService", () => {
-  let tournamentService: TournamentService;
-  let mockPrisma: jest.Mocked<PrismaClient>;
+describe("TournamentDBService Static Methods", () => {
+    // Access enums within the describe block
+    const { TournamentType, MatchState, TournamentStatus, TournamentFormat } = actualPrisma;
 
-  const mockTournament: Tournament = {
+    // Declare variables for mocked client instance outside beforeEach
+    // let mockedPrismaClientInstance: any; // Use `any` for simplicity
+
+  const mockTournamentData: Tournament = {
     id: "tournament-1",
     name: "Test Tournament",
-    type: TournamentType.SINGLE_ELIMINATION,
+    format: TournamentFormat.SINGLE_ELIMINATION, // Use actual enum
     venueId: "venue-1",
     startDate: new Date(),
-    endDate: new Date(Date.now() + 86400000), // 1 day later
+    endDate: new Date(Date.now() + 86400000),
+    status: TournamentStatus.REGISTRATION, // Corrected property name from state to status, Use actual enum
+    organizerId: "user-1",
+    participants: 0,
     maxParticipants: 16,
-    entryFee: 50,
-    prizePool: 500,
-    state: TournamentState.REGISTRATION,
-    participants: [],
     matches: [],
     createdAt: new Date(),
     updatedAt: new Date(),
+    entryFee: 50,
+    prizePool: 500,
   };
 
   beforeEach(() => {
-    mockPrisma = new PrismaClient() as jest.Mocked<PrismaClient>;
-    tournamentService = new TournamentService(mockPrisma);
+    jest.clearAllMocks();
   });
 
   describe("createTournament", () => {
     it("should create a new tournament", async () => {
-      mockPrisma.tournament.create.mockResolvedValue(mockTournament);
+      // Access mock methods directly from the mocked module
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
+      // const { TournamentStatus } = jest.requireMock("@prisma/client"); // No need to get enums from mock
 
-      const result = await tournamentService.createTournament({
+      mockTournamentMethods.create.mockResolvedValue(mockTournamentData);
+
+      const inputData = {
         name: "Test Tournament",
-        type: TournamentType.SINGLE_ELIMINATION,
+        format: TournamentFormat.SINGLE_ELIMINATION, // Use actual enum
         venueId: "venue-1",
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 86400000),
+        startDate: expect.any(Date),
+        endDate: expect.any(Date),
         maxParticipants: 16,
         entryFee: 50,
         prizePool: 500,
-      });
+      };
 
-      expect(result).toEqual(mockTournament);
-      expect(mockPrisma.tournament.create).toHaveBeenCalledWith({
-        data: {
-          name: "Test Tournament",
-          type: TournamentType.SINGLE_ELIMINATION,
-          venueId: "venue-1",
-          startDate: expect.any(Date),
-          endDate: expect.any(Date),
-          maxParticipants: 16,
-          entryFee: 50,
-          prizePool: 500,
-          state: TournamentState.REGISTRATION,
+      const result = await TournamentDBService.createTournament(
+        inputData.name,
+        inputData.format,
+        inputData.venueId,
+        inputData.startDate as Date,
+        inputData.endDate as Date,
+        inputData.maxParticipants,
+        inputData.entryFee,
+        inputData.prizePool
+      );
+
+      expect(result).toEqual(mockTournamentData);
+      expect(mockTournamentMethods.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          ...inputData,
+          status: TournamentStatus.OPEN, // Use actual enum
           participants: [],
           matches: [],
-        },
+        }),
       });
     });
   });
 
   describe("getTournament", () => {
     it("should return a tournament by id", async () => {
-      mockPrisma.tournament.findUnique.mockResolvedValue(mockTournament);
+      // Access mock methods directly
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
 
-      const result = await tournamentService.getTournament("tournament-1");
+      mockTournamentMethods.findUnique.mockResolvedValue(mockTournamentData);
 
-      expect(result).toEqual(mockTournament);
-      expect(mockPrisma.tournament.findUnique).toHaveBeenCalledWith({
+      const result = await TournamentDBService.getTournament("tournament-1");
+
+      expect(result).toEqual(mockTournamentData);
+      expect(mockTournamentMethods.findUnique).toHaveBeenCalledWith({
         where: { id: "tournament-1" },
       });
     });
 
     it("should return null if tournament not found", async () => {
-      mockPrisma.tournament.findUnique.mockResolvedValue(null);
+      // Access mock methods directly
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
 
-      const result = await tournamentService.getTournament("non-existent");
-
+      mockTournamentMethods.findUnique.mockResolvedValue(null);
+      const result = await TournamentDBService.getTournament("non-existent");
       expect(result).toBeNull();
     });
   });
 
   describe("updateTournamentState", () => {
     it("should update tournament state", async () => {
-      const updatedTournament = {
-        ...mockTournament,
-        state: TournamentState.IN_PROGRESS,
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
+      // const { TournamentStatus } = jest.requireMock("@prisma/client"); // No need to get enums from mock
+      const updatedTournament = { 
+          ...mockTournamentData, 
+          status: TournamentStatus.ACTIVE, // Use actual enum
+          updatedAt: expect.any(Date),
       };
-      mockPrisma.tournament.update.mockResolvedValue(updatedTournament);
+      // Access mock methods directly
+      mockTournamentMethods.update.mockResolvedValue(updatedTournament);
 
-      const result = await tournamentService.updateTournamentState(
+      const result = await TournamentDBService.updateTournamentState(
         "tournament-1",
-        TournamentState.IN_PROGRESS,
+        TournamentStatus.ACTIVE,
       );
 
       expect(result).toEqual(updatedTournament);
-      expect(mockPrisma.tournament.update).toHaveBeenCalledWith({
+      expect(mockTournamentMethods.update).toHaveBeenCalledWith({
         where: { id: "tournament-1" },
-        data: { state: TournamentState.IN_PROGRESS },
+        data: { status: TournamentStatus.ACTIVE, updatedAt: expect.any(Date) },
       });
     });
   });
 
   describe("addParticipant", () => {
     it("should add a participant to the tournament", async () => {
-      const updatedTournament = {
-        ...mockTournament,
-        participants: ["player-1"],
-      };
-      mockPrisma.tournament.update.mockResolvedValue(updatedTournament);
+        const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+        const mockTournamentMethods = mockPrismaClient.tournament;
+        const updatedTournament = { 
+            ...mockTournamentData, 
+            participants: ["player-1"],
+            updatedAt: expect.any(Date),
+        };
+        // Access mock methods directly
+        mockTournamentMethods.update.mockResolvedValue(updatedTournament);
 
-      const result = await tournamentService.addParticipant(
-        "tournament-1",
-        "player-1",
-      );
+        const result = await TournamentDBService.addParticipant(
+            "tournament-1",
+            "player-1",
+        );
 
-      expect(result).toEqual(updatedTournament);
-      expect(mockPrisma.tournament.update).toHaveBeenCalledWith({
-        where: { id: "tournament-1" },
-        data: {
-          participants: {
-            push: "player-1",
-          },
-        },
-      });
+        expect(result).toEqual(updatedTournament);
+        expect(mockTournamentMethods.update).toHaveBeenCalledWith({
+            where: { id: "tournament-1" },
+            data: {
+                participants: { push: "player-1" },
+                updatedAt: expect.any(Date),
+            },
+        });
     });
   });
 
   describe("removeParticipant", () => {
     it("should remove a participant from the tournament", async () => {
-      const updatedTournament = {
-        ...mockTournament,
-        participants: [],
-      };
-      mockPrisma.tournament.update.mockResolvedValue(updatedTournament);
+        const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+        const mockTournamentMethods = mockPrismaClient.tournament;
 
-      const result = await tournamentService.removeParticipant(
-        "tournament-1",
-        "player-1",
-      );
+        const initialTournament = { ...mockTournamentData, participants: ["player-1", "player-2"] };
+        const updatedTournament = { 
+            ...initialTournament, 
+            participants: ["player-2"],
+            updatedAt: expect.any(Date),
+        };
+        // Access mock methods directly
+        mockTournamentMethods.findUnique.mockResolvedValue(initialTournament);
+        mockTournamentMethods.update.mockResolvedValue(updatedTournament);
 
-      expect(result).toEqual(updatedTournament);
-      expect(mockPrisma.tournament.update).toHaveBeenCalledWith({
-        where: { id: "tournament-1" },
-        data: {
-          participants: {
-            set: [],
-          },
-        },
-      });
+        const result = await TournamentDBService.removeParticipant(
+            "tournament-1",
+            "player-1",
+        );
+
+        expect(result).toEqual(updatedTournament);
+        expect(mockTournamentMethods.findUnique).toHaveBeenCalledWith({ where: { id: "tournament-1" } });
+        expect(mockTournamentMethods.update).toHaveBeenCalledWith({
+            where: { id: "tournament-1" },
+            data: {
+                participants: ["player-2"],
+                updatedAt: expect.any(Date),
+            },
+        });
     });
   });
 
   describe("addMatch", () => {
     it("should add a match to the tournament", async () => {
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
+
       const updatedTournament = {
-        ...mockTournament,
+        ...mockTournamentData,
         matches: ["match-1"],
       };
-      mockPrisma.tournament.update.mockResolvedValue(updatedTournament);
+      // Access mock methods directly
+      mockTournamentMethods.update.mockResolvedValue(updatedTournament);
 
-      const result = await tournamentService.addMatch(
+      const result = await TournamentDBService.addMatch(
         "tournament-1",
         "match-1",
       );
 
       expect(result).toEqual(updatedTournament);
-      expect(mockPrisma.tournament.update).toHaveBeenCalledWith({
+      expect(mockTournamentMethods.update).toHaveBeenCalledWith({
         where: { id: "tournament-1" },
         data: {
           matches: {
@@ -199,32 +248,43 @@ describe("TournamentService", () => {
   });
 
   describe("getActiveTournaments", () => {
-    it("should return active tournaments", async () => {
-      const activeTournaments = [mockTournament];
-      mockPrisma.tournament.findMany.mockResolvedValue(activeTournaments);
+    it("should return active tournaments for a specific venue", async () => {
+      // Access enum from mocked module
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
+      const { TournamentStatus } = jest.requireMock("@prisma/client");
+      const activeTournaments = [mockTournamentData];
+      // Access mock methods directly
+      mockTournamentMethods.findMany.mockResolvedValue(activeTournaments);
 
-      const result = await tournamentService.getActiveTournaments();
+      const result = await TournamentDBService.getActiveTournaments("venue-1");
 
       expect(result).toEqual(activeTournaments);
-      expect(mockPrisma.tournament.findMany).toHaveBeenCalledWith({
+      expect(mockTournamentMethods.findMany).toHaveBeenCalledWith({
         where: {
-          state: {
-            in: [TournamentState.REGISTRATION, TournamentState.IN_PROGRESS],
+          venueId: "venue-1",
+          status: {
+            in: [TournamentStatus.OPEN, TournamentStatus.ACTIVE],
           },
         },
+        orderBy: { startDate: "asc" },
       });
     });
   });
 
   describe("getPlayerTournaments", () => {
     it("should return tournaments for a player", async () => {
-      const playerTournaments = [mockTournament];
-      mockPrisma.tournament.findMany.mockResolvedValue(playerTournaments);
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
 
-      const result = await tournamentService.getPlayerTournaments("player-1");
+      const playerTournaments = [mockTournamentData];
+      // Access mock methods directly
+      mockTournamentMethods.findMany.mockResolvedValue(playerTournaments);
+
+      const result = await TournamentDBService.getPlayerTournaments("player-1");
 
       expect(result).toEqual(playerTournaments);
-      expect(mockPrisma.tournament.findMany).toHaveBeenCalledWith({
+      expect(mockTournamentMethods.findMany).toHaveBeenCalledWith({
         where: {
           participants: {
             has: "player-1",
@@ -236,31 +296,36 @@ describe("TournamentService", () => {
 
   describe("updateTournamentResults", () => {
     it("should update tournament results", async () => {
+      // Access enum from mocked module
+      const mockPrismaClient = jest.requireMock("@prisma/client").PrismaClient();
+      const mockTournamentMethods = mockPrismaClient.tournament;
+      const { TournamentStatus } = jest.requireMock("@prisma/client");
       const updatedTournament = {
-        ...mockTournament,
-        state: TournamentState.COMPLETED,
+        ...mockTournamentData,
+        status: TournamentStatus.COMPLETED, // Use enum from mocked module
         winnerId: "player-1",
         finalStandings: ["player-1", "player-2"],
-        endedAt: new Date(),
+        endedAt: expect.any(Date),
+        updatedAt: expect.any(Date),
       };
-      mockPrisma.tournament.update.mockResolvedValue(updatedTournament);
+      // Access mock methods directly
+      mockTournamentMethods.update.mockResolvedValue(updatedTournament);
 
-      const result = await tournamentService.updateTournamentResults(
+      const result = await TournamentDBService.updateTournamentResults(
         "tournament-1",
-        {
-          winnerId: "player-1",
-          finalStandings: ["player-1", "player-2"],
-        },
+        "player-1",
+        ["player-1", "player-2"],
       );
 
       expect(result).toEqual(updatedTournament);
-      expect(mockPrisma.tournament.update).toHaveBeenCalledWith({
+      expect(mockTournamentMethods.update).toHaveBeenCalledWith({
         where: { id: "tournament-1" },
         data: {
-          state: TournamentState.COMPLETED,
+          status: TournamentStatus.COMPLETED,
           winnerId: "player-1",
           finalStandings: ["player-1", "player-2"],
           endedAt: expect.any(Date),
+          updatedAt: expect.any(Date),
         },
       });
     });

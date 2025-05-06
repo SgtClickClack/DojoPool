@@ -1,7 +1,11 @@
+import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ChakraProvider } from "@chakra-ui/react";
+// Removed explicit ChakraProvider and related imports
+// import { ChakraProvider, createSystem, defaultConfig } from "@chakra-ui/react";
 import ResetPassword from "../reset-password";
 import { useRouter } from "next/router";
+import { renderWithChakra } from "test-utils";
+import { useToast } from '@chakra-ui/react';
 
 // Mock next/router
 jest.mock("next/router", () => ({
@@ -10,6 +14,9 @@ jest.mock("next/router", () => ({
 
 // Mock fetch
 global.fetch = jest.fn();
+
+// Removed local theme system creation
+// const themeSystem = createSystem(defaultConfig, {}); // Create a basic system
 
 describe("ResetPassword", () => {
   const mockRouter = {
@@ -20,20 +27,28 @@ describe("ResetPassword", () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (global.fetch as jest.Mock).mockReset();
+    jest.clearAllMocks();
   });
 
-  const renderComponent = () => {
-    return render(
-      <ChakraProvider>
-        <ResetPassword />
-      </ChakraProvider>,
-    );
-  };
+  // Removed local renderComponent function
+  // const renderComponent = () => {
+  //   const system = createSystem(defaultConfig, {});
+  //   return render(
+  //     <ChakraProvider value={system}>
+  //       {/* Wrap the component with necessary providers for hooks */}
+  //       {/* <ToastProvider> - Removing this usage */}
+  //         <ResetPassword />
+  //       {/* </ToastProvider> */}
+  //       {/* Add other necessary providers here */}
+  //     </ChakraProvider>,
+  //   );
+  // };
 
   it("renders the reset password form", async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
 
-    renderComponent();
+    // Use the new renderWithChakra helper
+    renderWithChakra(<ResetPassword />);
 
     await waitFor(() => {
       expect(screen.getByText("Reset Password")).toBeInTheDocument();
@@ -50,7 +65,7 @@ describe("ResetPassword", () => {
   it("shows validation error for weak password", async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
 
-    renderComponent();
+    renderWithChakra(<ResetPassword />);
 
     await waitFor(() => {
       const passwordInput = screen.getByLabelText(/new password/i);
@@ -73,7 +88,7 @@ describe("ResetPassword", () => {
   it("shows validation error for non-matching passwords", async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
 
-    renderComponent();
+    renderWithChakra(<ResetPassword />);
 
     await waitFor(() => {
       const passwordInput = screen.getByLabelText(/new password/i);
@@ -98,7 +113,7 @@ describe("ResetPassword", () => {
       .mockResolvedValueOnce({ ok: true }) // Token validation
       .mockResolvedValueOnce({ ok: true }); // Password reset
 
-    renderComponent();
+    renderWithChakra(<ResetPassword />);
 
     await waitFor(() => {
       const passwordInput = screen.getByLabelText(/new password/i);
@@ -134,7 +149,7 @@ describe("ResetPassword", () => {
       .mockResolvedValueOnce({ ok: true }) // Token validation
       .mockResolvedValueOnce({ ok: false }); // Password reset
 
-    renderComponent();
+    renderWithChakra(<ResetPassword />);
 
     await waitFor(() => {
       const passwordInput = screen.getByLabelText(/new password/i);
@@ -157,7 +172,7 @@ describe("ResetPassword", () => {
   it("handles invalid token", async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false });
 
-    renderComponent();
+    renderWithChakra(<ResetPassword />);
 
     await waitFor(() => {
       expect(

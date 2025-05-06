@@ -3,7 +3,7 @@ import { WebGLContextManager } from "../../managers/webgl-context-manager";
 import { ShaderManager } from "../../managers/shader-manager";
 import { TransitionManager } from "../../managers/transition-manager";
 
-// Mock WebGL context and related objects
+// --- Define Mocks FIRST ---
 const mockWebGLContext = {
   createFramebuffer: jest.fn().mockReturnValue({}),
   createTexture: jest.fn().mockReturnValue({}),
@@ -23,15 +23,26 @@ const mockWebGLContext = {
   UNSIGNED_BYTE: 3,
   LINEAR: 4,
   CLAMP_TO_EDGE: 5,
+  uniform1i: jest.fn(),
 } as unknown as WebGLRenderingContext;
 
-// Mock managers
+const mockCanvas = {
+  getContext: jest.fn().mockReturnValue(mockWebGLContext),
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  width: 640,
+  height: 480,
+} as unknown as HTMLCanvasElement;
+// --- End Mock Definitions ---
+
+// Mock managers AFTER defining their dependencies
 jest.mock("../../managers/webgl-context-manager", () => ({
   WebGLContextManager: {
     getInstance: jest.fn().mockReturnValue({
       getContext: jest.fn().mockReturnValue(mockWebGLContext),
       addContextListener: jest.fn(),
       removeContextListener: jest.fn(),
+      cleanup: jest.fn(),
     }),
   },
 }));
@@ -39,8 +50,8 @@ jest.mock("../../managers/webgl-context-manager", () => ({
 jest.mock("../../managers/shader-manager", () => ({
   ShaderManager: jest.fn().mockImplementation(() => ({
     registerShader: jest.fn(),
-    useShader: jest.fn().mockReturnValue({}),
-    getUniforms: jest.fn().mockReturnValue(new Map()),
+    useShader: jest.fn().mockReturnValue({ program: {}, attributes: new Map(), uniforms: new Map() }),
+    getUniforms: jest.fn().mockReturnValue(new Map([["uCurrentFrame", 0], ["uPreviousFrame", 1]])),
     cleanup: jest.fn(),
   })),
 }));

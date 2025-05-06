@@ -6,7 +6,7 @@ This module provides services for managing achievements and user progress.
 
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime, timedelta
-from ..models import Achievement, UserAchievement, AchievementType
+from dojopool.models.achievements import Achievement, UserAchievement, AchievementType
 from ..extensions import db
 from ..cache.decorators import cached, invalidate_cache, cached_many
 

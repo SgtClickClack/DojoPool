@@ -2,9 +2,10 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MatchScheduler } from "../MatchScheduler";
+import theme from "@/theme";
 
 const renderWithChakra = (component: React.ReactElement) => {
-  return render(<ChakraProvider>{component}</ChakraProvider>);
+  return render(<ChakraProvider theme={theme}>{component}</ChakraProvider>);
 };
 
 const mockMatches = [

@@ -5,8 +5,9 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q, Count, F
 from django.utils import timezone
 from datetime import timedelta
-from ..models.social import UserProfile, Friendship, Message, Achievement, UserAchievement
-from django.contrib.auth.models import User
+from ..models.social import UserProfile, Friendship, Message
+from dojopool.models.user import User
+from dojopool.models.achievements import Achievement, UserAchievement
 
 
 class MessageViewSet(viewsets.ModelViewSet):

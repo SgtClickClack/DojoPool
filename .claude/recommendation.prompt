@@ -1,0 +1,19 @@
+Based on {user_name}'s recent performance:
+
+Skill Level: {user_level}
+Recent Matches: {match_count}
+Average Score: {avg_score}
+Win Rate: {win_rate}%
+
+Areas of Focus:
+{focus_areas}
+
+Training Goals:
+{training_goals}
+
+Provide specific, actionable recommendations for improvement.
+Include practice drills, technique adjustments, and strategic advice.
+Tailor the recommendations to their current skill level and recent performance trends.
+
+Special Considerations:
+{special_notes} 

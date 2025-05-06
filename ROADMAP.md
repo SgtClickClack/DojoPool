@@ -208,6 +208,11 @@ This section outlines the step-by-step user journey and the required feature/com
 - [x] Development Environment
   - [x] CI/CD pipelines
   - [x] Automated testing
+    - Note: Improved reliability for network consensus integration tests by removing time-based waits and using event simulation.
+    - Note: Further improved reliability for network consensus integration tests by simulating node disconnection and reconnection events.
+    - Note: Added comprehensive integration tests for AI Referee (Sky-T1) to improve reliability of AI-driven rule interpretation.
+    - Note: Reviewed AI Referee client implementation (skyT1Client.ts), confirmed API call logic, dependent on environment variables for live connection.
+    - Note: Environment variables for Sky-T1 API (`REACT_APP_SKY_T1_API_ENDPOINT`, `DEEPINFRA_TOKEN`) added to `.env.local` (requires manual value replacement by user).
   - [x] Monitoring systems
   - [x] Performance tracking
 - [x] Security Infrastructure

@@ -1,6 +1,69 @@
 import { renderHook, act } from "@testing-library/react";
 import { useAuth } from "../useAuth";
 import * as firebaseAuth from "firebase/auth";
+import { useRouter } from "next/router";
+
+// Explicitly mock the firebase/auth module with only necessary mocks
+jest.mock("firebase/auth", () => {
+  return {
+    // Explicitly mock only the functions and providers used by useAuth hook
+    getAuth: jest.fn(() => ({
+      // Mock auth instance properties/methods used in tests
+      onAuthStateChanged: jest.fn(),
+      settings: { // Add mock settings property
+        appVerificationDisabledForTesting: false,
+      },
+      // Add other mocked properties/methods of the auth instance if needed
+    })),
+    onAuthStateChanged: jest.fn(),
+    signInWithEmailAndPassword: jest.fn(),
+    createUserWithEmailAndPassword: jest.fn(),
+    signInWithPopup: jest.fn(),
+    signOut: jest.fn(),
+    sendPasswordResetEmail: jest.fn(),
+    updateProfile: jest.fn(),
+    sendEmailVerification: jest.fn(),
+    deleteUser: jest.fn(),
+    // Mock the OAuthProvider constructor
+    OAuthProvider: jest.fn().mockImplementation((providerId) => ({
+      providerId: providerId,
+      // Add any methods or properties expected on an OAuthProvider instance
+    })),
+    // Mock other specific auth providers if they are directly imported and used as constructors
+    GoogleAuthProvider: jest.fn().mockImplementation(() => ({ providerId: 'google.com' })) as any,
+    FacebookAuthProvider: jest.fn().mockImplementation(() => ({ providerId: 'facebook.com' })) as any,
+    TwitterAuthProvider: jest.fn().mockImplementation(() => ({ providerId: 'twitter.com' })) as any,
+    GithubAuthProvider: jest.fn().mockImplementation(() => ({ providerId: 'github.com' })) as any,
+    // Explicitly NOT including other exports from actual firebase/auth
+  };
+});
+
+// Mock the next/router module
+jest.mock("next/router", () => ({
+  useRouter: jest.fn(() => ({
+    route: '/',
+    pathname: '',
+    query: {},
+    asPath: '',
+    push: jest.fn(),
+    replace: jest.fn(),
+    reload: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn(),
+    beforePopState: jest.fn(),
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    },
+    isFallback: false,
+    isLocaleDomain: false,
+    isReady: true,
+    defaultLocale: 'en',
+    domainLocales: [],
+    isPreview: false,
+  })),
+}));
 
 const mockUser = {
   uid: "123",

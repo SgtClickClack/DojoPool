@@ -16,26 +16,27 @@ from sqlalchemy.sql import func
 from ..core.extensions import db
 
 
-class User(db.Model):
-    """User model."""
-
-    __tablename__ = "users"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(254), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-    is_active = db.Column(db.Boolean, default=True)
-    date_joined = db.Column(db.DateTime, default=func.now())
-
-    # Relationships
-    profile = relationship("UserProfile", back_populates="user", uselist=False)
-    social_profile = relationship("SocialProfile", back_populates="user", uselist=False)
-
-    def __str__(self):
-        """String representation."""
-        return self.username
+# TODO: Remove duplicate User model to resolve SQLAlchemy registry conflicts.
+# class User(db.Model):
+#     """User model."""
+# 
+#     __tablename__ = "users"
+#     __table_args__ = {"extend_existing": True}
+# 
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(150), unique=True, nullable=False)
+#     email = db.Column(db.String(254), unique=True, nullable=False)
+#     password = db.Column(db.String(128), nullable=False)
+#     is_active = db.Column(db.Boolean, default=True)
+#     date_joined = db.Column(db.DateTime, default=func.now())
+# 
+#     # Relationships
+#     profile = relationship("UserProfile", back_populates="user", uselist=False)
+#     social_profile = relationship("SocialProfile", back_populates="user", uselist=False)
+# 
+#     def __str__(self):
+#         """String representation."""
+#         return self.username
 
 
 class UserProfile(db.Model):
@@ -118,19 +119,20 @@ class Message(db.Model):
         return f"Message from {self.sender.username} to {self.receiver.username}"
 
 
-class Achievement(db.Model):
-    __tablename__ = "achievements"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    icon = db.Column(db.String(255))  # Path to icon file
-    points = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=func.now())
-
-    def __str__(self):
-        return self.name
+# TODO: Remove duplicate Achievement model to resolve SQLAlchemy registry conflicts.
+# class Achievement(db.Model):
+#     __tablename__ = "achievements"
+#     __table_args__ = {"extend_existing": True}
+# 
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(100), nullable=False)
+#     description = db.Column(db.Text, nullable=False)
+#     icon = db.Column(db.String(255))  # Path to icon file
+#     points = db.Column(db.Integer, default=0)
+#     created_at = db.Column(db.DateTime, default=func.now())
+# 
+#     def __str__(self):
+#         return self.name
 
 
 # Removed duplicate UserAchievement model to resolve table redefinition conflict

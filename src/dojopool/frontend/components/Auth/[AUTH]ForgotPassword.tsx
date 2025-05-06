@@ -1,33 +1,15 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, Paper, Link } from "@mui/material";
+import { Box, TextField, Button, Typography, Paper, Link, CircularProgress } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 export const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { sendPasswordResetEmail, loading, error, resetRequestSent } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      // TODO: Implement password reset API call
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send reset email");
-      }
-
-      setSubmitted(true);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    }
+    await sendPasswordResetEmail(email);
   };
 
   return (
@@ -43,7 +25,13 @@ export const ForgotPassword: React.FC = () => {
         <Typography variant="h5" gutterBottom align="center">
           Reset Password
         </Typography>
-        {!submitted ? (
+        {resetRequestSent ? (
+          <Box>
+            <Typography variant="body1" sx={{ mb: 3 }}>
+              Check your email for instructions to reset your password.
+            </Typography>
+          </Box>
+        ) : (
           <Box component="form" onSubmit={handleSubmit}>
             <Typography variant="body2" sx={{ mb: 3 }}>
               Enter your email address and we'll send you instructions to reset
@@ -57,21 +45,22 @@ export const ForgotPassword: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               margin="normal"
               required
+              disabled={loading}
             />
             {error && (
               <Typography color="error" sx={{ mt: 2 }}>
                 {error}
               </Typography>
             )}
-            <Button fullWidth type="submit" variant="contained" sx={{ mt: 3 }}>
-              Send Reset Link
+            <Button 
+              fullWidth 
+              type="submit" 
+              variant="contained" 
+              sx={{ mt: 3 }} 
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Send Reset Link"}
             </Button>
-          </Box>
-        ) : (
-          <Box>
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              Check your email for instructions to reset your password.
-            </Typography>
           </Box>
         )}
         <Box sx={{ mt: 2, textAlign: "center" }}>

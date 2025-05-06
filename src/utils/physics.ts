@@ -1,4 +1,7 @@
-import { Vector2D } from "../types/geometry";
+export interface Vector2D {
+  x: number;
+  y: number;
+}
 
 export interface PhysicsObject {
   position: Vector2D;

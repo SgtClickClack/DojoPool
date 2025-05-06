@@ -12,7 +12,9 @@ import {
   useToast,
   Divider,
 } from "@chakra-ui/react";
-import { ChatIcon, StarIcon, ShareIcon } from "@chakra-ui/icons";
+import { BsChat } from "react-icons/bs";
+import { AiFillStar } from "react-icons/ai";
+import { IoShare } from "react-icons/io5";
 import axios from "axios";
 
 interface Player {
@@ -135,16 +137,16 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
       borderRadius="lg"
       borderWidth={2}
       borderColor={isCurrent ? "purple.500" : "transparent"}
-      spacing={3}
+      gap={3}
       align="stretch"
     >
-      <HStack spacing={4}>
+      <HStack gap={4}>
         <Avatar size="lg" name={player.username} src={player.avatar} />
         <Box>
           <Text fontSize="xl" fontWeight="bold">
             {player.username}
           </Text>
-          <HStack spacing={2}>
+          <HStack gap={2}>
             <Badge colorScheme="purple">Rating: {player.rating}</Badge>
             <Badge colorScheme="green">W: {player.wins}</Badge>
             <Badge colorScheme="red">L: {player.losses}</Badge>
@@ -176,7 +178,7 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
           isCurrent={gameState.current_player === gameState.player1.username}
         />
 
-        <VStack justify="center" spacing={4}>
+        <VStack justify="center" gap={4}>
           <Badge
             colorScheme={gameState.status === "in_progress" ? "green" : "gray"}
             p={2}
@@ -190,6 +192,28 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
           <Text fontSize="sm" color="gray.400">
             👥 {gameState.spectator_count} watching
           </Text>
+
+          {/* Social Icons */}
+          <HStack gap={4} justify="center" mt={4}>
+            <IconButton
+              aria-label="Chat with players"
+              icon={<BsChat /> as any}
+              size="md"
+              variant="ghost"
+            />
+            <IconButton
+              aria-label="Highlight game"
+              icon={<AiFillStar /> as any}
+              size="md"
+              variant="ghost"
+            />
+            <IconButton
+              aria-label="Share game"
+              icon={<IoShare /> as any}
+              size="md"
+              variant="ghost"
+            />
+          </HStack>
         </VStack>
 
         <PlayerStats
@@ -235,27 +259,6 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
           </VStack>
         </Grid>
       </Box>
-
-      <HStack spacing={4} justify="center">
-        <IconButton
-          aria-label="Chat"
-          icon={<ChatIcon />}
-          colorScheme="purple"
-          variant="outline"
-        />
-        <IconButton
-          aria-label="Follow"
-          icon={<StarIcon />}
-          colorScheme="yellow"
-          variant="outline"
-        />
-        <IconButton
-          aria-label="Share"
-          icon={<ShareIcon />}
-          colorScheme="blue"
-          variant="outline"
-        />
-      </HStack>
     </Box>
   );
 };

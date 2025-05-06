@@ -9,7 +9,6 @@ DojoCoinsManager with the new SQLAlchemy-based wallet system.
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List, Dict, Any
-from enum import Enum
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
@@ -19,27 +18,7 @@ from dojopool.models.marketplace import Wallet, Transaction
 from dojopool.models.user import User
 from dojopool.core.exceptions import WalletError, InsufficientFundsError, BlockchainError
 from dojopool.core.interfaces.wallet import IWalletService
-
-
-class TransactionType(Enum):
-    """Transaction types."""
-    REWARD = "reward"
-    TRANSFER = "transfer"
-    PURCHASE = "purchase"
-    TOURNAMENT_ENTRY = "tournament_entry"
-    TOURNAMENT_PRIZE = "tournament_prize"
-
-
-class RewardType(Enum):
-    """Reward types."""
-    MATCH_WIN = "match_win"
-    TOURNAMENT_WIN = "tournament_win"
-    TRICK_SHOT = "trick_shot"
-    ACHIEVEMENT = "achievement"
-    DAILY_BONUS = "daily_bonus"
-    WEEKLY_CHALLENGE = "weekly_challenge"
-    CLAN_BONUS = "clan_bonus"
-    VENUE_BONUS = "venue_bonus"
+from dojopool.core.types.wallet_types import TransactionType, RewardType
 
 
 class WalletService(IWalletService):

@@ -1,7 +1,7 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import { GameHistory } from "../../../dojopool/frontend/components/Game/[GAME]GameHistory";
-import { renderWithProviders } from "../../utils/testUtils";
+import { render } from "@testing-library/react";
 import { format } from "date-fns";
 
 describe("GameHistory Component", () => {
@@ -40,7 +40,7 @@ describe("GameHistory Component", () => {
   ];
 
   it("renders game history table with correct headers", () => {
-    renderWithProviders(<GameHistory history={mockHistory} />);
+    render(<GameHistory history={mockHistory} />);
 
     expect(screen.getByText("Game History")).toBeInTheDocument();
     expect(screen.getByText("Time")).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe("GameHistory Component", () => {
   });
 
   it("renders history entries with correct formatting", () => {
-    renderWithProviders(<GameHistory history={mockHistory} />);
+    render(<GameHistory history={mockHistory} />);
 
     mockHistory.forEach((entry) => {
       // Check time formatting
@@ -72,7 +72,7 @@ describe("GameHistory Component", () => {
   });
 
   it("renders empty table when history is empty", () => {
-    renderWithProviders(<GameHistory history={[]} />);
+    render(<GameHistory history={[]} />);
 
     expect(screen.getByText("Game History")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe("GameHistory Component", () => {
       },
     }));
 
-    renderWithProviders(<GameHistory history={longHistory} />);
+    render(<GameHistory history={longHistory} />);
 
     // Check that all entries are rendered
     expect(screen.getAllByRole("row")).toHaveLength(51); // 50 entries + header row
@@ -129,7 +129,7 @@ describe("GameHistory Component", () => {
       },
     ];
 
-    renderWithProviders(<GameHistory history={variedHistory} />);
+    render(<GameHistory history={variedHistory} />);
 
     expect(screen.getByText("SHOT")).toBeInTheDocument();
     expect(screen.getByText("FOUL")).toBeInTheDocument();
@@ -148,7 +148,7 @@ describe("GameHistory Component", () => {
       },
     ];
 
-    renderWithProviders(<GameHistory history={historyWithEmptyDetails} />);
+    render(<GameHistory history={historyWithEmptyDetails} />);
 
     expect(screen.getByText("START")).toBeInTheDocument();
     expect(screen.getByText("Player 1")).toBeInTheDocument();
@@ -169,7 +169,7 @@ describe("GameHistory Component", () => {
       },
     ];
 
-    renderWithProviders(<GameHistory history={historyWithNulls} />);
+    render(<GameHistory history={historyWithNulls} />);
 
     expect(screen.getByText("ball: ")).toBeInTheDocument();
     expect(screen.getByText("pocket: ")).toBeInTheDocument();

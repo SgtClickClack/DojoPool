@@ -79,8 +79,7 @@ export const GameView: React.FC<GameViewProps> = ({ gameId, playerId }) => {
             <div className="font-bold">{player.name}</div>
             <div>Score: {gameState.scores[player.id] || 0}</div>
             <div>
-              Shots: {gameState.shots[player.id]?.successful || 0}/
-              {gameState.shots[player.id]?.total || 0}
+              Shots: {gameState.shots[player.id]?.successful || 0}/ {gameState.shots[player.id]?.total || 0}
             </div>
             <div>
               Type: {gameState.playerTypes[player.id] || 'Not assigned'}
@@ -135,4 +134,6 @@ export const GameView: React.FC<GameViewProps> = ({ gameId, playerId }) => {
       </div>
     </div>
   );
-}; 
+};
+
+export default GameView;

@@ -1,43 +1,43 @@
-import axios from './axiosInstance';
+import axiosInstance from './axiosInstance';
 
 // Tournament endpoints
 export const createTournament = async (data: any) => {
-  const res = await axios.post('/api/tournaments', data);
+  const res = await axiosInstance.post('/api/tournaments', data);
   return res.data;
 };
 
-export const listTournaments = async () => {
-  const res = await axios.get('/api/tournaments');
+export const getTournaments = async () => {
+  const res = await axiosInstance.get('/api/tournaments');
   return res.data;
 };
 
-export const getTournament = async (id: number) => {
-  const res = await axios.get(`/api/tournaments/${id}`);
+export const getTournamentById = async (id: string) => {
+  const res = await axiosInstance.get(`/api/tournaments/${id}`);
   return res.data;
 };
 
-export const joinTournament = async (id: number) => {
-  const res = await axios.post(`/api/tournaments/${id}/join`);
+export const joinTournament = async (id: string) => {
+  const res = await axiosInstance.post(`/api/tournaments/${id}/join`);
   return res.data;
 };
 
-export const startTournament = async (id: number) => {
-  const res = await axios.post(`/api/tournaments/${id}/start`);
+export const startTournament = async (id: string) => {
+  const res = await axiosInstance.post(`/api/tournaments/${id}/start`);
   return res.data;
 };
 
-export const advanceTournament = async (id: number) => {
-  const res = await axios.post(`/api/tournaments/${id}/advance`);
+export const advanceTournament = async (id: string) => {
+  const res = await axiosInstance.post(`/api/tournaments/${id}/advance`);
   return res.data;
 };
 
 // Match endpoints
-export const getMatch = async (id: number) => {
-  const res = await axios.get(`/api/matches/${id}`);
+export const getMatchById = async (id: string) => {
+  const res = await axiosInstance.get(`/api/matches/${id}`);
   return res.data;
 };
 
-export const submitMatchResult = async (id: number, data: any) => {
-  const res = await axios.post(`/api/matches/${id}/result`, data);
+export const submitMatchResult = async (id: string, data: any) => {
+  const res = await axiosInstance.post(`/api/matches/${id}/result`, data);
   return res.data;
 };

@@ -483,33 +483,43 @@ Implement AI Referee (Sky-T1) for rule interpretation and foul detection
 
 Expected completion time: 3 days
 
-### 2025-04-15: AI Referee Rule Logic Integration
+### 2025-04-15: AI Referee (Sky-T1) Integration into GameState
 
-Integrated the rule-based AI referee service (`AIRefereeService`) into the game state (`GameState.ts`) to analyze shot outcomes. Added logic in `analyzeShotOutcome` to handle foul detection, ball-in-hand status, turn changes, and basic 8-ball win/loss conditions based on referee results. Added unit tests for the `analyzeShotOutcome` method, mocking the referee service.
+Integrated the AI Referee service (Sky-T1 via `AIRefereeService`) into the core `GameState` management logic. This allows the game state to delegate foul detection and rule interpretation to the dedicated AI service after each shot.
 
-**Update 2025-04-16:** Refined `AIRefereeService` rule coverage. Added specific checks for 8-ball break fouls (scratch, illegal 8-ball pocket, insufficient balls driven to rail) by extending `ShotAnalysisData` (in `GameState.ts`) and updating the `GameState.tick` method to track necessary break shot details. Added unit tests for these new break foul rules in `AIRefereeService.test.ts`.
+**Core Components Implemented:**
 
-**Core Components Implemented/Updated:**
+- `prepareRefereeInput` method in `GameState` to gather necessary pre/post-shot data.
+- Call to `aiRefereeService.analyzeShot` within `GameState.analyzeShotOutcome`.
+- Processing of `RefereeResult` in `GameState` to update fouls, ball-in-hand status, player turn, and potentially game outcome (8-ball rules).
+- Basic error handling for the AI service call.
+- Logic for assigning ball types (solids/stripes) after a legal break.
 
-- GameState integration with AIRefereeService
-- Foul handling logic based on RefereeResult
-- Unit tests for analyzeShotOutcome
-- `GameState.tick` method (break shot tracking)
-- `ShotAnalysisData` interface
-- `AIRefereeService` (break foul logic)
-- `AIRefereeService.test.ts` (break foul tests)
+**Key Features:**
+
+- Decoupling of rule logic from core game state updates.
+- Centralized foul detection via `AIRefereeService`.
+- Correct handling of ball-in-hand based on referee decisions.
+- Turn management based on referee decisions.
+- Initial 8-ball win/loss condition handling integrated with referee results.
+
+**Integration Points:**
+
+- `GameState` uses `AIRefereeService` for shot outcome analysis.
+- `AIRefereeService` (specifically `skyT1AnalyzeShot`) needs to connect to the Sky-T1 backend (external dependency).
+- `GameState.analyzeShotOutcome` is triggered by the game loop (`tick`) after physics settle.
 
 **File Paths:**
 
-- src/core/game/GameState.ts
-- src/tests/game/GameState.test.ts
-- src/services/ai/AIRefereeService.ts
-- src/services/ai/AIRefereeService.test.ts
+- `src/core/game/GameState.ts` (Modified)
+- `src/services/ai/AIRefereeService.ts` (Referenced, defines interfaces)
+- `src/types/game.ts` (Referenced)
 
 **Next Priority Task:**
-Further refine `AIRefereeService` rule coverage (e.g., add non-break fouls like double-hit, push-shot if feasible with current physics data) or integrate actual Sky-T1 AI model based on requirements. Alternatively, shift focus to high-priority frontend UI development (Wallet, Tournaments, Venues) as per overall status update.
 
-Expected completion time: 2-3 days (Rules) / Ongoing (Frontend)
+Implement or verify the `skyT1AnalyzeShot` function within `AIRefereeService` to ensure actual communication with the Sky-T1 backend API. Add integration tests for `GameState` mocking `AIRefereeService` responses.
+
+Expected completion time: 2 days
 
 ### 2025-04-15: Wallet UI Implementation and Testing
 
@@ -559,5 +569,363 @@ Created and refactored frontend components for the user wallet interface. Integr
 Refactor remaining outdated tests (e.g., `GameState.test.ts`, other component tests) to align with current configurations and fix failures.
 
 Expected completion time: 2-3 days (depending on test complexity)
+
+### 2025-04-16: Test Suite Refactoring (GameState, Auth)
+
+Refactored several key test files to align with recent code changes and ensure consistency.
+
+**Description:**
+- Updated `src/tests/game/GameState.test.ts`: Modified tests for the `analyzeShotOutcome` method to correctly handle its asynchronous nature (using `async/await`) and mock the async `aiRefereeService.analyzeShot` call. Fixed mock data setup for `ShotAnalysisData`.
+- Refactored `src/__tests__/components/Auth/ForgotPassword.test.tsx`: Updated tests to mock the `useAuth` hook (specifically `sendPasswordResetEmail`, `loading`, `error`) instead of relying on direct `fetch` mocks. This aligns the test with the refactored `ForgotPassword` component.
+- Updated `src/__tests__/components/Auth/PrivateRoute.test.tsx`: Changed the import and mock target for `useAuth` from the old context path to the unified hook path (`@/hooks/useAuth`) for consistency.
+
+**Core Components Implemented/Updated:**
+- N/A (Test files only)
+
+**Key Features:**
+- Improved test accuracy for async game state logic.
+- Ensured authentication component tests use consistent mocking patterns (`useAuth` hook).
+- Aligned tests with component refactoring (`ForgotPassword`).
+
+**Integration Points:**
+- N/A (Test files only)
+
+**File Paths:**
+- `src/tests/game/GameState.test.ts`
+- `src/__tests__/components/Auth/ForgotPassword.test.tsx`
+- `src/__tests__/components/Auth/PrivateRoute.test.tsx`
+
+**Next Priority Task:**
+Run the full test suite (`npm test` or `yarn test`) to identify and fix any remaining failing or outdated tests, particularly in component directories like `social/`, `Map/`, etc. Alternatively, proceed with the next major feature/task identified in the roadmap or previous tracking entries (e.g., frontend UI development for Tournaments/Venues, App Store asset finalization).
+
+Expected completion time: 1-3 days (depending on number of failing tests)
+
+### 2025-04-16: Tournament UI (List) & Type Unification
+
+Initiated frontend development for Tournaments by creating the basic `TournamentList` component. Unified the `Tournament` type definition.
+
+**Description:**
+- Created `src/components/tournaments/TournamentList.tsx`: Displays a list of tournaments using MUI components, handles loading/error states, and uses mock data initially.
+- Refactored `src/types/tournament.ts`: Merged duplicate `Tournament` interfaces and related enums (`TournamentState`/`TournamentStatus`, `TournamentType`/`TournamentFormat`) into a single, unified interface and set of enums.
+- Updated `TournamentList.tsx` to import and use the unified `Tournament` type and enums, including adding a status `Chip`.
+
+**Core Components Implemented/Updated:**
+- `src/components/tournaments/TournamentList.tsx`
+- `src/types/tournament.ts`
+
+**Key Features:**
+- Basic UI for viewing available tournaments.
+- Unified and type-safe data structure for tournaments.
+- Status visualization using MUI Chip.
+
+**Integration Points:**
+- Uses `@/types/tournament.ts`.
+- (Future) Will use `TournamentService` to fetch data.
+- (Future) Will be integrated into application routing.
+
+**File Paths:**
+- `src/components/tournaments/TournamentList.tsx`
+- `src/types/tournament.ts`
+
+**Next Priority Task:**
+Implement `TournamentService` in `src/services/tournament/` to fetch real tournament data from the backend API, replacing the mock data in `TournamentList.tsx`. Alternatively, integrate `TournamentList` into routing or add component tests.
+
+Expected completion time: 1-2 days (Service/API integration)
+
+### {date}: Implemented Tournament List and Detail UI
+
+**Description:**
+Implemented the core frontend components for tournament discovery and viewing. Created `TournamentList` to display available tournaments, fetch data using the `useTournaments` hook, handle loading/error states, and link to detail pages. Created `TournamentDetail` to fetch and display specific tournament information (including venue details fetched separately) and a list of participants. Added conditional action buttons (Register) based on tournament status and user authentication. Standardized `Tournament` type usage across API, hook, and components. Added basic unit/integration tests for `TournamentDetail`.
+
+**Core Components Implemented:**
+*   `src/components/tournaments/TournamentList.tsx`
+*   `src/components/tournaments/TournamentDetail.tsx`
+*   `src/components/tournaments/TournamentDetail.test.tsx`
+
+**Key Features:**
+*   Tournament listing with status and core details.
+*   Tournament detail view with expanded information (name, status, format, dates, players, description, rules, venue name, participants list).
+*   Data fetching via `useTournaments` hook and `getTournament`/`getVenue` API calls.
+*   Basic registration action button logic.
+*   Routing link between list and detail items.
+*   Basic testing for detail component.
+
+**Integration Points:**
+*   `@/frontend/hooks/useTournaments`
+*   `@/frontend/api/tournaments` (`getTournaments`, `getTournament`, `joinTournament`)
+*   `@/dojopool/frontend/api/venues` (`getVenue`)
+*   `@/types/tournament` (Shared `Tournament`, `Participant` types)
+*   `@/dojopool/frontend/types/venue` (Shared `Venue` type)
+*   `@/frontend/contexts/AuthContext` (`useAuth`)
+*   `react-router-dom` (for `useParams`, `Link`)
+*   `@mui/material` (for UI components)
+
+**File Paths:**
+*   `src/components/tournaments/TournamentList.tsx`
+*   `src/components/tournaments/TournamentDetail.tsx`
+*   `src/components/tournaments/TournamentDetail.test.tsx`
+*   `src/frontend/hooks/useTournaments.ts` (Updated)
+*   `src/frontend/api/tournaments.ts` (Updated)
+*   `src/types/tournament.ts` (Updated)
+
+**Next Priority Task:**
+Integrate Tournament List and Detail components into application routing (e.g., create `/tournaments` and `/tournaments/:id` routes).
+
+Expected completion time: 1 hour
+
+### 2025-04-16: AI Referee Integration Completion & Testing
+
+Implemented the Sky-T1 client function (`skyT1AnalyzeShot`) to make API calls (using a configurable endpoint via environment variables). Added an integration test case to `GameState.test.ts` to verify the correct handling of errors returned from the AI referee service.
+
+**Core Components Implemented/Updated:**
+
+- `src/services/ai/skyT1Client.ts`: Implemented API call logic using `axios`, including timeout and basic error handling.
+- `src/tests/game/GameState.test.ts`: Added test case for `analyzeShotOutcome` handling a rejected promise from `aiRefereeService.analyzeShot`.
+
+**Key Features:**
+
+- Placeholder API client for Sky-T1 integration.
+- Robust error handling for AI service communication failures.
+- Test coverage for `GameState`'s error handling path related to AI referee.
+
+**Integration Points:**
+
+- `skyT1Client.ts` now makes HTTP requests (requires `axios` dependency and configuration of `REACT_APP_SKY_T1_API_ENDPOINT`).
+- `GameState.test.ts` further validates the interaction between `GameState` and `AIRefereeService`.
+
+**File Paths:**
+
+- `src/services/ai/skyT1Client.ts` (Modified)
+- `src/tests/game/GameState.test.ts` (Modified)
+
+**Next Priority Task:**
+According to the last major task entry (Overall Status & Way Forward from 2024-07-29), the priority is frontend development, specifically for Wallet, Tournaments, or Venues UI. Alternatively, run the full test suite (`npm test` / `yarn test`) to catch any remaining issues.
+
+Expected completion time: Ongoing (Frontend Sprints) / 1-3 days (Test Suite Fixes)
+
+### 2024-MM-DD: Implemented AI Referee (Sky-T1) Integration Tests
+
+Added comprehensive integration tests for the AI Referee (Sky-T1) within `GameState.test.ts` to verify correct handling of various foul types and referee outcomes.
+
+**Core Components Implemented:**
+
+- GameState test suite
+- Mocking of AIRefereeService and skyT1AnalyzeShot
+
+**Key Features:**
+
+- Improved test coverage and reliability for AI-driven rule interpretation
+
+**Integration Points:**
+
+- GameState interacts with mocked AIRefereeService
+
+**File Paths:**
+
+- src/tests/game/GameState.test.ts
+
+**Next Priority Task:**
+Implement AI Referee (Sky-T1) for rule interpretation and foul detection.
+
+Expected completion time: 3 days
+
+### 2024-MM-DD: Setup Core M2E Service Backend Structure
+
+**Description:**
+Initiate the development of the Move-to-Earn (M2E) feature by creating the core backend service structure. This service will be responsible for receiving activity data (gameplay metrics, venue check-ins), applying M2E rules based on defined tokenomics, and calculating potential token earnings. This task involves setting up the basic API endpoints, data models (or schemas), and placeholder logic for calculating rewards, based on the analysis of the M2E blueprint document.
+
+**Core Components Implemented:**
+*   Initial directory structure and base files for a new `m2eService` within `src/services/`.
+*   Placeholder data models/schemas for tracking M2E-eligible activities and user earnings.
+*   Basic API endpoint definitions for receiving activity data and querying earnings (implementations will follow).
+
+**Key Features:**
+*   Foundation for tracking physical pool gameplay metrics for rewards.
+*   Foundation for tracking venue engagement (check-ins, playtime) for rewards.
+
+**Integration Points:**
+*   Will integrate with `gameSession` service to receive gameplay data.
+*   Will integrate with potential future `venueService` or existing check-in mechanisms for attendance data.
+*   Will eventually integrate with the `wallet` service and blockchain interface for token distribution.
+
+**File Paths:**
+*   `src/services/m2eService/` (new directory and initial files)
+*   Potentially `src/types/m2e.ts` (new types)
+*   Potentially modifications to `src/core/database/models` if using DB models.
+
+**Next Priority Task:**
+*   Define and implement the `Dojo Coin` (ERC-20) smart contract.
+
+**Estimated completion time:** 3 hours
+
+### 2024-MM-DD: Refactored Network Consensus Integration Test
+
+Refactored the 'should propagate state updates from leader to followers' integration test to remove the setTimeout and use direct event simulation for state propagation.
+
+**Core Components Implemented:**
+
+- NetworkConsensusIntegration test suite
+
+**Key Features:**
+
+- Improved test reliability for state propagation
+
+**Integration Points:**
+
+- Integration test suite for Network and Consensus components
+
+**File Paths:**
+
+- src/core/network/__tests__/NetworkConsensusIntegration.integration.test.ts
+
+**Next Priority Task:**
+Integrate AI Referee (Sky-T1) for rule interpretation and foul detection.
+
+Expected completion time: 3 days
+
+### 2024-MM-DD: Refactored Network Consensus Disconnection Test
+
+Refactored the 'should handle node disconnection and reconnection' integration test to remove setTimeouts and use direct event simulation for network events.
+
+**Core Components Implemented:**
+
+- NetworkConsensusIntegration test suite
+
+**Key Features:**
+
+- Improved test reliability for node disconnection and reconnection scenarios
+
+**Integration Points:**
+
+- Integration test suite for Network and Consensus components
+
+**File Paths:**
+
+- src/core/network/__tests__/NetworkConsensusIntegration.integration.test.ts
+
+**Next Priority Task:**
+Implement AI Referee (Sky-T1) for rule interpretation and foul detection.
+
+Expected completion time: 3 days
+
+### 2024-MM-DD: Reviewed AI Referee (Sky-T1) Client Implementation
+
+Reviewed the implementation of the `skyT1Client.ts` and `AIRefereeService.ts` files for the AI Referee integration. Confirmed that the structure for building prompts, making API calls, and parsing responses is in place. Identified the dependency on environment variables (`REACT_APP_SKY_T1_API_ENDPOINT`, `DEEPINFRA_TOKEN`) for successful API communication.
+
+**Core Components Implemented:**
+
+- skyT1Client
+- AIRefereeService (integration point)
+
+**Key Features:**
+
+- AI Referee API call logic
+
+**Integration Points:**
+
+- External Sky-T1 API
+- Environment variables
+
+**File Paths:**
+
+- src/services/ai/skyT1Client.ts
+- src/services/ai/AIRefereeService.ts
+
+**Next Priority Task:**
+Verify environment variable configuration and actual API connectivity for the Sky-T1 AI Referee.
+
+Expected completion time: 1 hour (Manual verification)
+
+### 2024-MM-DD: Proposed Environment Variable Update Command
+
+Proposed a terminal command to add/update environment variables (`REACT_APP_SKY_T1_API_ENDPOINT`, `DEEPINFRA_TOKEN`) in `.env.local` for Sky-T1 API configuration. User needs to manually replace placeholder values after command execution.
+
+**Core Components Implemented:**
+
+- Environment variable configuration
+
+**Key Features:**
+
+- Setup for Sky-T1 API connectivity
+
+**Integration Points:**
+
+- External Sky-T1 API
+- Environment variables
+
+**File Paths:**
+
+- .env.local
+- src/services/ai/skyT1Client.ts
+
+**Next Priority Task:**
+User to manually update environment variables in `.env.local` and confirm.
+
+Expected completion time: 5 minutes (Manual action)
+
+### 2024-07-01: Network Error Recovery & Resilience Integration Testing
+
+See DEVELOPMENT_TRACKING_PART_02.md for details. Integration tests for network error recovery and resilience are now complete. Proceeding to the next outstanding user journey or technical feature.
+
+**Next Priority Task:**
+Continue with the next outstanding user journey or technical feature (e.g., tournament registration/discovery UI, QR code/geolocation check-in, real-time tracking UI, AI commentary/audio, post-game analytics, or rewards processing).
+
+Expected completion time: 2 days
+
+### 2024-07-01: Tournament Registration/Discovery UI Integration & Testing
+
+Implemented and robustly tested the Tournament registration/discovery UI. The TournamentDetail component now fetches and displays venue details, and all related tests pass. This completes the core user journey for tournament discovery and registration.
+
+**Core Components Implemented:**
+- TournamentList and TournamentDetail components (UI)
+- Venue detail fetching and error handling
+- Comprehensive unit/integration tests for TournamentDetail
+
+**File Paths:**
+- /src/components/tournaments/TournamentList.tsx
+- /src/components/tournaments/TournamentDetail.tsx
+- /src/components/tournaments/TournamentDetail.test.tsx
+
+**Next Priority Task:**
+Continue with the next outstanding user journey or technical feature (e.g., QR code/geolocation check-in, real-time tracking UI, AI commentary/audio, post-game analytics, or rewards processing).
+
+Expected completion time: 2 days
+
+### 2024-07-01: QR Code/Geolocation Venue Check-In UI Integration
+
+Added a QR code and geolocation-based check-in flow to the venue check-in system. Users can now check in at venues by scanning a QR code and verifying their location. The UI is integrated and tested, but backend API validation for QR/geolocation should be reviewed for completeness.
+
+**Core Components Implemented:**
+- Venue check-in system UI extension (QR/geolocation dialog)
+- QRCodeScanner integration
+- Geolocation capture and API call
+
+**File Paths:**
+- /src/dojopool/frontend/components/venues/[VENUE]CheckInSystem.tsx
+- /src/frontend/components/QRCodeScanner.tsx
+
+**Next Priority Task:**
+Continue with the next outstanding user journey or technical feature (e.g., real-time tracking UI, AI commentary/audio, post-game analytics, or rewards processing).
+
+Expected completion time: 1 day
+
+### 2024-07-01: Real-Time Tracking UI – RealTimeGameView Component
+
+Created the RealTimeGameView component, which integrates GameTracker and ShotTracker to provide a unified real-time tracking UI. The component subscribes to live game state via WebSocket, visualizes scores, fouls, current player, shot clock, and live shot tracking. This forms the foundation for the real-time game experience and is ready for further AI referee and admin view integration.
+
+**Core Components Implemented:**
+- RealTimeGameView (unified real-time tracking UI)
+- GameTracker (WebSocket subscription)
+- ShotTracker (live shot visualization)
+
+**File Paths:**
+- /src/features/game/RealTimeGameView.tsx
+- /src/features/game/GameTracker.tsx
+- /src/components/shot-analysis/ShotTracker.tsx
+
+**Next Priority Task:**
+Continue with the next outstanding user journey or technical feature (e.g., AI commentary/audio, post-game analytics, or rewards processing).
+
+Expected completion time: 1 day
 
 ---

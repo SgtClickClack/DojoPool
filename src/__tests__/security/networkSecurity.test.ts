@@ -1,18 +1,38 @@
 import { createServer } from "https";
-import { readFileSync } from "fs";
+import * as fs from "fs"; // Import fs as namespace
 import { join } from "path";
-import { Request, Response } from "express";
+import { IncomingMessage, ServerResponse } from "http"; // Import types from http module
 import helmet from "helmet";
+
+// Mock fs.readFileSync specifically for this test suite
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'), // Keep original fs functions
+  readFileSync: jest.fn((path) => {
+    // Return dummy buffer data for cert/key files in PEM format
+    if (path.includes('private.key')) {
+      console.log(`Mocking readFileSync for: ${path}`);
+      // Provide a longer, more realistic dummy base64 content for the private key
+      return Buffer.from('-----BEGIN PRIVATE KEY-----\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\n-----END PRIVATE KEY-----\n');
+    }
+    if (path.includes('certificate.crt')) {
+      console.log(`Mocking readFileSync for: ${path}`);
+      // Provide a longer, more realistic dummy base64 content for the certificate
+      return Buffer.from('-----BEGIN CERTIFICATE-----\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\nAbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890AbCdEfGhIjKlMnO1234567890\n-----END CERTIFICATE-----\n');
+    }
+    // For other files, call the original function (if needed, though unlikely in this test)
+    return jest.requireActual('fs').readFileSync(path);
+  }),
+}));
 
 describe("Network Security Tests", () => {
   let server: any;
   const sslOptions = {
-    key: readFileSync(join(__dirname, "../../certs/private.key")),
-    cert: readFileSync(join(__dirname, "../../certs/certificate.crt")),
+    key: fs.readFileSync(join(__dirname, "../../certs/private.key")),
+    cert: fs.readFileSync(join(__dirname, "../../certs/certificate.crt")),
   };
 
   beforeEach(() => {
-    server = createServer(sslOptions, (req: Request, res: Response) => {
+    server = createServer(sslOptions, (req: IncomingMessage, res: ServerResponse) => {
       // Apply security headers
       helmet()(req, res, () => {});
       res.end("Test response");

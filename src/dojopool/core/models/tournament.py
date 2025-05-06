@@ -70,7 +70,6 @@ class Tournament(BaseModel):
     description = db.Column(db.Text)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id"))
     status = db.Column(db.String(20), default="pending")  # pending, active, completed, cancelled
     format = db.Column(db.String(50))  # single elimination, double elimination, round robin
     max_players = db.Column(db.Integer)
@@ -81,7 +80,6 @@ class Tournament(BaseModel):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    venue = db.relationship("Venue", backref=db.backref("tournaments", lazy="dynamic"))
     players = db.relationship("TournamentPlayer", back_populates="tournament")
     matches = db.relationship("TournamentGame", back_populates="tournament")
     participants = db.relationship(
@@ -153,31 +151,6 @@ class TournamentPlayer(BaseModel):
     def __repr__(self):
         """Represent tournament player as string."""
         return f"<TournamentPlayer {self.player_id} in Tournament {self.tournament_id}>"
-
-
-class TournamentGame(BaseModel):
-    """Tournament game model class."""
-
-    __tablename__ = "tournament_games"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey("tournaments.id"), nullable=False)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    round_number = db.Column(db.Integer)
-    match_number = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    # Relationships
-    tournament = db.relationship("Tournament", back_populates="matches")
-    game = db.relationship("Game", backref="tournament_games")
-
-    def __repr__(self):
-        """Represent tournament game as string."""
-        return f"<TournamentGame {self.game_id} in Tournament {self.tournament_id}>"
 
 
 class TournamentRound(BaseModel):

@@ -340,3 +340,33 @@ class RealTimeProcessingError(APIError):
         error = super().to_dict()
         error.update({"processing_stage": self.processing_stage, "latency": self.latency})
         return error
+
+
+class BlockchainError(APIError):
+    """Blockchain operation error."""
+    def __init__(self, message: str = "Blockchain operation failed", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message=message, status_code=400, details=details)
+
+
+class WalletError(APIError):
+    """Wallet operation error."""
+    def __init__(self, message: str = "Wallet operation failed", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message=message, status_code=400, details=details)
+
+
+class BridgeError(APIError):
+    """Bridge operation error."""
+    def __init__(self, message: str = "Bridge operation failed", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message=message, status_code=400, details=details)
+
+
+class NetworkError(APIError):
+    """Network operation error."""
+    def __init__(self, message: str = "Network operation failed", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message=message, status_code=400, details=details)
+
+
+class InsufficientFundsError(APIError):
+    """Insufficient funds error."""
+    def __init__(self, message: str = "Insufficient funds", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message=message, status_code=400, details=details)

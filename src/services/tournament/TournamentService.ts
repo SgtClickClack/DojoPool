@@ -1,16 +1,85 @@
 import { PrismaClient } from "@prisma/client";
 import {
   Tournament,
-  TournamentState,
-  TournamentType,
+  TournamentStatus,
+  TournamentFormat,
 } from "../../types/tournament";
+import axios from 'axios';
 
 const prisma = new PrismaClient();
 
-export class TournamentService {
+// TODO: Set up and import a shared configured axios instance 
+// (e.g., with base URL, interceptors for auth)
+// import { axiosInstance } from './axiosInstance'; 
+const axiosInstance = axios; // Use base axios for now
+
+/**
+ * Service class for interacting with the Tournament API endpoints.
+ */
+class TournamentAPIService {
+  /**
+   * Fetches a list of tournaments from the backend.
+   * Optionally filters by status.
+   *
+   * @param status Optional status to filter tournaments by (e.g., 'active').
+   * @returns A promise that resolves to an array of Tournament objects.
+   */
+  async getTournaments(status?: string): Promise<Tournament[]> {
+    const endpoint = '/api/tournaments';
+    console.log(`Fetching tournaments from ${endpoint} ${status ? `with status: ${status}`: ''}`);
+    try {
+      const params = status ? { status } : {};
+      const response = await axiosInstance.get(endpoint, {
+        params,
+      });
+
+      // Assuming the backend returns data compatible with the Tournament interface
+      // but date fields are strings that need conversion.
+      if (!Array.isArray(response.data)) {
+          console.error('Invalid data received from tournament API:', response.data);
+          throw new Error('Unexpected data format received from server.');
+      }
+      
+      const tournaments: Tournament[] = response.data.map((t: any) => {
+        // Basic validation
+        if (!t || typeof t !== 'object' || !t.id || !t.name) {
+            console.warn('Skipping invalid tournament data:', t);
+            return null; // Filter out invalid entries later
+        }
+        return {
+          ...t,
+          // Convert string dates to Date objects safely
+          startDate: t.startDate ? new Date(t.startDate) : new Date(), // Provide default or handle error?
+          endDate: t.endDate ? new Date(t.endDate) : undefined,
+          createdAt: t.createdAt ? new Date(t.createdAt) : new Date(), // Provide default or handle error?
+          updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(), // Provide default or handle error?
+          endedAt: t.endedAt ? new Date(t.endedAt) : undefined,
+        }
+      }).filter((t): t is Tournament => t !== null); // Filter out any nulls from invalid entries
+
+      console.log(`Fetched ${tournaments.length} tournaments.`);
+      return tournaments;
+    } catch (error) {
+      console.error(`Error fetching tournaments from ${endpoint}:`, error);
+      // Consider more specific error handling based on error type (e.g., axios error)
+      if (axios.isAxiosError(error)) {
+          console.error('Axios error details:', error.response?.data);
+      }
+      throw new Error('Failed to fetch tournaments');
+    }
+  }
+
+  // TODO: Add methods for other tournament actions
+}
+
+// Export a singleton instance of the service
+export const tournamentApiService = new TournamentAPIService();
+
+// Rename the class to avoid conflict
+export class TournamentDBService {
   static async createTournament(
     name: string,
-    type: TournamentType,
+    format: TournamentFormat,
     venueId: string,
     startDate: Date,
     endDate: Date,
@@ -21,16 +90,14 @@ export class TournamentService {
     return prisma.tournament.create({
       data: {
         name,
-        type,
+        format,
         venueId,
         startDate,
         endDate,
         maxParticipants,
         entryFee,
         prizePool,
-        state: TournamentState.REGISTRATION,
-        participants: [],
-        matches: [],
+        status: TournamentStatus.OPEN,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -45,12 +112,12 @@ export class TournamentService {
 
   static async updateTournamentState(
     id: string,
-    state: TournamentState,
+    status: TournamentStatus,
   ): Promise<Tournament> {
     return prisma.tournament.update({
       where: { id },
       data: {
-        state,
+        status,
         updatedAt: new Date(),
       },
     });
@@ -115,8 +182,8 @@ export class TournamentService {
     return prisma.tournament.findMany({
       where: {
         venueId,
-        state: {
-          in: [TournamentState.REGISTRATION, TournamentState.IN_PROGRESS],
+        status: {
+          in: [TournamentStatus.OPEN, TournamentStatus.ACTIVE],
         },
       },
       orderBy: {
@@ -146,7 +213,7 @@ export class TournamentService {
     return prisma.tournament.update({
       where: { id: tournamentId },
       data: {
-        state: TournamentState.COMPLETED,
+        status: TournamentStatus.COMPLETED,
         winnerId,
         finalStandings,
         endedAt: new Date(),

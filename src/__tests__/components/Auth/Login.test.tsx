@@ -1,8 +1,7 @@
 import React from "react";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Login } from "../../../dojopool/frontend/components/Auth/[AUTH]Login";
-import { renderWithProviders } from "../../utils/testUtils";
 import { useAuth } from "../../../dojopool/frontend/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -15,12 +14,15 @@ jest.mock("react-router-dom", () => ({
 }));
 
 describe("Login Component", () => {
-  const mockLogin = jest.fn();
-  const mockNavigate = jest.fn();
+  let mockLogin: jest.Mock;
+  let mockNavigate: jest.Mock;
 
   beforeEach(() => {
+    mockLogin = jest.fn();
+    mockNavigate = jest.fn();
     (useAuth as jest.Mock).mockReturnValue({
       login: mockLogin,
+      loading: false,
       error: null,
     });
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
@@ -31,7 +33,7 @@ describe("Login Component", () => {
   });
 
   it("renders login form correctly", () => {
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     expect(screen.getByText("Sign In")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
@@ -42,7 +44,7 @@ describe("Login Component", () => {
   });
 
   it("handles form submission correctly", async () => {
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Password");
@@ -61,13 +63,13 @@ describe("Login Component", () => {
       error: "Invalid credentials",
     });
 
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     expect(screen.getByText("Invalid credentials")).toBeInTheDocument();
   });
 
   it("validates required fields", async () => {
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     const submitButton = screen.getByRole("button", { name: "Sign In" });
     fireEvent.click(submitButton);
@@ -78,7 +80,7 @@ describe("Login Component", () => {
   });
 
   it("navigates to forgot password page", async () => {
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     const forgotPasswordLink = screen.getByText("Forgot password?");
     fireEvent.click(forgotPasswordLink);
@@ -87,7 +89,7 @@ describe("Login Component", () => {
   });
 
   it("navigates to register page", async () => {
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     const registerLink = screen.getByText("Sign up");
     fireEvent.click(registerLink);
@@ -96,7 +98,7 @@ describe("Login Component", () => {
   });
 
   it("prevents form submission with invalid email", async () => {
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Password");
@@ -114,7 +116,7 @@ describe("Login Component", () => {
     mockLogin.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 100)),
     );
-    renderWithProviders(<Login />);
+    render(<Login />);
 
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Password");

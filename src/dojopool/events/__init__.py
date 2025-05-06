@@ -3,8 +3,8 @@
 from flask_login import current_user
 from flask_socketio import emit, join_room, leave_room
 
-from src.extensions import socketio
-from src.models import Notification, NotificationType
+from dojopool.core.extensions import socketio
+from dojopool.models.notification import Notification, NotificationType
 
 
 @socketio.on("connect")

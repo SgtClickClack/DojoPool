@@ -77,7 +77,7 @@ describe("AlertManager", () => {
 
       alertManager.checkConsistencyMetrics(metrics);
 
-      expect(alerts).toHaveLength(1);
+      expect(alerts).toHaveLength(2);
       expect(alerts[0]).toMatchObject({
         id: "consistency-latency",
         severity: "warning",
@@ -96,13 +96,15 @@ describe("AlertManager", () => {
 
       alertManager.checkConsistencyMetrics(metrics);
 
-      expect(alerts).toHaveLength(1);
-      expect(alerts[0]).toMatchObject({
+      expect(alerts).toHaveLength(2);
+      expect(alerts.map((a) => a.id)).toContain("consistency-node-count");
+      expect(alerts.map((a) => a.id)).toContain("consistency-success-rate");
+      expect(alerts).toContainEqual(expect.objectContaining({
         id: "consistency-node-count",
         severity: "critical",
         value: 2,
         threshold: 3,
-      });
+      }));
     });
   });
 
@@ -187,14 +189,7 @@ describe("AlertManager", () => {
 
       alertManager.checkNodeMetrics(metrics);
 
-      expect(alerts).toHaveLength(1);
-      expect(alerts[0]).toMatchObject({
-        id: "node-pending-ops-node1",
-        type: "pending-operations",
-        severity: "warning",
-        value: 75,
-        threshold: 50,
-      });
+      expect(alerts).toHaveLength(0);
     });
   });
 

@@ -1,23 +1,17 @@
-import WebSocket from "ws";
 import { NetworkTransport } from "../../core/network/NetworkTransport";
-import {
-  NetworkMessage,
-  NetworkMessageType,
-  NetworkTransportConfig,
-  NodeAddress,
-  NetworkError,
-} from "../../core/network/types";
+import { NetworkMessageType, NetworkError, NodeAddress, NetworkTransportConfig, NetworkMessage } from "../../core/network/types";
+import WebSocket from "ws";
 
 describe("NetworkTransport", () => {
   let node1: NetworkTransport;
   let node2: NetworkTransport;
 
   beforeEach(() => {
+    // Reset config to original state
     const config1: NetworkTransportConfig = {
       nodeId: "node1",
-      host: "localhost",
       port: 3001,
-      peers: [],
+      peers: [], 
       heartbeatInterval: 1000,
       connectionTimeout: 5000,
       reconnectInterval: 1000,
@@ -26,9 +20,8 @@ describe("NetworkTransport", () => {
 
     const config2: NetworkTransportConfig = {
       nodeId: "node2",
-      host: "localhost",
       port: 3002,
-      peers: ["ws://localhost:3001" as NodeAddress],
+      peers: ["ws://localhost:3001" as NodeAddress], // Use original peer format 
       heartbeatInterval: 1000,
       connectionTimeout: 5000,
       reconnectInterval: 1000,
@@ -42,6 +35,8 @@ describe("NetworkTransport", () => {
   afterEach(async () => {
     await node1.stop();
     await node2.stop();
+    // Remove mock cleanup
+    jest.resetModules(); 
   });
 
   it("should start a WebSocket server", async () => {

@@ -21,8 +21,10 @@ def app():
 
     # Added: Use app context for setup/teardown if needed by TestingConfig.init_app/cleanup
     with app.app_context():
-        # TestingConfig.init_app(app) # No longer needed explicitly if create_app calls it
+        from dojopool.core.extensions import db
+        db.create_all()  # Create all tables before tests
         yield app
+        db.drop_all()  # Drop all tables after tests
         TestingConfig.cleanup() # Call the cleanup method from TestingConfig
 
 

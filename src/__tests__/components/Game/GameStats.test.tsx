@@ -1,7 +1,7 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import { GameStats } from "../../../dojopool/frontend/components/Game/[GAME]GameStats";
-import { renderWithProviders } from "../../utils/testUtils";
+import { render } from "@testing-library/react";
 
 describe("GameStats Component", () => {
   const mockStats = {
@@ -13,20 +13,20 @@ describe("GameStats Component", () => {
   };
 
   it("renders player name in title", () => {
-    renderWithProviders(<GameStats stats={mockStats} playerName="John Doe" />);
+    render(<GameStats stats={mockStats} playerName="John Doe" />);
 
     expect(screen.getByText("John Doe's Game Statistics")).toBeInTheDocument();
   });
 
   it("calculates and displays accuracy correctly", () => {
-    renderWithProviders(<GameStats stats={mockStats} playerName="John Doe" />);
+    render(<GameStats stats={mockStats} playerName="John Doe" />);
 
     // 35/50 * 100 = 70.0%
     expect(screen.getByText("70.0%")).toBeInTheDocument();
   });
 
   it("displays all statistics correctly", () => {
-    renderWithProviders(<GameStats stats={mockStats} playerName="John Doe" />);
+    render(<GameStats stats={mockStats} playerName="John Doe" />);
 
     // Check all stat labels
     expect(screen.getByText("Accuracy")).toBeInTheDocument();
@@ -51,9 +51,7 @@ describe("GameStats Component", () => {
       successfulShots: 20,
     };
 
-    renderWithProviders(
-      <GameStats stats={perfectStats} playerName="John Doe" />,
-    );
+    render(<GameStats stats={perfectStats} playerName="John Doe" />);
 
     expect(screen.getByText("100.0%")).toBeInTheDocument();
   });
@@ -65,7 +63,7 @@ describe("GameStats Component", () => {
       successfulShots: 0,
     };
 
-    renderWithProviders(<GameStats stats={zeroStats} playerName="John Doe" />);
+    render(<GameStats stats={zeroStats} playerName="John Doe" />);
 
     // 0/0 * 100 = NaN, should display as 0.0%
     expect(screen.getByText("0.0%")).toBeInTheDocument();
@@ -74,7 +72,7 @@ describe("GameStats Component", () => {
   it("handles long player names", () => {
     const longName = "John Jacob Jingleheimer Schmidt III";
 
-    renderWithProviders(<GameStats stats={mockStats} playerName={longName} />);
+    render(<GameStats stats={mockStats} playerName={longName} />);
 
     expect(
       screen.getByText(`${longName}'s Game Statistics`),
@@ -90,7 +88,7 @@ describe("GameStats Component", () => {
       gameLength: 180,
     };
 
-    renderWithProviders(<GameStats stats={largeStats} playerName="John Doe" />);
+    render(<GameStats stats={largeStats} playerName="John Doe" />);
 
     expect(screen.getByText("9999")).toBeInTheDocument();
     expect(screen.getByText("8888")).toBeInTheDocument();
@@ -109,7 +107,7 @@ describe("GameStats Component", () => {
       gameLength: 0,
     };
 
-    renderWithProviders(<GameStats stats={zeroStats} playerName="John Doe" />);
+    render(<GameStats stats={zeroStats} playerName="John Doe" />);
 
     expect(screen.getByText("0.0%")).toBeInTheDocument();
     expect(screen.getAllByText("0")).toHaveLength(4); // All stats except accuracy and game length
@@ -122,9 +120,7 @@ describe("GameStats Component", () => {
       gameLength: 45.5,
     };
 
-    renderWithProviders(
-      <GameStats stats={decimalStats} playerName="John Doe" />,
-    );
+    render(<GameStats stats={decimalStats} playerName="John Doe" />);
 
     expect(screen.getByText("45.5 min")).toBeInTheDocument();
   });

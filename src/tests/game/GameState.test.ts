@@ -85,12 +85,14 @@ describe("GameState", () => {
             cueBallHitRail: false,
             objectBallHitRailAfterContact: true,
             isBreakShot: false,
+            ballsPocketedOnBreak: [], 
+            numberOfBallsHittingRailOnBreak: 0, 
          });
 
         return table as GameTable;
     };
 
-    it('should continue turn if player pockets their own ball legally', () => {
+    it('should continue turn if player pockets their own ball legally', async () => {
         const table = setupShotTest();
         table.balls.find((b: BallState) => b.number === 1)!.pocketed = true;
         table.pocketedBalls.push(1);
@@ -99,9 +101,9 @@ describe("GameState", () => {
             foul: null, reason: null, isBallInHand: false,
             nextPlayerId: player1Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(table.fouls[player1Id]).toBe(0);
@@ -111,16 +113,16 @@ describe("GameState", () => {
         expect((gameState as any).preShotTableState.has(tableId)).toBe(false);
     });
 
-    it('should change turn if player does not pocket their own ball legally', () => {
+    it('should change turn if player does not pocket their own ball legally', async () => {
         const table = setupShotTest();
         const mockResult: RefereeResult = {
             foul: null, reason: null, isBallInHand: false,
             nextPlayerId: player2Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
         const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(table.ballInHand).toBe(false);
@@ -129,7 +131,7 @@ describe("GameState", () => {
         changeTurnSpy.mockRestore();
     });
 
-     it('should record foul, give ball-in-hand, and change turn on foul result', () => {
+     it('should record foul, give ball-in-hand, and change turn on foul result', async () => {
         const table = setupShotTest();
         table.balls.find((b: BallState) => b.number === 0)!.pocketed = true;
         table.pocketedBalls.push(0);
@@ -137,10 +139,10 @@ describe("GameState", () => {
             foul: FoulType.SCRATCH, reason: 'Cue ball pocketed', isBallInHand: true,
             nextPlayerId: player2Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
         const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(table.fouls[player1Id]).toBe(1);
@@ -151,7 +153,7 @@ describe("GameState", () => {
         changeTurnSpy.mockRestore();
     });
 
-     it('should set ballInHandFromBreakScratch flag for break foul scratch', () => {
+     it('should set ballInHandFromBreakScratch flag for break foul scratch', async () => {
         const table = setupShotTest();
         table.balls.find((b: BallState) => b.number === 0)!.pocketed = true;
         table.pocketedBalls.push(0);
@@ -161,10 +163,10 @@ describe("GameState", () => {
             foul: FoulType.BREAK_FOUL, reason: 'Scratch on the break shot.', isBallInHand: true,
             nextPlayerId: player2Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
         const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(table.fouls[player1Id]).toBe(1);
@@ -175,7 +177,7 @@ describe("GameState", () => {
         changeTurnSpy.mockRestore();
     });
 
-     it('should assign ball types if table is open and first legal ball is pocketed', () => {
+     it('should assign ball types if table is open and first legal ball is pocketed', async () => {
         const table = setupShotTest();
         table.playerBallTypes[player1Id] = 'open';
         table.playerBallTypes[player2Id] = 'open';
@@ -186,16 +188,16 @@ describe("GameState", () => {
             foul: null, reason: null, isBallInHand: false,
             nextPlayerId: player1Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(table.playerBallTypes[player1Id]).toBe('solids');
         expect(table.playerBallTypes[player2Id]).toBe('stripes');
         expect(table.currentTurn).toBe(player1Id);
     });
 
-    it('should end game with win if 8-ball pocketed legally after group cleared', () => {
+    it('should end game with win if 8-ball pocketed legally after group cleared', async () => {
         const table = setupShotTest();
         [1, 2, 3, 4, 5, 6, 7].forEach(num => {
             if (!table.pocketedBalls.includes(num)) table.pocketedBalls.push(num);
@@ -209,10 +211,10 @@ describe("GameState", () => {
             foul: null, reason: null, isBallInHand: false,
             nextPlayerId: player1Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
         const endGameSpy = jest.spyOn(gameState as any, 'endGame');
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(endGameSpy).toHaveBeenCalledWith(tableId, player1Id);
@@ -220,7 +222,7 @@ describe("GameState", () => {
         endGameSpy.mockRestore();
     });
 
-    it('should end game with loss if 8-ball pocketed on a foul', () => {
+    it('should end game with loss if 8-ball pocketed on a foul', async () => {
         const table = setupShotTest();
         table.balls.find((b: BallState) => b.number === 8)!.pocketed = true;
         table.pocketedBalls.push(8);
@@ -231,10 +233,10 @@ describe("GameState", () => {
             foul: FoulType.SCRATCH, reason: 'Cue ball pocketed', isBallInHand: true,
             nextPlayerId: player2Id
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
         const endGameSpy = jest.spyOn(gameState as any, 'endGame');
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(endGameSpy).toHaveBeenCalledWith(tableId, player2Id);
@@ -242,7 +244,7 @@ describe("GameState", () => {
         endGameSpy.mockRestore();
     });
 
-     it('should end game with loss if 8-ball pocketed before group cleared', () => {
+     it('should end game with loss if 8-ball pocketed before group cleared', async () => {
         const table = setupShotTest();
         table.balls.find((b: BallState) => b.number === 8)!.pocketed = true;
         table.pocketedBalls.push(8);
@@ -251,15 +253,205 @@ describe("GameState", () => {
             foul: null, reason: null, isBallInHand: false,
             nextPlayerId: player2Id 
         };
-        aiRefereeServiceMock.mockReturnValue(mockResult);
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
         const endGameSpy = jest.spyOn(gameState as any, 'endGame');
 
-        (gameState as any).analyzeShotOutcome(tableId);
+        await (gameState as any).analyzeShotOutcome(tableId);
 
         expect(aiRefereeServiceMock).toHaveBeenCalled();
         expect(endGameSpy).toHaveBeenCalledWith(tableId, player2Id);
 
         endGameSpy.mockRestore();
+    });
+
+    it('should handle error from AI referee service gracefully', async () => {
+        const table = setupShotTest();
+        const error = new Error('AI Service Unavailable');
+        aiRefereeServiceMock.mockRejectedValue(error);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        // analyzeShotOutcome should catch the error and handle it
+        await expect((gameState as any).analyzeShotOutcome(tableId)).resolves.toBeUndefined();
+
+        // Verify fallback behavior: foul logged (implicitly via default error result), ball-in-hand true, turn changed
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        // Check state after error handling within analyzeShotOutcome
+        expect(table.ballInHand).toBe(true); // Should be awarded on error
+        expect(table.currentTurn).toBe(player2Id); // Turn should change to opponent
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, player2Id);
+        // Ensure analysis/pre-shot state is still cleared
+        expect((gameState as any).currentShotAnalysis.has(tableId)).toBe(false);
+        expect((gameState as any).preShotTableState.has(tableId)).toBe(false);
+
+        changeTurnSpy.mockRestore();
+    });
+
+    it('should record WRONG_BALL_FIRST foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn; // Store current player ID before potential change
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.WRONG_BALL_FIRST, reason: 'Hit opponent\'s ball first', isBallInHand: true,
+            nextPlayerId: opponentPlayerId // Use the determined opponent ID
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+    it('should record NO_RAIL_AFTER_CONTACT foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.NO_RAIL_AFTER_CONTACT, reason: 'No ball hit a rail after contact', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+    it('should record BALLS_OFF_TABLE foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.BALLS_OFF_TABLE, reason: 'Ball went off the table', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+     it('should record TOUCHING_BALL foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.TOUCHING_BALL, reason: 'Touched a ball illegally', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+    it('should record DOUBLE_HIT foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.DOUBLE_HIT, reason: 'Hit cue ball twice', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+    it('should record PUSH_SHOT foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.PUSH_SHOT, reason: 'Pushed the cue ball', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+     it('should record ILLEGAL_JUMP foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.ILLEGAL_JUMP, reason: 'Illegal jump shot', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
+    });
+
+     it('should record NO_CONTACT foul, give ball-in-hand, and change turn', async () => {
+        const table = setupShotTest();
+        const currentPlayerId = table.currentTurn;
+        const opponentPlayerId = currentPlayerId === player1Id ? player2Id : player1Id;
+        const mockResult: RefereeResult = {
+            foul: FoulType.NO_CONTACT, reason: 'Cue ball did not contact any object ball', isBallInHand: true,
+            nextPlayerId: opponentPlayerId
+        };
+        aiRefereeServiceMock.mockResolvedValue(mockResult);
+        const changeTurnSpy = jest.spyOn(gameState as any, 'changeTurn');
+
+        await (gameState as any).analyzeShotOutcome(tableId);
+
+        expect(aiRefereeServiceMock).toHaveBeenCalled();
+        expect(table.fouls[currentPlayerId as string]).toBe(1);
+        expect(table.ballInHand).toBe(true);
+        expect(changeTurnSpy).toHaveBeenCalledWith(tableId, mockResult.nextPlayerId);
+        expect(table.currentTurn).toBe(mockResult.nextPlayerId);
+        changeTurnSpy.mockRestore();
     });
 
   });

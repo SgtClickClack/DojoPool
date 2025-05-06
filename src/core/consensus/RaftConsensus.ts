@@ -3,29 +3,6 @@ import { VectorClock } from "../consistency/VectorClock";
 import { GameState, VectorTimestamp } from "../../types/consistency";
 import { GameEvent } from "../../types/game";
 
-declare module "events" {
-  interface EventEmitter {
-    on(
-      event: "stateChange",
-      listener: (data: { state: NodeState; term: number }) => void,
-    ): this;
-    on(event: "requestVote", listener: (request: VoteRequest) => void): this;
-    on(event: "voteResponse", listener: (response: VoteResponse) => void): this;
-    on(
-      event: "appendEntries",
-      listener: (nodeId: string, request: AppendEntriesRequest) => void,
-    ): this;
-    on(
-      event: "appendEntriesResponse",
-      listener: (response: AppendEntriesResponse) => void,
-    ): this;
-    on(event: "commandProposed", listener: (entry: LogEntry) => void): this;
-    on(event: "applyCommand", listener: (command: any) => void): this;
-    on(event: "error", listener: (error: Error) => void): this;
-    on(event: "eventApplied", listener: (event: GameEvent) => void): this;
-  }
-}
-
 export interface ConsensusConfig {
   nodeId: string;
   heartbeatInterval: number;
@@ -202,6 +179,27 @@ export class RaftConsensus extends EventEmitter {
     }
   }
 
+  public proposeCommand(command: any): void {
+    if (this.state === "leader") {
+      // In a real Raft implementation, this would go through log replication.
+      // For this simplified version, we directly apply the command.
+      // This is NOT how Raft works in production.
+      this.emit("applyCommand", command);
+    }
+  }
+
+  public isLeader(): boolean {
+    return this.state === "leader";
+  }
+
+  public getLeader(): string | null {
+    return this.state === "leader" ? this.nodeId : null; // Simplified: leader knows itself
+  }
+
+  public getCurrentTerm(): number {
+    return this.currentTerm;
+  }
+
   public getState(): {
     nodeId: string;
     state: NodeState;
@@ -212,7 +210,7 @@ export class RaftConsensus extends EventEmitter {
       nodeId: this.nodeId,
       state: this.state,
       currentTerm: this.currentTerm,
-      log: [...this.log],
+      log: this.log,
     };
   }
 

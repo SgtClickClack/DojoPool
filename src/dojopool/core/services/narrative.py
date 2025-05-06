@@ -2,10 +2,14 @@
 Narrative generation service for creating game commentary and stories.
 """
 
-import openai
+import json
+from datetime import datetime
+from dojopool.core.config.ai import NARRATIVE_CONFIG
 
 from src.core.config import AI_CONFIG
 from src.extensions import cache
+from dojopool.models.game import GameResult
+from dojopool.models.user import User
 
 
 class NarrativeGenerator:
@@ -13,7 +17,6 @@ class NarrativeGenerator:
 
     def __init__(self):
         """Initialize narrative generator."""
-        openai.api_key = AI_CONFIG["OPENAI_API_KEY"]
         # Load pre-trained model and tokenizer
         self.model = GPT2LMHeadModel.from_pretrained(AI_CONFIG["NARRATIVE_MODEL_PATH"])
         self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
@@ -90,8 +93,6 @@ class NarrativeGenerator:
             return cached
 
         # Get player data
-        from src.core.models import GameResult, User
-
         user = User.query.get(user_id)
         if not user:
             return None
