@@ -1,35 +1,45 @@
-import React from "react";
-import { useRouter } from "next/router";
-import { Box, Spinner, Center } from "@chakra-ui/react";
-import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useAuth } from "./AuthContext";
+import { Box, CircularProgress } from "@mui/material";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireVerification?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  requireVerification = true,
-}) => {
-  const { user, loading, checkEmailVerification } = useAuth();
-  const router = useRouter();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push("/auth/login");
-      } else if (requireVerification && !checkEmailVerification()) {
-        router.push("/auth/verify-email");
-      }
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login", { replace: true });
     }
-  }, [user, loading, router, requireVerification, checkEmailVerification]);
+  }, [user, loading, navigate]);
 
   if (loading) {
     return (
-      <Center h="100vh">
-        <Spinner size="xl" />
-      </Center>
+      <Box
+        className="cyber-gradient"
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress
+          size={60}
+          thickness={4}
+          sx={{
+            color: "primary.main",
+            "& .MuiCircularProgress-circle": {
+              strokeLinecap: "round",
+              filter: "drop-shadow(0 0 8px var(--primary))",
+            },
+          }}
+        />
+      </Box>
     );
   }
 
@@ -37,9 +47,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return null;
   }
 
-  if (requireVerification && !checkEmailVerification()) {
-    return null;
-  }
-
-  return <Box>{children}</Box>;
+  return <>{children}</>;
 };
+
+export default ProtectedRoute;
