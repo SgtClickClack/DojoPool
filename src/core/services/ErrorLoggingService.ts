@@ -1,4 +1,5 @@
 import { ErrorInfo } from "react";
+import { logErrorToAnalytics } from "../../utils/analyticsUtils"; // Adjusted import path
 
 interface ErrorLog {
   timestamp: string;
@@ -50,6 +51,13 @@ class ErrorLoggingService {
     if (process.env.NODE_ENV === "production") {
       this.sendToErrorTrackingService(errorLog);
     }
+
+    // Also log to Firebase Analytics
+    try {
+      logErrorToAnalytics(error, { reactComponentStack: errorInfo?.componentStack, ...context });
+    } catch (analyticsError) {
+      console.error("Failed to log error to analytics:", analyticsError);
+    }
   }
 
   public getLogs(): ErrorLog[] {
@@ -94,4 +102,4 @@ export const logError = (
   errorLoggingService.log(error, errorInfo, context);
 };
 
-export default errorLoggingService;
+export default errorLoggingService; 
