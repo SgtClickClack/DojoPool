@@ -6,11 +6,13 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({
+    include: /\.(?:jsx|tsx|js)$/,
+  })],
   root: path.resolve(__dirname),
   publicDir: path.resolve(__dirname, 'public'),
   server: {
-    port: 3100,
+    port: 3101,
     strictPort: true,
     host: true,
     cors: {
@@ -51,6 +53,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'index.html'),
       },
+      external: ['pages', 'src/pages'],
     },
   },
   resolve: {
@@ -58,11 +61,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  esbuild: {
-    jsxFactory: 'React.createElement',
-    jsxFragment: 'React.Fragment',
-  },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
+    exclude: ['pages', 'src/pages'],
   },
 }); 

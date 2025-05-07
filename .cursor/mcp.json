@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "PocketPick": {
+      "name": "PocketPick",
+      "version": "0.1.0",
+      "description": "MCP server for Pocket Pick knowledge base.",
+      "command": "C:\\dev\\DojoPoolONE\\pocket-pick\\.venv\\Scripts\\python.exe -m mcp_server_pocket_pick",
+      "cwd": "C:\\dev\\DojoPoolONE\\pocket-pick",
+      "environment": {},
+      "startup_timeout_ms": 10000,
+      "initialization_options": {}
+    }
+  }
+} 

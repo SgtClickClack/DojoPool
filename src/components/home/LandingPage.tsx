@@ -1,6 +1,5 @@
 import { Box, Button, Container, Typography } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
 
@@ -29,14 +28,17 @@ export default function LandingPage() {
           },
         }}
       >
-        <Image
+        <img
           src="/images/pool_table_hero.jpg"
           alt="Pool Table Hero Background"
-          fill
-          priority
           style={{
             objectFit: "cover",
             objectPosition: "center 30%",
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
           }}
         />
         <Container
@@ -92,7 +94,7 @@ export default function LandingPage() {
               <>
                 <Button
                   component={Link}
-                  href="/signup"
+                  to="/signup"
                   variant="contained"
                   size="large"
                   className="hover-glow"
@@ -117,7 +119,7 @@ export default function LandingPage() {
                 </Button>
                 <Button
                   component={Link}
-                  href="/login"
+                  to="/login"
                   variant="outlined"
                   size="large"
                   className="hover-glow"
@@ -143,7 +145,7 @@ export default function LandingPage() {
             ) : (
               <Button
                 component={Link}
-                href="/dashboard"
+                to="/dashboard"
                 variant="contained"
                 size="large"
                 className="hover-glow"

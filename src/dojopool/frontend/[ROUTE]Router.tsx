@@ -20,10 +20,10 @@ const ForgotPassword = React.lazy(() =>
     default: module.ForgotPassword,
   })),
 );
-const Dashboard = React.lazy(() =>
-  import("./components/Dashboard/[UI]Dashboard").then((module) => ({
-    default: module.Dashboard,
-  })),
+const DashboardPage = React.lazy(() =>
+  import("../../components/Dashboard").then((module) => ({
+    default: module.default,
+  }))
 );
 const Profile = React.lazy(() =>
   import("./components/Profile/[UI]Profile").then((module) => ({
@@ -109,7 +109,7 @@ export const Router: React.FC = () => {
                 <Layout>
                   <Suspense fallback={<LoadingFallback />}>
                     <Routes>
-                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/" element={<DashboardPage />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/settings" element={<Settings />} />
 

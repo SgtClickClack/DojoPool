@@ -7,22 +7,37 @@ from enum import Enum, auto
 from dotenv import load_dotenv
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
-from solana.rpc.api import Client
-from solana.transaction import Transaction
-from solana.system_program import transfer
+# from solana.rpc.api import Client // Temporarily commented out
+# from solana.keypair import Keypair // Temporarily commented out
+# from solana.transaction import Transaction // Temporarily commented out
+# from solders.pubkey import Pubkey as SolanaPubkey // Temporarily commented out
+# from solders.message import MessageV0 // Temporarily commented out
+# from solders.transaction import VersionedTransaction // Temporarily commented out
+
+# Attempt to import Trezor related libraries, optional for now
+try:
+    from trezorlib.client import TrezorClient
+    from trezorlib.transport import get_transport
+    from trezorlib import messages as TrezorMessages
+    TREZOR_AVAILABLE = True
+except ImportError:
+    TREZOR_AVAILABLE = False
+    # Optionally log that Trezor support is unavailable if not installed
+    # print("Trezor libraries not found, Trezor support disabled.")
+
 from web3 import Web3
 from web3.contract.contract import Contract
 from web3.middleware import ExtraDataToPOAMiddleware
 from web3.types import TxParams, Wei, FilterParams
 from eth_utils.address import to_checksum_address
-from trezorlib.client import TrezorClient
-from trezorlib.transport import get_transport
 from dojopool.core.exceptions import BlockchainError, WalletError, NetworkError
 from dojopool.core.blockchain.utils import validate_address
 from dojopool.core.blockchain.token_interfaces import ERC20Token
 from eth_typing import BlockIdentifier, ChecksumAddress
 import asyncio
 import time
+from eth_account.messages import encode_defunct
+from eth_utils import to_bytes, to_hex, keccak
 
 # Load environment variables
 load_dotenv()
@@ -312,7 +327,7 @@ class SolanaHardwareWallet(HardwareWallet):
         else:
             raise ValueError(f"Unsupported network: {network}")
             
-        self.client = Client(self.endpoint)
+        # self.client = Client(self.endpoint)
     
     async def connect(self) -> bool:
         try:
@@ -364,7 +379,7 @@ class SolanaHardwareWallet(HardwareWallet):
         self.validate_connection()
         try:
             address = await self.get_address()
-            response = self.client.get_balance(address)
+            # response = self.client.get_balance(address)
             if 'error' in response:
                 raise BlockchainError(f"Failed to get balance: {response['error']}")
             
@@ -377,7 +392,7 @@ class SolanaHardwareWallet(HardwareWallet):
         self.validate_connection()
         try:
             # Serialize transaction
-            serialized_tx = Transaction(**transaction).serialize()
+            # serialized_tx = Transaction(**transaction).serialize()
             
             # Sign transaction command
             command = bytes.fromhex("e004000000") + len(serialized_tx).to_bytes(1, 'big') + serialized_tx

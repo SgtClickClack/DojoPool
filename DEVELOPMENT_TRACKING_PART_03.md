@@ -928,4 +928,220 @@ Continue with the next outstanding user journey or technical feature (e.g., AI c
 
 Expected completion time: 1 day
 
+### 2024-07-19: Configure Vite for JSX (Attempt 4 - Rely on React Plugin) and tsconfig Check
+
+Still addressing JSX parsing issues. The error `[plugin:vite:import-analysis] Failed to parse source for import analysis... If you use tsconfig.json, make sure to not set jsx to preserve.` appeared, this time for `src/frontend/main.tsx`.
+Checked root `tsconfig.json`, which correctly has `"jsx": "react-jsx"`. Also checked `tsconfig.node.json`, which doesn't set `jsx`.
+To simplify and avoid potential conflicts, the top-level `esbuild` configuration (previously added to handle `.js` files with JSX) was removed from `vite.config.ts`. The intention is to rely solely on `@vitejs/plugin-react` (which includes `.js`, `.jsx`, and `.tsx` files) for all JSX transformations, as this plugin uses esbuild internally and is designed for this purpose.
+
+**Core Components Implemented:**
+- Removed top-level `esbuild` configuration from `vite.config.ts`.
+- Verified `tsconfig.json` and `tsconfig.node.json` `jsx` settings.
+- Server port remains `3101`.
+
+**File Paths:**
+- `vite.config.ts` (modified)
+- `tsconfig.json` (inspected)
+- `tsconfig.node.json` (inspected)
+
+**Next Priority Task:**
+Attempt to start the development server using `npm run dev` to verify if relying purely on the React plugin resolves the JSX parsing issue in `.tsx` and `.js` files. If successful, proceed with other tasks.
+
+Expected completion time: 15 minutes (for server start and verification)
+
+### 2024-07-19: Renamed .js Files with JSX to .jsx Extension
+
+To resolve persistent JSX parsing errors with Vite, files containing JSX syntax were renamed from `.js` to `.jsx` extension as per Vite's recommendation. This makes the file type explicit and avoids complex configuration workarounds.
+- `src/frontend/App.js` was renamed to `src/frontend/App.jsx`.
+- `src/frontend/index.js` (which also contained JSX) was renamed to `src/frontend/index.jsx`.
+- The import statement for `App` within `src/frontend/index.jsx` was updated to `App.jsx`.
+This change is expected to allow Vite's default mechanisms to correctly process the JSX syntax.
+
+**Core Components Implemented:**
+- File renaming for JSX compatibility.
+- Import path updates.
+
+**File Paths:**
+- `src/frontend/App.jsx` (created from `App.js`)
+- `src/frontend/index.jsx` (created from `index.js`)
+- `src/frontend/App.js` (deleted)
+- `src/frontend/index.js` (deleted)
+
+**Next Priority Task:**
+Attempt to start the development server using `npm run dev` to verify that renaming the files resolves the JSX parsing errors. If successful, proceed with other high-priority tasks.
+
+Expected completion time: 10 minutes (for server start and verification)
+
+### 2024-07-19: Corrected Import Path in main.tsx After File Renames
+
+After renaming `.js` files with JSX to `.jsx`, a 404 error occurred because `src/frontend/main.tsx` was still attempting to import `App` from `./App` (implicitly `./App.js`) instead of `./App.jsx`. The import statement in `src/frontend/main.tsx` was updated to `import App from "./App.jsx";` to reflect the new file name. This resolves the 404 error for the `App` component.
+
+**Core Components Implemented:**
+- Updated import path in `src/frontend/main.tsx`.
+
+**File Paths:**
+- `src/frontend/main.tsx` (modified)
+
+**Next Priority Task:**
+Attempt to start the development server using `npm run dev`. Check the browser and developer console for errors. If the white screen persists or new errors appear, further investigation will be needed. If successful, proceed with other tasks.
+
+Expected completion time: 5 minutes (for server start and verification)
+
+### 2024-07-19: Corrected AuthContext Import Path in App.jsx
+
+After renaming files to `.jsx`, a new error arose: Vite could not resolve the import for `AuthProvider` from `./components/auth/AuthContext` within `src/frontend/App.jsx`.
+A file search revealed that `AuthContext.tsx` is likely located at `src/frontend/contexts/AuthContext.tsx`.
+The import path in `src/frontend/App.jsx` was updated from `./components/auth/AuthContext` to `./contexts/AuthContext` to correctly point to this file. Other auth-related component paths are assumed correct for now.
+
+**Core Components Implemented:**
+- Corrected import path for `AuthProvider` in `src/frontend/App.jsx`.
+
+**File Paths:**
+- `src/frontend/App.jsx` (modified)
+
+**Next Priority Task:**
+Attempt to start the development server using `npm run dev`. Check the browser and developer console for errors. If further import resolution errors appear for other components, they will need to be addressed. If successful, proceed with other tasks.
+
+Expected completion time: 5 minutes (for server start and verification)
+
+### 2024-07-19: Corrected ProtectedRoute Import Path in App.jsx
+
+Following previous import corrections, Vite failed to resolve the import for `ProtectedRoute` from `./components/auth/ProtectedRoute` within `src/frontend/App.jsx`. 
+A file search confirmed `ProtectedRoute.tsx` is located at `src/components/auth/ProtectedRoute.tsx`. 
+The import path in `src/frontend/App.jsx` was updated from `./components/auth/ProtectedRoute` to `../components/auth/ProtectedRoute` to correctly traverse up one directory level.
+
+**Core Components Implemented:**
+- Corrected import path for `ProtectedRoute` in `src/frontend/App.jsx`.
+
+**File Paths:**
+- `src/frontend/App.jsx` (modified)
+
+**Next Priority Task:**
+Attempt to start the development server using `npm run dev`. Check the browser and developer console for errors. If further import resolution errors appear for other auth components (Login, ResetPassword, Signup), they will need to be addressed similarly. If successful, proceed with other tasks.
+
+Expected completion time: 5 minutes (for server start and verification)
+
+### 2024-07-18: Corrected Dashboard Component Naming and Imports
+
+Addressed a file naming and import inconsistency for the main Dashboard component:
+1. Identified that `src/components/[UI]Dashboard.js` was a React component that violated naming conventions (prefix, `.js` extension for a JSX file).
+2. Renamed the file to `src/components/Dashboard.tsx` and updated its content to basic TypeScript (adding `React.FC` and some type hints). The original JavaScript code was largely compatible.
+3. Deleted the old `src/components/[UI]Dashboard.js` file.
+4. Searched for and updated import paths for this component:
+    - In `pages/dashboard.js` and `DojoPool/pages/dashboard.js`, changed `import Dashboard from '../src/components/[UI]Dashboard';` to `import Dashboard from '../src/components/Dashboard';`.
+    - In `src/dojopool/frontend/[ROUTE]Router.tsx` and `DojoPool/src/dojopool/frontend/[ROUTE]Router.tsx`, corrected a dynamic import path from `import("./components/Dashboard/[UI]Dashboard")` to `import("../../components/Dashboard")` to correctly point to the new location from the router's perspective. The lazy-loaded component variable was also updated from `Dashboard` to `DashboardPage` to avoid potential naming conflicts.
+
+This aligns the Dashboard component with project coding standards.
+
+**Core Components Implemented:**
+- Renamed and typed `Dashboard.tsx` component.
+
+**File Paths:**
+- `src/components/Dashboard.tsx` (created/renamed)
+- `src/components/[UI]Dashboard.js` (deleted)
+- `pages/dashboard.js` (modified)
+- `DojoPool/pages/dashboard.js` (modified)
+- `src/dojopool/frontend/[ROUTE]Router.tsx` (modified)
+- `DojoPool/src/dojopool/frontend/[ROUTE]Router.tsx` (modified)
+
+**Next Priority Task:**
+Continue reviewing `src/` subdirectories (e.g., `services/`, `utils/`, `core/`, `features/`) for any other naming convention violations (PascalCase for components/classes, camelCase for utils/functions) or misplaced files.
+
+Expected completion time: 1-2 hours (for further src review)
+
+### 2024-07-18: Implemented Achievement API Endpoints and Integration Tests
+
+Expanded the Achievements API and its integration test coverage:
+1.  Identified that the existing API in `src/dojopool/routes/api/achievements.py` was minimal and lacked leaderboard and admin CRUD functionalities, despite the `AchievementService` having corresponding methods.
+2.  Added the `GET /achievements/leaderboard` API endpoint, calling `service.get_achievement_leaderboard()`.
+3.  Added Admin CRUD API endpoints:
+    *   `POST /admin` (create achievement), calling `service.create_achievement()`.
+    *   `GET /admin/<achievement_id>` (get achievement details), calling `service.get_achievement_details()`.
+    *   `PUT /admin/<achievement_id>` (update achievement), calling `service.update_achievement()`.
+    *   `DELETE /admin/<achievement_id>` (delete achievement), calling `service.delete_achievement()`.
+    *   Marked these admin routes with `@login_required` and added a TODO to implement proper admin role checking/decorator, as no existing `@admin_required` decorator was readily found.
+4.  Added corresponding integration tests for all new endpoints in `src/dojopool/tests/integration/test_achievements_api.py`.
+    *   Modified the `test_client` fixture to provide necessary `category_id` and `achievement_id` for tests.
+    *   Ensured tests cover successful cases and basic error handling (e.g., not found, bad input).
+
+This significantly improves the completeness of the Achievements API and ensures new functionalities are covered by integration tests.
+
+**Core Components Implemented:**
+- New API endpoints for achievement leaderboard and admin CRUD operations.
+- New integration tests for these API endpoints.
+
+**File Paths:**
+- `src/dojopool/routes/api/achievements.py` (modified)
+- `src/dojopool/tests/integration/test_achievements_api.py` (modified)
+
+**Next Priority Task:**
+Implement proper admin authorization for the newly added admin achievement API endpoints. This involves either finding/creating an `@admin_required` decorator or integrating with an existing role/permission system within the Flask app context (e.g., checking `g.user.is_admin`).
+
+Expected completion time: 1-2 hours (depending on complexity of auth system integration)
+
+### 2024-07-18: Applied Admin Authorization to Achievement API Endpoints
+
+Secured the admin-level achievement API endpoints using the existing `@admin_required` decorator from `dojopool.auth.decorators`.
+
+1.  Identified the appropriate `@admin_required` decorator located in `src/dojopool/auth/decorators.py`, which checks for `current_user.has_role("admin")`.
+2.  Imported this decorator into `src/dojopool/routes/api/achievements.py`.
+3.  Replaced the temporary `@login_required` decorators and associated TODO comments on the admin CRUD routes (`POST /admin`, `GET /admin/<id>`, `PUT /admin/<id>`, `DELETE /admin/<id>`) with the `@admin_required` decorator.
+4.  Removed redundant placeholder comments for admin checks from within the function bodies of these routes.
+
+This ensures that these sensitive endpoints are now properly protected and can only be accessed by users with the "admin" role, aligning with standard security practices.
+
+**Core Components Implemented:**
+- Applied `@admin_required` decorator to relevant API endpoints.
+
+**File Paths:**
+- `src/dojopool/routes/api/achievements.py` (modified)
+
+**Next Priority Task:**
+With the Achievements API now more complete and secured, the next step is to run the relevant tests (unit and integration for achievements) to ensure all changes are working correctly and no regressions were introduced. Following successful tests, review the project roadmap for the next feature or refactoring task.
+
+Expected completion time: 30-45 minutes (for running tests and reviewing results)
+
+### 2024-07-18: Review of `src/` Naming Conventions and Dashboard Component Fix
+
+Conducted a review of `src/` subdirectories for file/directory naming and placement inconsistencies, focusing on adherence to project rules (PascalCase for components/classes, camelCase for utils/functions).
+
+**Key Actions & Findings:**
+1.  **`src/components/` Review:**
+    *   Identified `src/components/[UI]Dashboard.js` as a React component violating naming conventions (prefix, `.js` extension for a JSX file).
+    *   Renamed this file to `src/components/Dashboard.tsx`.
+    *   Updated its content to basic TypeScript (e.g., adding `React.FC`, typing state hooks) while preserving original functionality.
+    *   Deleted the old `src/components/[UI]Dashboard.js`.
+    *   Updated import paths for this component in `pages/dashboard.js`, `DojoPool/pages/dashboard.js`, `src/dojopool/frontend/[ROUTE]Router.tsx`, and its duplicate.
+    *   Other component files in `src/components/` largely adhere to PascalCase.tsx format.
+2.  **`src/services/` Review:**
+    *   Files like `api.ts` (exporting an axios instance) and `analytics.ts` (exporting an instance of a simple `AnalyticsService` class) use lowercase/camelCase names, which is acceptable for utility modules or modules primarily exporting instances/functions rather than a class of the same name.
+    *   Files like `WebSocketService.ts`, `PerformanceMonitor.ts`, etc., correctly use PascalCase for filenames matching their primary exported classes.
+    *   Noted two services related to analytics: `src/services/analytics.ts` (simple event logger) and `src/services/AnalyticsService.ts` (complex client-side analytics state manager). While names are very similar, their distinct purposes and export patterns make immediate renaming a lower priority, though potential for confusion exists.
+3.  **`src/utils/` Review:**
+    *   Files generally follow lowercase or camelCase (e.g., `analyticsUtils.ts`, `validation.ts`), which is appropriate for utility modules.
+4.  **`src/core/` and `src/features/` Review:**
+    *   These directories primarily contain subdirectories for modular organization. A deeper review of all nested files was deferred due to time and the iterative nature of the review task.
+5.  **`src/` Root Files:**
+    *   Observed files like `test_sqlite.py`, `convert_images.py`, and `README.md` at the root of `src/`. These might be better placed outside `src/` (e.g., in a project-level `scripts/` or `docs/` directory) if `src/` is intended purely for application source code. This is a minor structural observation for future consideration.
+
+**Outcome:**
+The most significant naming convention violation (`[UI]Dashboard.js`) was corrected. Other areas reviewed are largely compliant or have minor points for future consideration.
+
+**File Paths Modified/Reviewed:**
+- `src/components/Dashboard.tsx` (created/renamed from `[UI]Dashboard.js`)
+- `src/components/[UI]Dashboard.js` (deleted)
+- `pages/dashboard.js` (modified)
+- `DojoPool/pages/dashboard.js` (modified)
+- `src/dojopool/frontend/[ROUTE]Router.tsx` (modified)
+- `DojoPool/src/dojopool/frontend/[ROUTE]Router.tsx` (modified)
+- `src/services/api.ts` (inspected)
+- `src/services/analytics.ts` (inspected)
+- `src/services/AnalyticsService.ts` (inspected)
+- Various files in `src/utils/` (inspected via directory listing)
+
+**Next Priority Task:**
+Given the persistent issues with the Python virtual environment (`my_custom_venv`) hindering test execution, the highest priority is to establish a clean, functional Python environment as per the project's updated standards (`.venv` with `uv`). This is critical before proceeding with further development or verification tasks.
+
+Expected completion time: 45-60 minutes (for venv recreation and dependency installation)
+
 ---

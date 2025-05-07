@@ -1,13 +1,20 @@
 """Bridge module connecting computer vision events to game state."""
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Tuple, Union
+import logging
 
 from flask_socketio import emit
 
 from ..extensions import db
-from ..models.game import Game
+from ...models.game import Game
 from .monitor import GameMonitor
+# from ..ai.game_analysis import AIShotAnalyzer, DiceptionBallTracker # Temporarily commented out
+from ..game.shot import Shot as ShotData # Corrected and aliased import
+from ..game.shot import ShotResult as ShotOutcome # Corrected and aliased import
+
+
+logger = logging.getLogger(__name__)
 
 
 class VisionGameBridge:

@@ -25,34 +25,66 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 
 ## Installation
 
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-.\venv\Scripts\activate   # Windows
-```
+**Prerequisites:**
+- Python 3.13
+- Node.js (LTS version recommended)
+- `uv` (Python package manager, can be installed via `pip install uv`)
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-npm install
-```
+**Python Environment Setup (using uv):**
 
-3. Set up environment variables:
-```bash
-cp .env.template .env
-# Edit .env with your configuration
-```
+1.  **Install uv (if not already installed):**
+    ```bash
+    pip install uv
+    # OR, for a standalone install, refer to official uv documentation: https://github.com/astral-sh/uv
+    ```
 
-4. Initialize the database:
-```bash
-python init_db_script.py
-```
+2.  **Create and activate the virtual environment (named .venv):**
+    ```bash
+    uv venv .venv -p python3.13  # Or specify the path to your Python 3.13 interpreter
+    # Activate the environment:
+    # Windows (PowerShell):
+    . .\.venv\Scripts\Activate.ps1
+    # Windows (CMD):
+    .\.venv\Scripts\activate.bat
+    # Linux/Mac:
+    source .venv/bin/activate
+    ```
+    *Note: If `uv venv .venv -p python3.13` doesn't find Python 3.13 automatically, you might need to provide the full path to your Python 3.13 executable.*
+
+3.  **Install Python dependencies:**
+    ```bash
+    uv pip install -r requirements.txt
+    ```
+
+**Node.js Dependencies:**
+
+1.  **Install Node.js dependencies:**
+    ```bash
+    npm install
+    ```
+
+**Application Setup:**
+
+1.  **Set up environment variables:**
+    ```bash
+    cp .env.template .env
+    # Edit .env with your configuration
+    ```
+
+2.  **Initialize the database (if applicable for your setup):**
+    ```bash
+    # Ensure your .venv is activated
+    python init_db_script.py 
+    # Or using uv:
+    # uv run python init_db_script.py
+    ```
 
 ## Development
 
 - Run tests: `pytest`
 - Start development server: `python run.py`
+# If using uv and your .venv is activated, this should work.
+# Alternatively, you can use: uv run python run.py
 - Start frontend development: `npm run dev`
 - Format code: `black .`
 - Check types: `mypy .`

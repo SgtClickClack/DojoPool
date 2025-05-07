@@ -1,4 +1,4 @@
-import Dashboard from '../src/components/[UI]Dashboard';
+import Dashboard from '../src/components/Dashboard';
 import ProtectedRoute from '../src/components/auth/[AUTH]ProtectedRoute';
 
 export default function DashboardPage() {

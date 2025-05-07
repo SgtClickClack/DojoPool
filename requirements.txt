@@ -27,6 +27,13 @@ threadpoolctl
 prometheus-client
 # solana==0.25.0  # Disabled due to websockets conflict with web3. Use a split environment for Solana/Ethereum dev.
 web3>=6.0.0
+cryptography
+ledgerblue
+fastapi
+# trezorlib  # Temporarily removed due to conflict
+opencv-python # For cv2
+qrcode        # For QR code generation
+pandas        # For data analysis, e.g., in qr_export
 
 # Security
 werkzeug==3.0.1

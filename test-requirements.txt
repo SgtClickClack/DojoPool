@@ -15,4 +15,6 @@ redis
 joblib
 aiohttp
 aiosmtplib
-Flask-DebugToolbar 
+Flask-DebugToolbar
+fakeredis
+pytest-asyncio 

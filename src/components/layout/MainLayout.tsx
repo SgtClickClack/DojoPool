@@ -11,8 +11,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useAuth } from "../auth/AuthContext";
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -55,7 +54,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
               }}
             >
               <Link
-                href="/"
+                to="/"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -65,11 +64,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 <Box
                   sx={{ position: "relative", width: 40, height: 40, mr: 1 }}
                 >
-                  <Image
+                  <img
                     src="/images/logo.webp"
                     alt="DojoPool Logo"
-                    fill
-                    style={{ objectFit: "contain" }}
+                    style={{ objectFit: "contain", width: "100%", height: "100%" }}
                   />
                 </Box>
                 <Typography
