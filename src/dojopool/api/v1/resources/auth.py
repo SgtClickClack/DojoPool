@@ -64,21 +64,28 @@ class LoginResource(BaseResource):
 
     def post(self):
         """Handle login request."""
-        data = self.get_json_data()
+        try:
+            print("[LOGIN] Entered post method", flush=True)
+            print("[LOGIN] Incoming request", flush=True)
+            data = self.get_json_data()
+            print("[LOGIN] Data:", data, flush=True)
 
-        user = User.query.filter_by(email=data["email"]).first()
+            user = User.query.filter_by(email=data["email"]).first()
 
-        if not user or not check_password(data["password"], user.password):
-            raise AuthenticationError("Invalid email or password")
+            if not user or not check_password(user.password_hash, data["password"]):
+                raise AuthenticationError("Invalid email or password")
 
-        if not user.is_active:
-            raise AuthenticationError("Account is not active")
+            if not user.is_active:
+                raise AuthenticationError("Account is not active")
 
-        login_user(user, remember=data["remember"])
+            login_user(user, remember=data["remember"])
 
-        return self.success_response(
-            message="Login successful", data={"user_id": user.id}
-        )
+            return self.success_response(
+                message="Login successful", data={"user_id": user.id}
+            )
+        except Exception as e:
+            print("[LOGIN ERROR]", e, flush=True)
+            raise
 
 
 class LogoutResource(BaseResource):

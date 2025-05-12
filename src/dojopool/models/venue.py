@@ -6,7 +6,7 @@ and docstrings for better clarity and maintainability.
 """
 
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import (
     JSON,
@@ -17,12 +17,16 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    ForeignKey,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from ..extensions import db
 from ..validation import VenueValidator
+
+if TYPE_CHECKING:
+    from .location import Location
 
 
 class Venue(db.Model):
@@ -58,6 +62,7 @@ class Venue(db.Model):
     # Location
     latitude = Column(Float)
     longitude = Column(Float)
+    location_id = Column(Integer, ForeignKey("locations.id"), nullable=True)
 
     # Media and links
     photos = Column(JSON)  # List of photo URLs
@@ -70,12 +75,14 @@ class Venue(db.Model):
     amenities_summary = Column(JSON)  # Quick access to available amenities
     rules = Column(Text)  # Venue rules and policies
     notes = Column(Text)  # Internal notes
+    pricing_data = Column(JSON) # Store structured pricing data
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)  # type: datetime
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    location = relationship("Location", back_populates="venues")
     checkins = relationship("dojopool.models.venue_checkin.VenueCheckIn", back_populates="venue")
     operating_hours = relationship("dojopool.models.venue_operating_hours.VenueOperatingHours", back_populates="venue")
     amenities = relationship("dojopool.models.venue_amenity.VenueAmenity", back_populates="venue")
@@ -83,24 +90,6 @@ class Venue(db.Model):
 
     # Validation
     validator_class = VenueValidator
-
-    def __init__(
-        self,
-        id: int,
-        name: str,
-        latitude: Optional[float] = None,
-        longitude: Optional[float] = None,
-        contact_email: Optional[str] = None,
-        contact_phone: Optional[str] = None,
-    ) -> None:
-        self.id = id
-        self.name = name
-        self.latitude = latitude
-        self.longitude = longitude
-        self.contact_email = contact_email
-        self.contact_phone = contact_phone
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
 
     def __repr__(self) -> str:
         """

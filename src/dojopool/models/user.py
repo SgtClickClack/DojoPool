@@ -7,17 +7,27 @@ with detailed docstrings, secure password handling, and complete type safety.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING, List
 
 from flask_login import UserMixin  # type: ignore
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey # Added Float, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey, JSON # Added Float, ForeignKey, JSON
 from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from dojopool.core.extensions import db  # type: ignore
 
 from .user_roles import user_roles
-from .friendship import Friendship # Import Friendship
+# from .friendship import Friendship # COMMENT OUT or REMOVE direct import here
+
+if TYPE_CHECKING:
+    from .social import SocialProfile # Corrected import path
+    from .friendship import Friendship # MOVED here for type hinting
+    # from .achievement import UserAchievement # For type hinting - COMMENTED OUT
+    from .game import Game # For type hinting
+    # from .player import PlayerStats # GUESS: Corrected import path for PlayerStats - COMMENTED OUT
+    from .notification import Notification # For type hinting
+    from .inventory import Inventory # For type hinting
 
 
 class User(db.Model, UserMixin):
@@ -72,9 +82,39 @@ class User(db.Model, UserMixin):
     social_profile = db.relationship("SocialProfile", uselist=False, back_populates="user")
 
     # Friendships
-    friendships_as_user1 = relationship("Friendship", foreign_keys="Friendship.user1_id", back_populates="user1")
-    friendships_as_user2 = relationship("Friendship", foreign_keys="Friendship.user2_id", back_populates="user2")
-    friendship_actions = relationship("Friendship", foreign_keys="Friendship.action_user_id", back_populates="action_user")
+    friendships_as_user1 = relationship(
+        "dojopool.models.friendship.Friendship", # Use fully qualified string
+        foreign_keys="dojopool.models.friendship.Friendship.user1_id",
+        back_populates="user1"
+    )
+    friendships_as_user2 = relationship(
+        "dojopool.models.friendship.Friendship", # Use fully qualified string
+        foreign_keys="dojopool.models.friendship.Friendship.user2_id",
+        back_populates="user2"
+    )
+    friendship_actions = relationship(
+        "dojopool.models.friendship.Friendship", # Use fully qualified string
+        foreign_keys="dojopool.models.friendship.Friendship.action_user_id",
+        back_populates="action_user"
+    )
+
+    # Inventory relationship - ADDED
+    inventory = relationship("dojopool.models.inventory.Inventory", back_populates="user", cascade="all, delete-orphan")
+
+    # Commenting out achievements relationship as UserAchievement model is commented out
+    # achievements = relationship("UserAchievement", back_populates="user", cascade="all, delete-orphan")
+
+    # Relationships with Game model
+    # games_as_player1 = relationship(
+    #     Game,
+    #     foreign_keys="dojopool.models.game.Game.player1_id",
+    #     back_populates="player1"
+    # )
+    # games_as_player2 = relationship(
+    #     Game,
+    #     foreign_keys="dojopool.models.game.Game.player2_id",
+    #     back_populates="player2"
+    # )
 
     def __repr__(self) -> str:
         """

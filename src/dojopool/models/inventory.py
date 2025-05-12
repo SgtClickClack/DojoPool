@@ -22,7 +22,7 @@ class Inventory(TimestampedModel):
     is_active = db.Column(db.Boolean, default=True)
 
     # Relationships
-    user = db.relationship("User", back_populates="inventory")
+    user = db.relationship("dojopool.models.user.User", back_populates="inventory")
 
     @classmethod
     def get_user_inventory(cls, user_id: int) -> List[Dict[str, Any]]:

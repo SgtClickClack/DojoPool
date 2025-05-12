@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+from math import radians, cos, sin, asin, sqrt
+from sqlalchemy import String, cast
 
 from flask import (
     Blueprint,
@@ -14,10 +16,11 @@ from flask import (
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
-from ..core.database import db
-from ..core.forms.venue_forms import VenueForm, VenueSearchForm
-from ..core.models.venue import Venue, VenueCheckin
-from ..core.extensions import cache
+from dojopool.core.database import db
+from dojopool.forms.venue_forms import VenueForm, VenueSearchForm
+from dojopool.models.venue import Venue
+from dojopool.models.venue_checkin import VenueCheckIn
+from dojopool.core.extensions import cache
 
 venue_bp = Blueprint("venue", __name__)
 
@@ -29,11 +32,11 @@ def list_venues():
     query = Venue.query.filter_by(is_active=True)
 
     if form.city.data:
-        query = query.filter(Venue.city.ilike(f"%{form.city.data}%"))
+        query = query.filter(Venue.city.ilike(f"%{form.city.data}%"))  # type: ignore
     if form.state.data:
-        query = query.filter(Venue.state.ilike(f"%{form.state.data}%"))
+        query = query.filter(Venue.state.ilike(f"%{form.state.data}%"))  # type: ignore
     if form.features.data:
-        query = query.filter(Venue.features.contains(form.features.data))
+        query = query.filter(cast(Venue.amenities_summary, String).ilike(f"%{form.features.data}%"))  # type: ignore
     if form.min_tables.data:
         query = query.filter(Venue.tables >= form.min_tables.data)
     if form.min_rating.data:
@@ -60,46 +63,41 @@ def create_venue():
                 filename = secure_filename(form.image.data.filename)
                 filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
                 form.image.data.save(filepath)
-                venue.image_url = url_for("static", filename=f"uploads/{filename}")
-
+                venue.featured_image = url_for("static", filename=f"uploads/{filename}")
             # Format hours
-            venue.hours = {
+            venue.hours_data = {  # type: ignore
                 "monday": {
-                    "open": form.monday_open.data.strftime("%H:%M"),
-                    "close": form.monday_close.data.strftime("%H:%M"),
+                    "open": form.monday_open.data.strftime("%H:%M") if form.monday_open.data else None,
+                    "close": form.monday_close.data.strftime("%H:%M") if form.monday_close.data else None,
                 },
                 "tuesday": {
-                    "open": form.tuesday_open.data.strftime("%H:%M"),
-                    "close": form.tuesday_close.data.strftime("%H:%M"),
+                    "open": form.tuesday_open.data.strftime("%H:%M") if form.tuesday_open.data else None,
+                    "close": form.tuesday_close.data.strftime("%H:%M") if form.tuesday_close.data else None,
                 },
                 "wednesday": {
-                    "open": form.wednesday_open.data.strftime("%H:%M"),
-                    "close": form.wednesday_close.data.strftime("%H:%M"),
+                    "open": form.wednesday_open.data.strftime("%H:%M") if form.wednesday_open.data else None,
+                    "close": form.wednesday_close.data.strftime("%H:%M") if form.wednesday_close.data else None,
                 },
                 "thursday": {
-                    "open": form.thursday_open.data.strftime("%H:%M"),
-                    "close": form.thursday_close.data.strftime("%H:%M"),
+                    "open": form.thursday_open.data.strftime("%H:%M") if form.thursday_open.data else None,
+                    "close": form.thursday_close.data.strftime("%H:%M") if form.thursday_close.data else None,
                 },
                 "friday": {
-                    "open": form.friday_open.data.strftime("%H:%M"),
-                    "close": form.friday_close.data.strftime("%H:%M"),
+                    "open": form.friday_open.data.strftime("%H:%M") if form.friday_open.data else None,
+                    "close": form.friday_close.data.strftime("%H:%M") if form.friday_close.data else None,
                 },
                 "saturday": {
-                    "open": form.saturday_open.data.strftime("%H:%M"),
-                    "close": form.saturday_close.data.strftime("%H:%M"),
+                    "open": form.saturday_open.data.strftime("%H:%M") if form.saturday_open.data else None,
+                    "close": form.saturday_close.data.strftime("%H:%M") if form.saturday_close.data else None,
                 },
                 "sunday": {
-                    "open": form.sunday_open.data.strftime("%H:%M"),
-                    "close": form.sunday_close.data.strftime("%H:%M"),
+                    "open": form.sunday_open.data.strftime("%H:%M") if form.sunday_open.data else None,
+                    "close": form.sunday_close.data.strftime("%H:%M") if form.sunday_close.data else None,
                 },
             }
 
             # Format pricing
-            venue.pricing = {"per_hour": form.per_hour.data, "per_game": form.per_game.data}
-
-            # Update location if coordinates provided
-            if form.latitude.data and form.longitude.data:
-                venue.update_location()
+            venue.pricing_data = {"per_hour": form.per_hour.data, "per_game": form.per_game.data}  # type: ignore
 
             db.session.add(venue)
             db.session.commit()
@@ -151,46 +149,42 @@ def edit_venue(venue_id):
                 filename = secure_filename(form.image.data.filename)
                 filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
                 form.image.data.save(filepath)
-                venue.image_url = url_for("static", filename=f"uploads/{filename}")
+                venue.featured_image = url_for("static", filename=f"uploads/{filename}")
 
             # Format hours
-            venue.hours = {
+            venue.hours_data = {  # type: ignore
                 "monday": {
-                    "open": form.monday_open.data.strftime("%H:%M"),
-                    "close": form.monday_close.data.strftime("%H:%M"),
+                    "open": form.monday_open.data.strftime("%H:%M") if form.monday_open.data else None,
+                    "close": form.monday_close.data.strftime("%H:%M") if form.monday_close.data else None,
                 },
                 "tuesday": {
-                    "open": form.tuesday_open.data.strftime("%H:%M"),
-                    "close": form.tuesday_close.data.strftime("%H:%M"),
+                    "open": form.tuesday_open.data.strftime("%H:%M") if form.tuesday_open.data else None,
+                    "close": form.tuesday_close.data.strftime("%H:%M") if form.tuesday_close.data else None,
                 },
                 "wednesday": {
-                    "open": form.wednesday_open.data.strftime("%H:%M"),
-                    "close": form.wednesday_close.data.strftime("%H:%M"),
+                    "open": form.wednesday_open.data.strftime("%H:%M") if form.wednesday_open.data else None,
+                    "close": form.wednesday_close.data.strftime("%H:%M") if form.wednesday_close.data else None,
                 },
                 "thursday": {
-                    "open": form.thursday_open.data.strftime("%H:%M"),
-                    "close": form.thursday_close.data.strftime("%H:%M"),
+                    "open": form.thursday_open.data.strftime("%H:%M") if form.thursday_open.data else None,
+                    "close": form.thursday_close.data.strftime("%H:%M") if form.thursday_close.data else None,
                 },
                 "friday": {
-                    "open": form.friday_open.data.strftime("%H:%M"),
-                    "close": form.friday_close.data.strftime("%H:%M"),
+                    "open": form.friday_open.data.strftime("%H:%M") if form.friday_open.data else None,
+                    "close": form.friday_close.data.strftime("%H:%M") if form.friday_close.data else None,
                 },
                 "saturday": {
-                    "open": form.saturday_open.data.strftime("%H:%M"),
-                    "close": form.saturday_close.data.strftime("%H:%M"),
+                    "open": form.saturday_open.data.strftime("%H:%M") if form.saturday_open.data else None,
+                    "close": form.saturday_close.data.strftime("%H:%M") if form.saturday_close.data else None,
                 },
                 "sunday": {
-                    "open": form.sunday_open.data.strftime("%H:%M"),
-                    "close": form.sunday_close.data.strftime("%H:%M"),
+                    "open": form.sunday_open.data.strftime("%H:%M") if form.sunday_open.data else None,
+                    "close": form.sunday_close.data.strftime("%H:%M") if form.sunday_close.data else None,
                 },
             }
 
             # Format pricing
-            venue.pricing = {"per_hour": form.per_hour.data, "per_game": form.per_game.data}
-
-            # Update location if coordinates provided
-            if form.latitude.data and form.longitude.data:
-                venue.update_location()
+            venue.pricing_data = {"per_hour": form.per_hour.data, "per_game": form.per_game.data}  # type: ignore
 
             db.session.commit()
             flash("Venue updated successfully!", "success")
@@ -206,11 +200,34 @@ def edit_venue(venue_id):
 @venue_bp.route("/venues/<int:venue_id>/check-in", methods=["POST"])
 @login_required
 def check_in(venue_id):
-    """Check in at a venue."""
-    Venue.query.get_or_404(venue_id)
+    """Check in at a venue with QR code and geolocation validation."""
+    venue = Venue.query.get_or_404(venue_id)
+
+    data = request.get_json() or {}
+    qr_code = data.get("qrCode")
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+
+    # Validate QR code (simple convention: qrCode == f'venue-{venue_id}')
+    if qr_code is not None and qr_code != f"venue-{venue_id}":
+        return jsonify({"error": "Invalid QR code for this venue."}), 400
+
+    # Validate geolocation (must be within 50 meters of venue)
+    if latitude is not None and longitude is not None and venue.latitude and venue.longitude:
+        def haversine(lat1, lon1, lat2, lon2):
+            # Haversine formula to calculate the distance between two lat/lon points in meters
+            R = 6371000  # Earth radius in meters
+            dlat = radians(lat2 - lat1)
+            dlon = radians(lon2 - lon1)
+            a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
+            c = 2 * asin(sqrt(a))
+            return R * c
+        distance = haversine(float(latitude), float(longitude), float(venue.latitude), float(venue.longitude))
+        if distance > 50:
+            return jsonify({"error": f"You must be within 50 meters of the venue to check in. (Distance: {distance:.1f}m)"}), 400
 
     # Check if user is already checked in
-    existing_checkin = VenueCheckin.query.filter_by(
+    existing_checkin = VenueCheckIn.query.filter_by(
         venue_id=venue_id, player_id=current_user.id
     ).first()
 
@@ -218,8 +235,10 @@ def check_in(venue_id):
         return jsonify({"error": "You are already checked in at this venue"}), 400
 
     try:
-        checkin = VenueCheckin(
-            venue_id=venue_id, player_id=current_user.id, check_in_time=datetime.utcnow()
+        checkin = VenueCheckIn(  # type: ignore
+            venue_id=venue_id,
+            user_id=current_user.id,
+            checked_in_at=datetime.utcnow()
         )
         db.session.add(checkin)
         db.session.commit()

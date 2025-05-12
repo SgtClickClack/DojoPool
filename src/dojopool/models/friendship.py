@@ -2,6 +2,7 @@
 
 from ..core.database import db
 from ..core.mixins import TimestampMixin
+# from .user import User  # REMOVE Direct import of User
 
 
 class Friendship(TimestampMixin, db.Model):

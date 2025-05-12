@@ -42,7 +42,10 @@ class BaseResource(Resource):
             return {"message": str(e)}, 404
         except APIError as e:
             return {"message": str(e)}, e.status_code
-        except Exception:
+        except Exception as e:
+            import traceback
+            print("[dispatch_request ERROR]", e, flush=True)
+            traceback.print_exc()
             return {"message": "Internal server error"}, 500
 
     def get_json_data(self) -> Dict[str, Any]:
@@ -54,15 +57,31 @@ class BaseResource(Resource):
         Raises:
             ValidationError: If validation fails.
         """
-        if not request.is_json:
-            raise ValidationError("Content-Type must be application/json")
+        try:
+            print("[get_json_data] Entered", flush=True)
+            if not request.is_json:
+                print("[get_json_data] Not JSON", flush=True)
+                raise ValidationError("Content-Type must be application/json")
 
-        data = request.get_json()
+            data = request.get_json()
+            print("[get_json_data] Raw data:", data, flush=True)
 
-        if self.schema:
-            return self.schema.load(data)
+            if self.schema:
+                print("[get_json_data] Validating with schema", flush=True)
+                validated = self.schema.load(data)
+                print("[get_json_data] Validated data:", validated, flush=True)
+                # Ensure validated data is a dict before returning
+                if not isinstance(validated, dict):
+                    raise ValidationError("Schema validation must return a dictionary")
+                return validated
 
-        return data
+            print("[get_json_data] Returning raw data", flush=True)
+            if not isinstance(data, dict):
+                raise ValidationError("Request data must be a dictionary") 
+            return data
+        except Exception as e:
+            print("[get_json_data ERROR]", e, flush=True)
+            raise
 
     def paginate(self, query, schema: Optional[Schema] = None) -> Dict[str, Any]:
         """Paginate query results.
@@ -136,6 +155,6 @@ class BaseResource(Resource):
         response = {"message": message}
 
         if errors is not None:
-            response["errors"] = errors
+            response["errors"] = errors  # type: ignore
 
         return response, status_code

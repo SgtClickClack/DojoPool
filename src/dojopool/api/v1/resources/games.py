@@ -18,6 +18,7 @@ from dojopool.core.extensions import db
 # Commenting out or updating cache imports until their correct paths are confirmed
 # from dojopool.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
 # from dojopool.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
+from dojopool.core.models.game_analytics import GameAnalytics
 
 from .base import BaseResource
 
@@ -172,6 +173,59 @@ class GameResource(BaseResource):
         game.delete()
 
         return self.success_response(message="Game deleted successfully")
+
+    @require_auth
+    def post(self, game_id):
+        """Complete a game and trigger analytics update."""
+        # Only allow this for a specific endpoint
+        if request.path.endswith(f"/games/{game_id}/complete"):
+            game = Game.query.get(game_id)
+            if not game:
+                raise NotFoundError("Game not found")
+
+            # Check if user is a player or admin
+            if not (
+                current_user.has_role("admin")
+                or current_user.id in [game.player1_id, game.player2_id]
+            ):
+                raise AuthorizationError()
+
+            data = request.get_json() or {}
+            winner_id = data.get("winner_id")
+            score = data.get("score")
+            if not winner_id or not score:
+                return self.error_response("winner_id and score are required", 400)
+
+            # Complete the game
+            game.complete_game(winner_id, score)
+
+            # Update or create analytics for both players
+            for player_id in [game.player1_id, game.player2_id]:
+                analytics = GameAnalytics.query.filter_by(game_id=game.id, player_id=player_id).first()
+                if not analytics:
+                    analytics = GameAnalytics(game_id=game.id, player_id=player_id)
+                # Example: update stats (real logic would use actual game data)
+                analytics.total_shots = analytics.total_shots or 0
+                analytics.successful_shots = analytics.successful_shots or 0
+                analytics.failed_shots = analytics.failed_shots or 0
+                analytics.fouls = analytics.fouls or 0
+                analytics.points_scored = analytics.points_scored or 0
+                analytics.updated_at = datetime.utcnow()
+                db.session.add(analytics)
+            db.session.commit()
+
+            return self.success_response(
+                data={
+                    "game": self.schema.dump(game),
+                    "analytics": [
+                        GameAnalytics.query.filter_by(game_id=game.id, player_id=game.player1_id).first(),
+                        GameAnalytics.query.filter_by(game_id=game.id, player_id=game.player2_id).first(),
+                    ],
+                },
+                message="Game completed and analytics updated successfully",
+            )
+        # Fallback to normal POST if not /complete
+        return super().post(game_id)
 
 
 class GameListResource(BaseResource):

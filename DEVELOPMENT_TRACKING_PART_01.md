@@ -357,3 +357,49 @@ Created and integrated the LiveCommentary component, which subscribes to live AI
 Continue with the next outstanding user journey or technical feature (e.g., post-game analytics or rewards processing).
 
 Expected completion time: 1 day
+
+### 2025-05-12: Backend Stability & Login Restoration
+
+Resolved critical and persistent issues preventing the Python Flask backend server from starting reliably and the `/api/v1/auth/login` endpoint from functioning. This involved extensive debugging of SQLAlchemy initialization errors (NoForeignKeysError, MappperInitializationError), database schema mismatches, Flask-Migrate workflow correction, and Python environment (PYTHONPATH, __pycache__) issues.
+
+**Core Components Implemented/Fixed:**
+- Corrected SQLAlchemy model relationships (User, Friendship, Location, Venue, Inventory) to use fully qualified string names or TYPE_CHECKING imports to avoid circular dependencies and ensure proper mapper configuration.
+- Standardized Flask application configuration loading, ensuring the `DevelopmentConfig` uses an absolute path for `SQLALCHEMY_DATABASE_URI` (`src/instance/dojopool_dev.db`).
+- Established a clean and repeatable Flask-Migrate workflow:
+    - Cleared stale migration files and the existing database.
+    - Created a blank initial revision (`flask db revision`).
+    - Stamped the database to this blank revision (`flask db stamp <revision_id>`).
+    - Generated a new, comprehensive migration from current models (`flask db migrate`).
+    - Applied the new migration (`flask db upgrade`).
+- Ensured Python `__pycache__` directories were cleared to prevent stale bytecode from interfering with model loading.
+- Successfully started the Flask server and confirmed the `/api/v1/auth/login` endpoint returns a 200 OK with an access token for valid credentials.
+
+**Key Features Restored:**
+- Backend server stability.
+- User authentication via API login.
+- Foundational database integrity for core models.
+
+**Integration Points:**
+- Python Flask application startup (`[PY]run.py`, `src/dojopool/app.py`)
+- SQLAlchemy ORM (`src/dojopool/models/*`)
+- Flask-Migrate (`migrations/`)
+- Configuration (`src/dojopool/core/config/development.py`)
+- API Authentication (`src/dojopool/api/v1/resources/auth.py`)
+
+**File Paths:**
+- `[PY]run.py`
+- `src/dojopool/app.py`
+- `src/dojopool/core/config/development.py`
+- `src/dojopool/models/user.py`
+- `src/dojopool/models/friendship.py`
+- `src/dojopool/models/location.py`
+- `src/dojopool/models/venue.py`
+- `src/dojopool/models/inventory.py`
+- `src/dojopool/api/v1/resources/auth.py`
+- `migrations/` directory (workflow standardized)
+- `src/instance/dojopool_dev.db` (schema corrected)
+
+**Next Priority Task:**
+Proceed with outstanding tasks from DEVELOPMENT_TRACKING_PART_02.md, starting with "AI Referee (Sky-T1) integration tests" now that the Node.js/npm environment issue is (presumed) resolved and the backend is stable. If Node.js issues persist, address those first.
+
+Expected completion time: Ongoing (for PART_02 tasks)

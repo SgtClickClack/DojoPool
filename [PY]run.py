@@ -38,6 +38,12 @@ if __name__ == "__main__":
         logging.error(f"Port {port} is already in use or unavailable: {e}")
         sys.exit(1)
 
+    # Debug: Print all registered routes
+    with app.app_context():
+        print("[ROUTES]")
+        for rule in app.url_map.iter_rules():
+            print(rule)
+
     # Run the app with correct async/SSL handling
     import eventlet
     async_mode = getattr(socketio, 'async_mode', 'eventlet')

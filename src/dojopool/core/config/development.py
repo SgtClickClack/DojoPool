@@ -11,8 +11,19 @@ class DevelopmentConfig(Config):
     ENV = "development"
 
     # Development database
+    # Construct an absolute path to the database file
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+    DB_NAME = "dojopool_dev.db"
+    INSTANCE_FOLDER_PATH = os.path.join(PROJECT_ROOT, "src", "instance")
+    
+    # Ensure instance folder exists
+    if not os.path.exists(INSTANCE_FOLDER_PATH):
+        os.makedirs(INSTANCE_FOLDER_PATH)
+        
+    ABSOLUTE_DB_PATH = os.path.join(INSTANCE_FOLDER_PATH, DB_NAME)
+    
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DEV_DATABASE_URL", "sqlite:///../instance/dojopool_dev.db"
+        "DEV_DATABASE_URL", f"sqlite:///{ABSOLUTE_DB_PATH.replace(os.sep, '/')}"
     )
     SQLALCHEMY_ECHO = True  # Log SQL queries
     SQLALCHEMY_RECORD_QUERIES = True # Record queries for debugging

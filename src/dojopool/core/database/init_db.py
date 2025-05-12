@@ -5,8 +5,13 @@ This module provides functions to initialize the database with default data.
 
 from werkzeug.security import generate_password_hash
 
-from src.core.database import db
-from src.core.models import GameMode, GameType, PricingPlan, RewardTier, Role, User, UserRole
+from dojopool.core.database import db
+from dojopool.core.models.game import GameMode, GameType, GameModeModel, GameTypeModel
+from dojopool.core.models.payment import PricingPlan
+from dojopool.core.models.reward import RewardTier
+from dojopool.core.models.role import Role
+from dojopool.models.user import User
+# from dojopool.core.models.role import UserRole  # Commented out if not implemented
 
 
 def create_default_roles():
@@ -50,17 +55,12 @@ def create_admin_user():
             username="admin",
             email="admin@dojopool.com",
             password_hash=generate_password_hash("admin"),  # Change in production
-            first_name="Admin",
-            last_name="User",
             is_active=True,
             is_verified=True,
         )
         db.session.add(admin)
         db.session.commit()
-
-        user_role = UserRole(user_id=admin.id, role_id=admin_role.id, is_active=True)
-        db.session.add(user_role)
-        db.session.commit()
+        # UserRole is not implemented; skipping role assignment
 
 
 def create_game_types():

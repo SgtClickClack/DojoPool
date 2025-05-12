@@ -4,7 +4,7 @@ This module contains the PlayerStatus model for tracking player status in games 
 """
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from dojopool.core.database.db_utils import reference_col
 from dojopool.core.extensions import db
@@ -24,14 +24,14 @@ class PlayerStatus(TimestampedModel):
     venue_id = reference_col("venues", nullable=True)
     status = db.Column(db.String(50), nullable=False, default="offline")
     last_active = db.Column(db.DateTime, default=datetime.utcnow)
-    current_activity = db.Column(db.String(100))
+    current_activity = db.Column(db.String(100), nullable=True)
     is_available = db.Column(db.Boolean, default=True)
     is_busy = db.Column(db.Boolean, default=False)
     is_away = db.Column(db.Boolean, default=False)
     custom_status = db.Column(db.String(200))
 
     # Relationships
-    player = db.relationship("Player", backref="status_history")
+    player = db.relationship("Player", back_populates="current_status")
     game = db.relationship("Game", backref="player_statuses")
     venue = db.relationship("Venue", backref="player_statuses")
 
@@ -58,7 +58,7 @@ class PlayerStatus(TimestampedModel):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-    def update_status(self, status: str, activity: str = None) -> None:
+    def update_status(self, status: str, activity: Optional[str] = None) -> None:
         """Update player status."""
         self.status = status
         self.last_active = datetime.utcnow()
