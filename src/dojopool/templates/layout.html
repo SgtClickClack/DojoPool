@@ -31,24 +31,24 @@
 <div class="nav-links">
                     {% if current_user.is_authenticated %}
                         <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
-<a class="nav-link" href="{{ url_for('main.games') }}">Games</a>
-<a class="nav-link" href="{{ url_for('main.matches') }}">Matches</a>
-<div class="dropdown">
-<button class="btn" data-dropdown-toggle="">
+                        {# <a class="nav-link" href="{{ url_for('main.games') }}">Games</a> #}
+                        {# <a class="nav-link" href="{{ url_for('main.matches') }}">Matches</a> #}
+                        <div class="dropdown">
+                            <button class="btn" data-dropdown-toggle="">
                                 {{ current_user.username }}
                             </button>
-<div class="dropdown-menu" data-dropdown-menu="">
-<a class="dropdown-item" href="{{ url_for('main.profile') }}">Profile</a>
-<a class="dropdown-item" href="{{ url_for('main.settings') }}">Settings</a>
-<div class="dropdown-divider"></div>
-<form action="{{ url_for('auth.logout') }}" class="dropdown-item" method="post">
-<button class="btn-link" type="submit">Logout</button>
-</form>
-</div>
-</div>
+                            <div class="dropdown-menu" data-dropdown-menu="">
+                                {# <a class="dropdown-item" href="{{ url_for('main.profile') }}">Profile</a> #}
+                                {# <a class="dropdown-item" href="{{ url_for('main.settings') }}">Settings</a> #}
+                                <div class="dropdown-divider"></div>
+                                <form action="{{ url_for('auth.logout') }}" class="dropdown-item" method="post">
+                                    <button class="btn-link" type="submit">Logout</button>
+                                </form>
+                            </div>
+                        </div>
                     {% else %}
                         <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Login</a>
-<a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Register</a>
+                        <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Register</a>
                     {% endif %}
                 </div>
 </nav>

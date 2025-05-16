@@ -1,388 +1,289 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Container,
-  Grid,
-  Paper,
+  Card,
+  CardContent,
   Typography,
-  Tabs,
-  Tab,
-  CircularProgress,
-  Alert,
+  Grid,
   LinearProgress,
+  useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
+  Timeline,
+  Memory,
+  Speed,
+  Timer,
+  NetworkCheck,
+  Refresh,
+  Warning,
+} from "@mui/icons-material";
+import {
+  usePerformanceMonitoring,
+  PerformanceMetrics,
+} from "../services/PerformanceMonitor";
 
-interface SystemMetrics {
-  cpu: {
-    percent: number;
-    cores: number;
-    frequency: {
-      current: number;
-      min: number;
-      max: number;
-    };
-  };
-  memory: {
-    total: number;
-    available: number;
-    percent: number;
-    used: number;
-  };
-  disk: {
-    total: number;
-    used: number;
-    free: number;
-    percent: number;
-  };
-}
-
-interface ApiMetrics {
-  total_requests: number;
-  requests_by_type: Record<string, number>;
-  average_response_time: number;
-  error_rate: number;
-}
-
-interface DatabaseMetrics {
-  connections: {
-    total: number;
-    checkedin: number;
-    overflow: number;
-    checkedout: number;
-  };
-  queries: {
-    total: number;
-    slow: number;
-    errors: number;
-  };
-}
-
-interface CacheMetrics {
-  hits: number;
-  misses: number;
-  hit_rate: number;
-  memory_used: number;
-  connected_clients: number;
-}
-
-interface PerformanceData {
-  system?: SystemMetrics;
-  api?: ApiMetrics;
-  database?: DatabaseMetrics;
-  cache?: CacheMetrics;
-}
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
+const MetricCard: React.FC<{
+  title: string;
   value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  unit: string;
+  icon: React.ReactNode;
+  progress: number;
+  warning?: boolean;
+}> = ({ title, value, unit, icon, progress, warning }) => {
+  const theme = useTheme();
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`performance-tabpanel-${index}`}
-      aria-labelledby={`performance-tab-${index}`}
-      {...other}
+    <Card
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        overflow: "visible",
+      }}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+      <CardContent>
+        <Box
+          sx={{
+            position: "absolute",
+            top: -20,
+            left: 20,
+            backgroundColor: warning
+              ? theme.palette.warning.main
+              : theme.palette.primary.main,
+            borderRadius: "50%",
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            boxShadow: theme.shadows[3],
+          }}
+        >
+          {icon}
+        </Box>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h6" component="div" sx={{ mb: 1 }}>
+            {title}
+          </Typography>
+          <Typography variant="h4" component="div" color="text.primary">
+            {value.toFixed(1)}
+            <Typography
+              component="span"
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{ ml: 0.5 }}
+            >
+              {unit}
+            </Typography>
+          </Typography>
+          <Box sx={{ mt: 2 }}>
+            <LinearProgress
+              variant="determinate"
+              value={progress}
+              color={warning ? "warning" : "primary"}
+              sx={{
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: theme.palette.grey[200],
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: 4,
+                },
+              }}
+            />
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
   );
-}
+};
 
-export default function PerformanceDashboard() {
-  const [data, setData] = useState<PerformanceData>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [tabValue, setTabValue] = useState(0);
+export const PerformanceDashboard: React.FC = () => {
+  const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { getMetrics } = usePerformanceMonitoring((newMetrics) => {
+    setMetrics(newMetrics);
+  });
 
   useEffect(() => {
-    fetchMetrics();
-  }, [tabValue]);
+    setMetrics(getMetrics());
+  }, [getMetrics, refreshKey]);
 
-  const fetchMetrics = async () => {
-    try {
-      setLoading(true);
-      const types = ["system", "api", "database", "cache"];
-      const metrics = await Promise.all(
-        types.map(async (type) => {
-          const response = await fetch(
-            `/api/monitoring/performance?type=${type}`,
-          );
-          if (!response.ok) {
-            throw new Error(`Failed to fetch ${type} metrics`);
-          }
-          return response.json();
-        }),
-      );
-
-      setData({
-        system: metrics[0],
-        api: metrics[1],
-        database: metrics[2],
-        cache: metrics[3],
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch metrics");
-    } finally {
-      setLoading(false);
-    }
+  const handleRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
-  if (loading) {
+  if (!metrics) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="400px"
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <Typography>Loading performance metrics...</Typography>
       </Box>
     );
   }
 
-  if (error) {
-    return (
-      <Box p={3}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
-  }
+  const getFPSProgress = (fps: number) => Math.min((fps / 60) * 100, 100);
+  const getMemoryProgress = (memory: number) =>
+    Math.min((memory / 1000) * 100, 100);
+  const getResponseProgress = (time: number) =>
+    Math.min((time / 200) * 100, 100);
+  const getLoadProgress = (time: number) => Math.min((time / 3000) * 100, 100);
+  const getLatencyProgress = (latency: number) =>
+    Math.min((latency / 100) * 100, 100);
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ width: "100%", mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Performance Dashboard
+    <Box sx={{ p: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4" component="h1">
+          Performance Metrics
         </Typography>
-
-        <Paper sx={{ width: "100%", mb: 2 }}>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            indicatorColor="primary"
-            textColor="primary"
-            centered
-          >
-            <Tab label="System Metrics" />
-            <Tab label="API Metrics" />
-            <Tab label="Database Metrics" />
-            <Tab label="Cache Metrics" />
-          </Tabs>
-
-          <TabPanel value={tabValue} index={0}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    CPU Usage
-                  </Typography>
-                  <Typography>Usage: {data.system?.cpu.percent}%</Typography>
-                  <Typography>Cores: {data.system?.cpu.cores}</Typography>
-                  <Typography>
-                    Frequency: {data.system?.cpu.frequency.current}MHz
-                  </Typography>
-                  <Box sx={{ mt: 2 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={data.system?.cpu.percent || 0}
-                      color="primary"
-                    />
-                  </Box>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Memory Usage
-                  </Typography>
-                  <Typography>Usage: {data.system?.memory.percent}%</Typography>
-                  <Typography>
-                    Used:{" "}
-                    {Math.round(data.system?.memory.used || 0 / 1024 / 1024)}MB
-                  </Typography>
-                  <Typography>
-                    Available:{" "}
-                    {Math.round(
-                      data.system?.memory.available || 0 / 1024 / 1024,
-                    )}
-                    MB
-                  </Typography>
-                  <Box sx={{ mt: 2 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={data.system?.memory.percent || 0}
-                      color="secondary"
-                    />
-                  </Box>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Disk Usage
-                  </Typography>
-                  <Typography>Usage: {data.system?.disk.percent}%</Typography>
-                  <Typography>
-                    Used:{" "}
-                    {Math.round(data.system?.disk.used || 0 / 1024 / 1024)}MB
-                  </Typography>
-                  <Typography>
-                    Free:{" "}
-                    {Math.round(data.system?.disk.free || 0 / 1024 / 1024)}MB
-                  </Typography>
-                  <Box sx={{ mt: 2 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={data.system?.disk.percent || 0}
-                      color="error"
-                    />
-                  </Box>
-                </Paper>
-              </Grid>
-            </Grid>
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={1}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    API Overview
-                  </Typography>
-                  <Typography>
-                    Total Requests: {data.api?.total_requests}
-                  </Typography>
-                  <Typography>
-                    Average Response Time: {data.api?.average_response_time}ms
-                  </Typography>
-                  <Typography>Error Rate: {data.api?.error_rate}%</Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Requests by Type
-                  </Typography>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                      data={Object.entries(
-                        data.api?.requests_by_type || {},
-                      ).map(([type, count]) => ({ type, count }))}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="type" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="count" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </Paper>
-              </Grid>
-            </Grid>
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={2}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Database Connections
-                  </Typography>
-                  <Typography>
-                    Total: {data.database?.connections.total}
-                  </Typography>
-                  <Typography>
-                    Checked In: {data.database?.connections.checkedin}
-                  </Typography>
-                  <Typography>
-                    Checked Out: {data.database?.connections.checkedout}
-                  </Typography>
-                  <Typography>
-                    Overflow: {data.database?.connections.overflow}
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Query Statistics
-                  </Typography>
-                  <Typography>
-                    Total Queries: {data.database?.queries.total}
-                  </Typography>
-                  <Typography>
-                    Slow Queries: {data.database?.queries.slow}
-                  </Typography>
-                  <Typography>
-                    Query Errors: {data.database?.queries.errors}
-                  </Typography>
-                </Paper>
-              </Grid>
-            </Grid>
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={3}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Cache Performance
-                  </Typography>
-                  <Typography>Hits: {data.cache?.hits}</Typography>
-                  <Typography>Misses: {data.cache?.misses}</Typography>
-                  <Typography>
-                    Hit Rate: {(data.cache?.hit_rate || 0 * 100).toFixed(2)}%
-                  </Typography>
-                  <Typography>
-                    Memory Used:{" "}
-                    {Math.round((data.cache?.memory_used || 0) / 1024 / 1024)}MB
-                  </Typography>
-                  <Typography>
-                    Connected Clients: {data.cache?.connected_clients}
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Cache Hit Rate
-                  </Typography>
-                  <Box sx={{ mt: 2 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={(data.cache?.hit_rate || 0) * 100}
-                      color="success"
-                    />
-                  </Box>
-                </Paper>
-              </Grid>
-            </Grid>
-          </TabPanel>
-        </Paper>
+        <Tooltip title="Refresh metrics">
+          <IconButton onClick={handleRefresh} color="primary">
+            <Refresh />
+          </IconButton>
+        </Tooltip>
       </Box>
-    </Container>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={4}>
+          <MetricCard
+            title="FPS"
+            value={metrics.fps}
+            unit="fps"
+            icon={<Timeline />}
+            progress={getFPSProgress(metrics.fps)}
+            warning={metrics.fps < 30}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <MetricCard
+            title="Memory Usage"
+            value={metrics.memoryUsage}
+            unit="MB"
+            icon={<Memory />}
+            progress={getMemoryProgress(metrics.memoryUsage)}
+            warning={metrics.memoryUsage > 500}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <MetricCard
+            title="Response Time"
+            value={metrics.responseTime}
+            unit="ms"
+            icon={<Speed />}
+            progress={getResponseProgress(metrics.responseTime)}
+            warning={metrics.responseTime > 100}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <MetricCard
+            title="Load Time"
+            value={metrics.loadTime}
+            unit="ms"
+            icon={<Timer />}
+            progress={getLoadProgress(metrics.loadTime)}
+            warning={metrics.loadTime > 2000}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <MetricCard
+            title="Network Latency"
+            value={metrics.networkLatency}
+            unit="ms"
+            icon={<NetworkCheck />}
+            progress={getLatencyProgress(metrics.networkLatency)}
+            warning={metrics.networkLatency > 50}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Resource Utilization
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  CPU Usage
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={metrics.resourceUtilization.cpu}
+                    sx={{ flexGrow: 1, mr: 1 }}
+                  />
+                  <Typography variant="body2">
+                    {metrics.resourceUtilization.cpu}%
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Memory Usage
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={metrics.resourceUtilization.memory}
+                    sx={{ flexGrow: 1, mr: 1 }}
+                  />
+                  <Typography variant="body2">
+                    {metrics.resourceUtilization.memory}%
+                  </Typography>
+                </Box>
+              </Box>
+              {metrics.resourceUtilization.gpu !== undefined && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    GPU Usage
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                    <LinearProgress
+                      variant="determinate"
+                      value={metrics.resourceUtilization.gpu}
+                      sx={{ flexGrow: 1, mr: 1 }}
+                    />
+                    <Typography variant="body2">
+                      {metrics.resourceUtilization.gpu}%
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {(metrics.fps < 30 ||
+        metrics.memoryUsage > 500 ||
+        metrics.responseTime > 100 ||
+        metrics.loadTime > 2000 ||
+        metrics.networkLatency > 50) && (
+        <Box
+          sx={{
+            mt: 3,
+            p: 2,
+            backgroundColor: "warning.light",
+            borderRadius: 1,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Warning color="warning" sx={{ mr: 1 }} />
+          <Typography color="warning.dark">
+            Some metrics are outside of optimal ranges. Consider optimizing your
+            application.
+          </Typography>
+        </Box>
+      )}
+    </Box>
   );
-}
+};

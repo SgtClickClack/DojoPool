@@ -36,6 +36,16 @@ def test_cascade():
     return "CASCADE FLASK ROUTE OK"
 
 
+@main_bp.route("/about")
+def about():
+    return render_template("about.html")
+
+
+@main_bp.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+
 # Error handlers
 @main_bp.app_errorhandler(404)
 def not_found_error(error):

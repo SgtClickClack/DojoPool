@@ -9,6 +9,7 @@
 import logging
 import os
 import sys
+from datetime import datetime
 
 # --- Ensure eventlet monkey_patch is called before any other imports ---
 # try:
@@ -22,15 +23,19 @@ import sys
 
 import logging
 from dotenv import load_dotenv
-from flask import Flask
-from flask_login import LoginManager
+from flask import Flask, render_template, request, redirect, url_for, flash, session, g
+from flask_login import current_user
+import flask_debugtoolbar
 from flask_cors import CORS
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from dojopool.core.extensions import migrate, cors, socketio
+from dojopool.core.sockets import init_socketio, socketio
 
 # Import the function to get the correct config class
 from dojopool.core.config import get_config
 # Import the main extensions initializer and instances
 from dojopool.core.extensions import db, init_extensions, login_manager
-from dojopool.core.sockets import init_socketio, socketio
 from dojopool.routes.auth import auth_bp
 from dojopool.routes.game import game_bp
 from dojopool.routes.performance import bp as performance_bp
@@ -170,6 +175,7 @@ def create_app(config_name=None, test_config=None, testing=False):
     app.register_blueprint(performance_bp) # Adjust prefix if needed
     app.register_blueprint(game_bp, url_prefix="/game")
     app.register_blueprint(venue_bp) # Adjust prefix if needed
+    app.register_blueprint(health_bp)
 
     # === DEBUG: Print all registered routes ===
     print("[ROUTES]")
@@ -178,6 +184,10 @@ def create_app(config_name=None, test_config=None, testing=False):
 
     # Initialize SocketIO
     init_socketio(app)
+
+    @app.context_processor
+    def inject_now():
+        return {'now': datetime.now()}
 
     return app
 

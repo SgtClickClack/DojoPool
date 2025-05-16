@@ -1,18 +1,11 @@
-import React, { Component, ErrorInfo } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Alert,
-  AlertTitle,
-  Collapse,
-  IconButton,
-} from "@mui/material";
-import { ExpandMore, ExpandLess } from "@mui/icons-material";
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Box, Button, Typography, Container, Paper } from "@mui/material";
+import { ErrorOutline as ErrorIcon } from "@mui/icons-material";
+import { logError } from "../core/services/ErrorLoggingService";
 
 interface Props {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+  children: ReactNode;
+  fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
@@ -20,106 +13,118 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
-  expanded: boolean;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-    errorInfo: null,
-    expanded: false,
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    };
+  }
 
-  public static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
       error,
       errorInfo: null,
-      expanded: false,
     };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({
       error,
       errorInfo,
     });
 
+    // Log error to service
+    logError(error, errorInfo);
+
+    // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-
-    // Log error to your error reporting service
-    console.error("Error caught by ErrorBoundary:", error, errorInfo);
   }
 
-  private handleExpand = () => {
-    this.setState((prev) => ({ expanded: !prev.expanded }));
+  handleRetry = (): void => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    });
   };
 
-  private handleReload = () => {
-    window.location.reload();
-  };
-
-  public render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       return (
-        <Box sx={{ p: 2 }}>
-          <Alert
-            severity="error"
-            action={
-              <Button color="inherit" size="small" onClick={this.handleReload}>
-                RELOAD PAGE
-              </Button>
-            }
+        <Container maxWidth="sm">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              mt: 4,
+              textAlign: "center",
+              backgroundColor: "error.light",
+              color: "error.contrastText",
+            }}
           >
-            <AlertTitle>Something went wrong</AlertTitle>
-            {this.state.error?.message || "An unexpected error occurred"}
-          </Alert>
-
-          {this.state.errorInfo && (
-            <Box sx={{ mt: 2 }}>
+            <ErrorIcon sx={{ fontSize: 64, mb: 2 }} />
+            <Typography variant="h5" gutterBottom>
+              Something went wrong
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3 }}>
+              {this.state.error?.message || "An unexpected error occurred"}
+            </Typography>
+            {process.env.NODE_ENV === "development" && this.state.errorInfo && (
               <Box
+                component="pre"
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                  "&:hover": { opacity: 0.8 },
+                  mt: 2,
+                  p: 2,
+                  bgcolor: "background.paper",
+                  color: "text.primary",
+                  borderRadius: 1,
+                  overflow: "auto",
+                  maxHeight: "200px",
+                  textAlign: "left",
                 }}
-                onClick={this.handleExpand}
               >
-                <Typography variant="body2" color="text.secondary">
-                  Show error details
-                </Typography>
-                <IconButton size="small">
-                  {this.state.expanded ? <ExpandLess /> : <ExpandMore />}
-                </IconButton>
+                <code>{this.state.errorInfo.componentStack}</code>
               </Box>
-              <Collapse in={this.state.expanded}>
-                <Box
-                  component="pre"
-                  sx={{
-                    mt: 1,
-                    p: 1,
-                    bgcolor: "background.paper",
-                    borderRadius: 1,
-                    overflow: "auto",
-                  }}
-                >
-                  {this.state.errorInfo.componentStack}
-                </Box>
-              </Collapse>
-            </Box>
-          )}
-        </Box>
+            )}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.handleRetry}
+              sx={{ mt: 2 }}
+            >
+              Try Again
+            </Button>
+          </Paper>
+        </Container>
       );
     }
 
     return this.props.children;
   }
 }
+
+// Higher-order component for easy wrapping
+export const withErrorBoundary = <P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+  errorBoundaryProps?: Omit<Props, "children">,
+) => {
+  return function WithErrorBoundaryWrapper(props: P) {
+    return (
+      <ErrorBoundary {...errorBoundaryProps}>
+        <WrappedComponent {...props} />
+      </ErrorBoundary>
+    );
+  };
+};
