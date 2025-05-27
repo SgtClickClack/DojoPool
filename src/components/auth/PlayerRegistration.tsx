@@ -7,7 +7,7 @@ import {
   Input,
   Button,
   Text,
-  useToast,
+  useToast as useToastChakra,
   Divider,
   HStack,
   IconButton,
@@ -67,7 +67,7 @@ export const PlayerRegistration: React.FC = () => {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
+  const toast = useToastChakra();
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const [socialUser, setSocialUser] = useState<any>(null);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);

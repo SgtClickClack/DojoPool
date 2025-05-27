@@ -49,7 +49,7 @@ export class SocketClient {
       return;
     }
 
-    this.socket = io(window.location.origin, {
+    this.socket = io('ws://localhost:3102', {
       ...this.options,
       auth: {
         token,

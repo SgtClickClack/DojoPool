@@ -143,3 +143,32 @@ def get_my_rewards():
     user_id = request.user.id
     rewards = rewards_service.get_user_rewards(user_id)
     return jsonify({"rewards": rewards})
+
+
+@rewards_bp.route("/shop/purchase", methods=["POST"])
+@login_required
+def purchase_shop_item():
+    """Purchase an item from the rewards shop."""
+    try:
+        data = request.get_json()
+        item_id = data.get("itemId")
+
+        if not item_id:
+            return jsonify({"error": "Item ID is required"}), 400
+
+        user_id = request.user.id # Assuming user is attached to request by auth decorator
+
+        # Call a service function to handle the purchase logic
+        # This service function will need to be implemented/updated
+        success = rewards_service.purchase_shop_item(user_id, item_id)
+
+        if success:
+            return jsonify({"message": "Item purchased successfully"}), 200
+        else:
+            # More specific error handling would be needed in the service layer
+            return jsonify({"error": "Failed to purchase item"}), 400
+
+    except Exception as e:
+        # Log the error server-side for debugging
+        print(f"Error purchasing item: {e}")
+        return jsonify({"error": "An internal error occurred"}), 500

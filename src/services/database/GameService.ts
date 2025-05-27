@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Game, GameState, GameType } from "../../types/game";
-
-const prisma = new PrismaClient();
+import { Game, GameType } from "../../types/game";
 
 export class GameService {
   static async createGame(
@@ -11,34 +9,49 @@ export class GameService {
     tableId: string,
     venueId: string,
   ): Promise<Game> {
-    return prisma.game.create({
-      data: {
-        player1Id,
-        player2Id,
-        type,
-        tableId,
-        venueId,
-        state: GameState.SCHEDULED,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.create({
+        data: {
+          player1Id,
+          player2Id,
+          type,
+          tableId,
+          venueId,
+          state: "SCHEDULED",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 
   static async getGame(id: string): Promise<Game | null> {
-    return prisma.game.findUnique({
-      where: { id },
-    });
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.findUnique({
+        where: { id },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 
-  static async updateGameState(id: string, state: GameState): Promise<Game> {
-    return prisma.game.update({
-      where: { id },
-      data: {
-        state,
-        updatedAt: new Date(),
-      },
-    });
+  static async updateGameState(id: string, state: string): Promise<Game> {
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.update({
+        where: { id },
+        data: {
+          state,
+          updatedAt: new Date(),
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 
   static async updateGameScore(
@@ -47,50 +60,70 @@ export class GameService {
     player2Score: number,
     winnerId: string,
   ): Promise<Game> {
-    return prisma.game.update({
-      where: { id },
-      data: {
-        player1Score,
-        player2Score,
-        winnerId,
-        state: GameState.COMPLETED,
-        endedAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.update({
+        where: { id },
+        data: {
+          player1Score,
+          player2Score,
+          winnerId,
+          state: "COMPLETED",
+          endedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 
   static async getPlayerGames(playerId: string): Promise<Game[]> {
-    return prisma.game.findMany({
-      where: {
-        OR: [{ player1Id: playerId }, { player2Id: playerId }],
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.findMany({
+        where: {
+          OR: [{ player1Id: playerId }, { player2Id: playerId }],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 
   static async getActiveGames(venueId: string): Promise<Game[]> {
-    return prisma.game.findMany({
-      where: {
-        state: {
-          in: [GameState.SCHEDULED, GameState.IN_PROGRESS],
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.findMany({
+        where: {
+          state: {
+            in: ["SCHEDULED", "IN_PROGRESS"],
+          },
+          venueId,
         },
-        venueId,
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-    });
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 
   static async getTableGames(tableId: string): Promise<Game[]> {
-    return prisma.game.findMany({
-      where: { tableId },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const prisma = new PrismaClient();
+    try {
+      return await prisma.game.findMany({
+        where: { tableId },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   }
 }

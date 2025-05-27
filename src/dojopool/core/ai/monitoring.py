@@ -4,7 +4,7 @@ import logging
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from prometheus_client import Counter, Gauge, Histogram
 
@@ -140,8 +140,8 @@ class AIMetricsTimer:
         """
         self.monitor = monitor
         self.model_type = model_type
-        self.start_time = None
-        self.error = None
+        self.start_time: Optional[float] = None
+        self.error: Optional[str] = None
 
     def __enter__(self):
         """Start timing."""
@@ -150,5 +150,8 @@ class AIMetricsTimer:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Record metrics on exit."""
-        duration = time.time() - self.start_time
-        self.monitor.record_prediction(self.model_type, duration, str(exc_val) if exc_val else None)
+        if self.start_time is not None:
+            duration = time.time() - self.start_time
+            self.monitor.record_prediction(self.model_type, duration, str(exc_val) if exc_val else None)
+        else:
+            self.monitor.logger.warning("AIMetricsTimer exited without being started properly.")

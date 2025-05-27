@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from geopy.distance import geodesic
 
-from .models import Venue
+from dojopool.core.models.venue import Venue
 
 
 class GeoService:

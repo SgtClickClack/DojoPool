@@ -12,6 +12,8 @@ import {
 import { ProtectedRoute } from "../../components/auth/ProtectedRoute";
 import { AuthenticatedLayout } from "../../components/layout/AuthenticatedLayout";
 import MapView from "../../components/MapView";
+import WalletBalanceView from "../../frontend/components/wallet/WalletBalanceView";
+import RewardsDisplayPanel from "../../frontend/components/rewards/RewardsDisplayPanel";
 
 const DashboardPage: React.FC = () => {
   return (
@@ -66,6 +68,14 @@ const DashboardPage: React.FC = () => {
               Recent Activity
             </Heading>
             <Text color="gray.500">No recent activity to display.</Text>
+          </Box>
+
+          <Box mt={8}>
+            <WalletBalanceView />
+          </Box>
+
+          <Box mt={8}>
+            <RewardsDisplayPanel />
           </Box>
 
           <Box mt={8}>

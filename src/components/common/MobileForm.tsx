@@ -30,7 +30,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  useToast,
+  useToast as useToastChakra,
   VisuallyHidden,
 } from "@chakra-ui/react";
 import { FaEye, FaEyeSlash, FaCalendar, FaClock } from "react-icons/fa";
@@ -125,7 +125,7 @@ const MobileForm: React.FC<MobileFormProps> = ({
     onClose: onTimePickerClose,
   } = useDisclosure();
   const [activeField, setActiveField] = useState<string>("");
-  const toast = useToast();
+  const toast = useToastChakra();
 
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");

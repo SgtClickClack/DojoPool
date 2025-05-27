@@ -11,7 +11,7 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  useToast,
+  useToast as useToastChakra,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -24,7 +24,7 @@ import {
 import { FaCalendar, FaClock, FaUser, FaEdit } from "react-icons/fa";
 import { format, addMinutes, parseISO } from "date-fns";
 
-interface Match {
+export interface Match {
   id: string;
   round: number;
   matchNumber: number;
@@ -64,7 +64,7 @@ export const MatchScheduler: React.FC<MatchSchedulerProps> = ({
   const [tableNumber, setTableNumber] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
+  const toast = useToastChakra();
 
   // Colors based on theme
   const bgColor = useColorModeValue("white", "gray.800");

@@ -1,23 +1,28 @@
 import axios from "axios";
-import { auth } from "../../config/firebase"; // Import Firebase auth instance
+import { auth } from "../../firebase/firebase"; // Import Firebase auth instance
 
-// Use import.meta.env now that vite.config defines it
-const API_BASE_URL = import.meta.env.VITE_NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const getEnvVar = (key: string, fallback: string = ''): string => {
+  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
+    return process.env[key] as string;
+  }
+  return fallback;
+};
+
+// NOTE: Vite will replace import.meta.env.VITE_NEXT_PUBLIC_API_URL with the correct value at build time.
+const API_BASE_URL = getEnvVar('VITE_NEXT_PUBLIC_API_URL', '/api/v1');
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true, // Always send cookies for cross-origin auth
 });
 
 // Add a request interceptor to include the Firebase auth token
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const token = await user.getIdToken();
+    if (auth) {
+      const token = await auth.currentUser?.getIdToken();
+      if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-      } catch (error) {
-        console.error("Error getting Firebase token:", error);
       }
     }
     return config;

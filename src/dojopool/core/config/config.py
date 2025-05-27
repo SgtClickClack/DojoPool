@@ -73,6 +73,10 @@ class Config:
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", "noreply@dojopool.com")
+    MAIL_SUPPRESS_SEND = os.getenv("MAIL_SUPPRESS_SEND", "true").lower() == "true"
+
+    # Redis configuration
+    REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
     @classmethod
     def init_app(cls, app):

@@ -6,7 +6,7 @@ import {
   Text,
   Avatar,
   Button,
-  useToast,
+  useToast as useToastChakra,
   Input,
   InputGroup,
   InputLeftElement,
@@ -31,7 +31,7 @@ export const Friends: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   useEffect(() => {
     fetchFriends();

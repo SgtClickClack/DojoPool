@@ -26,6 +26,20 @@ export interface Participant {
   // Add other relevant fields if needed/available from API (e.g., seed, avatar)
 }
 
+// Define Match structure for tournament brackets
+export interface Match {
+  id: string;
+  round: number;
+  matchNumber: number;
+  participant1?: Participant;
+  participant2?: Participant;
+  winner?: Participant;
+  score?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'bye';
+  startTime?: string;
+  spectatorCount?: number;
+}
+
 // Define the UNIFIED Tournament interface
 export interface Tournament {
   id: string;
@@ -48,7 +62,7 @@ export interface Tournament {
   updatedAt: Date;
   endedAt?: Date;
   participantsList?: Participant[]; // Keep participants list
-  matches?: string[]; // Add the missing matches property
+  matches?: Match[]; // Full match objects for bracket logic
   prizePool?: number; // Add the missing prizePool property
 }
 

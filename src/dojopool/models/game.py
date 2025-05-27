@@ -4,41 +4,16 @@ This module contains game-related models.
 """
 
 from datetime import datetime
-from enum import Enum
 from typing import Any, Dict, Optional
 
 from ..core.extensions import db
-from dojopool.models.achievements import Achievement, UserAchievement
-from .social import UserProfile
-
-
-class GameType(Enum):
-    """Game type enumeration."""
-
-    EIGHT_BALL = "eight_ball"
-    NINE_BALL = "nine_ball"
-    TEN_BALL = "ten_ball"
-    STRAIGHT_POOL = "straight_pool"
-    ONE_POCKET = "one_pocket"
-    BANK_POOL = "bank_pool"
-
-
-class GameMode(Enum):
-    """Game mode enumeration."""
-
-    CASUAL = "casual"
-    RANKED = "ranked"
-    TOURNAMENT = "tournament"
-    PRACTICE = "practice"
-
-
-class GameStatus(str, Enum):
-    """Game status enumeration."""
-
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+# Remove direct achievement model imports if no longer used here
+# from dojopool.models.achievements import Achievement, UserAchievement 
+from .social import UserProfile # Keep if UserProfile is used for _update_player_stats
+from .enums import GameType, GameMode, GameStatus
+# from ..services.achievement_service import achievement_service # Removed: Appears unused and causes circular import
+# Import game_completed_notification from its new location - MOVED INTO complete_game method
+# from ..services.game_service import game_completed_notification 
 
 
 class Shot(db.Model):
@@ -80,6 +55,8 @@ class Game(db.Model):
     )
     started_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
+    # Add duration if it was used in complete_game, otherwise remove calculation
+    # duration = db.Column(db.Interval) # Example if you want to store it
 
     # Relationships
     player1 = db.relationship("User", foreign_keys=[player1_id])
@@ -90,7 +67,7 @@ class Game(db.Model):
         "TournamentGame", cascade="all, delete-orphan", back_populates="game"
     )
 
-    def __init__(self, player1_id, player2_id, game_type, game_mode, status=GameStatus.PENDING):
+    def __init__(self, player1_id, player2_id, game_type: GameType, game_mode: GameMode, status: GameStatus = GameStatus.PENDING):
         """Initialize game."""
         self.player1_id = player1_id
         self.player2_id = player2_id
@@ -103,112 +80,74 @@ class Game(db.Model):
         if self.status == GameStatus.PENDING:
             self.status = GameStatus.IN_PROGRESS
             self.started_at = datetime.utcnow()
+            db.session.add(self) # Add to session when state changes
+            db.session.commit()
 
-    def complete_game(self, winner_id, score):
+    def complete_game(self, winner_id: int, score: str):
         """Complete the game and trigger achievements."""
+        # Moved import here to break circular dependency
+        from ..services.game_service import game_completed_notification
         if self.status == GameStatus.IN_PROGRESS:
             self.status = GameStatus.COMPLETED
             self.winner_id = winner_id
             self.score = score
             self.completed_at = datetime.utcnow()
 
-            if self.created_at:
-                self.duration = self.completed_at - self.created_at
+            # Duration calculation - ensure created_at exists
+            # if self.created_at and self.completed_at:
+            #    self.duration = self.completed_at - self.created_at
 
-            db.session.add(self)
+            db.session.add(self) # Add to session before commit if not already managed
+            # Player stats update and achievement checks are now separate concerns handled by services if needed
+            # For now, let's assume the commit for game completion should happen here.
             db.session.commit()
 
-            # Update player stats
-            self._update_player_stats()
+            # Update player stats (can be moved to a service too)
+            self._update_player_stats() 
 
-            # Check for achievements
-            self._check_achievements()
+            # Call the imported game_completed_notification
+            game_completed_notification(self)
+
+            # --- Post-game rewards and achievements ---
+            try:
+                from dojopool.services.wallet_service import wallet_service, RewardType
+                from dojopool.services.achievement_service import achievement_service
+                # Award coins to the winner
+                if self.winner_id:
+                    wallet_service.award_coins(self.winner_id, RewardType.MATCH_WIN)
+                # Award achievements
+                achievement_service.check_and_award_game_achievements(self)
+            except Exception as e:
+                # Log but do not break game completion
+                import logging
+                logging.warning(f"Post-game rewards/achievements error: {e}")
 
     def _update_player_stats(self):
-        """Update player statistics."""
-        for player in [self.player1, self.player2]:
-            profile = UserProfile.query.filter_by(user=player).first()
-            if profile is not None:
-                if hasattr(profile, "total_matches"):
-                    profile.total_matches += 1
-                if player and hasattr(player, "id") and player.id == self.winner_id:
-                    if hasattr(profile, "wins"):
-                        profile.wins += 1
+        """Update player statistics after a game is completed."""
+        # This logic might also be suitable for a UserStatsService
+        if not self.winner_id: # Cannot update stats if winner is not set
+            return
+            
+        player_ids_to_update = [self.player1_id, self.player2_id]
+        for player_id in player_ids_to_update:
+            if player_id is None: # Skip if a player ID is somehow None
+                continue
+            profile = db.session.query(UserProfile).filter_by(user_id=player_id).first()
+            if profile:
+                profile.total_matches = (profile.total_matches or 0) + 1
+                if player_id == self.winner_id:
+                    profile.wins = (profile.wins or 0) + 1
+                # else: # if you track losses
+                #    profile.losses = (profile.losses or 0) + 1
                 db.session.add(profile)
-        db.session.commit()
-
-    def _check_achievements(self):
-        """Check and award achievements based on game results."""
-        winner_profile = UserProfile.query.filter_by(user=self.winner).first()
-        loser_profile = UserProfile.query.filter_by(
-            user=self.player2 if self.winner == self.player1 else self.player1
-        ).first()
-
-        # Check win streak
-        self._check_win_streak(winner_profile)
-
-        # Check first win
-        self._check_first_win(winner_profile)
-
-        # Check perfect game
-        if self.player1 == self.winner and hasattr(self, "player2_score") and self.player2_score == 0:
-            self._award_achievement(winner_profile, "perfect_game")
-        elif self.player2 == self.winner and hasattr(self, "player1_score") and self.player1_score == 0:
-            self._award_achievement(winner_profile, "perfect_game")
-
-        # Check high difficulty win
-        if hasattr(self, "difficulty_rating") and self.difficulty_rating >= 8:
-            self._award_achievement(winner_profile, "difficult_victory")
-
-    def _check_win_streak(self, profile):
-        """Check and award win streak achievements."""
-        recent_games = Game.query.filter(
-            ((self.player1_id == profile.user.id) | (self.player2_id == profile.user.id)),
-            self.status == GameStatus.COMPLETED,
-            self.completed_at <= datetime.utcnow()
-        ).order_by(self.completed_at.desc()).limit(10).all()  # type: ignore
-
-        streak = 0
-        for game in recent_games:
-            if hasattr(game, "winner") and game.winner == profile.user:
-                streak += 1
-            else:
-                break
-
-        if streak >= 3:
-            self._award_achievement(profile, "win_streak_3")
-        if streak >= 5:
-            self._award_achievement(profile, "win_streak_5")
-        if streak >= 10:
-            self._award_achievement(profile, "win_streak_10")
-
-    def _check_first_win(self, profile):
-        """Award first win achievement."""
-        if hasattr(profile, "wins") and profile.wins == 1:
-            self._award_achievement(profile, "first_win")
-
-    def _award_achievement(self, profile, achievement_code):
-        """Award an achievement to a player."""
-        try:
-            achievement = Achievement.query.filter_by(code=achievement_code).first()
-            user_achievement = UserAchievement.query.filter_by(
-                user=profile, achievement=achievement
-            ).first()
-
-            if not user_achievement:
-                user_achievement = UserAchievement(user=profile, achievement=achievement)
-                db.session.add(user_achievement)
-
-            if not user_achievement.is_unlocked:
-                user_achievement.unlock()
-                db.session.commit()
-        except Exception as e:
-            db.session.rollback()
+        db.session.commit() # Commit after updating all relevant profiles
 
     def cancel_game(self):
         """Cancel the game."""
         if self.status != GameStatus.COMPLETED:
             self.status = GameStatus.CANCELLED
+            db.session.add(self)
+            db.session.commit()
 
     def __repr__(self):
         """Represent game as string."""
@@ -222,31 +161,6 @@ class Game(db.Model):
             str: The game name.
         """
         return f"{self.player1_id} vs {self.player2_id}"
-
-    def add_player(self, player) -> None:
-        """
-        Adds a player to the game.
-
-        Args:
-            player: The user instance to add.
-        """
-        if not hasattr(self, 'players'):
-            self.players = []
-        self.players.append(player)
-        db.session.add(self)
-        db.session.commit()
-
-    def remove_player(self, player) -> None:
-        """
-        Removes a player from the game.
-
-        Args:
-            player: The user instance to remove.
-        """
-        if hasattr(self, 'players') and player in self.players:
-            self.players.remove(player)
-            db.session.add(self)
-            db.session.commit()
 
 
 class GameSession(db.Model):
@@ -324,54 +238,3 @@ class GameComment(db.Model):
     def __repr__(self):
         """Represent game comment as string."""
         return f"<GameComment {self.id}: {self.user_id} on {self.game_id}>"
-
-
-def game_completed_notification(game):
-    """Send notification when game is completed."""
-    from ..core.utils.notifications import send_notification
-
-    if game.status == GameStatus.COMPLETED:
-        winner = game.winner
-        loser = game.player2 if game.winner == game.player1 else game.player1
-
-        # Notify winner
-        send_notification(
-            "game_completed",
-            {
-                "title": "Game Completed - Victory!",
-                "message": f"Congratulations! You won against {loser.username}",
-                "game_id": game.id,
-                "score": game.score,
-            },
-            winner.id,
-        )
-
-        # Notify loser
-        send_notification(
-            "game_completed",
-            {
-                "title": "Game Completed",
-                "message": f"Game finished. {winner.username} won.",
-                "game_id": game.id,
-                "score": game.score,
-            },
-            loser.id,
-        )
-
-
-def get_game_details(game_id: int) -> Dict[str, Any]:
-    """Get detailed game information."""
-    game = Game.query.get_or_404(game_id)
-    return {
-        "id": game.id,
-        "player1": game.player1.username,
-        "player2": game.player2.username,
-        "game_type": game.game_type.value,
-        "game_mode": game.game_mode.value,
-        "status": game.status.value,
-        "winner": game.winner.username if game.winner else None,
-        "score": game.score,
-        "created_at": game.created_at.isoformat(),
-        "started_at": game.started_at.isoformat() if game.started_at else None,
-        "completed_at": game.completed_at.isoformat() if game.completed_at else None,
-    }

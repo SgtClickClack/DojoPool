@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List, Optional, Set
 import uuid
+from dojopool.core.extensions import db
 
 
 class TableStatus(Enum):
@@ -60,6 +61,7 @@ class PoolTable:
             "training_mode": False,
         }
     )
+    venue = db.relationship("Venue", back_populates="pool_tables")
 
 
 @dataclass
@@ -107,6 +109,7 @@ class Venue:
     membership_tiers: Dict[str, Dict] = field(default_factory=dict)
     rating: float = 0.0
     reviews: List[Dict] = field(default_factory=list)
+    pool_tables: List[PoolTable] = field(default_factory=list)
 
 
 class VenueManager:
@@ -170,6 +173,7 @@ class VenueManager:
 
         venue.tables[table_id] = table
         self._table_history[table_id] = []
+        venue.pool_tables.append(table)
         return table
 
     def get_venue(self, venue_id: str) -> Optional[Venue]:

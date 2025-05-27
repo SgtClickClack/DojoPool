@@ -4,14 +4,12 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from dojopool.core.extensions import db
-from dojopool.core.models.venue import (
-    Venue,
-    VenueCheckIn,
-    VenueEvent,
-    VenueEventParticipant,
-    VenueLeaderboard,
-)
+from dojopool.models.venue import Venue
+from dojopool.models.venue_checkin import VenueCheckIn
+from dojopool.models.venue_leaderboard import VenueLeaderboard
 from dojopool.models.game import Game
+from dojopool.models.event import Event as VenueEvent
+from dojopool.models.event_participant import EventParticipant as VenueEventParticipant
 
 
 class VenueService:

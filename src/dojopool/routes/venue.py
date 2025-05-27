@@ -9,8 +9,9 @@ from sqlalchemy.exc import IntegrityError
 
 from ..models.user import User
 from ..core.database import db
-from ..core.models.tournament import Tournament
-from ..core.models.venue import Venue, VenueCheckIn
+from dojopool.models.tournament import Tournament
+from dojopool.models.venue import Venue
+from dojopool.models.venue_checkin import VenueCheckIn
 from ..services.checkin_service import CheckInService
 from ..utils.decorators import admin_required
 

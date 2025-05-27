@@ -4,9 +4,8 @@ from flask import Blueprint, current_app, jsonify, request, g
 from sqlalchemy import or_, desc, asc
 
 from ...models.marketplace import MarketplaceItem, Transaction, Wallet, UserInventory
-from ...services.auth import login_required
+from dojopool.auth.decorators import login_required, admin_required
 from ...core.extensions import db # Import the SQLAlchemy db session
-from ...core.decorators import admin_required # Assuming this exists
 
 # Imports are correct, using unified models
 # --- All API endpoint logic below should now use the unified Wallet and Transaction models ---
@@ -296,3 +295,94 @@ def admin_get_wallet_audit(user_id):
     except Exception as e:
         current_app.logger.error(f"Error fetching audit trail for wallet {user_id}: {str(e)}", exc_info=True)
         return jsonify({"error": "Failed to fetch audit trail"}), 500
+
+@marketplace.route("/wallet/stats", methods=["GET"])
+@login_required
+def get_wallet_stats(user):
+    try:
+        user_id = user.id
+        wallet = db.session.query(Wallet).filter(Wallet.user_id == user_id).first()
+        if not wallet:
+            return jsonify({"error": "Wallet not found"}), 404
+        # Aggregate stats
+        transactions = db.session.query(Transaction).filter(Transaction.user_id == user_id).all()
+        total_transactions = len(transactions)
+        total_volume = sum(abs(tx.amount) for tx in transactions)
+        total_incoming = sum(tx.amount for tx in transactions if tx.amount > 0)
+        total_outgoing = sum(-tx.amount for tx in transactions if tx.amount < 0)
+        # Rewards summary (if rewards are tracked in transactions)
+        rewards = {}
+        for tx in transactions:
+            if tx.type == "reward":
+                key = tx.description or "reward"
+                if key not in rewards:
+                    rewards[key] = {"count": 0, "total_amount": 0}
+                rewards[key]["count"] += 1
+                rewards[key]["total_amount"] += tx.amount
+        stats = {
+            "total_transactions": total_transactions,
+            "total_volume": total_volume,
+            "total_incoming": total_incoming,
+            "total_outgoing": total_outgoing,
+            "rewards": rewards
+        }
+        return jsonify(stats)
+    except Exception as e:
+        current_app.logger.error(f"Error fetching wallet stats: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to fetch wallet stats"}), 500
+
+@marketplace.route("/wallet/transfer", methods=["POST"])
+@login_required
+def transfer_coins(user):
+    try:
+        user_id = user.id
+        data = request.get_json()
+        recipient_user_id = data.get("recipient_user_id")
+        amount = data.get("amount")
+        description = data.get("description", "Transfer")
+        if not recipient_user_id or not amount or amount <= 0:
+            return jsonify({"error": "Invalid recipient or amount"}), 400
+        if recipient_user_id == user_id:
+            return jsonify({"error": "Cannot transfer to self"}), 400
+        sender_wallet = db.session.query(Wallet).filter(Wallet.user_id == user_id).first()
+        recipient_wallet = db.session.query(Wallet).filter(Wallet.user_id == recipient_user_id).first()
+        if not sender_wallet or not sender_wallet.is_active:
+            return jsonify({"error": "Sender wallet not found or inactive"}), 400
+        if not recipient_wallet or not recipient_wallet.is_active:
+            return jsonify({"error": "Recipient wallet not found or inactive"}), 400
+        if sender_wallet.balance < amount:
+            return jsonify({"error": "Insufficient balance"}), 400
+        # Perform transfer
+        sender_wallet.balance -= amount
+        recipient_wallet.balance += amount
+        db.session.add(sender_wallet)
+        db.session.add(recipient_wallet)
+        # Create transactions for both sender and recipient
+        sender_tx = Transaction(
+            wallet_id=sender_wallet.id,
+            user_id=user_id,
+            amount=-amount,
+            currency=sender_wallet.currency,
+            type="transfer",
+            status="completed",
+            description=f"Transfer to user {recipient_user_id}: {description}",
+            reference_id=None
+        )
+        recipient_tx = Transaction(
+            wallet_id=recipient_wallet.id,
+            user_id=recipient_user_id,
+            amount=amount,
+            currency=recipient_wallet.currency,
+            type="transfer",
+            status="completed",
+            description=f"Transfer from user {user_id}: {description}",
+            reference_id=None
+        )
+        db.session.add(sender_tx)
+        db.session.add(recipient_tx)
+        db.session.commit()
+        return jsonify({"success": True, "newBalance": sender_wallet.balance, "transactionId": sender_tx.id})
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error transferring coins: {str(e)}", exc_info=True)
+        return jsonify({"error": "Failed to transfer coins"}), 500

@@ -74,7 +74,7 @@ Moved and renamed files with `[SRV]`, `[UI]`, and `[FB]` prefixes from the root 
 - `src/[FB]firebase.js` (deleted)
 
 **Next Priority Task:**
-Address file/directory naming and placement inconsistencies within the `src/utils/` directory. This includes converting any `.js` files (e.g., `[API]api.js`, `[ANALYTICS]analytics.js`) to TypeScript (`.ts`), removing non-standard prefixes, and ensuring utility functions follow camelCase naming conventions. Also, review and consolidate logging-related files/functions.
+Address file/directory naming and placement inconsistencies within the `src/utils/` directory. This includes converting any `.js` files to TypeScript (`.ts`), removing non-standard prefixes, and ensuring utility functions follow camelCase naming conventions. Also, review and consolidate logging-related files/functions.
 
 Expected completion time: 1 hour
 
@@ -516,26 +516,35 @@ The tool call was successfully routed to the Python server, which executed the c
 **Next Priority Task:**
 Decide on next steps: either further test PocketPick tools (e.g., adding data), continue codebase review, or address other pending tasks.
 
-### 2024-07-18: Logging Consolidation and ErrorLoggingService Refactor
+### 2024-07-18: Logging Consolidation Complete
 
-Consolidated all error logging to use a single canonical `ErrorLoggingService` in `src/services/`. Updated all imports in frontend and error boundary components to use this service, removed the duplicate from `src/core/services/`, and ensured all error logging flows through the unified service. See PART_01 for details.
+Consolidated all error and audit logging to use the canonical `ErrorLoggingService` in `src/services/`. The service uses the Winston-based logger utility (`src/utils/logger.ts`) and integrates with analytics via `logErrorToAnalytics` from `src/utils/analyticsUtils.ts`. The legacy `auditLogger` in `src/dojopool/frontend/utils/[LOG]auditLogger.ts` was removed to avoid confusion and duplication. All error logging in the codebase now uses the exported `logError` function from `ErrorLoggingService`.
 
 **Core Components Implemented:**
 - Canonical `ErrorLoggingService` in `src/services/`
-- Updated all `logError` imports in frontend and error boundary components
-- Removed duplicate service from `src/core/services/`
+- Winston logger utility in `src/utils/logger.ts`
+- Analytics integration via `logErrorToAnalytics` in `src/utils/analyticsUtils.ts`
+- Removal of legacy `auditLogger`
+
+**Key Features:**
+- Centralized, consistent error and audit logging
+- Analytics and file/console logging integration
+- No duplicate or legacy loggers
+
+**Integration Points:**
+- All frontend and backend error logging
+- Analytics and monitoring systems
 
 **File Paths:**
 - src/services/ErrorLoggingService.ts
-- src/components/common/ErrorBoundary.tsx
-- src/dojopool/frontend/components/ErrorBoundary/[ERR]ErrorBoundary.tsx
-- src/dojopool/frontend/[UI]App.tsx
-- src/core/services/ErrorLoggingService.ts (deleted)
+- src/utils/logger.ts
+- src/utils/analyticsUtils.ts
+- src/dojopool/frontend/utils/[LOG]auditLogger.ts (deleted)
 
 **Next Priority Task:**
-Address file/directory naming and placement inconsistencies within the `src/` directory, focusing on moving prefixed files into appropriate subdirectories and removing non-standard prefixes, as outlined in the dev tracking index.
+Address remaining legacy/prefixed files in `src/dojopool/frontend/components/` and services, as observed in the tsc output. This includes renaming or relocating files with prefixes like `[UI]`, `[AUTH]`, `[TOURN]`, etc., to conform to project naming conventions and structure.
 
-Expected completion time: 1 hour
+Expected completion time: 1-2 hours
 
 ### 2024-07-18: Resolved NPM Audit Vulnerabilities
 
@@ -776,247 +785,33 @@ Given the persistent issues with the Python virtual environment (`my_custom_venv
 
 Expected completion time: 45-60 minutes (for venv recreation and dependency installation)
 
-### 2024-07-19: Resolved Vite Dev Server Startup Issues and Next.js Remnants
+### 2024-07-19: Video Highlight Generation Feature Audit
 
-Successfully got the Vite development server (`npm run dev`) to start and render the application without the persistent `ReferenceError: process is not defined` error.
-
-**Key Issues Addressed:**
-1.  **Initial Import Errors:** Corrected faulty import paths in `src/frontend/App.jsx` that were causing `Failed to resolve import` errors.
-2.  **File Naming & JS to TSX Conversion:**
-    *   Renamed several auth components in `src/components/auth/` (e.g., `[AUTH]Login.js` to `Login.tsx`) to remove prefixes and conform to `.tsx` for React components.
-    *   Converted these components from JavaScript to basic TypeScript (React.FC, typing props/events).
-3.  **Next.js Import Removal (Primary Cause of `process is not defined`):**
-    *   Systematically identified and replaced Next.js specific imports (`next/router`, `next/link`, `next/image`) in multiple files (`Login.tsx`, `ResetPassword.tsx`, `Signup.tsx`, `ProtectedRoute.tsx`, `MainLayout.tsx`, `LandingPage.tsx`) with their Vite/`react-router-dom` equivalents (`useNavigate`, `Link from 'react-router-dom'`, `<img>`).
-    *   Corrected the import path for `AuthProvider` in `src/frontend/App.jsx`.
-4.  **Vite Configuration Adjustments:**
-    *   Initially tried to exclude Next.js `pages` directories (`pages/` and `src/pages/`) using `optimizeDeps.exclude` and `build.rollupOptions.external` in `vite.config.ts`.
-    *   Corrected the syntax for these exclude/external options (removing `/**` wildcards that caused esbuild errors) to allow the server to start.
-
-**Outcome:**
-The Vite development server now starts, and the application (login page) renders in the browser without the `process is not defined` error. Some `react-router-dom` future flag warnings are present in the console but are non-critical.
-
-**File Paths Modified/Reviewed:**
-- `src/frontend/App.jsx` (import paths)
-- `src/components/auth/Login.tsx` (created/converted, Next.js imports removed)
-- `src/components/auth/ResetPassword.tsx` (created/converted, Next.js imports removed)
-- `src/components/auth/Signup.tsx` (created/converted, Next.js imports removed)
-- `src/components/auth/ProtectedRoute.tsx` (Next.js imports removed)
-- `src/components/layout/MainLayout.tsx` (Next.js imports removed)
-- `src/components/home/LandingPage.tsx` (Next.js imports removed)
-- `vite.config.ts` (exclude/external options adjusted)
-- Old `.js` auth files in `src/components/auth/` (deleted)
-
-**Next Priority Task:**
-With the frontend development server now stable, the next step is to address the previously identified priority of standardizing the Python virtual environment using `uv` as per the `README.md` instructions. This will ensure Python-based tests and backend components can be reliably run.
-
-Expected completion time: 45-60 minutes (for Python venv setup)
-
-### 2024-07-18: Final PocketPick MCP Server Setup and Test
-
-Confirmed the PocketPick MCP server is fully integrated and operational. Killed all previous related processes, started a fresh instance of the server, and prepared the environment for user testing. All tools are available and functional, and the server is ready for end-user validation.
+Completed an audit of the video highlight generation feature (Wan 2.1 integration). The frontend (UI, hooks, and user flows) is fully implemented, supporting highlight generation, sharing, downloading, and display. However, the backend/API endpoints (`/api/highlights/generate`, `/api/highlights/tournament/:id`, `/api/highlights/:id/share`, `/api/highlights/:id/download`), database models, and integration with the Wan 2.1 AI service are missing and must be implemented to complete the feature.
 
 **Core Components Implemented:**
-- PocketPick MCP server process management (kill/restart)
-- End-to-end tool availability and server readiness
-
-**File Paths:**
-- `.cursor/mcp.json`
-- `pocket-pick/src/mcp_server_pocket_pick/server.py`
-- `pocket-pick/pyproject.toml`
-
-**Next Priority Task:**
-User to validate PocketPick MCP tool functionality in Cursor and report any issues or edge cases for further refinement.
-
-Expected completion time: Immediate (pending user validation)
-
-### 2024-07-24: Reviewed Tournament Registration Components and Backend
-Reviewed the existing TournamentList and TournamentDetail components, the joinTournament frontend API function, and the backend register.ts handler to understand the current state of tournament registration and identify how to implement the multi-step registration workflow. Confirmed that the multi-step process will need to be primarily handled on the frontend.
-
-**Core Components Implemented:**
-- Reviewed frontend and backend files related to tournament registration.
-
-**File Paths:**
-- src/components/tournaments/TournamentList.tsx
-- src/components/tournaments/TournamentDetail.tsx
-- src/frontend/api/tournaments.ts
-- src/pages/api/tournaments/register.ts
-
-**Next Priority Task:**
-Implement the initial step of the multi-step tournament registration workflow in the `TournamentDetail.tsx` component, likely involving state management to guide the user through details/rules confirmation before actual registration.
-
-Expected completion time: 1.5 hours
-
-### 2025-05-15: Maintenance & Revenue Models Implemented, Analytics Refactored (See DEVELOPMENT_TRACKING_PART_03.md)
-
-Implemented canonical Maintenance and Revenue models, and refactored analytics and table availability services to use them. See DEVELOPMENT_TRACKING_PART_03.md for full details.
-
-**Core Components Implemented:**
-- Maintenance model (SQLAlchemy)
-- Revenue model (SQLAlchemy)
-- VenueAnalyticsService (refactored)
-- TableAvailabilityService (refactored)
-
-**File Paths:**
-- src/dojopool/models/maintenance.py
-- src/dojopool/models/revenue.py
-- src/dojopool/services/venue_analytics_service.py
-- src/dojopool/services/table_availability_service.py
-
-**Next Priority Task:**
-Fix Alembic/Python environment and apply the migration to create the new tables. Then, add/expand tests for maintenance and revenue analytics and scheduling.
-
-Expected completion time: 2 hours
-
-### 2024-07-16: Utils Directory Audit and Refactor Complete
-
-Audited the `src/utils/` directory. All files are TypeScript, follow camelCase naming, and have no non-standard prefixes. Logging utilities are present and correctly named. No further refactor needed.
-
-**Core Components Implemented:**
-- TypeScript-only utils
-- Proper naming conventions
-- Logging utility present
-
-**File Paths:**
-- src/utils/
-
-**Next Priority Task:**
-Confirm `npm install` (or equivalent) has been run. If Firebase/Axios type resolution errors persist in `.ts` files, review `tsconfig.json` for potential misconfigurations. Then, address logging consolidation: review `src/utils/logger.ts`, `src/services/ErrorLoggingService.ts`, and the `logError` in `src/utils/analyticsUtils.ts` for potential renaming to avoid conflicts and decide if `ErrorLoggingService.ts` should be relocated (e.g., to `src/core/services/`).
-
-Expected completion time: 1-2 hours (depending on tsconfig complexity)
-
-### 2025-05-16: BundleOptimizationDashboard Test Suite Completion and Defensive Fixes
-
-All tests for `BundleOptimizationDashboard` now pass, including mobile responsiveness and error handling. Defensive checks were added for undefined `analysis.dependencies` and `analysis.chunks` to prevent runtime and test errors. The ErrorBoundary import was aligned with the test mock to resolve invalid element type errors. This ensures robust frontend analytics and optimization tooling for bundle analysis.
-
-**Core Components Implemented:**
-- BundleOptimizationDashboard defensive data handling
-- 100% passing test suite for bundle optimization UI
-- Consistent ErrorBoundary usage in code and tests
-
-**File Paths:**
-- src/components/optimization/BundleOptimizationDashboard.tsx
-- src/components/optimization/__tests__/BundleOptimizationDashboard.test.tsx
+- VideoHighlights UI component
+- useVideoHighlights hook
+- Frontend highlight generation, sharing, and download flows
 
 **Key Features:**
-- Defensive rendering for undefined or missing analysis data
-- Mobile layout test coverage
-- ErrorBoundary import consistency
-- Robust test coverage for all dashboard features
+- Automated video highlight generation (frontend only)
+- User and tournament linkage
+- Highlight sharing and download (frontend only)
 
 **Integration Points:**
-- Frontend analytics dashboard
-- Test suite for optimization tooling
+- Frontend: `VideoHighlights.tsx`, `useVideoHighlights.ts`
+- Backend: (missing) highlights API endpoints, database models
+- AI Service: (missing) Wan 2.1 integration
 
 **File Paths:**
-- `src/components/optimization/BundleOptimizationDashboard.tsx`
-- `src/components/optimization/__tests__/BundleOptimizationDashboard.test.tsx`
+- /src/frontend/components/VideoHighlights.tsx
+- /src/frontend/hooks/useVideoHighlights.ts
+- /specs/feature_video_highlight_generation.md
 
 **Next Priority Task:**
-Continue with tournament bracket logic (multi-round, match results, real-time updates) or proceed to the next user journey feature (e.g., QR code/geolocation check-in, AI referee, post-game analytics).
+Implement backend highlights API endpoints, database models, and integrate with Wan 2.1 for video generation. Connect backend to existing frontend.
 
-Expected completion time: 2 hours
+Expected completion time: 1-2 days
 
-### 2025-05-16: Real-Time Tournament Bracket & Match Result Updates
-
-Implemented real-time updates for tournament brackets and match results in the TournamentDetail view. The frontend now joins the tournament room via Socket.IO and listens for 'tournament_update' events, automatically refreshing the bracket and match data when updates are received. This enables live bracket visualization and instant feedback for participants and spectators.
-
-**Core Components Implemented:**
-- Real-time Socket.IO integration in TournamentDetail
-- Automatic bracket and match result refresh on update events
-
-**Key Features:**
-- Live tournament bracket updates
-- Real-time match result feedback
-- Seamless integration with backend notification system
-
-**Integration Points:**
-- Frontend: `src/components/tournaments/TournamentDetail.tsx`
-- Socket.IO service: `src/services/WebSocketService.ts`
-- Backend: `src/dojopool/core/[NOTIFY]notifications.py` (tournament_update emits)
-
-**File Paths:**
-- `src/components/tournaments/TournamentDetail.tsx`
-- `src/services/WebSocketService.ts`
-- `src/dojopool/core/[NOTIFY]notifications.py`
-
-**Next Priority Task:**
-- Implement result reporting UI for admins and authorized users in TournamentDetail
-
-Expected completion time: 2 hours
-
-### 2025-05-16: Backend Health & Metrics Endpoints Implemented and Verified
-
-Implemented and verified `/health` and `/metrics` endpoints in the Flask backend. `/health` returns a JSON health report for database, Redis, disk, and memory, and `/metrics` returns Prometheus-compatible metrics. Both endpoints are live and accessible. The health blueprint is registered in the canonical app factory. Some health checks (database, Redis) are currently unhealthy due to config or environment, but the endpoints themselves are functional and ready for integration and monitoring.
-
-**Core Components Implemented:**
-- `/health` endpoint (JSON health report)
-- `/metrics` endpoint (Prometheus metrics)
-- Health blueprint registration in Flask app
-
-**Key Features:**
-- System health checks (DB, Redis, disk, memory)
-- Prometheus metrics export
-- Ready for MCP/monitoring integration
-
-**Integration Points:**
-- Backend Flask app (`src/dojopool/app.py`)
-- Health blueprint (`src/dojopool/core/health.py`)
-- DevOps/monitoring systems
-
-**File Paths:**
-- `src/dojopool/core/health.py`
-- `src/dojopool/app.py`
-
-**Next Priority Task:**
-Implement result reporting UI for admins/authorized users in TournamentDetail (frontend).
-
-Expected completion time: 2 hours
-
-### 2025-05-16: Tournament Result Reporting UI for Admins/Organizers
-
-Implemented a result reporting UI in the TournamentDetail view. Admins and tournament organizers can now report match results directly from the bracket, using a modal dialog to select the winner and enter the score. The UI is permission-gated and ready for backend integration. All linter/type errors resolved. Tests pass for the updated component.
-
-**Core Components Implemented:**
-- Result reporting modal in TournamentDetail
-- Permission check for admin/organizer
-- Bracket integration for match result reporting
-
-**Key Features:**
-- Admin/organizer-only result reporting
-- Modal dialog for winner/score entry
-- Ready for backend API integration
-
-**Integration Points:**
-- TournamentDetail component (`src/components/tournaments/TournamentDetail.tsx`)
-- Tournament type (`src/types/tournament.ts`)
-- User type (`src/types/user.ts`)
-
-**File Paths:**
-- `src/components/tournaments/TournamentDetail.tsx`
-- `src/types/tournament.ts`
-- `src/types/user.ts`
-
-**Next Priority Task:**
-Finalize and test multi-step tournament registration UI (frontend).
-
-Expected completion time: 2 hours
-
-### 2025-05-17: Flask Template & Navigation Audit/Fix
-
-Resolved all 500 errors on the main site due to missing endpoints and context variables in Jinja2 templates. Audited and confirmed all navigation and footer links in `layout.html` reference valid, implemented Flask endpoints. Verified the `now` context variable is injected globally. The main site and navigation now render without error, and all links work as expected.
-
-**Core Components Implemented:**
-- Flask main and auth blueprints
-- Jinja2 template context processor (`now`)
-- Navigation and footer link validation
-
-**File Paths:**
-- src/dojopool/templates/layout.html
-- src/dojopool/routes/main.py
-- src/dojopool/routes/auth/views.py
-- src/dojopool/app.py
-
-**Next Priority Task:**
-Continue with the next outstanding item in the development tracking files (Tournament Registration & Discovery UI, entry fee payment, bracket generation/real-time updates).
-
-Expected completion time: 2-4 hours
+### 2024-05-21: Firebase Config Validation Script – Interactive Prompts & Error Reporting (see DEVELOPMENT_TRACKING_PART_03.md)

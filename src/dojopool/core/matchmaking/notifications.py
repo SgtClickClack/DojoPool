@@ -11,9 +11,9 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from ...core.database import db, reference_col
-from ...core.auth.[MODEL]models import User
-from ..models.game import Game
-from ..models.venue import Venue
+from ...models.user import User
+from ...models.game import Game
+from ...models.venue import Venue
 from ..config.matchmaking import TIME_SETTINGS
 from .events import (
     MatchEvent,

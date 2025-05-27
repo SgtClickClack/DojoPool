@@ -1,3 +1,10 @@
+// Polyfill TextEncoder/TextDecoder for Node.js test environment
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
 // Setup for jsdom environment (UI tests)
 import '@testing-library/jest-dom';
 import dotenv from 'dotenv';

@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Register } from "../../../dojopool/frontend/components/Auth/[AUTH]Register";
-import { useAuth } from "../../../dojopool/frontend/hooks/useAuth";
+import { Register } from '../../../../src/dojopool/frontend/components/Auth/[AUTH]Register';
+import { useAuth } from '../../../../src/dojopool/frontend/contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 
 // Mock the hooks

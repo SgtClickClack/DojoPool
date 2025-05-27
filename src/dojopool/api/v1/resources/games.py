@@ -3,6 +3,9 @@
 This module provides API resources for game operations.
 """
 
+import flask
+import flask_login
+import marshmallow
 from datetime import datetime
 from typing import Optional
 
@@ -19,6 +22,7 @@ from dojopool.core.extensions import db
 # from dojopool.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
 # from dojopool.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
 from dojopool.core.models.game_analytics import GameAnalytics
+from dojopool.core.models.game import GameSession # Corrected import path for GameSession
 
 from .base import BaseResource
 
@@ -199,24 +203,48 @@ class GameResource(BaseResource):
             # Complete the game
             game.complete_game(winner_id, score)
 
-            # Update or create analytics for both players
-            for player_id in [game.player1_id, game.player2_id]:
-                analytics = GameAnalytics.query.filter_by(game_id=game.id, player_id=player_id).first()
-                if not analytics:
-                    analytics = GameAnalytics(game_id=game.id, player_id=player_id)
-                # Example: update stats (real logic would use actual game data)
-                analytics.total_shots = analytics.total_shots or 0
-                analytics.successful_shots = analytics.successful_shots or 0
-                analytics.failed_shots = analytics.failed_shots or 0
-                analytics.fouls = analytics.fouls or 0
-                analytics.points_scored = analytics.points_scored or 0
-                analytics.updated_at = datetime.utcnow()
-                db.session.add(analytics)
-            db.session.commit()
+            # Fetch the associated GameSession
+            session = GameSession.query.filter_by(game_id=game.id).first()
+
+            if session and session.status == "completed":
+                # Get the final calculated metrics from the session
+                final_metrics = session.session_data.get("final_metrics", {})
+                session_stats = session.get_session_stats()
+
+                # Update or create analytics for both players
+                for player_id in [game.player1_id, game.player2_id]:
+                    analytics = GameAnalytics.query.filter_by(game_id=game.id, player_id=player_id).first()
+                    if not analytics:
+                        analytics = GameAnalytics(game_id=game.id, player_id=player_id)
+
+                    # Update analytics fields using data from session stats and final metrics
+                    # This is still example logic and should be refined based on exact data structure
+                    player_stats = session_stats.get("metrics", {}) # Example: use general session metrics
+                    player_performance = session_stats.get("performance", {}) # Example: use performance metrics
+
+                    analytics.total_shots = player_stats.get("shots", 0)
+                    analytics.total_fouls = player_stats.get("fouls", 0)
+                    # Add other relevant analytics fields based on GameAnalytics model
+                    # e.g., analytics.accuracy = ... (derived from session events)
+                    # e.g., analytics.successful_shots = ...
+
+                    # You might need to iterate through session.events to calculate player-specific stats
+                    # For now, using total session stats as a placeholder
+
+                    analytics.updated_at = datetime.utcnow()
+                    db.session.add(analytics)
+
+                db.session.commit()
+
+            elif not session:
+                 # Handle case where session is not found (maybe log a warning)
+                 print(f"Warning: GameSession not found for game_id {game.id}")
+            # else: Session is not completed, analytics update should ideally happen after session ends properly
 
             return self.success_response(
                 data={
                     "game": self.schema.dump(game),
+                    # Return updated analytics data
                     "analytics": [
                         GameAnalytics.query.filter_by(game_id=game.id, player_id=game.player1_id).first(),
                         GameAnalytics.query.filter_by(game_id=game.id, player_id=game.player2_id).first(),

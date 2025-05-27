@@ -1,11 +1,29 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import UserProfile from '../../../src/components/social/UserProfile';
-import { User } from '../../../src/types/user';
-import { Profile } from '../../../src/types/profile';
+import UserProfile from '../../../../src/components/social/UserProfile';
+import { User } from '../../../../src/types/user';
+import { Profile } from '../../../../src/types/profile';
+import { useAuth } from '../../../../src/dojopool/frontend/contexts/AuthContext';
 
+// Define mockProfile before mocks
+const mockProfile: Profile = {
+  id: 'profile123',
+  userId: 'user123',
+  displayName: 'Test User',
+  bio: 'This is a test bio.',
+  avatarUrl: 'http://example.com/avatar.jpg',
+  location: 'Test City',
+  skillLevel: 1500,
+  preferredGame: '8-ball',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+// Mock the useProfile hook before imports that use it
+jest.mock('../../../../src/hooks/useProfile', () => ({
+  useProfile: () => ({ profile: mockProfile, loading: false, error: null }),
+}));
 // Mock the useAuth hook as it's likely used in UserProfile
-jest.mock('../../../src/frontend/contexts/AuthContext', () => ({
+jest.mock('../../../../src/dojopool/frontend/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: { id: 'user123' } as User, // Mock authenticated user
     loading: false,
@@ -30,19 +48,6 @@ describe('UserProfile', () => {
     updatedAt: new Date(),
   };
 
-  const mockProfile: Profile = {
-    id: 'profile123',
-    userId: 'user123',
-    displayName: 'Test User',
-    bio: 'This is a test bio.',
-    avatarUrl: 'http://example.com/avatar.jpg',
-    location: 'Test City',
-    skillLevel: 1500,
-    preferredGame: '8-ball',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
   // Before each test, mock the service call to return the mock profile
   // beforeEach(() => {
   //   require('../../../src/services/social/SocialService').SocialService.getUserProfile.mockResolvedValue(mockProfile);
@@ -55,7 +60,7 @@ describe('UserProfile', () => {
        useProfile: () => ({ profile: mockProfile, loading: false, error: null }),
      }));
 
-    render(<UserProfile userId={'user123'} />);
+    render(<UserProfile username={'user123'} />);
 
     // Check for key elements
     await screen.findByText('Test User');

@@ -282,6 +282,44 @@ const VenueAnalyticsDashboard: React.FC = () => {
           </Card>
         </Grid>
 
+        {/* Date Range and Venue Select */}
+        <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+            <TextField
+              label="Start Date"
+              aria-label="Start Date"
+              type="date"
+              value={dateRange.startDate.toISOString().slice(0, 10)}
+              onChange={e => setDateRange({ ...dateRange, startDate: new Date(e.target.value) })}
+              InputLabelProps={{ shrink: true }}
+              size="small"
+            />
+            <TextField
+              label="End Date"
+              aria-label="End Date"
+              type="date"
+              value={dateRange.endDate.toISOString().slice(0, 10)}
+              onChange={e => setDateRange({ ...dateRange, endDate: new Date(e.target.value) })}
+              InputLabelProps={{ shrink: true }}
+              size="small"
+            />
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel id="venue-select-label">Venue</InputLabel>
+              <Select
+                labelId="venue-select-label"
+                aria-label="Venue"
+                value={selectedVenue}
+                onChange={e => setSelectedVenue(Number(e.target.value))}
+                label="Venue"
+              >
+                <MenuItem value={1}>Venue 1</MenuItem>
+                <MenuItem value={2}>Venue 2</MenuItem>
+                <MenuItem value={3}>Venue 3</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Grid>
+
         {/* Charts */}
         <Grid item xs={12}>
           <VenueAnalyticsVisualizations
@@ -358,6 +396,14 @@ const VenueAnalyticsDashboard: React.FC = () => {
             </TableContainer>
           </Paper>
         </Grid>
+
+        {/* Filters */}
+        {showFilters && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="h6">Filters</Typography>
+            {/* Add filter controls here if needed */}
+          </Box>
+        )}
       </Grid>
 
       {/* Export Dialog */}
@@ -371,10 +417,9 @@ const VenueAnalyticsDashboard: React.FC = () => {
             <InputLabel>Format</InputLabel>
             <Select
               value={exportFormat}
-              onChange={(e) =>
-                setExportFormat(e.target.value as "csv" | "json" | "pdf")
-              }
+              onChange={(e) => setExportFormat(e.target.value as "csv" | "json" | "pdf")}
               label="Format"
+              aria-label="Export format"
             >
               <MenuItem value="csv">CSV</MenuItem>
               <MenuItem value="json">JSON</MenuItem>

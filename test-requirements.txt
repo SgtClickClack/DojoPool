@@ -17,4 +17,9 @@ aiohttp
 aiosmtplib
 Flask-DebugToolbar
 fakeredis
-pytest-asyncio 
+pytest-asyncio
+numpy
+playwright
+locust
+trezorlib
+objgraph 

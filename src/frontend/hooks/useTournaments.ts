@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getTournaments } from '../api/tournaments';
 import { Tournament } from '@/types/tournament';
+import { SocketIOService } from '@/services/WebSocketService';
 
 export const useTournaments = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -21,6 +22,19 @@ export const useTournaments = () => {
     };
 
     fetchTournaments();
+
+    // Real-time updates
+    const socket = SocketIOService.getInstance();
+    socket.connect();
+    const handleTournamentUpdate = (notification: any) => {
+      // notification: { type, tournament_id, update_type, data }
+      // For simplicity, refetch the list on any update
+      fetchTournaments();
+    };
+    socket.on('tournament_update', handleTournamentUpdate);
+    return () => {
+      socket.off('tournament_update', handleTournamentUpdate);
+    };
   }, []);
 
   return {

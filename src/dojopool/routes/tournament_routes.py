@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request, current_app
 from flask_login import current_user, login_required
 
-from dojopool.core.tournaments.models import Tournament
+from dojopool.models.tournament import Tournament
 from dojopool.services.tournament_service import TournamentService
 from dojopool.utils.validators import validate_tournament_data
 from dojopool.core.decorators import admin_required
@@ -40,13 +40,22 @@ def create_tournament():
 
 @bp.route("/", methods=["GET"])
 def get_tournaments():
-    """Get list of tournaments."""
+    """Get list of tournaments with optional filtering by status, type, and search."""
     status = request.args.get("status")
-    if status == "active":
-        tournaments = tournament_service.get_active_tournaments()
-    else:
-        tournaments = Tournament.get_all()
+    type_ = request.args.get("type")
+    search = request.args.get("search")
 
+    query = Tournament.query
+    if status:
+        query = query.filter(Tournament.status == status)
+    if type_:
+        query = query.filter(Tournament.format == type_)
+    if search:
+        ilike = f"%{search.lower()}%"
+        query = query.filter(
+            (Tournament.name.ilike(ilike)) | (Tournament.description.ilike(ilike))
+        )
+    tournaments = query.all()
     return jsonify([t.to_dict() for t in tournaments])
 
 

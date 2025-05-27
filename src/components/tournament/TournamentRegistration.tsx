@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -19,7 +19,8 @@ import {
 } from '@mui/material';
 import { Tournament } from '../../types/tournament';
 import { useAuth } from '../../hooks/useAuth';
-import { registerForTournament } from '../../services/tournament';
+import { registerForTournament } from '../../services/tournament/tournament';
+import useWalletService from '../../frontend/hooks/services/useWalletService';
 
 interface TournamentRegistrationProps {
   tournament: Tournament;
@@ -41,6 +42,16 @@ export const TournamentRegistration: React.FC<TournamentRegistrationProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [agreeToRules, setAgreeToRules] = useState(false);
   const [agreeToPayment, setAgreeToPayment] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [transactionInProgress, setTransactionInProgress] = useState(false);
+
+  const { walletData, loading: walletLoading, error: walletError, fetchWalletData } = useWalletService();
+
+  useEffect(() => {
+    if (open && user && typeof (user as any).id === 'string') {
+      fetchWalletData((user as any).id);
+    }
+  }, [open, user, fetchWalletData]);
 
   const steps = ['Review Details', 'Rules & Requirements', 'Payment Confirmation'];
 
@@ -54,18 +65,28 @@ export const TournamentRegistration: React.FC<TournamentRegistrationProps> = ({
 
   const handleRegister = async () => {
     try {
+      setTransactionInProgress(true);
       setLoading(true);
       setError(null);
-      
       await registerForTournament(tournament.id);
+      setSuccess(true);
       onSuccess();
-      onClose();
-    } catch (err) {
-      setError('Failed to register for tournament. Please try again.');
+    } catch (err: any) {
+      if (err?.response?.data?.error?.toLowerCase().includes('payment')) {
+        setError('Payment failed. Please check your wallet balance and try again.');
+      } else {
+        setError('Failed to register for tournament. Please try again.');
+      }
     } finally {
       setLoading(false);
+      setTransactionInProgress(false);
     }
   };
+
+  const entryFee = typeof tournament.entryFee === 'number' ? tournament.entryFee : 0;
+  const tournamentType = (tournament as any).type || (tournament as any).format || '';
+  const walletBalance = walletData?.balance ?? 0;
+  const isBalanceSufficient = walletBalance >= entryFee;
 
   const renderStepContent = (step: number) => {
     switch (step) {
@@ -79,13 +100,13 @@ export const TournamentRegistration: React.FC<TournamentRegistrationProps> = ({
               Name: {tournament.name}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              Type: {tournament.type}
+              Type: {tournamentType}
             </Typography>
             <Typography variant="body1" gutterBottom>
               Start Date: {new Date(tournament.startDate).toLocaleDateString()}
             </Typography>
             <Typography variant="body1" gutterBottom>
-              Entry Fee: ${tournament.entryFee}
+              Entry Fee: ${entryFee}
             </Typography>
             <Typography variant="body1">
               Maximum Participants: {tournament.maxParticipants}
@@ -133,16 +154,41 @@ export const TournamentRegistration: React.FC<TournamentRegistrationProps> = ({
               Payment Confirmation
             </Typography>
             <Typography variant="body1" paragraph>
-              Entry Fee: ${tournament.entryFee}
+              Entry Fee: {entryFee} Dojo Coins
             </Typography>
+
+            <Typography variant="body1" gutterBottom>
+              Your Current Balance:
+              {walletLoading ? (
+                <CircularProgress size={16} sx={{ ml: 1 }} />
+              ) : walletError ? (
+                <Typography component="span" color="error" sx={{ ml: 1 }}>
+                  Error loading balance.
+                </Typography>
+              ) : (
+                <Typography component="span" sx={{ ml: 1, fontWeight: 'bold' }}>
+                  {walletBalance} Dojo Coins
+                </Typography>
+              )}
+            </Typography>
+
+            {!walletLoading && !walletError && (
+              <Typography variant="body2" paragraph color={isBalanceSufficient ? 'success.main' : 'error.main'}>
+                {isBalanceSufficient
+                  ? 'Your balance is sufficient to cover the entry fee.'
+                  : 'Your balance is insufficient to cover the entry fee.'}
+              </Typography>
+            )}
+
             <Typography variant="body2" paragraph>
-              Payment will be processed using your connected wallet.
+              Payment will be processed using your connected wallet upon completing registration.
             </Typography>
             <FormControlLabel
               control={
                 <Checkbox
                   checked={agreeToPayment}
                   onChange={(e) => setAgreeToPayment(e.target.checked)}
+                  disabled={!isBalanceSufficient}
                 />
               }
               label="I agree to pay the entry fee and understand it is non-refundable"
@@ -185,49 +231,64 @@ export const TournamentRegistration: React.FC<TournamentRegistrationProps> = ({
       </DialogTitle>
       
       <DialogContent>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+        {success ? (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            Registration complete! You are now entered in the tournament.
           </Alert>
+        ) : (
+          <>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+
+            <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+
+            {transactionInProgress && (
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CircularProgress size={20} sx={{ mr: 2 }} />
+                <Typography variant="body2">Processing payment and registration...</Typography>
+              </Box>
+            )}
+
+            {renderStepContent(activeStep)}
+          </>
         )}
-
-        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-
-        {renderStepContent(activeStep)}
       </DialogContent>
 
       <DialogActions sx={{ p: 2, pt: 0 }}>
-        <Button onClick={onClose} disabled={loading}>
-          Cancel
+        <Button onClick={onClose} disabled={loading || transactionInProgress}>
+          {success ? 'Close' : 'Cancel'}
         </Button>
-        {activeStep > 0 && (
-          <Button onClick={handleBack} disabled={loading}>
+        {!success && activeStep > 0 && (
+          <Button onClick={handleBack} disabled={loading || transactionInProgress}>
             Back
           </Button>
         )}
-        {activeStep === steps.length - 1 ? (
+        {!success && (activeStep === steps.length - 1 ? (
           <Button
             variant="contained"
             onClick={handleRegister}
-            disabled={loading || !isStepComplete(activeStep)}
+            disabled={loading || transactionInProgress || !isStepComplete(activeStep) || !isBalanceSufficient}
           >
-            {loading ? <CircularProgress size={24} /> : 'Complete Registration'}
+            {loading || transactionInProgress ? <CircularProgress size={24} /> : 'Complete Registration'}
           </Button>
         ) : (
           <Button
             variant="contained"
             onClick={handleNext}
-            disabled={loading || !isStepComplete(activeStep)}
+            disabled={loading || transactionInProgress || !isStepComplete(activeStep)}
           >
             Next
           </Button>
-        )}
+        ))}
       </DialogActions>
     </Dialog>
   );

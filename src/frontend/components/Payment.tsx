@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '@/frontend/hooks/useUser';
 import { useWallet } from '../hooks/useWallet';
 
 interface PaymentProps {

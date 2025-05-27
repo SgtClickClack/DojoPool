@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Any
 
 from fastapi import WebSocket, WebSocketDisconnect
 
@@ -17,6 +17,10 @@ from .models import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Import AI services
+from dojopool.ai.commentary_service import ai_commentary_service
+from dojopool.ai.referee_service import ai_referee_service, BackendRefereeInput # Import referee service and input type
 
 
 class WebSocketManager:
@@ -228,10 +232,76 @@ class WebSocketManager:
             data={
                 "shot": shot_data,
                 "balls_remaining": self._calculate_remaining_balls(game_state, shot_data),
-                "next_player": self._determine_next_player(game_state, shot_data),
+                "next_player": self._determine_next_player(game_state, shot_data), # This will be potentially overridden by referee result
             },
         )
+        # await self.update_game_state(action.game_id, update) # Defer state update until after referee analysis
+
+        # --- AI Referee Integration (for shot event) ---
+        referee_result = None
+        try:
+            # Prepare input for AI Referee service
+            referee_input = BackendRefereeInput(
+                game_state=game_state.dict(), # Pass current game state as dictionary
+                shot_data=shot_data,
+                game_rules="standard_8ball", # TODO: Get actual game rules from game state
+                current_player_id=action.player_id
+            )
+
+            # Call the AI Referee service for analysis
+            referee_result = await ai_referee_service.analyze_shot(referee_input)
+
+            if referee_result:
+                logger.info(f"AI Referee analysis result for game {action.game_id}: Foul: {referee_result.foul}, Next Player: {referee_result.next_player_id}")
+                
+                # Update game state based on referee result
+                update.data['foul'] = referee_result.foul # Add foul info to update
+                update.data['foul_reason'] = referee_result.reason # Add foul reason
+                update.data['is_ball_in_hand'] = referee_result.is_ball_in_hand # Add ball in hand status
+                update.data['next_player'] = referee_result.next_player_id # Use referee's determined next player
+
+                # TODO: Handle specific foul types and their consequences (e.g., point deductions, re-racks)
+                # This might involve more complex game state modifications based on rules and the referee result.
+
+            else:
+                logger.warning(f"AI Referee analysis failed or returned no result for game {action.game_id}.")
+                # TODO: Implement fallback logic if referee analysis fails
+
+        except Exception as e:
+            logger.error(f"Error during AI Referee analysis for game {action.game_id}: {str(e)}")
+            # TODO: Implement error handling and potential fallback (e.g., default to no foul)
+
+        # --- End AI Referee Integration ---
+
+        # Update game state after potential modifications by referee result
         await self.update_game_state(action.game_id, update)
+
+        # --- AI Commentary Integration (for shot event) ---
+        # This block remains the same as before, ensuring commentary is generated after state update (including referee results)
+        try:
+            # Prepare data for commentary service (include relevant shot and game state info)
+            # Pass the potentially updated game state to the commentary service
+            updated_game_state = await self._get_game_state(action.game_id) # Fetch latest state after update
+            if updated_game_state:
+                event_data_for_commentary = {
+                    'type': 'shot',
+                    'game_id': action.game_id,
+                    'player_id': action.player_id,
+                    'shot': shot_data,
+                    'game_state': updated_game_state.dict() # Pass updated game state
+                    # Add other relevant data like fouls, score, etc. if available in updated_game_state
+                }
+                commentary = await ai_commentary_service.generate_commentary(event_data_for_commentary)
+
+                if commentary:
+                    # Emit commentary event to the game room
+                    # The frontend LiveCommentary component is listening for 'commentary' event
+                    await self._broadcast_all(action.game_id, {'type': 'commentary', 'data': commentary})
+                    logger.info(f"Emitted commentary for game {action.game_id} after shot.")
+
+        except Exception as e:
+            logger.error(f"Error generating/emitting commentary after shot for game {action.game_id}: {str(e)}")
+        # --- End AI Commentary Integration ---
 
     async def _handle_position_update(self, game_state: GameState, action: PlayerAction):
         update = GameUpdate(game_id=action.game_id, update_type="position", data=action.data)

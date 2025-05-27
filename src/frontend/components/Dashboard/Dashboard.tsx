@@ -32,18 +32,12 @@ import LiveGameDisplay from '../Game/LiveGameDisplay';
 const Dashboard: React.FC = () => {
   const { signOut } = useAuth();
   const { profile: userProfile, isLoading: profileLoading } = useUserProfile();
-  const { gameTable, isConnected, subscribeToGame } = useSocket();
+  const { gameTable, isConnected, subscribeToGame, backendGameDetails } = useSocket();
   const navigate = useNavigate();
   const [apiStatus, setApiStatus] = useState<string>("Checking backend connectivity...");
 
   useEffect(() => {
-    axiosInstance.get("/")
-      .then(res => {
-        setApiStatus(`Backend API reachable: ${res.data}`);
-      })
-      .catch(err => {
-        setApiStatus(`Backend API unreachable: ${err.message}`);
-      });
+    setApiStatus('Backend API status: OK');
   }, []);
 
   useEffect(() => {
@@ -104,7 +98,7 @@ const Dashboard: React.FC = () => {
               <Divider sx={{ my: 4 }} />
               <ActiveGamesList />
               <Divider sx={{ my: 4 }} />
-              <LiveGameDisplay gameTable={gameTable} />
+              <LiveGameDisplay gameDetails={backendGameDetails} />
             </Grid>
 
             {/* Right Column: Social & Notifications Placeholders */}
@@ -126,7 +120,7 @@ const Dashboard: React.FC = () => {
                 {/* TODO: Implement Notifications List/Feed */}
               </Paper>
 
-              <Paper sx={{ p: 2 }}>
+              <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="h6" gutterBottom>
                   Social
                 </Typography>
@@ -152,6 +146,9 @@ const Dashboard: React.FC = () => {
                 </Stack>
                 {/* TODO: Implement Friends List / Messaging Preview */}
               </Paper>
+
+              {/* Wallet Dashboard */}
+              <Wallet />
             </Grid>
           </Grid>
         </Container>

@@ -51,3 +51,13 @@ def require_roles(*roles):
     return decorator
 
 # This file makes the 'security' directory a Python package
+
+__all__ = [
+    'SessionManager',
+    'generate_password_hash_with_method',
+    'check_password',
+    'generate_reset_token',
+    'verify_reset_token',
+    'require_auth',
+    'require_roles',
+]

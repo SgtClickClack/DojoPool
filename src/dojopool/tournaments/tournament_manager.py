@@ -82,7 +82,7 @@ class TournamentStats:
 
 
 @dataclass
-class Tournament:
+class TournamentData:
     """Tournament details."""
 
     tournament_id: str
@@ -110,7 +110,7 @@ class TournamentManager:
 
     def __init__(self) -> None:
         """Initialize the tournament manager."""
-        self._tournaments: Dict[str, Tournament] = {}
+        self._tournaments: Dict[str, TournamentData] = {}
         self._player_tournaments: Dict[str, Set[str]] = {}  # player_id -> tournament_ids
         self._venue_tournaments: Dict[str, Set[str]] = {}  # venue_id -> tournament_ids
 
@@ -127,11 +127,11 @@ class TournamentManager:
         min_skill_level: Optional[int] = None,
         max_skill_level: Optional[int] = None,
         description: str = "",
-        rules: List[str] = None,
-    ) -> Tournament:
+        rules: List[str] = [],
+    ) -> TournamentData:
         """Create a new tournament."""
         tournament_id = str(uuid.uuid4())
-        tournament = Tournament(
+        tournament = TournamentData(
             tournament_id=tournament_id,
             name=name,
             venue_id=venue_id,
@@ -145,7 +145,7 @@ class TournamentManager:
             min_skill_level=min_skill_level,
             max_skill_level=max_skill_level,
             description=description,
-            rules=rules or [],
+            rules=rules,
         )
 
         self._tournaments[tournament_id] = tournament
@@ -271,7 +271,7 @@ class TournamentManager:
         return False
 
     def _generate_next_round(
-        self, tournament: Tournament, completed_round: TournamentRound
+        self, tournament: TournamentData, completed_round: TournamentRound
     ) -> None:
         """Generate matches for the next round."""
         winners = [match.winner_id for match in completed_round.matches if match.winner_id]
@@ -302,13 +302,13 @@ class TournamentManager:
         else:
             tournament.status = TournamentStatus.COMPLETED
 
-    def get_tournament(self, tournament_id: str) -> Optional[Tournament]:
+    def get_tournament(self, tournament_id: str) -> Optional[TournamentData]:
         """Get tournament by ID."""
         return self._tournaments.get(tournament_id)
 
     def get_player_tournaments(
         self, player_id: str, status: Optional[TournamentStatus] = None
-    ) -> List[Tournament]:
+    ) -> List[TournamentData]:
         """Get tournaments for a player."""
         tournament_ids = self._player_tournaments.get(player_id, set())
         tournaments = [self._tournaments[tid] for tid in tournament_ids if tid in self._tournaments]
@@ -320,7 +320,7 @@ class TournamentManager:
 
     def get_venue_tournaments(
         self, venue_id: str, status: Optional[TournamentStatus] = None
-    ) -> List[Tournament]:
+    ) -> List[TournamentData]:
         """Get tournaments at a venue."""
         tournament_ids = self._venue_tournaments.get(venue_id, set())
         tournaments = [self._tournaments[tid] for tid in tournament_ids if tid in self._tournaments]

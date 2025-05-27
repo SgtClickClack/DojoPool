@@ -16,7 +16,8 @@ from typing import Dict, List, Optional, Set, Tuple
 
 from dojopool.utils.validation import validate_address, validate_phone
 from dojopool.utils.geolocation import geocode_address
-from dojopool.core.models.venue import Venue, VenueEquipment
+from dojopool.core.models.venue import Venue
+from dojopool.core.models.venue import VenueEquipment
 from dojopool.core.models.staff import StaffMember
 from dojopool.utils.security import generate_venue_api_key
 

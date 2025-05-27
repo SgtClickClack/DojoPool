@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 
-const AvatarEditor: React.FC = () => {
+interface AvatarEditorProps {
+  onSave: (imageData: string) => Promise<void>;
+  initialAvatarUrl: string | null;
+  disabled: boolean;
+}
+
+const AvatarEditor: React.FC<AvatarEditorProps> = ({ onSave, initialAvatarUrl, disabled }) => {
   const [prompt, setPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedAvatarUrl, setGeneratedAvatarUrl] = useState<string | null>(null);
+  const [saving, setSaving] = useState<boolean>(false);
 
   const handleGenerateFromText = async () => {
     if (!prompt.trim()) {
@@ -21,7 +28,6 @@ const AvatarEditor: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add authentication headers if required
         },
         body: JSON.stringify({ prompt }),
       });
@@ -32,16 +38,24 @@ const AvatarEditor: React.FC = () => {
         throw new Error(result.error || 'Failed to generate avatar.');
       }
 
-      // Assuming the backend returns { avatar_url: '...', success: '...' }
       setGeneratedAvatarUrl(result.avatar_url);
       // Optionally display success message: result.success
       console.log('Avatar generated successfully:', result.avatar_url);
-
     } catch (err: any) {
       console.error('Avatar generation error:', err);
       setError(err.message || 'An unknown error occurred.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!generatedAvatarUrl) return;
+    setSaving(true);
+    try {
+      await onSave(generatedAvatarUrl);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -59,14 +73,14 @@ const AvatarEditor: React.FC = () => {
           placeholder="e.g., a cyberpunk samurai with a glowing pool cue"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoading || disabled}
         />
       </div>
 
       <button
         onClick={handleGenerateFromText}
-        className={`px-4 py-2 rounded text-white ${isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
-        disabled={isLoading}
+        className={`px-4 py-2 rounded text-white ${isLoading || disabled ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+        disabled={isLoading || disabled}
       >
         {isLoading ? 'Generating...' : 'Generate from Text'}
       </button>
@@ -75,11 +89,19 @@ const AvatarEditor: React.FC = () => {
         <p className="text-red-500 mt-3">Error: {error}</p>
       )}
 
-      {generatedAvatarUrl && (
+      {(generatedAvatarUrl || initialAvatarUrl) && (
         <div className="mt-4">
           <h3 className="text-lg font-medium">Generated Avatar:</h3>
-          <img src={generatedAvatarUrl} alt="Generated Avatar" className="mt-2 border rounded max-w-xs" />
-          {/* Placeholder: Add button to 'Apply' or 'Save' this avatar */}
+          <img src={generatedAvatarUrl || initialAvatarUrl || ''} alt="Generated Avatar" className="mt-2 border rounded max-w-xs" />
+          {generatedAvatarUrl && (
+            <button
+              onClick={handleSave}
+              className={`mt-3 px-4 py-2 rounded text-white ${saving || disabled ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}
+              disabled={saving || disabled}
+            >
+              {saving ? 'Saving...' : 'Save Avatar'}
+            </button>
+          )}
         </div>
       )}
 

@@ -303,7 +303,11 @@ class AnalyticsService {
   }
 }
 
-const useAnalytics = (callback?: (data: AnalyticsData) => void) => {
+// Export the singleton instance
+export const analyticsService = AnalyticsService.getInstance();
+
+// Export the hook for React components
+export const useAnalytics = (callback?: (data: AnalyticsData) => void) => {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const analytics = AnalyticsService.getInstance();
 
@@ -335,5 +339,3 @@ const useAnalytics = (callback?: (data: AnalyticsData) => void) => {
 };
 
 export type { GameAnalytics, PlayerStats, AnalyticsData };
-export { useAnalytics };
-export default AnalyticsService;

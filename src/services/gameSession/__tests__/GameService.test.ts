@@ -20,7 +20,12 @@ jest.mock("@prisma/client", () => {
 
 // Mock dependencies
 // jest.mock("../../utils/redisClient"); // Comment out until path confirmed
-jest.mock("../../../src/utils/logger");
+jest.mock('@/utils/logger', () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+}));
 
 describe("GameService", () => {
   const mockGame: any = {
@@ -37,10 +42,15 @@ describe("GameService", () => {
   };
 
   let prisma: PrismaClient;
+  let mockedPrismaClientInstance: any;
 
   beforeEach(() => {
     prisma = new PrismaClient();
     jest.clearAllMocks();
+    mockedPrismaClientInstance = (PrismaClient as jest.Mock).mock.instances[0];
+    if (!mockedPrismaClientInstance || !mockedPrismaClientInstance.game) {
+      mockedPrismaClientInstance = { game: { create: jest.fn(), findUnique: jest.fn(), update: jest.fn(), findMany: jest.fn() } };
+    }
   });
 
   describe("createGame", () => {

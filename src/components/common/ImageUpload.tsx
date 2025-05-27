@@ -4,7 +4,7 @@ import {
   Button,
   Image,
   VStack,
-  useToast,
+  useToast as useToastChakra,
   Progress,
   Text,
   useColorModeValue,
@@ -31,7 +31,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     currentImageUrl || null,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   const bgColor = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");

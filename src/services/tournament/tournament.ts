@@ -1,5 +1,5 @@
 import { Tournament } from '../types/tournament';
-import { api } from './api';
+import { api } from '../api';
 
 export const getTournaments = async (): Promise<Tournament[]> => {
   const response = await api.get('/api/tournaments');

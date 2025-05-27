@@ -1,9 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
 
-import { TextEncoder, TextDecoder } from 'util';
-// global.TextEncoder = TextEncoder; // Keep commented out based on previous findings
-// global.TextDecoder = TextDecoder;
+// Polyfill TextEncoder/TextDecoder for Node.js test environment
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
 
 import '@testing-library/jest-dom';
 import 'whatwg-fetch'; // Polyfill for fetch
@@ -121,3 +124,18 @@ configure({
 
 // Optional: Global test setup, e.g., mocking modules
 // jest.mock('some-module', () => ({ /* ...mock implementation */ }));
+
+// Jest global setup for Vite env compatibility
+Object.defineProperty(globalThis, 'import', {
+  value: {},
+  writable: true,
+});
+
+Object.defineProperty(globalThis, 'import.meta', {
+  value: {
+    env: {
+      VITE_NEXT_PUBLIC_API_URL: 'http://localhost:8000/api/v1',
+    },
+  },
+  writable: true,
+});

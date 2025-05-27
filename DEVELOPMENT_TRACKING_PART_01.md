@@ -403,3 +403,24 @@ Resolved critical and persistent issues preventing the Python Flask backend serv
 Proceed with outstanding tasks from DEVELOPMENT_TRACKING_PART_02.md, starting with "AI Referee (Sky-T1) integration tests" now that the Node.js/npm environment issue is (presumed) resolved and the backend is stable. If Node.js issues persist, address those first.
 
 Expected completion time: Ongoing (for PART_02 tasks)
+
+### 2024-07-16: Logging Consolidation and ErrorLoggingService Refactor
+
+Consolidated all error logging to use a single canonical `ErrorLoggingService` in `src/services/`. Updated all imports in frontend and error boundary components to use this service, removed the duplicate from `src/core/services/`, and ensured all error logging flows through the unified service. This improves maintainability, error tracking, and code clarity.
+
+**Core Components Implemented:**
+- Canonical `ErrorLoggingService` in `src/services/`
+- Updated all `logError` imports in frontend and error boundary components
+- Removed duplicate service from `src/core/services/`
+
+**File Paths:**
+- src/services/ErrorLoggingService.ts
+- src/components/common/ErrorBoundary.tsx
+- src/dojopool/frontend/components/ErrorBoundary/[ERR]ErrorBoundary.tsx
+- src/dojopool/frontend/[UI]App.tsx
+- src/core/services/ErrorLoggingService.ts (deleted)
+
+**Next Priority Task:**
+Address file/directory naming and placement inconsistencies within the `src/` directory, focusing on moving prefixed files into appropriate subdirectories and removing non-standard prefixes, as outlined in the dev tracking index.
+
+Expected completion time: 1 hour

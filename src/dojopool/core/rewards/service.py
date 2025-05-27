@@ -145,3 +145,57 @@ class RewardsService:
             }
             for ur in user_rewards
         ]
+
+    def purchase_shop_item(self, user_id: int, item_id: int) -> bool:
+        """Purchase an item from the rewards shop for a user."""
+        user = User.query.get(user_id)
+        shop_item = Reward.query.get(item_id) # Assuming shop items are also stored as Rewards
+
+        # Validate user and item
+        if not user or not shop_item:
+            return False
+
+        # Validate item availability (similar checks as claim_reward)
+        # This assumes shop items are structured similarly to claimable rewards
+        if not shop_item.is_active:
+            return False
+
+        # Check if item is expired (if applicable)
+        if shop_item.expiry_date and shop_item.expiry_date < datetime.utcnow():
+            return False
+
+        # Check if item is out of stock (if applicable)
+        if shop_item.quantity_available is not None:
+            # Need to decide how shop item stock is tracked, perhaps a different status or model?
+            # For now, using 'purchased' status if shop items use UserReward model
+            purchased_count = UserReward.query.filter_by(
+                reward_id=shop_item.id, status="purchased"
+            ).count() # Assuming a 'purchased' status for shop items
+            if purchased_count >= shop_item.quantity_available:
+                return False
+
+        # Check if user has enough points
+        if user.points < shop_item.points_cost:
+            return False
+
+        # Process the purchase
+        try:
+            # Create a UserReward entry for the purchased item
+            # Using status 'purchased' to differentiate from 'claimed'
+            user_purchase = UserReward(
+                user_id=user_id,
+                reward_id=shop_item.id,
+                status="purchased", # Use a distinct status for purchased items
+                points_spent=shop_item.points_cost
+            )
+
+            # Deduct points from user
+            user.points -= shop_item.points_cost
+
+            db.session.add(user_purchase)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error processing purchase for item {item_id} by user {user_id}: {e}")
+            return False

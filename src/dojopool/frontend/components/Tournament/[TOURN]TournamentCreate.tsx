@@ -18,7 +18,7 @@ import {
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { TournamentFormat } from "../../types/tournament";
 
-export const TournamentCreate: React.FC = () => {
+const TournamentCreate = (props) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -263,3 +263,5 @@ export const TournamentCreate: React.FC = () => {
     </Box>
   );
 };
+
+export default TournamentCreate;

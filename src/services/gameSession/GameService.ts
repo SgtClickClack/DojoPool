@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Game, GameState, GameType } from "../../types/game";
+import { Game, GameType } from "../../types/game";
 
 const prisma = new PrismaClient();
 
@@ -16,7 +16,7 @@ export class GameService {
         players,
         venueId,
         tableId,
-        state: GameState.PENDING,
+        status: "PENDING",
         currentPlayer: players[0],
         score: {},
         createdAt: new Date(),
@@ -31,11 +31,11 @@ export class GameService {
     });
   }
 
-  static async updateGameState(id: string, state: GameState): Promise<Game> {
+  static async updateGameState(id: string, state: string): Promise<Game> {
     return prisma.game.update({
       where: { id },
       data: {
-        state,
+        status: state,
         updatedAt: new Date(),
       },
     });
@@ -71,7 +71,7 @@ export class GameService {
     return prisma.game.update({
       where: { id },
       data: {
-        state: GameState.COMPLETED,
+        status: "COMPLETED",
         winnerId,
         endedAt: new Date(),
         updatedAt: new Date(),
@@ -83,8 +83,8 @@ export class GameService {
     return prisma.game.findMany({
       where: {
         venueId,
-        state: {
-          in: [GameState.IN_PROGRESS, GameState.PENDING],
+        status: {
+          in: ["IN_PROGRESS", "PENDING"],
         },
       },
       orderBy: {

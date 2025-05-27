@@ -3,7 +3,7 @@
 from flask import Blueprint, current_app, jsonify, render_template, request, redirect, url_for
 from flask_login import current_user, login_required
 
-from src.models.venue import Venue
+from dojopool.core.models.venue import Venue
 from src.services.avatar import AvatarService
 
 features_bp = Blueprint("features", __name__)

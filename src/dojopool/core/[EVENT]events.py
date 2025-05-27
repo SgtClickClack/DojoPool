@@ -10,7 +10,7 @@ from datetime import datetime
 
 from flask import Response, current_app
 
-from dojopool.extensions import redis_client
+# Update or remove: from dojopool.extensions import redis_client
 
 
 class EventManager:

@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from dojopool.core.models.venue import Venue
+from dojopool.models.venue import Venue
 
 class VenuesResource(Resource):
     def get(self):

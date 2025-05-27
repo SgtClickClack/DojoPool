@@ -7,7 +7,8 @@ from sqlalchemy import func
 
 from ..models.user import User
 from ..core.models.notification import Notification
-from ..core.models.venue import Venue, VenueCheckIn
+from dojopool.models.venue import Venue
+from dojopool.models.venue_checkin import VenueCheckIn
 from ..core.database import db
 
 

@@ -26,6 +26,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useAuth } from "../../contexts/AuthContext";
 import NotificationCenter from "./[NOTIFY]NotificationCenter";
 import notificationService from "../../services/[NET]notification";
+import DojoPoolAppBar from "../AppBar";
 
 const publicPages = [
   { title: "Home", path: "/" },
@@ -133,7 +134,7 @@ const Navbar = () => {
   );
 
   return (
-    <AppBar position="fixed">
+    <DojoPoolAppBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Logo */}
@@ -265,7 +266,7 @@ const Navbar = () => {
           </Box>
         </Toolbar>
       </Container>
-    </AppBar>
+    </DojoPoolAppBar>
   );
 };
 

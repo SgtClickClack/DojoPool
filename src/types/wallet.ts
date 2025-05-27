@@ -15,23 +15,12 @@ export interface Wallet {
  * Represents the structure of a Wallet Transaction.
  */
 export interface Transaction {
-  id: number;
-  wallet_id: number;
-  user_id: number;
+  id: string;
+  type: string;
   amount: number;
   currency: string;
-  type: string;
-  transaction_type: string;
-  status: string;
-  description: string | null;
-  reference_id: string | null;
-  metadata?: {
-      reward_type?: string;
-      multiplier?: number;
-      [key: string]: any;
-  } | null;
-  created_at: string | null;
-  updated_at: string | null;
+  date: string;
+  description?: string;
 }
 
 /**
@@ -49,4 +38,18 @@ export interface WalletStats {
   }>;
   rewards_count?: number;
   rewards_total_amount?: number;
+}
+
+export interface WalletData {
+  balance: number; // Assuming this is the primary currency balance (Dojo Coins)
+  otherTokens: FungibleToken[]; // Array for other fungible tokens (required)
+}
+
+export interface FungibleToken {
+  id: string;
+  symbol: string;
+  name: string;
+  balance: number;
+  contractAddress?: string; // Optional: Token contract address
+  // Add other relevant token properties as needed
 } 

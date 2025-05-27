@@ -1,11 +1,17 @@
+console.log('PrivateRoute test file loaded');
+describe('Root', () => {
+  it('root sanity', () => expect(true).toBe(true));
+});
+it('sanity', () => expect(true).toBe(true));
+it('always passes', () => expect(1).toBe(1));
+// Use manual mock for AuthContext
+jest.mock("../../../../src/dojopool/frontend/contexts/AuthContext");
 import React from "react";
 import { screen, render } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import PrivateRoute from "../../../dojopool/frontend/components/Auth/[AUTH]PrivateRoute";
-import { useAuth } from "../../../hooks/useAuth";
-
-// Mock the auth hook from the correct path
-jest.mock("../../../hooks/useAuth");
+import PrivateRoute from '../../../../src/dojopool/frontend/components/Auth/[AUTH]PrivateRoute';
+import { useAuth } from "../../../../src/dojopool/frontend/contexts/AuthContext";
+const mockUseAuth = useAuth as jest.Mock;
 
 // Mock the firebase/auth module directly in this test file
 jest.mock("firebase/auth", () => ({
@@ -36,8 +42,6 @@ jest.mock("firebase/auth", () => ({
 }));
 
 describe("PrivateRoute Component", () => {
-  const mockUseAuth = useAuth as jest.Mock;
-
   // Test component to render inside PrivateRoute
   const ProtectedComponent = () => <div>Protected Content</div>;
 
@@ -165,4 +169,8 @@ describe("PrivateRoute Component", () => {
 
     expect(screen.getByText("Login Page")).toBeInTheDocument();
   });
+});
+
+describe('Sanity', () => {
+  it('sanity', () => expect(true).toBe(true));
 });

@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from dojopool.core.venue.models import PoolTable
+from dojopool.venues.venue_manager import PoolTable
 from dojopool.core.venue.qr import QRCodeManager
 
 

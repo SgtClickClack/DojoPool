@@ -5,7 +5,8 @@ import googlemaps
 from core.models import db
 from sqlalchemy import func
 
-from .models import PoolTable, Venue, VenueRating
+from dojopool.venues.venue_manager import PoolTable
+from dojopool.core.models.venue import Venue
 
 logger = logging.getLogger(__name__)
 

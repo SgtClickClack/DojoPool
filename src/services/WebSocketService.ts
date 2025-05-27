@@ -7,12 +7,19 @@ interface SocketMessage<T = unknown> {
   data?: T; // Payload
 }
 
+const getEnvVar = (key: string, fallback: string = ''): string => {
+  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
+    return process.env[key] as string;
+  }
+  return fallback;
+};
+
 /**
  * Singleton service for managing Socket.IO connection.
  */
 export class SocketIOService {
   private static instance: SocketIOService;
-  private socket: Socket<any, any> | null = null;
+  private socket: Socket | null = null;
   private url: string;
   // Keep listeners map, but it will map event names to callbacks
   private listeners: Map<string, ((data: unknown) => void)[]> = new Map();
@@ -21,7 +28,7 @@ export class SocketIOService {
   private constructor() {
     // Connect to base URL, Socket.IO handles negotiation
     // Remove the specific path '/ws/alerts'
-    this.url = process.env.REACT_APP_WS_URL || "ws://localhost:8000"; 
+    this.url = getEnvVar('VITE_REACT_APP_WS_URL', 'ws://localhost:3102'); 
   }
 
   public static getInstance(): SocketIOService {
@@ -63,7 +70,7 @@ export class SocketIOService {
         this.handleMessage(eventName, args.length > 0 ? args[0] : undefined);
     });
 
-    this.socket.on('disconnect', (reason: Socket.DisconnectReason | string) => {
+    this.socket.on('disconnect', (reason: string) => {
       console.log(`Socket.IO disconnected: ${reason}`);
       this.emit("connection", { status: "disconnected", reason });
       // Reconnection is usually handled automatically by the client

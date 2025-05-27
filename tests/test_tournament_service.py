@@ -9,7 +9,7 @@ import math
 from dojopool.app import create_app
 from dojopool.core.extensions import db
 from dojopool.models.user import User
-from dojopool.models.venue import Venue
+from dojopool.core.models.venue import Venue
 from dojopool.models.tournament import (
     Tournament, TournamentParticipant, TournamentMatch,
     TournamentStatus, TournamentFormat

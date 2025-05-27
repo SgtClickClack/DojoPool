@@ -6,7 +6,7 @@ import {
   Text,
   Input,
   Button,
-  useToast,
+  useToast as useToastChakra,
   FormControl,
   FormLabel,
   FormErrorMessage,
@@ -33,7 +33,7 @@ interface ValidationErrors {
 export const ProfileCompletion: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
   const router = useRouter();
-  const toast = useToast();
+  const toast = useToastChakra();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [formData, setFormData] = useState<ProfileData>({

@@ -4,7 +4,7 @@ import {
 } from "@mui/icons-material";
 import { Box, Button, Container, Paper, Typography } from "@mui/material";
 import React, { Component, ErrorInfo } from "react";
-import { logError } from "../../utils/errorHandling";
+import { logError } from "../../../../services/ErrorLoggingService";
 
 interface Props {
   children: React.ReactNode;

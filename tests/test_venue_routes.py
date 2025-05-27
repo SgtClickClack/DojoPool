@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from dojopool.core.venue.models import PoolTable
+from dojopool.venues.venue_manager import PoolTable
 from dojopool.core.venue.routes import venue_bp
 
 
@@ -242,3 +242,133 @@ def test_refresh_table_qr_generation_failed(client, auth_headers, mock_table, mo
         data = json.loads(response.data)
         assert "error" in data
         assert "Failed to refresh QR code" in data["error"]
+
+
+def minimal_checkin_app():
+    from flask import Flask
+    from dojopool.routes import venue_routes
+    app = Flask(__name__)
+    app.config["TESTING"] = True
+    # Register only the check-in route
+    app.add_url_rule(
+        "/venues/<int:venue_id>/check-in",
+        view_func=venue_routes.check_in,
+        methods=["POST"],
+    )
+    return app
+
+
+def test_venue_check_in_valid():
+    """Test successful check-in with valid QR and geolocation."""
+    from flask.testing import FlaskClient
+    app = minimal_checkin_app()
+    client = app.test_client()
+    venue_id = 1
+    payload = {
+        "qrCode": f"venue-{venue_id}",
+        "latitude": 40.7128,
+        "longitude": -74.0060,
+    }
+    with app.app_context():
+        with patch("dojopool.routes.venue_routes.Venue") as MockVenue:
+            MockVenue.__name__ = "MockVenue"
+            with patch("dojopool.routes.venue_routes.VenueCheckIn") as MockCheckIn:
+                MockCheckIn.__name__ = "MockCheckIn"
+                mock_user = Mock()
+                mock_user.id = 123
+                mock_user.is_authenticated = True
+                mock_user.__name__ = "MockUser"
+                with patch("flask_login.utils._get_user", return_value=mock_user):
+                    mock_venue = MockVenue.query.get_or_404.return_value
+                    mock_venue.latitude = 40.7128
+                    mock_venue.longitude = -74.0060
+                    MockCheckIn.query.filter_by.return_value.first.return_value = None
+                    response = client.post(f"/venues/{venue_id}/check-in", json=payload)
+                    if response.status_code != 200:
+                        print("Response data:", response.data)
+                    assert response.status_code == 200
+                    data = json.loads(response.data)
+                    assert "success" in data or "message" in data
+
+
+def test_venue_check_in_invalid_qr():
+    """Test check-in with invalid QR code."""
+    from flask.testing import FlaskClient
+    app = minimal_checkin_app()
+    client = app.test_client()
+    venue_id = 1
+    payload = {
+        "qrCode": "wrong-qr",
+        "latitude": 40.7128,
+        "longitude": -74.0060,
+    }
+    with app.app_context():
+        with patch("dojopool.routes.venue_routes.Venue") as MockVenue:
+            mock_user = Mock()
+            mock_user.id = 123
+            mock_user.is_authenticated = True
+            mock_user.__name__ = "MockUser"
+            with patch("flask_login.utils._get_user", return_value=mock_user):
+                MockVenue.query.get_or_404.return_value.latitude = 40.7128
+                MockVenue.query.get_or_404.return_value.longitude = 40.7128
+                response = client.post(f"/venues/{venue_id}/check-in", json=payload)
+                assert response.status_code == 400
+                data = json.loads(response.data)
+                assert "Invalid QR code" in data.get("error", "")
+
+
+def test_venue_check_in_out_of_bounds():
+    """Test check-in with geolocation outside allowed range."""
+    from flask.testing import FlaskClient
+    app = minimal_checkin_app()
+    client = app.test_client()
+    venue_id = 1
+    payload = {
+        "qrCode": f"venue-{venue_id}",
+        "latitude": 41.0,  # Far from venue
+        "longitude": -75.0,
+    }
+    with app.app_context():
+        with patch("dojopool.routes.venue_routes.Venue") as MockVenue:
+            mock_user = Mock()
+            mock_user.id = 123
+            mock_user.is_authenticated = True
+            mock_user.__name__ = "MockUser"
+            with patch("flask_login.utils._get_user", return_value=mock_user):
+                mock_venue = MockVenue.query.get_or_404.return_value
+                mock_venue.latitude = 40.7128
+                mock_venue.longitude = -74.0060
+                response = client.post(f"/venues/{venue_id}/check-in", json=payload)
+                assert response.status_code == 400
+                data = json.loads(response.data)
+                assert "within 50 meters" in data.get("error", "")
+
+
+def test_venue_check_in_already_checked_in():
+    """Test check-in when user is already checked in."""
+    from flask.testing import FlaskClient
+    app = minimal_checkin_app()
+    client = app.test_client()
+    venue_id = 1
+    payload = {
+        "qrCode": f"venue-{venue_id}",
+        "latitude": 40.7128,
+        "longitude": -74.0060,
+    }
+    with app.app_context():
+        with patch("dojopool.routes.venue_routes.Venue") as MockVenue:
+            with patch("dojopool.routes.venue_routes.VenueCheckIn") as MockCheckIn:
+                MockCheckIn.__name__ = "MockCheckIn"
+                mock_user = Mock()
+                mock_user.id = 123
+                mock_user.is_authenticated = True
+                mock_user.__name__ = "MockUser"
+                with patch("flask_login.utils._get_user", return_value=mock_user):
+                    mock_venue = MockVenue.query.get_or_404.return_value
+                    mock_venue.latitude = 40.7128
+                    mock_venue.longitude = -74.0060
+                    MockCheckIn.query.filter_by.return_value.first.return_value = True
+                    response = client.post(f"/venues/{venue_id}/check-in", json=payload)
+                    assert response.status_code == 400
+                    data = json.loads(response.data)
+                    assert "already checked in" in data.get("error", "")

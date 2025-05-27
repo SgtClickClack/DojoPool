@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { CDNCostOptimizer } from "../../../../dojopool/services/cdn/cost_optimizer";
-import { getCurrentUser } from "../../../../dojopool/services/auth/session";
+import { CDNCostOptimizer } from "../../../services/cdn/cost_optimizer";
+import { getCurrentUser } from "../../../services/auth/session";
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,6 +15,11 @@ export default async function handler(
   // Only allow GET requests
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Check user role - ONLY allow admin users to access this functionality
+  if (user.role !== "admin") {
+    return res.status(403).json({ error: "Insufficient permissions" });
   }
 
   try {

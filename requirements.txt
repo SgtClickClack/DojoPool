@@ -14,14 +14,14 @@ marshmallow==3.26.1
 flask-socketio
 eventlet
 celery
-psycopg2-binary
+# psycopg2-binary
 marshmallow-sqlalchemy
 redis
 flask-jwt-extended
 PyJWT
-numpy
-scikit-learn
-scipy
+# numpy
+# scikit-learn
+# scipy
 joblib
 threadpoolctl
 prometheus-client
@@ -33,7 +33,7 @@ fastapi
 # trezorlib  # Temporarily removed due to conflict
 opencv-python # For cv2
 qrcode        # For QR code generation
-pandas        # For data analysis, e.g., in qr_export
+# pandas
 
 # Security
 werkzeug==3.0.1
@@ -48,3 +48,4 @@ black==24.1.1
 flake8==7.0.0
 mypy==1.8.0
 parsimonious>=0.9.0
+pywin32

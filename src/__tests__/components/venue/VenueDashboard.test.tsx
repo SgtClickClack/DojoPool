@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import VenueDashboard from '../../../src/components/venue/VenueDashboard';
+import VenueDashboard from '../../../components/venue/VenueDashboard';
 
 describe('VenueDashboard', () => {
   it('renders the venue dashboard heading', () => {

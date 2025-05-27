@@ -63,9 +63,9 @@ const MatchBox: React.FC<MatchBoxProps> = ({ match, players }) => {
   );
 };
 
-export const TournamentBracket: React.FC<TournamentBracketProps> = ({
-  tournament,
-}) => {
+const TournamentBracket = (props: TournamentBracketProps) => {
+  const { tournament } = props;
+
   // Create a lookup object for quick player access
   const playerLookup = tournament.players.reduce(
     (acc, player) => {
@@ -253,3 +253,5 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
       );
   }
 };
+
+export default TournamentBracket;

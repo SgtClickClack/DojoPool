@@ -9,9 +9,9 @@ import {
   Badge,
   Icon,
   Button,
-  useToast,
 } from "@chakra-ui/react";
 import { FaTrophy, FaUser, FaClock, FaCheck } from "react-icons/fa";
+import { useToast as useToastChakra } from '@chakra-ui/toast';
 
 interface Match {
   id: string;
@@ -46,7 +46,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   isAdmin = false,
 }) => {
   const [expandedRound, setExpandedRound] = useState<number>(1);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   // Colors based on theme
   const bgColor = useColorModeValue("white", "gray.800");

@@ -54,7 +54,7 @@ const Feed: React.FC = () => {
     const fetchFeedData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/api/feed");
+        const response = await axiosInstance.get("/feed");
         setFeedItems(response.data);
         setError(null);
       } catch (err) {
@@ -82,7 +82,7 @@ const Feed: React.FC = () => {
 
   const handleLike = async (itemId: string) => {
     try {
-      await axiosInstance.post(`/api/feed/${itemId}/like`);
+      await axiosInstance.post(`/feed/${itemId}/like`);
       setFeedItems(items =>
         items.map(item =>
           item.id === itemId ? { ...item, likes: item.likes + 1 } : item
@@ -95,7 +95,7 @@ const Feed: React.FC = () => {
 
   const handleShare = async (itemId: string) => {
     try {
-      await axiosInstance.post(`/api/feed/${itemId}/share`);
+      await axiosInstance.post(`/feed/${itemId}/share`);
       setFeedItems(items =>
         items.map(item =>
           item.id === itemId ? { ...item, shares: item.shares + 1 } : item

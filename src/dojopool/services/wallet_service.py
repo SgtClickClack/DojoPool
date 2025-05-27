@@ -10,12 +10,10 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List, Dict, Any
 
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func
+from sqlalchemy import func  # type: ignore
 
 from dojopool.core.extensions import db
 from dojopool.models.marketplace import Wallet, Transaction
-from dojopool.models.user import User
 from dojopool.core.exceptions import WalletError, InsufficientFundsError, BlockchainError
 from dojopool.core.interfaces.wallet import IWalletService
 from dojopool.core.types.wallet_types import TransactionType, RewardType
@@ -321,4 +319,7 @@ class WalletService(IWalletService):
             # Implement Ethereum blockchain submission
             pass
         else:
-            raise BlockchainError(f"Unsupported blockchain provider: {self._blockchain_provider}") 
+            raise BlockchainError(f"Unsupported blockchain provider: {self._blockchain_provider}")
+
+
+wallet_service = WalletService() 

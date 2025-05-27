@@ -15,7 +15,6 @@ import {
   Divider,
   Icon,
   Tooltip,
-  useToast,
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -27,6 +26,7 @@ import {
   FaPause,
   FaEye,
 } from "react-icons/fa";
+import { useToast as useToastChakra } from '@chakra-ui/toast';
 
 interface Participant {
   id: string;
@@ -70,7 +70,7 @@ const TournamentView: React.FC<{ tournamentId: string }> = ({
 }) => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");

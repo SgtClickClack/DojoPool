@@ -9,6 +9,6 @@ export interface Wallet {
 }
 
 export const getWallet = async (): Promise<Wallet> => {
-  const res = await axiosInstance.get('/api/wallet');
+  const res = await axiosInstance.get('/wallet');
   return res.data;
 };

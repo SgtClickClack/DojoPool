@@ -6,7 +6,7 @@ import {
   Text,
   Avatar,
   Button,
-  useToast,
+  useToast as useToastChakra,
   Skeleton,
   Badge,
   Tooltip,
@@ -24,7 +24,7 @@ interface FriendSuggestion {
 export const FriendSuggestions: React.FC = () => {
   const [suggestions, setSuggestions] = useState<FriendSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   useEffect(() => {
     fetchSuggestions();

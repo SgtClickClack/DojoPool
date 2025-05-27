@@ -8,12 +8,12 @@ from sklearn.preprocessing import StandardScaler
 from ..core.ai.config import AIConfig, default_config
 from ..core.ai.monitoring import AIMetricsTimer, AIMonitor
 from ..core.cache import cache
-from ..models.analytics import GameMetrics, UserMetrics
+from ..core.models.analytics import GameMetrics, UserMetrics
 from ..models.match import Match
-from ..models.shot import Shot
+from ..models.game import Shot
 from ..models.user import User
 from ..utils.data_processing import normalize_data, prepare_features
-from ..utils.prompt_templates import STORY_PROMPT_TEMPLATE, get_story_template
+from ..utils.prompt_templates import STORY_PROMPT_TEMPLATE
 
 CACHE_TTL = 3600  # 1 hour
 CACHE_PREFIX = "ai:"

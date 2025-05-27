@@ -13,7 +13,6 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 
 # Initialize extensions
-db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
@@ -28,7 +27,7 @@ cache = Cache(
         "CACHE_DEFAULT_TIMEOUT": 300,
     }
 )
-
+db = SQLAlchemy()
 
 # Initialize services
 class CacheService:
@@ -62,36 +61,11 @@ class CacheService:
         self.cache.delete_many(*keys)
 
 
-class DBService:
-    """Database service wrapper."""
-
-    def __init__(self, db_instance: SQLAlchemy):
-        self.db = db_instance
-
-    async def fetch_all(self, query: str, params: List[Any] = None) -> List[Dict[str, Any]]:
-        """Execute query and fetch all results."""
-        result = self.db.session.execute(query, params or [])
-        return [dict(row) for row in result]
-
-    async def fetch_one(self, query: str, params: List[Any] = None) -> Optional[Dict[str, Any]]:
-        """Execute query and fetch one result."""
-        result = self.db.session.execute(query, params or [])
-        row = result.fetchone()
-        return dict(row) if row else None
-
-    async def execute(self, query: str, params: List[Any] = None) -> None:
-        """Execute query without returning results."""
-        self.db.session.execute(query, params or [])
-        self.db.session.commit()
-
-
 cache_service = CacheService(cache)
-db_service = DBService(db)
 
 
 def init_app(app):
     """Initialize Flask extensions"""
-    db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
@@ -109,7 +83,6 @@ def init_app(app):
 
 
 __all__ = [
-    "db",
     "migrate",
     "login_manager",
     "mail",
@@ -119,7 +92,7 @@ __all__ = [
     "ma",
     "cache",
     "cache_service",
-    "db_service",
+    "db",
     "init_app",
 ]
 

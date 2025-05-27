@@ -5,7 +5,7 @@ import {
   HStack,
   Icon,
   Text,
-  useToast,
+  useToast as useToastChakra,
   Tooltip,
   Spinner,
   VStack,
@@ -30,7 +30,7 @@ export const SocialSignIn: React.FC<SocialSignInProps> = ({
 }) => {
   const [loading, setLoading] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState<Record<string, number>>({});
-  const toast = useToast();
+  const toast = useToastChakra();
   const {
     signInWithGooglePopup,
     signInWithFacebookPopup,

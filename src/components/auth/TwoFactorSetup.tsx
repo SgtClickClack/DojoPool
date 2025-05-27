@@ -7,7 +7,7 @@ import {
   Input,
   VStack,
   Text,
-  useToast,
+  useToast as useToastChakra,
   Image,
   HStack,
   Divider,
@@ -33,7 +33,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [step, setStep] = useState<"setup" | "verify" | "backup">("setup");
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
+  const toast = useToastChakra();
   const { user } = useAuth();
 
   useEffect(() => {

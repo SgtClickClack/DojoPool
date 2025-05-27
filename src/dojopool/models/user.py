@@ -10,10 +10,10 @@ from datetime import datetime
 from typing import Optional, TYPE_CHECKING, List
 
 from flask_login import UserMixin  # type: ignore
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey, JSON # Added Float, ForeignKey, JSON
+from sqlalchemy.orm import relationship, Mapped, mapped_column  # type: ignore
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey, JSON  # type: ignore
 from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.hybrid import hybrid_property  # type: ignore
 
 from dojopool.core.extensions import db  # type: ignore
 
@@ -69,7 +69,6 @@ class User(db.Model, UserMixin):
     total_games = db.Column(db.Integer, default=0)
     tournament_wins = db.Column(db.Integer, default=0)
     tournament_placements = db.Column(db.JSON)  # Store tournament placement history
-    ranking_history = db.Column(db.JSON)  # Store historical ranking data
 
     # Relationships
     roles = relationship(
@@ -100,6 +99,21 @@ class User(db.Model, UserMixin):
 
     # Inventory relationship - ADDED
     inventory = relationship("dojopool.models.inventory.Inventory", back_populates="user", cascade="all, delete-orphan")
+
+    # Rewards relationship for UserReward
+    rewards = relationship('UserReward', back_populates='user', cascade='all, delete-orphan')
+
+    # Reviews relationship for Review
+    reviews = relationship('Review', back_populates='user', cascade='all, delete-orphan')
+
+    # Review responses relationship for ReviewResponse
+    review_responses = relationship('ReviewResponse', back_populates='user', cascade='all, delete-orphan')
+
+    # Review reports relationship for ReviewReport
+    review_reports = relationship('ReviewReport', back_populates='user', cascade='all, delete-orphan')
+
+    # Review votes relationship for ReviewVote
+    review_votes = relationship('ReviewVote', back_populates='user', cascade='all, delete-orphan')
 
     # Commenting out achievements relationship as UserAchievement model is commented out
     # achievements = relationship("UserAchievement", back_populates="user", cascade="all, delete-orphan")

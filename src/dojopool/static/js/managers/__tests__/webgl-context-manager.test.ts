@@ -1,6 +1,4 @@
-import { WebGLContextManager } from "../webgl-context-manager";
-import { DeviceProfileManager } from "../device-profile-manager";
-import { PerformanceProfiler } from "../performance-profiler";
+import './__mocks__/webgl-context-manager.mocks';
 
 // Mock WebGL context
 const mockWebGLContext = {
@@ -52,7 +50,6 @@ const mockCanvas = {
   height: 600,
 } as unknown as HTMLCanvasElement;
 
-// Mock implementations *before* they are used by jest.mock
 const mockDeviceProfileImplementation = {
   getProfile: jest.fn().mockReturnValue({
     useWebGL2: false,
@@ -72,7 +69,7 @@ const mockProfilerImplementation = {
   }),
 };
 
-// Mock modules AFTER defining their dependencies
+// 2) jest.mock() calls
 jest.mock("../device-profile-manager", () => ({
   DeviceProfileManager: {
     getInstance: jest.fn().mockReturnValue(mockDeviceProfileImplementation),
@@ -83,6 +80,11 @@ jest.mock("../performance-profiler", () => ({
     getInstance: jest.fn().mockReturnValue(mockProfilerImplementation),
   },
 }));
+
+// 3) all imports (including tested modules)
+import { WebGLContextManager } from "../webgl-context-manager";
+import { DeviceProfileManager } from "../device-profile-manager";
+import { PerformanceProfiler } from "../performance-profiler";
 
 describe("WebGLContextManager", () => {
   let manager: WebGLContextManager;

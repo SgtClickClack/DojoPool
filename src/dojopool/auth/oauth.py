@@ -12,8 +12,8 @@ class GoogleOAuth:
 
     def __init__(self):
         """Initialize Google OAuth client."""
-        self.client_id = current_app.config["GOOGLE_CLIENT_ID"]
-        self.client_secret = current_app.config["GOOGLE_CLIENT_SECRET"]
+        self.client_id = current_app.config.get("GOOGLE_CLIENT_ID", "")
+        self.client_secret = current_app.config.get("GOOGLE_CLIENT_SECRET", "")
         self.client = WebApplicationClient(self.client_id)
 
         # Get Google provider configuration
@@ -22,6 +22,8 @@ class GoogleOAuth:
         except Exception as e:
             current_app.logger.error(f"Failed to get Google provider config: {e}")
             self.provider_cfg = None
+
+        print("[DEBUG] GoogleOAuth client_id:", self.client_id)
 
     def get_auth_url(self):
         """Get Google OAuth authorization URL."""

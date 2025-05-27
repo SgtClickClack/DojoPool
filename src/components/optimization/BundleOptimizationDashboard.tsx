@@ -34,6 +34,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import ErrorBoundary from "../common/ErrorBoundary";
+import TabPanel from "../common/TabPanel";
+import { ChartLoadingSkeleton, StatLoadingSkeleton } from "../common/LoadingSkeletons";
+import DependencySizeBarChart from "./DependencySizeBarChart";
+import LargeChunksList from "./LargeChunksList";
+import OptimizationSuggestionsList from "./OptimizationSuggestionsList";
+import { logError } from "../../services/ErrorLoggingService";
 
 // Types
 interface BundleAnalysis {
@@ -57,81 +64,6 @@ interface ChartData {
   name: string;
   size: number;
 }
-
-// Error Boundary Component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error caught by boundary:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Alert severity="error" sx={{ m: 2 }}>
-          <AlertTitle>Error</AlertTitle>
-          {this.state.error?.message || "Something went wrong"}
-        </Alert>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-// Optimized TabPanel Component
-const TabPanel = React.memo(
-  ({ children, value, index, ...other }: TabPanelProps) => {
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`bundle-optimization-tabpanel-${index}`}
-        aria-labelledby={`bundle-optimization-tab-${index}`}
-        {...other}
-      >
-        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-      </div>
-    );
-  },
-);
-
-// Optimized Loading Components
-const ChartLoadingSkeleton = React.memo(() => (
-  <Box
-    sx={{ width: "100%", height: 300 }}
-    role="status"
-    aria-label="Loading chart"
-  >
-    <Skeleton
-      variant="rectangular"
-      height="100%"
-      animation="wave"
-      sx={{
-        borderRadius: 1,
-        backgroundColor: (theme) => theme.palette.action.hover,
-      }}
-    />
-  </Box>
-));
-
-const StatLoadingSkeleton = React.memo(() => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1, my: 1 }}>
-    <Skeleton variant="circular" width={24} height={24} animation="wave" />
-    <Skeleton variant="text" width="60%" height={24} animation="wave" />
-  </Box>
-));
 
 // Main Component
 const BundleOptimizationDashboard: React.FC = () => {
@@ -200,7 +132,7 @@ const BundleOptimizationDashboard: React.FC = () => {
 
   // Memoized data transformations
   const chartData = useMemo(() => {
-    if (!analysis) return [];
+    if (!analysis || !analysis.dependencies) return [];
     return Object.entries(analysis.dependencies).map(([name, size]) => ({
       name,
       size: size / 1024, // Convert to KB
@@ -208,7 +140,7 @@ const BundleOptimizationDashboard: React.FC = () => {
   }, [analysis]);
 
   const largeChunks = useMemo(() => {
-    if (!analysis) return [];
+    if (!analysis || !analysis.chunks) return [];
     return analysis.chunks
       .filter((chunk) => chunk.size > threshold * 1024)
       .sort((a, b) => b.size - a.size);
@@ -288,42 +220,18 @@ const BundleOptimizationDashboard: React.FC = () => {
                       Bundle Overview
                     </Typography>
                     <Typography>
-                      Total Size:{" "}
-                      {(analysis?.total_size / (1024 * 1024)).toFixed(2)} MB
+                      Total Size: {typeof analysis?.total_size === 'number' ? (analysis.total_size / (1024 * 1024)).toFixed(2) : 'N/A'} MB
                     </Typography>
                     <Typography>
-                      Number of Chunks: {analysis?.chunks.length}
+                      Number of Chunks: {Array.isArray(analysis?.chunks) ? analysis.chunks.length : 'N/A'}
                     </Typography>
                     <Typography>
-                      Number of Dependencies:{" "}
-                      {Object.keys(analysis?.dependencies || {}).length}
+                      Number of Dependencies: {Object.keys(analysis?.dependencies || {}).length}
                     </Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Dependency Size Distribution
-                    </Typography>
-                    <Box sx={{ height: 300 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis
-                            label={{
-                              value: "Size (KB)",
-                              angle: -90,
-                              position: "insideLeft",
-                            }}
-                          />
-                          <RechartsTooltip />
-                          <Legend />
-                          <Bar dataKey="size" fill="#8884d8" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </Box>
-                  </Paper>
+                  <DependencySizeBarChart chartData={chartData} />
                 </Grid>
               </Grid>
             </TabPanel>
@@ -331,43 +239,7 @@ const BundleOptimizationDashboard: React.FC = () => {
             <TabPanel value={tabValue} index={1}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Large Chunks
-                    </Typography>
-                    <Typography gutterBottom>
-                      Size Threshold: {threshold} KB
-                    </Typography>
-                    <Slider
-                      value={threshold}
-                      onChange={handleThresholdChange}
-                      min={50}
-                      max={500}
-                      step={10}
-                      valueLabelDisplay="auto"
-                      aria-label="Size threshold slider"
-                    />
-                    <Box sx={{ maxHeight: 400, overflow: "auto" }}>
-                      <List>
-                        {largeChunks.map((chunk, index) => (
-                          <ListItem key={index}>
-                            <ListItemText
-                              primary={chunk.name}
-                              secondary={`Size: ${(chunk.size / 1024).toFixed(2)} KB, Dependencies: ${chunk.dependencies.length}`}
-                            />
-                            <Chip
-                              label={`${(chunk.size / 1024).toFixed(0)} KB`}
-                              color={
-                                chunk.size > threshold * 1024
-                                  ? "error"
-                                  : "warning"
-                              }
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
-                  </Paper>
+                  <LargeChunksList largeChunks={largeChunks} threshold={threshold} onThresholdChange={handleThresholdChange} />
                 </Grid>
               </Grid>
             </TabPanel>
@@ -375,20 +247,7 @@ const BundleOptimizationDashboard: React.FC = () => {
             <TabPanel value={tabValue} index={2}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                      Optimization Suggestions
-                    </Typography>
-                    <List>
-                      {analysis?.optimization_suggestions.map(
-                        (suggestion, index) => (
-                          <ListItem key={index}>
-                            <ListItemText primary={suggestion} />
-                          </ListItem>
-                        ),
-                      )}
-                    </List>
-                  </Paper>
+                  <OptimizationSuggestionsList suggestions={analysis?.optimization_suggestions || []} />
                 </Grid>
               </Grid>
             </TabPanel>

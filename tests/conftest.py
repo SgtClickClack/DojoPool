@@ -6,7 +6,7 @@ from flask import Flask
 import fakeredis
 
 # Import your Flask app instance here.
-from dojopool.app import create_app  # Use the actual factory
+from dojopool import create_app  # Changed: Import directly from dojopool package
 from dojopool.config.testing import TestingConfig  # Import TestingConfig
 
 @pytest.fixture(scope='session')

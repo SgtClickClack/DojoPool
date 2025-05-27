@@ -1,66 +1,56 @@
-import React from "react";
-import { screen, act } from "@testing-library/react";
-import { GameMap } from "../../../dojopool/frontend/components/Map/[MAP]GameMap";
-import { renderWithProviders } from "../../utils/testUtils";
+import { render } from '@testing-library/react';
+export function renderWithProviders(ui: any) { return render(ui); }
 
-// Mock Google Maps JavaScript API
+// jest.mock must be at the absolute top
 const mockMap = {
   fitBounds: jest.fn(),
   setCenter: jest.fn(),
   setZoom: jest.fn(),
 };
-
 const mockMarker = {
   setMap: jest.fn(),
   setPosition: jest.fn(),
 };
-
 const mockCircle = {
   setMap: jest.fn(),
   setCenter: jest.fn(),
   setRadius: jest.fn(),
 };
-
 const mockLatLngBounds = {
   extend: jest.fn(),
 };
-
-const mockLatLng = jest.fn().mockImplementation((lat, lng) => ({
+const mockLatLng = jest.fn().mockImplementation((lat: any, lng: any) => ({
   lat: () => lat,
   lng: () => lng,
   equals: (other: any) => lat === other.lat() && lng === other.lng(),
 }));
 
-// Mock the entire @react-google-maps/api module
-jest.mock("@react-google-maps/api", () => ({
-  LoadScript: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  GoogleMap: ({
-    children,
-    onLoad,
-    onUnmount,
-  }: {
-    children: React.ReactNode;
-    onLoad: (map: any) => void;
-    onUnmount: () => void;
-  }) => {
-    React.useEffect(() => {
-      onLoad(mockMap);
-      return () => onUnmount();
-    }, [onLoad, onUnmount]);
-    return <div data-testid="google-map">{children}</div>;
-  },
-  Circle: ({ center, radius }: { center: any; radius: number }) => (
-    <div
-      data-testid="map-circle"
-      data-center={JSON.stringify(center)}
-      data-radius={radius}
-    />
-  ),
-}));
+jest.mock("@react-google-maps/api", () => {
+  const React = require('react');
+  return {
+    LoadScript: ({ children }: { children: any }) => React.createElement('div', null, children),
+    GoogleMap: ({ children, onLoad, onUnmount }: { children: any; onLoad: any; onUnmount: any }) => {
+      React.useEffect(() => {
+        onLoad(mockMap);
+        return () => onUnmount();
+      }, [onLoad, onUnmount]);
+      return React.createElement('div', { 'data-testid': 'google-map' }, children);
+    },
+    Circle: ({ center, radius }: { center: any; radius: any }) => React.createElement('div', {
+      'data-testid': 'map-circle',
+      'data-center': JSON.stringify(center),
+      'data-radius': radius,
+    }),
+  };
+});
+
+import React from "react";
+import { screen, act } from "@testing-library/react";
+// @ts-ignore
+import GameMap from "../../../dojopool/frontend/components/Map/[MAP]GameMap";
 
 // Mock the window.google.maps object
+// @ts-ignore
 const mockGoogleMaps = {
   Map: jest.fn(),
   Marker: jest.fn().mockImplementation(() => mockMarker),

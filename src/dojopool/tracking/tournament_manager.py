@@ -57,7 +57,7 @@ class TournamentMatch:
 
 
 @dataclass
-class Tournament:
+class TournamentData:
     """Tournament details."""
 
     tournament_id: str
@@ -88,7 +88,7 @@ class TournamentManager:
     def __init__(self, ranking_system: PlayerRankingSystem) -> None:
         """Initialize tournament manager."""
         self.ranking_system = ranking_system
-        self._tournaments: Dict[str, Tournament] = {}
+        self._tournaments: Dict[str, TournamentData] = {}
 
     def create_tournament(
         self,
@@ -103,11 +103,11 @@ class TournamentManager:
         prize_structure: PrizeStructure,
         game_type: str,
         race_to: int,
-    ) -> Tournament:
+    ) -> TournamentData:
         """Create a new tournament."""
         tournament_id = str(uuid.uuid4())
 
-        tournament = Tournament(
+        tournament = TournamentData(
             tournament_id=tournament_id,
             name=name,
             format=format,
@@ -188,7 +188,7 @@ class TournamentManager:
         self.notify_tournament_status(tournament_id, "Tournament has started!")
         return True
 
-    def _generate_bracket(self, tournament: Tournament) -> None:
+    def _generate_bracket(self, tournament: TournamentData) -> None:
         """Generate tournament bracket based on format."""
         if tournament.format == TournamentFormat.SINGLE_ELIMINATION:
             self._generate_single_elimination(tournament)
@@ -199,7 +199,7 @@ class TournamentManager:
         elif tournament.format == TournamentFormat.SWISS:
             self._generate_swiss(tournament)
 
-    def _generate_single_elimination(self, tournament: Tournament) -> None:
+    def _generate_single_elimination(self, tournament: TournamentData) -> None:
         """Generate single elimination bracket."""
         players = list(tournament.registered_players)
         num_players = len(players)
@@ -244,7 +244,7 @@ class TournamentManager:
         tournament.matches = matches
         tournament.current_round = 1
 
-    def _generate_double_elimination(self, tournament: Tournament) -> None:
+    def _generate_double_elimination(self, tournament: TournamentData) -> None:
         """Generate double elimination bracket."""
         players = list(tournament.registered_players)
         num_players = len(players)
@@ -293,7 +293,7 @@ class TournamentManager:
         tournament.matches = matches
         tournament.current_round = 1
 
-    def _generate_next_double_elimination_round(self, tournament: Tournament) -> None:
+    def _generate_next_double_elimination_round(self, tournament: TournamentData) -> None:
         """Generate next round for double elimination bracket."""
         current_matches = [
             m for m in tournament.matches if m.round_number == tournament.current_round
@@ -421,7 +421,7 @@ class TournamentManager:
         logger.info(f"Recorded match result in tournament {tournament_id}")
         return True
 
-    def _check_round_completion(self, tournament: Tournament) -> None:
+    def _check_round_completion(self, tournament: TournamentData) -> None:
         """Check if current round is complete and generate next round if needed."""
         current_matches = [
             m for m in tournament.matches if m.round_number == tournament.current_round
@@ -435,7 +435,7 @@ class TournamentManager:
             elif tournament.format == TournamentFormat.SWISS:
                 self._generate_next_swiss_round(tournament)
 
-    def _generate_next_elimination_round(self, tournament: Tournament) -> None:
+    def _generate_next_elimination_round(self, tournament: TournamentData) -> None:
         """Generate next round for elimination bracket."""
         current_matches = [
             m for m in tournament.matches if m.round_number == tournament.current_round
@@ -469,7 +469,7 @@ class TournamentManager:
         tournament.matches.extend(new_matches)
         tournament.current_round += 1
 
-    def _distribute_prizes(self, tournament: Tournament) -> None:
+    def _distribute_prizes(self, tournament: TournamentData) -> None:
         """Distribute tournament prizes."""
         if tournament.status != TournamentStatus.COMPLETED:
             return
@@ -496,13 +496,13 @@ class TournamentManager:
 
         tournament.rankings = rankings
 
-    def get_tournament(self, tournament_id: str) -> Optional[Tournament]:
+    def get_tournament(self, tournament_id: str) -> Optional[TournamentData]:
         """Get tournament details."""
         return self._tournaments.get(tournament_id)
 
     def get_player_tournaments(
         self, player_id: str, status: Optional[TournamentStatus] = None
-    ) -> List[Tournament]:
+    ) -> List[TournamentData]:
         """Get tournaments for a player."""
         tournaments = []
         for tournament in self._tournaments.values():
@@ -513,7 +513,7 @@ class TournamentManager:
 
     def get_venue_tournaments(
         self, venue_id: str, status: Optional[TournamentStatus] = None
-    ) -> List[Tournament]:
+    ) -> List[TournamentData]:
         """Get tournaments at a venue."""
         tournaments = []
         for tournament in self._tournaments.values():
@@ -522,7 +522,7 @@ class TournamentManager:
                     tournaments.append(tournament)
         return tournaments
 
-    def _generate_round_robin(self, tournament: Tournament) -> None:
+    def _generate_round_robin(self, tournament: TournamentData) -> None:
         """Generate round robin tournament schedule.
 
         Uses circle method algorithm:
@@ -577,7 +577,7 @@ class TournamentManager:
         tournament.matches = matches
         tournament.current_round = 1
 
-    def _check_round_robin_completion(self, tournament: Tournament) -> None:
+    def _check_round_robin_completion(self, tournament: TournamentData) -> None:
         """Check if round robin tournament is complete and update rankings."""
         all_matches_complete = all(m.completed_time for m in tournament.matches)
 
@@ -623,7 +623,7 @@ class TournamentManager:
             # Distribute prizes
             self._distribute_prizes(tournament)
 
-    def _generate_swiss(self, tournament: Tournament) -> None:
+    def _generate_swiss(self, tournament: TournamentData) -> None:
         """Generate first round of Swiss tournament."""
         players = list(tournament.registered_players)
         num_players = len(players)
@@ -675,7 +675,7 @@ class TournamentManager:
         tournament.matches = matches
         tournament.current_round = 1
 
-    def _generate_next_swiss_round(self, tournament: Tournament) -> None:
+    def _generate_next_swiss_round(self, tournament: TournamentData) -> None:
         """Generate next round of Swiss tournament."""
         # Get player scores
         scores: Dict[str, float] = {}
@@ -756,7 +756,7 @@ class TournamentManager:
         if tournament.current_round >= tournament.timestamps["num_rounds"]:
             self._complete_swiss_tournament(tournament)
 
-    def _complete_swiss_tournament(self, tournament: Tournament) -> None:
+    def _complete_swiss_tournament(self, tournament: TournamentData) -> None:
         """Complete Swiss tournament and calculate final rankings."""
         # Calculate final scores
         scores: Dict[str, float] = {}

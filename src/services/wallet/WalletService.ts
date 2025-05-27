@@ -5,7 +5,7 @@ export class WalletService {
     // Fetches the current logged-in user's wallet details
     async getWallet(): Promise<Wallet> {
         try {
-            const response = await axiosInstance.get<Wallet>('/api/marketplace/wallet');
+            const response = await axiosInstance.get<Wallet>('/api/v1/wallet');
             return response.data;
         } catch (error) {
             console.error("Error fetching wallet:", error);
@@ -19,7 +19,7 @@ export class WalletService {
     async getTransactionHistory(walletId: number, limit: number = 20, offset: number = 0): Promise<Transaction[]> {
          try {
              // Adjust endpoint and params based on the actual backend implementation if needed
-             const response = await axiosInstance.get<Transaction[]>('/api/marketplace/transactions', {
+             const response = await axiosInstance.get<Transaction[]>('/api/v1/transactions', {
                  params: { wallet_id: walletId, limit, offset } // Pass wallet_id if required by backend
              });
              return response.data;
@@ -35,7 +35,7 @@ export class WalletService {
              // Assuming a /wallet/stats endpoint exists or needs creation
              // Adjust endpoint based on actual backend implementation
              // For now, using a placeholder endpoint - THIS NEEDS VERIFICATION/IMPLEMENTATION ON BACKEND
-             const response = await axiosInstance.get<WalletStats>(`/api/marketplace/wallet/stats`, {
+             const response = await axiosInstance.get<WalletStats>(`/api/v1/wallet/stats`, {
                 params: { wallet_id: walletId } // Assuming wallet_id is needed
              }); 
              // Adapt parsing based on actual WalletStats structure returned by backend
@@ -53,7 +53,7 @@ export class WalletService {
     async transferCoins(recipientUserId: number, amount: number, description: string): Promise<any> {
         try {
             // Verify backend endpoint and payload structure
-            const response = await axiosInstance.post('/api/marketplace/wallet/transfer', { // Placeholder endpoint
+            const response = await axiosInstance.post('/api/v1/wallet/transfer', { // Placeholder endpoint
                 recipient_user_id: recipientUserId,
                 amount: amount,
                 description: description,

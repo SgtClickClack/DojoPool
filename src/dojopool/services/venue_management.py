@@ -4,10 +4,10 @@ from typing import Dict, List, Optional
 from geoalchemy2 import Geography
 from sqlalchemy import func
 
-from src.core.database import db
+from dojopool.core.extensions import db
 from dojopool.models.game import Game
-from src.models.venue import Venue
-from src.models.venue_checkin import VenueCheckin
+from dojopool.core.models.venue import Venue
+from dojopool.core.models.venue_checkin import VenueCheckIn
 
 
 class VenueManagementService:
@@ -150,7 +150,7 @@ class VenueManagementService:
             return False
 
         # Record check-in in venue_checkins table
-        checkin = VenueCheckin(
+        checkin = VenueCheckIn(
             venue_id=venue_id, player_id=player_id, check_in_time=datetime.utcnow()
         )
         checkin.save()
@@ -169,8 +169,8 @@ class VenueManagementService:
 
         # Get check-ins from last 3 hours
         three_hours_ago = datetime.utcnow() - timedelta(hours=3)
-        checked_in_players = VenueCheckin.query.filter(
-            VenueCheckin.venue_id == venue_id, VenueCheckin.check_in_time >= three_hours_ago
+        checked_in_players = VenueCheckIn.query.filter(
+            VenueCheckIn.venue_id == venue_id, VenueCheckIn.check_in_time >= three_hours_ago
         ).count()
 
         return {

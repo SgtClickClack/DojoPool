@@ -20,7 +20,7 @@ interface TournamentListProps {
   tournaments: Tournament[];
 }
 
-export const TournamentList: React.FC<TournamentListProps> = ({
+const TournamentList: React.FC<TournamentListProps> = ({
   tournaments,
 }) => {
   const navigate = useNavigate();
@@ -110,3 +110,5 @@ export const TournamentList: React.FC<TournamentListProps> = ({
     </Box>
   );
 };
+
+export default TournamentList;

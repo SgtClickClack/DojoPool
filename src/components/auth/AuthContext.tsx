@@ -7,8 +7,8 @@ import {
   User,
 } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../../config/firebase";
-import { analyticsService } from "@/services/analytics";
+import { auth } from "../../firebase/firebase";
+import { analyticsService } from "../../services/analytics/AnalyticsService";
 
 interface AuthContextType {
   user: User | null;
@@ -40,17 +40,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (!auth) {
       setLoading(false);
-      setError("Firebase authentication is not initialized");
       return;
     }
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
-      setError(null);
+      if (user) {
+        analyticsService.setUserId(user.uid);
+        analyticsService.logEvent("user_authenticated");
+      }
     });
 
-    return () => unsubscribe();
+    return unsubscribe;
   }, []);
 
   const signIn = async (email: string, password: string) => {

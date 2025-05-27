@@ -6,8 +6,9 @@ This module provides services for managing social sharing functionality.
 
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
-from ..models import Share, User, ShareType
-from ..extensions import db
+from dojopool.models.social import Share, ShareType
+from dojopool.models.user import User
+from dojopool.core.extensions import db
 from sqlalchemy import and_
 
 
@@ -21,7 +22,7 @@ class ShareService:
         content_id: int,
         title: str,
         description: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        share_metadata: Optional[Dict[str, Any]] = None
     ) -> Tuple[bool, Optional[str], Optional[Share]]:
         """Create a new shareable content.
         
@@ -31,7 +32,7 @@ class ShareService:
             content_id: ID of the content being shared
             title: Title of the share
             description: Optional description
-            metadata: Optional additional metadata
+            share_metadata: Optional additional metadata
             
         Returns:
             Tuple of (success, error_message, share)
@@ -43,7 +44,7 @@ class ShareService:
                 content_id=content_id,
                 title=title,
                 description=description,
-                metadata=metadata
+                share_metadata=share_metadata
             )
             db.session.add(share)
             db.session.commit()
@@ -176,5 +177,5 @@ class ShareService:
             'description': share.description or '',
             'url': ShareService.generate_share_url(share.id),
             'type': share.content_type.value,
-            'metadata': share.metadata or {}
+            'metadata': share.share_metadata or {}
         } 

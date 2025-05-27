@@ -9,6 +9,7 @@ have been added to ensure clarity and maintainability.
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
+from enum import Enum
 
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -198,3 +199,39 @@ social_profile_friends = db.Table(
     db.Column("profile_id", db.Integer, db.ForeignKey("social_profiles.id"), primary_key=True),
     db.Column("friend_id", db.Integer, db.ForeignKey("social_profiles.id"), primary_key=True),
 )
+
+
+class ShareType(str, Enum):
+    VIDEO_HIGHLIGHT = "video_highlight"
+    ACHIEVEMENT = "achievement"
+    TOURNAMENT = "tournament"
+    GAME = "game"
+    OTHER = "other"
+
+class Share(db.Model):
+    """Share model for social sharing."""
+    __tablename__ = "shares"
+    __table_args__ = {"extend_existing": True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    content_type = db.Column(db.String(50), nullable=False)
+    content_id = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    share_metadata = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime, default=func.now())
+
+    user = relationship("User", backref="shares")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "content_type": self.content_type,
+            "content_id": self.content_id,
+            "title": self.title,
+            "description": self.description,
+            "share_metadata": self.share_metadata,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

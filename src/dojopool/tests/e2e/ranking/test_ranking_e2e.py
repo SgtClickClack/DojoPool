@@ -2,7 +2,6 @@ import pytest
 from playwright.sync_api import Page, expect
 from datetime import datetime, timedelta
 
-from dojopool.core.ranking.config import GLOBAL_RANKING_CONFIG
 from dojopool.models.user import User
 from dojopool.models.game import Game
 from dojopool.models.tournament import Tournament

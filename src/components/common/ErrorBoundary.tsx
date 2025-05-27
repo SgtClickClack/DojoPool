@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Box, Button, Typography, Container, Paper } from "@mui/material";
 import { ErrorOutline as ErrorIcon } from "@mui/icons-material";
-import { logError } from "../core/services/ErrorLoggingService";
+import errorLoggingService, { logError } from "../../services/ErrorLoggingService";
 
 interface Props {
   children: ReactNode;

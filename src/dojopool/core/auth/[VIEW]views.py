@@ -79,55 +79,6 @@ def register():
         flash('Missing required fields', 'error')
         return redirect(url_for('auth.register'))
 
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
-    """Log in a user."""
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-        
-    if request.method == 'GET':
-        return render_template('auth/login.html')
-        
-    if request.is_json:
-        data = request.get_json()
-    else:
-        data = request.form
-    
-    try:
-        user = auth_service.authenticate(
-            email=data['email'],
-            password=data['password'],
-            totp_token=data.get('totp_token')
-        )
-        
-        login_user(user, remember=data.get('remember_me', False))
-        
-        if wants_json_response():
-            return jsonify({
-                'message': 'Login successful',
-                'user': {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email
-                }
-            })
-            
-        next_page = request.args.get('next')
-        if not next_page or urlparse(next_page).netloc != '':
-            next_page = url_for('dashboard')
-        return redirect(next_page)
-        
-    except AuthenticationError as e:
-        if wants_json_response():
-            return jsonify({'error': str(e)}), 401
-        flash(str(e), 'error')
-        return redirect(url_for('auth.login'))
-    except KeyError:
-        if wants_json_response():
-            return jsonify({'error': 'Missing required fields'}), 400
-        flash('Missing required fields', 'error')
-        return redirect(url_for('auth.login'))
-
 @bp.route('/logout')
 @login_required
 def logout():

@@ -10,6 +10,7 @@ import logging
 import os
 import sys
 from datetime import datetime
+from flask import jsonify, request
 
 # --- Ensure eventlet monkey_patch is called before any other imports ---
 # try:
@@ -64,6 +65,10 @@ def create_app(config_name=None, test_config=None, testing=False):
     # import dojopool.models.venue_operating_hours
     # --- END REMOVED IMPORTS ---
 
+    # At the very top of create_app or before config is read
+    if os.environ.get("FLASK_ENV") == "development":
+        load_dotenv(".env.development")
+
     # Determine which config class to use
     ConfigClass = get_config(config_name) # Use the provided function
     app.config.from_object(ConfigClass()) # Load config from the chosen class instance
@@ -107,8 +112,7 @@ def create_app(config_name=None, test_config=None, testing=False):
     # Example: Secret key might be set in ConfigClass or overridden by .env
     app.config.setdefault("SECRET_KEY", ConfigClass.SECRET_KEY) # Ensure a default if not set
 
-    # Example: Set Google keys from env vars if not already set by ConfigClass
-    app.config.setdefault("GOOGLE_MAPS_API_KEY", os.getenv("GOOGLE_MAPS_API_KEY", ""))
+    # Correct: Set Google keys from env vars if not already set by ConfigClass
     app.config.setdefault("GOOGLE_CLIENT_ID", os.getenv("GOOGLE_CLIENT_ID", ""))
     app.config.setdefault("GOOGLE_CLIENT_SECRET", os.getenv("GOOGLE_CLIENT_SECRET", ""))
 
@@ -188,6 +192,8 @@ def create_app(config_name=None, test_config=None, testing=False):
     @app.context_processor
     def inject_now():
         return {'now': datetime.now()}
+
+    print("GOOGLE_CLIENT_ID:", app.config.get("GOOGLE_CLIENT_ID"))
 
     return app
 

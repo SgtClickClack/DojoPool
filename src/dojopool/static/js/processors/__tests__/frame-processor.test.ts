@@ -1,9 +1,6 @@
-import { FrameProcessor } from "../frame-processor";
-import { WebGLContextManager } from "../../managers/webgl-context-manager";
-import { ShaderManager } from "../../managers/shader-manager";
-import { TransitionManager } from "../../managers/transition-manager";
+import './__mocks__/frame-processor.mocks';
 
-// --- Define Mocks FIRST ---
+// Mock WebGL context
 const mockWebGLContext = {
   createFramebuffer: jest.fn().mockReturnValue({}),
   createTexture: jest.fn().mockReturnValue({}),
@@ -33,9 +30,8 @@ const mockCanvas = {
   width: 640,
   height: 480,
 } as unknown as HTMLCanvasElement;
-// --- End Mock Definitions ---
 
-// Mock managers AFTER defining their dependencies
+// 2) jest.mock() calls
 jest.mock("../../managers/webgl-context-manager", () => ({
   WebGLContextManager: {
     getInstance: jest.fn().mockReturnValue({
@@ -46,22 +42,25 @@ jest.mock("../../managers/webgl-context-manager", () => ({
     }),
   },
 }));
-
 jest.mock("../../managers/shader-manager", () => ({
   ShaderManager: jest.fn().mockImplementation(() => ({
     registerShader: jest.fn(),
     useShader: jest.fn().mockReturnValue({ program: {}, attributes: new Map(), uniforms: new Map() }),
-    getUniforms: jest.fn().mockReturnValue(new Map([["uCurrentFrame", 0], ["uPreviousFrame", 1]])),
     cleanup: jest.fn(),
   })),
 }));
-
 jest.mock("../../managers/transition-manager", () => ({
   TransitionManager: jest.fn().mockImplementation(() => ({
     startTransition: jest.fn(),
     cleanup: jest.fn(),
   })),
 }));
+
+// 3) all imports (including tested modules)
+import { FrameProcessor } from "../frame-processor";
+import { WebGLContextManager } from "../../managers/webgl-context-manager";
+import { ShaderManager } from "../../managers/shader-manager";
+import { TransitionManager } from "../../managers/transition-manager";
 
 describe("FrameProcessor", () => {
   let frameProcessor: FrameProcessor;
@@ -93,7 +92,7 @@ describe("FrameProcessor", () => {
     });
 
     it("should initialize WebGL context", () => {
-      expect(WebGLContextManager.getInstance().getContext).toHaveBeenCalled();
+      expect(WebGLContextManager.getInstance({ canvas: mockCanvas }).getContext).toHaveBeenCalled();
     });
 
     it("should initialize shaders", () => {
@@ -105,7 +104,7 @@ describe("FrameProcessor", () => {
     });
 
     it("should set up event listeners", () => {
-      const contextManager = WebGLContextManager.getInstance();
+      const contextManager = WebGLContextManager.getInstance({ canvas: mockCanvas });
       expect(contextManager.addContextListener).toHaveBeenCalled();
       expect(window.addEventListener).toHaveBeenCalledWith(
         "qualitychange",
@@ -150,7 +149,7 @@ describe("FrameProcessor", () => {
 
   describe("Error Handling", () => {
     it("should handle WebGL context loss", () => {
-      const contextManager = WebGLContextManager.getInstance();
+      const contextManager = WebGLContextManager.getInstance({ canvas: mockCanvas });
       const contextListener = (contextManager.addContextListener as jest.Mock)
         .mock.calls[0][0];
 
@@ -179,7 +178,7 @@ describe("FrameProcessor", () => {
       expect(mockWebGLContext.deleteFramebuffer).toHaveBeenCalled();
       expect(mockWebGLContext.deleteTexture).toHaveBeenCalled();
 
-      const contextManager = WebGLContextManager.getInstance();
+      const contextManager = WebGLContextManager.getInstance({ canvas: mockCanvas });
       expect(contextManager.removeContextListener).toHaveBeenCalled();
       expect(window.removeEventListener).toHaveBeenCalledWith(
         "qualitychange",
@@ -313,7 +312,7 @@ describe("FrameProcessor", () => {
 
   describe("Error Recovery", () => {
     it("should recover from WebGL context loss", () => {
-      const contextManager = WebGLContextManager.getInstance();
+      const contextManager = WebGLContextManager.getInstance({ canvas: mockCanvas });
       const contextListener = (contextManager.addContextListener as jest.Mock)
         .mock.calls[0][0];
 

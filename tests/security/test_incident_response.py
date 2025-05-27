@@ -40,12 +40,9 @@ def mock_metrics():
         cpu_usage=50.0,
         memory_usage=75.0,
         disk_usage=60.0,
-        network_in=1000,
-        network_out=500,
-        active_connections=100,
-        request_count=1000,
-        error_count=5,
-        average_response_time=100,
+        network_io={"in": 1000, "out": 500},
+        gpu_usage=None,
+        custom_metrics=None,
     )
 
 
@@ -170,12 +167,11 @@ async def test_incident_monitoring(
     incident_manager, incident_data, mock_metrics, mock_threat_finding
 ):
     """Test incident monitoring."""
-    with (
-        patch.object(incident_manager.metrics_collector, "get_metrics", return_value=mock_metrics),
+    with \
+        patch.object(incident_manager.metrics_collector, "get_metrics", return_value=mock_metrics), \
         patch.object(
             incident_manager.threat_detector, "detect_threats", return_value=[mock_threat_finding]
-        ),
-    ):
+        ):
 
         incident = await incident_manager.create_incident(**incident_data)
 
@@ -191,10 +187,9 @@ async def test_incident_monitoring(
 async def test_incident_notifications(incident_manager, incident_data):
     """Test incident notifications."""
     # Mock email sending
-    with (
-        patch("aiosmtplib.send") as mock_email,
-        patch.object(incident_manager, "_send_slack_notification") as mock_slack,
-    ):
+    with \
+        patch("aiosmtplib.send") as mock_email, \
+        patch.object(incident_manager, "_send_slack_notification") as mock_slack:
 
         await incident_manager.create_incident(**incident_data)
 

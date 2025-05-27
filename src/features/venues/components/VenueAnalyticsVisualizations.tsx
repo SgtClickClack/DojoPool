@@ -99,7 +99,7 @@ export const VenueAnalyticsVisualizations: React.FC<
   const [showTrendLines, setShowTrendLines] = React.useState(true);
 
   const RevenueTrendChart = () => (
-    <Paper sx={{ p: 2, height: 400 }}>
+    <Paper sx={{ p: 2, height: 400 }} data-testid="revenue-chart">
       <Box
         sx={{
           display: "flex",
@@ -164,7 +164,7 @@ export const VenueAnalyticsVisualizations: React.FC<
   );
 
   const PeakHoursChart = () => (
-    <Paper sx={{ p: 2, height: 400 }}>
+    <Paper sx={{ p: 2, height: 400 }} data-testid="games-chart">
       <Typography variant="h6" gutterBottom>
         Peak Hours Analysis
       </Typography>
@@ -200,7 +200,7 @@ export const VenueAnalyticsVisualizations: React.FC<
   );
 
   const TableUtilizationChart = () => (
-    <Paper sx={{ p: 2, height: 400 }}>
+    <Paper sx={{ p: 2, height: 400 }} data-testid="utilization-chart">
       <Typography variant="h6" gutterBottom>
         Table Utilization
       </Typography>
@@ -235,7 +235,7 @@ export const VenueAnalyticsVisualizations: React.FC<
   );
 
   const MaintenancePieChart = () => (
-    <Paper sx={{ p: 2, height: 400 }}>
+    <Paper sx={{ p: 2, height: 400 }} data-testid="maintenance-chart">
       <Typography variant="h6" gutterBottom>
         Maintenance Distribution
       </Typography>

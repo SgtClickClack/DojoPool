@@ -1,21 +1,17 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ChakraProvider } from "@chakra-ui/react";
+import { renderWithChakra } from '../../../tests/unit/utils/test-utils';
 import { MatchScheduler } from "../MatchScheduler";
-import theme from "@/theme";
+import { Match } from "../MatchScheduler";
 
-const renderWithChakra = (component: React.ReactElement) => {
-  return render(<ChakraProvider theme={theme}>{component}</ChakraProvider>);
-};
-
-const mockMatches = [
+const mockMatches: Match[] = [
   {
     id: "1",
     round: 1,
     matchNumber: 1,
     player1: { id: "p1", name: "Player 1" },
     player2: { id: "p2", name: "Player 2" },
-    status: "scheduled",
+    status: 'scheduled',
     startTime: "2024-01-16T10:00:00Z",
     duration: 30,
     tableNumber: 1,
@@ -26,7 +22,7 @@ const mockMatches = [
     matchNumber: 2,
     player1: { id: "p3", name: "Player 3" },
     player2: { id: "p4", name: "Player 4" },
-    status: "in_progress",
+    status: 'in_progress',
     startTime: "2024-01-16T11:00:00Z",
     duration: 30,
     tableNumber: 2,
@@ -37,7 +33,7 @@ const mockMatches = [
     matchNumber: 1,
     player1: { id: "p1", name: "Player 1" },
     player2: { id: "p3", name: "Player 3" },
-    status: "scheduled",
+    status: 'scheduled',
     duration: 30,
   },
 ];

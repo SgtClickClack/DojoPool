@@ -11,7 +11,8 @@ from marshmallow import Schema, ValidationError, fields, validate
 
 from dojopool.core.exceptions import NotFoundError
 from dojopool.core.security import require_auth, require_roles
-from dojopool.tournaments.tournament_manager import TournamentType, TournamentStatus, Tournament
+from dojopool.tournaments.tournament_manager import TournamentType, TournamentStatus, TournamentData
+from dojopool.models.tournament import Tournament
 
 from .base import BaseResource
 from dojopool.models.game import Game

@@ -60,7 +60,7 @@ const Profile: React.FC = () => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/api/profile");
+        const response = await axiosInstance.get("/profile");
         setProfileData(response.data);
         setError(null);
       } catch (err) {
@@ -158,7 +158,7 @@ const Profile: React.FC = () => {
         Recent Games
       </Typography>
       <List>
-        {profileData?.recentGames.map((game) => (
+        {(profileData?.recentGames || []).map((game: GameHistory) => (
           <ListItem key={game.id}>
             <ListItemAvatar>
               <Avatar>{game.result === "win" ? "W" : game.result === "loss" ? "L" : "D"}</Avatar>
@@ -188,7 +188,7 @@ const Profile: React.FC = () => {
         Achievements
       </Typography>
       <Grid container spacing={2}>
-        {profileData?.achievements.map((achievement) => (
+        {(profileData?.achievements || []).map((achievement: Achievement) => (
           <Grid item xs={12} sm={6} md={4} key={achievement.id}>
             <Paper sx={{ p: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>

@@ -43,7 +43,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTournament } from '../hooks/useTournament';
 import { useTournamentChat } from '../hooks/useTournamentChat';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '@/frontend/hooks/useUser';
 
 interface TournamentChatProps {
   tournamentId: string;

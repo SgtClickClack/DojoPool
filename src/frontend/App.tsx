@@ -1,129 +1,143 @@
-import React, { Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { UserProvider } from "./contexts/UserContext";
-import { SocketProvider } from "./contexts/SocketContext";
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import React, { Suspense } from 'react';
+import { Routes, Route, Navigate, Outlet, useParams } from 'react-router-dom';
+// AuthContext is likely provided in main.tsx now, so useAuth can be imported directly.
+// If AuthProvider is NOT moved to main.tsx, you'd keep the import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext'; // Assuming AuthProvider is in main.tsx
+import { UserProvider } from './contexts/UserContext';
+import { SocketProvider } from './contexts/SocketContext';
+// CssBaseline and ThemeProvider will be in main.tsx.
+// import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 
 // Lazy load components
-const Login = React.lazy(() => import("./components/Auth/Login"));
-const Register = React.lazy(() => import("./components/Auth/Register"));
-const Dashboard = React.lazy(() => import("./components/Dashboard/Dashboard"));
-const GameView = React.lazy(() => import("./components/Game/GameView"));
-const TournamentDetail = React.lazy(() => import("../components/tournaments/TournamentDetail"));
-const TournamentList = React.lazy(() => import("../components/tournaments/TournamentList"));
+const Login = React.lazy(() => import('./components/Auth/Login'));
+const Register = React.lazy(() => import('./components/Auth/Register'));
+const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard'));
+const GameView = React.lazy(() => import('./components/Game/GameView'));
+// Consistent path convention (assuming components is a sibling of contexts, App.tsx is in src)
+const TournamentDetail = React.lazy(() => import('../components/tournaments/TournamentDetail'));
+const TournamentList = React.lazy(() => import('../components/tournaments/TournamentList'));
+const VenueDashboard = React.lazy(() => import('../components/venue/VenueDashboard'));
+const UserProfile = React.lazy(() => import('../components/social/UserProfile'));
+const SocialFeed = React.lazy(() => import('../components/social/SocialFeed'));
 
-// Basic theme (can be expanded)
-const theme = createTheme({
-  palette: {
-    mode: "dark", // Or 'light'
-  },
-});
+// Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
+// const theme = createTheme({
+//   palette: {
+//     mode: 'dark', // Or 'light'
+//   },
+// });
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  // children?: React.ReactNode; // Outlet will handle children for layout routes
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    // Optional: Show a loading spinner while checking auth state
-    return <div>Loading...</div>;
+    // Use the same LoadingFallback or a specific one for auth checking
+    return <LoadingFallback message="Authenticating..." />;
   }
 
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
+  return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
-const LoadingFallback = () => (
+// A more specific or shared loading fallback
+const LoadingFallback = ({ message = "Loading content..." }: { message?: string }) => (
   <div
     style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      fontSize: '1.2rem', // Adjusted size
     }}
   >
-    Loading...
+    {message}
   </div>
 );
 
+const VenueDashboardWrapper = () => {
+  const { venueId } = useParams();
+  return <VenueDashboard venueId={venueId as string} />;
+};
+
+const UserProfileSelfWrapper = () => <UserProfile />;
+const UserProfileOtherWrapper = () => {
+  const { username } = useParams();
+  return <UserProfile username={username} />;
+};
+
+const SocialFeedWrapper = () => <SocialFeed />;
+
+// This App component assumes ThemeProvider, CssBaseline, AuthProvider, and BrowserRouter
+// are wrapping it from main.tsx (or your root index file)
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
-        <UserProvider>
-          <SocketProvider>
-            <BrowserRouter
-              future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-            >
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
+    // UserProvider and SocketProvider are more specific and can stay here,
+    // especially if they depend on the user being authenticated.
+    <UserProvider>
+      <SocketProvider>
+        <Suspense fallback={<LoadingFallback message="Loading page..." />}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-                  {/* Protected routes */}
-                  <Route path="/" element={<NavigateToHome />} />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/game/:gameId"
-                    element={
-                      <ProtectedRoute>
-                        <GameView />
-                      </ProtectedRoute>
-                    }
-                  />
-                  {/* Tournaments List Route */}
-                  <Route
-                    path="/tournaments"
-                    element={
-                      <ProtectedRoute>
-                        <TournamentList />
-                      </ProtectedRoute>
-                    }
-                  />
-                  {/* Tournament Detail Route */}
-                  <Route
-                    path="/tournament/:tournamentId"
-                    element={
-                      <ProtectedRoute>
-                        <TournamentDetail />
-                      </ProtectedRoute>
-                    }
-                  />
+            {/* Initial redirector: handles where to go from "/" */}
+            <Route path="/" element={<InitialRedirect />} />
 
-                  {/* Catch all route */}
-                  <Route path="*" element={<Navigate to="/login" replace />} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </SocketProvider>
-        </UserProvider>
-      </AuthProvider>
-    </ThemeProvider>
+            {/* Protected routes using an element for layout/protection */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/game/:gameId" element={<GameView />} />
+              <Route path="/tournaments" element={<TournamentList />} />
+              <Route path="/tournaments/:id" element={<TournamentDetail />} />
+              <Route path="/venues/:venueId" element={<VenueDashboardWrapper />} />
+              <Route path="/profile" element={<UserProfileSelfWrapper />} />
+              <Route path="/profile/:username" element={<UserProfileOtherWrapper />} />
+              <Route path="/feed" element={<SocialFeedWrapper />} />
+              {/* Add other protected routes here */}
+            </Route>
+
+            {/* Catch all route - should be last */}
+            <Route path="*" element={<NotFoundRedirect />} />
+          </Routes>
+        </Suspense>
+      </SocketProvider>
+    </UserProvider>
   );
 };
 
-// Helper component to handle initial redirect based on auth state
-const NavigateToHome: React.FC = () => {
+// Helper component to handle initial redirect from "/" based on auth state
+const InitialRedirect: React.FC = () => {
   const { user, loading } = useAuth();
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingFallback message="Checking session..." />;
   }
+
   return user ? (
     <Navigate to="/dashboard" replace />
   ) : (
     <Navigate to="/login" replace />
   );
 };
+
+// Helper component for the catch-all route to provide a better UX
+const NotFoundRedirect: React.FC = () => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+      return <LoadingFallback message="Loading..." />;
+    }
+    // Optionally, you can navigate to a dedicated 404 component
+    // return <Navigate to="/404" replace />;
+    // Or, redirect to dashboard if logged in, else to login
+    return user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+    // For a true 404 page experience, you'd render a NotFoundPage component:
+    // return <NotFoundPage />;
+};
+
 
 export default App;

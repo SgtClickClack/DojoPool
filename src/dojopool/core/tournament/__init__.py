@@ -10,7 +10,7 @@ from dojopool.models.user import User
 from dojopool.models.role import Role
 from dojopool.models.game import Game
 from dojopool.core.tournaments.models import Tournament
-from dojopool.models.venue import Venue
+from dojopool.core.models.venue import Venue
 from dojopool.models.match import Match
 from dojopool.models.tournament_bracket import TournamentBracket
 from dojopool.models.tournament_bracket_type import TournamentBracketType

@@ -5,15 +5,13 @@
 import { TournamentDBService } from "../TournamentService";
 import {
   Tournament,
-  // Keep import of Tournament type from types file
-  // TournamentStatus, // Remove import of enums from types file
-  // TournamentFormat, // Remove import of enums from types file
-} from "../../../types/tournament";
+  TournamentFormat,
+  TournamentStatus,
+} from '../../../types/tournament';
 
 // Import actual enums from @prisma/client using jest.requireActual
-const actualPrisma = jest.requireActual("@prisma/client") as any;
-// Removed top-level destructuring
-// const { TournamentType, MatchState, TournamentStatus, TournamentFormat } = actualPrisma;
+const actualPrisma = jest.requireActual("@prisma/client");
+// const { TournamentType, TournamentStatus, TournamentFormat } = actualPrisma;
 
 // Mock the Prisma client
 jest.mock("@prisma/client", () => {
@@ -35,7 +33,7 @@ jest.mock("@prisma/client", () => {
 
 describe("TournamentDBService Static Methods", () => {
     // Access enums within the describe block
-    const { TournamentType, MatchState, TournamentStatus, TournamentFormat } = actualPrisma;
+    // const { TournamentType, MatchState, TournamentStatus, TournamentFormat } = actualPrisma;
 
     // Declare variables for mocked client instance outside beforeEach
     // let mockedPrismaClientInstance: any; // Use `any` for simplicity
@@ -43,11 +41,11 @@ describe("TournamentDBService Static Methods", () => {
   const mockTournamentData: Tournament = {
     id: "tournament-1",
     name: "Test Tournament",
-    format: TournamentFormat.SINGLE_ELIMINATION, // Use actual enum
+    format: TournamentFormat.SINGLE_ELIMINATION,
     venueId: "venue-1",
     startDate: new Date(),
     endDate: new Date(Date.now() + 86400000),
-    status: TournamentStatus.REGISTRATION, // Corrected property name from state to status, Use actual enum
+    status: TournamentStatus.OPEN,
     organizerId: "user-1",
     participants: 0,
     maxParticipants: 16,
@@ -73,7 +71,7 @@ describe("TournamentDBService Static Methods", () => {
 
       const inputData = {
         name: "Test Tournament",
-        format: TournamentFormat.SINGLE_ELIMINATION, // Use actual enum
+        format: TournamentFormat.SINGLE_ELIMINATION,
         venueId: "venue-1",
         startDate: expect.any(Date),
         endDate: expect.any(Date),
@@ -97,7 +95,7 @@ describe("TournamentDBService Static Methods", () => {
       expect(mockTournamentMethods.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           ...inputData,
-          status: TournamentStatus.OPEN, // Use actual enum
+          status: "OPEN",
           participants: [],
           matches: [],
         }),
@@ -139,7 +137,7 @@ describe("TournamentDBService Static Methods", () => {
       // const { TournamentStatus } = jest.requireMock("@prisma/client"); // No need to get enums from mock
       const updatedTournament = { 
           ...mockTournamentData, 
-          status: TournamentStatus.ACTIVE, // Use actual enum
+          status: TournamentStatus.ACTIVE,
           updatedAt: expect.any(Date),
       };
       // Access mock methods directly
@@ -264,7 +262,7 @@ describe("TournamentDBService Static Methods", () => {
         where: {
           venueId: "venue-1",
           status: {
-            in: [TournamentStatus.OPEN, TournamentStatus.ACTIVE],
+            in: ["OPEN", "ACTIVE"],
           },
         },
         orderBy: { startDate: "asc" },
@@ -302,7 +300,7 @@ describe("TournamentDBService Static Methods", () => {
       const { TournamentStatus } = jest.requireMock("@prisma/client");
       const updatedTournament = {
         ...mockTournamentData,
-        status: TournamentStatus.COMPLETED, // Use enum from mocked module
+        status: TournamentStatus.COMPLETED,
         winnerId: "player-1",
         finalStandings: ["player-1", "player-2"],
         endedAt: expect.any(Date),

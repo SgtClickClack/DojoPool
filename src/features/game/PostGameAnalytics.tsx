@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, CircularProgress, Alert, List, ListItem, Divider } from "@mui/material";
+import LiveCommentary from "./LiveCommentary";
 
 interface PlayerStats {
   accuracy: number;
@@ -73,6 +74,9 @@ const PostGameAnalytics: React.FC<PostGameAnalyticsProps> = ({ gameId }) => {
     <Paper sx={{ p: 3, m: 2 }}>
       <Typography variant="h5" gutterBottom>Post-Game Analytics</Typography>
       <Typography variant="subtitle1" sx={{ mb: 2 }}>{analytics.summary}</Typography>
+      <Divider sx={{ my: 2 }} />
+      <Typography variant="h6">AI Commentary & Audio</Typography>
+      <LiveCommentary gameId={gameId} />
       <Divider sx={{ my: 2 }} />
       <Typography variant="h6">Highlights</Typography>
       <List dense>

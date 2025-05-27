@@ -10,8 +10,8 @@ import {
 import { sendPasswordResetEmail } from "firebase/auth";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { auth } from "../../config/firebase";
-import { analyticsService } from "../../services/analytics";
+import { auth } from "../../firebase/firebase";
+import { analyticsService } from "../../services/analytics/AnalyticsService";
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -20,25 +20,28 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setMessage("");
+    setLoading(true);
 
-    try {
-      setMessage("");
-      setError("");
-      setLoading(true);
-      await sendPasswordResetEmail(auth, email);
-      setMessage("Check your inbox for further instructions");
-      analyticsService.trackEvent("password_reset_requested", { email });
-    } catch (error: any) {
-      setError(error.message || "Failed to reset password");
-      analyticsService.trackEvent("password_reset_error", {
-        error: error.message,
-      });
+    if (!auth) {
+      setError("Authentication service is not available");
+      setLoading(false);
+      return;
     }
 
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Check your inbox for further instructions");
+      analyticsService.logEvent("password_reset_requested", { email });
+    } catch (error: any) {
+      setError(error.message);
+      analyticsService.logError("password_reset_failed", error);
+    }
     setLoading(false);
-  }
+  };
 
   return (
     <Box

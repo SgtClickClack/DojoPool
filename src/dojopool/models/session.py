@@ -1,5 +1,5 @@
 from datetime import datetime
-from ..extensions import db
+from dojopool.core.extensions import db
 
 class Session(db.Model):
     """Model for storing user sessions."""

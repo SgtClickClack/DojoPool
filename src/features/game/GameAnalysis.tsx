@@ -47,6 +47,8 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import BallDistributionPieChart from './BallDistributionPieChart';
+import { prepareBallDistributionData } from './gameAnalysisUtils';
 
 interface Shot {
   playerId: string;

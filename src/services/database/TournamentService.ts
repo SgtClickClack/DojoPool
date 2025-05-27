@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import {
   Tournament,
-  TournamentState,
-  TournamentType,
+  TournamentStatus,
+  TournamentFormat,
 } from "../../types/tournament";
 
 const prisma = new PrismaClient();
@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 export class TournamentService {
   static async createTournament(
     name: string,
-    type: TournamentType,
+    format: TournamentFormat,
     startDate: Date,
     endDate: Date,
     venueId: string,
@@ -21,14 +21,14 @@ export class TournamentService {
     return prisma.tournament.create({
       data: {
         name,
-        type,
+        format,
         startDate,
         endDate,
         venueId,
         organizerId,
         maxParticipants,
         entryFee,
-        state: TournamentState.REGISTRATION,
+        status: TournamentStatus.OPEN,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -43,12 +43,12 @@ export class TournamentService {
 
   static async updateTournamentState(
     id: string,
-    state: TournamentState,
+    status: TournamentStatus,
   ): Promise<Tournament> {
     return prisma.tournament.update({
       where: { id },
       data: {
-        state,
+        status,
         updatedAt: new Date(),
       },
     });
@@ -88,8 +88,8 @@ export class TournamentService {
     return prisma.tournament.findMany({
       where: {
         venueId,
-        state: {
-          in: [TournamentState.REGISTRATION, TournamentState.IN_PROGRESS],
+        status: {
+          in: [TournamentStatus.OPEN, TournamentStatus.ACTIVE],
         },
       },
       orderBy: {
@@ -123,7 +123,7 @@ export class TournamentService {
       data: {
         winnerId,
         runnerUpId,
-        state: TournamentState.COMPLETED,
+        status: TournamentStatus.COMPLETED,
         endedAt: new Date(),
         updatedAt: new Date(),
       },

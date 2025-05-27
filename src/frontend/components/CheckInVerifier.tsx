@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTournament } from '../hooks/useTournament';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '@/frontend/hooks/useUser';
 import { useLocation } from '../hooks/useLocation';
 import QRCodeScanner from './QRCodeScanner';
 

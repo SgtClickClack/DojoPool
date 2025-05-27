@@ -25,6 +25,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import DojoPoolAppBar from "../AppBar";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -73,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar
+      <DojoPoolAppBar
         position="fixed"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
@@ -96,7 +97,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Button>
           )}
         </Toolbar>
-      </AppBar>
+      </DojoPoolAppBar>
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}

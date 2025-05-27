@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTournament } from '../hooks/useTournament';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '@/frontend/hooks/useUser';
 
 interface QRCodeGeneratorProps {
   tournamentId: string;

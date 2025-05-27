@@ -16,6 +16,7 @@ import {
   People,
   Timeline,
 } from "@mui/icons-material";
+import DojoPoolAppBar from "../AppBar";
 
 export const Dashboard: React.FC = () => {
   const stats = [
@@ -120,6 +121,10 @@ export const Dashboard: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      <DojoPoolAppBar position="fixed">
+        {/* AppBar content */}
+      </DojoPoolAppBar>
     </Box>
   );
 };

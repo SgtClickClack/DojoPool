@@ -5,15 +5,14 @@ This module provides services for analyzing venue performance and generating ana
 """
 
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List
 import logging
-from sqlalchemy import func, and_, extract
-from sqlalchemy.sql import text
+from sqlalchemy import func, extract  # type: ignore
 
 from dojopool.core.extensions import db
-from dojopool.core.models.venue import Venue, PoolTable, TableStatus
-from dojopool.core.models.maintenance import Maintenance
-from dojopool.core.models.revenue import Revenue
+from dojopool.models.venue import Venue
+from dojopool.models.maintenance import Maintenance
+from dojopool.models.revenue import Revenue
 from dojopool.models.game import Game
 
 logger = logging.getLogger(__name__)
@@ -100,7 +99,7 @@ class VenueAnalyticsService:
                 Revenue.date >= start_date,
                 Revenue.date <= end_date
             ).scalar()
-            return float(total) if total else 0.0
+            return float(total or 0.0)
         except Exception as e:
             logger.error(f"Error getting total revenue: {str(e)}")
             return 0.0
@@ -188,19 +187,18 @@ class VenueAnalyticsService:
         """Get daily revenue for a venue within a date range."""
         try:
             daily_revenue = db.session.query(
-                func.date(Revenue.date).label('date'),
-                func.sum(Revenue.amount).label('revenue')
+                Revenue.date.label('date'),
+                func.sum(Revenue.amount).label('amount')
             ).filter(
                 Revenue.venue_id == venue_id,
                 Revenue.date >= start_date,
                 Revenue.date <= end_date
-            ).group_by('date').all()
+            ).group_by(Revenue.date).all()
 
             return [{
                 'date': date.strftime('%Y-%m-%d'),
-                'revenue': float(revenue)
-            } for date, revenue in daily_revenue]
-
+                'amount': float(amount)
+            } for date, amount in daily_revenue]
         except Exception as e:
             logger.error(f"Error getting revenue by day: {str(e)}")
             return []
@@ -256,40 +254,31 @@ class VenueAnalyticsService:
     def _get_maintenance_stats(self, venue_id: int, start_date: datetime, end_date: datetime) -> Dict:
         """Get maintenance statistics for a venue within a date range."""
         try:
-            # Get total maintenance events
-            total_maintenance = db.session.query(func.count(Maintenance.id)).filter(
+            maintenances = db.session.query(Maintenance).filter(
                 Maintenance.venue_id == venue_id,
                 Maintenance.start_time >= start_date,
                 Maintenance.start_time <= end_date
-            ).scalar() or 0
-
-            # Get average maintenance duration
-            avg_duration = db.session.query(
-                func.avg(
-                    func.extract('epoch', Maintenance.end_time - Maintenance.start_time) / 3600
-                )
-            ).filter(
-                Maintenance.venue_id == venue_id,
-                Maintenance.start_time >= start_date,
-                Maintenance.start_time <= end_date
-            ).scalar() or 0
-
-            # Get maintenance by reason
-            maintenance_by_reason = db.session.query(
-                Maintenance.reason,
-                func.count(Maintenance.id)
-            ).filter(
-                Maintenance.venue_id == venue_id,
-                Maintenance.start_time >= start_date,
-                Maintenance.start_time <= end_date
-            ).group_by(Maintenance.reason).all()
-
+            ).all()
+            total_maintenance = len(maintenances)
+            if total_maintenance == 0:
+                return {
+                    'totalMaintenance': 0,
+                    'averageDuration': 0.0,
+                    'maintenanceByReason': {}
+                }
+            total_duration = sum(
+                ((m.end_time or datetime.utcnow()) - m.start_time).total_seconds() for m in maintenances
+            )
+            average_duration = total_duration / total_maintenance / 3600  # in hours
+            maintenance_by_reason = {}
+            for m in maintenances:
+                maintenance_by_reason.setdefault(m.reason, 0)
+                maintenance_by_reason[m.reason] += 1
             return {
                 'totalMaintenance': total_maintenance,
-                'averageDuration': float(avg_duration),
-                'maintenanceByReason': {reason: count for reason, count in maintenance_by_reason}
+                'averageDuration': average_duration,
+                'maintenanceByReason': maintenance_by_reason
             }
-
         except Exception as e:
             logger.error(f"Error getting maintenance stats: {str(e)}")
             return {

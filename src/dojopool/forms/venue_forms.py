@@ -18,7 +18,7 @@ from wtforms.validators import (
     ValidationError,
 )
 
-from src.utils.validators import validate_coordinates, validate_phone, validate_postal_code
+from dojopool.utils.validators import validate_coordinates, validate_phone, validate_postal_code
 
 
 class VenueForm(FlaskForm):

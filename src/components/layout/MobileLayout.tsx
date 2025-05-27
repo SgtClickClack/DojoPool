@@ -23,7 +23,6 @@ import {
   MenuItem,
   Divider,
   Icon,
-  useToast,
 } from "@chakra-ui/react";
 import {
   FaBars,
@@ -36,6 +35,7 @@ import {
   FaHome,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast as useToastChakra } from '@chakra-ui/toast';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -52,7 +52,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showNotifications, setShowNotifications] = useState(false);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");

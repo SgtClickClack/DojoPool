@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
-from ..extensions import db
+from dojopool.core.extensions import db
 
 
 class PlayerRating(db.Model):

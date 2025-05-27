@@ -71,7 +71,7 @@ This section outlines the step-by-step user journey and the required feature/com
 - **Paths:**
   - `src/dojopool/services/reward_service.py`, `services/activity_service.py`
   - `src/frontend/pages/dashboard.tsx`, `components/RewardsPanel.tsx`, `TrophyCabinet.tsx`
-- **TODO:** Show post-game summary, distribute rewards, update user dashboard.
+- **TODO:** Implement Frontend UI for Dojo Coin wallet and viewing rewards. Show post-game summary, distribute rewards, update user dashboard.
 
 ### 10. Social & Chat
 - **Features:** Venue chat (checked-in users only), notifications, activity feed, friend invites
@@ -156,7 +156,7 @@ This section outlines the step-by-step user journey and the required feature/com
     - [ ] Blockchain integration (ERC-20/Solana) // Missing
     - [ ] Exchange marketplace (Backend unification in progress)
   - [ ] Smart Contract Development // Missing
-  - [🚧] Wallet Integration // Critical - Unification in progress. Frontend UI Missing.
+  - [🚧] Wallet Integration // Critical - Unification in progress. Frontend UI now IN PROGRESS.
   - [🚧] Transaction System // Critical - Unification in progress. Frontend UI Missing.
 
 ### 3. Analytics & AI 🚧
@@ -399,3 +399,17 @@ This section outlines the step-by-step user journey and the required feature/com
 - Context Assurance foundations (Vector Clocks, Consensus, Replication) implemented.
 - Unified Wallet system refactoring underway.
 - Core Physics engine integrated.
+
+- 2025-05-17: Fixed all useUser import path issues in frontend components and tests. Test suite now runs without import errors; only standard test failures remain. Next: address remaining test failures to restore full test suite health.
+- 2025-05-17: All TournamentDetail test issues (type field, useAuth mock, API mocks) are fixed. Next: address remaining global/legacy test failures to restore full test suite health.
+- 2025-05-17: RewardsDashboard now uses wallet/rewards hooks and fetches transactions and NFTs via API. All UI is up-to-date and interactive. Next: address TournamentDetail test failures (UI logic, test data, matcher issues).
+
+- [x] Integrate Sky-T1 AI Referee for rule interpretation and foul detection (backend, real-time)
+- [ ] Finalize frontend UI for displaying referee decisions and explanations in live game view
+- [x] Backend NFT API endpoints for list/transfer (Flask Blueprint, NftService, integration tests)
+- [ ] Integrate real NFT data sources (blockchain/DB) and expand test coverage
+- [x] Resolve frontend/backend connectivity and port conflicts
+- [x] Fix Firebase config import and environment variable issues
+- [ ] Test all main user flows and fix any new errors
+
+- [2024-05-27] TournamentList and TournamentDetail integrated into main routing at /tournaments and /tournaments/:id

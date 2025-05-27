@@ -2,22 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Flex,
-  VStack,
-  HStack,
   Text,
-  Avatar,
   Button,
   IconButton,
   Input,
   Textarea,
-  useColorModeValue,
-  Divider,
   Badge,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  useToast,
   Image,
   Skeleton,
 } from "@chakra-ui/react";
@@ -31,6 +21,7 @@ import {
   FaUserPlus,
   FaGamepad,
 } from "react-icons/fa";
+import { useToast as useToastChakra } from '@chakra-ui/toast';
 
 interface User {
   id: string;
@@ -81,11 +72,11 @@ const SocialFeed: React.FC = () => {
   const [newPost, setNewPost] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const feedRef = useRef<HTMLDivElement>(null);
-  const toast = useToast();
+  const toast = useToastChakra();
 
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const textColor = useColorModeValue("gray.600", "gray.400");
+  const bgColor = "white";
+  const borderColor = "gray.200";
+  const textColor = "gray.600";
 
   useEffect(() => {
     // Connect to WebSocket for real-time updates
@@ -224,75 +215,77 @@ const SocialFeed: React.FC = () => {
         mb={4}
       >
         <Flex justify="space-between" align="center" mb={4}>
-          <HStack>
-            <Avatar
-              size="md"
+          <Flex>
+            <Box as="img"
               src={item.user.avatar}
-              name={item.user.username}
+              alt={item.user.username}
+              w="40px"
+              h="40px"
+              borderRadius="full"
+              mr={2}
             />
-            <VStack align="start" spacing={0}>
+            <Box display="flex" flexDirection="column">
               <Text fontWeight="bold">{item.user.username}</Text>
               <Text fontSize="sm" color={textColor}>
                 {new Date(item.timestamp).toLocaleString()}
               </Text>
-            </VStack>
-          </HStack>
+            </Box>
+          </Flex>
 
-          <Menu>
-            <MenuButton
-              as={IconButton}
+          <Box>
+            <IconButton
               icon={<FaEllipsisV />}
               variant="ghost"
               aria-label="Options"
             />
-            <MenuList>
-              <MenuItem>Report</MenuItem>
-              <MenuItem>Mute</MenuItem>
-              <MenuItem>Hide</MenuItem>
-            </MenuList>
-          </Menu>
+          </Box>
         </Flex>
 
         {item.type === "achievement" && item.metadata?.achievement && (
-          <HStack
+          <Box
             p={3}
-            bg={useColorModeValue("gray.50", "gray.700")}
+            bg="gray.50"
             borderRadius="md"
             mb={4}
           >
-            <Image
-              src={item.metadata.achievement.icon}
-              boxSize="40px"
-              objectFit="cover"
-              borderRadius="md"
-            />
-            <VStack align="start" spacing={0}>
-              <Text fontWeight="bold">{item.metadata.achievement.name}</Text>
-              <Badge
-                colorScheme={
-                  item.metadata.achievement.rarity === "legendary"
-                    ? "purple"
-                    : item.metadata.achievement.rarity === "epic"
-                      ? "pink"
-                      : item.metadata.achievement.rarity === "rare"
-                        ? "blue"
-                        : "gray"
-                }
-              >
-                {item.metadata.achievement.rarity}
-              </Badge>
-            </VStack>
-          </HStack>
+            <Flex>
+              <Box as="img"
+                src={item.metadata.achievement.icon}
+                alt={item.metadata.achievement.name}
+                w="40px"
+                h="40px"
+                objectFit="cover"
+                borderRadius="md"
+                mr={2}
+              />
+              <Box display="flex" flexDirection="column">
+                <Text fontWeight="bold">{item.metadata.achievement.name}</Text>
+                <Badge
+                  colorScheme={
+                    item.metadata.achievement.rarity === "legendary"
+                      ? "purple"
+                      : item.metadata.achievement.rarity === "epic"
+                        ? "pink"
+                        : item.metadata.achievement.rarity === "rare"
+                          ? "blue"
+                          : "gray"
+                  }
+                >
+                  {item.metadata.achievement.rarity}
+                </Badge>
+              </Box>
+            </Flex>
+          </Box>
         )}
 
         {item.type === "game" && item.metadata?.game && (
           <Box
             p={3}
-            bg={useColorModeValue("gray.50", "gray.700")}
+            bg="gray.50"
             borderRadius="md"
             mb={4}
           >
-            <HStack justify="space-between" mb={2}>
+            <Flex justify="space-between" mb={2}>
               <Text fontWeight="bold">
                 vs {item.metadata.game.opponent.username}
               </Text>
@@ -306,20 +299,24 @@ const SocialFeed: React.FC = () => {
               >
                 {item.metadata.game.score}
               </Badge>
-            </HStack>
+            </Flex>
             {item.metadata.game.highlights && (
-              <HStack overflowX="auto" py={2}>
+              <Flex overflowX="auto" py={2}>
                 {item.metadata.game.highlights.map((highlight, i) => (
-                  <Image
+                  <Box
                     key={i}
+                    as="img"
                     src={highlight}
-                    boxSize="100px"
+                    alt={`Highlight ${i + 1}`}
+                    w="100px"
+                    h="100px"
                     objectFit="cover"
                     borderRadius="md"
                     cursor="pointer"
+                    mr={2}
                   />
                 ))}
-              </HStack>
+              </Flex>
             )}
           </Box>
         )}
@@ -327,8 +324,9 @@ const SocialFeed: React.FC = () => {
         <Text mb={4}>{item.content}</Text>
 
         {item.media && (
-          <Image
+          <Box as="img"
             src={item.media}
+            alt={`Media for post ${item.id}`}
             maxH="400px"
             w="100%"
             objectFit="cover"
@@ -337,7 +335,7 @@ const SocialFeed: React.FC = () => {
           />
         )}
 
-        <HStack spacing={4}>
+        <Flex spacing={4}>
           <Button
             leftIcon={<FaHeart />}
             variant={item.liked_by_user ? "solid" : "ghost"}
@@ -360,7 +358,7 @@ const SocialFeed: React.FC = () => {
           >
             Share
           </Button>
-        </HStack>
+        </Flex>
       </Box>
     );
   };
@@ -380,22 +378,25 @@ const SocialFeed: React.FC = () => {
           Suggested Friends
         </Text>
 
-        <VStack spacing={4}>
+        <Box>
           {suggestions.map((suggestion) => (
-            <HStack key={suggestion.user.id} w="100%" justify="space-between">
-              <HStack>
-                <Avatar
-                  size="sm"
+            <Flex key={suggestion.user.id} w="100%" justify="space-between">
+              <Flex>
+                <Box as="img"
                   src={suggestion.user.avatar}
-                  name={suggestion.user.username}
+                  alt={suggestion.user.username}
+                  w="40px"
+                  h="40px"
+                  borderRadius="full"
+                  mr={2}
                 />
-                <VStack align="start" spacing={0}>
+                <Box display="flex" flexDirection="column">
                   <Text fontWeight="medium">{suggestion.user.username}</Text>
                   <Text fontSize="xs" color={textColor}>
                     {suggestion.mutual_friends} mutual friends
                   </Text>
-                </VStack>
-              </HStack>
+                </Box>
+              </Flex>
 
               <Button
                 leftIcon={<FaUserPlus />}
@@ -405,9 +406,9 @@ const SocialFeed: React.FC = () => {
               >
                 Add
               </Button>
-            </HStack>
+            </Flex>
           ))}
-        </VStack>
+        </Box>
       </Box>
     );
   };
@@ -415,7 +416,7 @@ const SocialFeed: React.FC = () => {
   return (
     <Flex p={4} gap={8}>
       {/* Main Feed */}
-      <VStack flex={1} spacing={4} ref={feedRef}>
+      <Box flex={1} spacing={4} ref={feedRef}>
         {/* New Post Input */}
         <Box
           w="100%"
@@ -448,25 +449,25 @@ const SocialFeed: React.FC = () => {
               borderColor={borderColor}
               w="100%"
             >
-              <HStack mb={4}>
+              <Flex mb={4}>
                 <Skeleton height="40px" width="40px" borderRadius="full" />
-                <VStack align="start" flex={1}>
+                <Box flex={1}>
                   <Skeleton height="20px" width="150px" />
                   <Skeleton height="16px" width="100px" />
-                </VStack>
-              </HStack>
+                </Box>
+              </Flex>
               <Skeleton height="100px" mb={4} />
-              <HStack>
+              <Flex>
                 <Skeleton height="30px" width="80px" />
                 <Skeleton height="30px" width="80px" />
                 <Skeleton height="30px" width="80px" />
-              </HStack>
+              </Flex>
             </Box>
           ))
         ) : (
           <AnimatePresence>{feed.map(renderFeedItem)}</AnimatePresence>
         )}
-      </VStack>
+      </Box>
 
       {/* Suggestions Sidebar */}
       <Box w="300px">{renderSuggestions()}</Box>

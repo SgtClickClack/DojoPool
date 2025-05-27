@@ -8,7 +8,7 @@ from typing import Dict, Optional
 import qrcode
 from core.models import db
 
-from .models import PoolTable
+from dojopool.venues.venue_manager import PoolTable
 
 logger = logging.getLogger(__name__)
 

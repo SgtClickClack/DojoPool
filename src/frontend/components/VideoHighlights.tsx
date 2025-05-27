@@ -27,7 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTournament } from '../hooks/useTournament';
-import { useUser } from '../hooks/useUser';
+import { useUser } from '@/frontend/hooks/useUser';
 import { useVideoHighlights } from '../hooks/useVideoHighlights';
 
 interface VideoHighlightsProps {
@@ -45,13 +45,13 @@ const VideoHighlights: React.FC<VideoHighlightsProps> = ({ tournamentId }) => {
   const [currentTime, setCurrentTime] = React.useState(0);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [generating, setGenerating] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [localError, setLocalError] = React.useState<string | null>(null);
 
   const handleGenerateHighlight = async () => {
     if (!tournament || !user) return;
 
     setGenerating(true);
-    setError(null);
+    setLocalError(null);
 
     try {
       await generateHighlight({
@@ -66,7 +66,7 @@ const VideoHighlights: React.FC<VideoHighlightsProps> = ({ tournamentId }) => {
         ],
       });
     } catch (err) {
-      setError(
+      setLocalError(
         err instanceof Error ? err.message : 'Failed to generate highlights'
       );
     } finally {
@@ -79,7 +79,7 @@ const VideoHighlights: React.FC<VideoHighlightsProps> = ({ tournamentId }) => {
       await shareHighlight(highlightId);
       setDialogOpen(true);
     } catch (err) {
-      setError(
+      setLocalError(
         err instanceof Error ? err.message : 'Failed to share highlight'
       );
     }
@@ -89,7 +89,7 @@ const VideoHighlights: React.FC<VideoHighlightsProps> = ({ tournamentId }) => {
     try {
       await downloadHighlight(highlightId);
     } catch (err) {
-      setError(
+      setLocalError(
         err instanceof Error ? err.message : 'Failed to download highlight'
       );
     }
@@ -117,10 +117,10 @@ const VideoHighlights: React.FC<VideoHighlightsProps> = ({ tournamentId }) => {
     );
   }
 
-  if (error) {
+  if (error || localError) {
     return (
       <Box sx={{ py: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">{error || localError}</Alert>
       </Box>
     );
   }
@@ -291,12 +291,6 @@ const VideoHighlights: React.FC<VideoHighlightsProps> = ({ tournamentId }) => {
           <Button onClick={() => setDialogOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-
-      {error && (
-        <Alert severity="error" sx={{ mt: 3 }}>
-          {error}
-        </Alert>
-      )}
     </Box>
   );
 };

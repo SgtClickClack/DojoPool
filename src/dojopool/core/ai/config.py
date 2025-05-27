@@ -1,7 +1,7 @@
 """AI service configuration."""
 
-from dataclasses import dataclass
-from typing import Dict, List
+from dataclasses import dataclass, field
+from typing import Dict, List, Any
 
 
 @dataclass
@@ -38,18 +38,15 @@ class AnalysisConfig:
 class AIConfig:
     """Main AI service configuration."""
 
-    model: ModelConfig = ModelConfig()
-    cache: CacheConfig = CacheConfig()
-    analysis: AnalysisConfig = AnalysisConfig()
+    model: ModelConfig = field(default_factory=ModelConfig)
+    cache: CacheConfig = field(default_factory=CacheConfig)
+    analysis: AnalysisConfig = field(default_factory=AnalysisConfig)
 
-    # Feature importance weights
-    feature_weights: Dict[str, float] = None
-
-    # Difficulty levels
-    difficulty_levels: List[Dict[str, float]] = None
+    feature_weights: Dict[str, float] = field(default_factory=dict)
+    difficulty_levels: List[Dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self):
-        if self.feature_weights is None:
+        if not self.feature_weights:
             self.feature_weights = {
                 "accuracy": 0.3,
                 "consistency": 0.2,
@@ -58,7 +55,7 @@ class AIConfig:
                 "decision": 0.15,
             }
 
-        if self.difficulty_levels is None:
+        if not self.difficulty_levels:
             self.difficulty_levels = [
                 {"level": "beginner", "threshold": 0.3},
                 {"level": "intermediate", "threshold": 0.6},

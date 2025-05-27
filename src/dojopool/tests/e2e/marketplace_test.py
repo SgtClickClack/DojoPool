@@ -1,7 +1,5 @@
 import pytest
 from dojopool import create_app
-from datetime import datetime
-from flask import Flask
 
 @pytest.fixture(scope="session")
 def app():

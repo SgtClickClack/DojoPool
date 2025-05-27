@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { WalletDashboard } from '../../components/wallet/WalletDashboard';
+import { WalletDashboard } from '../../../src/components/wallet/WalletDashboard';
 import { WalletService } from '../../services/wallet/WalletService';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../src/dojopool/frontend/contexts/AuthContext';
 import { formatCurrency } from '../../utils/format';
 import { Wallet, Transaction, WalletStats } from '../../types/wallet';
 

@@ -99,3 +99,25 @@ export interface RuleViolation {
   action: string;
   rule: string;
 }
+
+// Added for Game Results Page
+export interface GameResult {
+  gameId: string;
+  winner: string; // Typically player ID
+  loser: string;  // Typically player ID
+  score: string; // e.g., "8-5"
+  date: string;  // Consider ISO string format
+  // Optional fields based on needs:
+  // duration?: number; // in seconds or minutes
+  // tournamentId?: string;
+  // matchId?: string;
+}
+
+export interface GameSpecificReward {
+  id: string;
+  name: string;
+  description: string;
+  // type?: 'COIN' | 'NFT_SHARD' | 'ITEM_UNLOCK' | 'XP'; // More specific reward types
+  // amount?: number; // For countable rewards like coins or XP
+  // relatedGameId?: string; // To link back to the game
+}

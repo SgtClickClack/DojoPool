@@ -11,7 +11,8 @@ from flask_login import current_user, login_required
 from ...core.auth.dependencies import check_permissions
 from ...core.extensions import db
 from ...core.monitoring.metrics_monitor import metrics_monitor
-from .models import PoolTable, Venue, VenueStaff, TableStatus
+from dojopool.venues.venue_manager import PoolTable, TableStatus
+from dojopool.core.models.venue import Venue
 from .qr import qr_manager
 from .qr_alerts import AlertSeverity, qr_alerts
 from .qr_export import qr_export

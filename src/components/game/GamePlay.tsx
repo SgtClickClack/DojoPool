@@ -5,12 +5,12 @@ import {
   HStack,
   Text,
   useColorModeValue,
-  useToast,
 } from "@chakra-ui/react";
 import { GameBoard } from "./GameBoard";
 import { GameControls } from "./GameControls";
 import { GameSpectate } from "./GameSpectate";
 import { ShotAnalysis } from "./ShotAnalysis";
+import { useToast as useToastChakra } from '@chakra-ui/toast';
 
 interface Ball {
   id: number;
@@ -58,7 +58,7 @@ export const GamePlay: React.FC<GamePlayProps> = ({
   const [shotPower, setShotPower] = useState(0);
   const [shotAngle, setShotAngle] = useState(0);
   const [shotSpin, setShotSpin] = useState(0);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   // Colors based on theme
   const bgColor = useColorModeValue("white", "gray.800");
@@ -69,7 +69,7 @@ export const GamePlay: React.FC<GamePlayProps> = ({
     initializeGame();
 
     // Set up WebSocket connection for real-time updates
-    const ws = new WebSocket(`ws://localhost:3001/game/${gameId}`);
+    const ws = new WebSocket(`ws://localhost:3102/game/${gameId}`);
 
     ws.onmessage = (event) => {
       const update = JSON.parse(event.data);

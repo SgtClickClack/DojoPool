@@ -1,5 +1,5 @@
 import { getAnalytics, Analytics } from 'firebase/analytics';
-import { initializeApp, getApps, FirebaseApp, FirebaseOptions } from 'firebase/app';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   onAuthStateChanged,
@@ -17,13 +17,36 @@ import {
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
-const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'demo-mode',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'demo-mode',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'demo-mode',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'demo-mode',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'demo-mode',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'demo-mode',
+// DEBUG: Print env
+// @ts-ignore
+console.log('[FB]firebase.ts:2 [Firebase Config Debug]', {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+});
+
+console.log('[FB]firebase.ts:2 [Firebase Config Debug]', {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+});
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 let app: FirebaseApp | null = null;
@@ -54,7 +77,7 @@ if (app) {
   }
 
   // Configure auth persistence (example, adjust as needed)
-  if (authInstance && process.env.NODE_ENV === 'production') {
+  if (authInstance && import.meta.env.MODE === 'production') {
     setPersistence(authInstance, browserLocalPersistence)
       .catch((error: any) => {
         console.error('Error setting auth persistence:', error);
@@ -66,26 +89,25 @@ if (app) {
 
 const googleAuthProvider = new GoogleAuthProvider();
 if (authInstance) {
-  // Example: authInstance.settings is not directly available on Auth object in v9+
-  // For test configurations like disabling app verification, you'd typically handle this during specific test setups or emulators.
-  // googleAuthProvider.setCustomParameters is correct.
-  googleAuthProvider.setCustomParameters({
-    prompt: 'select_account',
-    scope: 'email profile',
-  });
+  if (typeof googleAuthProvider.setCustomParameters === 'function') {
+    googleAuthProvider.setCustomParameters({
+      prompt: 'select_account',
+      scope: 'email profile',
+    });
+  }
 } else {
   console.warn('Auth instance not available for GoogleAuthProvider configuration.');
 }
 
-// Export instances safely
-export const auth: Auth | null = authInstance;
+if (!authInstance) {
+  throw new Error('Firebase Auth instance could not be initialized.');
+}
+export const auth: Auth = authInstance;
 export const db: Firestore | null = dbInstance;
 export const storage: FirebaseStorage | null = storageInstance;
 export const analytics: Analytics | null = analyticsInstance;
-export const currentApp: FirebaseApp | null = app; // Exporting the app instance itself
+export const currentApp: FirebaseApp | null = app;
 
-// Export auth methods (they are standalone functions in v9+ and don't strictly need auth instance passed if auth is globally initialized via getAuth())
-// However, it's good practice to ensure auth is initialized.
 export {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -93,9 +115,9 @@ export {
   signOut,
   sendPasswordResetEmail,
   updateProfile,
-  GoogleAuthProvider, // Export the class itself
-  googleAuthProvider, // Export the configured instance
+  GoogleAuthProvider,
+  googleAuthProvider,
   signInWithPopup,
 };
 
-export default currentApp; // Exporting the app as default, consistent with original JS 
+export default currentApp; 

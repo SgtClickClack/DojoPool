@@ -9,13 +9,12 @@ import {
   Progress,
   Badge,
   IconButton,
-  useToast,
-  Divider,
 } from "@chakra-ui/react";
 import { BsChat } from "react-icons/bs";
 import { AiFillStar } from "react-icons/ai";
 import { IoShare } from "react-icons/io5";
 import axios from "axios";
+import { useToast as useToastChakra } from '@chakra-ui/toast';
 
 interface Player {
   username: string;
@@ -48,7 +47,7 @@ export const GameSpectate: React.FC<{ gameId: number }> = ({ gameId }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const toast = useToast();
+  const toast = useToastChakra();
 
   useEffect(() => {
     // Initial game state
