@@ -331,10 +331,12 @@ export class NetworkTransport extends (EventEmitter as {
 
     return new Promise((resolve, reject) => {
       try {
+        // Use peer.url if present, otherwise construct from host/port
+        const wsUrl = (peer as any).url || `ws://127.0.0.1:${peer.port}`;
         console.log(
-          `Node ${this.nodeId} connecting to ${peer.nodeId} at ws://127.0.0.1:${peer.port}`,
+          `Node ${this.nodeId} connecting to ${peer.nodeId} at ${wsUrl}`,
         );
-        const ws = new WebSocket(`ws://127.0.0.1:${peer.port}`);
+        const ws = new WebSocket(wsUrl);
 
         ws.on("open", () => {
           console.log(`Node ${this.nodeId} connected to ${peer.nodeId}`);

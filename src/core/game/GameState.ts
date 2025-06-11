@@ -112,6 +112,35 @@ function getBallType(
   return "invalid";
 }
 
+interface Ball {
+  number: number;
+  position: { x: number; y: number };
+  pocketed: boolean;
+}
+
+interface ShotData {
+  cueBall: { x: number; y: number };
+  targetBall?: { x: number; y: number };
+  targetBalls?: { x: number; y: number }[];
+  power: number;
+  angle: number;
+  spin?: number;
+}
+
+interface ShotResult {
+  success: boolean;
+  path?: { x: number; y: number }[];
+  paths?: { x: number; y: number }[][];
+  collisions?: { ball: number; position: { x: number; y: number } }[];
+}
+
+interface GameStateData {
+  id: string;
+  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  currentPlayer: string;
+  balls: Ball[];
+}
+
 export class GameState extends EventEmitter {
   private tables: Map<string, GameTable>;
   private consensus: RaftConsensus;
@@ -120,12 +149,8 @@ export class GameState extends EventEmitter {
   private physicsEngine: PhysicsEngine;
   private aiRefereeService: AIRefereeService;
   private gameLoops: Map<string, NodeJS.Timeout>;
-  private state: {
-    tables: Map<string, LWWRegister<Table>>;
-    players: Map<string, LWWRegister<Player>>;
-    currentTurn: LWWRegister<string | null>;
-    gamePhase: LWWRegister<string>;
-  };
+  private state: GameStateData;
+  private version: number;
   private currentShotAnalysis: Map<string, ShotAnalysisData>; // Track analysis per table
   private preShotTableState: Map<string, Partial<GameTable>>; // Store state before shot for referee
 
@@ -139,11 +164,12 @@ export class GameState extends EventEmitter {
     this.tables = new Map();
     this.gameLoops = new Map();
     this.state = {
-      tables: new Map(),
-      players: new Map(),
-      currentTurn: new LWWRegister<string | null>(null, nodeId),
-      gamePhase: new LWWRegister<string>("setup", nodeId),
+      id: nodeId,
+      status: 'scheduled',
+      currentPlayer: '',
+      balls: [],
     };
+    this.version = 0;
     this.currentShotAnalysis = new Map();
     this.preShotTableState = new Map();
 
@@ -1289,5 +1315,129 @@ export class GameState extends EventEmitter {
       ballInHand: false,
       ballInHandFromBreakScratch: false,
     };
+  }
+
+  async analyzeShot(shotData: ShotData): Promise<ShotResult> {
+    // Simulate shot analysis
+    const { cueBall, targetBall, power, angle } = shotData;
+    const path = [cueBall, targetBall || { x: cueBall.x + Math.cos(angle) * 100, y: cueBall.y + Math.sin(angle) * 100 }];
+    const collisions = [];
+
+    if (targetBall) {
+      const distance = Math.sqrt(
+        Math.pow(targetBall.x - cueBall.x, 2) + Math.pow(targetBall.y - cueBall.y, 2)
+      );
+      if (distance < 100) {
+        collisions.push({ ball: 1, position: targetBall });
+      }
+    }
+
+    return {
+      success: true,
+      path,
+      collisions,
+    };
+  }
+
+  async animateShot(shotData: ShotData): Promise<boolean> {
+    const result = await this.analyzeShot(shotData);
+    if (!result.success || !result.path) return false;
+
+    // Simulate animation frames
+    for (const point of result.path) {
+      this.emit('ballMove', { position: point });
+      await new Promise(resolve => setTimeout(resolve, 16)); // 60fps
+    }
+
+    return true;
+  }
+
+  async analyzeComplexShot(shotData: ShotData): Promise<ShotResult> {
+    if (!shotData.targetBalls) {
+      return this.analyzeShot(shotData);
+    }
+
+    // Simulate complex shot analysis
+    const { cueBall, targetBalls, power, angle, spin = 0 } = shotData;
+    const paths = targetBalls.map(target => [cueBall, target]);
+    const collisions = targetBalls.map((target, index) => ({
+      ball: index + 1,
+      position: target,
+    }));
+
+    return {
+      success: true,
+      paths,
+      collisions,
+    };
+  }
+
+  async updateState(update: Partial<GameStateData>): Promise<boolean> {
+    this.state = { ...this.state, ...update };
+    this.version++;
+    this.emit('stateUpdate', this.state);
+    return true;
+  }
+
+  async processUpdate(update: { type: string; data: any }): Promise<boolean> {
+    switch (update.type) {
+      case 'shot':
+        await this.handleShotUpdate(update.data);
+        break;
+      case 'foul':
+        await this.handleFoulUpdate(update.data);
+        break;
+      case 'gameEnd':
+        await this.handleGameEndUpdate(update.data);
+        break;
+      default:
+        return false;
+    }
+    return true;
+  }
+
+  private async handleShotUpdate(data: any): Promise<void> {
+    const { playerId, shotType, result } = data;
+    // Process shot update
+    this.emit('shotUpdate', { playerId, shotType, result });
+  }
+
+  private async handleFoulUpdate(data: any): Promise<void> {
+    const { playerId, foulType, penalty } = data;
+    // Process foul update
+    this.emit('foulUpdate', { playerId, foulType, penalty });
+  }
+
+  private async handleGameEndUpdate(data: any): Promise<void> {
+    const { winner, score } = data;
+    // Process game end update
+    await this.updateState({ status: 'completed' });
+    this.emit('gameEnd', { winner, score });
+  }
+
+  async startGame(): Promise<boolean> {
+    if (this.state.status !== 'scheduled') return false;
+    await this.updateState({ status: 'in_progress' });
+    this.emit('gameStart', this.state);
+    return true;
+  }
+
+  async endGame(): Promise<boolean> {
+    if (this.state.status !== 'in_progress') return false;
+    await this.updateState({ status: 'completed' });
+    this.emit('gameEnd', this.state);
+    return true;
+  }
+
+  async cleanup(): Promise<boolean> {
+    this.removeAllListeners();
+    return true;
+  }
+
+  serializeState(data: Partial<GameStateData>): string {
+    return JSON.stringify({
+      ...data,
+      version: this.version,
+    });
   }
 }

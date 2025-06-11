@@ -15,6 +15,14 @@ import path from "path";
 import os from "os";
 import { GameState } from "../../types/game";
 
+jest.mock('ws', () => ({
+  Server: jest.fn().mockImplementation(() => ({
+    on: jest.fn(),
+    close: jest.fn(),
+    clients: new Set(),
+  })),
+}));
+
 describe("StateReplicator", () => {
   let node1: StateReplicator;
   let node2: StateReplicator;

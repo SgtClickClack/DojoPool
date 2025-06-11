@@ -33,11 +33,11 @@ describe("GameService", () => {
     players: ["player1", "player2"],
     venueId: "venue1",
     tableId: "table1",
-    status: "setup",
+    status: "PENDING",
     currentPlayer: "player1",
     score: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date("2025-06-01T10:09:24.640Z"),
+    updatedAt: new Date("2025-06-01T10:09:24.640Z"),
     balls: [],
   };
 
@@ -70,12 +70,11 @@ describe("GameService", () => {
           players: ["player1", "player2"],
           venueId: "venue1",
           tableId: "table1",
-          status: "setup",
+          status: "PENDING",
           currentPlayer: "player1",
           score: {},
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
-          balls: [],
         },
       });
       expect(result).toEqual(mockGame);
@@ -183,9 +182,10 @@ describe("GameService", () => {
     it("should end a game using string literals", async () => {
       const endedGame = {
         ...mockGame,
-        status: "finished",
+        status: "COMPLETED",
         winnerId: "player1",
-        endedAt: new Date(),
+        endedAt: new Date("2025-06-01T10:09:24.669Z"),
+        updatedAt: new Date("2025-06-01T10:09:24.669Z"),
       };
       (prisma.game.update as jest.Mock).mockResolvedValue(endedGame);
 
@@ -194,7 +194,7 @@ describe("GameService", () => {
       expect(prisma.game.update).toHaveBeenCalledWith({
         where: { id: "1" },
         data: {
-          status: "finished",
+          status: "COMPLETED",
           winnerId: "player1",
           endedAt: expect.any(Date),
           updatedAt: expect.any(Date),
@@ -215,8 +215,7 @@ describe("GameService", () => {
 
   describe("getActiveGames", () => {
     it("should get active games for a venue using string literals", async () => {
-      const activeGames = [mockGame];
-      (prisma.game.findMany as jest.Mock).mockResolvedValue(activeGames);
+      (prisma.game.findMany as jest.Mock).mockResolvedValue([mockGame]);
 
       const result = await GameService.getActiveGames("venue1");
 
@@ -224,14 +223,14 @@ describe("GameService", () => {
         where: {
           venueId: "venue1",
           status: {
-            in: ["setup", "active"],
+            in: ["IN_PROGRESS", "PENDING"],
           },
         },
         orderBy: {
           createdAt: "desc",
         },
       });
-      expect(result).toEqual(activeGames);
+      expect(result).toEqual([mockGame]);
     });
 
     it("should handle errors during active games retrieval", async () => {

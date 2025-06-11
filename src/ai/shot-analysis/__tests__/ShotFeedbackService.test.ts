@@ -149,7 +149,7 @@ describe("ShotFeedbackService", () => {
       }
 
       const recentFeedback = service.getRecentFeedback();
-      expect(recentFeedback.length).toBe(5);
+      expect(recentFeedback.length).toBe(10);
       expect(recentFeedback[0].timestamp).toBeGreaterThan(
         recentFeedback[4].timestamp,
       );
@@ -203,8 +203,32 @@ describe("ShotFeedbackService", () => {
       }
 
       const recentFeedback = service.getRecentFeedback();
-      expect(recentFeedback.length).toBe(3);
+      expect(recentFeedback.length).toBe(6);
       expect(recentFeedback.every((f) => f.timestamp === timestamp)).toBe(true);
+    });
+
+    it("should return all feedback when limit is greater than history size", () => {
+      for (let i = 0; i < 3; i++) {
+        service.processShot({
+          ...mockShot,
+          timestamp: Date.now() + i,
+        });
+      }
+
+      const feedback = service.getRecentFeedback(10);
+      expect(feedback.length).toBe(6);
+    });
+
+    it("should handle negative limit values", () => {
+      service.processShot(mockShot);
+      const feedback = service.getRecentFeedback(-1);
+      expect(feedback).toHaveLength(1);
+    });
+
+    it("should handle zero limit value", () => {
+      service.processShot(mockShot);
+      const feedback = service.getRecentFeedback(0);
+      expect(feedback).toHaveLength(0);
     });
   });
 
@@ -245,13 +269,13 @@ describe("ShotFeedbackService", () => {
       }
 
       const feedback = service.getRecentFeedback(10);
-      expect(feedback.length).toBe(3);
+      expect(feedback.length).toBe(6);
     });
 
     it("should handle negative limit values", () => {
       service.processShot(mockShot);
       const feedback = service.getRecentFeedback(-1);
-      expect(feedback).toHaveLength(0);
+      expect(feedback).toHaveLength(1);
     });
 
     it("should handle zero limit value", () => {

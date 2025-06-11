@@ -10,7 +10,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List, Dict, Any
 
-from sqlalchemy import func  # type: ignore
+from sqlalchemy import func, case  # type: ignore
 
 from dojopool.core.extensions import db
 from dojopool.models.marketplace import Wallet, Transaction
@@ -24,7 +24,7 @@ class WalletService(IWalletService):
 
     def __init__(self, blockchain_provider: str = "solana"):
         """Initialize the wallet service.
-        
+
         Args:
             blockchain_provider: The blockchain provider to use (default: "solana")
         """
@@ -46,13 +46,13 @@ class WalletService(IWalletService):
 
     def create_wallet(self, user_id: int) -> Wallet:
         """Create a new wallet for a user.
-        
+
         Args:
             user_id: The ID of the user.
-            
+
         Returns:
             The created wallet.
-            
+
         Raises:
             WalletError: If the user already has a wallet.
         """
@@ -73,10 +73,10 @@ class WalletService(IWalletService):
 
     def get_wallet(self, wallet_id: int) -> Optional[Wallet]:
         """Get a wallet by ID.
-        
+
         Args:
             wallet_id: The ID of the wallet.
-            
+
         Returns:
             The wallet if found, None otherwise.
         """
@@ -84,10 +84,10 @@ class WalletService(IWalletService):
 
     def get_user_wallet(self, user_id: int) -> Optional[Wallet]:
         """Get a user's wallet.
-        
+
         Args:
             user_id: The ID of the user.
-            
+
         Returns:
             The user's wallet if found, None otherwise.
         """
@@ -101,16 +101,16 @@ class WalletService(IWalletService):
         description: Optional[str] = None
     ) -> Transaction:
         """Award coins to a user's wallet.
-        
+
         Args:
             user_id: The ID of the user.
             reward_type: The type of reward.
             multiplier: Optional multiplier for the reward amount.
             description: Optional description of the reward.
-            
+
         Returns:
             The created transaction.
-            
+
         Raises:
             WalletError: If the user's wallet is not found.
         """
@@ -132,7 +132,7 @@ class WalletService(IWalletService):
             },
             created_at=datetime.utcnow()
         )
-        
+
         wallet.balance += amount
         wallet.updated_at = datetime.utcnow()
         db.session.add(transaction)
@@ -155,16 +155,16 @@ class WalletService(IWalletService):
         description: Optional[str] = None
     ) -> Transaction:
         """Transfer coins between users.
-        
+
         Args:
             sender_user_id: The ID of the sending user.
             recipient_user_id: The ID of the receiving user.
             amount: The amount to transfer.
             description: Optional description of the transfer.
-            
+
         Returns:
             The sender's transaction.
-            
+
         Raises:
             WalletError: If either wallet is not found.
             InsufficientFundsError: If sender has insufficient funds.
@@ -227,11 +227,11 @@ class WalletService(IWalletService):
 
     def get_transaction_history(self, wallet_id: int, limit: int = 50) -> List[Transaction]:
         """Get transaction history for a wallet.
-        
+
         Args:
             wallet_id: The ID of the wallet.
             limit: Maximum number of transactions to return.
-            
+
         Returns:
             List of transactions, sorted by creation date descending.
         """
@@ -242,13 +242,13 @@ class WalletService(IWalletService):
 
     def get_wallet_stats(self, wallet_id: int) -> Dict[str, Any]:
         """Get statistics for a wallet.
-        
+
         Args:
             wallet_id: The ID of the wallet.
-            
+
         Returns:
             Dictionary containing wallet statistics.
-            
+
         Raises:
             WalletError: If the wallet is not found.
         """
@@ -256,58 +256,43 @@ class WalletService(IWalletService):
         if not wallet:
             raise WalletError("Wallet not found")
 
-        # Get total transactions and volume
-        total_transactions = Transaction.query.filter_by(wallet_id=wallet_id).count()
-        total_volume = db.session.query(
-            func.sum(func.abs(Transaction.amount))
-        ).filter_by(wallet_id=wallet_id).scalar() or 0
-
-        # Get incoming and outgoing totals
-        total_incoming = db.session.query(
-            func.sum(Transaction.amount)
+        # Get all stats in a single query using SQL aggregations
+        stats = db.session.query(
+            func.count(Transaction.id).label('total_transactions'),
+            func.sum(func.abs(Transaction.amount)).label('total_volume'),
+            func.sum(case((Transaction.amount > 0, Transaction.amount), else_=0)).label('total_incoming'),
+            func.sum(case((Transaction.amount < 0, func.abs(Transaction.amount)), else_=0)).label('total_outgoing'),
+            func.json_object_agg(
+                Transaction.metadata['reward_type'].label('reward_type'),
+                func.json_build_object(
+                    'count', func.count(),
+                    'total_amount', func.sum(Transaction.amount)
+                )
+            ).filter(
+                Transaction.transaction_type == TransactionType.REWARD.value
+            ).label('rewards')
         ).filter(
-            Transaction.wallet_id == wallet_id,
-            Transaction.amount > 0
-        ).scalar() or 0
+            Transaction.wallet_id == wallet_id
+        ).first()
 
-        total_outgoing = abs(db.session.query(
-            func.sum(Transaction.amount)
-        ).filter(
-            Transaction.wallet_id == wallet_id,
-            Transaction.amount < 0
-        ).scalar() or 0)
-
-        # Get reward statistics
-        rewards = db.session.query(
-            Transaction.metadata['reward_type'].label('reward_type'),
-            func.count().label('count'),
-            func.sum(Transaction.amount).label('total_amount')
-        ).filter(
-            Transaction.wallet_id == wallet_id,
-            Transaction.transaction_type == TransactionType.REWARD.value
-        ).group_by('reward_type').all()
-
-        rewards_dict = {
-            reward.reward_type: {
-                'count': reward.count,
-                'total_amount': float(reward.total_amount)
-            } for reward in rewards
+        # Convert SQLAlchemy result to dict
+        result = {
+            'balance': float(wallet.balance),
+            'totalTransactions': stats.total_transactions or 0,
+            'totalVolume': float(stats.total_volume or 0),
+            'totalIncoming': float(stats.total_incoming or 0),
+            'totalOutgoing': float(stats.total_outgoing or 0),
+            'rewards': stats.rewards or {}
         }
 
-        return {
-            'total_transactions': total_transactions,
-            'total_volume': float(total_volume),
-            'total_incoming': float(total_incoming),
-            'total_outgoing': float(total_outgoing),
-            'rewards': rewards_dict
-        }
+        return result
 
     def _submit_to_blockchain(self, transaction: Transaction) -> None:
         """Submit a transaction to the blockchain.
-        
+
         Args:
             transaction: The transaction to submit.
-            
+
         Raises:
             BlockchainError: If the blockchain submission fails.
         """
@@ -322,4 +307,4 @@ class WalletService(IWalletService):
             raise BlockchainError(f"Unsupported blockchain provider: {self._blockchain_provider}")
 
 
-wallet_service = WalletService() 
+wallet_service = WalletService()

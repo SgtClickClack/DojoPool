@@ -181,3 +181,18 @@ export class PhysicsEngine {
     });
   }
 }
+
+// Standalone utility functions for test and legacy compatibility
+const defaultPhysicsEngine = new PhysicsEngine();
+
+export function calculateTrajectory(initialPosition: Vector2D, power: number, angle: number): Vector2D {
+  return defaultPhysicsEngine.calculateTrajectory(initialPosition, power, angle);
+}
+
+export function applyFriction(velocity: Vector2D, deltaTime: number): Vector2D {
+  return defaultPhysicsEngine.applyFriction(velocity, deltaTime);
+}
+
+export function detectCollision(ball1: PhysicsObject, ball2: PhysicsObject): CollisionResult {
+  return defaultPhysicsEngine.detectCollision(ball1, ball2);
+}

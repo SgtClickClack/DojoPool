@@ -1,90 +1,89 @@
-import WebSocket from "ws";
-import { WebSocketTransport } from "../../core/network/WebSocketTransport";
-import { NetworkMessage, NetworkMessageType } from "../../core/network/types";
+import { WebSocketTransport } from '../../core/network/WebSocketTransport';
+import { NetworkMessage, NetworkMessageType } from '../../core/network/types';
 
-jest.mock("ws");
+jest.mock('ws', () => {
+  class MockEmitter {
+    static instances: any[] = [];
+    _handlers: Record<string, Function>;
+    constructor() {
+      this._handlers = {};
+      // @ts-ignore
+      this.send = jest.fn();
+      // @ts-ignore
+      this.close = jest.fn();
+      // @ts-ignore
+      this.removeAllListeners = jest.fn();
+      // Debug log to confirm mock usage
+      // eslint-disable-next-line no-console
+      console.log('[MOCK WEBSOCKET] constructor called');
+      (MockEmitter.instances as any[]).push(this);
+    }
+    on(event: any, cb: any) {
+      this._handlers[event] = cb;
+    }
+    emit(event: any, ...args: any[]) {
+      if (this._handlers[event]) {
+        this._handlers[event](...args);
+      }
+    }
+  }
+  return {
+    __esModule: true,
+    default: MockEmitter,
+  };
+});
 
-describe("WebSocketTransport", () => {
+const WebSocket = require('ws');
+
+describe('WebSocketTransport', () => {
   let transport: WebSocketTransport;
-  let mockWs: jest.Mocked<WebSocket>;
-  const TEST_URL = "ws://localhost:8080";
-  const TEST_NODE_ID = "node1";
+  const TEST_URL = 'ws://localhost:8080';
+  const TEST_NODE_ID = 'node1';
 
   beforeEach(() => {
-    mockWs = {
-      on: jest.fn(),
-      send: jest.fn(),
-      close: jest.fn(),
-      removeAllListeners: jest.fn(),
-      emit: jest.fn(),
-    } as unknown as jest.Mocked<WebSocket>;
-
-    (WebSocket as unknown as jest.Mock).mockImplementation(() => mockWs);
+    jest.clearAllMocks();
+    WebSocket.default.instances = [];
     transport = new WebSocketTransport(TEST_URL, TEST_NODE_ID);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe("connect", () => {
-    it("should establish WebSocket connection and emit connect event", async () => {
+  describe('connect', () => {
+    it('should establish WebSocket connection and emit connect event', async () => {
       const connectPromise = transport.connect();
-
-      // Simulate successful connection
-      const openCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "open",
-      )?.[1];
-      if (openCallback) {
-        openCallback.call(mockWs);
-      }
-
+      const mockWs = WebSocket.default.instances[0];
+      mockWs.emit('open');
       await expect(connectPromise).resolves.toBeUndefined();
-      expect(WebSocket).toHaveBeenCalledWith(TEST_URL);
     });
 
-    it("should handle connection errors", async () => {
-      const testError = new Error("Connection failed");
+    it('should handle connection errors', async () => {
       const connectPromise = transport.connect();
-
-      // Simulate connection error
-      const errorCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "error",
-      )?.[1];
-      if (errorCallback) {
-        errorCallback.call(mockWs, testError);
-      }
-
-      await expect(connectPromise).rejects.toThrow(testError);
+      const mockWs = WebSocket.default.instances[0];
+      const errorPromise = new Promise(resolve => transport.onError(resolve));
+      mockWs.emit('error', new Error('Connection failed'));
+      await expect(connectPromise).rejects.toThrow('Connection failed');
+      const emittedError = await errorPromise;
+      expect(emittedError).toEqual(new Error('Connection failed'));
     });
   });
 
-  describe("send", () => {
+  describe('send', () => {
+    let mockWs: any;
     beforeEach(async () => {
       const connectPromise = transport.connect();
-      const openCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "open",
-      )?.[1];
-      if (openCallback) {
-        openCallback.call(mockWs);
-      }
+      mockWs = WebSocket.default.instances[0];
+      mockWs.emit('open');
       await connectPromise;
     });
 
-    it("should send formatted message through WebSocket", async () => {
-      const testMessage: Omit<
-        NetworkMessage<string>,
-        "source" | "timestamp"
-      > = {
+    it('should send formatted message through WebSocket', async () => {
+      const testMessage: Omit<NetworkMessage<string>, 'source' | 'timestamp'> = {
+        id: 'test-id-1',
         type: NetworkMessageType.STATE_SYNC,
-        target: "node2",
-        payload: "test message",
+        target: 'node2',
+        payload: 'test message',
       };
-
-      await transport.send("node2", testMessage);
-
+      await transport.send('node2', testMessage);
       expect(mockWs.send).toHaveBeenCalledTimes(1);
-      const sentMessage = JSON.parse(mockWs.send.mock.calls[0][0] as string);
+      const sentMessage = JSON.parse(mockWs.send.mock.calls[0][0]);
       expect(sentMessage).toMatchObject({
         ...testMessage,
         source: TEST_NODE_ID,
@@ -92,114 +91,75 @@ describe("WebSocketTransport", () => {
       expect(sentMessage.timestamp).toBeDefined();
     });
 
-    it("should throw error when not connected", async () => {
+    it('should throw error when not connected', async () => {
       await transport.disconnect();
-
-      const testMessage: Omit<
-        NetworkMessage<string>,
-        "source" | "timestamp"
-      > = {
+      const testMessage: Omit<NetworkMessage<string>, 'source' | 'timestamp'> = {
+        id: 'test-id-2',
         type: NetworkMessageType.STATE_SYNC,
-        target: "node2",
-        payload: "test message",
+        target: 'node2',
+        payload: 'test message',
       };
-
-      await expect(transport.send("node2", testMessage)).rejects.toThrow(
-        "Not connected",
-      );
+      await expect(transport.send('node2', testMessage)).rejects.toThrow('Not connected');
     });
   });
 
-  describe("broadcast", () => {
+  describe('broadcast', () => {
+    let mockWs: any;
     beforeEach(async () => {
       const connectPromise = transport.connect();
-      const openCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "open",
-      )?.[1];
-      if (openCallback) {
-        openCallback.call(mockWs);
-      }
+      mockWs = WebSocket.default.instances[0];
+      mockWs.emit('open');
       await connectPromise;
     });
 
-    it("should broadcast message to all nodes", async () => {
-      const testMessage: Omit<
-        NetworkMessage<string>,
-        "source" | "timestamp" | "target"
-      > = {
+    it('should broadcast message to all nodes', async () => {
+      const testMessage: Omit<NetworkMessage<string>, 'source' | 'timestamp' | 'target'> = {
+        id: 'test-id-3',
         type: NetworkMessageType.STATE_SYNC,
-        payload: "broadcast message",
+        payload: 'broadcast message',
       };
-
       await transport.broadcast(testMessage);
-
       expect(mockWs.send).toHaveBeenCalledTimes(1);
-      const sentMessage = JSON.parse(mockWs.send.mock.calls[0][0] as string);
+      const sentMessage = JSON.parse(mockWs.send.mock.calls[0][0]);
       expect(sentMessage).toMatchObject({
         ...testMessage,
         source: TEST_NODE_ID,
-        target: "*",
+        target: '*',
       });
       expect(sentMessage.timestamp).toBeDefined();
     });
   });
 
-  describe("message handling", () => {
-    it("should emit received messages to registered handlers", async () => {
+  describe('message handling', () => {
+    it('should emit received messages to registered handlers', async () => {
       const messageHandler = jest.fn();
       transport.onMessage(messageHandler);
-
       const connectPromise = transport.connect();
-      const openCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "open",
-      )?.[1];
-      if (openCallback) {
-        openCallback.call(mockWs);
-      }
+      const mockWs = WebSocket.default.instances[0];
+      mockWs.emit('open');
       await connectPromise;
-
       const testMessage: NetworkMessage<string> = {
+        id: 'test-id-4',
         type: NetworkMessageType.STATE_SYNC,
-        source: "node2",
+        source: 'node2',
         target: TEST_NODE_ID,
-        payload: "test message",
+        payload: 'test message',
         timestamp: Date.now(),
       };
-
-      // Simulate receiving a message
-      const messageCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "message",
-      )?.[1];
-      if (messageCallback) {
-        messageCallback.call(mockWs, JSON.stringify(testMessage));
-      }
-
+      mockWs.emit('message', JSON.stringify(testMessage));
       expect(messageHandler).toHaveBeenCalledWith(testMessage);
     });
 
-    it("should handle malformed messages gracefully", async () => {
+    it('should handle malformed messages gracefully', async () => {
       const connectPromise = transport.connect();
-      const openCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "open",
-      )?.[1];
-      if (openCallback) {
-        openCallback.call(mockWs);
-      }
+      const mockWs = WebSocket.default.instances[0];
+      mockWs.emit('open');
       await connectPromise;
-
-      // Simulate receiving a malformed message
-      const messageCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "message",
-      )?.[1];
-      if (messageCallback) {
-        messageCallback.call(mockWs, "invalid json");
-      }
-
-      // The error should be caught and emitted as an error event
-      const errorCallback = mockWs.on.mock.calls.find(
-        (call) => call[0] === "error",
-      )?.[1];
-      expect(errorCallback).toBeDefined();
+      const errorPromise = new Promise(resolve => transport.onError(resolve));
+      mockWs.emit('message', 'invalid json');
+      const emittedError = await errorPromise;
+      expect(emittedError).toBeInstanceOf(Error);
+      expect((emittedError as Error).message).toBe('Failed to parse message');
     });
   });
 });

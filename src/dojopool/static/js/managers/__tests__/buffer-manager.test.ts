@@ -43,8 +43,8 @@ describe("BufferManager", () => {
     canvas.width = 800;
     canvas.height = 600;
 
-    // Create WebGLContextManager instance
-    webglManager = new WebGLContextManager({
+    // Use singleton getInstance instead of new
+    webglManager = WebGLContextManager.getInstance({
       canvas,
       contextAttributes: {
         alpha: true,
@@ -67,12 +67,16 @@ describe("BufferManager", () => {
 
   afterEach(() => {
     webglManager.cleanup();
+    // Ensure singleton is reset for next test
+    // @ts-ignore
+    const BaseManager = require('../base-manager').BaseManager;
+    BaseManager.instances.delete('WebGLContextManager');
   });
 
   describe("Buffer Creation", () => {
     it("should create a new buffer", () => {
       const data = new Float32Array([1, 2, 3, 4]);
-      const buffer = webglManager.createBuffer(
+      const buffer = (webglManager as any).createBuffer(
         data,
         mockWebGLContext.ARRAY_BUFFER,
       );
@@ -91,7 +95,7 @@ describe("BufferManager", () => {
 
     it("should create buffer with specified usage", () => {
       const data = new Float32Array([1, 2, 3, 4]);
-      const buffer = webglManager.createBuffer(
+      const buffer = (webglManager as any).createBuffer(
         data,
         mockWebGLContext.ARRAY_BUFFER,
         mockWebGLContext.DYNAMIC_DRAW,
@@ -112,7 +116,7 @@ describe("BufferManager", () => {
       );
 
       const data = new Float32Array([1, 2, 3, 4]);
-      const buffer = webglManager.createBuffer(
+      const buffer = (webglManager as any).createBuffer(
         data,
         mockWebGLContext.ARRAY_BUFFER,
       );
@@ -129,13 +133,13 @@ describe("BufferManager", () => {
         Array(32).fill({}),
       );
 
-      webglManager.deleteBuffer(buffer as WebGLBuffer);
+      (webglManager as any).deleteBuffer(buffer as WebGLBuffer);
       expect(mockWebGLContext.deleteBuffer).toHaveBeenCalledWith(buffer);
     });
 
     it("should add buffer to pool when space available", () => {
       const buffer = {};
-      webglManager.deleteBuffer(buffer as WebGLBuffer);
+      (webglManager as any).deleteBuffer(buffer as WebGLBuffer);
       expect(mockWebGLContext.deleteBuffer).not.toHaveBeenCalled();
       expect(
         (webglManager as any).contextState.bufferPool.get(
@@ -150,7 +154,7 @@ describe("BufferManager", () => {
       const buffer = {};
       const newData = new Float32Array([5, 6, 7, 8]);
 
-      webglManager.updateBuffer(
+      (webglManager as any).updateBuffer(
         buffer as WebGLBuffer,
         newData,
         mockWebGLContext.ARRAY_BUFFER,
@@ -170,7 +174,7 @@ describe("BufferManager", () => {
       const buffer = {};
       const newData = new Float32Array([5, 6, 7, 8]);
 
-      webglManager.updateBuffer(
+      (webglManager as any).updateBuffer(
         buffer as WebGLBuffer,
         newData,
         mockWebGLContext.ARRAY_BUFFER,
@@ -192,7 +196,7 @@ describe("BufferManager", () => {
         buffers,
       );
 
-      webglManager.cleanupBufferPool();
+      (webglManager as any).cleanupBufferPool();
       expect(mockWebGLContext.deleteBuffer).toHaveBeenCalledTimes(16); // Half of the pool size
     });
 
@@ -203,7 +207,7 @@ describe("BufferManager", () => {
         buffers,
       );
 
-      webglManager.cleanupBufferPool();
+      (webglManager as any).cleanupBufferPool();
       expect(mockWebGLContext.deleteBuffer).not.toHaveBeenCalled();
     });
   });
@@ -213,7 +217,7 @@ describe("BufferManager", () => {
       const buffer = {};
       const data = new Float32Array([1, 2, 3, 4]);
 
-      webglManager.createBuffer(data, mockWebGLContext.ARRAY_BUFFER);
+      (webglManager as any).createBuffer(data, mockWebGLContext.ARRAY_BUFFER);
       expect((webglManager as any).contextState.activeBuffers.has(buffer)).toBe(
         true,
       );
@@ -226,8 +230,8 @@ describe("BufferManager", () => {
       const buffer = {};
       const data = new Float32Array([1, 2, 3, 4]);
 
-      webglManager.createBuffer(data, mockWebGLContext.ARRAY_BUFFER);
-      webglManager.deleteBuffer(buffer as WebGLBuffer);
+      (webglManager as any).createBuffer(data, mockWebGLContext.ARRAY_BUFFER);
+      (webglManager as any).deleteBuffer(buffer as WebGLBuffer);
       expect((webglManager as any).contextState.activeBuffers.has(buffer)).toBe(
         false,
       );

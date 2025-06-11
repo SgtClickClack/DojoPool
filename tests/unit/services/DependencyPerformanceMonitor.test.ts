@@ -1,4 +1,4 @@
-import { DependencyPerformanceMonitor } from "../DependencyPerformanceMonitor";
+import { DependencyPerformanceMonitor } from "../../services/DependencyPerformanceMonitor";
 
 // Mock the DependencyPerformanceMonitor module
 jest.mock("../DependencyPerformanceMonitor", () => ({

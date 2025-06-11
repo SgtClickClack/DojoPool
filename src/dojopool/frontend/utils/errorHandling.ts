@@ -1,16 +1,11 @@
+// Use the centralized logError from src/services/ErrorLoggingService for all error logging.
+// This file should not define its own logError.
+
 interface ErrorResponse {
   message: string;
   code?: string;
   details?: Record<string, any>;
 }
-
-export const logError = (error: Error, errorInfo?: React.ErrorInfo): void => {
-  // TODO: Implement error logging service (e.g., Sentry)
-  console.error("Error:", error);
-  if (errorInfo) {
-    console.error("Error Info:", errorInfo);
-  }
-};
 
 export const handleApiError = (error: any): ErrorResponse => {
   if (error.response) {

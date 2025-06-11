@@ -23,7 +23,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:3101',
         changeOrigin: true,
         secure: false,
         ws: true,
@@ -65,4 +65,4 @@ export default defineConfig({
     include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
     exclude: ['pages', 'src/pages'],
   },
-}); 
+});

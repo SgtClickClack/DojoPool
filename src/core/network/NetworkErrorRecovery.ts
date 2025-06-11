@@ -12,12 +12,18 @@ interface RetryConfig {
   baseDelay: number;
   maxDelay: number;
   jitter: number;
+  retryBudget: number; // Maximum retries per time window
+  retryWindow: number; // Time window for retry budget in ms
+  adaptiveDelay: boolean; // Whether to use adaptive delays based on error types
 }
 
 interface CircuitBreakerConfig {
   failureThreshold: number;
   resetTimeout: number;
   halfOpenMaxAttempts: number;
+  successThreshold: number; // Required success rate in half-open state
+  slidingWindowSize: number; // Size of sliding window for failure counting
+  errorRateThreshold: number; // Error rate threshold for opening circuit
 }
 
 interface ErrorRecoveryConfig {
@@ -25,6 +31,17 @@ interface ErrorRecoveryConfig {
   circuitBreaker: CircuitBreakerConfig;
   messageTimeout: number;
   queueLimit: number;
+  criticalMessageTypes: NetworkMessageType[]; // Message types that get priority retries
+}
+
+interface CircuitBreakerMetrics {
+  state: CircuitState;
+  failureCount: number;
+  successCount: number;
+  lastStateChange: number;
+  errorRate: number;
+  retryBudget: number;
+  retryBudgetReset: number;
 }
 
 const DEFAULT_CONFIG: ErrorRecoveryConfig = {
@@ -33,26 +50,39 @@ const DEFAULT_CONFIG: ErrorRecoveryConfig = {
     baseDelay: 1000,
     maxDelay: 30000,
     jitter: 0.1,
+    retryBudget: 100,
+    retryWindow: 60000, // 1 minute
+    adaptiveDelay: true,
   },
   circuitBreaker: {
     failureThreshold: 5,
     resetTimeout: 30000,
     halfOpenMaxAttempts: 3,
+    successThreshold: 0.5, // 50% success rate required
+    slidingWindowSize: 100, // Last 100 requests
+    errorRateThreshold: 0.5, // 50% error rate threshold
   },
   messageTimeout: 5000,
   queueLimit: 1000,
+  criticalMessageTypes: [
+    NetworkMessageType.STATE_SYNC,
+    NetworkMessageType.APPEND_ENTRIES,
+    NetworkMessageType.REQUEST_VOTE,
+  ],
 };
 
 enum CircuitState {
   CLOSED,
   OPEN,
   HALF_OPEN,
+  FORCED_OPEN, // Manually opened circuit
 }
 
 interface PendingMessage {
   message: NetworkMessage<any>;
   timestamp: number;
   retries: number;
+  priority: number; // Higher number = higher priority
 }
 
 export class NetworkErrorRecovery extends EventEmitter {
@@ -63,6 +93,9 @@ export class NetworkErrorRecovery extends EventEmitter {
   private readonly circuitState: Map<string, CircuitState>;
   private readonly circuitTimer: Map<string, NodeJS.Timeout>;
   private readonly halfOpenAttempts: Map<string, number>;
+  private readonly circuitMetrics: Map<string, CircuitBreakerMetrics>;
+  private readonly failureWindow: Map<string, Array<{ timestamp: number; success: boolean }>>;
+  private readonly retryBudget: Map<string, { count: number; resetTime: number }>;
   private checkTimer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -77,6 +110,9 @@ export class NetworkErrorRecovery extends EventEmitter {
     this.circuitState = new Map();
     this.circuitTimer = new Map();
     this.halfOpenAttempts = new Map();
+    this.circuitMetrics = new Map();
+    this.failureWindow = new Map();
+    this.retryBudget = new Map();
 
     this.setupEventHandlers();
     this.startMessageCheck();
@@ -90,31 +126,164 @@ export class NetworkErrorRecovery extends EventEmitter {
   }
 
   private handleMessage(message: NetworkMessage<any>): void {
+    // Update metrics
+    const metrics = this.getOrCreateMetrics(message.source);
+    metrics.successCount++;
+    this.updateFailureWindow(message.source, true);
+
     // Clear pending message on response
     if (this.isResponseMessage(message.type)) {
       const requestId = this.getRequestId(message.id);
       this.pendingMessages.delete(requestId);
       this.resetFailureCount(message.source);
     }
+
+    // Emit metrics
+    this.emitMetrics(message.source);
   }
 
   private handleError(error: NetworkError): void {
-    const nodeId = this.extractNodeId(error);
-    console.log('DEBUG: handleError called with nodeId', nodeId, 'error:', error);
-    if (nodeId) {
-      this.incrementFailureCount(nodeId);
-      this.checkCircuitBreaker(nodeId);
+    const target = this.getTargetFromError(error);
+    if (!target) return;
+
+    // Update metrics
+    const metrics = this.getOrCreateMetrics(target);
+    metrics.failureCount++;
+    this.updateFailureWindow(target, false);
+
+    // Update circuit state
+    const errorRate = this.calculateErrorRate(target);
+    if (errorRate > this.config.circuitBreaker.errorRateThreshold) {
+      this.openCircuit(target);
     }
+
+    // Emit metrics
+    this.emitMetrics(target);
   }
 
   private handleConnect(nodeId: string): void {
     this.resetFailureCount(nodeId);
     this.closeCircuit(nodeId);
+    this.resetRetryBudget(nodeId);
+    this.emitMetrics(nodeId);
   }
 
   private handleDisconnect(nodeId: string): void {
-    this.incrementFailureCount(nodeId);
-    this.checkCircuitBreaker(nodeId);
+    this.openCircuit(nodeId);
+    this.emitMetrics(nodeId);
+  }
+
+  private getOrCreateMetrics(nodeId: string): CircuitBreakerMetrics {
+    let metrics = this.circuitMetrics.get(nodeId);
+    if (!metrics) {
+      metrics = {
+        state: CircuitState.CLOSED,
+        failureCount: 0,
+        successCount: 0,
+        lastStateChange: Date.now(),
+        errorRate: 0,
+        retryBudget: this.config.retry.retryBudget,
+        retryBudgetReset: Date.now() + this.config.retry.retryWindow,
+      };
+      this.circuitMetrics.set(nodeId, metrics);
+    }
+    return metrics;
+  }
+
+  private updateFailureWindow(nodeId: string, success: boolean): void {
+    const window = this.failureWindow.get(nodeId) || [];
+    const now = Date.now();
+    window.push({ timestamp: now, success });
+    
+    // Remove old entries
+    while (window.length > 0 && now - window[0].timestamp > this.config.circuitBreaker.slidingWindowSize) {
+      window.shift();
+    }
+    
+    this.failureWindow.set(nodeId, window);
+  }
+
+  private calculateErrorRate(nodeId: string): number {
+    const window = this.failureWindow.get(nodeId) || [];
+    if (window.length === 0) return 0;
+    
+    const failures = window.filter(entry => !entry.success).length;
+    return failures / window.length;
+  }
+
+  private resetRetryBudget(nodeId: string): void {
+    this.retryBudget.set(nodeId, {
+      count: this.config.retry.retryBudget,
+      resetTime: Date.now() + this.config.retry.retryWindow,
+    });
+  }
+
+  private checkRetryBudget(nodeId: string): boolean {
+    const budget = this.retryBudget.get(nodeId);
+    if (!budget) {
+      this.resetRetryBudget(nodeId);
+      return true;
+    }
+
+    // Reset budget if window expired
+    if (Date.now() > budget.resetTime) {
+      this.resetRetryBudget(nodeId);
+      return true;
+    }
+
+    return budget.count > 0;
+  }
+
+  private decrementRetryBudget(nodeId: string): void {
+    const budget = this.retryBudget.get(nodeId);
+    if (budget) {
+      budget.count--;
+    }
+  }
+
+  private calculateRetryDelay(retryCount: number, errorType?: string): number {
+    const baseDelay = this.config.retry.baseDelay;
+    const maxDelay = this.config.retry.maxDelay;
+    const jitter = this.config.retry.jitter;
+
+    // Adaptive delay based on error type
+    let multiplier = 1;
+    if (this.config.retry.adaptiveDelay && errorType) {
+      switch (errorType) {
+        case "TIMEOUT":
+          multiplier = 1.5; // Longer delay for timeouts
+          break;
+        case "CONNECTION_ERROR":
+          multiplier = 2; // Even longer for connection errors
+          break;
+        case "RATE_LIMIT":
+          multiplier = 3; // Much longer for rate limits
+          break;
+      }
+    }
+
+    // Exponential backoff with multiplier
+    let delay = Math.min(baseDelay * Math.pow(2, retryCount) * multiplier, maxDelay);
+
+    // Add jitter
+    const min = delay * (1 - jitter);
+    const max = delay * (1 + jitter);
+    delay = min + Math.random() * (max - min);
+
+    return delay;
+  }
+
+  private emitMetrics(nodeId: string): void {
+    const metrics = this.circuitMetrics.get(nodeId);
+    if (metrics) {
+      this.emit("metrics", {
+        nodeId,
+        ...metrics,
+        errorRate: this.calculateErrorRate(nodeId),
+        pendingMessages: this.pendingMessages.size,
+        timestamp: Date.now(),
+      });
+    }
   }
 
   private isResponseMessage(type: NetworkMessageType): boolean {
@@ -129,7 +298,7 @@ export class NetworkErrorRecovery extends EventEmitter {
     return messageId.replace("_RESPONSE", "");
   }
 
-  private extractNodeId(error: NetworkError): string | null {
+  private getTargetFromError(error: NetworkError): string | null {
     // Try to extract nodeId from error details
     try {
       const details = JSON.parse(error.details);
@@ -242,22 +411,6 @@ export class NetworkErrorRecovery extends EventEmitter {
     }
   }
 
-  private calculateRetryDelay(retryCount: number): number {
-    const baseDelay = this.config.retry.baseDelay;
-    const maxDelay = this.config.retry.maxDelay;
-    const jitter = this.config.retry.jitter;
-
-    // Exponential backoff
-    let delay = Math.min(baseDelay * Math.pow(2, retryCount), maxDelay);
-
-    // Add jitter
-    const min = delay * (1 - jitter);
-    const max = delay * (1 + jitter);
-    delay = min + Math.random() * (max - min);
-
-    return delay;
-  }
-
   private handleMessageFailure(
     messageId: string,
     pending: PendingMessage,
@@ -282,24 +435,21 @@ export class NetworkErrorRecovery extends EventEmitter {
     type: NetworkMessageType,
     payload: T,
   ): Promise<void> {
-    // DEBUG: Log failureCount map at the start of send
-    console.log('DEBUG: failureCount at send start', Array.from(this.failureCount.entries()));
-    // DEBUG: Log circuit breaker state before check
-    // @ts-ignore
-    console.log('DEBUG: circuitState before check', target, this.circuitState.get(target));
-    // Check circuit breaker
+    // Check circuit breaker state
     const state = this.circuitState.get(target) || CircuitState.CLOSED;
-    if (state === CircuitState.OPEN) {
-      console.log('DEBUG: circuit breaker is OPEN, throwing error');
+    if (state === CircuitState.OPEN || state === CircuitState.FORCED_OPEN) {
       throw new Error(`Circuit breaker is open for node ${target}`);
     }
-    console.log('DEBUG: circuit breaker is not open, proceeding');
-    // Check queue limit
-    if (this.pendingMessages.size >= this.config.queueLimit) {
-      throw new Error("Message queue limit exceeded");
+
+    // Check retry budget
+    if (!this.checkRetryBudget(target)) {
+      throw new Error(`Retry budget exceeded for node ${target}`);
     }
+
+    // Calculate message priority
+    const priority = this.config.criticalMessageTypes.includes(type) ? 2 : 1;
+
     try {
-      console.log('DEBUG: calling transport.send');
       await this.transport.send(target, type, payload);
       const message: NetworkMessage<T> = {
         id: `${this.transport["nodeId"]}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -313,29 +463,38 @@ export class NetworkErrorRecovery extends EventEmitter {
         message,
         timestamp: Date.now(),
         retries: 0,
+        priority,
       });
+      this.decrementRetryBudget(target);
     } catch (error) {
       this.handleError(error as NetworkError);
-      // PATCH: Immediately check if circuit breaker is now open and throw that error if so
-      const newState = this.circuitState.get(target) || CircuitState.CLOSED;
-      console.log('DEBUG: circuitState after error', target, newState);
-      if (newState === CircuitState.OPEN) {
-        console.log('DEBUG: circuit breaker is now OPEN after error, throwing error');
-        throw new Error(`Circuit breaker is open for node ${target}`);
-      }
       throw error;
     }
   }
 
+  public forceOpenCircuit(nodeId: string): void {
+    this.circuitState.set(nodeId, CircuitState.FORCED_OPEN);
+    this.emitMetrics(nodeId);
+  }
+
+  public forceCloseCircuit(nodeId: string): void {
+    this.circuitState.set(nodeId, CircuitState.CLOSED);
+    this.resetFailureCount(nodeId);
+    this.emitMetrics(nodeId);
+  }
+
+  public getMetrics(nodeId: string): CircuitBreakerMetrics | undefined {
+    return this.circuitMetrics.get(nodeId);
+  }
+
   public stop(): void {
-    this.stopMessageCheck();
-    for (const timer of this.circuitTimer.values()) {
-      clearTimeout(timer);
+    if (this.checkTimer) {
+      clearInterval(this.checkTimer);
+      this.checkTimer = null;
     }
-    this.circuitTimer.clear();
-    this.pendingMessages.clear();
-    this.failureCount.clear();
-    this.circuitState.clear();
-    this.halfOpenAttempts.clear();
+  }
+
+  public onError(handler: (err: Error) => void): void {
+    this.on('error', handler);
   }
 }

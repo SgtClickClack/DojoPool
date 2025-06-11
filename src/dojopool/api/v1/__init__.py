@@ -9,6 +9,10 @@ from dojopool.api.v1.resources.wallet import (
     WalletTransferResource,
     WalletTransactionResource,
 )
+from dojopool.api.v1.resources.user_me import UserMeResource
+from dojopool.api.v1.resources.users import UserResource, UserListResource
+from dojopool.api.v1.resources.tournaments import TournamentResource, TournamentListResource
+from dojopool.api.v1.resources.venues import VenuesResource
 
 api_v1_bp = Blueprint('api_v1', __name__)
 api = Api(api_v1_bp)
@@ -18,3 +22,15 @@ api.add_resource(WalletResource, '/wallet', '/wallet/<int:wallet_id>')
 api.add_resource(WalletStatsResource, '/wallet/<int:wallet_id>/stats', '/wallet/stats')
 api.add_resource(WalletTransferResource, '/wallet/transfer')
 api.add_resource(WalletTransactionResource, '/wallet/<int:wallet_id>/transactions')
+
+# Register user endpoints
+api.add_resource(UserMeResource, '/users/me')
+api.add_resource(UserResource, '/users/<int:user_id>')
+api.add_resource(UserListResource, '/users')
+
+# Register tournament endpoints
+api.add_resource(TournamentResource, '/tournaments/<int:tournament_id>')
+api.add_resource(TournamentListResource, '/tournaments')
+
+# Register venues endpoint
+api.add_resource(VenuesResource, '/venues')

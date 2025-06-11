@@ -26,6 +26,9 @@ interface EventParams {
   [key: string]: any;
 }
 
+// NOTE: Use logError from src/services/ErrorLoggingService for all error logging.
+// logErrorToAnalytics is for analytics event tracking only.
+
 // Custom event logging
 export const logCustomEvent = (eventName: string, eventParams: EventParams = {}): void => {
   if (analytics) {
@@ -78,4 +81,4 @@ export const logErrorToAnalytics = (error: Error, context: ErrorContext = {}): v
 };
 
 // Exporting initialized instances for direct use if needed, though functions are preferred
-export { analytics, perf }; 
+export { analytics, perf };

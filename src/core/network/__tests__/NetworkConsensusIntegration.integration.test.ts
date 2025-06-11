@@ -5,62 +5,24 @@ import { GameState } from '../../../types/game';
 
 // Mock the 'ws' library for testing
 jest.mock('ws', () => {
-  // This mock is designed to make `require('ws')` return an object whose default export is the Server constructor,
-  // or potentially return the Server constructor directly depending on Jest/Node require behavior with mocks.
-  // The `default` property is explicitly set to the Server constructor.
-  
   const MockWebSocketServer = jest.fn().mockImplementation((options: any) => {
-    // Mock instance of WebSocket.Server
-    const instance = new (require('events'))(); // Mock extends EventEmitter
+    const instance = new (require('events'))();
     (instance as any).on = jest.fn((event, listener) => { instance.addListener(event, listener) });
     (instance as any).close = jest.fn((callback) => { if(callback) callback(); });
     (instance as any).clients = new Set();
-    // Add other necessary properties/methods to the instance here
-    // Simulate the 'listening' event being emitted shortly after creation
     setTimeout(() => instance.emit('listening'), 0);
-
-    // New method to simulate an incoming connection
-    (instance as any).simulateConnection = (clientMock: any) => {
-        instance.clients.add(clientMock);
-        // Simulate a request object if needed by listeners
-        const mockReq = { url: '', headers: {} };
-        instance.emit('connection', clientMock, mockReq);
+    (instance as any).simulateConnection = (clientMock: unknown) => {
+      instance.clients.add(clientMock);
+      const mockReq = { url: '', headers: {} };
+      instance.emit('connection', clientMock, mockReq);
     };
-
     return instance;
   });
-
-  const MockWebSocketClient = jest.fn().mockImplementation((url: string) => {
-      // Mock instance of WebSocket client
-      const instance = new (require('events'))(); // Mock extends EventEmitter
-      (instance as any).on = jest.fn((event, listener) => { instance.addListener(event, listener) });
-      (instance as any).send = jest.fn();
-      (instance as any).close = jest.fn();
-      (instance as any).readyState = 1; // OPEN state
-      // Simulate the 'open' event being emitted shortly after creation
-      setTimeout(() => instance.emit('open'), 0);
-
-      // New methods to simulate events
-      (instance as any).simulateOpen = () => instance.emit('open');
-      (instance as any).simulateMessage = (data: string | Buffer) => instance.emit('message', data);
-      (instance as any).simulateClose = (code?: number, reason?: string) => instance.emit('close', code, reason);
-      (instance as any).simulateError = (error: Error) => instance.emit('error', error);
-
-      // Add a property to hold the server it's connected to for bidirectional simulation
-      (instance as any).server = null;
-
-      return instance;
-  });
-
-  // The structure that seems most likely to work with `new (require('ws'))` in Jest
-  // is returning the constructor function itself as the default export.
+  // Provide both .default and .Server for compatibility with all import styles
   return {
     __esModule: true,
-    // The default export is the Server constructor
     default: MockWebSocketServer,
-    // Optionally include named exports if the test uses them (though the current error is about the default)
     Server: MockWebSocketServer,
-    WebSocket: MockWebSocketClient,
   };
 });
 
@@ -371,4 +333,4 @@ describe('NetworkConsensusIntegration Integration', () => {
       expect(currentLeaders.length).toBe(1);
     }, 15000);
   });
-}); 
+});

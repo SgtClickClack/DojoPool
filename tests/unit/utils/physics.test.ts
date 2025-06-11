@@ -1,4 +1,4 @@
-import { PhysicsEngine, Vector2D } from "../physics";
+import { PhysicsEngine, Vector2D } from "../../utils/physics";
 
 describe("Physics Utilities", () => {
   // Instantiate the PhysicsEngine to test its methods that depend on instance properties

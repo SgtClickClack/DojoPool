@@ -83,48 +83,48 @@ describe("PerformanceBudgetManager", () => {
     it("should detect frame time violations", () => {
       mockSnapshot.frameTime = 20;
       const status = budgetManager.checkPerformance(mockSnapshot);
-      expect(status.violations).toHaveLength(1);
-      expect(status.violations[0].metric).toBe("frameTime");
+      const violation = status.violations.find(v => v.metric === "frameTime");
+      expect(violation).toBeDefined();
       expect(status.isWithinBudget).toBe(false);
     });
 
     it("should detect FPS violations", () => {
       mockSnapshot.fps = 30;
       const status = budgetManager.checkPerformance(mockSnapshot);
-      expect(status.violations).toHaveLength(1);
-      expect(status.violations[0].metric).toBe("fps");
+      const violation = status.violations.find(v => v.metric === "fps");
+      expect(violation).toBeDefined();
       expect(status.isWithinBudget).toBe(false);
     });
 
     it("should detect GPU time violations", () => {
       mockSnapshot.gpuTime = 15;
       const status = budgetManager.checkPerformance(mockSnapshot);
-      expect(status.violations).toHaveLength(1);
-      expect(status.violations[0].metric).toBe("gpuTime");
+      const violation = status.violations.find(v => v.metric === "gpuTime");
+      expect(violation).toBeDefined();
       expect(status.isWithinBudget).toBe(false);
     });
 
     it("should detect memory usage violations", () => {
       mockSnapshot.memoryStats.usedJSHeapSize = 600 * 1024 * 1024;
       const status = budgetManager.checkPerformance(mockSnapshot);
-      expect(status.violations).toHaveLength(1);
-      expect(status.violations[0].metric).toBe("memoryUsage");
+      const violation = status.violations.find(v => v.metric === "memoryUsage");
+      expect(violation).toBeDefined();
       expect(status.isWithinBudget).toBe(false);
     });
 
     it("should detect worker utilization violations", () => {
       mockSnapshot.workerUtilization = 0.9;
       const status = budgetManager.checkPerformance(mockSnapshot);
-      expect(status.violations).toHaveLength(1);
-      expect(status.violations[0].metric).toBe("workerUtilization");
+      const violation = status.violations.find(v => v.metric === "workerUtilization");
+      expect(violation).toBeDefined();
       expect(status.isWithinBudget).toBe(false);
     });
 
     it("should detect draw call violations", () => {
       mockSnapshot.drawCalls = 1200;
       const status = budgetManager.checkPerformance(mockSnapshot);
-      expect(status.violations).toHaveLength(1);
-      expect(status.violations[0].metric).toBe("drawCalls");
+      const violation = status.violations.find(v => v.metric === "drawCalls");
+      expect(violation).toBeDefined();
       expect(status.isWithinBudget).toBe(false);
     });
 

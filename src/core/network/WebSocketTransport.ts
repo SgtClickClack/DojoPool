@@ -9,12 +9,14 @@ export class WebSocketTransport implements NetworkTransport {
   private readonly events = new EventEmitter();
 
   constructor(url: string, nodeId: string) {
+    console.log('[WebSocketTransport] constructor called with url:', url);
     this.url = url;
     this.nodeId = nodeId;
   }
 
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
+      console.log('[WebSocketTransport] Instantiating WebSocket with url:', this.url);
       this.ws = new WebSocket(this.url);
 
       this.ws.on("open", () => {
@@ -86,5 +88,9 @@ export class WebSocketTransport implements NetworkTransport {
 
   onMessage(handler: (message: NetworkMessage) => void): void {
     this.events.on("message", handler);
+  }
+
+  onError(handler: (err: Error) => void): void {
+    this.events.on('error', handler);
   }
 }

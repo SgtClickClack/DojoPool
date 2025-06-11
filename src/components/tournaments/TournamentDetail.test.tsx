@@ -12,22 +12,37 @@ import { TournamentFormat, TournamentStatus } from '@/types/tournament';
 const mockTournamentData = {
   id: 't1',
   name: 'Test Tournament',
-  format: TournamentFormat.SINGLE_ELIMINATION,
-  type: 'SINGLE_ELIMINATION',
-  startDate: new Date(),
+  format: 'single_elimination',
+  type: 'standard',
+  startDate: new Date().toISOString(),
   venueId: 'v1',
   organizerId: 'org1',
-  participants: 5,
+  participants: 2,
   maxParticipants: 16,
-  status: TournamentStatus.OPEN,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  status: 'pending',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   participantsList: [
-      { id: 'p1', username: 'Player One', status: 'registered' },
-      { id: 'p2', username: 'Player Two', status: 'registered' },
+    { id: 'p1', username: 'Player One', status: 'registered' },
+    { id: 'p2', username: 'Player Two', status: 'registered' }
   ],
-  description: 'Test description',
-  rules: 'Test rules'
+  description: 'Test tournament description',
+  rules: 'Test tournament rules',
+  current_round: 1,
+  total_rounds: 4,
+  prize_pool: 1000,
+  participant_count: 2,
+  matches: [
+    {
+      id: 'm1',
+      round: 1,
+      match_number: 1,
+      participant1: { id: 'p1', username: 'Player One', status: 'registered' },
+      participant2: { id: 'p2', username: 'Player Two', status: 'registered' },
+      status: 'pending',
+      spectator_count: 0
+    }
+  ]
 };
 
 const mockVenueData = {
@@ -40,6 +55,7 @@ const mockVenueData = {
 jest.mock('@/frontend/api/tournaments', () => ({
   getTournament: jest.fn(() => Promise.resolve(mockTournamentData)),
   joinTournament: jest.fn(() => Promise.resolve({})),
+  submitMatchResult: jest.fn(() => Promise.resolve({})),
 }));
 jest.mock('@/dojopool/frontend/api/venues', () => ({
   getVenue: jest.fn(() => Promise.resolve(mockVenueData)),
@@ -51,8 +67,8 @@ jest.mock('@/frontend/contexts/AuthContext', () => ({
 }));
 
 // Mock the specific firebase config file causing import.meta issues
-jest.mock('../../dojopool/frontend/config/[FB]firebase', () => ({
-  auth: jest.fn(() => ({ /* mock auth object if needed */ })) // Provide mock auth
+jest.mock('../../firebase/config', () => ({
+  auth: { signInWithEmailAndPassword: jest.fn(), signOut: jest.fn() }
 }));
 
 // Mock the module using import.meta
@@ -67,14 +83,14 @@ jest.mock('@/frontend/api/axiosInstance', () => ({
 }));
 
 // Type assertion for mocked functions
-// const mockedGetTournament = tournamentApi.getTournament as jest.Mock;
-// const mockedGetVenue = venueApi.getVenue as jest.Mock;
-// const mockedJoinTournament = tournamentApi.joinTournament as jest.Mock;
-// const mockedUseAuth = useAuth as jest.Mock; // Now mocking useAuth
+const mockedGetTournament = require('@/frontend/api/tournaments').getTournament as jest.Mock;
+const mockedGetVenue = require('@/dojopool/frontend/api/venues').getVenue as jest.Mock;
+const mockedJoinTournament = require('@/frontend/api/tournaments').joinTournament as jest.Mock;
+const mockedSubmitMatchResult = require('@/frontend/api/tournaments').submitMatchResult as jest.Mock;
 
 // Helper function for rendering with router and auth context
-const renderComponent = (mockUser: any = null, tournamentId: string = 't1') => {
-  mockUser = mockUser || mockUser;
+const renderComponent = (user: any = null, tournamentId: string = 't1') => {
+  mockUser = user || mockUser;
   return render(
     <MemoryRouter initialEntries={[`/tournaments/${tournamentId}`]}>
       <Routes>
@@ -87,10 +103,13 @@ const renderComponent = (mockUser: any = null, tournamentId: string = 't1') => {
 describe('TournamentDetail Component', () => {
   beforeEach(() => {
     // Reset mocks before each test
-    // mockedGetTournament.mockClear();
-    // mockedGetVenue.mockClear();
-    // mockedJoinTournament.mockClear();
-    // mockedUseAuth.mockClear(); // Clear useAuth mock
+    mockedGetTournament.mockClear();
+    mockedGetVenue.mockClear();
+    mockedJoinTournament.mockClear();
+    mockedSubmitMatchResult.mockClear();
+    // Reset mock implementations
+    mockedGetTournament.mockResolvedValue(mockTournamentData);
+    mockedGetVenue.mockResolvedValue(mockVenueData);
   });
 
   test('renders loading state initially', () => {
@@ -160,7 +179,7 @@ describe('TournamentDetail Component', () => {
      });
   });
 
-  // --- Button Tests --- 
+  // --- Button Tests ---
 
   test('shows Register button for OPEN tournament when logged in', async () => {
     // const mockOpenTournament = { ...mockTournamentData, status: TournamentStatus.OPEN };
@@ -183,7 +202,7 @@ describe('TournamentDetail Component', () => {
       // Wait for basic content to ensure loading is done
       expect(screen.getByText('Test Tournament')).toBeInTheDocument();
     });
-    
+
     expect(screen.queryByText(/Register Now/i)).not.toBeInTheDocument();
   });
 
@@ -204,7 +223,7 @@ describe('TournamentDetail Component', () => {
       expect(button).toBeDisabled();
     });
   });
-  
+
   test('shows Registration Closed button when tournament is CLOSED', async () => {
     const mockClosedTournament = { ...mockTournamentData, status: TournamentStatus.CLOSED, type: 'SINGLE_ELIMINATION' };
     renderComponent({ uid: 'test-user' });
@@ -250,7 +269,7 @@ describe('TournamentDetail Component', () => {
     // mockedGetTournament.mockResolvedValue(mockOpenTournament);
     // mockedGetVenue.mockResolvedValue(mockVenueData);
     // mockedJoinTournament.mockResolvedValue({}); // Mock successful registration
-    const mockUser = { uid: 'test-user-reg' }; 
+    const mockUser = { uid: 'test-user-reg' };
     renderComponent(mockUser);
 
     // Find and click the button
@@ -376,72 +395,99 @@ describe('TournamentDetail Component', () => {
 
   // Bracket rendering tests
   test('renders bracket section with matches', async () => {
-    const mockTournamentWithMatches = {
-      ...mockTournamentData,
-      matches: [
-        {
-          id: 'm1',
-          round: 1,
-          participant1: { id: 'p1', username: 'Player One', status: 'registered' },
-          participant2: { id: 'p2', username: 'Player Two', status: 'registered' },
-          status: 'pending',
-        },
-      ],
-    };
-    // mockedGetTournament.mockResolvedValue(mockTournamentWithMatches);
-    // mockedGetVenue.mockResolvedValue(mockVenueData);
+    mockedGetTournament.mockResolvedValue(mockTournamentData);
+    mockedGetVenue.mockResolvedValue(mockVenueData);
     renderComponent();
     await waitFor(() => {
       expect(screen.getByText('Bracket')).toBeInTheDocument();
-      expect(screen.getByText((_, node) => !!node?.textContent?.includes('Player One vs Player Two'))).toBeInTheDocument();
+      expect(screen.getByText('Round 1')).toBeInTheDocument();
+      expect(screen.getByText('Player One vs Player Two')).toBeInTheDocument();
+      expect(screen.getByText('Status: pending')).toBeInTheDocument();
     });
   });
 
-  test('renders bracket section with only participants', async () => {
-    const mockTournamentNoMatches = { ...mockTournamentData, matches: undefined };
-    // mockedGetTournament.mockResolvedValue(mockTournamentNoMatches);
-    // mockedGetVenue.mockResolvedValue(mockVenueData);
+  test('renders bracket section with only participants when no matches', async () => {
+    const mockTournamentNoMatches = { 
+      ...mockTournamentData, 
+      matches: undefined,
+      current_round: 0,
+      total_rounds: 0
+    };
+    mockedGetTournament.mockResolvedValue(mockTournamentNoMatches);
+    mockedGetVenue.mockResolvedValue(mockVenueData);
     renderComponent();
     await waitFor(() => {
       expect(screen.getByText('Single Elimination Bracket')).toBeInTheDocument();
+      expect(screen.getByText('Round 1')).toBeInTheDocument();
+      expect(screen.getByText('Player One')).toBeInTheDocument();
+      expect(screen.getByText('Player Two')).toBeInTheDocument();
     });
   });
 
   // Result reporting modal (admin flow)
   test('admin can open and submit result reporting modal', async () => {
     const adminUser = { id: 'org1', role: 'admin' };
-    const mockTournamentWithMatch = {
-      ...mockTournamentData,
-      matches: [
-        {
-          id: 'm1',
-          round: 1,
-          participant1: { id: 'p1', username: 'Player One', status: 'registered' },
-          participant2: { id: 'p2', username: 'Player Two', status: 'registered' },
-          status: 'pending',
-        },
-      ],
-    };
-    // mockedGetTournament.mockResolvedValue(mockTournamentWithMatch);
-    // mockedGetVenue.mockResolvedValue(mockVenueData);
+    mockedGetTournament.mockResolvedValue(mockTournamentData);
+    mockedGetVenue.mockResolvedValue(mockVenueData);
+    mockedSubmitMatchResult.mockResolvedValue({});
     renderComponent(adminUser);
+    
     await waitFor(() => {
-      expect(screen.getByText((_, node) => !!node?.textContent?.includes('Report Result'))).toBeInTheDocument();
+      expect(screen.getByText('Report Result')).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByText((_, node) => !!node?.textContent?.includes('Report Result')));
+    
+    fireEvent.click(screen.getByText('Report Result'));
+    
     await waitFor(() => {
       expect(screen.getByText('Report Match Result')).toBeInTheDocument();
     });
+    
     // Select winner and submit
-    fireEvent.mouseDown(screen.getByLabelText('Select Winner'));
+    const select = screen.getByLabelText('Select Winner');
+    fireEvent.mouseDown(select);
     fireEvent.click(screen.getByText('Player One'));
-    fireEvent.change(screen.getByLabelText('Score (optional)'), { target: { value: '5-3' } });
-    // Mock submitMatchResult
-    const submitMatchResult = require('@/services/tournament/tournament').submitMatchResult;
-    submitMatchResult.mockResolvedValue({});
+    
+    const scoreInput = screen.getByLabelText('Score (optional)');
+    fireEvent.change(scoreInput, { target: { value: '5-3' } });
+    
     fireEvent.click(screen.getByText('Submit'));
+    
     await waitFor(() => {
       expect(screen.getByText('Result reported successfully!')).toBeInTheDocument();
+    });
+    
+    expect(mockedSubmitMatchResult).toHaveBeenCalledWith(
+      mockTournamentData.id,
+      'm1',
+      {
+        status: 'completed',
+        winner_id: 'p1',
+        score: '5-3',
+      }
+    );
+  });
+
+  test('shows error Snackbar if reporting result with no winner', async () => {
+    const adminUser = { id: 'org1', role: 'admin' };
+    mockedGetTournament.mockResolvedValue(mockTournamentData);
+    mockedGetVenue.mockResolvedValue(mockVenueData);
+    renderComponent(adminUser);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Report Result')).toBeInTheDocument();
+    });
+    
+    fireEvent.click(screen.getByText('Report Result'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Report Match Result')).toBeInTheDocument();
+    });
+    
+    // Try to submit without selecting a winner
+    fireEvent.click(screen.getByText('Submit'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Failed to report result.')).toBeInTheDocument();
     });
   });
 
@@ -449,38 +495,6 @@ describe('TournamentDetail Component', () => {
   // (This would require mocking the SocketIOService and triggering the event)
   // ...
 
-  // Edge case: reporting result with missing winner
-  test('shows error Snackbar if reporting result with no winner', async () => {
-    const adminUser = { id: 'org1', role: 'admin' };
-    const mockTournamentWithMatch = {
-      ...mockTournamentData,
-      matches: [
-        {
-          id: 'm1',
-          round: 1,
-          participant1: { id: 'p1', username: 'Player One', status: 'registered' },
-          participant2: { id: 'p2', username: 'Player Two', status: 'registered' },
-          status: 'pending',
-        },
-      ],
-    };
-    // mockedGetTournament.mockResolvedValue(mockTournamentWithMatch);
-    // mockedGetVenue.mockResolvedValue(mockVenueData);
-    renderComponent(adminUser);
-    await waitFor(() => {
-      expect(screen.getByText((_, node) => !!node?.textContent?.includes('Report Result'))).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByText((_, node) => !!node?.textContent?.includes('Report Result')));
-    await waitFor(() => {
-      expect(screen.getByText('Report Match Result')).toBeInTheDocument();
-    });
-    // Do not select winner, just click submit
-    fireEvent.click(screen.getByText('Submit'));
-    await waitFor(() => {
-      expect(screen.getByText('Failed to report result.')).toBeInTheDocument();
-    });
-  });
-
   // TODO: Add tests for unregister and view bracket clicks if those buttons are implemented
 
-}); 
+});

@@ -173,7 +173,7 @@ app.get('/api/v1/games', (req, res) => res.json([]));
 app.use(
   ['/api/v1/wallet', '/api/v1/wallet/*', '/api/v1/wallet/stats'],
   createProxyMiddleware({
-    target: 'http://localhost:5000',
+    target: 'http://localhost:3102',
     changeOrigin: true,
     onProxyReq: (proxyReq: any, req: any, res: any) => {
       if (req.headers.cookie) {
@@ -185,6 +185,14 @@ app.use(
     },
   } as any)
 );
+
+app.get('/api/v1/wallet/stats', (req, res) => {
+  res.json({
+    balance: 100,
+    transactions: [],
+    lastUpdated: new Date().toISOString(),
+  });
+});
 
 // --- Static Files (if serving frontend assets from this server) ---
 const publicPath = path.join(__dirname, '..', 'public'); // Adjust if your structure is different

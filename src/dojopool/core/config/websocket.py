@@ -4,21 +4,25 @@ from typing import Any, Dict
 
 # WebSocket configuration
 WEBSOCKET_CONFIG: Dict[str, Any] = {
-    "port": 5000,
+    "port": 8000,  # Match the port in app.py
     "host": "127.0.0.1",
-    "ping_timeout": 60,
-    "ping_interval": 25,
+    "ping_timeout": 120,  # Increased timeout
+    "ping_interval": 30,  # Increased interval
     "cors_allowed_origins": "*",
-    "async_mode": "gevent",  # Use gevent for better performance
+    "async_mode": "eventlet",  # Consistently use eventlet
     "message_queue": None,  # Use Redis in production
     "websocket_path": "/socket.io",
     "always_connect": True,
-    "transports": ["websocket", "polling"],  # Support both WebSocket and polling
-    "engineio_logger": True,  # Enable Engine.IO logging
-    "logger": True,  # Enable Socket.IO logging
-    "log_output": True,  # Enable output logging
-    "allow_upgrades": True,  # Allow transport upgrades
-    "upgrade_logger": True,  # Enable upgrade logging
+    "transports": ["websocket"],  # Only use WebSocket, no polling
+    "engineio_logger": True,
+    "logger": True,
+    "log_output": True,
+    "allow_upgrades": True,
+    "upgrade_logger": True,
+    "reconnection": True,
+    "reconnection_attempts": 5,
+    "reconnection_delay": 1000,
+    "reconnection_delay_max": 5000,
 }
 
 # Event types

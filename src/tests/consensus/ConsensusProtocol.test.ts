@@ -4,6 +4,14 @@ import {
 } from "../../core/consensus/ConsensusProtocol";
 import { NetworkTransport } from "../../core/network/NetworkTransport";
 
+jest.mock('ws', () => ({
+  Server: jest.fn().mockImplementation(() => ({
+    on: jest.fn(),
+    close: jest.fn(),
+    clients: new Set(),
+  })),
+}));
+
 describe("ConsensusProtocol", () => {
   let node1: ConsensusProtocol;
   let node2: ConsensusProtocol;
@@ -13,21 +21,29 @@ describe("ConsensusProtocol", () => {
   let transport3: NetworkTransport;
 
   beforeEach(async () => {
+    // Define all node addresses for the test cluster
+    const allNodes = [
+      { nodeId: "node1", host: "127.0.0.1", port: 3001 },
+      { nodeId: "node2", host: "127.0.0.1", port: 3002 },
+      { nodeId: "node3", host: "127.0.0.1", port: 3003 },
+    ];
+
     transport1 = new NetworkTransport({
       nodeId: "node1",
       port: 3001,
+      peers: allNodes.filter((n) => n.nodeId !== "node1"),
     });
 
     transport2 = new NetworkTransport({
       nodeId: "node2",
       port: 3002,
-      peers: ["ws://localhost:3001"],
+      peers: allNodes.filter((n) => n.nodeId !== "node2"),
     });
 
     transport3 = new NetworkTransport({
       nodeId: "node3",
       port: 3003,
-      peers: ["ws://localhost:3001", "ws://localhost:3002"],
+      peers: allNodes.filter((n) => n.nodeId !== "node3"),
     });
 
     await transport1.start();

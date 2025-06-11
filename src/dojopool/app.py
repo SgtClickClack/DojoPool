@@ -41,6 +41,7 @@ from dojopool.routes.auth import auth_bp
 from dojopool.routes.game import game_bp
 from dojopool.routes.performance import bp as performance_bp
 from dojopool.routes.venue import bp as venue_bp
+from dojopool.routes.feed import bp as feed_bp
 from dojopool.core.health import health_bp
 
 logger = logging.getLogger(__name__)
@@ -179,6 +180,7 @@ def create_app(config_name=None, test_config=None, testing=False):
     app.register_blueprint(performance_bp) # Adjust prefix if needed
     app.register_blueprint(game_bp, url_prefix="/game")
     app.register_blueprint(venue_bp) # Adjust prefix if needed
+    app.register_blueprint(feed_bp)
     app.register_blueprint(health_bp)
 
     # === DEBUG: Print all registered routes ===

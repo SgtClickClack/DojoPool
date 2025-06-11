@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import SecurityService, { useAuth } from "../SecurityService";
+import SecurityService, { useAuth } from "../../services/SecurityService";
 
 describe("SecurityService", () => {
   let service: SecurityService;

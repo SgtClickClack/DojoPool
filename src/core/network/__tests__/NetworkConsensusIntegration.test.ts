@@ -43,7 +43,7 @@ describe('NetworkConsensusIntegration', () => {
 
     it('should setup event handlers correctly', () => {
       const eventSpy = jest.spyOn(integration, 'emit');
-      
+
       // Trigger state update event
       const mockState: GameState = { id: 'test-game' };
       integration['stateReplicator'].emit('stateUpdated', mockState);
@@ -73,7 +73,7 @@ describe('NetworkConsensusIntegration', () => {
   describe('System Lifecycle', () => {
     it('should start all components successfully', async () => {
       await integration.start();
-      
+
       expect(integration['networkTransport'].start).toHaveBeenCalled();
       expect(integration['consensusManager'].start).toHaveBeenCalled();
     });
@@ -115,6 +115,9 @@ describe('NetworkConsensusIntegration', () => {
 
     it('should reject state updates when not leader', async () => {
       const mockState: GameState = { id: 'test-game' };
+      if (!integration['consensusManager'].isLeader) {
+        integration['consensusManager'].isLeader = () => false;
+      }
       jest.spyOn(integration['consensusManager'], 'isLeader').mockReturnValue(false);
 
       await expect(integration.proposeStateUpdate(mockState)).rejects.toThrow('Only leader can propose state updates');
@@ -123,6 +126,9 @@ describe('NetworkConsensusIntegration', () => {
     it('should handle state update errors correctly', async () => {
       const mockState: GameState = { id: 'test-game' };
       const mockError = new Error('Update failed');
+      if (!integration['consensusManager'].isLeader) {
+        integration['consensusManager'].isLeader = () => true;
+      }
       jest.spyOn(integration['consensusManager'], 'isLeader').mockReturnValue(true);
       jest.spyOn(integration['consensusManager'], 'appendEntry').mockRejectedValue(mockError);
 
@@ -139,6 +145,9 @@ describe('NetworkConsensusIntegration', () => {
 
   describe('Consensus Status', () => {
     it('should check leader status correctly', () => {
+      if (!integration['consensusManager'].isLeader) {
+        integration['consensusManager'].isLeader = () => true;
+      }
       jest.spyOn(integration['consensusManager'], 'isLeader').mockReturnValue(true);
       expect(integration.isLeader()).toBe(true);
 
@@ -156,4 +165,4 @@ describe('NetworkConsensusIntegration', () => {
       expect(integration.getCurrentTerm()).toBe(5);
     });
   });
-}); 
+});

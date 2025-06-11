@@ -26,19 +26,17 @@ const mockWebGLContext = {
   BLEND: 3,
   SRC_ALPHA: 4,
   ONE_MINUS_SRC_ALPHA: 5,
-  DITHER: 6,
-  TEXTURE_2D: 7,
-  LINEAR: 8,
-  NEAREST: 9,
-  RGBA: 10,
-  RGBA8: 11,
-  UNSIGNED_BYTE: 12,
-  TEXTURE_MIN_FILTER: 13,
-  TEXTURE_MAG_FILTER: 14,
-  FASTEST: 15,
-  NICEST: 16,
-  TEXTURE_WIDTH: 17,
-  TEXTURE_HEIGHT: 18,
+  COLOR_ATTACHMENT0: 6,
+  RGBA: 7,
+  UNSIGNED_BYTE: 8,
+  TEXTURE_2D: 9,
+  FRAMEBUFFER: 10,
+  TEXTURE_WRAP_S: 11,
+  TEXTURE_WRAP_T: 12,
+  CLAMP_TO_EDGE: 13,
+  TEXTURE_MIN_FILTER: 14,
+  TEXTURE_MAG_FILTER: 15,
+  LINEAR: 16,
 } as unknown as WebGLRenderingContext;
 
 // Mock canvas
@@ -217,12 +215,12 @@ describe("WebGLContextManager", () => {
       (mockDeviceProfileImplementation.isMobileDevice as jest.Mock).mockReturnValueOnce(true);
       const texture = manager.createTexture(256, 256);
       expect(mockWebGLContext.texParameteri).toHaveBeenCalledWith(
-        mockWebGLContext.TEXTURE_2D, 
-        mockWebGLContext.TEXTURE_MIN_FILTER, 
+        mockWebGLContext.TEXTURE_2D,
+        mockWebGLContext.TEXTURE_MIN_FILTER,
         mockWebGLContext.NEAREST
       );
       // Reset if necessary
-      (mockDeviceProfileImplementation.isMobileDevice as jest.Mock).mockReturnValue(false); 
+      (mockDeviceProfileImplementation.isMobileDevice as jest.Mock).mockReturnValue(false);
     });
   });
 
@@ -247,8 +245,8 @@ describe("WebGLContextManager", () => {
       const metrics = manager.getMetrics();
       expect(metrics.drawCalls).toBe(2000);
       // Reset if necessary
-      (mockProfilerImplementation.getMetrics as jest.Mock).mockReturnValue({ 
-        drawCalls: 0, triangleCount: 0, gpuTime: 0 
+      (mockProfilerImplementation.getMetrics as jest.Mock).mockReturnValue({
+        drawCalls: 0, triangleCount: 0, gpuTime: 0
       });
     });
   });
@@ -269,7 +267,7 @@ describe("WebGLContextManager", () => {
       (mockWebGLContext.isContextLost as jest.Mock).mockReturnValueOnce(true);
       manager.cleanup();
       // Assertions might need adjustment based on actual cleanup logic during context loss
-      // expect(mockWebGLContext.deleteTexture).toHaveBeenCalled(); 
+      // expect(mockWebGLContext.deleteTexture).toHaveBeenCalled();
     });
   });
 

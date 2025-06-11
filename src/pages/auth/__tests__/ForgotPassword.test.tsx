@@ -12,8 +12,7 @@ jest.mock("next/router", () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
-// Create a basic theme system using createSystem
-const themeSystem = createSystem(defaultConfig, {}); // Create a basic system
+const themeSystem = createSystem(defaultConfig, {});
 
 describe("ForgotPassword", () => {
   const mockRouter = {

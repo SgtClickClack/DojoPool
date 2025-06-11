@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/10</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/10</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -83,46 +83,46 @@
 <a name='L18'></a><a href='#L18'>18</a>
 <a name='L19'></a><a href='#L19'>19</a>
 <a name='L20'></a><a href='#L20'>20</a>
-<a name='L21'></a><a href='#L21'>21</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L21'></a><a href='#L21'>21</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import axiosInstance from './axiosInstance';
-import { Tournament } from '@/types/tournament';
-&nbsp;
-export const getTournaments = <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;Tournament[]&gt; =&gt; {
-  const response = <span class="cstat-no" title="statement not covered" >await axiosInstance.get('/tournaments');</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >import axiosInstance from './axiosInstance';</span></span>
+<span class="cstat-no" title="statement not covered" >import { Tournament } from '@/types/tournament';</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export const getTournaments = async (): Promise&lt;Tournament[]&gt; =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const response = await axiosInstance.get('/tournaments');</span>
 <span class="cstat-no" title="statement not covered" >  return response.data as Tournament[];</span>
-};
-&nbsp;
-export const getTournament = <span class="fstat-no" title="function not covered" >as</span>ync (id: string): Promise&lt;Tournament&gt; =&gt; {
-  const response = <span class="cstat-no" title="statement not covered" >await axiosInstance.get(`/tournaments/${id}`);</span>
+<span class="cstat-no" title="statement not covered" >};</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export const getTournament = async (id: string): Promise&lt;Tournament&gt; =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const response = await axiosInstance.get(`/tournaments/${id}`);</span>
 <span class="cstat-no" title="statement not covered" >  return response.data as Tournament;</span>
-};
-&nbsp;
-export const joinTournament = <span class="fstat-no" title="function not covered" >as</span>ync (id: string): Promise&lt;void&gt; =&gt; {
+<span class="cstat-no" title="statement not covered" >};</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export const joinTournament = async (id: string): Promise&lt;void&gt; =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  await axiosInstance.post(`/tournaments/${id}/join`);</span>
-};
-&nbsp;
-export const processPayment = <span class="fstat-no" title="function not covered" >as</span>ync (tournamentId: string, amount: number): Promise&lt;void&gt; =&gt; {
+<span class="cstat-no" title="statement not covered" >};</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export const processPayment = async (tournamentId: string, amount: number): Promise&lt;void&gt; =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  await axiosInstance.post(`/tournaments/${tournamentId}/payment`, { amount });</span>
-};
+<span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -130,7 +130,7 @@ export const processPayment = <span class="fstat-no" title="function not covered
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-15T02:05:18.554Z
+                at 2025-06-06T21:37:59.556Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

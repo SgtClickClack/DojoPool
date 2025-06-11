@@ -1,5 +1,3 @@
-import './__mocks__/frame-processor.mocks';
-
 // Mock WebGL context
 const mockWebGLContext = {
   createFramebuffer: jest.fn().mockReturnValue({}),
@@ -29,7 +27,7 @@ const mockCanvas = {
   removeEventListener: jest.fn(),
   width: 640,
   height: 480,
-} as unknown as HTMLCanvasElement;
+} as HTMLCanvasElement;
 
 // 2) jest.mock() calls
 jest.mock("../../managers/webgl-context-manager", () => ({

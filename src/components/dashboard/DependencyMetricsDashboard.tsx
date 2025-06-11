@@ -23,7 +23,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import DependencyPerformanceMonitor from "../../services/DependencyPerformanceMonitor";
+import { DependencyPerformanceMonitor } from "../../services/DependencyPerformanceMonitor";
 
 interface DependencyMetrics {
   name: string;

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { SocketIOService } from '../../services/WebSocketService';
+import { SocketIOService } from '../../services/network/WebSocketService';
 import { GameTable } from '../../core/game/GameState'; // Import GameTable type
 
 // Define an interface matching the Python backend's get_game_details structure
@@ -7,7 +7,7 @@ interface BackendGameDetails {
   id: number; // Assuming integer ID from Python model
   player1: string; // Username
   player2: string; // Username
-  game_type: string; 
+  game_type: string;
   game_mode: string;
   status: string; // e.g., "pending", "in_progress", "completed"
   winner: string | null; // Username
@@ -21,10 +21,10 @@ interface BackendGameDetails {
 interface SocketContextState {
   isConnected: boolean;
   lastError: Error | null;
-  // Store the potentially simpler backend game details 
-  backendGameDetails: BackendGameDetails | null; 
+  // Store the potentially simpler backend game details
+  backendGameDetails: BackendGameDetails | null;
   // Keep GameTable for potential future use with TS service?
-  gameTable: GameTable | null; 
+  gameTable: GameTable | null;
   connect: () => void;
   disconnect: () => void;
   subscribeToGame: (gameId: string) => void; // Example function to join a game room/namespace
@@ -42,11 +42,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const [lastError, setLastError] = useState<Error | null>(null);
   const [currentGameTable, setCurrentGameTable] = useState<GameTable | null>(null);
   const [currentBackendGameDetails, setCurrentBackendGameDetails] = useState<BackendGameDetails | null>(null);
-  const socketService = SocketIOService.getInstance();
+  const socketService = SocketIOService;
 
   // Define connect/disconnect before useEffect that uses them
   const connect = useCallback(() => {
-    socketService.connect();
+    socketService.reconnect();
   }, [socketService]);
 
   const disconnect = useCallback(() => {
@@ -85,27 +85,27 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     }
   }, []);
 
+  // Subscribe to notifications and game updates
   useEffect(() => {
-    socketService.on('connection', handleConnectionStatus);
-    socketService.on('game_update', handleGameStateUpdate);
-    socketService.on('game_state', handleGameStateUpdate);
+    const unsubNotifications = socketService.subscribe('notifications', handleConnectionStatus);
+    const unsubGameUpdate = socketService.subscribe('game_update', handleGameStateUpdate);
+    const unsubGameState = socketService.subscribe('game_state', handleGameStateUpdate);
 
-    connect(); // Now defined above
+    connect();
 
     return () => {
-      socketService.off('connection', handleConnectionStatus);
-      socketService.off('game_update', handleGameStateUpdate);
-      socketService.off('game_state', handleGameStateUpdate);
-      // Optional disconnect on unmount
-      // disconnect(); 
+      unsubNotifications();
+      unsubGameUpdate();
+      unsubGameState();
+      // disconnect(); // Optional
     };
-    // Add disconnect to dependencies if it's used in cleanup/effect
   }, [socketService, handleConnectionStatus, handleGameStateUpdate, connect]);
 
   const subscribeToGame = useCallback((gameId: string) => {
     console.log(`Joining game room: ${gameId}`);
-    socketService.send('join_game', { gameId: parseInt(gameId, 10) }); // Ensure ID is number if needed by backend
-  }, [socketService]);
+    // No send() method, so use subscribe for game-specific events if needed
+    socketService.subscribe(`game_${gameId}`, handleGameStateUpdate);
+  }, [socketService, handleGameStateUpdate]);
 
   const value = {
     isConnected,
@@ -130,4 +130,4 @@ export const useSocket = (): SocketContextState => {
     throw new Error('useSocket must be used within a SocketProvider');
   }
   return context;
-}; 
+};

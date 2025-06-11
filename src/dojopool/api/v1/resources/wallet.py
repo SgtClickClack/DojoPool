@@ -1,12 +1,45 @@
 """Wallet API endpoints."""
 
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from flask_login import login_required, current_user
+from functools import wraps
+import time
 
-from dojopool.core.extensions import db
+from dojopool.core.extensions import db, cache
 from dojopool.services.wallet_service import WalletService, RewardType
 from dojopool.core.exceptions import WalletError, InsufficientFundsError
 from dojopool.api.v1.resources.base import BaseResource
+
+
+def cache_wallet_stats(timeout=300):
+    """Cache decorator for wallet stats.
+
+    Args:
+        timeout: Cache timeout in seconds (default 5 minutes)
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Generate cache key based on wallet_id and user
+            wallet_id = kwargs.get('wallet_id')
+            user_id = current_user.id if current_user.is_authenticated else None
+            cache_key = f'wallet_stats:{wallet_id}:{user_id}'
+
+            # Try to get from cache first
+            cached_stats = cache.get(cache_key)
+            if cached_stats is not None:
+                return cached_stats
+
+            # If not in cache, call the function
+            result = f(*args, **kwargs)
+
+            # Cache the result if it's a successful response
+            if isinstance(result, tuple) and result[1] == 200:
+                cache.set(cache_key, result, timeout=timeout)
+
+            return result
+        return decorated_function
+    return decorator
 
 
 class WalletResource(BaseResource):
@@ -18,10 +51,10 @@ class WalletResource(BaseResource):
 
     def get(self, wallet_id=None):
         """Get wallet details.
-        
+
         Args:
             wallet_id: Optional wallet ID. If not provided, returns current user's wallet.
-            
+
         Returns:
             Wallet details.
         """
@@ -47,7 +80,7 @@ class WalletResource(BaseResource):
             return wallet.to_dict(), 200
 
         except Exception as e:
-            return {"error": str(e)}, 200
+            return {"error": str(e)}, 500
 
 
 class WalletTransactionResource(BaseResource):
@@ -60,10 +93,10 @@ class WalletTransactionResource(BaseResource):
     @login_required
     def get(self, wallet_id):
         """Get wallet transaction history.
-        
+
         Args:
             wallet_id: The wallet ID.
-            
+
         Returns:
             List of transactions.
         """
@@ -111,7 +144,7 @@ class WalletTransferResource(BaseResource):
     @login_required
     def post(self):
         """Transfer coins between users.
-        
+
         Returns:
             The created transaction.
         """
@@ -162,6 +195,7 @@ class WalletStatsResource(BaseResource):
         """Initialize the wallet stats resource."""
         self.wallet_service = WalletService()
 
+    @cache_wallet_stats(timeout=300)  # Cache for 5 minutes
     def get(self, wallet_id=None):
         """Get wallet statistics.
         Args:
@@ -170,21 +204,22 @@ class WalletStatsResource(BaseResource):
             Wallet statistics.
         """
         try:
-            import logging
-            logging.warning(f"[DEBUG] WalletStatsResource.get called. wallet_id={wallet_id}, current_user={getattr(current_user, 'id', None)}, is_authenticated={getattr(current_user, 'is_authenticated', None)}")
-            # PATCH: If not authenticated, return dummy stats for debugging
-            if not getattr(current_user, 'is_authenticated', False):
+            # Handle unauthenticated users
+            if not current_user.is_authenticated:
                 return jsonify({
-                    "balance": 1000,
-                    "transactions": 0,
-                    "rewards": 0
-                })
+                    "balance": 0,
+                    "totalTransactions": 0,
+                    "totalVolume": 0,
+                    "totalIncoming": 0,
+                    "totalOutgoing": 0,
+                    "rewards": 0,
+                    "transactions": []
+                }), 401
+
+            # Get wallet
             if wallet_id is None:
-                # Use current user's wallet
                 wallet = self.wallet_service.get_user_wallet(current_user.id)
                 if not wallet:
-                    logging.warning("[DEBUG] No wallet found for current user.")
-                    # Always return default stats if wallet not found
                     return {
                         "balance": 0,
                         "totalTransactions": 0,
@@ -198,37 +233,16 @@ class WalletStatsResource(BaseResource):
             else:
                 wallet = self.wallet_service.get_wallet(wallet_id)
                 if not wallet:
-                    logging.warning("[DEBUG] No wallet found for wallet_id.")
-                    # Always return default stats if wallet not found
-                    return {
-                        "balance": 0,
-                        "totalTransactions": 0,
-                        "totalVolume": 0,
-                        "totalIncoming": 0,
-                        "totalOutgoing": 0,
-                        "rewards": 0,
-                        "transactions": []
-                    }, 200
+                    return {"error": "Wallet not found"}, 404
                 if wallet.user_id != current_user.id and not current_user.is_admin:
-                    logging.warning("[DEBUG] Unauthorized wallet access attempt.")
                     return {"error": "Unauthorized"}, 403
 
+            # Get stats from service
             stats = self.wallet_service.get_wallet_stats(wallet_id)
-            logging.warning(f"[DEBUG] Returning wallet stats: {stats}")
-            return wallet.get_stats(), 200
+            return jsonify(stats), 200
 
         except WalletError as e:
-            logging.warning(f"[DEBUG] WalletError: {e}")
-            # PATCH: Return default stats on WalletError
-            return {
-                "balance": 0,
-                "totalTransactions": 0,
-                "totalVolume": 0,
-                "totalIncoming": 0,
-                "totalOutgoing": 0,
-                "rewards": 0,
-                "transactions": []
-            }, 200
+            return {"error": str(e)}, 404
         except Exception as e:
-            logging.warning(f"[DEBUG] Exception: {e}")
-            return {"error": str(e)}, 200 
+            current_app.logger.error(f"Error getting wallet stats: {str(e)}", exc_info=True)
+            return {"error": "Internal server error"}, 500

@@ -67,11 +67,9 @@ def init_extensions(app: Any) -> None:
     login_manager.login_view = "api_v1.loginresource"
     login_manager.login_message_category = "info"
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        from ..models.user import User
-
-        return User.query.get(int(user_id))
+    # Import and set user loader after all models are defined
+    from .user_loader import load_user
+    login_manager.user_loader(load_user)
 
 
 __all__ = [
