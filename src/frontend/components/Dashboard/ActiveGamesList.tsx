@@ -8,8 +8,12 @@ import {
   CircularProgress,
   Alert,
   Button,
+  ListItemSecondaryAction,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom"; // Use RouterLink for navigation
+import { Visibility, SportsEsports } from "@mui/icons-material";
 import axiosInstance from "../../api/axiosInstance";
 import { useUserProfile } from "../../contexts/UserContext";
 
@@ -106,6 +110,18 @@ const ActiveGamesList: React.FC = () => {
                   primary={`Game ${game.id} (${game.game_type}) vs ${getOpponentUsername(game)}`}
                   secondary={`Status: ${game.status}`}
                 />
+                <ListItemSecondaryAction>
+                  <Tooltip title="Watch Game">
+                    <IconButton 
+                      edge="end" 
+                      aria-label="watch"
+                      component={RouterLink}
+                      to={`/spectate/${game.id}`}
+                    >
+                      <Visibility />
+                    </IconButton>
+                  </Tooltip>
+                </ListItemSecondaryAction>
               </ListItem>
             ))
           )}

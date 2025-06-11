@@ -13,6 +13,7 @@ const Login = React.lazy(() => import('./components/Auth/Login'));
 const Register = React.lazy(() => import('./components/Auth/Register'));
 const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard'));
 const GameView = React.lazy(() => import('./components/Game/GameView'));
+const SpectatorView = React.lazy(() => import('../dojopool/frontend/components/Game/SpectatorView'));
 // Consistent path convention (assuming components is a sibling of contexts, App.tsx is in src)
 const TournamentDetail = React.lazy(() => import('../components/tournaments/TournamentDetail'));
 const TournamentList = React.lazy(() => import('../components/tournaments/TournamentList'));
@@ -62,6 +63,11 @@ const VenueDashboardWrapper = () => {
   return <VenueDashboard venueId={venueId as string} />;
 };
 
+const SpectatorViewWrapper = () => {
+  const { gameId } = useParams();
+  return <SpectatorView gameId={gameId as string} />;
+};
+
 const UserProfileSelfWrapper = () => <UserProfile />;
 const UserProfileOtherWrapper = () => {
   const { username } = useParams();
@@ -91,6 +97,7 @@ const App: React.FC = () => {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/game/:gameId" element={<GameView />} />
+              <Route path="/spectate/:gameId" element={<SpectatorViewWrapper />} />
               <Route path="/tournaments" element={<TournamentList />} />
               <Route path="/tournaments/:id" element={<TournamentDetail />} />
               <Route path="/venues/:venueId" element={<VenueDashboardWrapper />} />
