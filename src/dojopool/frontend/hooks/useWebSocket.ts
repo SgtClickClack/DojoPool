@@ -19,6 +19,8 @@ export const useWebSocket = () => {
           reconnection: true,
           reconnectionAttempts: 5,
           reconnectionDelay: 1000,
+          reconnectionDelayMax: 5000,
+          timeout: 120000, // Match backend ping_timeout
         },
       );
 
@@ -27,8 +29,13 @@ export const useWebSocket = () => {
         setConnected(true);
       });
 
-      newSocket.on("disconnect", () => {
-        console.log("WebSocket disconnected");
+      newSocket.on("connect_error", (error) => {
+        console.error("WebSocket connection error:", error);
+        setConnected(false);
+      });
+
+      newSocket.on("disconnect", (reason) => {
+        console.log("WebSocket disconnected:", reason);
         setConnected(false);
       });
 
@@ -40,7 +47,9 @@ export const useWebSocket = () => {
       setSocket(newSocket);
 
       return () => {
-        newSocket.close();
+        if (newSocket.connected) {
+          newSocket.disconnect();
+        }
       };
     }
   }, [user]);
