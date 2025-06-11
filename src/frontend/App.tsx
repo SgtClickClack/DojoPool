@@ -17,9 +17,10 @@ const SpectatorView = React.lazy(() => import('../dojopool/frontend/components/G
 // Consistent path convention (assuming components is a sibling of contexts, App.tsx is in src)
 const TournamentDetail = React.lazy(() => import('../components/tournaments/TournamentDetail'));
 const TournamentList = React.lazy(() => import('../components/tournaments/TournamentList'));
-const VenueDashboard = React.lazy(() => import('../components/venue/VenueDashboard'));
+const VenueDashboard = React.lazy(() => import('../dojopool/frontend/components/Venue/VenueDashboard'));
 const UserProfile = React.lazy(() => import('../components/social/UserProfile'));
 const SocialFeed = React.lazy(() => import('../components/social/SocialFeed'));
+const TournamentDashboard = React.lazy(() => import('../dojopool/frontend/components/Tournament/TournamentDashboard'));
 
 // Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
 // const theme = createTheme({
@@ -98,12 +99,13 @@ const App: React.FC = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/game/:gameId" element={<GameView />} />
               <Route path="/spectate/:gameId" element={<SpectatorViewWrapper />} />
-              <Route path="/tournaments" element={<TournamentList />} />
+              <Route path="/tournaments" element={<TournamentDashboard />} />
               <Route path="/tournaments/:id" element={<TournamentDetail />} />
               <Route path="/venues/:venueId" element={<VenueDashboardWrapper />} />
               <Route path="/profile" element={<UserProfileSelfWrapper />} />
               <Route path="/profile/:username" element={<UserProfileOtherWrapper />} />
               <Route path="/feed" element={<SocialFeedWrapper />} />
+              <Route path="/venue-dashboard" element={<VenueDashboard />} />
               {/* Add other protected routes here */}
             </Route>
 
