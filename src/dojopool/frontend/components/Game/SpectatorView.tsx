@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import { useGameSocket } from "../../hooks/useGameSocket";
 import { useAuth } from "../../hooks/useAuth";
+import ChatInterface from "../Chat/ChatInterface";
 
 interface SpectatorViewProps {
   gameId: string;
@@ -265,26 +266,12 @@ const SpectatorView: React.FC<SpectatorViewProps> = ({ gameId }) => {
         {/* Chat Panel */}
         {showChat && (
           <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, height: 500, display: "flex", flexDirection: "column" }}>
-              <Typography variant="h5" gutterBottom>
-                Spectator Chat
-              </Typography>
-              
-              <Box sx={{ flex: 1, bgcolor: "grey.50", p: 2, borderRadius: 1, mb: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Chat functionality coming soon...
-                </Typography>
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Typography variant="body2" sx={{ flex: 1, p: 1, bgcolor: "white", borderRadius: 1, border: "1px solid #ccc" }}>
-                  Type a message...
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Send
-                </Typography>
-              </Box>
-            </Paper>
+            <ChatInterface
+              roomId={gameId}
+              roomType="game"
+              roomName={`Game ${gameId} Chat`}
+              maxHeight={500}
+            />
           </Grid>
         )}
       </Grid>

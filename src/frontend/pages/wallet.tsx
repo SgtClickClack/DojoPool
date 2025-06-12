@@ -1,5 +1,5 @@
 import React from 'react';
-import { WalletDashboard } from '@/components/wallet/WalletDashboard';
+import { WalletDashboard } from '../../components/wallet/WalletDashboard';
 // import PageLayout from '../layouts/PageLayout'; // Optional: If you use a consistent page layout component
 // import ErrorBoundary from '../components/ErrorBoundary'; // Optional: For better error handling around WalletView
 

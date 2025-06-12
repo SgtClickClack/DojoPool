@@ -18,7 +18,7 @@ class WebSocketService {
   }
 
   private initialize(): void {
-    const socket = io("ws://localhost:3101", {
+    const socket = io("http://localhost:3101", {
       transports: ["websocket", "polling"],
       autoConnect: true,
       reconnectionAttempts: Infinity,

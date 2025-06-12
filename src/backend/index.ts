@@ -28,8 +28,9 @@ const port = process.env.PORT || 3102;
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: 'http://localhost:3101',
-    methods: ['GET', 'POST'],
+    origin: ['http://localhost:3101', 'http://127.0.0.1:3101'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   },
 });
@@ -170,21 +171,21 @@ app.get('/api/v1/feed', (req, res) => res.json([]));
 app.get('/api/v1/games', (req, res) => res.json([]));
 
 // --- Flask API Proxy for Wallet ---
-app.use(
-  ['/api/v1/wallet', '/api/v1/wallet/*', '/api/v1/wallet/stats'],
-  createProxyMiddleware({
-    target: 'http://localhost:3102',
-    changeOrigin: true,
-    onProxyReq: (proxyReq: any, req: any, res: any) => {
-      if (req.headers.cookie) {
-        proxyReq.setHeader('cookie', req.headers.cookie);
-      }
-      if (req.headers.authorization) {
-        proxyReq.setHeader('authorization', req.headers.authorization);
-      }
-    },
-  } as any)
-);
+// app.use(
+//   ['/api/v1/wallet', '/api/v1/wallet/*', '/api/v1/wallet/stats'],
+//   createProxyMiddleware({
+//     target: 'http://localhost:3102',
+//     changeOrigin: true,
+//     onProxyReq: (proxyReq: any, req: any, res: any) => {
+//       if (req.headers.cookie) {
+//         proxyReq.setHeader('cookie', req.headers.cookie);
+//       }
+//       if (req.headers.authorization) {
+//         proxyReq.setHeader('authorization', req.headers.authorization);
+//       }
+//     },
+//   } as any)
+// );
 
 app.get('/api/v1/wallet/stats', (req, res) => {
   res.json({

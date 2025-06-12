@@ -108,7 +108,7 @@ class SocketPool {
   }
 
   private createSocket(): PooledSocket {
-    const socket = io('ws://localhost:3102', this.options) as PooledSocket;
+    const socket = io('ws://localhost:3101', this.options) as PooledSocket;
     socket.isAvailable = false;
     socket.lastUsed = Date.now();
     socket.reconnectAttempts = 0;

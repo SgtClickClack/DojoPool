@@ -3,6 +3,167 @@
 ## Vision
 DojoPool is an innovative platform that transforms traditional pool gaming into an immersive, tech-enhanced experience by bridging physical and digital gameplay. It combines real-world pool venues with advanced technology, creating a unique social gaming ecosystem.
 
+## MVP DEVELOPMENT ROADMAP (Q1 2025)
+
+### MVP Definition
+A fully functional DojoPool platform with core gaming features, wallet system, and basic social elements that can be launched to early adopters and venues.
+
+### MVP Core Features (Priority Order)
+
+#### 1. Wallet System Frontend ✅ COMPLETED
+- **Status**: ✅ Complete with cyberpunk styling
+- **Components**: 
+  - WalletDashboard with neon effects and dark theme
+  - WalletTransactionList with cyberpunk styling
+  - TransferDialog with cyberpunk form styling
+  - Real-time balance updates
+  - Transaction history with filtering
+- **File Paths**: 
+  - `src/components/wallet/WalletDashboard.tsx`
+  - `src/components/wallet/WalletTransactionList.tsx`
+  - `src/components/wallet/TransferDialog.tsx`
+  - `src/frontend/pages/wallet.tsx`
+- **Next**: Integrate with backend wallet unification
+
+#### 2. Tournament System Frontend (Next Priority)
+- **Status**: 🚧 Backend exists, Frontend needs completion
+- **Components Needed**:
+  - Tournament list with cyberpunk styling
+  - Tournament registration flow
+  - Bracket visualization with neon effects
+  - Prize distribution UI
+  - Tournament chat/spectator mode
+- **File Paths**:
+  - `src/components/tournament/TournamentList.tsx` (exists, needs styling)
+  - `src/components/tournament/TournamentDetail.tsx` (exists, needs styling)
+  - `src/components/tournament/TournamentBracket.tsx` (needs creation)
+  - `src/components/tournament/TournamentRegistration.tsx` (needs creation)
+- **Timeline**: 3-4 days
+- **Dependencies**: Wallet system integration
+
+#### 3. Venue Management Frontend
+- **Status**: 🚧 Backend exists, Frontend missing
+- **Components Needed**:
+  - Venue registration form with cyberpunk styling
+  - Venue dashboard with real-time analytics
+  - Table management interface
+  - QR code generation for check-ins
+  - Venue chat system
+- **File Paths**:
+  - `src/components/venue/VenueDashboard.tsx` (needs creation)
+  - `src/components/venue/VenueRegistration.tsx` (needs creation)
+  - `src/components/venue/TableManagement.tsx` (needs creation)
+  - `src/components/venue/QRCodeGenerator.tsx` (needs creation)
+- **Timeline**: 4-5 days
+- **Dependencies**: Tournament system
+
+#### 4. Map & Dojo Discovery
+- **Status**: 🚧 Backend exists, Frontend missing
+- **Components Needed**:
+  - Google Maps integration with cyberpunk overlay
+  - Venue markers with neon effects
+  - Live occupancy indicators
+  - Venue details modal
+  - Check-in functionality
+- **File Paths**:
+  - `src/components/map/DojoMap.tsx` (needs creation)
+  - `src/components/map/VenueMarker.tsx` (needs creation)
+  - `src/components/map/VenueDetails.tsx` (needs creation)
+  - `src/components/map/CheckInModal.tsx` (needs creation)
+- **Timeline**: 3-4 days
+- **Dependencies**: Venue management system
+
+#### 5. Social Features Frontend
+- **Status**: 🚧 Backend exists, Frontend needs work
+- **Components Needed**:
+  - Friend system with cyberpunk styling
+  - Venue-scoped chat rooms
+  - Activity feed with neon effects
+  - Achievement sharing
+  - Profile customization
+- **File Paths**:
+  - `src/components/social/FriendsList.tsx` (needs creation)
+  - `src/components/social/VenueChat.tsx` (needs creation)
+  - `src/components/social/ActivityFeed.tsx` (needs creation)
+  - `src/components/social/AchievementShare.tsx` (needs creation)
+- **Timeline**: 4-5 days
+- **Dependencies**: Map system
+
+#### 6. Avatar System Frontend
+- **Status**: 🚧 Backend exists, Frontend missing
+- **Components Needed**:
+  - Avatar creation with photo upload
+  - Avatar customization with cyberpunk themes
+  - Achievement-based unlocks
+  - Avatar display in social features
+- **File Paths**:
+  - `src/components/avatar/AvatarCreator.tsx` (needs creation)
+  - `src/components/avatar/AvatarCustomizer.tsx` (needs creation)
+  - `src/components/avatar/AchievementUnlocks.tsx` (needs creation)
+- **Timeline**: 3-4 days
+- **Dependencies**: Social features
+
+### MVP Technical Requirements
+
+#### Frontend Styling Standards
+- **Theme**: Cyberpunk with neon effects
+- **Colors**: 
+  - Primary: #00ff9d (neon green)
+  - Secondary: #00a8ff (neon blue)
+  - Accent: #ff00ff (neon magenta)
+  - Background: #0a0a0a (dark)
+- **Effects**: 
+  - Neon text shadows
+  - Glowing borders
+  - Hover animations
+  - Grid overlays
+- **Typography**: 
+  - Headings: Orbitron font
+  - Body: Roboto Mono
+  - Uppercase for titles
+
+#### Backend Integration Points
+- **Wallet API**: `/api/v1/wallet/*` endpoints
+- **Tournament API**: `/api/v1/tournaments/*` endpoints
+- **Venue API**: `/api/v1/venues/*` endpoints
+- **Social API**: `/api/v1/social/*` endpoints
+- **Avatar API**: `/api/v1/avatar/*` endpoints
+
+#### Performance Requirements
+- **Page Load**: < 3 seconds
+- **API Response**: < 100ms
+- **Real-time Updates**: < 500ms
+- **Mobile Responsive**: All components
+- **Offline Support**: Basic functionality
+
+### MVP Testing Strategy
+- **Unit Tests**: 80% coverage minimum
+- **Integration Tests**: All API endpoints
+- **E2E Tests**: Critical user flows
+- **Performance Tests**: Load testing
+- **Security Tests**: Vulnerability scanning
+
+### MVP Launch Checklist
+- [ ] Wallet system fully functional
+- [ ] Tournament system complete
+- [ ] Venue management operational
+- [ ] Map discovery working
+- [ ] Social features implemented
+- [ ] Avatar system functional
+- [ ] All cyberpunk styling applied
+- [ ] Performance benchmarks met
+- [ ] Security audit passed
+- [ ] Mobile responsiveness verified
+- [ ] Documentation complete
+- [ ] App Store assets ready
+
+### Post-MVP Features (Phase 2)
+1. **AI Integration**: Shot recommendations, commentary
+2. **Blockchain**: NFT marketplace, smart contracts
+3. **Advanced Analytics**: Player insights, venue optimization
+4. **Mobile Apps**: Native iOS/Android applications
+5. **Franchise System**: Multi-venue management
+
 ## GAME FLOW & USER JOURNEY (2025 Integration)
 
 This section outlines the step-by-step user journey and the required feature/component integration for a seamless Dojo Pool experience. Each step references the relevant backend/frontend components and file paths for clarity and AI agent handoff.
@@ -90,7 +251,6 @@ This section outlines the step-by-step user journey and the required feature/com
 - Ensure all glue code, transitions, and onboarding flows are documented for seamless AI agent handoff.
 
 ---
->>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
 
 ## Codebase Audit Summary (as of 2024-07-29)
 *   **Overall:** Strong backend foundation with many services and models implemented. Significant progress in scaling, optimization, and context assurance systems.

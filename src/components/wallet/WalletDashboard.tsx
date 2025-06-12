@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Grid, Typography, Button, Box, CircularProgress } from '@mui/material';
+import { Card, Grid, Typography, Button, Box, CircularProgress, Paper } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { AccountBalanceWallet, SwapHoriz, Timeline, EmojiEvents } from '@mui/icons-material';
+import { AccountBalanceWallet, SwapHoriz, Timeline, EmojiEvents, TrendingUp, Security } from '@mui/icons-material';
 
 import { WalletService } from '../../services/wallet/WalletService';
 import { WalletTransactionList } from './WalletTransactionList';
@@ -75,29 +75,169 @@ export const WalletDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="400px"
+        sx={{
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+          borderRadius: 2,
+          border: '1px solid rgba(0, 255, 157, 0.2)',
+          boxShadow: '0 0 20px rgba(0, 255, 157, 0.1)'
+        }}
+      >
+        <CircularProgress 
+          sx={{ 
+            color: '#00ff9d',
+            '& .MuiCircularProgress-circle': {
+              strokeLinecap: 'round',
+            }
+          }} 
+        />
       </Box>
     );
   }
 
+  const cyberCardStyle = {
+    background: 'rgba(10, 10, 10, 0.95)',
+    border: '1px solid #00ff9d',
+    borderRadius: '15px',
+    padding: '2rem',
+    height: '100%',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    transition: 'all 0.4s ease',
+    transformStyle: 'preserve-3d' as const,
+    perspective: '1000px' as const,
+    boxShadow: '0 0 30px rgba(0, 255, 157, 0.1), inset 0 0 30px rgba(0, 255, 157, 0.05)',
+    clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
+    '&:hover': {
+      transform: 'translateY(-10px) scale(1.02)',
+      borderColor: '#00a8ff',
+      boxShadow: '0 15px 40px rgba(0, 168, 255, 0.3), inset 0 0 40px rgba(0, 168, 255, 0.2)',
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(45deg, transparent, rgba(0, 255, 157, 0.1), transparent)',
+      transform: 'translateZ(-1px)',
+    }
+  };
+
+  const neonTextStyle = {
+    color: '#fff',
+    textShadow: '0 0 10px rgba(0, 255, 157, 0.8), 0 0 20px rgba(0, 255, 157, 0.4), 0 0 30px rgba(0, 255, 157, 0.2)',
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textTransform: 'uppercase' as const,
+  };
+
+  const cyberButtonStyle = {
+    background: 'linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#000',
+    padding: '12px 24px',
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 0 20px rgba(0, 255, 157, 0.4)',
+      background: 'linear-gradient(135deg, #00a8ff 0%, #00ff9d 100%)',
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: '-100%',
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+      transition: '0.5s',
+    },
+    '&:hover::before': {
+      left: '100%',
+    }
+  };
+
   return (
-    <Box sx={{ p: 3 }}>
+    <Box 
+      sx={{ 
+        p: 3,
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+        minHeight: '100vh',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `
+            linear-gradient(transparent 95%, rgba(0,255,157,0.2) 95%),
+            linear-gradient(90deg, transparent 95%, rgba(0,255,157,0.2) 95%)
+          `,
+          backgroundSize: '50px 50px',
+          opacity: 0.15,
+          pointerEvents: 'none',
+        }
+      }}
+    >
+      <Typography 
+        variant="h3" 
+        sx={{ 
+          ...neonTextStyle,
+          mb: 4,
+          textAlign: 'center',
+          fontSize: { xs: '2rem', md: '3rem' }
+        }}
+      >
+        Dojo Wallet
+      </Typography>
+
       <Grid container spacing={3}>
+        {/* Balance Card */}
         <Grid item xs={12} md={6} lg={3}>
-          <Card sx={{ p: 2, height: '100%' }}>
+          <Card sx={cyberCardStyle}>
             <Box display="flex" alignItems="center" mb={2}>
-              <AccountBalanceWallet sx={{ color: theme.palette.primary.main, mr: 1 }} />
-              <Typography variant="h6">Balance</Typography>
+              <AccountBalanceWallet 
+                sx={{ 
+                  color: '#00ff9d', 
+                  mr: 1,
+                  fontSize: '2rem',
+                  textShadow: '0 0 20px #00ff9d'
+                }} 
+              />
+              <Typography variant="h6" sx={neonTextStyle}>Balance</Typography>
             </Box>
-            <Typography variant="h4" component="div">
+            <Typography 
+              variant="h3" 
+              component="div" 
+              sx={{
+                ...neonTextStyle,
+                fontSize: { xs: '2rem', md: '3rem' },
+                color: '#00ff9d',
+                textShadow: '0 0 20px #00ff9d, 0 0 40px #00ff9d',
+                mb: 2
+              }}
+            >
               {formatCurrency(wallet?.balance || 0, 'DP')}
             </Typography>
             <Button
               variant="contained"
               startIcon={<SwapHoriz />}
               onClick={() => setTransferDialogOpen(true)}
-              sx={{ mt: 2 }}
+              sx={cyberButtonStyle}
               fullWidth
             >
               Transfer Coins
@@ -105,32 +245,68 @@ export const WalletDashboard: React.FC = () => {
           </Card>
         </Grid>
 
+        {/* Transactions Card */}
         <Grid item xs={12} md={6} lg={3}>
-          <Card sx={{ p: 2, height: '100%' }}>
+          <Card sx={cyberCardStyle}>
             <Box display="flex" alignItems="center" mb={2}>
-              <Timeline sx={{ color: theme.palette.primary.main, mr: 1 }} />
-              <Typography variant="h6">Transactions</Typography>
+              <Timeline 
+                sx={{ 
+                  color: '#00a8ff', 
+                  mr: 1,
+                  fontSize: '2rem',
+                  textShadow: '0 0 20px #00a8ff'
+                }} 
+              />
+              <Typography variant="h6" sx={neonTextStyle}>Transactions</Typography>
             </Box>
-            <Typography variant="h4" component="div">
+            <Typography 
+              variant="h3" 
+              component="div" 
+              sx={{
+                ...neonTextStyle,
+                fontSize: { xs: '2rem', md: '3rem' },
+                color: '#00a8ff',
+                textShadow: '0 0 20px #00a8ff, 0 0 40px #00a8ff',
+                mb: 2
+              }}
+            >
               {stats?.total_transactions ?? 0}
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
               Total Volume: {formatCurrency(typeof stats?.total_volume === 'number' ? stats.total_volume : 0, 'DP')}
             </Typography>
           </Card>
         </Grid>
 
+        {/* Rewards Card */}
         <Grid item xs={12} md={6} lg={3}>
-          <Card sx={{ p: 2, height: '100%' }}>
+          <Card sx={cyberCardStyle}>
             <Box display="flex" alignItems="center" mb={2}>
-              <EmojiEvents sx={{ color: theme.palette.primary.main, mr: 1 }} />
-              <Typography variant="h6">Rewards</Typography>
+              <EmojiEvents 
+                sx={{ 
+                  color: '#ff00ff', 
+                  mr: 1,
+                  fontSize: '2rem',
+                  textShadow: '0 0 20px #ff00ff'
+                }} 
+              />
+              <Typography variant="h6" sx={neonTextStyle}>Rewards</Typography>
             </Box>
-            <Typography variant="h4" component="div">
+            <Typography 
+              variant="h3" 
+              component="div" 
+              sx={{
+                ...neonTextStyle,
+                fontSize: { xs: '2rem', md: '3rem' },
+                color: '#ff00ff',
+                textShadow: '0 0 20px #ff00ff, 0 0 40px #ff00ff',
+                mb: 2
+              }}
+            >
               {/* Sum counts from the rewards object */}
               {stats?.rewards ? Object.values(stats.rewards).reduce((acc, reward) => acc + (reward?.count || 0), 0) : 0}
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
               Total Earned: {formatCurrency(
                 /* Sum total_amount from the rewards object */
                 stats?.rewards ? Object.values(stats.rewards).reduce((acc, reward) => acc + (reward?.total_amount || 0), 0) : 0,
@@ -140,16 +316,85 @@ export const WalletDashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} lg={8}>
-          <Card sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>Transaction History</Typography>
-            <WalletTransactionList transactions={transactions} />
+        {/* Security Card */}
+        <Grid item xs={12} md={6} lg={3}>
+          <Card sx={cyberCardStyle}>
+            <Box display="flex" alignItems="center" mb={2}>
+              <Security 
+                sx={{ 
+                  color: '#00ffff', 
+                  mr: 1,
+                  fontSize: '2rem',
+                  textShadow: '0 0 20px #00ffff'
+                }} 
+              />
+              <Typography variant="h6" sx={neonTextStyle}>Security</Typography>
+            </Box>
+            <Typography 
+              variant="h3" 
+              component="div" 
+              sx={{
+                ...neonTextStyle,
+                fontSize: { xs: '2rem', md: '3rem' },
+                color: '#00ffff',
+                textShadow: '0 0 20px #00ffff, 0 0 40px #00ffff',
+                mb: 2
+              }}
+            >
+              Active
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              Wallet Protected
+            </Typography>
           </Card>
         </Grid>
 
+        {/* Transaction History */}
+        <Grid item xs={12} lg={8}>
+          <Card sx={{
+            ...cyberCardStyle,
+            clipPath: 'none',
+            '&:hover': {
+              transform: 'none',
+            }
+          }}>
+            <Typography variant="h5" gutterBottom sx={neonTextStyle}>
+              Transaction History
+            </Typography>
+            <Box sx={{ 
+              maxHeight: '400px', 
+              overflowY: 'auto',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: 'rgba(16, 24, 39, 0.5)',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'rgba(0, 255, 157, 0.5)',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                background: 'rgba(0, 255, 157, 0.7)',
+              }
+            }}>
+              <WalletTransactionList transactions={transactions} />
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Statistics */}
         <Grid item xs={12} lg={4}>
-          <Card sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>Statistics</Typography>
+          <Card sx={{
+            ...cyberCardStyle,
+            clipPath: 'none',
+            '&:hover': {
+              transform: 'none',
+            }
+          }}>
+            <Typography variant="h5" gutterBottom sx={neonTextStyle}>
+              Statistics
+            </Typography>
             <WalletStatsComponent stats={stats} />
           </Card>
         </Grid>
