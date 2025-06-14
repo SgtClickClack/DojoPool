@@ -7,18 +7,34 @@ describe("ShotAnalysisModel", () => {
 
   const mockTrainingData: ShotData[] = [
     {
+      timestamp: Date.now(),
+      ballPositions: {
+        cueBall: { x: 100, y: 100 },
+        targetBall: { x: 200, y: 200 },
+      },
+      shotType: "straight",
+      power: 0.8,
+      spin: { top: 0, side: 0 },
+      success: true,
+      accuracy: 1.0,
       cueBall: { x: 100, y: 100 },
       targetBall: { x: 200, y: 200 },
       english: { top: 0, side: 0 },
-      success: true,
-      accuracy: 1.0,
     },
     {
+      timestamp: Date.now(),
+      ballPositions: {
+        cueBall: { x: 150, y: 150 },
+        targetBall: { x: 250, y: 250 },
+      },
+      shotType: "bank",
+      power: 0.6,
+      spin: { top: 0.5, side: -0.5 },
+      success: false,
+      accuracy: 0.5,
       cueBall: { x: 150, y: 150 },
       targetBall: { x: 250, y: 250 },
       english: { top: 0.5, side: -0.5 },
-      success: false,
-      accuracy: 0.5,
     },
   ];
 

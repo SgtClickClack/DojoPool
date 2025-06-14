@@ -102,17 +102,17 @@ export const AlertItemOptimized = React.memo(
             event.currentTarget.getAttribute("data-action") === "acknowledge" &&
             onAcknowledge
           ) {
-            onAcknowledge(alert.id);
+            onAcknowledge(alert.id as string);
           } else if (
             event.currentTarget.getAttribute("data-action") === "view" &&
             onViewDetails
           ) {
-            onViewDetails(alert.id);
+            onViewDetails(alert.id as string);
           } else if (
             event.currentTarget.getAttribute("data-action") === "close" &&
             onClose
           ) {
-            onClose(alert.id);
+            onClose(alert.id as string);
           }
         }
       },

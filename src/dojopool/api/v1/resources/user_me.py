@@ -5,6 +5,9 @@ from flask_login import current_user, login_required
 class UserMeResource(Resource):
     @login_required
     def get(self):
-        # Return the current user's profile as JSON
         user = current_user
-        return user.to_dict(), 200
+        print('DEBUG: current_user type:', type(user))
+        print('DEBUG: current_user.to_dict:', getattr(user, 'to_dict', None))
+        result = user.to_dict()
+        print('DEBUG: user.to_dict() result:', result)
+        return result, 200

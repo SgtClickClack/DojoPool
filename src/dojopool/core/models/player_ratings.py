@@ -24,7 +24,7 @@ class PlayerRating(db.Model):
     previous_rating = Column(Float)
 
     # Relationships
-    user = relationship("User", backref="ratings")
+    # user = relationship("User", back_populates="core_user_player_ratings")
 
     def __repr__(self):
         """String representation."""

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { vi, Mock } from 'vitest';
@@ -20,12 +21,8 @@ const customRender = (
     ...renderOptions
   } = {}
 ) => {
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
-    </QueryClientProvider>
+  const Wrapper = ({ children }: { children: React.ReactNode }) => React.createElement(QueryClientProvider, { client: queryClient },
+    React.createElement(BrowserRouter, null, children)
   );
 
   return {
@@ -152,5 +149,4 @@ export {
 
 // Re-export testing-library utilities
 export * from '@testing-library/react';
-export * from '@testing-library/user-event';
-export * from '@testing-library/jest-dom'; 
+export * from '@testing-library/user-event'; 

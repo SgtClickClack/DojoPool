@@ -9,6 +9,7 @@ export enum AlertStatus {
   OPEN = "open",
   ACKNOWLEDGED = "acknowledged",
   DISMISSED = "dismissed",
+  ACTIVE = "active",
 }
 
 export interface Alert {
@@ -18,6 +19,9 @@ export interface Alert {
   message: string;
   timestamp: string;
   isFlagged: boolean;
+  title?: string;
+  source?: string;
+  impactScore?: number;
   metadata?: Record<string, any>;
 }
 

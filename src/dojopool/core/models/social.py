@@ -230,7 +230,7 @@ class Rating(BaseModel):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    user = relationship("User", backref="ratings")
+    # user = relationship("User", back_populates="social_user_ratings")
 
     def __repr__(self):
         return f"<Rating {self.user_id}:{self.category}>"

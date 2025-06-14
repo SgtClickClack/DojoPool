@@ -1,53 +1,50 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 
 const ALGORITHM = "aes-256-gcm";
-const IV_LENGTH = 12;
-const AUTH_TAG_LENGTH = 16;
+const IV_LENGTH = 16;
+const SALT_LENGTH = 64;
+const TAG_LENGTH = 16;
 
 interface EncryptedData {
+  encryptedData: string;
   iv: string;
   authTag: string;
-  encryptedData: string;
 }
 
-export function encryptData(data: unknown, key: Buffer): string {
+export const encrypt = (text: string, key: Buffer): EncryptedData => {
   const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv(ALGORITHM, key, iv);
-
-  const jsonData = JSON.stringify(data);
+  const cipher = createCipheriv(ALGORITHM, key as any, iv as any);
+  
+  const jsonData = JSON.stringify({ data: text });
+  
   const encrypted = Buffer.concat([
-    cipher.update(jsonData, "utf8"),
-    cipher.final(),
+    cipher.update(jsonData, "utf8") as any,
+    cipher.final() as any,
   ]);
-
+  
   const authTag = cipher.getAuthTag();
-
-  const result: EncryptedData = {
+  
+  return {
+    encryptedData: encrypted.toString("base64"),
     iv: iv.toString("base64"),
     authTag: authTag.toString("base64"),
-    encryptedData: encrypted.toString("base64"),
   };
+};
 
-  return Buffer.from(JSON.stringify(result)).toString("base64");
-}
-
-export function decryptData(encryptedString: string, key: Buffer): unknown {
-  const encryptedData: EncryptedData = JSON.parse(
-    Buffer.from(encryptedString, "base64").toString("utf8"),
-  );
-
+export const decrypt = (encryptedData: EncryptedData, key: Buffer): string => {
   const decipher = createDecipheriv(
     ALGORITHM,
-    key,
-    Buffer.from(encryptedData.iv, "base64"),
+    key as any,
+    Buffer.from(encryptedData.iv, "base64") as any
   );
-
-  decipher.setAuthTag(Buffer.from(encryptedData.authTag, "base64"));
-
+  
+  decipher.setAuthTag(Buffer.from(encryptedData.authTag, "base64") as any);
+  
   const decrypted = Buffer.concat([
-    decipher.update(Buffer.from(encryptedData.encryptedData, "base64")),
-    decipher.final(),
+    decipher.update(Buffer.from(encryptedData.encryptedData, "base64") as any) as any,
+    decipher.final() as any,
   ]);
-
-  return JSON.parse(decrypted.toString("utf8"));
-}
+  
+  const jsonData = JSON.parse(decrypted.toString("utf8"));
+  return jsonData.data;
+};

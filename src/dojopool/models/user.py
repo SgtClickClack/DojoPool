@@ -118,6 +118,10 @@ class User(db.Model, UserMixin):
     # Feed entries relationship
     feed_entries = relationship('FeedEntry', back_populates='user', cascade='all, delete-orphan')
 
+    # Ratings relationship
+    ratings = relationship('Rating', back_populates='user', cascade='all, delete-orphan')
+    user_player_ratings = relationship('PlayerRating', back_populates='user', cascade='all, delete-orphan')
+
     # Commenting out achievements relationship as UserAchievement model is commented out
     # achievements = relationship("UserAchievement", back_populates="user", cascade="all, delete-orphan")
 

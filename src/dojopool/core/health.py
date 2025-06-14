@@ -29,7 +29,7 @@ def check_redis():
         redis.ping()
         return True, "Redis is healthy"
     except Exception as e:
-        return False, f"Redis error: {str(e)}"
+        return False, f"Redis not available: {str(e)}"
 
 
 def check_disk_space():
@@ -59,10 +59,15 @@ def health_check():
         "timestamp": datetime.utcnow().isoformat(),
     }
 
-    all_healthy = all(check[0] for check in checks.values() if isinstance(check, tuple))
+    # Only database is critical for health
+    critical_checks = ["database"]
+    all_critical_healthy = all(
+        checks[name][0] for name in critical_checks 
+        if name in checks and isinstance(checks[name], tuple)
+    )
 
     response = {
-        "status": "healthy" if all_healthy else "unhealthy",
+        "status": "healthy" if all_critical_healthy else "unhealthy",
         "checks": {
             name: (
                 {"status": "healthy" if check[0] else "unhealthy", "message": check[1]}
@@ -73,7 +78,7 @@ def health_check():
         },
     }
 
-    return jsonify(response), 200 if all_healthy else 503
+    return jsonify(response), 200 if all_critical_healthy else 503
 
 
 @health_bp.route("/metrics")

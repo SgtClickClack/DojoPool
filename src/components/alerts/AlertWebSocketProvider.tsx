@@ -30,7 +30,9 @@ export const AlertWebSocketProvider: React.FC<AlertWebSocketProviderProps> = ({
     "connected" | "disconnected" | "error"
   >("disconnected");
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const { isConnected, subscribe } = useWebSocket();
+  const { isConnected, subscribe } = useWebSocket({
+    url: process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:3101/ws',
+  });
 
   useEffect(() => {
     const handleAlertUpdate = (data: {

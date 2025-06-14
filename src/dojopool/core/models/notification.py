@@ -62,7 +62,7 @@ class Notification(BaseModel):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    user = db.relationship("User", backref=db.backref("notifications", lazy="dynamic"))
+    user = db.relationship("User", backref=db.backref("core_user_notifications", lazy="dynamic"))
 
     def __repr__(self):
         return f"<Notification {self.id}:{self.type}>"

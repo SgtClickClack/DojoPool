@@ -1,3 +1,14 @@
+// Extend Window interface to include gtag
+declare global {
+  interface Window {
+    gtag: (
+      command: string,
+      action: string,
+      parameters?: Record<string, any>
+    ) => void;
+  }
+}
+
 // Web Vitals
 export const reportWebVitals = (metric: any) => {
   // Send to Google Analytics
@@ -42,18 +53,51 @@ export const measurePerformance = (name: string, callback: () => void) => {
   }
 };
 
-// User tracking
-export const trackEvent = (
-  category: string,
+// Type assertion for gtag
+const gtag = (typeof window !== "undefined" && (window as any).gtag) 
+  ? (window as any).gtag 
+  : () => {};
+
+export const trackEvent = (metric: {
+  name: string;
+  value?: number;
+  category?: string;
+  label?: string;
+}) => {
+  gtag("event", metric.name, {
+    event_category: metric.category,
+    event_label: metric.label,
+    value: metric.value,
+  });
+};
+
+export const trackError = (error: Error, context?: Record<string, any>) => {
+  gtag("event", "error", {
+    event_category: "error",
+    event_label: error.message,
+    error_name: error.name,
+    error_stack: error.stack,
+    ...context,
+  });
+};
+
+export const trackPerformance = (metric: {
+  name: string;
+  value: number;
+  category?: string;
+}) => {
+  gtag("event", "performance", {
+    event_category: metric.category || "performance",
+    event_label: metric.name,
+    value: metric.value,
+  });
+};
+
+export const trackUserAction = (
   action: string,
-  label?: string,
-  value?: number,
+  parameters?: Record<string, any>
 ) => {
-  if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
-    window.gtag("event", action, {
-      event_category: category,
-      event_label: label,
-      value: value,
-    });
-  }
+  gtag("event", action, {
+    ...parameters,
+  });
 };

@@ -14,8 +14,6 @@ import { FixedSizeList, ListChildComponentProps } from "react-window";
 import { useWebSocketWithReconnect } from "../../hooks/useWebSocketWithReconnect";
 import { AlertActions } from "./AlertActions";
 import { Alert, AlertType, AlertStatus } from "../../types/alert";
-import { OfflineStorageService } from "../../services/OfflineStorageService";
-import { MemoryProfilerService } from "../../services/MemoryProfilerService";
 
 interface AlertListData {
   alerts: Alert[];
@@ -29,66 +27,12 @@ interface WebSocketMessage {
   payload: Alert;
 }
 
-interface WebSocketError {
-  message: string;
-}
-
-const getAlertColor = (type: string) => {
-  switch (type) {
-    case "ERROR":
-      return "error.main";
-    case "WARNING":
-      return "warning.main";
-    case "SUCCESS":
-      return "success.main";
-    case "INFO":
-    default:
-      return "info.main";
-  }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "ACTIVE":
-      return "error.main";
-    case "ACKNOWLEDGED":
-      return "warning.main";
-    case "RESOLVED":
-      return "success.main";
-    case "DISMISSED":
-    default:
-      return "text.disabled";
-  }
-};
-
 const AlertItem = React.memo(
   ({ data, index, style }: ListChildComponentProps<AlertListData>) => {
     const { alerts, onAcknowledge, onDismiss, onFlag } = data;
     const alert = alerts[index];
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-    const handleKeyPress = useCallback(
-      (event: React.KeyboardEvent) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          if (
-            event.currentTarget.getAttribute("data-action") === "acknowledge"
-          ) {
-            onAcknowledge(alert.id);
-          } else if (
-            event.currentTarget.getAttribute("data-action") === "dismiss"
-          ) {
-            onDismiss(alert.id);
-          } else if (
-            event.currentTarget.getAttribute("data-action") === "flag"
-          ) {
-            onFlag(alert.id);
-          }
-        }
-      },
-      [alert.id, onAcknowledge, onDismiss, onFlag],
-    );
 
     return (
       <Box
@@ -122,7 +66,7 @@ const AlertItem = React.memo(
                 component="h3"
                 id={`alert-title-${alert.id}`}
               >
-                {alert.title}
+                {alert.type}
               </Typography>
               <Typography
                 variant="body2"
@@ -183,7 +127,7 @@ const AlertItem = React.memo(
               onAcknowledge={onAcknowledge}
               onDismiss={onDismiss}
               onFlag={onFlag}
-              onKeyPress={handleKeyPress}
+              isLoading={false}
             />
           </Box>
         </Paper>
@@ -215,44 +159,31 @@ export const RealTimeAlertList: React.FC = () => {
     isConnected,
     connectionStatus,
     reconnectAttempt,
+    subscribe,
   } = useWebSocketWithReconnect({
-    endpoint: process.env.NEXT_PUBLIC_WS_URL || "wss://api.dojopool.com/ws",
-    onMessage: (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data) as WebSocketMessage;
-        if (data.type === "alert") {
-          setAlerts((prev) => [data.payload, ...prev]);
-          setSnackbar({
-            open: true,
-            message: "New alert received",
-            severity: "info",
-          });
-        }
-      } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
-      }
-    },
-    onError: (error: WebSocketError) => {
-      console.error("WebSocket error:", error);
-      setSnackbar({
-        open: true,
-        message: "Connection error. Attempting to reconnect...",
-        severity: "error",
-      });
-    },
-    onReconnect: () => {
-      setSnackbar({
-        open: true,
-        message: "Reconnected successfully",
-        severity: "success",
-      });
-    },
+    initialDelay: 1000,
+    maxDelay: 30000,
+    maxAttempts: 10,
   });
 
   useEffect(() => {
+    const unsubscribe = subscribe("alert", (data: WebSocketMessage) => {
+      if (data.type === "alert") {
+        setAlerts((prev) => [data.payload, ...prev]);
+        setSnackbar({
+          open: true,
+          message: "New alert received",
+          severity: "info",
+        });
+      }
+    });
+
     connect();
-    return () => disconnect();
-  }, [connect, disconnect]);
+    return () => {
+      unsubscribe();
+      disconnect();
+    };
+  }, [connect, disconnect, subscribe]);
 
   const handleAcknowledge = useCallback((id: string) => {
     setAlerts((prev) =>
@@ -349,8 +280,6 @@ export const RealTimeAlertList: React.FC = () => {
           itemSize={150}
           itemData={listData}
           overscanCount={5}
-          role="list"
-          aria-label="List of alerts"
         >
           {AlertItem}
         </FixedSizeList>

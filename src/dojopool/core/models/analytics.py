@@ -26,7 +26,7 @@ class UserMetrics(BaseModel):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    user = relationship("User", backref="metrics")
+    user = relationship("User", backref="core_user_metrics")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert metric to dictionary."""

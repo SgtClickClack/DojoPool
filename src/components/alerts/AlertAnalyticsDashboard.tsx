@@ -360,7 +360,7 @@ const AlertTable: React.FC<{ data: AlertAnalyticsData }> = ({ data }) => {
         count={sortedData.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onPageChange={(_, newPage) => setPage(newPage)}
+        onPageChange={(event, newPage) => setPage(newPage)}
         onRowsPerPageChange={(event) => {
           setRowsPerPage(parseInt(event.target.value, 10));
           setPage(0);
