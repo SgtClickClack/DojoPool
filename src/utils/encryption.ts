@@ -1,50 +1,75 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+import CryptoJS from 'crypto-js';
 
-const ALGORITHM = "aes-256-gcm";
-const IV_LENGTH = 16;
-const SALT_LENGTH = 64;
-const TAG_LENGTH = 16;
+// Default encryption key (should be from environment in production)
+const DEFAULT_ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
 
-interface EncryptedData {
-  encryptedData: string;
-  iv: string;
-  authTag: string;
+/**
+ * Encrypts data using AES encryption
+ * @param data - The data to encrypt
+ * @param key - Optional encryption key
+ * @returns The encrypted string
+ */
+export function encryptData(data: string, key: string = DEFAULT_ENCRYPTION_KEY): string {
+  try {
+    const encrypted = CryptoJS.AES.encrypt(data, key).toString();
+    return encrypted;
+  } catch (error) {
+    console.error('Encryption failed:', error);
+    throw new Error('Failed to encrypt data');
+  }
 }
 
-export const encrypt = (text: string, key: Buffer): EncryptedData => {
-  const iv = randomBytes(IV_LENGTH);
-  const cipher = createCipheriv(ALGORITHM, key as any, iv as any);
-  
-  const jsonData = JSON.stringify({ data: text });
-  
-  const encrypted = Buffer.concat([
-    cipher.update(jsonData, "utf8") as any,
-    cipher.final() as any,
-  ]);
-  
-  const authTag = cipher.getAuthTag();
-  
-  return {
-    encryptedData: encrypted.toString("base64"),
-    iv: iv.toString("base64"),
-    authTag: authTag.toString("base64"),
-  };
-};
+/**
+ * Decrypts data using AES decryption
+ * @param encryptedData - The encrypted data to decrypt
+ * @param key - Optional decryption key
+ * @returns The decrypted string
+ */
+export function decryptData(encryptedData: string, key: string = DEFAULT_ENCRYPTION_KEY): string {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    
+    if (!decrypted) {
+      throw new Error('Failed to decrypt data - invalid key or corrupted data');
+    }
+    
+    return decrypted;
+  } catch (error) {
+    console.error('Decryption failed:', error);
+    throw new Error('Failed to decrypt data');
+  }
+}
 
-export const decrypt = (encryptedData: EncryptedData, key: Buffer): string => {
-  const decipher = createDecipheriv(
-    ALGORITHM,
-    key as any,
-    Buffer.from(encryptedData.iv, "base64") as any
-  );
-  
-  decipher.setAuthTag(Buffer.from(encryptedData.authTag, "base64") as any);
-  
-  const decrypted = Buffer.concat([
-    decipher.update(Buffer.from(encryptedData.encryptedData, "base64") as any) as any,
-    decipher.final() as any,
-  ]);
-  
-  const jsonData = JSON.parse(decrypted.toString("utf8"));
-  return jsonData.data;
-};
+/**
+ * Hashes data using SHA-256
+ * @param data - The data to hash
+ * @returns The hashed string
+ */
+export function hashData(data: string): string {
+  return CryptoJS.SHA256(data).toString();
+}
+
+/**
+ * Generates a random encryption key
+ * @param length - The length of the key to generate
+ * @returns A random hex string
+ */
+export function generateEncryptionKey(length: number = 32): string {
+  return CryptoJS.lib.WordArray.random(length).toString();
+}
+
+/**
+ * Verifies if encrypted data can be decrypted with a given key
+ * @param encryptedData - The encrypted data
+ * @param key - The key to test
+ * @returns True if the key can decrypt the data
+ */
+export function verifyEncryption(encryptedData: string, key: string = DEFAULT_ENCRYPTION_KEY): boolean {
+  try {
+    decryptData(encryptedData, key);
+    return true;
+  } catch {
+    return false;
+  }
+}
