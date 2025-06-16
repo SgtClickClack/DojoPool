@@ -1,7 +1,4 @@
-"""Tournament resources module.
-
-This module provides API resources for tournament operations.
-"""
+"""Tournament API resources."""
 
 from datetime import datetime
 from typing import Any, Dict
@@ -12,15 +9,16 @@ from marshmallow import Schema, ValidationError, fields, validate
 from dojopool.core.exceptions import NotFoundError
 from dojopool.core.security import require_auth, require_roles
 from dojopool.tournaments.tournament_manager import TournamentType, TournamentStatus, TournamentData
-from dojopool.models.tournament import Tournament
+from dojopool.models.tournament import Tournament, TournamentStatus, TournamentFormat
+from dojopool.services.tournament_service import TournamentService
+from dojopool.core.extensions import db
 
 from .base import BaseResource
 from dojopool.models.game import Game
 
+# Initialize tournament service
+tournament_service = TournamentService()
 
-# --- Tournament endpoints are temporarily disabled due to missing ORM model ---
-# All Tournament.query, .save(), .players, etc. usages are commented out to unblock backend startup.
-# Uncomment and refactor once a proper SQLAlchemy Tournament model is available.
 
 class TournamentSchema(Schema):
     """Schema for tournament data serialization."""
@@ -28,14 +26,15 @@ class TournamentSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     description = fields.String()
-    type = fields.Enum(TournamentType, required=True)
+    format = fields.Enum(TournamentFormat, required=True)
     status = fields.Enum(TournamentStatus, dump_only=True)
-    max_players = fields.Integer(required=True, validate=[validate.Range(min=2)])
+    max_participants = fields.Integer(required=True, validate=[validate.Range(min=2)])
     entry_fee = fields.Float(required=True, validate=[validate.Range(min=0)])
-    prize_pool = fields.Float(dump_only=True)
-    winner_id = fields.Integer(dump_only=True)
-    started_at = fields.DateTime(dump_only=True)
-    ended_at = fields.DateTime(dump_only=True)
+    prize_pool = fields.Float(required=True, validate=[validate.Range(min=0)])
+    venue_id = fields.Integer(required=True)
+    organizer_id = fields.Integer(required=True)
+    start_date = fields.DateTime(required=True)
+    end_date = fields.DateTime(required=True)
     registration_deadline = fields.DateTime(required=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
@@ -46,8 +45,9 @@ class TournamentUpdateSchema(Schema):
 
     name = fields.String()
     description = fields.String()
-    max_players = fields.Integer(validate=[validate.Range(min=2)])
+    max_participants = fields.Integer(validate=[validate.Range(min=2)])
     entry_fee = fields.Float(validate=[validate.Range(min=0)])
+    prize_pool = fields.Float(validate=[validate.Range(min=0)])
     registration_deadline = fields.DateTime()
     status = fields.Enum(TournamentStatus)
 
@@ -80,15 +80,11 @@ class TournamentResource(BaseResource):
         Returns:
             Tournament details.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # return self.success_response(data=self.schema.dump(tournament))
-        return self.success_response(
-            data={"message": "Tournament endpoints temporarily disabled"},
-            message="Tournament endpoints temporarily disabled"
-        )
+        return self.success_response(data=tournament.to_dict())
 
     @require_roles("admin")
     def put(self, tournament_id):
@@ -100,32 +96,33 @@ class TournamentResource(BaseResource):
         Returns:
             Updated tournament details.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # data = self.update_schema.load(self.get_json_data())
+        data = self.update_schema.load(self.get_json_data())
+        
+        # Ensure data is a dictionary
+        if not isinstance(data, dict):
+            raise ValidationError("Invalid data format")
 
-        # # Update fields
-        # for field, value in data.items():
-        #     setattr(tournament, field, value)
+        # Update fields
+        for field, value in data.items():
+            if hasattr(tournament, field):
+                setattr(tournament, field, value)
 
-        # # Handle status changes
-        # if "status" in data:
-        #     if data["status"] == TournamentStatus.IN_PROGRESS:
-        #         if tournament.started_at is None:
-        #             tournament.started_at = datetime.utcnow()
-        #     elif data["status"] == TournamentStatus.COMPLETED:
-        #         tournament.ended_at = datetime.utcnow()
+        # Handle status changes
+        if "status" in data:
+            if data["status"] == TournamentStatus.IN_PROGRESS:
+                if not hasattr(tournament, 'started_at') or tournament.started_at is None:
+                    tournament.started_at = datetime.utcnow()
+            elif data["status"] == TournamentStatus.COMPLETED:
+                tournament.ended_at = datetime.utcnow()
 
-        # # tournament.save()
+        db.session.commit()
 
-        # return self.success_response(
-        #     data=self.schema.dump(tournament), message="Tournament updated successfully"
-        # )
         return self.success_response(
-            data={"message": "Tournament endpoints temporarily disabled"},
-            message="Tournament endpoints temporarily disabled"
+            data=tournament.to_dict(), message="Tournament updated successfully"
         )
 
     @require_roles("admin")
@@ -138,20 +135,17 @@ class TournamentResource(BaseResource):
         Returns:
             Success message.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # if tournament.status != TournamentStatus.PENDING:
-        #     raise ValidationError("Cannot delete tournament that has started")
+        if tournament.status != TournamentStatus.PENDING:
+            raise ValidationError("Cannot delete tournament that has started")
 
-        # # tournament.delete()
+        db.session.delete(tournament)
+        db.session.commit()
 
-        # return self.success_response(message="Tournament deleted successfully")
-        return self.success_response(
-            data={"message": "Tournament endpoints temporarily disabled"},
-            message="Tournament endpoints temporarily disabled"
-        )
+        return self.success_response(message="Tournament deleted successfully")
 
 
 class TournamentListResource(BaseResource):
@@ -162,42 +156,44 @@ class TournamentListResource(BaseResource):
     @require_auth
     def get(self):
         """Get list of tournaments."""
-        # For now, return an empty list for dev, but in correct format
+        tournaments = Tournament.query.all()
         return self.success_response(
-            data={"tournaments": []}, 
-            message="No tournaments available (dev mode)"
+            data={"tournaments": [t.to_dict() for t in tournaments]}, 
+            message="Tournaments retrieved successfully"
         )
 
     @require_roles("admin")
     def post(self):
         """Create new tournament."""
-        # data = self.get_json_data()
+        data = self.get_json_data()
 
-        # # Validate registration deadline
-        # if data["registration_deadline"] <= datetime.utcnow():
-        #     raise ValidationError("Registration deadline must be in the future")
+        # Validate registration deadline
+        if data["registration_deadline"] <= datetime.utcnow():
+            raise ValidationError("Registration deadline must be in the future")
 
-        # # Create tournament
-        # tournament = Tournament(
-        #     name=data["name"],
-        #     description=data.get("description", ""),
-        #     type=data["type"],
-        #     max_players=data["max_players"],
-        #     entry_fee=data["entry_fee"],
-        #     registration_deadline=data["registration_deadline"],
-        #     status=TournamentStatus.PENDING,
-        # )
+        # Create tournament
+        tournament = Tournament(
+            name=data["name"],
+            description=data.get("description", ""),
+            format=data["format"],
+            max_participants=data["max_participants"],
+            entry_fee=data["entry_fee"],
+            prize_pool=data["prize_pool"],
+            venue_id=data["venue_id"],
+            organizer_id=data["organizer_id"],
+            start_date=data["start_date"],
+            end_date=data["end_date"],
+            registration_deadline=data["registration_deadline"],
+            status=TournamentStatus.PENDING,
+        )
 
-        # # tournament.save()
+        db.session.add(tournament)
+        db.session.commit()
 
-        # return self.success_response(
-        #     data=self.schema.dump(tournament),
-        #     message="Tournament created successfully",
-        #     status_code=201,
-        # )
         return self.success_response(
-            data={"message": "Tournament endpoints temporarily disabled"},
-            message="Tournament endpoints temporarily disabled"
+            data=tournament.to_dict(),
+            message="Tournament created successfully",
+            status_code=201,
         )
 
 
@@ -216,34 +212,34 @@ class TournamentStandingsResource(BaseResource):
         Returns:
             Tournament standings.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # # Calculate standings based on games played
-        # standings = []
-        # for player in tournament.players:
-        #     games_played = len([g for g in tournament.games if player in [g.player1, g.player2]])
-        #     games_won = len([g for g in tournament.games if g.winner_id == player.id])
-        #     total_score = sum(g.player1_score if g.player1_id == player.id else g.player2_score for g in tournament.games if player in [g.player1, g.player2])
-        #     average_score = total_score / games_played if games_played > 0 else 0
+        # Calculate standings based on games played
+        standings = []
+        for participant in tournament.participants:
+            user = participant.user
+            games_played = len([g for g in tournament.tournament_games if user in [g.game.player1, g.game.player2]])
+            games_won = len([g for g in tournament.tournament_games if g.game.winner_id == user.id])
+            total_score = sum(g.game.player1_score if g.game.player1_id == user.id else g.game.player2_score for g in tournament.tournament_games if user in [g.game.player1, g.game.player2])
+            average_score = total_score / games_played if games_played > 0 else 0
 
-        #     standings.append({
-        #         "user_id": player.id,
-        #         "username": player.username,
-        #         "games_played": games_played,
-        #         "games_won": games_won,
-        #         "total_score": total_score,
-        #         "average_score": average_score,
-        #         "rank": 0  # Will be calculated after sorting
-        #     })
+            standings.append({
+                "user_id": user.id,
+                "username": user.username,
+                "games_played": games_played,
+                "games_won": games_won,
+                "total_score": total_score,
+                "average_score": average_score,
+                "rank": 0  # Will be calculated after sorting
+            })
 
-        # # Sort by wins, then by average score
-        # standings.sort(key=lambda x: (x["games_won"], x["average_score"]), reverse=True)
+        # Sort by wins, then by average score
+        standings.sort(key=lambda x: (x["games_won"], x["average_score"]), reverse=True)
 
-        # # Assign ranks
-        # for i, standing in enumerate(standings):
-        #     standing["rank"] = i + 1
+        # Assign ranks
+        for i, standing in enumerate(standings):
+            standing["rank"] = i + 1
 
-        # return self.success_response(data=standings)
-        return {"error": "Tournament endpoints temporarily disabled"}
+        return self.success_response(data=standings)

@@ -2877,3 +2877,39 @@ User Flow: Rewards Complete → Social Sharing → Activity Feed → Friend Upda
 ---
 
 ## Notes and Considerations
+
+### 2025-01-17: Merge Conflict Resolution & Jest Shim Fix
+
+Successfully resolved all merge conflicts after pulling latest changes from GitHub. Fixed Jest shim compatibility issues and updated dependencies to latest versions. All conflicts in package.json, package-lock.json, and src/tests/setup.ts have been resolved and pushed to remote.
+
+**Core Components Implemented:**
+- Jest shim for Vitest compatibility (prevents API exposure issues)
+- Updated package dependencies to latest versions
+- Resolved merge conflicts in all affected files
+- Maintained proper Jest-compatible API exposure
+
+**Key Features:**
+- Clean Jest shim that only exposes Jest-compatible APIs
+- Updated vitest to version 3.2.3
+- Merged all unique dependencies from both branches
+- Proper mock implementations using global.jest.fn()
+
+**Integration Points:**
+- Testing: Jest shim integration with Vitest
+- Dependencies: Package.json and package-lock.json updates
+- Frontend: Tournament components and test setup
+- Backend: Flask application configuration
+
+**File Paths:**
+- package.json (resolved merge conflicts)
+- package-lock.json (resolved dependency conflicts)
+- src/tests/setup.ts (Jest shim implementation)
+- run_flask.py (no conflicts found)
+- src/dojopool/frontend/components/Tournament/TournamentDashboard.tsx (empty file)
+
+**Next Priority Task:**
+Continue with game flow and CSS implementation plan, starting with Phase 1: Tournament System Completion as outlined in the comprehensive implementation roadmap.
+
+Expected completion time: 3-5 days
+
+---

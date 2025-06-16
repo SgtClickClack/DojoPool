@@ -9,6 +9,7 @@ and docstrings for clarity.
 from typing import Any
 
 from flask_caching import Cache  # type: ignore
+from flask_cors import CORS  # type: ignore
 from flask_login import LoginManager  # type: ignore
 from flask_mail import Mail  # type: ignore
 from flask_marshmallow import Marshmallow  # type: ignore
@@ -20,6 +21,7 @@ from flask_sqlalchemy import SQLAlchemy  # type: ignore
 db: SQLAlchemy = SQLAlchemy()  # type: ignore
 ma: Marshmallow = Marshmallow()  # type: ignore
 cache: Cache = Cache()  # type: ignore
+cors: CORS = CORS()  # type: ignore
 login_manager: LoginManager = LoginManager()  # type: ignore
 mail: Mail = Mail()  # type: ignore
 migrate: Migrate = Migrate()  # type: ignore
@@ -54,6 +56,7 @@ def init_extensions(app: Any) -> None:
     db.init_app(app)
     ma.init_app(app)
     cache.init_app(app)
+    cors.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
@@ -73,6 +76,7 @@ __all__ = [
     "migrate",
     "mail",
     "cache",
+    "cors",
     "socketio",
     "login_manager",
     "init_extensions",
