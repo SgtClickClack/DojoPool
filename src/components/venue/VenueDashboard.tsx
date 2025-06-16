@@ -1,39 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Card, CardContent, Typography, Divider, List, ListItem, ListItemText, CircularProgress, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton } from '@mui/material';
-import { Heading, Text } from '@chakra-ui/react'; // Correct import for Heading and Text
-import { getVenue } from '../../dojopool/frontend/api/venues'; // Assuming this path and function exist
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Alert,
+  useTheme,
+  alpha,
+  Chip,
+  Avatar,
+  Paper,
+  LinearProgress,
+} from '@mui/material';
+import {
+  Dashboard,
+  TableBar,
+  CheckCircle,
+  Event,
+  Analytics,
+  People,
+  AttachMoney,
+  TrendingUp,
+  Business,
+  Schedule,
+} from '@mui/icons-material';
+import { getVenue } from '../../dojopool/frontend/api/venues';
 import { Venue } from '../../dojopool/frontend/types/venue';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { CheckInSystem } from './CheckInSystem';
+import { TableManagement } from './TableManagement';
 
 interface VenueDashboardProps {
-  venueId: string; // Assuming venueId is passed as a prop
-  // Or derive venueId from user context if the logged-in user is a venue owner
+  venueId: string;
+}
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`venue-tabpanel-${index}`}
+      aria-labelledby={`venue-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+    </div>
+  );
 }
 
 const VenueDashboard: React.FC<VenueDashboardProps> = ({ venueId }) => {
+  const theme = useTheme();
   const [venueData, setVenueData] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isTableDialogOpen, setIsTableDialogOpen] = useState(false);
-  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
-  const [selectedTable, setSelectedTable] = useState<any>(null);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [tableForm, setTableForm] = useState({ name: '', type: '' });
-  const [eventForm, setEventForm] = useState({ name: '', date: '', time: '' });
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  // Cyberpunk neon colors
+  const neonColors = {
+    primary: '#00ff88',
+    secondary: '#ff0099',
+    warning: '#ffcc00',
+    error: '#ff0044',
+    info: '#00ccff',
+    purple: '#8b00ff',
+    orange: '#ff6600',
+  };
 
   useEffect(() => {
     const fetchVenueData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch venue details
         const details = await getVenue(parseInt(venueId));
-        
-        // Assuming getVenue returns a Venue object directly, or needs mapping
-        // If mapping is needed, adjust based on the actual Venue type structure
-        // For now, assume direct assignment if the fetched structure is close enough
         setVenueData(details);
-
       } catch (err: any) {
         console.error("Error fetching venue data:", err);
         setError('Failed to load venue data.');
@@ -47,10 +97,14 @@ const VenueDashboard: React.FC<VenueDashboardProps> = ({ venueId }) => {
     }
   }, [venueId]);
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-        <CircularProgress />
+        <CircularProgress sx={{ color: neonColors.primary }} />
       </Box>
     );
   }
@@ -58,208 +112,411 @@ const VenueDashboard: React.FC<VenueDashboardProps> = ({ venueId }) => {
   if (error) {
     return (
       <Box sx={{ p: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert 
+          severity="error"
+          sx={{
+            background: alpha(neonColors.error, 0.1),
+            border: `1px solid ${neonColors.error}`,
+            color: neonColors.error,
+            '& .MuiAlert-icon': { color: neonColors.error },
+          }}
+        >
+          {error}
+        </Alert>
       </Box>
     );
   }
 
   if (!venueData) {
-       return (
-           <Box sx={{ p: 4 }}>
-               <Alert severity="info">No venue data available.</Alert>
-           </Box>
-       );
+    return (
+      <Box sx={{ p: 4 }}>
+        <Alert 
+          severity="info"
+          sx={{
+            background: alpha(neonColors.info, 0.1),
+            border: `1px solid ${neonColors.info}`,
+            color: neonColors.info,
+            '& .MuiAlert-icon': { color: neonColors.info },
+          }}
+        >
+          No venue data available.
+        </Alert>
+      </Box>
+    );
   }
 
-  // Access data using the structure of the imported Venue type
-  // Example: venueData.address is an object, format for display
   const displayAddress = `${venueData.address.street}, ${venueData.address.city}, ${venueData.address.state} ${venueData.address.postalCode}`;
-  // Example: venueData.businessHours is an array, format for display
-  const displayHours = venueData.businessHours.map(bh => `${bh.day}: ${bh.openTime} - ${bh.closeTime}`).join(', ');
-
-  // Handlers for table CRUD
-  const handleAddTable = () => {
-    setSelectedTable(null);
-    setTableForm({ name: '', type: '' });
-    setIsTableDialogOpen(true);
-  };
-  const handleEditTable = (table: any) => {
-    setSelectedTable(table);
-    setTableForm({ name: table.name, type: table.type });
-    setIsTableDialogOpen(true);
-  };
-  const handleDeleteTable = (tableId: string) => {
-    // TODO: Implement API call
-    setVenueData((prev: any) => ({ ...prev, tables: prev.tables.filter((t: any) => t.id !== tableId) }));
-  };
-  const handleTableDialogSave = () => {
-    if (selectedTable) {
-      // Edit
-      setVenueData((prev: any) => ({
-        ...prev,
-        tables: prev.tables.map((t: any) => t.id === selectedTable.id ? { ...t, ...tableForm } : t)
-      }));
-    } else {
-      // Add
-      setVenueData((prev: any) => ({
-        ...prev,
-        tables: [...prev.tables, { id: Date.now().toString(), ...tableForm, status: 'available' }]
-      }));
-    }
-    setIsTableDialogOpen(false);
-  };
-
-  // Handlers for event CRUD
-  const handleAddEvent = () => {
-    setSelectedEvent(null);
-    setEventForm({ name: '', date: '', time: '' });
-    setIsEventDialogOpen(true);
-  };
-  const handleEditEvent = (event: any) => {
-    setSelectedEvent(event);
-    setEventForm({ name: event.name, date: event.date, time: event.time });
-    setIsEventDialogOpen(true);
-  };
-  const handleDeleteEvent = (eventId: string) => {
-    // TODO: Implement API call
-    setVenueData((prev: any) => ({ ...prev, events: prev.events.filter((e: any) => e.id !== eventId) }));
-  };
-  const handleEventDialogSave = () => {
-    if (selectedEvent) {
-      // Edit
-      setVenueData((prev: any) => ({
-        ...prev,
-        events: prev.events.map((e: any) => e.id === selectedEvent.id ? { ...e, ...eventForm } : e)
-      }));
-    } else {
-      // Add
-      setVenueData((prev: any) => ({
-        ...prev,
-        events: [...(prev.events || []), { id: Date.now().toString(), ...eventForm }]
-      }));
-    }
-    setIsEventDialogOpen(false);
-  };
+  const revenueGrowth = 12.5; // Mock data - calculate from actual data
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Heading as="h4" size="lg" gutterBottom>Venue Dashboard: {venueData.name}</Heading>
-      <Text sx={{ mb: 4 }}>Welcome to your venue management dashboard.</Text>
+    <Box sx={{ p: { xs: 2, md: 4 }, minHeight: '100vh', background: alpha(theme.palette.background.default, 0.95) }}>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 'bold',
+            background: `linear-gradient(45deg, ${neonColors.primary} 30%, ${neonColors.secondary} 90%)`,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: `0 0 30px ${alpha(neonColors.primary, 0.5)}`,
+            mb: 1,
+          }}
+        >
+          {venueData.name}
+        </Typography>
+        <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
+          <Business sx={{ fontSize: 16, verticalAlign: 'middle', mr: 1 }} />
+          {displayAddress}
+        </Typography>
+      </Box>
 
-      <Grid container spacing={4}>
-        {/* Venue Information Section */}
-        <Grid item xs={12} md={6}>
-          <Card>
+      {/* Quick Stats Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              background: `linear-gradient(135deg, ${alpha(neonColors.info, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+              border: `1px solid ${alpha(neonColors.info, 0.3)}`,
+              borderRadius: 2,
+              boxShadow: `0 0 20px ${alpha(neonColors.info, 0.2)}`,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" gutterBottom>Venue Information</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="body1"><strong>Address:</strong> {displayAddress}</Typography>
-              <Typography variant="body1"><strong>Hours:</strong> {displayHours}</Typography>
-              <Typography variant="body1"><strong>Contact:</strong> {venueData.contact.email || venueData.contact.phone || venueData.contact.website}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Quick Stats Section */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Today's Overview</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="body1"><strong>Check-ins:</strong> {venueData.stats.totalCheckins}</Typography>
-              <Typography variant="body1"><strong>Games Played:</strong> {venueData.stats.totalGamesPlayed}</Typography>
-              <Typography variant="body1"><strong>Avg. Game Duration:</strong> {venueData.stats.averageGameDuration}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Tables Status Section */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Tables Status</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                <Button startIcon={<AddIcon />} onClick={handleAddTable} size="small">Add Table</Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="h4" sx={{ color: neonColors.info, fontWeight: 'bold' }}>
+                    {venueData.stats.totalCheckins}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    Today's Check-ins
+                  </Typography>
+                </Box>
+                <Avatar
+                  sx={{
+                    background: alpha(neonColors.info, 0.2),
+                    color: neonColors.info,
+                    boxShadow: `0 0 20px ${alpha(neonColors.info, 0.5)}`,
+                  }}
+                >
+                  <People />
+                </Avatar>
               </Box>
-              <List>
-                {venueData.tables.length === 0 && <ListItem><ListItemText primary="No tables configured." /></ListItem>}
-                {venueData.tables.map(table => (
-                  <ListItem key={table.id} secondaryAction={
-                    <>
-                      <IconButton edge="end" aria-label="edit" onClick={() => handleEditTable(table)}><EditIcon /></IconButton>
-                      <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteTable(table.id)}><DeleteIcon /></IconButton>
-                    </>
-                  }>
-                    <ListItemText 
-                      primary={`${table.name} - ${table.status}`}
-                      secondary={`Type: ${table.type}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Upcoming Events Section */}
-        <Grid item xs={12}>
-          <Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              background: `linear-gradient(135deg, ${alpha(neonColors.primary, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+              border: `1px solid ${alpha(neonColors.primary, 0.3)}`,
+              borderRadius: 2,
+              boxShadow: `0 0 20px ${alpha(neonColors.primary, 0.2)}`,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" gutterBottom>Upcoming Events</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                <Button startIcon={<AddIcon />} onClick={handleAddEvent} size="small">Add Event</Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="h4" sx={{ color: neonColors.primary, fontWeight: 'bold' }}>
+                    {venueData.stats.totalGamesPlayed}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    Games Today
+                  </Typography>
+                </Box>
+                <Avatar
+                  sx={{
+                    background: alpha(neonColors.primary, 0.2),
+                    color: neonColors.primary,
+                    boxShadow: `0 0 20px ${alpha(neonColors.primary, 0.5)}`,
+                  }}
+                >
+                  <TableBar />
+                </Avatar>
               </Box>
-              <List>
-                {venueData.events?.length === 0 && <ListItem><ListItemText primary="No upcoming events." /></ListItem>}
-                {venueData.events?.map(event => (
-                  <ListItem key={event.id} secondaryAction={
-                    <>
-                      <IconButton edge="end" aria-label="edit" onClick={() => handleEditEvent(event)}><EditIcon /></IconButton>
-                      <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteEvent(event.id)}><DeleteIcon /></IconButton>
-                    </>
-                  }>
-                    <ListItemText 
-                      primary={`${event.name} on ${event.date}`}
-                      secondary={`Time: ${event.time}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
             </CardContent>
           </Card>
         </Grid>
 
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              background: `linear-gradient(135deg, ${alpha(neonColors.warning, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+              border: `1px solid ${alpha(neonColors.warning, 0.3)}`,
+              borderRadius: 2,
+              boxShadow: `0 0 20px ${alpha(neonColors.warning, 0.2)}`,
+            }}
+          >
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="h4" sx={{ color: neonColors.warning, fontWeight: 'bold' }}>
+                    ${(venueData.stats.totalRevenue || 0).toLocaleString()}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    Today's Revenue
+                  </Typography>
+                </Box>
+                <Avatar
+                  sx={{
+                    background: alpha(neonColors.warning, 0.2),
+                    color: neonColors.warning,
+                    boxShadow: `0 0 20px ${alpha(neonColors.warning, 0.5)}`,
+                  }}
+                >
+                  <AttachMoney />
+                </Avatar>
+              </Box>
+              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TrendingUp sx={{ color: neonColors.primary, fontSize: 16 }} />
+                <Typography variant="caption" sx={{ color: neonColors.primary }}>
+                  +{revenueGrowth}% from yesterday
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              background: `linear-gradient(135deg, ${alpha(neonColors.secondary, 0.1)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+              border: `1px solid ${alpha(neonColors.secondary, 0.3)}`,
+              borderRadius: 2,
+              boxShadow: `0 0 20px ${alpha(neonColors.secondary, 0.2)}`,
+            }}
+          >
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="h4" sx={{ color: neonColors.secondary, fontWeight: 'bold' }}>
+                    {venueData.stats.averageGameDuration}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    Avg. Game Time
+                  </Typography>
+                </Box>
+                <Avatar
+                  sx={{
+                    background: alpha(neonColors.secondary, 0.2),
+                    color: neonColors.secondary,
+                    boxShadow: `0 0 20px ${alpha(neonColors.secondary, 0.5)}`,
+                  }}
+                >
+                  <Schedule />
+                </Avatar>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
-      {/* Table Dialog */}
-      <Dialog open={isTableDialogOpen} onClose={() => setIsTableDialogOpen(false)}>
-        <DialogTitle>{selectedTable ? 'Edit Table' : 'Add Table'}</DialogTitle>
-        <DialogContent>
-          <TextField label="Name" value={tableForm.name} onChange={e => setTableForm(f => ({ ...f, name: e.target.value }))} fullWidth sx={{ mb: 2 }} />
-          <TextField label="Type" value={tableForm.type} onChange={e => setTableForm(f => ({ ...f, type: e.target.value }))} fullWidth />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsTableDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleTableDialogSave} variant="contained">Save</Button>
-        </DialogActions>
-      </Dialog>
+      {/* Main Content Tabs */}
+      <Paper
+        sx={{
+          background: alpha(theme.palette.background.paper, 0.95),
+          border: `1px solid ${alpha(neonColors.primary, 0.3)}`,
+          borderRadius: 2,
+          overflow: 'hidden',
+        }}
+      >
+        <Tabs
+          value={selectedTab}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            borderBottom: `1px solid ${alpha(neonColors.primary, 0.3)}`,
+            background: alpha(theme.palette.background.default, 0.5),
+            '& .MuiTab-root': {
+              color: theme.palette.text.secondary,
+              '&.Mui-selected': {
+                color: neonColors.primary,
+                textShadow: `0 0 10px ${neonColors.primary}`,
+              },
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: neonColors.primary,
+              height: 3,
+              boxShadow: `0 0 10px ${neonColors.primary}`,
+            },
+          }}
+        >
+          <Tab icon={<Dashboard />} label="Overview" />
+          <Tab icon={<CheckCircle />} label="Check-in System" />
+          <Tab icon={<TableBar />} label="Table Management" />
+          <Tab icon={<Event />} label="Events" />
+          <Tab icon={<Analytics />} label="Analytics" />
+        </Tabs>
 
-      {/* Event Dialog */}
-      <Dialog open={isEventDialogOpen} onClose={() => setIsEventDialogOpen(false)}>
-        <DialogTitle>{selectedEvent ? 'Edit Event' : 'Add Event'}</DialogTitle>
-        <DialogContent>
-          <TextField label="Name" value={eventForm.name} onChange={e => setEventForm(f => ({ ...f, name: e.target.value }))} fullWidth sx={{ mb: 2 }} />
-          <TextField label="Date" value={eventForm.date} onChange={e => setEventForm(f => ({ ...f, date: e.target.value }))} fullWidth sx={{ mb: 2 }} />
-          <TextField label="Time" value={eventForm.time} onChange={e => setEventForm(f => ({ ...f, time: e.target.value }))} fullWidth />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsEventDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleEventDialogSave} variant="contained">Save</Button>
-        </DialogActions>
-      </Dialog>
+        <Box sx={{ p: 3 }}>
+          <TabPanel value={selectedTab} index={0}>
+            {/* Overview Tab */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{
+                    background: alpha(theme.palette.background.default, 0.5),
+                    border: `1px solid ${alpha(neonColors.info, 0.3)}`,
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        color: neonColors.info, 
+                        mb: 2,
+                        textShadow: `0 0 5px ${neonColors.info}`,
+                      }}
+                    >
+                      Venue Information
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Typography variant="body2">
+                        <strong>Hours:</strong> {venueData.businessHours.map(bh => `${bh.day}: ${bh.openTime} - ${bh.closeTime}`).join(', ')}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Contact:</strong> {venueData.contact.email || venueData.contact.phone}
+                      </Typography>
+                      {venueData.contact.website && (
+                        <Typography variant="body2">
+                          <strong>Website:</strong> {venueData.contact.website}
+                        </Typography>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
 
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{
+                    background: alpha(theme.palette.background.default, 0.5),
+                    border: `1px solid ${alpha(neonColors.warning, 0.3)}`,
+                    borderRadius: 2,
+                  }}
+                >
+                  <CardContent>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        color: neonColors.warning, 
+                        mb: 2,
+                        textShadow: `0 0 5px ${neonColors.warning}`,
+                      }}
+                    >
+                      Active Tables Status
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                      {venueData.tables.map((table, index) => (
+                        <Chip
+                          key={table.id}
+                          label={`Table ${table.name}`}
+                          sx={{
+                            background: alpha(table.status === 'occupied' ? neonColors.warning : neonColors.primary, 0.2),
+                            color: table.status === 'occupied' ? neonColors.warning : neonColors.primary,
+                            border: `1px solid ${table.status === 'occupied' ? neonColors.warning : neonColors.primary}`,
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </TabPanel>
+
+          <TabPanel value={selectedTab} index={1}>
+            {/* Check-in System Tab */}
+            <CheckInSystem venueId={venueId} venueName={venueData.name} />
+          </TabPanel>
+
+          <TabPanel value={selectedTab} index={2}>
+            {/* Table Management Tab */}
+            <TableManagement venueId={venueId} />
+          </TabPanel>
+
+          <TabPanel value={selectedTab} index={3}>
+            {/* Events Tab */}
+            <Card
+              sx={{
+                background: alpha(theme.palette.background.default, 0.5),
+                border: `1px solid ${alpha(neonColors.secondary, 0.3)}`,
+                borderRadius: 2,
+              }}
+            >
+              <CardContent>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    color: neonColors.secondary,
+                    textShadow: `0 0 10px ${neonColors.secondary}`,
+                    mb: 3,
+                  }}
+                >
+                  Upcoming Events
+                </Typography>
+                {venueData.events && venueData.events.length > 0 ? (
+                  <Grid container spacing={2}>
+                    {venueData.events.map((event) => (
+                      <Grid item xs={12} sm={6} md={4} key={event.id}>
+                        <Card
+                          sx={{
+                            background: alpha(neonColors.purple, 0.1),
+                            border: `1px solid ${alpha(neonColors.purple, 0.3)}`,
+                            borderRadius: 2,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              transform: 'translateY(-3px)',
+                              boxShadow: `0 0 20px ${alpha(neonColors.purple, 0.5)}`,
+                            },
+                          }}
+                        >
+                          <CardContent>
+                            <Typography variant="h6" sx={{ color: neonColors.purple }}>
+                              {event.name}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                              {event.date} at {event.time}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
+                    No upcoming events scheduled.
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </TabPanel>
+
+          <TabPanel value={selectedTab} index={4}>
+            {/* Analytics Tab */}
+            <Typography variant="h5" sx={{ color: neonColors.info, mb: 3 }}>
+              Analytics & Insights
+            </Typography>
+            <Alert 
+              severity="info"
+              sx={{
+                background: alpha(neonColors.info, 0.1),
+                border: `1px solid ${neonColors.info}`,
+                color: neonColors.info,
+                '& .MuiAlert-icon': { color: neonColors.info },
+              }}
+            >
+              Advanced analytics features coming soon!
+            </Alert>
+          </TabPanel>
+        </Box>
+      </Paper>
     </Box>
   );
 };

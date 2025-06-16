@@ -9,15 +9,21 @@ import {
   Button,
   Card,
   CardContent,
-  Grid
+  Grid,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import {
   EmojiEvents,
   PlayArrow,
   Stop,
-  SportsEsports
+  SportsEsports,
+  GridView,
+  AccountTree,
 } from '@mui/icons-material';
 import { Tournament, Match, Participant } from '../../types/tournament';
+import { useAuth } from '../../hooks/useAuth';
+import { BracketVisualization } from './BracketVisualization';
 
 interface TournamentBracketProps {
   tournament: Tournament;
@@ -33,6 +39,17 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   isAdmin = false
 }) => {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'interactive'>('interactive');
+  const { user } = useAuth();
+
+  const handleViewModeChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newMode: 'grid' | 'interactive' | null
+  ) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
 
   const getMatchStatusColor = (status: string) => {
     switch (status) {
@@ -155,39 +172,204 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
     letterSpacing: '1px',
   });
 
-  if (!tournament.matches || tournament.matches.length === 0) {
+  // If interactive mode is selected and matches exist, use the new BracketVisualization
+  if (viewMode === 'interactive' && tournament.matches && tournament.matches.length > 0) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '400px',
-          background: 'rgba(26, 26, 46, 0.6)',
-          border: '1px solid rgba(0, 255, 255, 0.2)',
-          borderRadius: 3,
-          backdropFilter: 'blur(10px)'
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#888888',
-            textAlign: 'center',
-            background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}
-        >
-          Tournament bracket will be generated when participants register
-        </Typography>
+      <Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" sx={{ ...neonTextStyle }}>
+            Tournament Bracket
+          </Typography>
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={handleViewModeChange}
+            size="small"
+            sx={{
+              '& .MuiToggleButton-root': {
+                color: '#00ff88',
+                borderColor: '#00ff88',
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                  color: '#00ff88',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                  },
+                },
+              },
+            }}
+          >
+            <ToggleButton value="grid" aria-label="grid view">
+              <GridView sx={{ mr: 1 }} />
+              Grid View
+            </ToggleButton>
+            <ToggleButton value="interactive" aria-label="interactive view">
+              <AccountTree sx={{ mr: 1 }} />
+              Interactive View
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+        <BracketVisualization
+          tournament={tournament}
+          onMatchClick={onMatchClick}
+          highlightUserId={user?.uid}
+          enableRealTimeUpdates={true}
+        />
       </Box>
     );
   }
 
-  // Group matches by round
-  const rounds = tournament.matches.reduce((acc, match) => {
+  // Check if we have matches or need to use participant-based bracket
+  if (!tournament.matches || tournament.matches.length === 0) {
+    // Check if we have participants for fallback bracket
+    if (!tournament.participantsList || tournament.participantsList.length < 2) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '400px',
+            background: 'rgba(26, 26, 46, 0.6)',
+            border: '1px solid rgba(0, 255, 255, 0.2)',
+            borderRadius: 3,
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              color: '#888888',
+              textAlign: 'center',
+              background: 'linear-gradient(45deg, #00ffff, #ff00ff)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Tournament bracket will be generated when participants register
+          </Typography>
+        </Box>
+      );
+    }
+
+    // Generate bracket from participants
+    function generateBracket(participants: Participant[]): Participant[][] {
+      const participantRounds: Participant[][] = [];
+      let currentRound = participants.slice();
+      while (currentRound.length > 1) {
+        participantRounds.push(currentRound);
+        const nextRound: Participant[] = [];
+        for (let i = 0; i < currentRound.length; i += 2) {
+          nextRound.push({
+            id: `winner-${participantRounds.length}-${i/2}`,
+            username: 'TBD',
+            status: 'pending',
+          } as Participant);
+        }
+        currentRound = nextRound;
+      }
+      if (currentRound.length === 1) {
+        participantRounds.push(currentRound);
+      }
+      return participantRounds;
+    }
+
+    const participantRounds = generateBracket(tournament.participantsList);
+    
+    return (
+      <Box>
+        <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <EmojiEvents sx={{ color: '#00ff9d' }} />
+          Single Elimination Bracket
+        </Typography>
+        <Grid container spacing={3}>
+          {participantRounds.map((round, roundIdx) => (
+            <Grid item key={roundIdx} xs={12} md={6} lg={4}>
+              <Card sx={cyberCardStyle}>
+                <Typography variant="h6" align="center" sx={{ 
+                  ...neonTextStyle,
+                  fontSize: '1.1rem',
+                  mb: 2,
+                  color: roundIdx === 0 ? '#00ff9d' : roundIdx === participantRounds.length - 1 ? '#ffff00' : '#00a8ff'
+                }}>
+                  {roundIdx === 0
+                    ? 'ROUND 1'
+                    : roundIdx === participantRounds.length - 1
+                    ? '🏆 FINAL'
+                    : `ROUND ${roundIdx + 1}`}
+                </Typography>
+                {round.map((p, matchIdx) => {
+                  if (roundIdx === 0) {
+                    const p2 = round[matchIdx + 1];
+                    if (matchIdx % 2 === 0) {
+                      return (
+                        <Box key={p.id} sx={{ 
+                          mb: 2,
+                          p: 2,
+                          border: '1px solid rgba(0, 255, 157, 0.3)',
+                          borderRadius: 2,
+                          background: 'rgba(0, 255, 157, 0.05)',
+                          textAlign: 'center'
+                        }}>
+                          <Typography sx={{ 
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            textShadow: '0 0 5px rgba(0, 255, 157, 0.5)',
+                            mb: 1
+                          }}>
+                            {p.username || 'TBD'}
+                          </Typography>
+                          <Typography sx={{ 
+                            color: '#00ff9d',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            mb: 1
+                          }}>
+                            VS
+                          </Typography>
+                          <Typography sx={{ 
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            textShadow: '0 0 5px rgba(0, 255, 157, 0.5)'
+                          }}>
+                            {p2?.username || 'TBD'}
+                          </Typography>
+                        </Box>
+                      );
+                    }
+                    return null;
+                  } else {
+                    return (
+                      <Box key={p.id} sx={{ 
+                        mb: 2,
+                        p: 2,
+                        border: '1px solid rgba(0, 168, 255, 0.3)',
+                        borderRadius: 2,
+                        background: 'rgba(0, 168, 255, 0.05)',
+                        textAlign: 'center'
+                      }}>
+                        <Typography sx={{ 
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          textShadow: '0 0 5px rgba(0, 168, 255, 0.5)'
+                        }}>
+                          {p.username || 'TBD'}
+                        </Typography>
+                      </Box>
+                    );
+                  }
+                })}
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    );
+  }
+
+  // Group matches by round for grid view
+  const matchRounds = tournament.matches.reduce((acc, match) => {
     if (!acc[match.round]) {
       acc[match.round] = [];
     }
@@ -197,221 +379,118 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
 
   const roundNames = ['Quarter Finals', 'Semi Finals', 'Finals', 'Championship'];
 
-  if (tournament.matches.length > 0) {
-    return (
-      <Box>
-        <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" sx={{ ...neonTextStyle, display: 'flex', alignItems: 'center', gap: 1 }}>
           <EmojiEvents sx={{ color: '#00ff9d' }} />
           Tournament Bracket
         </Typography>
-        <Grid container spacing={3}>
-          {Object.entries(rounds).map(([round, matches], index) => (
-            <Grid item key={round} xs={12} md={6} lg={4}>
-              <Card sx={cyberCardStyle}>
-                <Typography variant="h6" align="center" sx={{ 
-                  ...neonTextStyle,
-                  fontSize: '1.1rem',
-                  mb: 2,
-                  color: index === Object.keys(rounds).length - 1 ? '#ffff00' : '#00a8ff'
-                }}>
-                  {index === Object.keys(rounds).length - 1 ? '🏆 FINAL' : `ROUND ${index + 1}`}
-                </Typography>
-                {matches.map((match) => (
-                  <Box key={match.id} sx={{ 
-                    mb: 2, 
-                    p: 2, 
-                    border: '1px solid rgba(0, 255, 157, 0.3)', 
-                    borderRadius: 2,
-                    background: 'rgba(0, 255, 157, 0.05)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      borderColor: 'rgba(0, 255, 157, 0.6)',
-                      background: 'rgba(0, 255, 157, 0.1)',
-                    }
-                  }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography sx={{ 
-                        fontWeight: 'bold',
-                        color: '#fff',
-                        textShadow: '0 0 5px rgba(0, 255, 157, 0.5)',
-                        fontSize: '0.9rem'
-                      }}>
-                        {match.participant1?.username || 'TBD'} vs {match.participant2?.username || 'TBD'}
-                      </Typography>
-                      <Chip 
-                        label={match.status} 
-                        size="small" 
-                        sx={getMatchStatusChipStyle(match.status)}
-                      />
-                    </Box>
-                    
-                    {match.score && (
-                      <Typography variant="caption" sx={{ 
-                        color: '#00ff9d',
-                        display: 'block',
-                        mb: 1,
-                        fontWeight: 'bold'
-                      }}>
-                        Score: {match.score}
-                      </Typography>
-                    )}
-                    
-                    {match.winner && (
-                      <Typography variant="caption" sx={{ 
-                        color: '#ffff00',
-                        display: 'block',
-                        mb: 1,
-                        fontWeight: 'bold',
-                        textShadow: '0 0 5px #ffff00'
-                      }}>
-                        Winner: {match.winner.username}
-                      </Typography>
-                    )}
-                    
-                    {isAdmin && (match.status === 'pending' || match.status === 'in_progress') && (
-                      <Box sx={{ mt: 1 }}>
-                        <button 
-                          onClick={() => onReportResult && onReportResult(match)}
-                          style={cyberButtonStyle}
-                        >
-                          Report Result
-                        </button>
-                      </Box>
-                    )}
-                  </Box>
-                ))}
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={handleViewModeChange}
+          size="small"
+          sx={{
+            '& .MuiToggleButton-root': {
+              color: '#00ff88',
+              borderColor: '#00ff88',
+              '&.Mui-selected': {
+                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                color: '#00ff88',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                },
+              },
+            },
+          }}
+        >
+          <ToggleButton value="grid" aria-label="grid view">
+            <GridView sx={{ mr: 1 }} />
+            Grid View
+          </ToggleButton>
+          <ToggleButton value="interactive" aria-label="interactive view">
+            <AccountTree sx={{ mr: 1 }} />
+            Interactive View
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
-    );
-  }
-
-  // Fallback: participant-based bracket (legacy)
-  if (!tournament.participants || tournament.participants.length < 2) {
-    return (
-      <Card sx={cyberCardStyle}>
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <SportsEsports sx={{ fontSize: '3rem', color: '#00ff9d', mb: 2 }} />
-          <Typography sx={{ color: '#888', fontSize: '1.1rem', mb: 1 }}>
-            Bracket Generation Pending
-          </Typography>
-          <Typography sx={{ color: '#666', fontSize: '0.9rem' }}>
-            Bracket will be generated when enough participants have registered.
-          </Typography>
-        </Box>
-      </Card>
-    );
-  }
-
-  // Generate bracket from participants
-  function generateBracket(participants: Participant[]): Participant[][] {
-    const rounds: Participant[][] = [];
-    let currentRound = participants.slice();
-    while (currentRound.length > 1) {
-      rounds.push(currentRound);
-      const nextRound: Participant[] = [];
-      for (let i = 0; i < currentRound.length; i += 2) {
-        nextRound.push({
-          id: `winner-${rounds.length}-${i/2}`,
-          username: 'TBD',
-          status: 'pending',
-        } as Participant);
-      }
-      currentRound = nextRound;
-    }
-    if (currentRound.length === 1) {
-      rounds.push(currentRound);
-    }
-    return rounds;
-  }
-
-  const rounds = generateBracket(tournament.participants);
-  
-  return (
-    <Box>
-      <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <EmojiEvents sx={{ color: '#00ff9d' }} />
-        Single Elimination Bracket
-      </Typography>
       <Grid container spacing={3}>
-        {rounds.map((round, roundIdx) => (
-          <Grid item key={roundIdx} xs={12} md={6} lg={4}>
+        {Object.entries(matchRounds).map(([round, matches], index) => (
+          <Grid item key={round} xs={12} md={6} lg={4}>
             <Card sx={cyberCardStyle}>
               <Typography variant="h6" align="center" sx={{ 
                 ...neonTextStyle,
                 fontSize: '1.1rem',
                 mb: 2,
-                color: roundIdx === 0 ? '#00ff9d' : roundIdx === rounds.length - 1 ? '#ffff00' : '#00a8ff'
+                color: index === Object.keys(matchRounds).length - 1 ? '#ffff00' : '#00a8ff'
               }}>
-                {roundIdx === 0
-                  ? 'ROUND 1'
-                  : roundIdx === rounds.length - 1
-                  ? '🏆 FINAL'
-                  : `ROUND ${roundIdx + 1}`}
+                {index === Object.keys(matchRounds).length - 1 ? '🏆 FINAL' : `ROUND ${index + 1}`}
               </Typography>
-              {round.map((p, matchIdx) => {
-                if (roundIdx === 0) {
-                  const p2 = round[matchIdx + 1];
-                  if (matchIdx % 2 === 0) {
-                    return (
-                      <Box key={p.id} sx={{ 
-                        mb: 2,
-                        p: 2,
-                        border: '1px solid rgba(0, 255, 157, 0.3)',
-                        borderRadius: 2,
-                        background: 'rgba(0, 255, 157, 0.05)',
-                        textAlign: 'center'
-                      }}>
-                        <Typography sx={{ 
-                          color: '#fff',
-                          fontWeight: 'bold',
-                          textShadow: '0 0 5px rgba(0, 255, 157, 0.5)',
-                          mb: 1
-                        }}>
-                          {p.username || 'TBD'}
-                        </Typography>
-                        <Typography sx={{ 
-                          color: '#00ff9d',
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem',
-                          mb: 1
-                        }}>
-                          VS
-                        </Typography>
-                        <Typography sx={{ 
-                          color: '#fff',
-                          fontWeight: 'bold',
-                          textShadow: '0 0 5px rgba(0, 255, 157, 0.5)'
-                        }}>
-                          {p2?.username || 'TBD'}
-                        </Typography>
-                      </Box>
-                    );
+              {matches.map((match) => (
+                <Box key={match.id} sx={{ 
+                  mb: 2, 
+                  p: 2, 
+                  border: '1px solid rgba(0, 255, 157, 0.3)', 
+                  borderRadius: 2,
+                  background: 'rgba(0, 255, 157, 0.05)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    borderColor: 'rgba(0, 255, 157, 0.6)',
+                    background: 'rgba(0, 255, 157, 0.1)',
                   }
-                  return null;
-                } else {
-                  return (
-                    <Box key={p.id} sx={{ 
-                      mb: 2,
-                      p: 2,
-                      border: '1px solid rgba(0, 168, 255, 0.3)',
-                      borderRadius: 2,
-                      background: 'rgba(0, 168, 255, 0.05)',
-                      textAlign: 'center'
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography sx={{ 
+                      fontWeight: 'bold',
+                      color: '#fff',
+                      textShadow: '0 0 5px rgba(0, 255, 157, 0.5)',
+                      fontSize: '0.9rem'
                     }}>
-                      <Typography sx={{ 
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        textShadow: '0 0 5px rgba(0, 168, 255, 0.5)'
-                      }}>
-                        {p.username || 'TBD'}
-                      </Typography>
+                      {match.participant1?.username || 'TBD'} vs {match.participant2?.username || 'TBD'}
+                    </Typography>
+                    <Chip 
+                      label={match.status} 
+                      size="small" 
+                      sx={getMatchStatusChipStyle(match.status)}
+                    />
+                  </Box>
+                  
+                  {match.score && (
+                    <Typography variant="caption" sx={{ 
+                      color: '#00ff9d',
+                      display: 'block',
+                      mb: 1,
+                      fontWeight: 'bold'
+                    }}>
+                      Score: {match.score}
+                    </Typography>
+                  )}
+                  
+                  {match.winner && (
+                    <Typography variant="caption" sx={{ 
+                      color: '#ffff00',
+                      display: 'block',
+                      mb: 1,
+                      fontWeight: 'bold',
+                      textShadow: '0 0 5px #ffff00'
+                    }}>
+                      Winner: {match.winner.username}
+                    </Typography>
+                  )}
+                  
+                  {isAdmin && (match.status === 'pending' || match.status === 'in_progress') && (
+                    <Box sx={{ mt: 1 }}>
+                      <button 
+                        onClick={() => onReportResult && onReportResult(match)}
+                        style={cyberButtonStyle}
+                      >
+                        Report Result
+                      </button>
                     </Box>
-                  );
-                }
-              })}
+                  )}
+                </Box>
+              ))}
             </Card>
           </Grid>
         ))}
