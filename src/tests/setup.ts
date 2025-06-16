@@ -4,19 +4,26 @@ import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
 
 // Create vi mock functions
-const mockFn = () => {
-  const fn = jest.fn ? jest.fn() : (() => {});
-  return fn;
-};
+const mockFn = <T extends (...args: any[]) => any>(implementation?: T) =>
+  implementation ? vi.fn(implementation) : vi.fn();
 
-const vi = {
-  fn: mockFn,
-  clearAllMocks: () => {
-    if (jest && jest.clearAllMocks) {
-      jest.clearAllMocks();
-    }
-  }
-};
+// Provide a minimal Jest API shim that delegates to Vitest's `vi` utilities
+if (!(globalThis as any).jest) {
+  (globalThis as any).jest = {
+    ...vi,
+    fn: vi.fn,
+    spyOn: vi.spyOn,
+    mock: vi.mock,
+    clearAllMocks: vi.clearAllMocks,
+    resetAllMocks: vi.resetAllMocks,
+    restoreAllMocks: vi.restoreAllMocks,
+    useFakeTimers: vi.useFakeTimers,
+    useRealTimers: vi.useRealTimers,
+    advanceTimersByTime: vi.advanceTimersByTime,
+    runOnlyPendingTimers: vi.runOnlyPendingTimers,
+    runAllTimers: vi.runAllTimers,
+  };
+}
 
 // Mock browser APIs
 (global as any).TextEncoder = TextEncoder;
