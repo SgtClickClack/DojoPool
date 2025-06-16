@@ -10,7 +10,7 @@ export const useWebSocket = () => {
   useEffect(() => {
     if (user) {
       const newSocket = io(
-        process.env.REACT_APP_WS_URL || "ws://localhost:3101",
+        process.env.REACT_APP_WS_URL || "ws://localhost:8000",
         {
           auth: {
             token: user.token,

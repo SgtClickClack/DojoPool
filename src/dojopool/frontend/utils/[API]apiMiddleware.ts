@@ -45,7 +45,7 @@ const DEFAULT_CONFIG: ApiMiddlewareConfig = {
     requireAuth: true,
     validateContentType: true,
     validateOrigin: true,
-    allowedOrigins: ["http://localhost:3000"],
+    allowedOrigins: ["http://localhost:8000"],
   },
   audit: {
     enabled: true,

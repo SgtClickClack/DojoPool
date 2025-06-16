@@ -28,7 +28,7 @@ describe("Load Testing", () => {
       // Monitor all games simultaneously
       cy.wrap(gameSessions).each((gameId) => {
         cy.window().then((win) => {
-          new win.WebSocket(`ws://localhost:3000/games/${gameId}/spectate`);
+          new win.WebSocket(`ws://localhost:8000/games/${gameId}/spectate`);
         });
       });
 

@@ -11,6 +11,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
+  resetRequestSent: boolean;
 }
 
 export const useAuth = () => {
@@ -18,6 +19,7 @@ export const useAuth = () => {
     user: null,
     loading: true,
     error: null,
+    resetRequestSent: false,
   });
 
   useEffect(() => {
@@ -84,6 +86,36 @@ export const useAuth = () => {
     return token;
   }, []);
 
+  const sendPasswordResetEmail = useCallback(async (email: string) => {
+    try {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      // TODO: Implement password reset API call
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Password reset request failed");
+      }
+
+      setState((prev) => ({
+        ...prev,
+        resetRequestSent: true,
+        loading: false,
+      }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : "An error occurred",
+        loading: false,
+      }));
+    }
+  }, []);
+
   const register = useCallback(
     async (email: string, password: string, name: string) => {
       try {
@@ -123,9 +155,11 @@ export const useAuth = () => {
     user: state.user,
     loading: state.loading,
     error: state.error,
+    resetRequestSent: state.resetRequestSent,
     login,
     logout,
     getToken,
+    sendPasswordResetEmail,
     register,
   };
 };
