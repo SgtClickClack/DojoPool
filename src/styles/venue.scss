@@ -1,0 +1,395 @@
+// Cyberpunk Neon Color Palette
+$neon-primary: #00ff88;
+$neon-secondary: #ff0099;
+$neon-warning: #ffcc00;
+$neon-error: #ff0044;
+$neon-info: #00ccff;
+$neon-purple: #8b00ff;
+$neon-orange: #ff6600;
+
+// Dark backgrounds
+$dark-bg: #0a0a0a;
+$dark-surface: #1a1a1a;
+$dark-elevated: #2a2a2a;
+
+// Utility mixins
+@mixin neon-glow($color, $intensity: 10px) {
+  filter: drop-shadow(0 0 $intensity $color);
+  text-shadow: 0 0 $intensity $color;
+}
+
+@mixin neon-border($color, $width: 2px) {
+  border: $width solid transparentize($color, 0.7);
+  box-shadow: 
+    0 0 10px transparentize($color, 0.5),
+    inset 0 0 10px transparentize($color, 0.9);
+}
+
+@mixin cyberpunk-gradient($color1, $color2) {
+  background: linear-gradient(135deg, $color1 0%, $color2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin pulse-animation($color, $duration: 1.5s) {
+  animation: pulse-#{$color} $duration infinite;
+  
+  @keyframes pulse-#{$color} {
+    0% { box-shadow: 0 0 20px transparentize($color, 0.8); }
+    50% { box-shadow: 0 0 30px transparentize($color, 0.6); }
+    100% { box-shadow: 0 0 20px transparentize($color, 0.8); }
+  }
+}
+
+// Venue Check-in System Styles
+.venue-checkin {
+  &__container {
+    background: $dark-bg;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  &__header {
+    @include cyberpunk-gradient($neon-primary, $neon-secondary);
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  &__card {
+    background: transparentize($dark-surface, 0.1);
+    @include neon-border($neon-primary);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-3px);
+      @include neon-border($neon-secondary);
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  &__stat-box {
+    background: transparentize($dark-elevated, 0.5);
+    @include neon-border($neon-info, 1px);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    
+    &-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: $neon-info;
+      @include neon-glow($neon-info, 15px);
+    }
+    
+    &-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: $neon-warning;
+      @include neon-glow($neon-warning, 5px);
+    }
+    
+    &-label {
+      font-size: 0.9rem;
+      color: transparentize(white, 0.3);
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+// QR Scanner Styles
+.qr-scanner {
+  &__frame {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 3px solid $neon-primary;
+    }
+    
+    &::before {
+      top: 0;
+      left: 0;
+      border-right: none;
+      border-bottom: none;
+    }
+    
+    &::after {
+      bottom: 0;
+      right: 0;
+      border-left: none;
+      border-top: none;
+    }
+  }
+  
+  &__scan-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, $neon-info, transparent);
+    @include neon-glow($neon-info, 10px);
+    animation: scan 2s linear infinite;
+    
+    @keyframes scan {
+      0% { top: 0; }
+      50% { top: calc(100% - 3px); }
+      100% { top: 0; }
+    }
+  }
+}
+
+// Geolocation Styles
+.geo-verification {
+  &__radar {
+    width: 120px;
+    height: 120px;
+    margin: 2rem auto;
+    position: relative;
+    
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border: 2px solid $neon-info;
+      border-radius: 50%;
+      @include neon-glow($neon-info, 10px);
+      animation: radar-pulse 2s ease-out infinite;
+    }
+    
+    &::before {
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    
+    &::after {
+      width: 60%;
+      height: 60%;
+      top: 20%;
+      left: 20%;
+      animation-delay: 1s;
+    }
+  }
+}
+
+@keyframes radar-pulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+// Active Players List
+.active-players {
+  &__list {
+    max-height: 400px;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparentize($dark-surface, 0.5);
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, $neon-primary, $neon-info);
+      border-radius: 4px;
+    }
+  }
+  
+  &__item {
+    background: transparentize($dark-elevated, 0.5);
+    @include neon-border($neon-primary, 1px);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: transparentize($neon-primary, 0.95);
+      @include neon-border($neon-primary, 2px);
+    }
+    
+    &-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, $neon-info, $neon-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    &-info {
+      flex: 1;
+    }
+    
+    &-name {
+      color: $neon-info;
+      font-weight: bold;
+      @include neon-glow($neon-info, 3px);
+    }
+    
+    &-meta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: transparentize(white, 0.3);
+    }
+  }
+}
+
+// Check-in Dialog Styles
+.checkin-dialog {
+  &__methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  &__method {
+    background: transparentize($dark-elevated, 0.5);
+    @include neon-border($neon-primary, 1px);
+    border-radius: 0.5rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-3px);
+      @include neon-border($neon-primary, 2px);
+      background: transparentize($neon-primary, 0.95);
+    }
+    
+    &--active {
+      @include neon-border($neon-primary, 2px);
+      background: transparentize($neon-primary, 0.9);
+      @include pulse-animation($neon-primary);
+    }
+    
+    &-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      color: $neon-primary;
+      @include neon-glow($neon-primary, 10px);
+    }
+    
+    &-title {
+      font-weight: bold;
+      color: $neon-primary;
+      margin-bottom: 0.25rem;
+    }
+    
+    &-desc {
+      font-size: 0.85rem;
+      color: transparentize(white, 0.3);
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .venue-checkin {
+    &__header {
+      font-size: 2rem;
+    }
+    
+    &__stats {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .qr-scanner__frame {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+// Utility Classes
+.venue-neon {
+  &--primary { 
+    color: $neon-primary; 
+    @include neon-glow($neon-primary, 5px);
+  }
+  &--secondary { 
+    color: $neon-secondary; 
+    @include neon-glow($neon-secondary, 5px);
+  }
+  &--info { 
+    color: $neon-info; 
+    @include neon-glow($neon-info, 5px);
+  }
+  &--warning { 
+    color: $neon-warning; 
+    @include neon-glow($neon-warning, 5px);
+  }
+  &--error { 
+    color: $neon-error; 
+    @include neon-glow($neon-error, 5px);
+  }
+}
+
+.venue-surface {
+  background: transparentize($dark-surface, 0.1);
+  backdrop-filter: blur(10px);
+  @include neon-border($neon-primary, 1px);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
