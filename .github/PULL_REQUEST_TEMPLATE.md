@@ -1,51 +1,52 @@
-# Pull Request Description
+# Pull Request
 
-## Changes Made
-
-- [ ] NGINX configuration reorganization
-- [ ] Documentation updates
-- [ ] Security improvements
-- [ ] Performance optimizations
+## Description
+<!-- Briefly describe what this PR does -->
 
 ## Type of Change
-
+<!-- Check the relevant box -->
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Configuration change
 - [ ] Documentation update
+- [ ] Performance improvement
+- [ ] Code refactoring
+- [ ] Test updates
 
-## Testing Description
+## Related Issues
+<!-- Link to related issues using "Fixes #issue_number" or "Closes #issue_number" -->
 
-- [ ] Tested NGINX configuration with `nginx -t`
-- [ ] Verified SSL/TLS settings
-- [ ] Checked WebSocket functionality
-- [ ] Validated rate limiting
-- [ ] Confirmed static file serving
-- [ ] Tested health endpoints
-- [ ] Verified PWA support
+## Changes Made
+<!-- List the specific changes made in this PR -->
+- 
+- 
+- 
 
-## Deployment Notes
+## Testing
+<!-- Describe the tests you ran to verify your changes -->
+- [ ] Existing tests pass
+- [ ] New tests added and passing
+- [ ] Manual testing completed
+- [ ] Performance testing (if applicable)
 
-- [ ] NGINX configuration files need to be copied to appropriate locations
-- [ ] SSL certificates need to be in place
-- [ ] Rate limiting zones need to be configured
-- [ ] Proper file permissions need to be set
+## Screenshots/Videos
+<!-- Add screenshots or videos if applicable -->
 
-## Documentation
+## Checklist
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published
 
-- [ ] Updated NGINX configuration documentation
-- [ ] Updated deployment guides
-- [ ] Added/updated troubleshooting guides
-- [ ] Updated security documentation
+## Performance Impact
+<!-- If applicable, describe any performance implications -->
 
 ## Security Considerations
+<!-- If applicable, describe any security implications -->
 
-- [ ] SSL/TLS configuration is secure
-- [ ] Security headers are properly configured
-- [ ] Rate limiting is appropriate
-- [ ] Access controls are in place
-
-## Additional Notes
-
-Please include any additional notes or context about the changes.
+## Deployment Notes
+<!-- If applicable, describe any special deployment considerations -->
