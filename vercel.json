@@ -1,8 +1,8 @@
 {
-  "framework": "nextjs",
+  "framework": "vite",
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
-  "outputDirectory": ".next",
+  "outputDirectory": "dist",
   "env": {
     "NODEJS_VERSION": "20.x"
   },
