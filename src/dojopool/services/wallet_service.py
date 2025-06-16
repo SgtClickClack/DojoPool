@@ -64,8 +64,7 @@ class WalletService(IWalletService):
             user_id=user_id,
             balance=0.0,
             currency="DP",  # DojoPool coins
-            is_active=True,
-            created_at=datetime.utcnow()
+            is_active=True
         )
         db.session.add(wallet)
         db.session.commit()
@@ -123,14 +122,13 @@ class WalletService(IWalletService):
 
         transaction = Transaction(
             wallet_id=wallet.id,
-            transaction_type=TransactionType.REWARD.value,
+            user_id=user_id,
             amount=amount,
+            currency="DP",
+            type="reward",
+            status="completed",
             description=description,
-            metadata={
-                "reward_type": reward_type.value,
-                "multiplier": multiplier
-            },
-            created_at=datetime.utcnow()
+            reference_id=f"reward_{reward_type.value}_{datetime.utcnow().timestamp()}"
         )
 
         wallet.balance += amount
@@ -183,27 +181,25 @@ class WalletService(IWalletService):
         # Create sender's transaction (negative amount)
         sender_transaction = Transaction(
             wallet_id=sender_wallet.id,
-            transaction_type=TransactionType.TRANSFER.value,
+            user_id=sender_user_id,
             amount=-amount,
+            currency="DP",
+            type="transfer",
+            status="completed",
             description=description,
-            metadata={
-                "recipient_user_id": recipient_user_id,
-                "recipient_wallet_id": recipient_wallet.id
-            },
-            created_at=datetime.utcnow()
+            reference_id=f"transfer_{sender_user_id}_to_{recipient_user_id}_{datetime.utcnow().timestamp()}"
         )
 
         # Create recipient's transaction (positive amount)
         recipient_transaction = Transaction(
             wallet_id=recipient_wallet.id,
-            transaction_type=TransactionType.TRANSFER.value,
+            user_id=recipient_user_id,
             amount=amount,
+            currency="DP",
+            type="transfer",
+            status="completed",
             description=f"Transfer from user {sender_user_id}",
-            metadata={
-                "sender_user_id": sender_user_id,
-                "sender_wallet_id": sender_wallet.id
-            },
-            created_at=datetime.utcnow()
+            reference_id=f"transfer_{sender_user_id}_to_{recipient_user_id}_{datetime.utcnow().timestamp()}"
         )
 
         # Update wallet balances

@@ -24,7 +24,7 @@ try:
 
     if __name__ == '__main__':
         logger.info("Starting Flask development server with SocketIO...")
-        socketio.run(app, host='0.0.0.0', port=3101, debug=True, allow_unsafe_werkzeug=True)
+        socketio.run(app, host='0.0.0.0', port=8000, debug=True, allow_unsafe_werkzeug=True)
 except Exception as e:
     logger.error(f"Failed to start Flask application: {e}", exc_info=True)
     raise

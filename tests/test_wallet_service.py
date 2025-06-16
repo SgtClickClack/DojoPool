@@ -1,8 +1,10 @@
 """Tests for the wallet service."""
 
 import pytest
+import os
 from decimal import Decimal
 from datetime import datetime
+from unittest.mock import Mock, patch
 
 from dojopool.core.extensions import db
 from dojopool.models.marketplace import Wallet, Transaction
@@ -10,6 +12,131 @@ from dojopool.models.user import User
 from dojopool.services.wallet_service import WalletService, TransactionType, RewardType
 from dojopool.core.exceptions import WalletError, InsufficientFundsError
 
+# Use environment variables for test credentials
+TEST_PASSWORD = os.getenv("TEST_PASSWORD", "test_password_123")
+
+@pytest.fixture
+def mock_db_session():
+    return Mock()
+
+@pytest.fixture
+def wallet_service(mock_db_session):
+    return WalletService(mock_db_session)
+
+@pytest.fixture
+def sample_user():
+    user = User()
+    user.username = "testuser"
+    user.email = "test@example.com"
+    user.password_hash = TEST_PASSWORD
+    return user
+
+@pytest.fixture
+def sample_wallet():
+    wallet = Wallet()
+    wallet.user_id = 1
+    wallet.balance = 100.0
+    wallet.currency = "USD"
+    return wallet
+
+@pytest.fixture
+def sample_transaction():
+    transaction = Transaction(
+        wallet_id=1,
+        user_id=1,
+        amount=50.0,
+        type="credit",
+        status="completed",
+        description="Test transaction"
+    )
+    return transaction
+
+class TestWalletService:
+    def test_create_wallet(self, wallet_service, sample_user, mock_db_session):
+        # Test wallet creation
+        wallet_service.create_wallet(sample_user.id)
+        mock_db_session.add.assert_called_once()
+        mock_db_session.commit.assert_called_once()
+
+    def test_get_wallet_balance(self, wallet_service, sample_wallet, mock_db_session):
+        # Mock the query
+        mock_db_session.query.return_value.filter.return_value.first.return_value = sample_wallet
+        
+        balance = wallet_service.get_wallet_balance(1)
+        assert balance == 100.0
+
+    def test_add_funds(self, wallet_service, sample_wallet, mock_db_session):
+        # Mock the query
+        mock_db_session.query.return_value.filter.return_value.first.return_value = sample_wallet
+        
+        wallet_service.add_funds(1, 50.0, "Test deposit")
+        
+        # Verify wallet balance was updated
+        assert sample_wallet.balance == 150.0
+        mock_db_session.commit.assert_called_once()
+
+    def test_deduct_funds_sufficient_balance(self, wallet_service, sample_wallet, mock_db_session):
+        # Mock the query
+        mock_db_session.query.return_value.filter.return_value.first.return_value = sample_wallet
+        
+        result = wallet_service.deduct_funds(1, 50.0, "Test withdrawal")
+        
+        assert result is True
+        assert sample_wallet.balance == 50.0
+        mock_db_session.commit.assert_called_once()
+
+    def test_deduct_funds_insufficient_balance(self, wallet_service, sample_wallet, mock_db_session):
+        # Mock the query
+        mock_db_session.query.return_value.filter.return_value.first.return_value = sample_wallet
+        
+        result = wallet_service.deduct_funds(1, 150.0, "Test withdrawal")
+        
+        assert result is False
+        assert sample_wallet.balance == 100.0  # Balance unchanged
+
+    def test_get_transaction_history(self, wallet_service, sample_transaction, mock_db_session):
+        # Mock the query
+        mock_db_session.query.return_value.filter.return_value.order_by.return_value.all.return_value = [sample_transaction]
+        
+        transactions = wallet_service.get_transaction_history(1)
+        
+        assert len(transactions) == 1
+        assert transactions[0].amount == 50.0
+
+    def test_transfer_funds_success(self, wallet_service, mock_db_session):
+        # Create test users with secure passwords
+        user1 = User()
+        user1.username = "user1"
+        user1.email = "user1@example.com"
+        user1.password_hash = TEST_PASSWORD
+        
+        user2 = User()
+        user2.username = "user2"
+        user2.email = "user2@example.com"
+        user2.password_hash = TEST_PASSWORD
+        
+        wallet1 = Wallet()
+        wallet1.user_id = 1
+        wallet1.balance = 100.0
+        wallet1.currency = "USD"
+        
+        wallet2 = Wallet()
+        wallet2.user_id = 2
+        wallet2.balance = 50.0
+        wallet2.currency = "USD"
+        
+        # Mock queries
+        mock_db_session.query.return_value.filter.side_effect = [
+            Mock(first=Mock(return_value=wallet1)),
+            Mock(first=Mock(return_value=wallet2))
+        ]
+        
+        result = wallet_service.transfer_funds(1, 2, 30.0, "Test transfer")
+        
+        assert result is True
+        assert wallet1.balance == 70.0
+        assert wallet2.balance == 80.0
+        mock_db_session.commit.assert_called_once()
 
 @pytest.fixture
 def wallet_service():

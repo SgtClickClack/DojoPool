@@ -72,7 +72,7 @@ def handle_error(error: Union[HTTPException, DojoPoolError]) -> Tuple[Union[str,
         status_code = 500
 
     if request.is_json or request.path.startswith("/api/"):
-        return jsonify({"error": str(error), "status_code": status_code}), status_code
+        return {"error": str(error), "status_code": status_code}, status_code
 
     return render_template("error.html", error=error), status_code
 

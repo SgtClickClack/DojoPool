@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
 api_docs_bp = Blueprint('api_docs', __name__)
 
 @api_docs_bp.route('/api/docs', methods=['GET'])
 def get_api_docs():
     """Get OpenAPI documentation."""
-    return jsonify({
+    return {
         "openapi": "3.0.0",
         "info": {
             "title": "Dojo Pool API",
@@ -211,4 +211,4 @@ def get_api_docs():
                 }
             }
         }
-    }) 
+    } 

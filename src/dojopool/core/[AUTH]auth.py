@@ -7,7 +7,7 @@ from functools import wraps
 from typing import Any, Callable, Dict
 
 import jwt
-from flask import current_app, g, jsonify, request
+from flask import current_app, g, request
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ def require_auth(f: Callable) -> Callable:
     def decorated(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
         if not auth_header:
-            return jsonify({"error": "No authorization header"}), 401
+            return {"error": "No authorization header"}, 401
 
         try:
             # Extract token from "Bearer <token>"
@@ -50,10 +50,10 @@ def require_auth(f: Callable) -> Callable:
             return f(*args, **kwargs)
         except jwt.InvalidTokenError as e:
             logger.error(f"Invalid token: {str(e)}")
-            return jsonify({"error": "Invalid token"}), 401
+            return {"error": "Invalid token"}, 401
         except Exception as e:
             logger.error(f"Authentication error: {str(e)}")
-            return jsonify({"error": "Authentication failed"}), 401
+            return {"error": "Authentication failed"}, 401
 
     return decorated
 

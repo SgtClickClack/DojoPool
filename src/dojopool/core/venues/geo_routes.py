@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ..auth.decorators import login_required
 from .geo_service import GeoService
@@ -20,12 +20,12 @@ def get_nearby_dojos():
             radius = float(radius)
 
         nearby = geo_service.find_nearby_dojos(lat, lng, radius)
-        return jsonify({"status": "success", "dojos": nearby}), 200
+        return {"status": "success", "dojos": nearby}, 200
 
     except (ValueError, TypeError):
-        return jsonify({"status": "error", "message": "Invalid coordinates provided"}), 400
+        return {"status": "error", "message": "Invalid coordinates provided"}, 400
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return {"status": "error", "message": str(e)}, 500
 
 
 @geo_bp.route("/leaderboard/regional", methods=["GET"])
@@ -41,12 +41,12 @@ def get_regional_leaderboard():
             radius = float(radius)
 
         leaderboard = geo_service.get_regional_leaderboard(lat, lng, radius)
-        return jsonify({"status": "success", "leaderboard": leaderboard}), 200
+        return {"status": "success", "leaderboard": leaderboard}, 200
 
     except (ValueError, TypeError):
-        return jsonify({"status": "error", "message": "Invalid coordinates provided"}), 400
+        return {"status": "error", "message": "Invalid coordinates provided"}, 400
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return {"status": "error", "message": str(e)}, 500
 
 
 @geo_bp.route("/challenges/<int:venue_id>", methods=["GET"])
@@ -56,12 +56,12 @@ def get_area_challenges(venue_id):
     try:
         challenge = geo_service.generate_area_challenge(venue_id)
         if not challenge:
-            return jsonify({"status": "error", "message": "Venue not found"}), 404
+            return {"status": "error", "message": "Venue not found"}, 404
 
-        return jsonify({"status": "success", "challenge": challenge}), 200
+        return {"status": "success", "challenge": challenge}, 200
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return {"status": "error", "message": str(e)}, 500
 
 
 @geo_bp.route("/areas/<int:venue_id>/unlock-status", methods=["GET"])
@@ -74,16 +74,14 @@ def get_area_unlock_status(venue_id):
         threshold = geo_service.area_unlock_threshold
 
         return (
-            jsonify(
-                {
-                    "status": "success",
-                    "is_unlocked": is_unlocked,
-                    "visit_count": visit_count,
-                    "visits_needed": max(0, threshold - visit_count),
-                }
-            ),
+            {
+                "status": "success",
+                "is_unlocked": is_unlocked,
+                "visit_count": visit_count,
+                "visits_needed": max(0, threshold - visit_count),
+            },
             200,
         )
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return {"status": "error", "message": str(e)}, 500

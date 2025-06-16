@@ -9,7 +9,7 @@ const getEnvVar = (key: string, fallback: string = ''): string => {
 };
 
 // NOTE: Vite will replace import.meta.env.VITE_NEXT_PUBLIC_API_URL with the correct value at build time.
-const API_BASE_URL = getEnvVar('VITE_NEXT_PUBLIC_API_URL', '/api/v1');
+const API_BASE_URL = getEnvVar('VITE_NEXT_PUBLIC_API_URL', '/api');
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

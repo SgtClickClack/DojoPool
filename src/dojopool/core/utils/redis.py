@@ -12,8 +12,8 @@ def get_redis_client() -> redis.Redis:
     """
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
-    # Parse password from URL if present
-    password = os.getenv("REDIS_PASSWORD", "A16aql5hjk86zqm2ham78r9rnmgkyz6bk88vih6sugp23giq8ht")
+    # Parse password from URL if present, otherwise use environment variable
+    password = os.getenv("REDIS_PASSWORD")
     if "@" in redis_url:
         # Extract password from redis://[:password@]host:port/db
         auth_part = redis_url.split("@")[0].split("://")[1]

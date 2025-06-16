@@ -82,8 +82,15 @@ def cors_middleware() -> Callable:
 
                 return response
 
-            # Handle actual request
-            response = make_response(f(*args, **kwargs))
+            # Handle actual request - don't wrap Flask-RESTful responses
+            result = f(*args, **kwargs)
+            
+            # If result is already a Response object, add CORS headers to it
+            if hasattr(result, 'headers'):
+                response = result
+            else:
+                # For non-Response objects, create a response
+                response = make_response(result)
 
             # Get origin from request
             request_origin = request.headers.get("Origin")

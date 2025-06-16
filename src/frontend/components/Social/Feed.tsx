@@ -54,8 +54,9 @@ const Feed: React.FC = () => {
     const fetchFeedData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/feed");
-        setFeedItems(response.data);
+        const response = await axiosInstance.get("/v1/feed");
+        // Backend returns { data: { entries: [] } }
+        setFeedItems(response.data?.data?.entries || []);
         setError(null);
       } catch (err) {
         setError("Failed to load feed data. Please try again later.");
@@ -82,7 +83,7 @@ const Feed: React.FC = () => {
 
   const handleLike = async (itemId: string) => {
     try {
-      await axiosInstance.post(`/feed/${itemId}/like`);
+      await axiosInstance.post(`/v1/feed/${itemId}/like`);
       setFeedItems(items =>
         items.map(item =>
           item.id === itemId ? { ...item, likes: item.likes + 1 } : item
@@ -95,7 +96,7 @@ const Feed: React.FC = () => {
 
   const handleShare = async (itemId: string) => {
     try {
-      await axiosInstance.post(`/feed/${itemId}/share`);
+      await axiosInstance.post(`/v1/feed/${itemId}/share`);
       setFeedItems(items =>
         items.map(item =>
           item.id === itemId ? { ...item, shares: item.shares + 1 } : item

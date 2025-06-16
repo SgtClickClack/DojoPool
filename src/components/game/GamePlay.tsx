@@ -69,7 +69,7 @@ export const GamePlay: React.FC<GamePlayProps> = ({
     initializeGame();
 
     // Set up WebSocket connection for real-time updates
-    const ws = new WebSocket(`ws://localhost:3101/game/${gameId}`);
+    const ws = new WebSocket(`ws://localhost:8000/game/${gameId}`);
 
     ws.onmessage = (event) => {
       const update = JSON.parse(event.data);

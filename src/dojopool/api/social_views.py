@@ -38,21 +38,17 @@ class MessageViewSet(viewsets.ModelViewSet):
         if user:
             queryset = queryset.filter(Q(sender__username=user) | Q(receiver__username=user))
 
-        return Response(
+        return {'results': [
             {
-                "results": [
-                    {
-                        "id": msg.id,
-                        "content": msg.content,
-                        "sender": msg.sender.username,
-                        "receiver": msg.receiver.username,
-                        "created_at": msg.created_at,
-                        "is_read": msg.is_read,
-                    }
-                    for msg in queryset
-                ]
+                "id": msg.id,
+                "content": msg.content,
+                "sender": msg.sender.username,
+                "receiver": msg.receiver.username,
+                "created_at": msg.created_at,
+                "is_read": msg.is_read,
             }
-        )
+            for msg in queryset
+        ]}
 
 
 class FriendshipViewSet(viewsets.ModelViewSet):
@@ -133,4 +129,4 @@ class FriendshipViewSet(viewsets.ModelViewSet):
 
         # Sort by score and return top 10
         suggestions.sort(key=lambda x: x["score"], reverse=True)
-        return Response(suggestions[:10])
+        return {'suggestions': suggestions[:10]}

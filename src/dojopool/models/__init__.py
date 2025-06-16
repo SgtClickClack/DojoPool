@@ -5,7 +5,7 @@ from ..core.extensions import db
 # Import core models to ensure SQLAlchemy sees all relationships and FKs
 # Replace wildcard imports with specific imports for better security and clarity
 from .user import User
-from .game import Game, GameSession, GameComment, Shot
+from .game import Game, GameComment, Shot
 from .tournament import Tournament, TournamentParticipant
 from .marketplace import Wallet, Transaction, MarketplaceItem, UserInventory
 from .role import Role
@@ -48,7 +48,7 @@ from .venue_operating_hours import *
 
 __all__ = [
     "db",
-    "User", "Game", "GameSession", "GameComment", "Shot",
+    "User", "Game", "GameComment", "Shot",
     "Tournament", "TournamentParticipant",
     "Wallet", "Transaction", "MarketplaceItem", "UserInventory",
     "Role", "Player", "Venue", "Notification",

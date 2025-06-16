@@ -91,7 +91,7 @@ const Dashboard: React.FC = () => {
           {/* Main Content Area - Grid Layout */}
           <Grid container spacing={3}>
             {/* Left Column: Create Game & Active Games & Tournaments */}
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <CreateGameForm />
               <Divider sx={{ my: 4 }} />
               <TournamentList />
@@ -102,7 +102,7 @@ const Dashboard: React.FC = () => {
             </Grid>
 
             {/* Right Column: Social & Notifications Placeholders */}
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Profile />
               <Divider sx={{ my: 3 }} />
               <Feed />

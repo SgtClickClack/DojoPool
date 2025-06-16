@@ -85,7 +85,10 @@ class TournamentResource(BaseResource):
         #     raise NotFoundError("Tournament not found")
 
         # return self.success_response(data=self.schema.dump(tournament))
-        pass
+        return self.success_response(
+            data={"message": "Tournament endpoints temporarily disabled"},
+            message="Tournament endpoints temporarily disabled"
+        )
 
     @require_roles("admin")
     def put(self, tournament_id):
@@ -120,7 +123,10 @@ class TournamentResource(BaseResource):
         # return self.success_response(
         #     data=self.schema.dump(tournament), message="Tournament updated successfully"
         # )
-        pass
+        return self.success_response(
+            data={"message": "Tournament endpoints temporarily disabled"},
+            message="Tournament endpoints temporarily disabled"
+        )
 
     @require_roles("admin")
     def delete(self, tournament_id):
@@ -142,7 +148,10 @@ class TournamentResource(BaseResource):
         # # tournament.delete()
 
         # return self.success_response(message="Tournament deleted successfully")
-        pass
+        return self.success_response(
+            data={"message": "Tournament endpoints temporarily disabled"},
+            message="Tournament endpoints temporarily disabled"
+        )
 
 
 class TournamentListResource(BaseResource):
@@ -153,43 +162,11 @@ class TournamentListResource(BaseResource):
     @require_auth
     def get(self):
         """Get list of tournaments."""
-        # query = Tournament.query
-
-        # # Apply filters
-        # status = request.args.get("status")
-        # if status:
-        #     query = query.filter_by(status=TournamentStatus[status.upper()])
-
-        # tournament_type = request.args.get("type")
-        # if tournament_type:
-        #     query = query.filter_by(type=TournamentType[tournament_type.upper()])
-
-        # # Filter by player participation
-        # player_id = request.args.get("player_id", type=int)
-        # if player_id:
-        #     query = query.filter(Tournament.players.any(id=player_id))
-
-        # # Apply date range filter
-        # start_date = request.args.get("start_date")
-        # if start_date:
-        #     query = query.filter(Tournament.created_at >= start_date)
-
-        # end_date = request.args.get("end_date")
-        # if end_date:
-        #     query = query.filter(Tournament.created_at <= end_date)
-
-        # # Apply sorting
-        # sort_by = request.args.get("sort_by", "created_at")
-        # sort_dir = request.args.get("sort_dir", "desc")
-
-        # if hasattr(Tournament, sort_by):
-        #     order_by = getattr(Tournament, sort_by)
-        #     if sort_dir.lower() == "desc":
-        #         order_by = order_by.desc()
-        #     query = query.order_by(order_by)
-
-        # return self.paginate(query)
-        pass
+        # For now, return an empty list for dev, but in correct format
+        return self.success_response(
+            data={"tournaments": []}, 
+            message="No tournaments available (dev mode)"
+        )
 
     @require_roles("admin")
     def post(self):
@@ -203,12 +180,12 @@ class TournamentListResource(BaseResource):
         # # Create tournament
         # tournament = Tournament(
         #     name=data["name"],
-        #     description=data.get("description"),
+        #     description=data.get("description", ""),
         #     type=data["type"],
-        #     status=TournamentStatus.PENDING,
         #     max_players=data["max_players"],
         #     entry_fee=data["entry_fee"],
         #     registration_deadline=data["registration_deadline"],
+        #     status=TournamentStatus.PENDING,
         # )
 
         # # tournament.save()
@@ -218,7 +195,10 @@ class TournamentListResource(BaseResource):
         #     message="Tournament created successfully",
         #     status_code=201,
         # )
-        pass
+        return self.success_response(
+            data={"message": "Tournament endpoints temporarily disabled"},
+            message="Tournament endpoints temporarily disabled"
+        )
 
 
 class TournamentStandingsResource(BaseResource):
@@ -240,58 +220,30 @@ class TournamentStandingsResource(BaseResource):
         # if not tournament:
         #     raise NotFoundError("Tournament not found")
 
-        # # Get all games in the tournament
-        # games = Game.query.filter_by(tournament_id=tournament_id).all()
+        # # Calculate standings based on games played
+        # standings = []
+        # for player in tournament.players:
+        #     games_played = len([g for g in tournament.games if player in [g.player1, g.player2]])
+        #     games_won = len([g for g in tournament.games if g.winner_id == player.id])
+        #     total_score = sum(g.player1_score if g.player1_id == player.id else g.player2_score for g in tournament.games if player in [g.player1, g.player2])
+        #     average_score = total_score / games_played if games_played > 0 else 0
 
-        # # Calculate standings
-        # standings: Dict[int, Dict[str, Any]] = {}
+        #     standings.append({
+        #         "user_id": player.id,
+        #         "username": player.username,
+        #         "games_played": games_played,
+        #         "games_won": games_won,
+        #         "total_score": total_score,
+        #         "average_score": average_score,
+        #         "rank": 0  # Will be calculated after sorting
+        #     })
 
-        # for game in games:
-        #     # Process player 1
-        #     if game.player1.user_id not in standings:
-        #         standings[game.player1.user_id] = {
-        #             "user_id": game.player1.user_id,
-        #             "username": game.player1.user.username,
-        #             "games_played": 0,
-        #             "games_won": 0,
-        #             "total_score": 0,
-        #             "average_score": 0,
-        #         }
+        # # Sort by wins, then by average score
+        # standings.sort(key=lambda x: (x["games_won"], x["average_score"]), reverse=True)
 
-        #     standings[game.player1.user_id]["games_played"] += 1
-        #     standings[game.player1.user_id]["total_score"] += game.player1.score
-        #     if game.winner_id == game.player1.user_id:
-        #         standings[game.player1.user_id]["games_won"] += 1
+        # # Assign ranks
+        # for i, standing in enumerate(standings):
+        #     standing["rank"] = i + 1
 
-        #     # Process player 2
-        #     if game.player2.user_id not in standings:
-        #         standings[game.player2.user_id] = {
-        #             "user_id": game.player2.user_id,
-        #             "username": game.player2.user.username,
-        #             "games_played": 0,
-        #             "games_won": 0,
-        #             "total_score": 0,
-        #             "average_score": 0,
-        #         }
-
-        #     standings[game.player2.user_id]["games_played"] += 1
-        #     standings[game.player2.user_id]["total_score"] += game.player2.score
-        #     if game.winner_id == game.player2.user_id:
-        #         standings[game.player2.user_id]["games_won"] += 1
-
-        # # Calculate averages and create final list
-        # standings_list = []
-        # for stats in standings.values():
-        #     if stats["games_played"] > 0:
-        #         stats["average_score"] = stats["total_score"] / stats["games_played"]
-        #     standings_list.append(stats)
-
-        # # Sort by games won (descending) and average score (descending)
-        # standings_list.sort(key=lambda x: (-x["games_won"], -x["average_score"]))
-
-        # # Add ranks
-        # for i, stats in enumerate(standings_list, 1):
-        #     stats["rank"] = i
-
-        # return self.success_response(data=self.schema.dump(standings_list, many=True))
-        pass
+        # return self.success_response(data=standings)
+        return {"error": "Tournament endpoints temporarily disabled"}

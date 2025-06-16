@@ -55,11 +55,11 @@ def get_items():
              query = query.order_by(desc(MarketplaceItem.created_at)) # Default sort
 
         items = query.all()
-        return jsonify([item.to_dict() for item in items])
+        return [item.to_dict() for item in items], 200
 
     except Exception as e:
         current_app.logger.error(f"Error fetching marketplace items: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch items"}), 500
+        return {"error": "Failed to fetch items"}, 500
 
 
 @marketplace.route("/inventory", methods=["GET"])
@@ -82,11 +82,11 @@ def get_inventory(user):
                 item_data['inventory_id'] = inv_item.id
                 response_data.append(item_data)
 
-        return jsonify(response_data)
+        return response_data, 200
 
     except Exception as e:
         current_app.logger.error(f"Error fetching inventory: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch inventory"}), 500
+        return {"error": "Failed to fetch inventory"}, 500
 
 
 @marketplace.route("/transactions", methods=["GET"])
@@ -95,11 +95,11 @@ def get_transactions(user):
     try:
         user_id = user.id # Assuming user object passed by decorator
         transactions = db.session.query(Transaction).filter(Transaction.user_id == user_id).order_by(Transaction.created_at.desc()).all()
-        return jsonify([tx.to_dict() for tx in transactions])
+        return [tx.to_dict() for tx in transactions], 200
 
     except Exception as e:
         current_app.logger.error(f"Error fetching transactions: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch transactions"}), 500
+        return {"error": "Failed to fetch transactions"}, 500
 
 
 @marketplace.route("/wallet", methods=["GET"])
@@ -113,11 +113,11 @@ def get_wallet(user):
             db.session.add(wallet)
             db.session.commit()
             wallet = db.session.query(Wallet).filter(Wallet.user_id == user_id).first()
-        return jsonify(wallet.to_dict())
+        return wallet.to_dict(), 200
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error fetching wallet: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch wallet"}), 500
+        return {"error": "Failed to fetch wallet"}, 500
 
 
 @marketplace.route("/purchase", methods=["POST"])
@@ -127,10 +127,10 @@ def purchase_items(user):
         user_id = user.id
         items_to_purchase = request.json.get("items", [])
         if not items_to_purchase:
-            return jsonify({"error": "No items provided"}), 400
+            return {"error": "No items provided"}, 400
         wallet = db.session.query(Wallet).filter(Wallet.user_id == user_id).first()
         if not wallet or not wallet.is_active:
-            return jsonify({"error": "Wallet not found or inactive"}), 400
+            return {"error": "Wallet not found or inactive"}, 400
         total_cost = 0
         item_details_map = {}
         item_ids = [item["id"] for item in items_to_purchase]
@@ -143,22 +143,22 @@ def purchase_items(user):
 
             if not item_id or quantity <= 0:
                 db.session.rollback()
-                return jsonify({"error": "Invalid item ID or quantity"}), 400
+                return {"error": "Invalid item ID or quantity"}, 400
 
             marketplace_item = marketplace_items_dict.get(item_id)
 
             if not marketplace_item:
                 db.session.rollback()
-                return jsonify({"error": f"Item {item_id} not found"}), 404
+                return {"error": f"Item {item_id} not found"}, 404
             if marketplace_item.stock < quantity:
                 db.session.rollback()
-                return jsonify({"error": f"Insufficient stock for {marketplace_item.name}"}), 400
+                return {"error": f"Insufficient stock for {marketplace_item.name}"}, 400
 
             total_cost += marketplace_item.price * quantity
             item_details_map[item_id] = {"item": marketplace_item, "quantity": quantity}
 
         if wallet.balance < total_cost:
-            return jsonify({"error": "Insufficient balance"}), 400
+            return {"error": "Insufficient balance"}, 400
         # Deduct from wallet
         wallet.balance -= total_cost
         db.session.add(wallet)
@@ -176,18 +176,18 @@ def purchase_items(user):
         )
         db.session.add(transaction)
         db.session.commit()
-        return jsonify({
+        return {
             "success": True,
             "transactionId": transaction.id,
             "items": items_to_purchase,
             "total": total_cost,
             "newBalance": wallet.balance,
             "timestamp": transaction.created_at.isoformat() if transaction.created_at else None,
-        })
+        }, 200
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error processing purchase: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to process purchase"}), 500
+        return {"error": "Failed to process purchase"}, 500
 
 
 @marketplace.route("/items/<int:item_id>", methods=["GET"])
@@ -195,12 +195,12 @@ def get_item(item_id):
     try:
         item = db.session.query(MarketplaceItem).get(item_id)
         if not item:
-            return jsonify({"error": "Item not found"}), 404
-        return jsonify(item.to_dict())
+            return {"error": "Item not found"}, 404
+        return item.to_dict(), 200
 
     except Exception as e:
         current_app.logger.error(f"Error fetching item {item_id}: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch item"}), 500
+        return {"error": "Failed to fetch item"}, 500
 
 
 # Preview route might not need changes if item.preview is a simple field
@@ -209,16 +209,16 @@ def get_item_preview(item_id):
     try:
         item = db.session.query(MarketplaceItem).get(item_id)
         if not item:
-             return jsonify({"error": "Item not found"}), 404
+             return {"error": "Item not found"}, 404
         # Assuming preview_url is the field to return
         if not item.preview_url:
-            return jsonify({"error": "Preview not available"}), 404
-        return jsonify({"preview_url": item.preview_url})
+            return {"error": "Preview not available"}, 404
+        return {"preview_url": item.preview_url}, 200
 
     except Exception as e:
         current_app.logger.error(f"Error fetching item preview {item_id}: {str(e)}", exc_info=True)
         current_app.logger.error(f"Error fetching item preview: {str(e)}")
-        return jsonify({"error": "Failed to fetch item preview"}), 500
+        return {"error": "Failed to fetch item preview"}, 500
 
 # --- Admin Wallet Routes ---
 
@@ -232,15 +232,15 @@ def admin_freeze_wallet(user_id):
 
     wallet = db.session.query(Wallet).filter_by(user_id=user_id).first()
     if not wallet:
-        return jsonify({"error": "Wallet not found for user"}), 404
+        return {"error": "Wallet not found for user"}, 404
 
     try:
         wallet.freeze(reason=reason, admin_user_id=admin_user_id)
-        return jsonify({"success": True, "message": f"Wallet for user {user_id} frozen.", "status": wallet.is_active}), 200
+        return {"success": True, "message": f"Wallet for user {user_id} frozen.", "status": wallet.is_active}, 200
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error freezing wallet {user_id}: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to freeze wallet"}), 500
+        return {"error": "Failed to freeze wallet"}, 500
 
 @marketplace.route("/admin/wallet/<int:user_id>/reactivate", methods=["POST"])
 @login_required
@@ -252,15 +252,15 @@ def admin_reactivate_wallet(user_id):
 
     wallet = db.session.query(Wallet).filter_by(user_id=user_id).first()
     if not wallet:
-        return jsonify({"error": "Wallet not found for user"}), 404
+        return {"error": "Wallet not found for user"}, 404
 
     try:
         wallet.reactivate(reason=reason, admin_user_id=admin_user_id)
-        return jsonify({"success": True, "message": f"Wallet for user {user_id} reactivated.", "status": wallet.is_active}), 200
+        return {"success": True, "message": f"Wallet for user {user_id} reactivated.", "status": wallet.is_active}, 200
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error reactivating wallet {user_id}: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to reactivate wallet"}), 500
+        return {"error": "Failed to reactivate wallet"}, 500
 
 @marketplace.route("/admin/wallet/<int:user_id>/audit", methods=["GET"])
 @login_required
@@ -269,7 +269,7 @@ def admin_get_wallet_audit(user_id):
     """Admin endpoint to get the audit trail for a user's wallet."""
     wallet = db.session.query(Wallet).filter_by(user_id=user_id).first()
     if not wallet:
-        return jsonify({"error": "Wallet not found for user"}), 404
+        return {"error": "Wallet not found for user"}, 404
 
     try:
         # Potential parameters for filtering audit trail (start_date, end_date)
@@ -278,23 +278,11 @@ def admin_get_wallet_audit(user_id):
         start_time = datetime.fromisoformat(start_date_str) if start_date_str else None
         end_time = datetime.fromisoformat(end_date_str) if end_date_str else None
 
-        audit_trail = wallet.get_audit_trail(start_time=start_time, end_time=end_time)
-
-        # Log the audit access by the admin
-        admin_user_id = str(g.user.id)
-        wallet._log_wallet_event(
-            event_type=AuditEventType.WALLET_AUDIT,
-            action="Wallet Audit Accessed by Admin",
-            status="success",
-            details={"admin_user_id": admin_user_id, "filters": {"start_time": start_date_str, "end_time": end_date_str}}
-        )
-
-        return jsonify(audit_trail), 200
-    except ValueError as ve:
-         return jsonify({"error": f"Invalid date format: {ve}"}), 400
+        audit_trail = wallet.get_audit_trail(start_date=start_time, end_date=end_time)
+        return {"audit_trail": audit_trail}, 200
     except Exception as e:
-        current_app.logger.error(f"Error fetching audit trail for wallet {user_id}: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch audit trail"}), 500
+        current_app.logger.error(f"Error fetching wallet audit {user_id}: {str(e)}", exc_info=True)
+        return {"error": "Failed to fetch wallet audit"}, 500
 
 @marketplace.route("/wallet/stats", methods=["GET"])
 @login_required
@@ -303,7 +291,7 @@ def get_wallet_stats(user):
         user_id = user.id
         wallet = db.session.query(Wallet).filter(Wallet.user_id == user_id).first()
         if not wallet:
-            return jsonify({"error": "Wallet not found"}), 404
+            return {"error": "Wallet not found"}, 404
         # Aggregate stats
         transactions = db.session.query(Transaction).filter(Transaction.user_id == user_id).all()
         total_transactions = len(transactions)
@@ -326,63 +314,81 @@ def get_wallet_stats(user):
             "total_outgoing": total_outgoing,
             "rewards": rewards
         }
-        return jsonify(stats)
+        return stats, 200
     except Exception as e:
         current_app.logger.error(f"Error fetching wallet stats: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to fetch wallet stats"}), 500
+        return {"error": "Failed to fetch wallet stats"}, 500
 
 @marketplace.route("/wallet/transfer", methods=["POST"])
 @login_required
 def transfer_coins(user):
     try:
         user_id = user.id
-        data = request.get_json()
-        recipient_user_id = data.get("recipient_user_id")
+        data = request.json
+        recipient_id = data.get("recipient_id")
         amount = data.get("amount")
         description = data.get("description", "Transfer")
-        if not recipient_user_id or not amount or amount <= 0:
-            return jsonify({"error": "Invalid recipient or amount"}), 400
-        if recipient_user_id == user_id:
-            return jsonify({"error": "Cannot transfer to self"}), 400
+
+        if not recipient_id or not amount:
+            return {"error": "Recipient ID and amount are required"}, 400
+
+        if amount <= 0:
+            return {"error": "Amount must be positive"}, 400
+
+        # Get sender's wallet
         sender_wallet = db.session.query(Wallet).filter(Wallet.user_id == user_id).first()
-        recipient_wallet = db.session.query(Wallet).filter(Wallet.user_id == recipient_user_id).first()
         if not sender_wallet or not sender_wallet.is_active:
-            return jsonify({"error": "Sender wallet not found or inactive"}), 400
+            return {"error": "Sender wallet not found or inactive"}, 400
+
+        # Get recipient's wallet
+        recipient_wallet = db.session.query(Wallet).filter(Wallet.user_id == recipient_id).first()
         if not recipient_wallet or not recipient_wallet.is_active:
-            return jsonify({"error": "Recipient wallet not found or inactive"}), 400
+            return {"error": "Recipient wallet not found or inactive"}, 400
+
         if sender_wallet.balance < amount:
-            return jsonify({"error": "Insufficient balance"}), 400
+            return {"error": "Insufficient balance"}, 400
+
         # Perform transfer
         sender_wallet.balance -= amount
         recipient_wallet.balance += amount
-        db.session.add(sender_wallet)
-        db.session.add(recipient_wallet)
-        # Create transactions for both sender and recipient
-        sender_tx = Transaction(
+
+        # Create transactions
+        sender_transaction = Transaction(
             wallet_id=sender_wallet.id,
             user_id=user_id,
-            amount=-amount,
+            amount=amount,
             currency=sender_wallet.currency,
-            type="transfer",
+            type="transfer_out",
             status="completed",
-            description=f"Transfer to user {recipient_user_id}: {description}",
+            description=f"Transfer to user {recipient_id}: {description}",
             reference_id=None
         )
-        recipient_tx = Transaction(
+
+        recipient_transaction = Transaction(
             wallet_id=recipient_wallet.id,
-            user_id=recipient_user_id,
+            user_id=recipient_id,
             amount=amount,
             currency=recipient_wallet.currency,
-            type="transfer",
+            type="transfer_in",
             status="completed",
             description=f"Transfer from user {user_id}: {description}",
             reference_id=None
         )
-        db.session.add(sender_tx)
-        db.session.add(recipient_tx)
+
+        db.session.add_all([sender_transaction, recipient_transaction])
         db.session.commit()
-        return jsonify({"success": True, "newBalance": sender_wallet.balance, "transactionId": sender_tx.id})
+
+        return {
+            "success": True,
+            "senderTransactionId": sender_transaction.id,
+            "recipientTransactionId": recipient_transaction.id,
+            "amount": amount,
+            "newSenderBalance": sender_wallet.balance,
+            "newRecipientBalance": recipient_wallet.balance,
+            "timestamp": sender_transaction.created_at.isoformat() if sender_transaction.created_at else None,
+        }, 200
+
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Error transferring coins: {str(e)}", exc_info=True)
-        return jsonify({"error": "Failed to transfer coins"}), 500
+        current_app.logger.error(f"Error processing transfer: {str(e)}", exc_info=True)
+        return {"error": "Failed to process transfer"}, 500

@@ -1,6 +1,8 @@
 import pytest
 import json
 from datetime import datetime, timedelta
+from flask import Flask
+import os
 
 # Assume fixtures like test_client, db_session, players, venue exist
 # Need to adapt fixtures for API testing, especially authentication
@@ -14,13 +16,40 @@ from dojopool.models.tournament import (
     TournamentStatus, TournamentFormat
 )
 from dojopool.services.tournament_service import TournamentService # May not be directly needed, but good for setup
+from dojopool.routes.tournaments import tournament_bp
 
 # --- Reusable Fixtures (Adapted for API tests) ---
 
-# Helper to create users if not using shared fixtures
-def _create_test_user(username, email="test@example.com", password="password123", is_admin=False):
-    user = User(username=username, email=email, is_admin=is_admin) # Add is_admin
-    user.set_password(password)
+@pytest.fixture
+def app():
+    app = Flask(__name__)
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SECRET_KEY'] = 'test-secret-key'
+    
+    db.init_app(app)
+    app.register_blueprint(tournament_bp)
+    
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.drop_all()
+
+@pytest.fixture
+def client(app):
+    return app.test_client()
+
+def _create_test_user(username, email="test@example.com", password=None, is_admin=False):
+    """Create a test user with secure password handling"""
+    if password is None:
+        password = os.getenv("TEST_USER_PASSWORD", "test_password_123")
+    
+    user = User(
+        username=username,
+        email=email,
+        password_hash=password,  # In real tests, this should be hashed
+        is_admin=is_admin
+    )
     db.session.add(user)
     db.session.commit()
     return user
@@ -77,12 +106,12 @@ def logout(client):
 @pytest.fixture(scope="function")
 def regular_user(db_session):
     """Create a regular, non-admin user."""
-    return _create_test_user("testuser", "test@example.com", "password123", is_admin=False)
+    return _create_test_user("testuser", "test@example.com", is_admin=False)
 
 @pytest.fixture(scope="function")
 def admin_user(db_session):
      """Create an admin user."""
-     return _create_test_user("adminuser", "admin@example.com", "password123", is_admin=True)
+     return _create_test_user("adminuser", "admin@example.com", is_admin=True)
 
 @pytest.fixture
 def players_api(db_session): # Rename to avoid conflict if used in same module later

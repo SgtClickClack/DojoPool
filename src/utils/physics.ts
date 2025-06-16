@@ -1,6 +1,134 @@
+/**
+ * Physics utilities for pool game calculations
+ */
+
 export interface Vector2D {
   x: number;
   y: number;
+}
+
+export interface Ball {
+  position: Vector2D;
+  velocity: Vector2D;
+  radius: number;
+  mass: number;
+}
+
+export interface Trajectory {
+  positions: Vector2D[];
+  velocities: Vector2D[];
+  times: number[];
+}
+
+/**
+ * Calculate the trajectory of a ball based on initial conditions
+ */
+export function calculateTrajectory(
+  initialPosition: Vector2D,
+  initialVelocity: Vector2D,
+  friction: number = 0.98,
+  timeSteps: number = 100
+): Trajectory {
+  const positions: Vector2D[] = [];
+  const velocities: Vector2D[] = [];
+  const times: number[] = [];
+  
+  let currentPosition = { ...initialPosition };
+  let currentVelocity = { ...initialVelocity };
+  
+  for (let i = 0; i < timeSteps; i++) {
+    positions.push({ ...currentPosition });
+    velocities.push({ ...currentVelocity });
+    times.push(i * 0.016); // 60 FPS time step
+    
+    // Update position
+    currentPosition.x += currentVelocity.x * 0.016;
+    currentPosition.y += currentVelocity.y * 0.016;
+    
+    // Apply friction
+    currentVelocity.x *= friction;
+    currentVelocity.y *= friction;
+    
+    // Stop if velocity is very small
+    if (Math.abs(currentVelocity.x) < 0.01 && Math.abs(currentVelocity.y) < 0.01) {
+      break;
+    }
+  }
+  
+  return { positions, velocities, times };
+}
+
+/**
+ * Apply friction to a ball's velocity
+ */
+export function applyFriction(ball: Ball, friction: number = 0.98): Ball {
+  return {
+    ...ball,
+    velocity: {
+      x: ball.velocity.x * friction,
+      y: ball.velocity.y * friction
+    }
+  };
+}
+
+/**
+ * Detect collision between two balls
+ */
+export function detectCollision(ball1: Ball, ball2: Ball): boolean {
+  const dx = ball2.position.x - ball1.position.x;
+  const dy = ball2.position.y - ball1.position.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  const minDistance = ball1.radius + ball2.radius;
+  
+  return distance <= minDistance;
+}
+
+/**
+ * Calculate collision response between two balls
+ */
+export function calculateCollisionResponse(ball1: Ball, ball2: Ball): { ball1: Ball; ball2: Ball } {
+  const dx = ball2.position.x - ball1.position.x;
+  const dy = ball2.position.y - ball1.position.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  
+  if (distance === 0) {
+    return { ball1, ball2 };
+  }
+  
+  const nx = dx / distance;
+  const ny = dy / distance;
+  
+  const relativeVelocityX = ball2.velocity.x - ball1.velocity.x;
+  const relativeVelocityY = ball2.velocity.y - ball1.velocity.y;
+  
+  const velocityAlongNormal = relativeVelocityX * nx + relativeVelocityY * ny;
+  
+  if (velocityAlongNormal > 0) {
+    return { ball1, ball2 };
+  }
+  
+  const restitution = 0.8;
+  const j = -(1 + restitution) * velocityAlongNormal;
+  const impulseX = j * nx;
+  const impulseY = j * ny;
+  
+  const newBall1: Ball = {
+    ...ball1,
+    velocity: {
+      x: ball1.velocity.x - impulseX / ball1.mass,
+      y: ball1.velocity.y - impulseY / ball1.mass
+    }
+  };
+  
+  const newBall2: Ball = {
+    ...ball2,
+    velocity: {
+      x: ball2.velocity.x + impulseX / ball2.mass,
+      y: ball2.velocity.y + impulseY / ball2.mass
+    }
+  };
+  
+  return { ball1: newBall1, ball2: newBall2 };
 }
 
 export interface PhysicsObject {

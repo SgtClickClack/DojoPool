@@ -170,9 +170,9 @@ def setup_monitoring(app: Flask) -> None:
     MonitoringMiddleware(app, metrics)
 
     # Start Prometheus metrics server
-    start_http_server(8000)
+    start_http_server(8001)
 
-    logger.info("monitoring_initialized", metrics_endpoint="/metrics", prometheus_port=8000)
+    logger.info("monitoring_initialized", metrics_endpoint="/metrics", prometheus_port=8001)
 
 
 def monitoring_middleware() -> Callable:

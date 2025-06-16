@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 import psutil
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from redis import Redis
 from sqlalchemy import text
 
@@ -78,7 +78,7 @@ def health_check():
         },
     }
 
-    return jsonify(response), 200 if all_critical_healthy else 503
+    return response, 200 if all_critical_healthy else 503
 
 
 @health_bp.route("/metrics")

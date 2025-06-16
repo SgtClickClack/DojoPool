@@ -29,7 +29,7 @@ export const useGameState = ({ gameId, playerId }: UseGameStateProps) => {
       }
     };
 
-    const newSocket = io(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3002', socketOptions);
+    const newSocket = io(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000', socketOptions);
 
     newSocket.on('connect', () => {
       console.log('Connected to game socket');

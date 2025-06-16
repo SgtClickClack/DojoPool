@@ -118,7 +118,7 @@ class BaseResource(Resource):
         data: Optional[Union[Dict[str, Any], list]] = None,
         message: Optional[str] = None,
         status_code: int = 200,
-    ) -> Tuple[Dict[str, Any], int]:
+    ) -> Dict[str, Any]:
         """Create a success response.
 
         Args:
@@ -127,7 +127,7 @@ class BaseResource(Resource):
             status_code: HTTP status code.
 
         Returns:
-            Tuple[Dict[str, Any], int]: Response tuple.
+            Dict[str, Any]: Response dict.
         """
         response = {}
 
@@ -137,11 +137,11 @@ class BaseResource(Resource):
         if message is not None:
             response["message"] = message
 
-        return response, status_code
+        return response
 
     def error_response(
         self, message: str, errors: Optional[Dict[str, Any]] = None, status_code: int = 400
-    ) -> Tuple[Dict[str, Any], int]:
+    ) -> Dict[str, Any]:
         """Create an error response.
 
         Args:
@@ -150,11 +150,11 @@ class BaseResource(Resource):
             status_code: HTTP status code.
 
         Returns:
-            Tuple[Dict[str, Any], int]: Response tuple.
+            Dict[str, Any]: Response dict.
         """
         response = {"message": message}
 
         if errors is not None:
             response["errors"] = errors  # type: ignore
 
-        return response, status_code
+        return response

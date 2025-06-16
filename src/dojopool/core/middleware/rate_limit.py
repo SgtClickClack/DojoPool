@@ -5,7 +5,7 @@ This module provides rate limiting functionality.
 
 from functools import wraps
 
-from flask import jsonify, request
+from flask import request
 
 from src.extensions import cache
 
@@ -29,15 +29,10 @@ def rate_limit(limit: int = 100, period: int = 3600):
             count = cache.get(key) or 0
 
             if count >= limit:
-                return (
-                    jsonify(
-                        {
-                            "error": "Rate limit exceeded",
-                            "message": f"Maximum {limit} requests per {period} seconds",
-                        }
-                    ),
-                    429,
-                )
+                return {
+                    "error": "Rate limit exceeded",
+                    "message": f"Maximum {limit} requests per {period} seconds",
+                }, 429
 
             # Increment count
             cache.set(key, count + 1, timeout=period)
@@ -74,9 +69,7 @@ def api_rate_limit(strict=False):
             limit = limits.get(tier, limits["basic"])
 
             # Apply rate limiting
-            return rate_limit(requests=limit, window=60, by="user" if user else "ip")(f)(
-                *args, **kwargs
-            )
+            return rate_limit(limit=limit, period=60)(f)(*args, **kwargs)
 
         return wrapped
 

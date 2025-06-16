@@ -1,6 +1,6 @@
 """Wallet API endpoints."""
 
-from flask import jsonify, request, current_app
+from flask import jsonify, request, current_app, g
 from flask_login import login_required, current_user
 from functools import wraps
 import time
@@ -9,6 +9,7 @@ from dojopool.core.extensions import db, cache
 from dojopool.services.wallet_service import WalletService, RewardType
 from dojopool.core.exceptions import WalletError, InsufficientFundsError
 from dojopool.api.v1.resources.base import BaseResource
+from dojopool.core.security import require_auth
 
 
 def cache_wallet_stats(timeout=300):
@@ -22,7 +23,7 @@ def cache_wallet_stats(timeout=300):
         def decorated_function(*args, **kwargs):
             # Generate cache key based on wallet_id and user
             wallet_id = kwargs.get('wallet_id')
-            user_id = current_user.id if current_user.is_authenticated else None
+            user_id = g.user_id if g.user_id else None
             cache_key = f'wallet_stats:{wallet_id}:{user_id}'
 
             # Try to get from cache first
@@ -49,6 +50,7 @@ class WalletResource(BaseResource):
         """Initialize the wallet resource."""
         self.wallet_service = WalletService()
 
+    @require_auth
     def get(self, wallet_id=None):
         """Get wallet details.
 
@@ -65,19 +67,20 @@ class WalletResource(BaseResource):
                     return {"error": "Unauthorized"}, 403
                 wallet = self.wallet_service.get_wallet(wallet_id)
             else:
-                wallet = self.wallet_service.get_user_wallet(current_user.id)
+                # Use g.user_id from the require_auth decorator
+                wallet = self.wallet_service.get_user_wallet(g.user_id)
 
             if not wallet:
                 # Always return a default wallet object if not found
                 return {
                     "id": None,
-                    "user_id": current_user.id,
+                    "user_id": g.user_id,
                     "balance": 0,
                     "transactions": [],
                     "rewards": 0
-                }, 200
+                }
 
-            return wallet.to_dict(), 200
+            return wallet.to_dict()
 
         except Exception as e:
             return {"error": str(e)}, 500
@@ -104,9 +107,9 @@ class WalletTransactionResource(BaseResource):
             # Check authorization
             wallet = self.wallet_service.get_wallet(wallet_id)
             if not wallet:
-                return {"error": "Wallet not found"}, 404
-            if wallet.user_id != current_user.id and not current_user.is_admin:
-                return {"error": "Unauthorized"}, 403
+                return {"error": "Wallet not found"}
+            if wallet.user_id != g.user_id and not current_user.is_admin:
+                return {"error": "Unauthorized"}
 
             # Get query parameters
             limit = request.args.get("limit", 100, type=int)
@@ -115,23 +118,24 @@ class WalletTransactionResource(BaseResource):
 
             transactions = self.wallet_service.get_transaction_history(
                 wallet_id,
-                start_date=start_date,
-                end_date=end_date,
                 limit=limit
             )
 
             return jsonify([{
                 "id": t.id,
                 "wallet_id": t.wallet_id,
-                "transaction_type": t.transaction_type,
+                "user_id": t.user_id,
                 "amount": t.amount,
+                "currency": t.currency,
+                "type": t.type,
+                "status": t.status,
                 "description": t.description,
-                "metadata": t.metadata,
-                "created_at": t.created_at.isoformat()
+                "reference_id": t.reference_id,
+                "created_at": t.created_at.isoformat() if t.created_at else None
             } for t in transactions])
 
         except Exception as e:
-            return {"error": str(e)}, 500
+            return {"error": str(e)}
 
 
 class WalletTransferResource(BaseResource):
@@ -151,20 +155,20 @@ class WalletTransferResource(BaseResource):
         try:
             data = request.get_json()
             if not data:
-                return {"error": "No data provided"}, 400
+                return {"error": "No data provided"}
 
             recipient_id = data.get("recipient_id")
             amount = data.get("amount")
             description = data.get("description")
 
             if not recipient_id or not amount:
-                return {"error": "Missing required fields"}, 400
+                return {"error": "Missing required fields"}
 
             if amount <= 0:
-                return {"error": "Amount must be positive"}, 400
+                return {"error": "Amount must be positive"}
 
             transaction = self.wallet_service.transfer_coins(
-                current_user.id,
+                g.user_id,
                 recipient_id,
                 amount,
                 description
@@ -173,19 +177,22 @@ class WalletTransferResource(BaseResource):
             return jsonify({
                 "id": transaction.id,
                 "wallet_id": transaction.wallet_id,
-                "transaction_type": transaction.transaction_type,
+                "user_id": transaction.user_id,
                 "amount": transaction.amount,
+                "currency": transaction.currency,
+                "type": transaction.type,
+                "status": transaction.status,
                 "description": transaction.description,
-                "metadata": transaction.metadata,
-                "created_at": transaction.created_at.isoformat()
+                "reference_id": transaction.reference_id,
+                "created_at": transaction.created_at.isoformat() if transaction.created_at else None
             })
 
         except InsufficientFundsError as e:
-            return {"error": str(e)}, 400
+            return {"error": str(e)}
         except WalletError as e:
-            return {"error": str(e)}, 404
+            return {"error": str(e)}
         except Exception as e:
-            return {"error": str(e)}, 500
+            return {"error": str(e)}
 
 
 class WalletStatsResource(BaseResource):
@@ -195,6 +202,7 @@ class WalletStatsResource(BaseResource):
         """Initialize the wallet stats resource."""
         self.wallet_service = WalletService()
 
+    @require_auth
     @cache_wallet_stats(timeout=300)  # Cache for 5 minutes
     def get(self, wallet_id=None):
         """Get wallet statistics.
@@ -205,7 +213,7 @@ class WalletStatsResource(BaseResource):
         """
         try:
             # Handle unauthenticated users
-            if not current_user.is_authenticated:
+            if not g.user_id:
                 return jsonify({
                     "balance": 0,
                     "totalTransactions": 0,
@@ -214,11 +222,11 @@ class WalletStatsResource(BaseResource):
                     "totalOutgoing": 0,
                     "rewards": 0,
                     "transactions": []
-                }), 401
+                })
 
             # Get wallet
             if wallet_id is None:
-                wallet = self.wallet_service.get_user_wallet(current_user.id)
+                wallet = self.wallet_service.get_user_wallet(g.user_id)
                 if not wallet:
                     return {
                         "balance": 0,
@@ -228,21 +236,20 @@ class WalletStatsResource(BaseResource):
                         "totalOutgoing": 0,
                         "rewards": 0,
                         "transactions": []
-                    }, 200
+                    }
                 wallet_id = wallet.id
             else:
                 wallet = self.wallet_service.get_wallet(wallet_id)
                 if not wallet:
-                    return {"error": "Wallet not found"}, 404
-                if wallet.user_id != current_user.id and not current_user.is_admin:
-                    return {"error": "Unauthorized"}, 403
+                    return {"error": "Wallet not found"}
+                if wallet.user_id != g.user_id and not current_user.is_admin:
+                    return {"error": "Unauthorized"}
 
             # Get stats from service
             stats = self.wallet_service.get_wallet_stats(wallet_id)
-            return jsonify(stats), 200
+            return jsonify(stats)
 
         except WalletError as e:
-            return {"error": str(e)}, 404
+            return {"error": str(e)}
         except Exception as e:
-            current_app.logger.error(f"Error getting wallet stats: {str(e)}", exc_info=True)
-            return {"error": "Internal server error"}, 500
+            return {"error": str(e)}, 500

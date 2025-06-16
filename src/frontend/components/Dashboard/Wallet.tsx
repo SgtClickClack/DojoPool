@@ -47,7 +47,7 @@ const Wallet: React.FC = () => {
     const fetchWalletStats = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/wallet/stats");
+        const response = await axiosInstance.get("/v1/wallet/stats");
         setWalletStats(response.data);
         setError(null);
       } catch (err: any) {
@@ -80,7 +80,7 @@ const Wallet: React.FC = () => {
       setRecipient("");
       setAmount("");
       // Refresh stats
-      const response = await axiosInstance.get("/wallet/stats");
+      const response = await axiosInstance.get("/v1/wallet/stats");
       setWalletStats(response.data);
     } catch (err: any) {
       setTransferError(err?.response?.data?.error || "Transfer failed.");

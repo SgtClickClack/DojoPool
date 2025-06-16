@@ -53,12 +53,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true);
     setError(null);
     try {
-      // Assumes the endpoint is mounted under /users/
-      const response = await axiosInstance.get<{ data: { user: UserProfile } }>(
-        "/users/me",
+      // Assumes the endpoint is mounted under /v1/users/
+      const response = await axiosInstance.get<{ data: UserProfile }>(
+        "/v1/users/me",
       );
-      if (response.data?.data?.user) {
-        setProfile(response.data.data.user);
+      if (response.data?.data) {
+        setProfile(response.data.data);
       } else {
         throw new Error("User profile data not found in API response.");
       }

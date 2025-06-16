@@ -2,6 +2,7 @@
 
 from flask_login import current_user
 from flask_socketio import emit, join_room, leave_room
+from flask import current_app
 
 from ..extensions import db
 from dojopool.models.game import Game
@@ -11,9 +12,17 @@ from .chat_events import *
 @socketio.on("connect")
 def handle_connect():
     """Handle client connection."""
+    # Allow unauthenticated connections in development mode
+    if current_app.config.get('ENV') == 'development':
+        emit("connection_response", {"status": "connected"})
+        return True
+    
+    # Require authentication in production
     if not current_user.is_authenticated:
         return False
+    
     emit("connection_response", {"status": "connected"})
+    return True
 
 
 @socketio.on("join_game")

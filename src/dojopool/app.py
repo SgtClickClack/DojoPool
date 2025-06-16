@@ -25,15 +25,12 @@ from flask import jsonify, request
 import logging
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, session, g
-from flask_login import current_user
+from flask_login import current_user, LoginManager
 import flask_debugtoolbar
-from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from dojopool.core.extensions import migrate, cors, socketio
-from dojopool.core.sockets import init_socketio, socketio
-
-# Import the function to get the correct config class
+from dojopool.core.extensions import migrate, socketio
+from dojopool.core.sockets import init_socketio
 from dojopool.core.config import get_config
 # Import the main extensions initializer and instances
 from dojopool.core.extensions import db, init_extensions, login_manager
@@ -43,6 +40,10 @@ from dojopool.routes.performance import bp as performance_bp
 from dojopool.routes.venue import bp as venue_bp
 from dojopool.routes.feed import bp as feed_bp
 from dojopool.core.health import health_bp
+from flask_cors import CORS
+import firebase_admin
+from firebase_admin import credentials
+from .models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +51,11 @@ def create_app(config_name=None, test_config=None, testing=False):
     """Application factory function."""
     app = Flask(__name__, instance_relative_config=True)
 
-    # --- Simpler Flask-CORS Initialization ---
-    # Apply CORS globally, allowing credentials and specific origin
-    CORS(app, origins="http://localhost:3100", supports_credentials=True)
+    # --- CORS Configuration ---
+    # Remove Flask-CORS and use custom CORS middleware instead
+    # This prevents conflicts with Flask-RESTful response handling
+    from dojopool.core.monitoring.cors_middleware import init_cors
+    init_cors(app)
     # -----------------------------------------
 
     # Trigger model discovery via models/__init__.py
@@ -196,6 +199,27 @@ def create_app(config_name=None, test_config=None, testing=False):
         return {'now': datetime.now()}
 
     print("GOOGLE_CLIENT_ID:", app.config.get("GOOGLE_CLIENT_ID"))
+
+    # Initialize Firebase Admin with project ID
+    try:
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(options={
+                'projectId': os.getenv('FIREBASE_PROJECT_ID')
+            })
+            logger.info("Firebase Admin SDK initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize Firebase Admin SDK: {str(e)}")
+        # Continue without Firebase Admin - some features may not work
+        pass
+
+    # Initialize Flask-Login
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     return app
 

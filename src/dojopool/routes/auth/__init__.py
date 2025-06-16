@@ -1,4 +1,5 @@
-"""Authentication routes."""
+"""Auth routes module."""
 
-from .views import bp as auth_bp, init_oauth  # noqa
-from . import views  # noqa
+from dojopool.auth.routes import auth_bp
+
+__all__ = ['auth_bp']
