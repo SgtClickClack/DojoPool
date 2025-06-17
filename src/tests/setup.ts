@@ -10,7 +10,6 @@ const mockFn = <T extends (...args: any[]) => any>(implementation?: T) =>
 // Provide a minimal Jest API shim that delegates to Vitest's `vi` utilities
 if (!(globalThis as any).jest) {
   (globalThis as any).jest = {
-    ...vi,
     fn: vi.fn,
     spyOn: vi.spyOn,
     mock: vi.mock,
