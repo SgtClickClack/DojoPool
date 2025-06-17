@@ -4,7 +4,7 @@ from flask_login import current_user
 from flask_socketio import emit, join_room, leave_room
 from dojopool.models import db
 from dojopool.models.chat import ChatRoom, ChatMessage, ChatParticipant
-from dojopool.core.sockets import socketio
+from dojopool.core.extensions import socketio
 from datetime import datetime
 from dojopool.story.story_engine import story_engine
 from dojopool.story.npc_chatbot import npc_chatbot

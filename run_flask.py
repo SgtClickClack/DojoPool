@@ -16,7 +16,7 @@ sys.path.insert(0, src_path)
 try:
     # Now import and run the Flask app
     from dojopool.app import create_app
-    from dojopool.core.sockets import socketio
+    from dojopool.core.extensions import socketio
     from dojopool.config.development import DevelopmentConfig
 
     app = create_app('development')
