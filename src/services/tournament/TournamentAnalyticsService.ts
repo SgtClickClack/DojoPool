@@ -1,462 +1,379 @@
 import { Tournament, Match, Player, TournamentFormat } from '../types/tournament';
+import { EventEmitter } from 'events';
 
 export interface PlayerPerformance {
-  playerId: string;
-  playerName: string;
+  id: string;
+  name: string;
+  rating: number;
   matchesPlayed: number;
-  matchesWon: number;
-  matchesLost: number;
+  wins: number;
+  losses: number;
   winRate: number;
-  totalPoints: number;
-  averagePoints: number;
-  highestBreak: number;
-  totalFouls: number;
-  averageShotTime: number;
-  tournamentRank: number;
-  currentStreak: number;
-  longestStreak: number;
-  eliminationRound?: number;
-  finalPosition?: number;
+  averageScore: number;
+  totalPrizeMoney: number;
+  performanceHistory: {
+    date: string;
+    rating: number;
+    matchResult: 'win' | 'loss';
+    score: number;
+  }[];
+  strengths: string[];
+  weaknesses: string[];
+  improvementAreas: string[];
 }
 
-export interface TournamentStatistics {
-  tournamentId: string;
-  tournamentName: string;
-  totalPlayers: number;
+export interface TournamentStats {
+  id: string;
+  name: string;
   totalMatches: number;
-  completedMatches: number;
+  totalPlayers: number;
   averageMatchDuration: number;
   totalPrizePool: number;
-  averagePointsPerMatch: number;
-  highestBreak: number;
-  longestMatch: number;
-  shortestMatch: number;
-  totalFouls: number;
-  averageFoulsPerMatch: number;
   completionRate: number;
-  averagePlayersPerMatch: number;
-}
-
-export interface MatchAnalytics {
-  matchId: string;
-  player1Id: string;
-  player2Id: string;
-  player1Name: string;
-  player2Name: string;
-  winnerId?: string;
-  duration: number;
-  totalShots: number;
-  totalPoints: number;
-  totalFouls: number;
-  highestBreak: number;
-  averageShotTime: number;
-  shotAccuracy: number;
-  positionControl: number;
-  safetySuccess: number;
-  breakSuccess: number;
-  keyMoments: KeyMoment[];
-  roundNumber: number;
-  matchNumber: number;
-}
-
-export interface KeyMoment {
-  timestamp: number;
-  type: 'break' | 'foul' | 'safety' | 'pot' | 'miss';
-  playerId: string;
-  description: string;
-  impact: 'high' | 'medium' | 'low';
-}
-
-export interface HistoricalData {
-  tournamentId: string;
-  date: string;
-  playerCount: number;
-  matchCount: number;
-  averageScore: number;
-  completionRate: number;
-  totalPrizePool: number;
-}
-
-export interface PerformanceTrends {
-  playerId: string;
-  playerName: string;
-  tournamentsPlayed: number;
-  averageRank: number;
-  winRateTrend: number[];
-  pointsTrend: number[];
-  breakTrend: number[];
-  improvementRate: number;
+  averageRating: number;
+  topPerformer: {
+    id: string;
+    name: string;
+    rating: number;
+    wins: number;
+  };
+  venueStats: {
+    id: string;
+    name: string;
+    matchesPlayed: number;
+    revenue: number;
+  }[];
+  performanceMetrics: {
+    averageShotAccuracy: number;
+    averageBreakSuccess: number;
+    averageSafetySuccess: number;
+    totalFouls: number;
+    averageMatchLength: number;
+  };
+  trends: {
+    date: string;
+    matchesPlayed: number;
+    averageRating: number;
+    revenue: number;
+  }[];
 }
 
 export interface VenueAnalytics {
-  venueId: string;
-  venueName: string;
-  tournamentsHosted: number;
-  totalPlayers: number;
-  averageTournamentSize: number;
-  completionRate: number;
-  averagePrizePool: number;
-  popularFormats: string[];
-  peakHours: number[];
+  id: string;
+  name: string;
+  totalRevenue: number;
+  totalMatches: number;
+  averageRating: number;
+  playerSatisfaction: number;
+  equipmentUtilization: number;
+  revenueTrends: {
+    date: string;
+    revenue: number;
+    matches: number;
+  }[];
+  popularTimeSlots: {
+    hour: number;
+    matches: number;
+    revenue: number;
+  }[];
+  equipmentHealth: {
+    tableId: string;
+    status: 'excellent' | 'good' | 'fair' | 'poor';
+    lastMaintenance: string;
+    utilizationRate: number;
+  }[];
 }
 
-class TournamentAnalyticsService {
+export interface RealTimeMetrics {
+  activeMatches: number;
+  activePlayers: number;
+  totalViewers: number;
+  averageMatchDuration: number;
+  revenuePerHour: number;
+  systemPerformance: {
+    cpu: number;
+    memory: number;
+    network: number;
+  };
+}
+
+class TournamentAnalyticsService extends EventEmitter {
   private static instance: TournamentAnalyticsService;
-  private subscribers: Map<string, Set<(data: any) => void>> = new Map();
+  private stats: TournamentStats[] = [];
+  private playerPerformance: PlayerPerformance[] = [];
+  private venueAnalytics: VenueAnalytics[] = [];
+  private realTimeMetrics: RealTimeMetrics = {
+    activeMatches: 0,
+    activePlayers: 0,
+    totalViewers: 0,
+    averageMatchDuration: 0,
+    revenuePerHour: 0,
+    systemPerformance: {
+      cpu: 0,
+      memory: 0,
+      network: 0,
+    },
+  };
 
-  private constructor() {}
+  private constructor() {
+    super();
+    this.initializeMockData();
+    this.startRealTimeUpdates();
+  }
 
-  static getInstance(): TournamentAnalyticsService {
+  public static getInstance(): TournamentAnalyticsService {
     if (!TournamentAnalyticsService.instance) {
       TournamentAnalyticsService.instance = new TournamentAnalyticsService();
     }
     return TournamentAnalyticsService.instance;
   }
 
-  // Subscribe to analytics updates
-  subscribe(event: string, callback: (data: any) => void): () => void {
-    if (!this.subscribers.has(event)) {
-      this.subscribers.set(event, new Set());
-    }
-    this.subscribers.get(event)!.add(callback);
+  private initializeMockData(): void {
+    // Mock tournament statistics
+    this.stats = [
+      {
+        id: '1',
+        name: 'Cyberpunk Championship 2025',
+        totalMatches: 156,
+        totalPlayers: 64,
+        averageMatchDuration: 45,
+        totalPrizePool: 25000,
+        completionRate: 94.2,
+        averageRating: 8.7,
+        topPerformer: {
+          id: 'player1',
+          name: 'Neon Shadow',
+          rating: 9.8,
+          wins: 12,
+        },
+        venueStats: [
+          {
+            id: 'venue1',
+            name: 'Neon Pool Hall',
+            matchesPlayed: 89,
+            revenue: 12500,
+          },
+          {
+            id: 'venue2',
+            name: 'Cyber Dojo',
+            matchesPlayed: 67,
+            revenue: 12500,
+          },
+        ],
+        performanceMetrics: {
+          averageShotAccuracy: 78.5,
+          averageBreakSuccess: 65.2,
+          averageSafetySuccess: 72.1,
+          totalFouls: 234,
+          averageMatchLength: 45,
+        },
+        trends: [
+          { date: '2025-01-25', matchesPlayed: 12, averageRating: 8.5, revenue: 1800 },
+          { date: '2025-01-26', matchesPlayed: 15, averageRating: 8.7, revenue: 2200 },
+          { date: '2025-01-27', matchesPlayed: 18, averageRating: 8.9, revenue: 2600 },
+          { date: '2025-01-28', matchesPlayed: 14, averageRating: 8.6, revenue: 2100 },
+          { date: '2025-01-29', matchesPlayed: 16, averageRating: 8.8, revenue: 2400 },
+        ],
+      },
+    ];
 
-    return () => {
-      this.subscribers.get(event)?.delete(callback);
+    // Mock player performance data
+    this.playerPerformance = [
+      {
+        id: 'player1',
+        name: 'Neon Shadow',
+        rating: 9.8,
+        matchesPlayed: 12,
+        wins: 12,
+        losses: 0,
+        winRate: 100,
+        averageScore: 95.2,
+        totalPrizeMoney: 5000,
+        performanceHistory: [
+          { date: '2025-01-25', rating: 9.5, matchResult: 'win', score: 92 },
+          { date: '2025-01-26', rating: 9.6, matchResult: 'win', score: 94 },
+          { date: '2025-01-27', rating: 9.7, matchResult: 'win', score: 96 },
+          { date: '2025-01-28', rating: 9.8, matchResult: 'win', score: 98 },
+        ],
+        strengths: ['Break shots', 'Position play', 'Safety shots'],
+        weaknesses: ['Long shots under pressure'],
+        improvementAreas: ['Mental game', 'Pressure situations'],
+      },
+      {
+        id: 'player2',
+        name: 'Digital Phantom',
+        rating: 9.2,
+        matchesPlayed: 10,
+        wins: 8,
+        losses: 2,
+        winRate: 80,
+        averageScore: 88.5,
+        totalPrizeMoney: 3000,
+        performanceHistory: [
+          { date: '2025-01-25', rating: 9.0, matchResult: 'win', score: 85 },
+          { date: '2025-01-26', rating: 9.1, matchResult: 'loss', score: 82 },
+          { date: '2025-01-27', rating: 9.2, matchResult: 'win', score: 90 },
+          { date: '2025-01-28', rating: 9.2, matchResult: 'win', score: 89 },
+        ],
+        strengths: ['Long shots', 'Bank shots', 'Defensive play'],
+        weaknesses: ['Break consistency'],
+        improvementAreas: ['Break shot practice', 'Opening game strategy'],
+      },
+    ];
+
+    // Mock venue analytics
+    this.venueAnalytics = [
+      {
+        id: 'venue1',
+        name: 'Neon Pool Hall',
+        totalRevenue: 12500,
+        totalMatches: 89,
+        averageRating: 8.8,
+        playerSatisfaction: 92,
+        equipmentUtilization: 87,
+        revenueTrends: [
+          { date: '2025-01-25', revenue: 1800, matches: 12 },
+          { date: '2025-01-26', revenue: 2200, matches: 15 },
+          { date: '2025-01-27', revenue: 2600, matches: 18 },
+          { date: '2025-01-28', revenue: 2100, matches: 14 },
+          { date: '2025-01-29', revenue: 2400, matches: 16 },
+        ],
+        popularTimeSlots: [
+          { hour: 19, matches: 25, revenue: 3500 },
+          { hour: 20, matches: 30, revenue: 4200 },
+          { hour: 21, matches: 20, revenue: 2800 },
+          { hour: 22, matches: 14, revenue: 2000 },
+        ],
+        equipmentHealth: [
+          {
+            tableId: 'table1',
+            status: 'excellent',
+            lastMaintenance: '2025-01-20',
+            utilizationRate: 95,
+          },
+          {
+            tableId: 'table2',
+            status: 'good',
+            lastMaintenance: '2025-01-18',
+            utilizationRate: 88,
+          },
+        ],
+      },
+    ];
+  }
+
+  private startRealTimeUpdates(): void {
+    setInterval(() => {
+      this.updateRealTimeMetrics();
+      this.emit('realTimeUpdate', this.realTimeMetrics);
+    }, 5000);
+
+    setInterval(() => {
+      this.updatePerformanceMetrics();
+      this.emit('performanceUpdate', this.playerPerformance);
+    }, 10000);
+  }
+
+  private updateRealTimeMetrics(): void {
+    this.realTimeMetrics = {
+      activeMatches: Math.floor(Math.random() * 10) + 5,
+      activePlayers: Math.floor(Math.random() * 20) + 15,
+      totalViewers: Math.floor(Math.random() * 100) + 50,
+      averageMatchDuration: Math.floor(Math.random() * 10) + 40,
+      revenuePerHour: Math.floor(Math.random() * 200) + 300,
+      systemPerformance: {
+        cpu: Math.random() * 30 + 20,
+        memory: Math.random() * 25 + 30,
+        network: Math.random() * 20 + 15,
+      },
     };
   }
 
-  // Publish analytics updates
-  private publish(event: string, data: any): void {
-    this.subscribers.get(event)?.forEach(callback => callback(data));
-  }
-
-  // Calculate comprehensive tournament statistics
-  async calculateTournamentStatistics(tournament: Tournament): Promise<TournamentStatistics> {
-    const matches = await this.getTournamentMatches(tournament.id);
-    const players = await this.getTournamentPlayers(tournament.id);
-
-    const completedMatches = matches.filter(m => m.status === 'completed');
-    const totalPoints = completedMatches.reduce((sum, match) => sum + (match.player1Score || 0) + (match.player2Score || 0), 0);
-    const totalFouls = completedMatches.reduce((sum, match) => sum + (match.player1Fouls || 0) + (match.player2Fouls || 0), 0);
-    const totalDuration = completedMatches.reduce((sum, match) => sum + (match.duration || 0), 0);
-
-    const statistics: TournamentStatistics = {
-      tournamentId: tournament.id,
-      tournamentName: tournament.name,
-      totalPlayers: players.length,
-      totalMatches: matches.length,
-      completedMatches: completedMatches.length,
-      averageMatchDuration: completedMatches.length > 0 ? totalDuration / completedMatches.length : 0,
-      totalPrizePool: tournament.prizePool || 0,
-      averagePointsPerMatch: completedMatches.length > 0 ? totalPoints / completedMatches.length : 0,
-      highestBreak: Math.max(...completedMatches.map(m => Math.max(m.player1HighestBreak || 0, m.player2HighestBreak || 0))),
-      longestMatch: Math.max(...completedMatches.map(m => m.duration || 0)),
-      shortestMatch: Math.min(...completedMatches.map(m => m.duration || 0)),
-      totalFouls,
-      averageFoulsPerMatch: completedMatches.length > 0 ? totalFouls / completedMatches.length : 0,
-      completionRate: matches.length > 0 ? (completedMatches.length / matches.length) * 100 : 0,
-      averagePlayersPerMatch: matches.length > 0 ? (players.length * 2) / matches.length : 0,
-    };
-
-    this.publish('tournamentStatistics', statistics);
-    return statistics;
-  }
-
-  // Calculate player performance rankings
-  async calculatePlayerPerformance(tournament: Tournament): Promise<PlayerPerformance[]> {
-    const matches = await this.getTournamentMatches(tournament.id);
-    const players = await this.getTournamentPlayers(tournament.id);
-    const playerStats = new Map<string, PlayerPerformance>();
-
-    // Initialize player stats
-    players.forEach(player => {
-      playerStats.set(player.id, {
-        playerId: player.id,
-        playerName: player.name,
-        matchesPlayed: 0,
-        matchesWon: 0,
-        matchesLost: 0,
-        winRate: 0,
-        totalPoints: 0,
-        averagePoints: 0,
-        highestBreak: 0,
-        totalFouls: 0,
-        averageShotTime: 0,
-        tournamentRank: 0,
-        currentStreak: 0,
-        longestStreak: 0,
-      });
-    });
-
-    // Calculate stats from matches
-    const completedMatches = matches.filter(m => m.status === 'completed');
-    completedMatches.forEach(match => {
-      const player1Stats = playerStats.get(match.player1Id);
-      const player2Stats = playerStats.get(match.player2Id);
-
-      if (player1Stats && player2Stats) {
-        // Update matches played
-        player1Stats.matchesPlayed++;
-        player2Stats.matchesPlayed++;
-
-        // Update points and breaks
-        player1Stats.totalPoints += match.player1Score || 0;
-        player2Stats.totalPoints += match.player2Score || 0;
-        player1Stats.highestBreak = Math.max(player1Stats.highestBreak, match.player1HighestBreak || 0);
-        player2Stats.highestBreak = Math.max(player2Stats.highestBreak, match.player2HighestBreak || 0);
-
-        // Update fouls
-        player1Stats.totalFouls += match.player1Fouls || 0;
-        player2Stats.totalFouls += match.player2Fouls || 0;
-
-        // Determine winner
-        if (match.winnerId === match.player1Id) {
-          player1Stats.matchesWon++;
-          player2Stats.matchesLost++;
-        } else if (match.winnerId === match.player2Id) {
-          player2Stats.matchesWon++;
-          player1Stats.matchesLost++;
-        }
+  private updatePerformanceMetrics(): void {
+    this.playerPerformance.forEach((player) => {
+      if (Math.random() > 0.7) {
+        const change = (Math.random() - 0.5) * 0.2;
+        player.rating = Math.max(0, Math.min(10, player.rating + change));
       }
     });
-
-    // Calculate averages and win rates
-    playerStats.forEach(stats => {
-      stats.winRate = stats.matchesPlayed > 0 ? (stats.matchesWon / stats.matchesPlayed) * 100 : 0;
-      stats.averagePoints = stats.matchesPlayed > 0 ? stats.totalPoints / stats.matchesPlayed : 0;
-      stats.averageShotTime = stats.matchesPlayed > 0 ? 45 : 0; // Mock average shot time
-    });
-
-    // Sort by win rate and assign ranks
-    const sortedPlayers = Array.from(playerStats.values()).sort((a, b) => b.winRate - a.winRate);
-    sortedPlayers.forEach((player, index) => {
-      player.tournamentRank = index + 1;
-    });
-
-    this.publish('playerPerformance', sortedPlayers);
-    return sortedPlayers;
   }
 
-  // Calculate match analytics
-  async calculateMatchAnalytics(match: Match): Promise<MatchAnalytics> {
-    const analytics: MatchAnalytics = {
-      matchId: match.id,
-      player1Id: match.player1Id,
-      player2Id: match.player2Id,
-      player1Name: match.player1Name || 'Player 1',
-      player2Name: match.player2Name || 'Player 2',
-      winnerId: match.winnerId,
-      duration: match.duration || 0,
-      totalShots: (match.player1Shots || 0) + (match.player2Shots || 0),
-      totalPoints: (match.player1Score || 0) + (match.player2Score || 0),
-      totalFouls: (match.player1Fouls || 0) + (match.player2Fouls || 0),
-      highestBreak: Math.max(match.player1HighestBreak || 0, match.player2HighestBreak || 0),
-      averageShotTime: 45, // Mock average shot time
-      shotAccuracy: this.calculateShotAccuracy(match),
-      positionControl: this.calculatePositionControl(match),
-      safetySuccess: this.calculateSafetySuccess(match),
-      breakSuccess: this.calculateBreakSuccess(match),
-      keyMoments: this.generateKeyMoments(match),
-      roundNumber: match.roundNumber || 1,
-      matchNumber: match.matchNumber || 1,
+  public getTournamentStats(): TournamentStats[] {
+    return this.stats;
+  }
+
+  public getPlayerPerformance(): PlayerPerformance[] {
+    return this.playerPerformance;
+  }
+
+  public getVenueAnalytics(): VenueAnalytics[] {
+    return this.venueAnalytics;
+  }
+
+  public getRealTimeMetrics(): RealTimeMetrics {
+    return this.realTimeMetrics;
+  }
+
+  public getTopPerformers(limit: number = 10): PlayerPerformance[] {
+    return this.playerPerformance
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, limit);
+  }
+
+  public getRevenueAnalytics(): { total: number; trend: number; projection: number } {
+    const total = this.venueAnalytics.reduce((sum, venue) => sum + venue.totalRevenue, 0);
+    const recentTrend = this.stats[0]?.trends.slice(-3).reduce((sum, trend) => sum + trend.revenue, 0) / 3;
+    const projection = recentTrend * 1.15; // 15% growth projection
+
+    return { total, trend: recentTrend, projection };
+  }
+
+  public getPerformanceInsights(): {
+    topStrengths: string[];
+    commonWeaknesses: string[];
+    improvementRecommendations: string[];
+  } {
+    const allStrengths = this.playerPerformance.flatMap((p) => p.strengths);
+    const allWeaknesses = this.playerPerformance.flatMap((p) => p.weaknesses);
+
+    const strengthCounts = allStrengths.reduce((acc, strength) => {
+      acc[strength] = (acc[strength] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const weaknessCounts = allWeaknesses.reduce((acc, weakness) => {
+      acc[weakness] = (acc[weakness] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topStrengths = Object.entries(strengthCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([strength]) => strength);
+
+    const commonWeaknesses = Object.entries(weaknessCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([weakness]) => weakness);
+
+    const improvementRecommendations = [
+      'Focus on break shot consistency training',
+      'Implement mental game coaching programs',
+      'Develop pressure situation simulation drills',
+      'Enhance safety shot practice routines',
+    ];
+
+    return { topStrengths, commonWeaknesses, improvementRecommendations };
+  }
+
+  public subscribeToUpdates(callback: (data: any) => void): () => void {
+    this.on('realTimeUpdate', callback);
+    this.on('performanceUpdate', callback);
+
+    return () => {
+      this.off('realTimeUpdate', callback);
+      this.off('performanceUpdate', callback);
     };
-
-    this.publish('matchAnalytics', analytics);
-    return analytics;
-  }
-
-  // Calculate historical trends
-  async calculateHistoricalTrends(playerId: string, tournaments: Tournament[]): Promise<PerformanceTrends> {
-    const playerTournaments = tournaments.filter(t => 
-      t.players?.some(p => p.id === playerId)
-    );
-
-    const winRateTrend = playerTournaments.map(t => {
-      const matches = t.matches?.filter(m => 
-        m.player1Id === playerId || m.player2Id === playerId
-      ) || [];
-      const wins = matches.filter(m => m.winnerId === playerId).length;
-      return matches.length > 0 ? (wins / matches.length) * 100 : 0;
-    });
-
-    const pointsTrend = playerTournaments.map(t => {
-      const matches = t.matches?.filter(m => 
-        m.player1Id === playerId || m.player2Id === playerId
-      ) || [];
-      return matches.reduce((sum, m) => {
-        if (m.player1Id === playerId) return sum + (m.player1Score || 0);
-        if (m.player2Id === playerId) return sum + (m.player2Score || 0);
-        return sum;
-      }, 0);
-    });
-
-    const breakTrend = playerTournaments.map(t => {
-      const matches = t.matches?.filter(m => 
-        m.player1Id === playerId || m.player2Id === playerId
-      ) || [];
-      return Math.max(...matches.map(m => {
-        if (m.player1Id === playerId) return m.player1HighestBreak || 0;
-        if (m.player2Id === playerId) return m.player2HighestBreak || 0;
-        return 0;
-      }));
-    });
-
-    const trends: PerformanceTrends = {
-      playerId,
-      playerName: 'Player Name', // Would get from player data
-      tournamentsPlayed: playerTournaments.length,
-      averageRank: this.calculateAverageRank(playerId, playerTournaments),
-      winRateTrend,
-      pointsTrend,
-      breakTrend,
-      improvementRate: this.calculateImprovementRate(winRateTrend),
-    };
-
-    this.publish('performanceTrends', trends);
-    return trends;
-  }
-
-  // Calculate venue analytics
-  async calculateVenueAnalytics(venueId: string, tournaments: Tournament[]): Promise<VenueAnalytics> {
-    const venueTournaments = tournaments.filter(t => t.venueId === venueId);
-    const formatCounts = new Map<string, number>();
-    
-    venueTournaments.forEach(t => {
-      const format = t.format || 'single_elimination';
-      formatCounts.set(format, (formatCounts.get(format) || 0) + 1);
-    });
-
-    const analytics: VenueAnalytics = {
-      venueId,
-      venueName: 'Venue Name', // Would get from venue data
-      tournamentsHosted: venueTournaments.length,
-      totalPlayers: venueTournaments.reduce((sum, t) => sum + (t.players?.length || 0), 0),
-      averageTournamentSize: venueTournaments.length > 0 ? 
-        venueTournaments.reduce((sum, t) => sum + (t.players?.length || 0), 0) / venueTournaments.length : 0,
-      completionRate: venueTournaments.length > 0 ? 
-        (venueTournaments.filter(t => t.status === 'completed').length / venueTournaments.length) * 100 : 0,
-      averagePrizePool: venueTournaments.length > 0 ? 
-        venueTournaments.reduce((sum, t) => sum + (t.prizePool || 0), 0) / venueTournaments.length : 0,
-      popularFormats: Array.from(formatCounts.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
-        .map(([format]) => format),
-      peakHours: [14, 16, 18, 20], // Mock peak hours
-    };
-
-    this.publish('venueAnalytics', analytics);
-    return analytics;
-  }
-
-  // Generate real-time analytics dashboard data
-  async generateAnalyticsDashboard(tournament: Tournament): Promise<any> {
-    const [statistics, playerPerformance, matches] = await Promise.all([
-      this.calculateTournamentStatistics(tournament),
-      this.calculatePlayerPerformance(tournament),
-      this.getTournamentMatches(tournament.id),
-    ]);
-
-    const dashboard = {
-      tournament: {
-        id: tournament.id,
-        name: tournament.name,
-        status: tournament.status,
-        format: tournament.format,
-        startDate: tournament.startDate,
-        endDate: tournament.endDate,
-      },
-      statistics,
-      playerPerformance,
-      matchAnalytics: await Promise.all(
-        matches.filter(m => m.status === 'completed').map(m => this.calculateMatchAnalytics(m))
-      ),
-      realTimeUpdates: {
-        lastUpdate: new Date().toISOString(),
-        activeMatches: matches.filter(m => m.status === 'in_progress').length,
-        completedToday: matches.filter(m => 
-          m.status === 'completed' && 
-          new Date(m.updatedAt || '').toDateString() === new Date().toDateString()
-        ).length,
-      },
-    };
-
-    this.publish('analyticsDashboard', dashboard);
-    return dashboard;
-  }
-
-  // Helper methods for calculations
-  private calculateShotAccuracy(match: Match): number {
-    const totalShots = (match.player1Shots || 0) + (match.player2Shots || 0);
-    const successfulShots = (match.player1Score || 0) + (match.player2Score || 0);
-    return totalShots > 0 ? (successfulShots / totalShots) * 100 : 0;
-  }
-
-  private calculatePositionControl(match: Match): number {
-    // Mock position control calculation
-    return Math.random() * 100;
-  }
-
-  private calculateSafetySuccess(match: Match): number {
-    // Mock safety success calculation
-    return Math.random() * 100;
-  }
-
-  private calculateBreakSuccess(match: Match): number {
-    const totalBreaks = (match.player1Breaks || 0) + (match.player2Breaks || 0);
-    const successfulBreaks = (match.player1HighestBreak || 0) + (match.player2HighestBreak || 0);
-    return totalBreaks > 0 ? (successfulBreaks / totalBreaks) * 100 : 0;
-  }
-
-  private generateKeyMoments(match: Match): KeyMoment[] {
-    const moments: KeyMoment[] = [];
-    const duration = match.duration || 1800; // 30 minutes default
-
-    // Generate mock key moments
-    for (let i = 0; i < 5; i++) {
-      moments.push({
-        timestamp: Math.random() * duration,
-        type: ['break', 'foul', 'safety', 'pot', 'miss'][Math.floor(Math.random() * 5)] as any,
-        playerId: Math.random() > 0.5 ? match.player1Id : match.player2Id,
-        description: `Key moment ${i + 1}`,
-        impact: ['high', 'medium', 'low'][Math.floor(Math.random() * 3)] as any,
-      });
-    }
-
-    return moments.sort((a, b) => a.timestamp - b.timestamp);
-  }
-
-  private calculateAverageRank(playerId: string, tournaments: Tournament[]): number {
-    const ranks = tournaments.map(t => {
-      const players = t.players || [];
-      const sortedPlayers = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
-      const playerIndex = sortedPlayers.findIndex(p => p.id === playerId);
-      return playerIndex >= 0 ? playerIndex + 1 : players.length;
-    });
-
-    return ranks.length > 0 ? ranks.reduce((sum, rank) => sum + rank, 0) / ranks.length : 0;
-  }
-
-  private calculateImprovementRate(winRateTrend: number[]): number {
-    if (winRateTrend.length < 2) return 0;
-    
-    const recent = winRateTrend.slice(-3);
-    const earlier = winRateTrend.slice(0, 3);
-    
-    const recentAvg = recent.reduce((sum, rate) => sum + rate, 0) / recent.length;
-    const earlierAvg = earlier.reduce((sum, rate) => sum + rate, 0) / earlier.length;
-    
-    return earlierAvg > 0 ? ((recentAvg - earlierAvg) / earlierAvg) * 100 : 0;
-  }
-
-  // Mock data methods (would be replaced with actual API calls)
-  private async getTournamentMatches(tournamentId: string): Promise<Match[]> {
-    // Mock implementation - would fetch from API
-    return [];
-  }
-
-  private async getTournamentPlayers(tournamentId: string): Promise<Player[]> {
-    // Mock implementation - would fetch from API
-    return [];
   }
 }
 

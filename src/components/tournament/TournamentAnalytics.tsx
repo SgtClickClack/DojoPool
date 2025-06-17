@@ -20,6 +20,11 @@ import {
   Divider,
   Alert,
   CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Avatar,
 } from '@mui/material';
 import {
   TrendingUp,
@@ -37,6 +42,15 @@ import {
   ShowChart,
   Refresh,
   FilterList,
+  People,
+  Psychology,
+  SportsEsports,
+  LocationOn,
+  Schedule,
+  Visibility,
+  Memory,
+  NetworkCheck,
+  Storage,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import TournamentAnalyticsService, {
@@ -45,6 +59,7 @@ import TournamentAnalyticsService, {
   MatchAnalytics,
   PerformanceTrends,
   VenueAnalytics,
+  RealTimeMetrics,
 } from '../../services/tournament/TournamentAnalyticsService';
 import { Tournament } from '../../types/tournament';
 
@@ -114,6 +129,14 @@ const TournamentAnalytics: React.FC<TournamentAnalyticsProps> = ({
   const [matchAnalytics, setMatchAnalytics] = useState<MatchAnalytics[]>([]);
   const [performanceTrends, setPerformanceTrends] = useState<PerformanceTrends[]>([]);
   const [venueAnalytics, setVenueAnalytics] = useState<VenueAnalytics | null>(null);
+  const [realTimeMetrics, setRealTimeMetrics] = useState<RealTimeMetrics>({
+    activeMatches: 0,
+    activePlayers: 0,
+    totalViewers: 0,
+    averageMatchDuration: 0,
+    revenuePerHour: 0,
+    systemPerformance: { cpu: 0, memory: 0, network: 0 },
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -155,6 +178,8 @@ const TournamentAnalytics: React.FC<TournamentAnalyticsProps> = ({
         );
         setVenueAnalytics(venueAnalytics);
       }
+
+      setRealTimeMetrics(analyticsService.getRealTimeMetrics());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
@@ -175,10 +200,17 @@ const TournamentAnalytics: React.FC<TournamentAnalyticsProps> = ({
       setMatchAnalytics(prev => [...prev, data]);
     });
 
+    const unsubscribeRealTimeMetrics = analyticsService.subscribeToUpdates((data) => {
+      if (data.activeMatches !== undefined) {
+        setRealTimeMetrics(data);
+      }
+    });
+
     return () => {
       unsubscribeStats();
       unsubscribePerformance();
       unsubscribeMatchAnalytics();
+      unsubscribeRealTimeMetrics();
     };
   };
 
@@ -202,6 +234,20 @@ const TournamentAnalytics: React.FC<TournamentAnalyticsProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
+
+  const getPerformanceColor = (rating: number) => {
+    if (rating >= 9.0) return '#00ff88';
+    if (rating >= 8.0) return '#00d4ff';
+    if (rating >= 7.0) return '#ffaa00';
+    return '#ff4444';
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -219,7 +265,11 @@ const TournamentAnalytics: React.FC<TournamentAnalyticsProps> = ({
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)' }}>
+      <Typography variant="h4" sx={{ color: '#00d4ff', mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+        Tournament Analytics Dashboard
+      </Typography>
+      
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <NeonText variant="h4" component="h1">
@@ -532,6 +582,106 @@ const TournamentAnalytics: React.FC<TournamentAnalyticsProps> = ({
           </CardContent>
         </CyberpunkCard>
       )}
+
+      {/* Real-Time Metrics */}
+      <CyberpunkCard sx={{ mt: 3 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ color: '#00d4ff', mb: 2 }}>
+            Real-Time Metrics
+          </Typography>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard>
+                <SportsEsports sx={{ color: '#00d4ff', fontSize: 32, mb: 1 }} />
+                <Typography variant="h4" sx={{ color: '#ffffff', fontWeight: 'bold' }}>
+                  {realTimeMetrics.activeMatches}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
+                  Active Matches
+                </Typography>
+              </MetricCard>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard>
+                <People sx={{ color: '#ff0080', fontSize: 32, mb: 1 }} />
+                <Typography variant="h4" sx={{ color: '#ffffff', fontWeight: 'bold' }}>
+                  {realTimeMetrics.activePlayers}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
+                  Active Players
+                </Typography>
+              </MetricCard>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard>
+                <Visibility sx={{ color: '#00ff88', fontSize: 32, mb: 1 }} />
+                <Typography variant="h4" sx={{ color: '#ffffff', fontWeight: 'bold' }}>
+                  {realTimeMetrics.totalViewers}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
+                  Total Viewers
+                </Typography>
+              </MetricCard>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <MetricCard>
+                <AttachMoney sx={{ color: '#ffaa00', fontSize: 32, mb: 1 }} />
+                <Typography variant="h4" sx={{ color: '#ffffff', fontWeight: 'bold' }}>
+                  {formatCurrency(realTimeMetrics.revenuePerHour)}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
+                  Revenue/Hour
+                </Typography>
+              </MetricCard>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </CyberpunkCard>
+
+      {/* System Performance */}
+      <CyberpunkCard sx={{ mt: 3 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ color: '#00d4ff', mb: 2, display: 'flex', alignItems: 'center' }}>
+            <Memory sx={{ mr: 1 }} />
+            System Performance
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: '#b0b0b0', mb: 1 }}>
+                  CPU Usage
+                </Typography>
+                <PerformanceBar variant="determinate" value={realTimeMetrics.systemPerformance.cpu} />
+                <Typography variant="caption" sx={{ color: '#00d4ff' }}>
+                  {realTimeMetrics.systemPerformance.cpu.toFixed(1)}%
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: '#b0b0b0', mb: 1 }}>
+                  Memory Usage
+                </Typography>
+                <PerformanceBar variant="determinate" value={realTimeMetrics.systemPerformance.memory} />
+                <Typography variant="caption" sx={{ color: '#ff0080' }}>
+                  {realTimeMetrics.systemPerformance.memory.toFixed(1)}%
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: '#b0b0b0', mb: 1 }}>
+                  Network Load
+                </Typography>
+                <PerformanceBar variant="determinate" value={realTimeMetrics.systemPerformance.network} />
+                <Typography variant="caption" sx={{ color: '#00ff88' }}>
+                  {realTimeMetrics.systemPerformance.network.toFixed(1)}%
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </CyberpunkCard>
     </Box>
   );
 };
