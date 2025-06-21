@@ -1,4 +1,3 @@
-import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import {
   AppBar,
   Box,
@@ -7,7 +6,6 @@ import {
   IconButton,
   Toolbar,
   Typography,
-  Avatar,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -36,17 +34,11 @@ const Navbar = () => {
               mr: 3
             }}
           >
-            <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                background: "linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)",
-                mr: 1,
-                boxShadow: "0 0 15px rgba(0,255,157,0.5)"
-              }}
-            >
-              <SportsEsportsIcon sx={{ color: "#000", fontSize: 24 }} />
-            </Avatar>
+            <img
+              src="/images/logo.webp"
+              alt="DojoPool Logo"
+              style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8, boxShadow: '0 0 15px rgba(0,255,157,0.5)' }}
+            />
             <Typography
               variant="h6"
               sx={{

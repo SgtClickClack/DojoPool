@@ -116,7 +116,7 @@ const DashboardPage: React.FC = () => {
                   <Paper
                     sx={{
                       p: 3,
-                      background: `linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)`,
+                      background: 'rgba(20,20,20,0.7)',
                       border: `2px solid ${step.color}`,
                       borderRadius: 2,
                       boxShadow: `0 0 20px ${step.color}40`,
@@ -179,7 +179,7 @@ const DashboardPage: React.FC = () => {
                   <Paper
                     sx={{
                       p: 3,
-                      background: `linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)`,
+                      background: 'rgba(20,20,20,0.7)',
                       border: `2px solid ${stat.color}`,
                       borderRadius: 2,
                       boxShadow: `0 0 20px ${stat.color}40`,
@@ -229,7 +229,7 @@ const DashboardPage: React.FC = () => {
             <Grid item xs={12} md={8}>
               <Card
                 sx={{
-                  background: 'rgba(26, 26, 26, 0.9)',
+                  background: 'rgba(20,20,20,0.7)',
                   border: '2px solid #00ff9d',
                   borderRadius: 3,
                   boxShadow: '0 0 30px rgba(0, 255, 157, 0.3)',
@@ -259,7 +259,7 @@ const DashboardPage: React.FC = () => {
             <Grid item xs={12} md={4}>
               <Card
                 sx={{
-                  background: 'rgba(26, 26, 26, 0.9)',
+                  background: 'rgba(20,20,20,0.7)',
                   border: '2px solid #00a8ff',
                   borderRadius: 3,
                   boxShadow: '0 0 30px rgba(0, 168, 255, 0.3)',
@@ -286,7 +286,7 @@ const DashboardPage: React.FC = () => {
               
               <Card
                 sx={{
-                  background: 'rgba(26, 26, 26, 0.9)',
+                  background: 'rgba(20,20,20,0.7)',
                   border: '2px solid #ff6b6b',
                   borderRadius: 3,
                   boxShadow: '0 0 30px rgba(255, 107, 107, 0.3)',
