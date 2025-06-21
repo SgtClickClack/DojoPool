@@ -330,6 +330,21 @@ const Navbar = () => {
             </Button>
             <Button
               color="inherit"
+              component={Link}
+              to="/security"
+              sx={{
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Security
+            </Button>
+            <Button
+              color="inherit"
               onClick={() => navigate('/streaming')}
               sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
             >

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 
 interface PageBackgroundProps {
-  variant: 'home' | 'dashboard' | 'tournaments' | 'map' | 'ledger' | 'social' | 'profile' | 'settings' | 'analytics' | 'mobile' | 'streaming' | 'venue' | 'blockchain';
+  variant: 'home' | 'dashboard' | 'tournaments' | 'map' | 'ledger' | 'social' | 'profile' | 'settings' | 'analytics' | 'mobile' | 'streaming' | 'venue' | 'blockchain' | 'security';
   children: React.ReactNode;
 }
 
@@ -259,6 +259,25 @@ const PageBackground: React.FC<PageBackgroundProps> = ({ variant, children }) =>
           }
         };
       
+      case 'security':
+        return {
+          background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              radial-gradient(circle at 50% 50%, rgba(255,68,68,0.1) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(255,136,0,0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255,170,0,0.03) 0%, transparent 50%)
+            `,
+            pointerEvents: 'none',
+          }
+        };
+      
       default:
         return {
           background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)',
@@ -288,6 +307,8 @@ const PageBackground: React.FC<PageBackgroundProps> = ({ variant, children }) =>
         return 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)';
       case 'blockchain':
         return 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+      case 'security':
+        return 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)';
       default:
         return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }

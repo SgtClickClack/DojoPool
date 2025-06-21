@@ -61,6 +61,7 @@ const VenueManagement = React.lazy(() => import('../pages/venue/venue-management
 
 import TournamentMobilePage from '../pages/mobile/tournament-mobile';
 import TournamentBlockchainPage from '../pages/blockchain/tournament-blockchain';
+import TournamentSecurityPage from '../pages/security/tournament-security';
 
 interface ProtectedRouteProps {
   // children?: React.ReactNode; // Outlet will handle children for layout routes
@@ -159,6 +160,7 @@ const App: React.FC = () => {
               {/* Mobile Routes */}
               <Route path="/mobile" element={<TournamentMobilePage />} />
               <Route path="/blockchain" element={<TournamentBlockchainPage />} />
+              <Route path="/security" element={<TournamentSecurityPage />} />
               
               {/* Streaming Routes */}
               <Route path="/streaming/tournament-streaming" element={<TournamentStreaming />} />
