@@ -160,7 +160,7 @@
     "@vitest/ui": "3.2.2",
     "antd": "5.24.9",
     "axios": "1.8.4",
-    "brace-expansion": "3.0.0",
+    "brace-expansion": "3.0.1",
     "chart.js": "4.4.9",
     "concurrently": "9.1.2",
     "crypto-js": "4.2.0",
