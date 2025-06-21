@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 
 interface PageBackgroundProps {
-  variant: 'home' | 'dashboard' | 'tournaments' | 'map' | 'ledger' | 'social' | 'profile' | 'settings' | 'analytics' | 'mobile' | 'streaming' | 'venue';
+  variant: 'home' | 'dashboard' | 'tournaments' | 'map' | 'ledger' | 'social' | 'profile' | 'settings' | 'analytics' | 'mobile' | 'streaming' | 'venue' | 'blockchain';
   children: React.ReactNode;
 }
 
@@ -240,10 +240,56 @@ const PageBackground: React.FC<PageBackgroundProps> = ({ variant, children }) =>
           }
         };
       
+      case 'blockchain':
+        return {
+          background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              radial-gradient(circle at 50% 50%, rgba(0,255,157,0.1) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(0,168,255,0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%)
+            `,
+            pointerEvents: 'none',
+          }
+        };
+      
       default:
         return {
           background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)',
         };
+    }
+  };
+
+  const getBackgroundImage = (type: string): string => {
+    switch (type) {
+      case 'home':
+        return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      case 'dashboard':
+        return 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+      case 'tournaments':
+        return 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+      case 'map':
+        return 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+      case 'ledger':
+        return 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)';
+      case 'analytics':
+        return 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)';
+      case 'mobile':
+        return 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+      case 'streaming':
+        return 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)';
+      case 'venue':
+        return 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)';
+      case 'blockchain':
+        return 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)';
+      default:
+        return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
   };
 

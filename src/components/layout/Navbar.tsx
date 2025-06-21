@@ -23,6 +23,7 @@ import {
 } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [aiMenuAnchor, setAiMenuAnchor] = useState<null | HTMLElement>(null);
@@ -299,10 +300,33 @@ const Navbar = () => {
             
             <Button
               color="inherit"
-              onClick={() => navigate('/mobile')}
-              sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
+              component={Link}
+              to="/mobile"
+              sx={{
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
             >
               Mobile
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/blockchain"
+              sx={{
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Blockchain
             </Button>
             <Button
               color="inherit"
