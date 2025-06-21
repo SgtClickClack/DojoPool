@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Dict, Any
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.base import TimestampedModel
 
 class FeedEntry(TimestampedModel):

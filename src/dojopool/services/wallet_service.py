@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Any
 
 from sqlalchemy import func, case  # type: ignore
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.marketplace import Wallet, Transaction
 from dojopool.core.exceptions import WalletError, InsufficientFundsError, BlockchainError
 from dojopool.core.interfaces.wallet import IWalletService

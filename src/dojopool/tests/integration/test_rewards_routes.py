@@ -2,7 +2,7 @@ import pytest
 from flask import g, Blueprint
 from flask.testing import FlaskClient
 from dojopool.app import create_app
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 from dojopool.core.rewards.routes import rewards_bp
 from dojopool.core.rewards.service import RewardsService

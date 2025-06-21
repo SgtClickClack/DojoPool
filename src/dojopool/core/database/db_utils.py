@@ -14,7 +14,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 logger = logging.getLogger(__name__)
 
 # Use the shared db instance from extensions
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 def init_db(app):

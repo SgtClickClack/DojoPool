@@ -7,7 +7,7 @@ This module defines the VenueLeaderboard model for tracking player stats at spec
 from datetime import datetime
 from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 class VenueLeaderboard(db.Model):
     """Model for venue-specific leaderboard entries."""

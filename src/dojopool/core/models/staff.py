@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from dojopool.core.models.base import BaseModel
+from dojopool.models.base import BaseModel
 
 
 class StaffMember(BaseModel):

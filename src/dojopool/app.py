@@ -29,11 +29,11 @@ from flask_login import current_user, LoginManager
 import flask_debugtoolbar
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from dojopool.core.extensions import migrate, socketio
+from dojopool.extensions import migrate, socketio
 from dojopool.core.sockets import init_socketio
 from dojopool.core.config import get_config
 # Import the main extensions initializer and instances
-from dojopool.core.extensions import db, init_extensions, login_manager
+from dojopool.extensions import db, init_extensions, login_manager
 from dojopool.routes.auth import auth_bp
 from dojopool.routes.game import game_bp
 from dojopool.routes.performance import bp as performance_bp

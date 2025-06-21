@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 from dojopool.models.social import Share, ShareType
 from dojopool.models.user import User
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from sqlalchemy import and_
 
 

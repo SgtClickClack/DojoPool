@@ -11,6 +11,7 @@ from .marketplace import Wallet, Transaction, MarketplaceItem, UserInventory
 from .role import Role
 from .player import Player
 from .venue import Venue
+from .staff import StaffMember
 from .notification import Notification
 from .achievements import Achievement, UserAchievement
 from .social import SocialProfile, UserProfile, Friendship, Message, Share
@@ -51,7 +52,7 @@ __all__ = [
     "User", "Game", "GameComment", "Shot",
     "Tournament", "TournamentParticipant",
     "Wallet", "Transaction", "MarketplaceItem", "UserInventory",
-    "Role", "Player", "Venue", "Notification",
+    "Role", "Player", "Venue", "StaffMember", "Notification",
     "Achievement", "UserAchievement", "SocialProfile", "UserProfile", "Friendship", "Message", "Share",
     "Token", "user_roles", "UserReward", "Review", "BaseModel", "Session"
 ]

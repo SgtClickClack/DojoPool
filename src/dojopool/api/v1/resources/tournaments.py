@@ -11,7 +11,7 @@ from dojopool.core.security import require_auth, require_roles
 from dojopool.tournaments.tournament_manager import TournamentType, TournamentStatus, TournamentData
 from dojopool.models.tournament import Tournament, TournamentStatus, TournamentFormat
 from dojopool.services.tournament_service import TournamentService
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 from .base import BaseResource
 from dojopool.models.game import Game

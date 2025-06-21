@@ -12,7 +12,7 @@ from ...core.auth.dependencies import check_permissions
 from ...core.extensions import db
 from ...core.monitoring.metrics_monitor import metrics_monitor
 from dojopool.venues.venue_manager import PoolTable, TableStatus
-from dojopool.core.models.venue import Venue
+from dojopool.models.venue import Venue
 from .qr import qr_manager
 from .qr_alerts import AlertSeverity, qr_alerts
 from .qr_export import qr_export

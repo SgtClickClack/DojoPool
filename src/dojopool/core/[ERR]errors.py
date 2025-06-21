@@ -8,7 +8,7 @@ from typing import Tuple, Union
 from flask import Flask, jsonify, render_template, request
 from werkzeug.exceptions import HTTPException
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class DojoPoolError(Exception):

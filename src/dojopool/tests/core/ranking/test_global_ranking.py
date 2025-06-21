@@ -15,9 +15,9 @@ from dojopool.models.role import Role
 from dojopool.models.game import Game
 from dojopool.models.tournament import Tournament, TournamentGame
 from dojopool.models.match import Match
-from dojopool.core.models.venue import Venue
+from dojopool.models.venue import Venue
 from dojopool.models.ranking_history import RankingHistory
-from dojopool.core.extensions import init_extensions, db, db_service, cache_service
+from dojopool.extensions import init_extensions, db, db_service, cache_service
 from dojopool.models.player_ratings import PlayerRating
 from dojopool.models.player_titles import PlayerTitle
 from dojopool.models.tournament import TournamentParticipant

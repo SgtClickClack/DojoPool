@@ -6,7 +6,7 @@ This module contains the Notification model for tracking user notifications.
 from datetime import datetime
 from enum import Enum
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class NotificationType(str, Enum):

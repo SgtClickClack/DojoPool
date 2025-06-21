@@ -6,7 +6,7 @@ from core.models import db
 from sqlalchemy import func
 
 from dojopool.venues.venue_manager import PoolTable
-from dojopool.core.models.venue import Venue
+from dojopool.models.venue import Venue
 
 logger = logging.getLogger(__name__)
 

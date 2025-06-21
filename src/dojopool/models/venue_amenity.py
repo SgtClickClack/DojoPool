@@ -6,7 +6,7 @@ This module defines the VenueAmenity model for venue amenities.
 
 from sqlalchemy import Column, Integer, String, ForeignKey  # type: ignore
 from sqlalchemy.orm import relationship  # type: ignore
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 class VenueAmenity(db.Model):
     __tablename__ = 'venue_amenities'

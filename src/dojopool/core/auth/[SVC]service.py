@@ -13,7 +13,7 @@ from dojopool.core.security import (
     verify_token,
 )
 from dojopool.models.user import User
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class AuthService:

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload # Import joinedload
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.user import User
 from dojopool.models.venue import Venue
 from dojopool.models.tournament import Tournament, TournamentParticipant, TournamentStatus, TournamentFormat

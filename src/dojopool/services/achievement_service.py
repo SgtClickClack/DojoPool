@@ -3,7 +3,7 @@ from typing import Dict, TYPE_CHECKING, Optional
 
 from sqlalchemy.sql.expression import desc
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.achievements import Achievement, UserAchievement
 # Avoid circular import if Game is needed only for type hint
 if TYPE_CHECKING:

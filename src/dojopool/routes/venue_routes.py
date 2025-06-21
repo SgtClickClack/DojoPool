@@ -20,7 +20,7 @@ from dojopool.core.database import db
 from dojopool.forms.venue_forms import VenueForm, VenueSearchForm
 from dojopool.models.venue import Venue
 from dojopool.models.venue_checkin import VenueCheckIn
-from dojopool.core.extensions import cache
+from dojopool.extensions import cache
 
 venue_bp = Blueprint("venue", __name__)
 

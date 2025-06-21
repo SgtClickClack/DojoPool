@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.venue import Venue
 from dojopool.models.venue_checkin import VenueCheckIn
 from dojopool.models.venue_leaderboard import VenueLeaderboard

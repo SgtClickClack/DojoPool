@@ -5,8 +5,8 @@ from sqlalchemy import desc, func
 
 from dojopool.models.game import Game
 from dojopool.models.user import User
-from dojopool.core.extensions import db
-from dojopool.core.models.notification import Notification
+from dojopool.extensions import db
+from dojopool.models.notification import Notification
 from dojopool.models.venue import Venue
 from dojopool.models.venue_leaderboard import VenueLeaderboard
 

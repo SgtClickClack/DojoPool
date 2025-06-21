@@ -6,7 +6,7 @@ from flask_login import current_user
 from marshmallow import Schema, fields, ValidationError, validates_schema
 from datetime import datetime
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.core.exceptions import AuthorizationError, NotFoundError
 from dojopool.core.security import require_auth
 from dojopool.models.video_highlight import VideoHighlight, HighlightStatus
