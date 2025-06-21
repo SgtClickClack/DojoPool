@@ -49,6 +49,9 @@ const TournamentMobile = React.lazy(() => import('../pages/mobile/tournament-mob
 // Streaming Components
 const TournamentStreaming = React.lazy(() => import('../pages/streaming/tournament-streaming'));
 
+// Venue Components
+const VenueManagement = React.lazy(() => import('../pages/venue/venue-management'));
+
 // Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
 // const theme = createTheme({
 //   palette: {
@@ -157,6 +160,10 @@ const App: React.FC = () => {
               {/* Streaming Routes */}
               <Route path="/streaming/tournament-streaming" element={<TournamentStreaming />} />
               <Route path="/streaming" element={<TournamentStreaming />} />
+              
+              {/* Venue Routes */}
+              <Route path="/venues/venue-management" element={<VenueManagement />} />
+              <Route path="/venues" element={<VenueManagement />} />
               
               {/* <Route path="/venue-dashboard" element={<VenueDashboard />} /> */}
               {/* Add other protected routes here */}

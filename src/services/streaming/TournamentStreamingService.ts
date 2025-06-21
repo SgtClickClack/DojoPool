@@ -84,8 +84,8 @@ class TournamentStreamingService {
   private static instance: TournamentStreamingService;
   private config: StreamConfig;
   private currentSession: StreamSession | null = null;
-  private isConnected: boolean = false;
-  private isStreaming: boolean = false;
+  private _isConnected: boolean = false;
+  private _isStreaming: boolean = false;
   private mediaStream: MediaStream | null = null;
   private mediaRecorder: MediaRecorder | null = null;
   private recordedChunks: Blob[] = [];
@@ -121,13 +121,13 @@ class TournamentStreamingService {
 
     this.socket.on('connect', () => {
       console.log('TournamentStreamingService connected to server');
-      this.isConnected = true;
+      this._isConnected = true;
       this.requestStreamingData();
     });
 
     this.socket.on('disconnect', () => {
       console.log('TournamentStreamingService disconnected from server');
-      this.isConnected = false;
+      this._isConnected = false;
     });
 
     this.socket.on('streaming-update', (data: any) => {
@@ -285,7 +285,7 @@ class TournamentStreamingService {
         this.currentSession.matchId = matchId;
       }
 
-      this.isStreaming = true;
+      this._isStreaming = true;
       this.socket?.emit('stream-started', {
         tournamentId,
         matchId,
@@ -315,7 +315,7 @@ class TournamentStreamingService {
       this.currentSession.endTime = new Date();
     }
 
-    this.isStreaming = false;
+    this._isStreaming = false;
     this.socket?.emit('stream-stopped');
   }
 
@@ -408,7 +408,7 @@ class TournamentStreamingService {
   }
 
   public isStreaming(): boolean {
-    return this.isStreaming;
+    return this._isStreaming;
   }
 
   public getStreamStats(): StreamStats | null {

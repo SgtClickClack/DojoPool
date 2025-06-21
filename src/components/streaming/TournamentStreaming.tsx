@@ -37,7 +37,7 @@ import {
   Settings,
   Visibility,
   VisibilityOff,
-  Donate,
+  MonetizationOn,
   Highlight,
   Analytics,
   RecordVoiceOver,
@@ -517,7 +517,7 @@ const TournamentStreaming: React.FC = () => {
                                 label={`$${message.donation}`} 
                                 size="small" 
                                 sx={{ bgcolor: '#feca57', color: '#000' }}
-                                icon={<Donate />}
+                                icon={<MonetizationOn />}
                               />
                             )}
                           </Box>

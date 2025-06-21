@@ -76,7 +76,8 @@ class TournamentMobileService {
   private deviceInfo: DeviceInfo | null = null;
   private offlineData: OfflineData | null = null;
   private notifications: PushNotification[] = [];
-  private isOnline: boolean = true;
+  private _isOnline: boolean = false;
+  private _isConnected: boolean = false;
   private syncInProgress: boolean = false;
   private syncInterval: NodeJS.Timeout | null = null;
 
@@ -153,7 +154,7 @@ class TournamentMobileService {
       if (stored) {
         this.offlineData = JSON.parse(stored);
         // Check if data is still valid
-        if (Date.now() - new Date(this.offlineData.lastSync).getTime() > this.config.maxOfflineDataAge) {
+        if (this.offlineData && Date.now() - new Date(this.offlineData.lastSync).getTime() > this.config.maxOfflineDataAge) {
           this.offlineData = null;
         }
       }
@@ -186,13 +187,14 @@ class TournamentMobileService {
     
     this.socket.on('connect', () => {
       console.log('TournamentMobileService connected to server');
-      this.isOnline = true;
+      this._isOnline = true;
+      this._isConnected = true;
       this.syncData();
     });
 
     this.socket.on('disconnect', () => {
       console.log('TournamentMobileService disconnected from server');
-      this.isOnline = false;
+      this._isOnline = false;
     });
 
     this.socket.on('push-notification', (notification: PushNotification) => {
@@ -218,7 +220,7 @@ class TournamentMobileService {
     }
 
     this.syncInterval = setInterval(() => {
-      if (this.isOnline && this.config.enableBackgroundSync) {
+      if (this._isOnline && this.config.enableBackgroundSync) {
         this.syncData();
       }
     }, this.config.syncInterval);
@@ -265,10 +267,9 @@ class TournamentMobileService {
   public getSyncStatus(): SyncStatus {
     return {
       lastSync: this.offlineData?.lastSync || new Date(),
-      isOnline: this.isOnline,
-      pendingActions: this.offlineData?.pendingActions.length || 0,
+      isOnline: this._isOnline,
+      pendingActions: this.offlineData?.pendingActions?.length || 0,
       syncProgress: this.syncInProgress ? 50 : 100,
-      error: undefined,
     };
   }
 
@@ -290,7 +291,7 @@ class TournamentMobileService {
   }
 
   public async syncData(): Promise<void> {
-    if (this.syncInProgress || !this.isOnline) return;
+    if (this.syncInProgress || !this._isOnline) return;
 
     this.syncInProgress = true;
     console.log('Starting data sync...');
@@ -370,7 +371,7 @@ class TournamentMobileService {
     this.saveOfflineData();
 
     // Try to sync immediately if online
-    if (this.isOnline) {
+    if (this._isOnline) {
       this.syncData();
     }
   }
@@ -481,7 +482,7 @@ class TournamentMobileService {
 
   // Utility Methods
   public isOnline(): boolean {
-    return this.isOnline;
+    return this._isOnline;
   }
 
   public enableOfflineMode(): boolean {

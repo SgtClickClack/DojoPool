@@ -311,6 +311,13 @@ const Navbar = () => {
             >
               Streaming
             </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate('/venues')}
+              sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
+            >
+              Venues
+            </Button>
           </Box>
         </Toolbar>
       </Container>

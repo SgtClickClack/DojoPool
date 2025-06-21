@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 
 interface PageBackgroundProps {
-  variant: 'home' | 'dashboard' | 'tournaments' | 'map' | 'ledger' | 'social' | 'profile' | 'settings' | 'analytics' | 'mobile' | 'streaming';
+  variant: 'home' | 'dashboard' | 'tournaments' | 'map' | 'ledger' | 'social' | 'profile' | 'settings' | 'analytics' | 'mobile' | 'streaming' | 'venue';
   children: React.ReactNode;
 }
 
@@ -216,6 +216,25 @@ const PageBackground: React.FC<PageBackgroundProps> = ({ variant, children }) =>
               radial-gradient(circle at 80% 80%, rgba(0,168,255,0.12) 0%, transparent 50%),
               radial-gradient(circle at 50% 50%, rgba(255,193,7,0.08) 0%, transparent 70%),
               linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.02) 50%, transparent 70%)
+            `,
+            pointerEvents: 'none',
+          }
+        };
+      
+      case 'venue':
+        return {
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              radial-gradient(circle at 50% 50%, rgba(0,255,157,0.1) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(0,168,255,0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%)
             `,
             pointerEvents: 'none',
           }
