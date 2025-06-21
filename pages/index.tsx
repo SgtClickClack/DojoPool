@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, Container, Typography, Button, Paper } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../src/components/layout/Layout'
+import PageBackground from '../src/components/common/PageBackground'
 
 const Home: React.FC = () => {
   const navigate = useNavigate()
@@ -46,24 +47,7 @@ const Home: React.FC = () => {
 
   return (
     <Layout>
-      <Box
-        sx={{
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'radial-gradient(circle at 20% 80%, #00ff9d20 0%, transparent 50%), radial-gradient(circle at 80% 20%, #00a8ff20 0%, transparent 50%)',
-            pointerEvents: 'none',
-          }
-        }}
-      >
+      <PageBackground variant="home">
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Box sx={{ py: 8, textAlign: 'center' }}>
             <Typography 
@@ -200,32 +184,31 @@ const Home: React.FC = () => {
               <Button
                 variant="outlined"
                 size="large"
-                onClick={() => navigate('/tournaments')}
+                onClick={() => navigate('/dashboard')}
                 sx={{
-                  borderColor: '#00ff9d',
-                  color: '#00ff9d',
+                  border: '2px solid #00a8ff',
+                  color: '#00a8ff',
                   fontFamily: 'Orbitron, monospace',
                   fontWeight: 600,
                   px: 6,
                   py: 2,
                   borderRadius: 3,
+                  boxShadow: '0 0 20px #00a8ff',
                   fontSize: '1.1rem',
-                  borderWidth: '2px',
                   '&:hover': {
-                    borderColor: '#00a8ff',
-                    color: '#00a8ff',
-                    boxShadow: '0 0 20px #00a8ff, 0 0 40px #00ff9d',
+                    borderColor: '#00ff9d',
+                    color: '#00ff9d',
+                    boxShadow: '0 0 30px #00ff9d, 0 0 50px #00a8ff',
                     transform: 'translateY(-3px)',
-                    borderWidth: '2px',
                   }
                 }}
               >
-                View Tournaments
+                Dashboard
               </Button>
             </Box>
           </Box>
         </Container>
-      </Box>
+      </PageBackground>
     </Layout>
   )
 }

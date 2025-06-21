@@ -7,6 +7,7 @@ import {
   IconButton,
   Toolbar,
   Typography,
+  Avatar,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -15,52 +16,55 @@ const Navbar = () => {
     <AppBar 
       position="sticky"
       sx={{
-        background: "linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)",
-        borderBottom: "2px solid #00ff9d",
-        boxShadow: "0 0 20px #00ff9d, 0 0 40px #00a8ff",
-        backdropFilter: "blur(10px)",
+        background: "linear-gradient(90deg, rgba(10,10,10,0.95) 0%, rgba(26,26,26,0.95) 50%, rgba(10,10,10,0.95) 100%)",
+        borderBottom: "1px solid rgba(0,255,157,0.3)",
+        boxShadow: "0 4px 20px rgba(0,255,157,0.2)",
+        backdropFilter: "blur(20px)",
+        zIndex: 1200
       }}
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <IconButton
+          {/* Logo */}
+          <Box
             component={RouterLink}
             to="/"
             sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              color: "#00ff9d",
-              "&:hover": {
-                color: "#00a8ff",
-                transform: "scale(1.1)",
-                transition: "all 0.3s ease",
-              },
-            }}
-          >
-            <SportsEsportsIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component={RouterLink}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontWeight: 700,
-              color: "#00ff9d",
+              display: "flex",
+              alignItems: "center",
               textDecoration: "none",
-              fontFamily: 'Orbitron, monospace',
-              textShadow: "0 0 10px #00ff9d",
-              "&:hover": {
-                color: "#00a8ff",
-                textShadow: "0 0 15px #00a8ff",
-                transition: "all 0.3s ease",
-              },
+              mr: 3
             }}
           >
-            DojoPool
-          </Typography>
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                background: "linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)",
+                mr: 1,
+                boxShadow: "0 0 15px rgba(0,255,157,0.5)"
+              }}
+            >
+              <SportsEsportsIcon sx={{ color: "#000", fontSize: 24 }} />
+            </Avatar>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                color: "#00ff9d",
+                fontFamily: 'Orbitron, monospace',
+                textShadow: "0 0 10px rgba(0,255,157,0.5)",
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 15px rgba(0,168,255,0.5)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              DojoPool
+            </Typography>
+          </Box>
+
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               component={RouterLink}
@@ -73,7 +77,7 @@ const Navbar = () => {
                 mx: 2,
                 "&:hover": {
                   color: "#00a8ff",
-                  textShadow: "0 0 10px #00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
                   transform: "translateY(-2px)",
                   transition: "all 0.3s ease",
                 },
@@ -92,7 +96,7 @@ const Navbar = () => {
                 mx: 2,
                 "&:hover": {
                   color: "#00a8ff",
-                  textShadow: "0 0 10px #00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
                   transform: "translateY(-2px)",
                   transition: "all 0.3s ease",
                 },
@@ -111,7 +115,7 @@ const Navbar = () => {
                 mx: 2,
                 "&:hover": {
                   color: "#00a8ff",
-                  textShadow: "0 0 10px #00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
                   transform: "translateY(-2px)",
                   transition: "all 0.3s ease",
                 },

@@ -9,11 +9,21 @@ const Layout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)",
+        background: "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)",
         color: "#fff",
         fontFamily: 'Orbitron, Roboto Mono, monospace',
-        boxShadow: "0 0 40px #00ff9d, 0 0 80px #00a8ff inset",
-        border: "2px solid #00ff9d",
+        position: "relative",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "radial-gradient(circle at 20% 80%, rgba(0,255,157,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(0,168,255,0.1) 0%, transparent 50%)",
+          pointerEvents: "none",
+          zIndex: 0
+        }
       }}
     >
       <Navbar />
@@ -25,8 +35,8 @@ const Layout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
           flexDirection: "column",
           bgcolor: "transparent",
           color: "inherit",
-          px: { xs: 1, md: 4 },
-          py: { xs: 2, md: 4 },
+          position: "relative",
+          zIndex: 1
         }}
       >
         {children}

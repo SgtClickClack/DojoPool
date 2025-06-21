@@ -7,6 +7,7 @@ import TournamentRegistration from '@/components/tournament/TournamentRegistrati
 import TournamentBracket from '@/components/tournament/TournamentBracket';
 import MatchScheduler from '@/components/tournament/MatchScheduler';
 import { useAuth } from '@/hooks/useAuth';
+import PageBackground from '../../src/components/common/PageBackground';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -50,228 +51,228 @@ const TournamentDashboard: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography 
-            variant="h3" 
-            sx={{ 
-              color: '#fff',
-              textShadow: '0 0 20px rgba(0, 255, 157, 0.8)',
-              fontWeight: 700,
-              letterSpacing: '2px',
-              textTransform: 'uppercase',
-              mb: 1
-            }}
-          >
-            Tournament Hub
-          </Typography>
-          <Typography 
-            variant="subtitle1" 
-            sx={{ 
-              color: '#00ff9d',
-              textShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
-              letterSpacing: '1px'
-            }}
-          >
-            Compete, Conquer, Champion
-          </Typography>
+    <PageBackground variant="tournaments">
+      <Container maxWidth="xl" sx={{ py: 4, position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography 
+              variant="h3" 
+              sx={{ 
+                color: '#fff',
+                textShadow: '0 0 20px rgba(0, 255, 157, 0.8)',
+                fontWeight: 700,
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                mb: 1
+              }}
+            >
+              Tournament Hub
+            </Typography>
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                color: '#00ff9d',
+                textShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+                letterSpacing: '1px'
+              }}
+            >
+              Compete, Conquer, Champion
+            </Typography>
+          </Box>
+          
+          {isAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleCreateTournament}
+              sx={{
+                background: 'linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)',
+                color: '#000',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                px: 3,
+                py: 1.5,
+                borderRadius: '8px',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #00a8ff 0%, #00ff9d 100%)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 0 20px rgba(0, 255, 157, 0.4)',
+                }
+              }}
+            >
+              Create Tournament
+            </Button>
+          )}
         </Box>
-        
-        {isAdmin && (
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateTournament}
-            sx={{
-              background: 'linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)',
-              color: '#000',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              px: 3,
-              py: 1.5,
-              borderRadius: '8px',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #00a8ff 0%, #00ff9d 100%)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 0 20px rgba(0, 255, 157, 0.4)',
-              }
-            }}
-          >
-            Create Tournament
-          </Button>
-        )}
-      </Box>
 
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 3,
-              background: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid #00ff9d',
-              borderRadius: '15px',
-              textAlign: 'center',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: '0 0 30px rgba(0, 255, 157, 0.3)',
-              }
-            }}
-          >
-            <EmojiEvents sx={{ fontSize: 40, color: '#00ff9d', mb: 2 }} />
-            <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
-              12
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#00ff9d' }}>
-              Active Tournaments
-            </Typography>
-          </Paper>
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper
+              sx={{
+                p: 3,
+                background: 'rgba(10, 10, 10, 0.95)',
+                border: '1px solid #00ff9d',
+                borderRadius: '15px',
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 30px rgba(0, 255, 157, 0.3)',
+                }
+              }}
+            >
+              <EmojiEvents sx={{ fontSize: 40, color: '#00ff9d', mb: 2 }} />
+              <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                12
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#00ff9d' }}>
+                Active Tournaments
+              </Typography>
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper
+              sx={{
+                p: 3,
+                background: 'rgba(10, 10, 10, 0.95)',
+                border: '1px solid #00a8ff',
+                borderRadius: '15px',
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 30px rgba(0, 168, 255, 0.3)',
+                }
+              }}
+            >
+              <People sx={{ fontSize: 40, color: '#00a8ff', mb: 2 }} />
+              <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                1,247
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#00a8ff' }}>
+                Total Participants
+              </Typography>
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper
+              sx={{
+                p: 3,
+                background: 'rgba(10, 10, 10, 0.95)',
+                border: '1px solid #ff00ff',
+                borderRadius: '15px',
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 30px rgba(255, 0, 255, 0.3)',
+                }
+              }}
+            >
+              <Schedule sx={{ fontSize: 40, color: '#ff00ff', mb: 2 }} />
+              <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                89
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#ff00ff' }}>
+                Matches Today
+              </Typography>
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper
+              sx={{
+                p: 3,
+                background: 'rgba(10, 10, 10, 0.95)',
+                border: '1px solid #ffff00',
+                borderRadius: '15px',
+                textAlign: 'center',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 30px rgba(255, 255, 0, 0.3)',
+                }
+              }}
+            >
+              <TrendingUp sx={{ fontSize: 40, color: '#ffff00', mb: 2 }} />
+              <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
+                $45.2K
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#ffff00' }}>
+                Total Prize Pool
+              </Typography>
+            </Paper>
+          </Grid>
         </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 3,
-              background: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid #00a8ff',
-              borderRadius: '15px',
-              textAlign: 'center',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: '0 0 30px rgba(0, 168, 255, 0.3)',
-              }
-            }}
-          >
-            <People sx={{ fontSize: 40, color: '#00a8ff', mb: 2 }} />
-            <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
-              1,247
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#00a8ff' }}>
-              Total Participants
-            </Typography>
-          </Paper>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 3,
-              background: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid #ff00ff',
-              borderRadius: '15px',
-              textAlign: 'center',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: '0 0 30px rgba(255, 0, 255, 0.3)',
-              }
-            }}
-          >
-            <Schedule sx={{ fontSize: 40, color: '#ff00ff', mb: 2 }} />
-            <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
-              89
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#ff00ff' }}>
-              Matches Today
-            </Typography>
-          </Paper>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            sx={{
-              p: 3,
-              background: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid #ffff00',
-              borderRadius: '15px',
-              textAlign: 'center',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: '0 0 30px rgba(255, 255, 0, 0.3)',
-              }
-            }}
-          >
-            <TrendingUp sx={{ fontSize: 40, color: '#ffff00', mb: 2 }} />
-            <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700 }}>
-              $45.2K
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#ffff00' }}>
-              Total Prize Pool
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
 
-      {/* Main Content */}
-      <Paper
-        sx={{
-          background: 'rgba(10, 10, 10, 0.95)',
-          border: '1px solid #00ff9d',
-          borderRadius: '15px',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: '#00ff9d' }}>
-          <Tabs 
-            value={tabValue} 
+        {/* Tournament Tabs */}
+        <Paper
+          sx={{
+            background: 'rgba(10, 10, 10, 0.95)',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            borderRadius: '15px',
+            overflow: 'hidden'
+          }}
+        >
+          <Tabs
+            value={tabValue}
             onChange={handleTabChange}
             sx={{
+              background: 'rgba(20, 20, 20, 0.9)',
+              borderBottom: '1px solid rgba(255, 215, 0, 0.2)',
               '& .MuiTab-root': {
-                color: '#888',
-                textTransform: 'uppercase',
+                color: '#fff',
                 fontWeight: 600,
+                textTransform: 'uppercase',
                 letterSpacing: '1px',
                 '&.Mui-selected': {
-                  color: '#00ff9d',
-                  textShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+                  color: '#ffd700',
+                  textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
                 }
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: '#00ff9d',
-                boxShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+                backgroundColor: '#ffd700',
+                boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
               }
             }}
           >
-            <Tab label="All Tournaments" />
-            <Tab label="Tournament Bracket" />
-            <Tab label="Match Scheduler" />
+            <Tab label="Tournaments" />
+            <Tab label="Bracket" />
+            <Tab label="Schedule" />
             <Tab label="Registration" />
           </Tabs>
-        </Box>
 
-        {/* Tab Panels */}
-        <TabPanel value={tabValue} index={0}>
-          <TournamentList onTournamentSelect={handleTournamentSelect} />
-        </TabPanel>
-        
-        <TabPanel value={tabValue} index={1}>
-          {selectedTournament ? (
-            <TournamentBracket tournament={selectedTournament} />
-          ) : (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h6" sx={{ color: '#888' }}>
-                Select a tournament to view the bracket
-              </Typography>
-            </Box>
-          )}
-        </TabPanel>
-        
-        <TabPanel value={tabValue} index={2}>
-          <MatchScheduler tournament={selectedTournament} />
-        </TabPanel>
-        
-        <TabPanel value={tabValue} index={3}>
-          <TournamentRegistration />
-        </TabPanel>
-      </Paper>
-    </Container>
+          <TabPanel value={tabValue} index={0}>
+            <TournamentList onTournamentSelect={handleTournamentSelect} />
+          </TabPanel>
+          
+          <TabPanel value={tabValue} index={1}>
+            {selectedTournament ? (
+              <TournamentBracket tournament={selectedTournament} />
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
+                  Select a tournament to view the bracket
+                </Typography>
+              </Box>
+            )}
+          </TabPanel>
+          
+          <TabPanel value={tabValue} index={2}>
+            <MatchScheduler />
+          </TabPanel>
+          
+          <TabPanel value={tabValue} index={3}>
+            <TournamentRegistration />
+          </TabPanel>
+        </Paper>
+      </Container>
+    </PageBackground>
   );
 };
 
