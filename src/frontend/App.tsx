@@ -40,6 +40,9 @@ const BracketVisualization = React.lazy(() => import('../pages/tournaments/brack
 // Social Components
 const TournamentSocial = React.lazy(() => import('../pages/social/tournament-social'));
 
+// Analytics Components
+const TournamentAnalytics = React.lazy(() => import('../pages/analytics/tournament-analytics'));
+
 // Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
 // const theme = createTheme({
 //   palette: {
@@ -137,6 +140,9 @@ const App: React.FC = () => {
               
               {/* Social Routes */}
               <Route path="/social/tournament-social" element={<TournamentSocial />} />
+              
+              {/* Analytics Routes */}
+              <Route path="/analytics/tournament-analytics" element={<TournamentAnalytics />} />
               
               {/* <Route path="/venue-dashboard" element={<VenueDashboard />} /> */}
               {/* Add other protected routes here */}
