@@ -221,7 +221,13 @@ class BracketVisualizationService {
 
     // Create nodes for each match
     this.bracket.nodes.forEach((node) => {
-      this.createMatchNode(node, roundPositions[node.round]);
+      const roundPositionsArray = roundPositions.get(node.round);
+      if (roundPositionsArray && roundPositionsArray[node.position]) {
+        this.createMatchNode(node, roundPositionsArray[node.position]);
+      } else {
+        // Fallback: use the node's position3D if available
+        this.createMatchNode(node, node.position3D);
+      }
     });
 
     // Create connections between nodes
@@ -397,8 +403,8 @@ class BracketVisualizationService {
       
       // Update node color
       const material = mesh.material as THREE.MeshPhongMaterial;
-      material.color.setHex(this.getNodeColor(update.status));
-      material.emissive.setHex(this.getNodeColor(update.status));
+      material.color.setHex(parseInt(this.getNodeColor(update.status).replace('#', ''), 16));
+      material.emissive.setHex(parseInt(this.getNodeColor(update.status).replace('#', ''), 16));
 
       // Add animation
       this.animateNodeUpdate(mesh);
@@ -419,20 +425,31 @@ class BracketVisualizationService {
   }
 
   private animateNodeUpdate(mesh: THREE.Mesh): void {
-    // Scale animation
+    // Simple scale animation without Tween library
     const originalScale = mesh.scale.clone();
     const targetScale = originalScale.clone().multiplyScalar(1.5);
 
-    const scaleUp = new THREE.Tween(mesh.scale)
-      .to(targetScale, 200)
-      .easing(THREE.Easing.Quadratic.Out);
-
-    const scaleDown = new THREE.Tween(mesh.scale)
-      .to(originalScale, 200)
-      .easing(THREE.Easing.Quadratic.In);
-
-    scaleUp.chain(scaleDown);
-    scaleUp.start();
+    // Animate scale up
+    let progress = 0;
+    const animateUp = () => {
+      progress += 0.1;
+      if (progress <= 1) {
+        mesh.scale.lerpVectors(originalScale, targetScale, progress);
+        requestAnimationFrame(animateUp);
+      } else {
+        // Animate scale down
+        progress = 0;
+        const animateDown = () => {
+          progress += 0.1;
+          if (progress <= 1) {
+            mesh.scale.lerpVectors(targetScale, originalScale, progress);
+            requestAnimationFrame(animateDown);
+          }
+        };
+        animateDown();
+      }
+    };
+    animateUp();
   }
 
   // Configuration Management
