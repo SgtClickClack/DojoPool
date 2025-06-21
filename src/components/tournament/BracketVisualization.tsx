@@ -1,634 +1,872 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
-  Chip,
-  Avatar,
-  Stack,
-  Tooltip,
-  IconButton,
+  Card,
+  CardContent,
+  Grid,
+  Button,
   Paper,
-  useTheme,
-  alpha,
-  Zoom,
-  Fade,
+  Tabs,
+  Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Switch,
+  FormControlLabel,
+  Slider,
+  IconButton,
+  Tooltip,
+  Chip,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Avatar,
+  LinearProgress,
 } from '@mui/material';
 import {
-  EmojiEvents,
+  ViewInAr,
+  Settings,
+  PlayArrow,
+  Pause,
+  Refresh,
+  ZoomIn,
+  ZoomOut,
+  RotateLeft,
+  Fullscreen,
+  Close,
   SportsEsports,
-  KeyboardArrowRight,
-  KeyboardArrowLeft,
+  EmojiEvents,
+  Schedule,
+  CheckCircle,
+  Warning,
   Info,
-  Star,
-  LocalFireDepartment,
+  Tune,
+  Visibility,
+  VisibilityOff,
+  Speed,
 } from '@mui/icons-material';
-import { Tournament, Match, Participant } from '../../types/tournament';
+import BracketVisualizationService, {
+  TournamentBracket,
+  BracketNode,
+  PlayerInfo,
+  BracketConfig,
+  MatchUpdate,
+} from '../../services/tournament/BracketVisualizationService';
 
-interface BracketVisualizationProps {
-  tournament: Tournament;
-  onMatchClick?: (match: Match) => void;
-  highlightUserId?: string;
-  enableRealTimeUpdates?: boolean;
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }
 
-interface MatchNode {
-  match: Match;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  round: number;
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`bracket-tabpanel-${index}`}
+      aria-labelledby={`bracket-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
 }
 
-export const BracketVisualization: React.FC<BracketVisualizationProps> = ({
-  tournament,
-  onMatchClick,
-  highlightUserId,
-  enableRealTimeUpdates = true,
-}) => {
-  const theme = useTheme();
-  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [hoveredMatch, setHoveredMatch] = useState<Match | null>(null);
-  const [matchNodes, setMatchNodes] = useState<MatchNode[]>([]);
-  const [animationPhase, setAnimationPhase] = useState(0);
+const BracketVisualization: React.FC = () => {
+  const [tabValue, setTabValue] = useState(0);
+  const [bracket, setBracket] = useState<TournamentBracket | null>(null);
+  const [selectedNode, setSelectedNode] = useState<BracketNode | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const [config, setConfig] = useState<BracketConfig | null>(null);
+  const [openConfigDialog, setOpenConfigDialog] = useState(false);
+  const [openMatchDialog, setOpenMatchDialog] = useState(false);
+  const [tempConfig, setTempConfig] = useState<BracketConfig | null>(null);
+  const [matchUpdate, setMatchUpdate] = useState<MatchUpdate | null>(null);
 
-  // Cyberpunk neon colors
-  const neonColors = {
-    primary: '#00ff88',
-    secondary: '#ff0099',
-    warning: '#ffcc00',
-    error: '#ff0044',
-    info: '#00ccff',
-    purple: '#8b00ff',
-    orange: '#ff6600',
-  };
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bracketService = BracketVisualizationService.getInstance();
 
-  // Calculate bracket layout
   useEffect(() => {
-    if (!tournament.matches || tournament.matches.length === 0) return;
-
-    const rounds = tournament.matches.reduce((acc, match) => {
-      if (!acc[match.round]) {
-        acc[match.round] = [];
-      }
-      acc[match.round].push(match);
-      return acc;
-    }, {} as Record<number, Match[]>);
-
-    const nodes: MatchNode[] = [];
-    const roundKeys = Object.keys(rounds).map(Number).sort((a, b) => a - b);
-    const maxRound = Math.max(...roundKeys);
-    
-    const matchHeight = 100;
-    const matchWidth = 250;
-    const roundGap = 300;
-    const matchGap = 20;
-
-    roundKeys.forEach((round, roundIndex) => {
-      const matches = rounds[round];
-      const totalHeight = matches.length * (matchHeight + matchGap) - matchGap;
-      const startY = (600 - totalHeight) / 2;
-
-      matches.forEach((match, matchIndex) => {
-        nodes.push({
-          match,
-          x: roundIndex * roundGap + 50,
-          y: startY + matchIndex * (matchHeight + matchGap),
-          width: matchWidth,
-          height: matchHeight,
-          round,
-        });
-      });
-    });
-
-    setMatchNodes(nodes);
-  }, [tournament.matches]);
-
-  // Animation effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimationPhase(prev => (prev + 1) % 360);
-    }, 50);
-    return () => clearInterval(interval);
+    loadMockBracket();
+    return () => {
+      bracketService.stopRendering();
+    };
   }, []);
 
-  const getMatchStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return neonColors.primary;
-      case 'in_progress':
-        return neonColors.secondary;
-      case 'pending':
-        return neonColors.warning;
-      case 'bye':
-        return neonColors.purple;
-      default:
-        return theme.palette.grey[500];
+  const loadMockBracket = () => {
+    const mockBracket: TournamentBracket = {
+      id: 'bracket_001',
+      name: 'Cyberpunk Championship 2024',
+      type: 'single-elimination',
+      totalRounds: 4,
+      totalMatches: 15,
+      currentRound: 1,
+      status: 'in-progress',
+      startDate: new Date('2024-01-15'),
+      players: [
+        { id: 'p1', name: 'NeonStriker', avatar: '/images/avatars/player1.jpg', seed: 1, rating: 1850, wins: 12, losses: 3, status: 'active' },
+        { id: 'p2', name: 'CyberQueen', avatar: '/images/avatars/player2.jpg', seed: 2, rating: 1820, wins: 10, losses: 5, status: 'active' },
+        { id: 'p3', name: 'DigitalDragon', avatar: '/images/avatars/player3.jpg', seed: 3, rating: 1780, wins: 8, losses: 7, status: 'active' },
+        { id: 'p4', name: 'MatrixMaster', avatar: '/images/avatars/player4.jpg', seed: 4, rating: 1750, wins: 9, losses: 6, status: 'active' },
+        { id: 'p5', name: 'PixelPuncher', avatar: '/images/avatars/player5.jpg', seed: 5, rating: 1720, wins: 7, losses: 8, status: 'active' },
+        { id: 'p6', name: 'ByteBrawler', avatar: '/images/avatars/player6.jpg', seed: 6, rating: 1700, wins: 6, losses: 9, status: 'active' },
+        { id: 'p7', name: 'CircuitSlayer', avatar: '/images/avatars/player7.jpg', seed: 7, rating: 1680, wins: 5, losses: 10, status: 'active' },
+        { id: 'p8', name: 'DataDestroyer', avatar: '/images/avatars/player8.jpg', seed: 8, rating: 1650, wins: 4, losses: 11, status: 'active' },
+      ],
+      nodes: [
+        // Round 1
+        { id: 'm1', matchId: 'match_1', player1: { id: 'p1', name: 'NeonStriker', avatar: '/images/avatars/player1.jpg', seed: 1, rating: 1850, wins: 12, losses: 3, status: 'active' }, player2: { id: 'p8', name: 'DataDestroyer', avatar: '/images/avatars/player8.jpg', seed: 8, rating: 1650, wins: 4, losses: 11, status: 'active' }, round: 0, position: 0, status: 'completed', winner: { id: 'p1', name: 'NeonStriker', avatar: '/images/avatars/player1.jpg', seed: 1, rating: 1850, wins: 12, losses: 3, status: 'active' }, score: '9-3', position3D: new THREE.Vector3(), connections: ['m5'] },
+        { id: 'm2', matchId: 'match_2', player1: { id: 'p4', name: 'MatrixMaster', avatar: '/images/avatars/player4.jpg', seed: 4, rating: 1750, wins: 9, losses: 6, status: 'active' }, player2: { id: 'p5', name: 'PixelPuncher', avatar: '/images/avatars/player5.jpg', seed: 5, rating: 1720, wins: 7, losses: 8, status: 'active' }, round: 0, position: 1, status: 'completed', winner: { id: 'p4', name: 'MatrixMaster', avatar: '/images/avatars/player4.jpg', seed: 4, rating: 1750, wins: 9, losses: 6, status: 'active' }, score: '9-7', position3D: new THREE.Vector3(), connections: ['m5'] },
+        { id: 'm3', matchId: 'match_3', player1: { id: 'p3', name: 'DigitalDragon', avatar: '/images/avatars/player3.jpg', seed: 3, rating: 1780, wins: 8, losses: 7, status: 'active' }, player2: { id: 'p6', name: 'ByteBrawler', avatar: '/images/avatars/player6.jpg', seed: 6, rating: 1700, wins: 6, losses: 9, status: 'active' }, round: 0, position: 2, status: 'completed', winner: { id: 'p3', name: 'DigitalDragon', avatar: '/images/avatars/player3.jpg', seed: 3, rating: 1780, wins: 8, losses: 7, status: 'active' }, score: '9-5', position3D: new THREE.Vector3(), connections: ['m6'] },
+        { id: 'm4', matchId: 'match_4', player1: { id: 'p2', name: 'CyberQueen', avatar: '/images/avatars/player2.jpg', seed: 2, rating: 1820, wins: 10, losses: 5, status: 'active' }, player2: { id: 'p7', name: 'CircuitSlayer', avatar: '/images/avatars/player7.jpg', seed: 7, rating: 1680, wins: 5, losses: 10, status: 'active' }, round: 0, position: 3, status: 'completed', winner: { id: 'p2', name: 'CyberQueen', avatar: '/images/avatars/player2.jpg', seed: 2, rating: 1820, wins: 10, losses: 5, status: 'active' }, score: '9-4', position3D: new THREE.Vector3(), connections: ['m6'] },
+        
+        // Round 2
+        { id: 'm5', matchId: 'match_5', player1: { id: 'p1', name: 'NeonStriker', avatar: '/images/avatars/player1.jpg', seed: 1, rating: 1850, wins: 12, losses: 3, status: 'active' }, player2: { id: 'p4', name: 'MatrixMaster', avatar: '/images/avatars/player4.jpg', seed: 4, rating: 1750, wins: 9, losses: 6, status: 'active' }, round: 1, position: 0, status: 'in-progress', score: '5-3', position3D: new THREE.Vector3(), connections: ['m7', 'm1', 'm2'] },
+        { id: 'm6', matchId: 'match_6', player1: { id: 'p3', name: 'DigitalDragon', avatar: '/images/avatars/player3.jpg', seed: 3, rating: 1780, wins: 8, losses: 7, status: 'active' }, player2: { id: 'p2', name: 'CyberQueen', avatar: '/images/avatars/player2.jpg', seed: 2, rating: 1820, wins: 10, losses: 5, status: 'active' }, round: 1, position: 1, status: 'pending', position3D: new THREE.Vector3(), connections: ['m7', 'm3', 'm4'] },
+        
+        // Round 3
+        { id: 'm7', matchId: 'match_7', player1: { id: 'p1', name: 'NeonStriker', avatar: '/images/avatars/player1.jpg', seed: 1, rating: 1850, wins: 12, losses: 3, status: 'active' }, player2: { id: 'p2', name: 'CyberQueen', avatar: '/images/avatars/player2.jpg', seed: 2, rating: 1820, wins: 10, losses: 5, status: 'active' }, round: 2, position: 0, status: 'pending', position3D: new THREE.Vector3(), connections: ['m5', 'm6'] },
+      ],
+    };
+
+    setBracket(mockBracket);
+    setConfig(bracketService.getConfig());
+    
+    // Initialize 3D scene
+    if (containerRef.current) {
+      bracketService.initializeScene(containerRef.current);
+      bracketService.loadBracket(mockBracket);
+      setIsRendering(true);
+    }
+
+    // Add click handler
+    bracketService.addClickHandler((nodeId) => {
+      const node = mockBracket.nodes.find(n => n.id === nodeId);
+      if (node) {
+        setSelectedNode(node);
+        setOpenMatchDialog(true);
+      }
+    });
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const openConfig = () => {
+    setTempConfig(bracketService.getConfig());
+    setOpenConfigDialog(true);
+  };
+
+  const saveConfig = () => {
+    if (tempConfig) {
+      bracketService.updateConfig(tempConfig);
+      setConfig(tempConfig);
+    }
+    setOpenConfigDialog(false);
+  };
+
+  const handleMatchUpdate = () => {
+    if (selectedNode && matchUpdate) {
+      // Update the match
+      const updatedNode = { ...selectedNode, ...matchUpdate };
+      setSelectedNode(updatedNode);
+      
+      // Update bracket
+      if (bracket) {
+        const updatedBracket = { ...bracket };
+        const nodeIndex = updatedBracket.nodes.findIndex(n => n.id === selectedNode.id);
+        if (nodeIndex !== -1) {
+          updatedBracket.nodes[nodeIndex] = updatedNode;
+          setBracket(updatedBracket);
+          bracketService.updateBracket(updatedBracket);
+        }
+      }
+      
+      setOpenMatchDialog(false);
+      setMatchUpdate(null);
     }
   };
 
-  const isUserInMatch = (match: Match) => {
-    if (!highlightUserId) return false;
-    return (
-      match.participant1?.id === highlightUserId ||
-      match.participant2?.id === highlightUserId
-    );
-  };
-
-  const isUserWinner = (match: Match) => {
-    if (!highlightUserId || !match.winner) return false;
-    return match.winner.id === highlightUserId;
-  };
-
-  const renderMatch = (node: MatchNode) => {
-    const { match } = node;
-    const isHighlighted = isUserInMatch(match);
-    const isWinner = isUserWinner(match);
-    const isHovered = hoveredMatch?.id === match.id;
-    const isSelected = selectedMatch?.id === match.id;
-
-    return (
+  const render3DView = () => (
+    <Box sx={{ position: 'relative', height: '600px', width: '100%' }}>
       <Box
-        key={match.id}
-        onClick={() => {
-          setSelectedMatch(match);
-          onMatchClick?.(match);
-        }}
-        onMouseEnter={() => setHoveredMatch(match)}
-        onMouseLeave={() => setHoveredMatch(null)}
+        ref={containerRef}
         sx={{
-          position: 'absolute',
-          left: node.x,
-          top: node.y,
-          width: node.width,
-          height: node.height,
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-          zIndex: isHovered || isSelected ? 10 : 1,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+          borderRadius: 2,
+          overflow: 'hidden',
         }}
-      >
-        <Paper
-          elevation={isHovered ? 10 : 3}
+      />
+      
+      {/* 3D Controls Overlay */}
+      <Box sx={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 1 }}>
+        <Tooltip title="Reset Camera">
+          <IconButton
+            onClick={() => bracketService.resetCamera()}
+            sx={{
+              backgroundColor: 'rgba(0, 255, 157, 0.2)',
+              color: '#00ff9d',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 255, 157, 0.3)',
+              },
+            }}
+          >
+            <RotateLeft />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Toggle Auto Rotate">
+          <IconButton
+            onClick={() => bracketService.toggleAutoRotate()}
+            sx={{
+              backgroundColor: 'rgba(0, 168, 255, 0.2)',
+              color: '#00a8ff',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 168, 255, 0.3)',
+              },
+            }}
+          >
+            <Speed />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Configuration">
+          <IconButton
+            onClick={openConfig}
+            sx={{
+              backgroundColor: 'rgba(254, 202, 87, 0.2)',
+              color: '#feca57',
+              '&:hover': {
+                backgroundColor: 'rgba(254, 202, 87, 0.3)',
+              },
+            }}
+          >
+            <Settings />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  );
+
+  const renderBracketInfo = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={6}>
+        <Card
           sx={{
-            width: '100%',
-            height: '100%',
-            background: alpha(theme.palette.background.paper, 0.9),
-            border: `2px solid ${
-              isHighlighted ? neonColors.info : getMatchStatusColor(match.status)
-            }`,
-            borderRadius: 2,
-            overflow: 'hidden',
-            position: 'relative',
-            boxShadow: `0 0 ${isHovered ? '30px' : '15px'} ${alpha(
-              isHighlighted ? neonColors.info : getMatchStatusColor(match.status),
-              isHovered ? 0.6 : 0.3
-            )}`,
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: '-100%',
-              width: '200%',
-              height: '100%',
-              background: `linear-gradient(90deg, transparent, ${alpha(
-                getMatchStatusColor(match.status),
-                0.2
-              )}, transparent)`,
-              animation: match.status === 'in_progress' ? 'sweep 2s infinite' : 'none',
-            },
-            '@keyframes sweep': {
-              '0%': { left: '-100%' },
-              '100%': { left: '100%' },
-            },
+            background: 'rgba(20, 20, 20, 0.9)',
+            border: '2px solid #00ff9d',
+            borderRadius: 3,
+            boxShadow: '0 0 30px rgba(0, 255, 157, 0.3)',
+            backdropFilter: 'blur(10px)',
           }}
         >
-          <Box sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* Match Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: getMatchStatusColor(match.status),
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                }}
-              >
-                Round {node.round}
-              </Typography>
-              <Chip
-                label={match.status}
-                size="small"
-                sx={{
-                  background: alpha(getMatchStatusColor(match.status), 0.2),
-                  color: getMatchStatusColor(match.status),
-                  border: `1px solid ${getMatchStatusColor(match.status)}`,
-                  height: 20,
-                  fontSize: '0.7rem',
-                  textShadow: `0 0 5px ${getMatchStatusColor(match.status)}`,
-                }}
-              />
-            </Box>
+          <CardContent>
+            <Typography
+              variant="h6"
+              sx={{
+                color: '#00ff9d',
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mb: 2,
+                textShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+              }}
+            >
+              Tournament Info
+            </Typography>
 
-            {/* Participants */}
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              {/* Participant 1 */}
-              <Box
+            {bracket && (
+              <>
+                <Typography variant="h5" sx={{ color: '#fff', mb: 2 }}>
+                  {bracket.name}
+                </Typography>
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: '#ccc' }}>
+                      Type
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#00a8ff', fontWeight: 600 }}>
+                      {bracket.type.replace('-', ' ').toUpperCase()}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: '#ccc' }}>
+                      Status
+                    </Typography>
+                    <Chip
+                      label={bracket.status.toUpperCase()}
+                      sx={{
+                        backgroundColor: bracket.status === 'in-progress' ? '#feca57' : '#00ff9d',
+                        color: '#000',
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: '#ccc' }}>
+                      Current Round
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#00a8ff', fontWeight: 600 }}>
+                      {bracket.currentRound} / {bracket.totalRounds}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: '#ccc' }}>
+                      Total Matches
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#00a8ff', fontWeight: 600 }}>
+                      {bracket.totalMatches}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <Card
+          sx={{
+            background: 'rgba(20, 20, 20, 0.9)',
+            border: '2px solid #00a8ff',
+            borderRadius: 3,
+            boxShadow: '0 0 30px rgba(0, 168, 255, 0.3)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <CardContent>
+            <Typography
+              variant="h6"
+              sx={{
+                color: '#00a8ff',
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mb: 2,
+                textShadow: '0 0 10px rgba(0, 168, 255, 0.5)',
+              }}
+            >
+              Match Status
+            </Typography>
+
+            {bracket && (
+              <List>
+                {bracket.nodes.filter(node => node.status === 'in-progress').map((node) => (
+                  <ListItem
+                    key={node.id}
+                    sx={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: 2,
+                      mb: 1,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                      },
+                    }}
+                    onClick={() => {
+                      setSelectedNode(node);
+                      setOpenMatchDialog(true);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <SportsEsports sx={{ color: '#feca57' }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography sx={{ color: '#fff', fontWeight: 600 }}>
+                          {node.player1.name} vs {node.player2.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box>
+                          <Typography variant="body2" sx={{ color: '#ccc' }}>
+                            Round {node.round + 1} • {node.score || '0-0'}
+                          </Typography>
+                          <LinearProgress
+                            variant="determinate"
+                            value={node.status === 'in-progress' ? 50 : 100}
+                            sx={{
+                              height: 4,
+                              borderRadius: 2,
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: '#feca57',
+                                boxShadow: '0 0 10px rgba(254, 202, 87, 0.5)',
+                              },
+                            }}
+                          />
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
+  );
+
+  const renderMatchDetails = () => (
+    <Card
+      sx={{
+        background: 'rgba(20, 20, 20, 0.9)',
+        border: '2px solid #feca57',
+        borderRadius: 3,
+        boxShadow: '0 0 30px rgba(254, 202, 87, 0.3)',
+        backdropFilter: 'blur(10px)',
+      }}
+    >
+      <CardContent>
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#feca57',
+            fontFamily: 'Orbitron, monospace',
+            fontWeight: 600,
+            mb: 2,
+            textShadow: '0 0 10px rgba(254, 202, 87, 0.5)',
+          }}
+        >
+          Match Details
+        </Typography>
+
+        {bracket && (
+          <List>
+            {bracket.nodes.map((node) => (
+              <ListItem
+                key={node.id}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: 2,
                   mb: 1,
-                  opacity: match.winner && match.winner.id !== match.participant1?.id ? 0.5 : 1,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                  },
+                }}
+                onClick={() => {
+                  setSelectedNode(node);
+                  setOpenMatchDialog(true);
                 }}
               >
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    mr: 1,
-                    background: match.participant1 ? neonColors.info : 'transparent',
-                    border: `2px solid ${neonColors.info}`,
-                    fontSize: '0.8rem',
-                  }}
-                >
-                  {match.participant1?.username?.[0] || '?'}
-                </Avatar>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    flex: 1,
-                    color: match.winner?.id === match.participant1?.id ? neonColors.primary : '#fff',
-                    fontWeight: match.winner?.id === match.participant1?.id ? 'bold' : 'normal',
-                    textShadow:
-                      match.winner?.id === match.participant1?.id
-                        ? `0 0 10px ${neonColors.primary}`
-                        : 'none',
-                  }}
-                >
-                  {match.participant1?.username || 'TBD'}
-                </Typography>
-                {match.score && (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: neonColors.warning,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {match.score.split('-')[0]}
-                  </Typography>
-                )}
-              </Box>
-
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: neonColors.secondary,
-                    mx: 1,
-                    fontWeight: 'bold',
-                  }}
-                >
-                  VS
-                </Typography>
-              </Box>
-
-              {/* Participant 2 */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  opacity: match.winner && match.winner.id !== match.participant2?.id ? 0.5 : 1,
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    mr: 1,
-                    background: match.participant2 ? neonColors.info : 'transparent',
-                    border: `2px solid ${neonColors.info}`,
-                    fontSize: '0.8rem',
-                  }}
-                >
-                  {match.participant2?.username?.[0] || '?'}
-                </Avatar>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    flex: 1,
-                    color: match.winner?.id === match.participant2?.id ? neonColors.primary : '#fff',
-                    fontWeight: match.winner?.id === match.participant2?.id ? 'bold' : 'normal',
-                    textShadow:
-                      match.winner?.id === match.participant2?.id
-                        ? `0 0 10px ${neonColors.primary}`
-                        : 'none',
-                  }}
-                >
-                  {match.participant2?.username || 'TBD'}
-                </Typography>
-                {match.score && (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: neonColors.warning,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {match.score.split('-')[1]}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Status Indicators */}
-          {match.status === 'in_progress' && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 5,
-                right: 5,
-                animation: 'pulse 1.5s infinite',
-                '@keyframes pulse': {
-                  '0%': { transform: 'scale(1)' },
-                  '50%': { transform: 'scale(1.2)' },
-                  '100%': { transform: 'scale(1)' },
-                },
-              }}
-            >
-              <LocalFireDepartment sx={{ color: neonColors.error, fontSize: 20 }} />
-            </Box>
-          )}
-
-          {isWinner && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 5,
-                right: 5,
-              }}
-            >
-              <Star sx={{ color: neonColors.warning, fontSize: 20 }} />
-            </Box>
-          )}
-        </Paper>
-      </Box>
-    );
-  };
-
-  // Draw connections between matches
-  const renderConnections = () => {
-    const connections: React.ReactElement[] = [];
-    
-    matchNodes.forEach((node, index) => {
-      const nextRoundNodes = matchNodes.filter(n => n.round === node.round + 1);
-      const targetNode = nextRoundNodes.find(n => {
-        // Simple logic to find which match in the next round this match connects to
-        const matchIndexInRound = matchNodes.filter(m => m.round === node.round).indexOf(node);
-        const targetIndex = Math.floor(matchIndexInRound / 2);
-        return nextRoundNodes.indexOf(n) === targetIndex;
-      });
-
-      if (targetNode) {
-        const startX = node.x + node.width;
-        const startY = node.y + node.height / 2;
-        const endX = targetNode.x;
-        const endY = targetNode.y + targetNode.height / 2;
-        const midX = (startX + endX) / 2;
-
-        connections.push(
-          <svg
-            key={`connection-${node.match.id}`}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          >
-            <defs>
-              <linearGradient id={`gradient-${node.match.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop
-                  offset="0%"
-                  stopColor={getMatchStatusColor(node.match.status)}
-                  stopOpacity="0.8"
+                <ListItemIcon>
+                  {node.status === 'completed' && <CheckCircle sx={{ color: '#00ff9d' }} />}
+                  {node.status === 'in-progress' && <SportsEsports sx={{ color: '#feca57' }} />}
+                  {node.status === 'pending' && <Schedule sx={{ color: '#00a8ff' }} />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography sx={{ color: '#fff', fontWeight: 600 }}>
+                      {node.player1.name} vs {node.player2.name}
+                    </Typography>
+                  }
+                  secondary={
+                    <Box>
+                      <Typography variant="body2" sx={{ color: '#ccc' }}>
+                        Round {node.round + 1} • {node.score || 'Not started'}
+                      </Typography>
+                      {node.winner && (
+                        <Chip
+                          label={`Winner: ${node.winner.name}`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#00ff9d',
+                            color: '#000',
+                            fontWeight: 600,
+                            mt: 1,
+                          }}
+                        />
+                      )}
+                    </Box>
+                  }
                 />
-                <stop
-                  offset="100%"
-                  stopColor={neonColors.info}
-                  stopOpacity="0.3"
-                />
-              </linearGradient>
-            </defs>
-            <path
-              d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
-              stroke={`url(#gradient-${node.match.id})`}
-              strokeWidth="2"
-              fill="none"
-              strokeDasharray={node.match.status === 'pending' ? '5,5' : '0'}
-              opacity={node.match.status === 'completed' ? 1 : 0.5}
-            >
-              {node.match.status === 'in_progress' && (
-                <animate
-                  attributeName="stroke-dashoffset"
-                  values="10;0"
-                  dur="1s"
-                  repeatCount="indefinite"
-                />
-              )}
-            </path>
-          </svg>
-        );
-      }
-    });
-
-    return connections;
-  };
-
-  if (!tournament.matches || tournament.matches.length === 0) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: 400,
-          background: alpha(theme.palette.background.paper, 0.5),
-          border: `2px solid ${alpha(neonColors.primary, 0.3)}`,
-          borderRadius: 2,
-          backdropFilter: 'blur(10px)',
-        }}
-      >
-        <Box sx={{ textAlign: 'center' }}>
-          <SportsEsports
-            sx={{
-              fontSize: 80,
-              color: neonColors.info,
-              mb: 2,
-              filter: `drop-shadow(0 0 20px ${neonColors.info})`,
-            }}
-          />
-          <Typography
-            variant="h5"
-            sx={{
-              color: neonColors.primary,
-              textShadow: `0 0 10px ${neonColors.primary}`,
-              mb: 1,
-            }}
-          >
-            Bracket Generation Pending
-          </Typography>
-          <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
-            The tournament bracket will be generated once registration is complete
-          </Typography>
-        </Box>
-      </Box>
-    );
-  }
-
-  const maxRound = Math.max(...matchNodes.map(n => n.round));
-  const bracketWidth = (maxRound + 1) * 300 + 100;
-  const bracketHeight = 600;
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <Box>
+    <Box sx={{ p: 4 }}>
       <Typography
-        variant="h4"
+        variant="h3"
         sx={{
-          fontWeight: 'bold',
-          background: `linear-gradient(45deg, ${neonColors.primary} 30%, ${neonColors.secondary} 90%)`,
-          backgroundClip: 'text',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: `0 0 20px ${alpha(neonColors.primary, 0.5)}`,
-          mb: 3,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
+          color: '#00ff9d',
+          fontFamily: 'Orbitron, monospace',
+          fontWeight: 700,
+          mb: 4,
+          textAlign: 'center',
+          textShadow: '0 0 20px rgba(0, 255, 157, 0.5)',
         }}
       >
-        <EmojiEvents sx={{ color: neonColors.warning, fontSize: 40 }} />
-        Tournament Bracket
+        3D Tournament Bracket Visualization
       </Typography>
 
       <Paper
-        elevation={3}
         sx={{
-          position: 'relative',
-          width: '100%',
-          height: bracketHeight,
-          background: alpha(theme.palette.background.default, 0.95),
-          border: `2px solid ${alpha(neonColors.primary, 0.3)}`,
-          borderRadius: 2,
-          overflow: 'auto',
-          '&::-webkit-scrollbar': {
-            height: 12,
-            width: 12,
-          },
-          '&::-webkit-scrollbar-track': {
-            background: alpha(theme.palette.background.paper, 0.5),
-            borderRadius: 6,
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: `linear-gradient(45deg, ${neonColors.primary} 30%, ${neonColors.info} 90%)`,
-            borderRadius: 6,
+          background: 'rgba(20, 20, 20, 0.9)',
+          border: '1px solid rgba(0, 255, 157, 0.3)',
+          borderRadius: 3,
+          overflow: 'hidden',
+        }}
+      >
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          sx={{
+            background: 'rgba(30, 30, 30, 0.9)',
+            borderBottom: '1px solid rgba(0, 255, 157, 0.2)',
+            '& .MuiTab-root': {
+              color: '#fff',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              '&.Mui-selected': {
+                color: '#00ff9d',
+                textShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+              },
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#00ff9d',
+              boxShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+            },
+          }}
+        >
+          <Tab label="3D Visualization" />
+          <Tab label="Tournament Info" />
+          <Tab label="Match Details" />
+        </Tabs>
+
+        <TabPanel value={tabValue} index={0}>
+          {render3DView()}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
+          {renderBracketInfo()}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={2}>
+          {renderMatchDetails()}
+        </TabPanel>
+      </Paper>
+
+      {/* Configuration Dialog */}
+      <Dialog
+        open={openConfigDialog}
+        onClose={() => setOpenConfigDialog(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            background: 'rgba(20, 20, 20, 0.95)',
+            border: '2px solid #00ff9d',
+            borderRadius: 3,
+            boxShadow: '0 0 30px rgba(0, 255, 157, 0.5)',
           },
         }}
       >
-        <Box
-          sx={{
-            position: 'relative',
-            width: bracketWidth,
-            height: '100%',
-            minWidth: '100%',
-          }}
-        >
-          {/* Grid background */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: `
-                linear-gradient(${alpha(neonColors.primary, 0.05)} 1px, transparent 1px),
-                linear-gradient(90deg, ${alpha(neonColors.primary, 0.05)} 1px, transparent 1px)
-              `,
-              backgroundSize: '50px 50px',
-              zIndex: 0,
-            }}
-          />
-
-          {/* Connections */}
-          {renderConnections()}
-
-          {/* Matches */}
-          {matchNodes.map(node => renderMatch(node))}
-
-          {/* Round Labels */}
-          {Array.from(new Set(matchNodes.map(n => n.round))).map(round => {
-            const roundNodes = matchNodes.filter(n => n.round === round);
-            const minY = Math.min(...roundNodes.map(n => n.y));
-            const isLastRound = round === maxRound;
-            
-            return (
-              <Box
-                key={`round-label-${round}`}
-                sx={{
-                  position: 'absolute',
-                  left: roundNodes[0].x,
-                  top: minY - 40,
-                  width: roundNodes[0].width,
-                  textAlign: 'center',
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: isLastRound ? neonColors.warning : neonColors.info,
-                    textTransform: 'uppercase',
-                    letterSpacing: '2px',
-                    fontWeight: 'bold',
-                    textShadow: `0 0 10px ${isLastRound ? neonColors.warning : neonColors.info}`,
-                  }}
-                >
-                  {isLastRound ? '🏆 FINAL' : `ROUND ${round}`}
+        <DialogTitle sx={{ color: '#00ff9d', fontFamily: 'Orbitron, monospace' }}>
+          3D Visualization Configuration
+        </DialogTitle>
+        <DialogContent>
+          {tempConfig && (
+            <Grid container spacing={3} sx={{ mt: 1 }}>
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle2" sx={{ color: '#00a8ff', mb: 1 }}>
+                  Node Spacing: {tempConfig.nodeSpacing}
                 </Typography>
-              </Box>
-            );
-          })}
-        </Box>
-      </Paper>
+                <Slider
+                  value={tempConfig.nodeSpacing}
+                  onChange={(_, value) => setTempConfig({ ...tempConfig, nodeSpacing: value as number })}
+                  min={1}
+                  max={5}
+                  step={0.5}
+                  sx={{
+                    color: '#00ff9d',
+                    '& .MuiSlider-thumb': {
+                      backgroundColor: '#00ff9d',
+                      boxShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+                    },
+                  }}
+                />
 
-      {/* Legend */}
-      <Box sx={{ mt: 3, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-        {Object.entries({
-          pending: 'Pending',
-          in_progress: 'In Progress',
-          completed: 'Completed',
-        }).map(([status, label]) => (
-          <Box key={status} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: 1,
-                background: alpha(getMatchStatusColor(status), 0.2),
-                border: `2px solid ${getMatchStatusColor(status)}`,
-              }}
-            />
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-              {label}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
+                <Typography variant="subtitle2" sx={{ color: '#00a8ff', mb: 1, mt: 2 }}>
+                  Round Spacing: {tempConfig.roundSpacing}
+                </Typography>
+                <Slider
+                  value={tempConfig.roundSpacing}
+                  onChange={(_, value) => setTempConfig({ ...tempConfig, roundSpacing: value as number })}
+                  min={2}
+                  max={8}
+                  step={0.5}
+                  sx={{
+                    color: '#00ff9d',
+                    '& .MuiSlider-thumb': {
+                      backgroundColor: '#00ff9d',
+                      boxShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+                    },
+                  }}
+                />
+
+                <Typography variant="subtitle2" sx={{ color: '#00a8ff', mb: 1, mt: 2 }}>
+                  Camera Distance: {tempConfig.cameraDistance}
+                </Typography>
+                <Slider
+                  value={tempConfig.cameraDistance}
+                  onChange={(_, value) => setTempConfig({ ...tempConfig, cameraDistance: value as number })}
+                  min={10}
+                  max={30}
+                  step={1}
+                  sx={{
+                    color: '#00ff9d',
+                    '& .MuiSlider-thumb': {
+                      backgroundColor: '#00ff9d',
+                      boxShadow: '0 0 10px rgba(0, 255, 157, 0.5)',
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={tempConfig.autoRotate}
+                      onChange={(e) => setTempConfig({ ...tempConfig, autoRotate: e.target.checked })}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: '#00ff9d',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: '#00ff9d',
+                        },
+                      }}
+                    />
+                  }
+                  label="Auto Rotate"
+                  sx={{ color: '#fff', mb: 2 }}
+                />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={tempConfig.showConnections}
+                      onChange={(e) => setTempConfig({ ...tempConfig, showConnections: e.target.checked })}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: '#00ff9d',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: '#00ff9d',
+                        },
+                      }}
+                    />
+                  }
+                  label="Show Connections"
+                  sx={{ color: '#fff', mb: 2 }}
+                />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={tempConfig.showLabels}
+                      onChange={(e) => setTempConfig({ ...tempConfig, showLabels: e.target.checked })}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: '#00ff9d',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: '#00ff9d',
+                        },
+                      }}
+                    />
+                  }
+                  label="Show Labels"
+                  sx={{ color: '#fff', mb: 2 }}
+                />
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenConfigDialog(false)}
+            sx={{ color: '#ccc' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={saveConfig}
+            sx={{
+              background: 'linear-gradient(45deg, #00ff9d 0%, #00a8ff 100%)',
+              color: '#000',
+              fontFamily: 'Orbitron, monospace',
+              fontWeight: 600,
+              '&:hover': {
+                background: 'linear-gradient(45deg, #00a8ff 0%, #00ff9d 100%)',
+              },
+            }}
+          >
+            Save Configuration
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Match Update Dialog */}
+      <Dialog
+        open={openMatchDialog}
+        onClose={() => setOpenMatchDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            background: 'rgba(20, 20, 20, 0.95)',
+            border: '2px solid #feca57',
+            borderRadius: 3,
+            boxShadow: '0 0 30px rgba(254, 202, 87, 0.5)',
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: '#feca57', fontFamily: 'Orbitron, monospace' }}>
+          Update Match
+        </DialogTitle>
+        <DialogContent>
+          {selectedNode && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
+                {selectedNode.player1.name} vs {selectedNode.player2.name}
+              </Typography>
+              
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    label="Player 1 Score"
+                    type="number"
+                    defaultValue={selectedNode.score?.split('-')[0] || 0}
+                    onChange={(e) => setMatchUpdate({
+                      matchId: selectedNode.matchId,
+                      player1Score: parseInt(e.target.value),
+                      player2Score: parseInt(matchUpdate?.player2Score?.toString() || selectedNode.score?.split('-')[1] || '0'),
+                      status: selectedNode.status,
+                      timestamp: new Date(),
+                    })}
+                    fullWidth
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        color: '#fff',
+                        '& fieldset': {
+                          borderColor: '#feca57',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#00a8ff',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: '#ccc',
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label="Player 2 Score"
+                    type="number"
+                    defaultValue={selectedNode.score?.split('-')[1] || 0}
+                    onChange={(e) => setMatchUpdate({
+                      matchId: selectedNode.matchId,
+                      player1Score: parseInt(matchUpdate?.player1Score?.toString() || selectedNode.score?.split('-')[0] || '0'),
+                      player2Score: parseInt(e.target.value),
+                      status: selectedNode.status,
+                      timestamp: new Date(),
+                    })}
+                    fullWidth
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        color: '#fff',
+                        '& fieldset': {
+                          borderColor: '#feca57',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#00a8ff',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: '#ccc',
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel sx={{ color: '#ccc' }}>Status</InputLabel>
+                    <Select
+                      defaultValue={selectedNode.status}
+                      onChange={(e) => setMatchUpdate({
+                        matchId: selectedNode.matchId,
+                        player1Score: parseInt(matchUpdate?.player1Score?.toString() || selectedNode.score?.split('-')[0] || '0'),
+                        player2Score: parseInt(matchUpdate?.player2Score?.toString() || selectedNode.score?.split('-')[1] || '0'),
+                        status: e.target.value as any,
+                        timestamp: new Date(),
+                      })}
+                      sx={{
+                        color: '#fff',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#feca57',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#00a8ff',
+                        },
+                      }}
+                    >
+                      <MenuItem value="pending">Pending</MenuItem>
+                      <MenuItem value="in-progress">In Progress</MenuItem>
+                      <MenuItem value="completed">Completed</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenMatchDialog(false)}
+            sx={{ color: '#ccc' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleMatchUpdate}
+            sx={{
+              background: 'linear-gradient(45deg, #feca57 0%, #00ff9d 100%)',
+              color: '#000',
+              fontFamily: 'Orbitron, monospace',
+              fontWeight: 600,
+              '&:hover': {
+                background: 'linear-gradient(45deg, #00ff9d 0%, #feca57 100%)',
+              },
+            }}
+          >
+            Update Match
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

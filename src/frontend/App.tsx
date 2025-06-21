@@ -34,6 +34,9 @@ const Coaching = React.lazy(() => import('../pages/ai/coaching'));
 // Performance Components
 const TournamentPerformance = React.lazy(() => import('../pages/performance/tournament-performance'));
 
+// Tournament Components
+const BracketVisualization = React.lazy(() => import('../pages/tournaments/bracket-visualization'));
+
 // Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
 // const theme = createTheme({
 //   palette: {
@@ -125,6 +128,9 @@ const App: React.FC = () => {
               
               {/* Performance Routes */}
               <Route path="/performance/tournament-performance" element={<TournamentPerformance />} />
+              
+              {/* Tournament Routes */}
+              <Route path="/tournaments/bracket-visualization" element={<BracketVisualization />} />
               
               {/* <Route path="/venue-dashboard" element={<VenueDashboard />} /> */}
               {/* Add other protected routes here */}

@@ -15,6 +15,7 @@ import {
   Psychology,
   School,
   Speed,
+  ViewInAr,
   ExpandMore,
 } from "@mui/icons-material";
 import { useState } from "react";
@@ -227,6 +228,25 @@ const Navbar = () => {
                   <Speed sx={{ color: 'inherit' }} />
                 </ListItemIcon>
                 Performance
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/tournaments/bracket-visualization"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <ViewInAr sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                3D Bracket
               </MenuItem>
             </Menu>
           </Box>
