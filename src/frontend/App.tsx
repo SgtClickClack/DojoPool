@@ -27,6 +27,10 @@ const SocialFeed = React.lazy(() => import('../components/social/SocialFeed'));
 // const TournamentDashboard = React.lazy(() => import('./components/Tournament/TournamentDashboard'));
 const Home = React.lazy(() => import('./components/Home/Home'));
 
+// AI Feature Components
+const MatchAnalysis = React.lazy(() => import('../pages/ai/match-analysis'));
+const Coaching = React.lazy(() => import('../pages/ai/coaching'));
+
 // Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
 // const theme = createTheme({
 //   palette: {
@@ -111,6 +115,11 @@ const App: React.FC = () => {
               <Route path="/profile" element={<UserProfileSelfWrapper />} />
               <Route path="/profile/:username" element={<UserProfileOtherWrapper />} />
               <Route path="/feed" element={<SocialFeedWrapper />} />
+              
+              {/* AI Feature Routes */}
+              <Route path="/ai/match-analysis" element={<MatchAnalysis />} />
+              <Route path="/ai/coaching" element={<Coaching />} />
+              
               {/* <Route path="/venue-dashboard" element={<VenueDashboard />} /> */}
               {/* Add other protected routes here */}
             </Route>

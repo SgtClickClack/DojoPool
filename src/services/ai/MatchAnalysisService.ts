@@ -1,92 +1,80 @@
-import { EventEmitter } from 'events';
-
-export interface ShotAnalysis {
-  id: string;
-  timestamp: number;
-  shotType: 'break' | 'safety' | 'pot' | 'defensive';
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
-  success: boolean;
-  position: { x: number; y: number };
-  target: { x: number; y: number };
-  power: number;
-  spin: number;
-  accuracy: number;
-  aiScore: number;
-  recommendations: string[];
-}
+import { io, Socket } from 'socket.io-client';
 
 export interface PlayerPerformance {
   playerId: string;
   matchId: string;
-  totalShots: number;
-  successfulShots: number;
-  shotAccuracy: number;
-  averagePower: number;
-  averageSpin: number;
-  positionControl: number;
-  safetySuccess: number;
-  breakSuccess: number;
+  accuracy: number;
+  speed: number;
+  consistency: number;
+  strategy: number;
+  pressureHandling: number;
+  shotSelection: number;
+  positioning: number;
   overallScore: number;
   strengths: string[];
   weaknesses: string[];
+  recommendations: string[];
+}
+
+export interface MatchAnalysis {
+  matchId: string;
+  player1Performance: PlayerPerformance;
+  player2Performance: PlayerPerformance;
+  keyMoments: KeyMoment[];
+  matchSummary: string;
   improvementAreas: string[];
+  nextMatchPredictions: MatchPrediction[];
+}
+
+export interface KeyMoment {
+  timestamp: number;
+  type: 'break' | 'safety' | 'foul' | 'clutch' | 'mistake';
+  description: string;
+  impact: 'positive' | 'negative' | 'neutral';
+  playerId: string;
+  recommendation?: string;
+}
+
+export interface MatchPrediction {
+  opponentId: string;
+  winProbability: number;
+  predictedScore: string;
+  keyFactors: string[];
+  recommendedStrategy: string;
 }
 
 export interface TrainingProgram {
-  id: string;
   playerId: string;
+  programId: string;
   name: string;
   description: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  duration: number; // minutes
+  duration: number; // days
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  focusAreas: string[];
   exercises: TrainingExercise[];
-  progress: number;
+  progress: number; // 0-100
   completed: boolean;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface TrainingExercise {
   id: string;
   name: string;
   description: string;
-  type: 'accuracy' | 'power' | 'position' | 'safety' | 'break' | 'strategy';
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  type: 'drill' | 'game' | 'analysis' | 'practice';
   duration: number; // minutes
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  focusArea: string;
   instructions: string[];
-  targetMetrics: {
-    accuracy: number;
-    power: number;
-    position: number;
-    speed: number;
-  };
-  completed: boolean;
-  score: number;
+  metrics: string[];
+  targetScore?: number;
 }
 
-export interface CoachingRecommendation {
-  id: string;
-  playerId: string;
-  type: 'shot' | 'strategy' | 'position' | 'mental' | 'physical';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  description: string;
-  actionItems: string[];
-  expectedImprovement: number;
-  timeframe: string;
-  completed: boolean;
-}
-
-class MatchAnalysisService extends EventEmitter {
+class MatchAnalysisService {
+  private socket: Socket | null = null;
   private static instance: MatchAnalysisService;
-  private shotAnalyses: Map<string, ShotAnalysis[]> = new Map();
-  private playerPerformances: Map<string, PlayerPerformance[]> = new Map();
-  private trainingPrograms: Map<string, TrainingProgram[]> = new Map();
-  private coachingRecommendations: Map<string, CoachingRecommendation[]> = new Map();
 
   private constructor() {
-    super();
-    this.initializeMockData();
+    this.initializeSocket();
   }
 
   public static getInstance(): MatchAnalysisService {
@@ -96,551 +84,329 @@ class MatchAnalysisService extends EventEmitter {
     return MatchAnalysisService.instance;
   }
 
-  private initializeMockData(): void {
-    // Mock shot analyses
-    const mockShots: ShotAnalysis[] = [
-      {
-        id: 'shot-1',
-        timestamp: Date.now() - 300000,
-        shotType: 'break',
-        difficulty: 'medium',
-        success: true,
-        position: { x: 0.2, y: 0.8 },
-        target: { x: 0.8, y: 0.2 },
-        power: 0.7,
-        spin: 0.3,
-        accuracy: 0.85,
-        aiScore: 8.5,
-        recommendations: ['Increase follow-through', 'Adjust stance for better balance']
-      },
-      {
-        id: 'shot-2',
-        timestamp: Date.now() - 240000,
-        shotType: 'safety',
-        difficulty: 'hard',
-        success: false,
-        position: { x: 0.5, y: 0.5 },
-        target: { x: 0.3, y: 0.7 },
-        power: 0.4,
-        spin: 0.6,
-        accuracy: 0.45,
-        aiScore: 4.2,
-        recommendations: ['Practice defensive positioning', 'Work on cue ball control']
-      }
-    ];
+  private initializeSocket(): void {
+    this.socket = io('http://localhost:8080');
+    
+    this.socket.on('connect', () => {
+      console.log('MatchAnalysisService connected to server');
+    });
 
-    // Mock player performance
-    const mockPerformance: PlayerPerformance = {
-      playerId: 'player-1',
-      matchId: 'match-1',
-      totalShots: 24,
-      successfulShots: 18,
-      shotAccuracy: 0.75,
-      averagePower: 0.65,
-      averageSpin: 0.45,
-      positionControl: 0.72,
-      safetySuccess: 0.68,
-      breakSuccess: 0.82,
-      overallScore: 7.8,
-      strengths: ['Strong break shots', 'Good position play'],
-      weaknesses: ['Defensive shots', 'Spin control'],
-      improvementAreas: ['Safety shot accuracy', 'Cue ball control']
-    };
+    this.socket.on('disconnect', () => {
+      console.log('MatchAnalysisService disconnected from server');
+    });
+  }
 
-    // Mock training program
-    const mockTrainingProgram: TrainingProgram = {
-      id: 'program-1',
-      playerId: 'player-1',
-      name: 'Advanced Position Play',
-      description: 'Improve cue ball control and position play for better shot opportunities',
-      difficulty: 'advanced',
-      duration: 45,
-      exercises: [
-        {
-          id: 'exercise-1',
-          name: 'Position Control Drills',
-          description: 'Practice controlling cue ball position after potting',
-          type: 'position',
-          difficulty: 'medium',
-          duration: 15,
-          instructions: [
-            'Set up 3 balls in a line',
-            'Pot the first ball and control position for the second',
-            'Focus on cue ball placement',
-            'Repeat 10 times'
-          ],
-          targetMetrics: {
-            accuracy: 0.8,
-            power: 0.6,
-            position: 0.85,
-            speed: 0.7
-          },
-          completed: false,
-          score: 0
-        }
-      ],
-      progress: 0,
-      completed: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+  // Analyze a completed match and generate performance insights
+  public async analyzeMatch(matchId: string): Promise<MatchAnalysis> {
+    try {
+      // Simulate AI analysis with mock data
+      const analysis: MatchAnalysis = {
+        matchId,
+        player1Performance: this.generatePlayerPerformance('player1', matchId),
+        player2Performance: this.generatePlayerPerformance('player2', matchId),
+        keyMoments: this.generateKeyMoments(matchId),
+        matchSummary: this.generateMatchSummary(matchId),
+        improvementAreas: this.generateImprovementAreas(),
+        nextMatchPredictions: this.generateMatchPredictions()
+      };
 
-    // Mock coaching recommendations
-    const mockRecommendations: CoachingRecommendation[] = [
-      {
-        id: 'rec-1',
-        playerId: 'player-1',
-        type: 'shot',
-        priority: 'high',
-        title: 'Improve Safety Shot Accuracy',
-        description: 'Your safety shots are missing the target by 15% on average',
-        actionItems: [
-          'Practice defensive positioning drills',
-          'Work on cue ball control exercises',
-          'Focus on target selection'
-        ],
-        expectedImprovement: 0.15,
-        timeframe: '2 weeks',
+      // Emit analysis results
+      this.socket?.emit('match-analysis-complete', analysis);
+      
+      return analysis;
+    } catch (error) {
+      console.error('Error analyzing match:', error);
+      throw error;
+    }
+  }
+
+  // Generate personalized training program based on performance analysis
+  public async generateTrainingProgram(playerId: string, performance: PlayerPerformance): Promise<TrainingProgram> {
+    try {
+      const program: TrainingProgram = {
+        playerId,
+        programId: `program_${Date.now()}`,
+        name: this.generateProgramName(performance),
+        description: this.generateProgramDescription(performance),
+        duration: this.calculateProgramDuration(performance),
+        difficulty: this.determineDifficulty(performance),
+        focusAreas: this.identifyFocusAreas(performance),
+        exercises: this.generateExercises(performance),
+        progress: 0,
         completed: false
-      }
-    ];
+      };
 
-    this.shotAnalyses.set('match-1', mockShots);
-    this.playerPerformances.set('player-1', [mockPerformance]);
-    this.trainingPrograms.set('player-1', [mockTrainingProgram]);
-    this.coachingRecommendations.set('player-1', mockRecommendations);
-  }
-
-  // Shot Analysis Methods
-  public analyzeShot(shotData: Partial<ShotAnalysis>): ShotAnalysis {
-    const shot: ShotAnalysis = {
-      id: `shot-${Date.now()}`,
-      timestamp: Date.now(),
-      shotType: 'break',
-      difficulty: 'medium',
-      success: true,
-      position: { x: 0.5, y: 0.5 },
-      target: { x: 0.8, y: 0.2 },
-      power: 0.7,
-      spin: 0.3,
-      accuracy: 0.85,
-      aiScore: 8.5,
-      recommendations: [],
-      ...shotData
-    };
-
-    // AI analysis logic
-    shot.aiScore = this.calculateAIScore(shot);
-    shot.recommendations = this.generateRecommendations(shot);
-
-    this.emit('shotAnalyzed', shot);
-    return shot;
-  }
-
-  public getShotAnalyses(matchId: string): ShotAnalysis[] {
-    return this.shotAnalyses.get(matchId) || [];
-  }
-
-  public getShotAnalysis(shotId: string): ShotAnalysis | null {
-    for (const shots of this.shotAnalyses.values()) {
-      const shot = shots.find(s => s.id === shotId);
-      if (shot) return shot;
+      // Emit training program generated
+      this.socket?.emit('training-program-generated', program);
+      
+      return program;
+    } catch (error) {
+      console.error('Error generating training program:', error);
+      throw error;
     }
-    return null;
   }
 
-  // Performance Analysis Methods
-  public analyzePlayerPerformance(playerId: string, matchId: string): PlayerPerformance {
-    const shots = this.shotAnalyses.get(matchId) || [];
-    const performance = this.calculatePerformance(shots, playerId, matchId);
-    
-    this.playerPerformances.set(playerId, [
-      ...(this.playerPerformances.get(playerId) || []),
-      performance
-    ]);
-
-    this.emit('performanceAnalyzed', performance);
-    return performance;
-  }
-
-  public getPlayerPerformance(playerId: string): PlayerPerformance[] {
-    return this.playerPerformances.get(playerId) || [];
-  }
-
-  public getLatestPerformance(playerId: string): PlayerPerformance | null {
-    const performances = this.playerPerformances.get(playerId) || [];
-    return performances.length > 0 ? performances[performances.length - 1] : null;
-  }
-
-  // Training Program Methods
-  public createTrainingProgram(playerId: string, performance: PlayerPerformance): TrainingProgram {
-    const program = this.generatePersonalizedProgram(playerId, performance);
-    
-    this.trainingPrograms.set(playerId, [
-      ...(this.trainingPrograms.get(playerId) || []),
-      program
-    ]);
-
-    this.emit('trainingProgramCreated', program);
-    return program;
-  }
-
-  public getTrainingPrograms(playerId: string): TrainingProgram[] {
-    return this.trainingPrograms.get(playerId) || [];
-  }
-
-  public updateTrainingProgress(programId: string, progress: number): TrainingProgram | null {
-    for (const programs of this.trainingPrograms.values()) {
-      const program = programs.find(p => p.id === programId);
-      if (program) {
-        program.progress = progress;
-        program.updatedAt = new Date();
-        if (progress >= 100) {
-          program.completed = true;
-        }
-        this.emit('trainingProgressUpdated', program);
-        return program;
-      }
+  // Real-time performance tracking during matches
+  public async trackPerformance(matchId: string, shotData: any): Promise<Partial<PlayerPerformance>> {
+    try {
+      // Analyze shot data in real-time
+      const performance = this.analyzeShotData(shotData);
+      
+      // Emit real-time performance update
+      this.socket?.emit('performance-update', { matchId, performance });
+      
+      return performance;
+    } catch (error) {
+      console.error('Error tracking performance:', error);
+      throw error;
     }
-    return null;
   }
 
-  public completeExercise(programId: string, exerciseId: string, score: number): boolean {
-    for (const programs of this.trainingPrograms.values()) {
-      const program = programs.find(p => p.id === programId);
-      if (program) {
-        const exercise = program.exercises.find(e => e.id === exerciseId);
-        if (exercise) {
-          exercise.completed = true;
-          exercise.score = score;
-          this.updateTrainingProgress(programId, this.calculateProgramProgress(program));
-          return true;
-        }
-      }
+  // Get coaching recommendations based on current performance
+  public async getCoachingRecommendations(playerId: string, currentPerformance: PlayerPerformance): Promise<string[]> {
+    try {
+      const recommendations = this.generateRecommendations(currentPerformance);
+      
+      // Emit coaching recommendations
+      this.socket?.emit('coaching-recommendations', { playerId, recommendations });
+      
+      return recommendations;
+    } catch (error) {
+      console.error('Error getting coaching recommendations:', error);
+      throw error;
     }
-    return false;
   }
 
-  // Coaching Recommendations Methods
-  public generateCoachingRecommendations(playerId: string, performance: PlayerPerformance): CoachingRecommendation[] {
-    const recommendations = this.analyzePerformanceForRecommendations(performance);
-    
-    this.coachingRecommendations.set(playerId, recommendations);
-    this.emit('recommendationsGenerated', recommendations);
-    return recommendations;
-  }
-
-  public getCoachingRecommendations(playerId: string): CoachingRecommendation[] {
-    return this.coachingRecommendations.get(playerId) || [];
-  }
-
-  public markRecommendationComplete(recommendationId: string): boolean {
-    for (const recommendations of this.coachingRecommendations.values()) {
-      const recommendation = recommendations.find(r => r.id === recommendationId);
-      if (recommendation) {
-        recommendation.completed = true;
-        this.emit('recommendationCompleted', recommendation);
-        return true;
-      }
+  // Update training program progress
+  public async updateTrainingProgress(programId: string, progress: number): Promise<void> {
+    try {
+      this.socket?.emit('training-progress-update', { programId, progress });
+    } catch (error) {
+      console.error('Error updating training progress:', error);
+      throw error;
     }
-    return false;
   }
 
-  // AI Analysis Methods
-  private calculateAIScore(shot: ShotAnalysis): number {
-    let score = 0;
+  // Private helper methods for generating mock data
+  private generatePlayerPerformance(playerId: string, matchId: string): PlayerPerformance {
+    const accuracy = Math.random() * 40 + 60; // 60-100%
+    const speed = Math.random() * 30 + 70; // 70-100%
+    const consistency = Math.random() * 35 + 65; // 65-100%
+    const strategy = Math.random() * 40 + 60; // 60-100%
+    const pressureHandling = Math.random() * 45 + 55; // 55-100%
+    const shotSelection = Math.random() * 35 + 65; // 65-100%
+    const positioning = Math.random() * 30 + 70; // 70-100%
     
-    // Base score from success
-    score += shot.success ? 5 : 2;
-    
-    // Difficulty bonus
-    const difficultyMultiplier = {
-      'easy': 1.0,
-      'medium': 1.2,
-      'hard': 1.5,
-      'expert': 2.0
-    };
-    score *= difficultyMultiplier[shot.difficulty];
-    
-    // Accuracy bonus
-    score += shot.accuracy * 3;
-    
-    // Position control bonus
-    const positionAccuracy = this.calculatePositionAccuracy(shot.position, shot.target);
-    score += positionAccuracy * 2;
-    
-    return Math.min(10, Math.max(0, score));
-  }
+    const overallScore = (accuracy + speed + consistency + strategy + pressureHandling + shotSelection + positioning) / 7;
 
-  private generateRecommendations(shot: ShotAnalysis): string[] {
-    const recommendations: string[] = [];
-    
-    if (shot.accuracy < 0.7) {
-      recommendations.push('Focus on aiming fundamentals');
-      recommendations.push('Practice sighting techniques');
-    }
-    
-    if (shot.power > 0.8) {
-      recommendations.push('Reduce power for better control');
-    }
-    
-    if (shot.spin > 0.6) {
-      recommendations.push('Work on cue ball control');
-    }
-    
-    if (!shot.success && shot.difficulty === 'hard') {
-      recommendations.push('Consider a safety shot instead');
-    }
-    
-    return recommendations;
-  }
-
-  private calculatePerformance(shots: ShotAnalysis[], playerId: string, matchId: string): PlayerPerformance {
-    const playerShots = shots.filter(s => s.id.includes(playerId));
-    const totalShots = playerShots.length;
-    const successfulShots = playerShots.filter(s => s.success).length;
-    
-    const performance: PlayerPerformance = {
+    return {
       playerId,
       matchId,
-      totalShots,
-      successfulShots,
-      shotAccuracy: totalShots > 0 ? successfulShots / totalShots : 0,
-      averagePower: playerShots.reduce((sum, s) => sum + s.power, 0) / totalShots,
-      averageSpin: playerShots.reduce((sum, s) => sum + s.spin, 0) / totalShots,
-      positionControl: this.calculatePositionControl(playerShots),
-      safetySuccess: this.calculateSafetySuccess(playerShots),
-      breakSuccess: this.calculateBreakSuccess(playerShots),
-      overallScore: 0,
-      strengths: [],
-      weaknesses: [],
-      improvementAreas: []
+      accuracy: Math.round(accuracy * 10) / 10,
+      speed: Math.round(speed * 10) / 10,
+      consistency: Math.round(consistency * 10) / 10,
+      strategy: Math.round(strategy * 10) / 10,
+      pressureHandling: Math.round(pressureHandling * 10) / 10,
+      shotSelection: Math.round(shotSelection * 10) / 10,
+      positioning: Math.round(positioning * 10) / 10,
+      overallScore: Math.round(overallScore * 10) / 10,
+      strengths: this.generateStrengths(overallScore),
+      weaknesses: this.generateWeaknesses(overallScore),
+      recommendations: this.generateRecommendations({ overallScore } as PlayerPerformance)
     };
-    
-    performance.overallScore = this.calculateOverallScore(performance);
-    performance.strengths = this.identifyStrengths(performance);
-    performance.weaknesses = this.identifyWeaknesses(performance);
-    performance.improvementAreas = this.identifyImprovementAreas(performance);
-    
-    return performance;
   }
 
-  private generatePersonalizedProgram(playerId: string, performance: PlayerPerformance): TrainingProgram {
+  private generateKeyMoments(matchId: string): KeyMoment[] {
+    const moments: KeyMoment[] = [];
+    const types: KeyMoment['type'][] = ['break', 'safety', 'foul', 'clutch', 'mistake'];
+    
+    for (let i = 0; i < 8; i++) {
+      moments.push({
+        timestamp: Math.random() * 1800, // 0-30 minutes
+        type: types[Math.floor(Math.random() * types.length)],
+        description: this.generateMomentDescription(),
+        impact: Math.random() > 0.5 ? 'positive' : 'negative',
+        playerId: Math.random() > 0.5 ? 'player1' : 'player2',
+        recommendation: Math.random() > 0.3 ? this.generateMomentRecommendation() : undefined
+      });
+    }
+    
+    return moments.sort((a, b) => a.timestamp - b.timestamp);
+  }
+
+  private generateMatchSummary(matchId: string): string {
+    const summaries = [
+      "A closely contested match with excellent shot-making from both players. Key turning point was a clutch safety shot in the 8th frame.",
+      "Dominant performance with consistent break-building. Player demonstrated excellent cue ball control throughout the match.",
+      "Comeback victory after being down early. Showed great mental toughness and strategic thinking in the later frames.",
+      "Technical match with focus on safety play. Both players showed strong defensive skills and tactical awareness."
+    ];
+    
+    return summaries[Math.floor(Math.random() * summaries.length)];
+  }
+
+  private generateImprovementAreas(): string[] {
+    const areas = [
+      "Break shot consistency",
+      "Safety shot selection",
+      "Pressure handling in clutch situations",
+      "Cue ball positioning",
+      "Shot speed control",
+      "Strategic thinking",
+      "Mental game focus",
+      "Pattern recognition"
+    ];
+    
+    return areas.slice(0, 3);
+  }
+
+  private generateMatchPredictions(): MatchPrediction[] {
+    const predictions: MatchPrediction[] = [];
+    
+    for (let i = 0; i < 3; i++) {
+      predictions.push({
+        opponentId: `opponent_${i + 1}`,
+        winProbability: Math.random() * 40 + 30, // 30-70%
+        predictedScore: `${Math.floor(Math.random() * 5) + 3}-${Math.floor(Math.random() * 5) + 3}`,
+        keyFactors: ["Break consistency", "Safety play", "Mental game"],
+        recommendedStrategy: "Focus on controlled break shots and maintain defensive pressure"
+      });
+    }
+    
+    return predictions;
+  }
+
+  private generateStrengths(overallScore: number): string[] {
+    const strengths = [
+      "Excellent break shot consistency",
+      "Strong safety game",
+      "Good cue ball control",
+      "Strategic thinking",
+      "Mental toughness",
+      "Shot selection",
+      "Position play",
+      "Pressure handling"
+    ];
+    
+    return strengths.slice(0, 3);
+  }
+
+  private generateWeaknesses(overallScore: number): string[] {
+    const weaknesses = [
+      "Inconsistent break shots",
+      "Poor safety selection",
+      "Weak cue ball control",
+      "Lack of strategic planning",
+      "Mental game issues",
+      "Poor shot selection",
+      "Positioning problems",
+      "Pressure handling"
+    ];
+    
+    return weaknesses.slice(0, 2);
+  }
+
+  private generateRecommendations(performance: PlayerPerformance): string[] {
+    return [
+      "Practice break shot consistency with focus on cue ball positioning",
+      "Work on safety shot selection and execution",
+      "Develop mental game strategies for pressure situations",
+      "Improve pattern recognition and shot planning",
+      "Focus on cue ball control exercises"
+    ];
+  }
+
+  private generateProgramName(performance: PlayerPerformance): string {
+    const names = [
+      "Elite Performance Program",
+      "Advanced Skills Development",
+      "Championship Training Program",
+      "Pro-Level Improvement Plan",
+      "Master Class Training"
+    ];
+    
+    return names[Math.floor(Math.random() * names.length)];
+  }
+
+  private generateProgramDescription(performance: PlayerPerformance): string {
+    return `Personalized training program designed to improve your overall game performance. Focus areas include break consistency, safety play, and mental game development.`;
+  }
+
+  private calculateProgramDuration(performance: PlayerPerformance): number {
+    return Math.floor(Math.random() * 14) + 7; // 7-21 days
+  }
+
+  private determineDifficulty(performance: PlayerPerformance): 'beginner' | 'intermediate' | 'advanced' {
+    if (performance.overallScore >= 85) return 'advanced';
+    if (performance.overallScore >= 70) return 'intermediate';
+    return 'beginner';
+  }
+
+  private identifyFocusAreas(performance: PlayerPerformance): string[] {
+    return performance.weaknesses.slice(0, 3);
+  }
+
+  private generateExercises(performance: PlayerPerformance): TrainingExercise[] {
     const exercises: TrainingExercise[] = [];
     
-    // Generate exercises based on weaknesses
-    if (performance.safetySuccess < 0.7) {
+    for (let i = 0; i < 5; i++) {
       exercises.push({
-        id: `exercise-${Date.now()}-1`,
-        name: 'Safety Shot Mastery',
-        description: 'Improve defensive shot accuracy and positioning',
-        type: 'safety',
-        difficulty: 'medium',
-        duration: 20,
+        id: `exercise_${i + 1}`,
+        name: `Training Exercise ${i + 1}`,
+        description: `Focused training exercise to improve specific skills`,
+        type: ['drill', 'game', 'analysis', 'practice'][Math.floor(Math.random() * 4)] as any,
+        duration: Math.floor(Math.random() * 30) + 15, // 15-45 minutes
+        difficulty: this.determineDifficulty(performance),
+        focusArea: performance.weaknesses[0] || "General improvement",
         instructions: [
-          'Set up defensive scenarios',
-          'Practice cue ball placement',
-          'Focus on target selection',
-          'Work on shot power control'
+          "Set up the practice scenario",
+          "Focus on proper technique",
+          "Maintain consistent speed",
+          "Track your progress"
         ],
-        targetMetrics: {
-          accuracy: 0.8,
-          power: 0.5,
-          position: 0.75,
-          speed: 0.6
-        },
-        completed: false,
-        score: 0
+        metrics: ["Accuracy", "Speed", "Consistency"],
+        targetScore: Math.floor(Math.random() * 20) + 80
       });
     }
     
-    if (performance.positionControl < 0.7) {
-      exercises.push({
-        id: `exercise-${Date.now()}-2`,
-        name: 'Position Play Excellence',
-        description: 'Master cue ball control for better position play',
-        type: 'position',
-        difficulty: 'expert',
-        duration: 25,
-        instructions: [
-          'Practice position drills',
-          'Work on cue ball control',
-          'Focus on shot selection',
-          'Improve planning ahead'
-        ],
-        targetMetrics: {
-          accuracy: 0.75,
-          power: 0.65,
-          position: 0.85,
-          speed: 0.7
-        },
-        completed: false,
-        score: 0
-      });
-    }
-    
+    return exercises;
+  }
+
+  private analyzeShotData(shotData: any): Partial<PlayerPerformance> {
+    // Mock shot analysis
     return {
-      id: `program-${Date.now()}`,
-      playerId,
-      name: 'Personalized Improvement Program',
-      description: 'Custom training program based on your performance analysis',
-      difficulty: this.determineProgramDifficulty(performance),
-      duration: exercises.reduce((sum, e) => sum + e.duration, 0),
-      exercises,
-      progress: 0,
-      completed: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      accuracy: Math.random() * 40 + 60,
+      speed: Math.random() * 30 + 70,
+      consistency: Math.random() * 35 + 65
     };
   }
 
-  private analyzePerformanceForRecommendations(performance: PlayerPerformance): CoachingRecommendation[] {
-    const recommendations: CoachingRecommendation[] = [];
+  private generateMomentDescription(): string {
+    const descriptions = [
+      "Excellent break shot with perfect cue ball positioning",
+      "Strategic safety shot forcing opponent into difficult position",
+      "Clutch shot under pressure to win the frame",
+      "Mistake in shot selection leading to opponent opportunity",
+      "Foul shot giving opponent ball in hand"
+    ];
     
-    if (performance.safetySuccess < 0.7) {
-      recommendations.push({
-        id: `rec-${Date.now()}-1`,
-        playerId: performance.playerId,
-        type: 'shot',
-        priority: 'high',
-        title: 'Improve Safety Shot Accuracy',
-        description: `Your safety shots are successful only ${(performance.safetySuccess * 100).toFixed(1)}% of the time`,
-        actionItems: [
-          'Practice defensive positioning drills',
-          'Work on cue ball control exercises',
-          'Focus on target selection'
-        ],
-        expectedImprovement: 0.15,
-        timeframe: '2 weeks',
-        completed: false
-      });
-    }
-    
-    if (performance.positionControl < 0.7) {
-      recommendations.push({
-        id: `rec-${Date.now()}-2`,
-        playerId: performance.playerId,
-        type: 'position',
-        priority: 'medium',
-        title: 'Enhance Position Play',
-        description: 'Improve your cue ball control for better shot opportunities',
-        actionItems: [
-          'Practice position control drills',
-          'Work on shot planning',
-          'Focus on cue ball placement'
-        ],
-        expectedImprovement: 0.12,
-        timeframe: '3 weeks',
-        completed: false
-      });
-    }
-    
-    return recommendations;
+    return descriptions[Math.floor(Math.random() * descriptions.length)];
   }
 
-  // Helper Methods
-  private calculatePositionAccuracy(position: { x: number; y: number }, target: { x: number; y: number }): number {
-    const distance = Math.sqrt(
-      Math.pow(position.x - target.x, 2) + Math.pow(position.y - target.y, 2)
-    );
-    return Math.max(0, 1 - distance);
+  private generateMomentRecommendation(): string {
+    const recommendations = [
+      "Practice similar break shots to improve consistency",
+      "Work on safety shot selection and execution",
+      "Develop mental strategies for pressure situations",
+      "Focus on shot planning and pattern recognition",
+      "Improve cue ball control exercises"
+    ];
+    
+    return recommendations[Math.floor(Math.random() * recommendations.length)];
   }
 
-  private calculatePositionControl(shots: ShotAnalysis[]): number {
-    if (shots.length === 0) return 0;
-    
-    const positionScores = shots.map(shot => 
-      this.calculatePositionAccuracy(shot.position, shot.target)
-    );
-    
-    return positionScores.reduce((sum, score) => sum + score, 0) / shots.length;
-  }
-
-  private calculateSafetySuccess(shots: ShotAnalysis[]): number {
-    const safetyShots = shots.filter(s => s.shotType === 'safety');
-    if (safetyShots.length === 0) return 0;
-    
-    const successfulSafeties = safetyShots.filter(s => s.success).length;
-    return successfulSafeties / safetyShots.length;
-  }
-
-  private calculateBreakSuccess(shots: ShotAnalysis[]): number {
-    const breakShots = shots.filter(s => s.shotType === 'break');
-    if (breakShots.length === 0) return 0;
-    
-    const successfulBreaks = breakShots.filter(s => s.success).length;
-    return successfulBreaks / breakShots.length;
-  }
-
-  private calculateOverallScore(performance: PlayerPerformance): number {
-    return (
-      performance.shotAccuracy * 0.3 +
-      performance.positionControl * 0.25 +
-      performance.safetySuccess * 0.2 +
-      performance.breakSuccess * 0.15 +
-      (performance.averagePower + performance.averageSpin) / 2 * 0.1
-    ) * 10;
-  }
-
-  private identifyStrengths(performance: PlayerPerformance): string[] {
-    const strengths: string[] = [];
-    
-    if (performance.breakSuccess > 0.8) strengths.push('Strong break shots');
-    if (performance.shotAccuracy > 0.8) strengths.push('High shot accuracy');
-    if (performance.positionControl > 0.8) strengths.push('Excellent position play');
-    if (performance.safetySuccess > 0.8) strengths.push('Solid defensive play');
-    
-    return strengths;
-  }
-
-  private identifyWeaknesses(performance: PlayerPerformance): string[] {
-    const weaknesses: string[] = [];
-    
-    if (performance.safetySuccess < 0.6) weaknesses.push('Defensive shot accuracy');
-    if (performance.positionControl < 0.6) weaknesses.push('Cue ball control');
-    if (performance.shotAccuracy < 0.6) weaknesses.push('Shot accuracy');
-    if (performance.breakSuccess < 0.6) weaknesses.push('Break shot consistency');
-    
-    return weaknesses;
-  }
-
-  private identifyImprovementAreas(performance: PlayerPerformance): string[] {
-    const areas: string[] = [];
-    
-    if (performance.safetySuccess < 0.7) areas.push('Safety shot accuracy');
-    if (performance.positionControl < 0.7) areas.push('Cue ball control');
-    if (performance.shotAccuracy < 0.7) areas.push('Shot accuracy');
-    if (performance.breakSuccess < 0.7) areas.push('Break shot consistency');
-    
-    return areas;
-  }
-
-  private determineProgramDifficulty(performance: PlayerPerformance): 'beginner' | 'intermediate' | 'advanced' | 'expert' {
-    if (performance.overallScore < 5) return 'beginner';
-    if (performance.overallScore < 7) return 'intermediate';
-    if (performance.overallScore < 8.5) return 'advanced';
-    return 'expert';
-  }
-
-  private calculateProgramProgress(program: TrainingProgram): number {
-    if (program.exercises.length === 0) return 0;
-    
-    const completedExercises = program.exercises.filter(e => e.completed).length;
-    return (completedExercises / program.exercises.length) * 100;
-  }
-
-  // Public API Methods
-  public subscribeToUpdates(callback: (event: string, data: unknown) => void): void {
-    this.on('shotAnalyzed', (data) => callback('shotAnalyzed', data));
-    this.on('performanceAnalyzed', (data) => callback('performanceAnalyzed', data));
-    this.on('trainingProgramCreated', (data) => callback('trainingProgramCreated', data));
-    this.on('trainingProgressUpdated', (data) => callback('trainingProgressUpdated', data));
-    this.on('recommendationsGenerated', (data) => callback('recommendationsGenerated', data));
-    this.on('recommendationCompleted', (data) => callback('recommendationCompleted', data));
-  }
-
-  public unsubscribeFromUpdates(_callback: (event: string, data: unknown) => void): void {
-    this.removeAllListeners();
+  public disconnect(): void {
+    this.socket?.disconnect();
   }
 }
 

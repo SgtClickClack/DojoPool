@@ -6,10 +6,29 @@ import {
   IconButton,
   Toolbar,
   Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import {
+  Psychology,
+  School,
+  ExpandMore,
+} from "@mui/icons-material";
+import { useState } from "react";
 
 const Navbar = () => {
+  const [aiMenuAnchor, setAiMenuAnchor] = useState<null | HTMLElement>(null);
+
+  const handleAiMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAiMenuAnchor(event.currentTarget);
+  };
+
+  const handleAiMenuClose = () => {
+    setAiMenuAnchor(null);
+  };
+
   return (
     <AppBar 
       position="sticky"
@@ -115,6 +134,81 @@ const Navbar = () => {
             >
               Ledger
             </Button>
+            
+            {/* AI Features Dropdown */}
+            <Button
+              onClick={handleAiMenuOpen}
+              endIcon={<ExpandMore />}
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              AI Features
+            </Button>
+            
+            <Menu
+              anchorEl={aiMenuAnchor}
+              open={Boolean(aiMenuAnchor)}
+              onClose={handleAiMenuClose}
+              sx={{
+                '& .MuiPaper-root': {
+                  background: 'rgba(20, 20, 20, 0.95)',
+                  border: '1px solid rgba(0, 255, 157, 0.3)',
+                  borderRadius: 2,
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: '0 8px 32px rgba(0, 255, 157, 0.3)',
+                },
+              }}
+            >
+              <MenuItem
+                component={RouterLink}
+                to="/ai/match-analysis"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Psychology sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                Match Analysis
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/ai/coaching"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <School sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                AI Coaching
+              </MenuItem>
+            </Menu>
           </Box>
         </Toolbar>
       </Container>
