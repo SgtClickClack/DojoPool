@@ -4,7 +4,7 @@ import logging
 from typing import Optional, Tuple
 import requests
 
-from dojopool.config.settings import GEOCODING_API_KEY
+from dojopool.config import GEOCODING_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ def find_nearby_venues(latitude: float, longitude: float, radius_km: float = 10.
     Returns:
         List of venue objects within radius
     """
-    from dojopool.core.models.venue import Venue
+    from dojopool.models.venue import Venue
 
     nearby_venues = []
     all_venues = Venue.get_all()

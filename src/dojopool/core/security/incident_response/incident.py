@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 from dojopool.core.monitoring import MetricsSnapshot
 from ..threat_detection import ThreatFinding
 from ..vulnerability_scanner.base import VulnerabilityFinding
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class IncidentType(str, Enum):

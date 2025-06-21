@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, Foreign
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from ..validation import VenueValidator
 
 

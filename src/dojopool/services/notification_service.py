@@ -15,7 +15,7 @@ import requests
 from dojopool.story.story_engine import story_engine
 
 from dojopool.models.notification import Notification, NotificationType
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.user import User
 
 

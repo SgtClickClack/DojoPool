@@ -10,7 +10,7 @@ from typing import Any, List, Union
 from flask import current_app, render_template
 from flask_mail import Message
 
-from dojopool.core.extensions import mail
+from dojopool.extensions import mail
 
 
 def send_async_email(app, msg: Message) -> None:

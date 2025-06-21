@@ -10,7 +10,7 @@ from dojopool.models.user import User
 from dojopool.models.role import Role
 from dojopool.models.game import Game
 from dojopool.core.tournaments.models import Tournament
-from dojopool.core.models.venue import Venue
+from dojopool.models.venue import Venue
 from dojopool.models.match import Match
 from dojopool.models.tournament_bracket import TournamentBracket
 from dojopool.models.tournament_bracket_type import TournamentBracketType
@@ -22,7 +22,7 @@ from dojopool.models.tournament_round_type import TournamentRoundType
 from dojopool.models.tournament_status import TournamentStatus
 from dojopool.models.tournament_type import TournamentType
 from dojopool.models.game_type import GameType
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class TournamentService:

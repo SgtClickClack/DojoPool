@@ -10,7 +10,7 @@ def app():
     }
     app = create_app(test_config=test_config)
     with app.app_context():
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         import traceback
         try:
             db.create_all()
@@ -41,7 +41,7 @@ def auth_headers():
 @pytest.fixture
 def test_user(app):
     with app.app_context():
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         User = db.Model.registry._class_registry["User"]
         user = User(username="test_user", email="test_user@example.com", password="testpass")
         db.session.add(user)
@@ -53,7 +53,7 @@ def test_user(app):
 @pytest.fixture
 def test_items(app):
     with app.app_context():
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         MarketplaceItem = db.Model.registry._class_registry["MarketplaceItem"]
         print('DEBUG: MarketplaceItem.__table__ in test_items:', MarketplaceItem.__table__)
         item1 = MarketplaceItem(
@@ -85,7 +85,7 @@ def test_items(app):
 @pytest.fixture
 def test_wallet(app, test_user):
     with app.app_context():
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         Wallet = db.Model.registry._class_registry["Wallet"]
         wallet = Wallet(user_id=test_user.id, balance=1000, currency="DP")
         db.session.add(wallet)
@@ -107,7 +107,7 @@ def test_get_items(test_client, test_items):
 
 def test_get_inventory(test_client, auth_headers, test_user, test_items):
     with test_client.application.app_context():
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         UserInventory = db.Model.registry._class_registry["UserInventory"]
         UserInventory.add_to_inventory(user_id=test_user.id, item_id=test_items[0].id, quantity=2)
     response = test_client.get("/api/marketplace/inventory", headers=auth_headers)
@@ -175,7 +175,7 @@ def test_transaction_history(test_client, auth_headers, test_user):
 
 def test_item_preview(test_client, test_items):
     with test_client.application.app_context():
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         test_items[0].preview_url = "test_preview_data"
         db.session.add(test_items[0])
         db.session.commit()

@@ -16,7 +16,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
 from dojopool.backup.backup_manager import BackupManager
-from dojopool.config.backup_config import backup_settings
+from dojopool.config import backup_settings
 
 # Configure logging
 logging.basicConfig(

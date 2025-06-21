@@ -10,7 +10,7 @@ import json
 from dojopool.core.ranking.global_ranking import GlobalRankingService
 from dojopool.models.user import User
 from dojopool.models.game import Game
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 @pytest.fixture

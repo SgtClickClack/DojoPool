@@ -10,7 +10,7 @@ from sqlalchemy import JSON, Column, Integer, String, DateTime, Boolean, Float, 
 from sqlalchemy.orm import relationship
 
 from dojopool.core.database.db_utils import reference_col
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.core.venue.audit import AuditLogger, AuditEventType
 from .base import TimestampedModel
 

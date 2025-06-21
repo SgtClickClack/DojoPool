@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from dojopool.models.user import User
 from dojopool.models.game import Game
 from dojopool.models.tournament import Tournament
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 @pytest.fixture(autouse=True)

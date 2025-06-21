@@ -13,7 +13,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
-from dojopool.core.models.venue import (
+from dojopool.models.venue import (
     Venue,
     VenueEvent,
     VenueEquipment,
@@ -21,7 +21,7 @@ from dojopool.core.models.venue import (
     VenueEventType,
     VenueEventStatus,
 )
-from dojopool.core.models.staff import StaffMember
+from dojopool.models.staff import StaffMember
 
 logger = logging.getLogger(__name__)
 

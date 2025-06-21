@@ -15,7 +15,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Set
 
-from dojopool.config.security_config import SecurityConfig
+from dojopool.config import SecurityConfig
 from dojopool.utils.security import log_security_event
 
 logger = logging.getLogger(__name__)

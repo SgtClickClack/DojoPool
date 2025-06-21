@@ -8,7 +8,7 @@ import pytest
 import tempfile
 from unittest.mock import Mock
 
-from dojopool.config.backup_config import BackupSettings
+from dojopool.config import BackupSettings
 from dojopool.backup.backup_manager import BackupManager
 
 

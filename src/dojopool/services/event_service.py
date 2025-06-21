@@ -3,10 +3,10 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.notification import Notification
 from dojopool.models.user import User
-from dojopool.core.models.venue import Venue, VenueEvent, VenueEventParticipant
+from dojopool.models.venue import Venue, VenueEvent, VenueEventParticipant
 
 
 class EventService:

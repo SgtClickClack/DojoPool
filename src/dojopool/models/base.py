@@ -6,7 +6,7 @@ This module contains the base model class for SQLAlchemy models.
 from datetime import datetime
 from typing import Any, Dict
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class BaseModel(db.Model):
