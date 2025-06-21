@@ -7,7 +7,7 @@ from redis import Redis
 from sqlalchemy import text
 
 # Import db from the central extensions module
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from .config.config import Config
 
 health_bp = Blueprint("health", __name__)

@@ -9,7 +9,7 @@ from typing import Dict, List
 import logging
 from sqlalchemy import func, extract  # type: ignore
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.venue import Venue
 from dojopool.models.maintenance import Maintenance
 from dojopool.models.revenue import Revenue

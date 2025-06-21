@@ -15,7 +15,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, Foreig
 from werkzeug.security import check_password_hash, generate_password_hash  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property  # type: ignore
 
-from dojopool.core.extensions import db  # type: ignore
+from dojopool.extensions import db  # type: ignore
 
 from .user_roles import user_roles
 # from .friendship import Friendship # COMMENT OUT or REMOVE direct import here

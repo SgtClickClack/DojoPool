@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from dojopool.config.base import BaseConfig
+from dojopool.config import BaseConfig
 
 
 class DevelopmentConfig(BaseConfig):

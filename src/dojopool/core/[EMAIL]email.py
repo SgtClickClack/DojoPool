@@ -3,7 +3,7 @@
 from flask import current_app, render_template
 from flask_mail import Message
 
-from dojopool.core.extensions import mail
+from dojopool.extensions import mail
 
 
 def send_email(subject, recipients, template, **kwargs):

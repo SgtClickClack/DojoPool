@@ -1,6 +1,6 @@
 """Database management module."""
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 from .manager import DatabaseManager
 from .migrations import MigrationManager

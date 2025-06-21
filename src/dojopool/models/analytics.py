@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class UserMetrics(db.Model):

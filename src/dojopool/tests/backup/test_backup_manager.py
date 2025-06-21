@@ -9,7 +9,7 @@ import pytest
 from cryptography.fernet import Fernet
 
 from dojopool.backup.backup_manager import BackupManager
-from dojopool.config.backup_config import BackupSettings
+from dojopool.config import BackupSettings
 
 
 @pytest.fixture

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.core.tournaments.models import MatchStatus, TournamentMatch, TournamentParticipant
 
 

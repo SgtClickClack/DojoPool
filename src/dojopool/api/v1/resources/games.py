@@ -17,13 +17,13 @@ from dojopool.models.user import User
 from dojopool.core.exceptions import AuthorizationError, NotFoundError
 from dojopool.models.game import Game, GameStatus, GameType, GameMode
 from dojopool.core.security import require_auth, require_roles
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 # Commenting out or updating cache imports until their correct paths are confirmed
 # from dojopool.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
 # from dojopool.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
-from dojopool.core.models.game_analytics import GameAnalytics
+from dojopool.models.game_analytics import GameAnalytics
 # Fixed import to use the correct GameSession model
-from dojopool.core.models.game import GameSession
+from dojopool.models.game import GameSession
 
 from .base import BaseResource
 from flask_restful import Resource

@@ -11,7 +11,7 @@ from flask import current_app
 from flask_login import current_user
 from flask_socketio import disconnect
 
-from dojopool.core.extensions import cache
+from dojopool.extensions import cache
 
 
 def authenticated_only(f: Callable) -> Callable:

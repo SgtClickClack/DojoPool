@@ -1,6 +1,6 @@
 """WebSocket initialization module for DojoPool."""
 
-from dojopool.core.extensions import socketio
+from dojopool.extensions import socketio
 
 
 def init_socketio(app):

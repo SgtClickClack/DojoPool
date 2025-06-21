@@ -3,9 +3,9 @@ Tournament/game flow API endpoints for DojoPool.
 """
 from flask import Blueprint, request, jsonify, abort
 # Removed direct model imports at module level
-# from dojopool.core.models.tournament import Tournament, TournamentPlayer, TournamentType, TournamentStatus
-# from dojopool.core.models.match import Match
-from dojopool.core.extensions import db
+# from dojopool.models.tournament import Tournament, TournamentPlayer, TournamentType, TournamentStatus
+# from dojopool.models.match import Match
+from dojopool.extensions import db
 from flask_login import current_user, login_required
 from datetime import datetime
 

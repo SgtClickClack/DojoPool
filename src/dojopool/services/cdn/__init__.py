@@ -1,0 +1,1 @@
+"""DojoPool cdn module."""

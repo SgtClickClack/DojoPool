@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from functools import wraps
 import time
 
-from dojopool.core.extensions import db, cache
+from dojopool.extensions import db, cache
 from dojopool.services.wallet_service import WalletService, RewardType
 from dojopool.core.exceptions import WalletError, InsufficientFundsError
 from dojopool.api.v1.resources.base import BaseResource

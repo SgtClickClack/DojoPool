@@ -7,7 +7,7 @@ It is enhanced with full type annotations and concise documentation.
 
 from typing import Any
 from datetime import datetime
-from dojopool.core.extensions import db  # type: ignore
+from dojopool.extensions import db  # type: ignore
 
 
 class Role(db.Model):
