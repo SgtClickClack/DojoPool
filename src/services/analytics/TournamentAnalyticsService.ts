@@ -101,7 +101,7 @@ class TournamentAnalyticsService {
   private matchAnalytics: Map<string, MatchAnalytics> = new Map();
   private tournamentAnalytics: Map<string, TournamentAnalytics> = new Map();
   private predictiveInsights: Map<string, PredictiveInsights> = new Map();
-  private isConnected: boolean = false;
+  private _isConnected: boolean = false;
 
   private constructor() {
     this.config = {
@@ -112,11 +112,12 @@ class TournamentAnalyticsService {
       exportFormats: ['JSON', 'CSV', 'PDF'],
       alertThresholds: {
         lowEngagement: 0.3,
-        highCosts: 0.8,
-        lowCompletion: 0.5,
+        highCosts: 5000,
+        lowCompletion: 0.7,
       },
     };
     this.initializeSocket();
+    this.generateMockData();
   }
 
   public static getInstance(): TournamentAnalyticsService {
@@ -131,13 +132,13 @@ class TournamentAnalyticsService {
     
     this.socket.on('connect', () => {
       console.log('TournamentAnalyticsService connected to server');
-      this.isConnected = true;
+      this._isConnected = true;
       this.requestAnalytics();
     });
 
     this.socket.on('disconnect', () => {
       console.log('TournamentAnalyticsService disconnected from server');
-      this.isConnected = false;
+      this._isConnected = false;
     });
 
     this.socket.on('analytics-update', (data: any) => {
@@ -176,9 +177,122 @@ class TournamentAnalyticsService {
   }
 
   private requestAnalytics(): void {
-    this.socket?.emit('request-analytics', {
-      enableRealTime: this.config.enableRealTime,
-      enablePredictions: this.config.enablePredictions,
+    this.socket?.emit('request-analytics');
+  }
+
+  private generateMockData(): void {
+    // Generate mock tournament stats
+    this.stats = {
+      totalTournaments: 25,
+      activeTournaments: 3,
+      completedTournaments: 22,
+      totalPlayers: 156,
+      totalMatches: 342,
+      averageMatchDuration: 45,
+      totalPrizePool: 125000,
+      averagePrizePool: 5000,
+    };
+
+    // Generate mock player analytics
+    const mockPlayers = [
+      { id: 'p1', name: 'Alex Chen', wins: 15, losses: 8, rank: 1 },
+      { id: 'p2', name: 'Sarah Kim', wins: 12, losses: 11, rank: 2 },
+      { id: 'p3', name: 'Mike Johnson', wins: 10, losses: 13, rank: 3 },
+    ];
+
+    mockPlayers.forEach(player => {
+      this.playerAnalytics.set(player.id, {
+        playerId: player.id,
+        name: player.name,
+        totalMatches: player.wins + player.losses,
+        wins: player.wins,
+        losses: player.losses,
+        winRate: player.wins / (player.wins + player.losses),
+        averageScore: 85 + Math.random() * 15,
+        highestScore: 95 + Math.random() * 5,
+        tournamentWins: Math.floor(player.wins / 3),
+        tournamentFinals: Math.floor(player.wins / 2),
+        totalPrizeMoney: player.wins * 500,
+        performanceTrend: ['improving', 'declining', 'stable'][Math.floor(Math.random() * 3)] as any,
+        skillRating: 1500 + Math.random() * 500,
+        rank: player.rank,
+      });
+    });
+
+    // Generate mock match analytics
+    const mockMatches = [
+      { id: 'm1', tournamentId: 't1', player1: 'Alex Chen', player2: 'Sarah Kim' },
+      { id: 'm2', tournamentId: 't1', player1: 'Mike Johnson', player2: 'Alex Chen' },
+    ];
+
+    mockMatches.forEach(match => {
+      this.matchAnalytics.set(match.id, {
+        matchId: match.id,
+        tournamentId: match.tournamentId,
+        player1Id: 'p1',
+        player2Id: 'p2',
+        player1Name: match.player1,
+        player2Name: match.player2,
+        player1Score: 85 + Math.random() * 15,
+        player2Score: 80 + Math.random() * 15,
+        duration: 30 + Math.random() * 30,
+        totalShots: 50 + Math.random() * 30,
+        averageShotTime: 2 + Math.random() * 3,
+        accuracy: 0.7 + Math.random() * 0.2,
+        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] as any,
+        excitement: 5 + Math.random() * 5,
+        viewership: 100 + Math.random() * 900,
+        highlights: ['Amazing shot!', 'Incredible comeback!'],
+      });
+    });
+
+    // Generate mock tournament analytics
+    const mockTournaments = [
+      { id: 't1', name: 'Spring Championship 2024', type: 'Championship' },
+      { id: 't2', name: 'Summer League', type: 'League' },
+    ];
+
+    mockTournaments.forEach(tournament => {
+      this.tournamentAnalytics.set(tournament.id, {
+        tournamentId: tournament.id,
+        name: tournament.name,
+        type: tournament.type,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        totalPlayers: 32 + Math.random() * 16,
+        totalMatches: 64 + Math.random() * 32,
+        averageMatchDuration: 40 + Math.random() * 20,
+        totalPrizePool: 10000 + Math.random() * 5000,
+        viewership: 500 + Math.random() * 1500,
+        engagement: 0.6 + Math.random() * 0.3,
+        completionRate: 0.8 + Math.random() * 0.2,
+        playerSatisfaction: 0.7 + Math.random() * 0.2,
+        revenue: 15000 + Math.random() * 5000,
+        costs: 8000 + Math.random() * 3000,
+        profit: 0,
+        roi: 0,
+      });
+    });
+
+    // Calculate profit and ROI
+    this.tournamentAnalytics.forEach(tournament => {
+      tournament.profit = tournament.revenue - tournament.costs;
+      tournament.roi = tournament.profit / tournament.costs;
+    });
+
+    // Generate mock predictive insights
+    mockTournaments.forEach(tournament => {
+      this.predictiveInsights.set(tournament.id, {
+        tournamentId: tournament.id,
+        predictedWinner: 'Alex Chen',
+        winProbability: 0.65 + Math.random() * 0.25,
+        expectedDuration: 45 + Math.random() * 30,
+        predictedViewership: 800 + Math.random() * 400,
+        revenueForecast: 12000 + Math.random() * 3000,
+        riskFactors: ['Weather conditions', 'Player availability'],
+        recommendations: ['Increase marketing', 'Optimize scheduling'],
+        confidence: 0.7 + Math.random() * 0.2,
+      });
     });
   }
 
@@ -229,12 +343,12 @@ class TournamentAnalyticsService {
   }
 
   public generateReport(type: 'tournament' | 'player' | 'match' | 'comprehensive', id?: string): any {
-    const report = {
+    const report: any = {
       timestamp: new Date(),
       type,
       data: {},
-      insights: [],
-      recommendations: [],
+      insights: [] as any[],
+      recommendations: [] as string[],
     };
 
     switch (type) {
@@ -426,7 +540,7 @@ class TournamentAnalyticsService {
   }
 
   public isConnected(): boolean {
-    return this.isConnected;
+    return this._isConnected;
   }
 
   public disconnect(): void {

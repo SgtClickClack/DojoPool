@@ -39,10 +39,10 @@ import TournamentAnalyticsService, {
   TournamentStats,
   PlayerAnalytics,
   MatchAnalytics,
-  TournamentAnalytics,
   PredictiveInsights,
   AnalyticsConfig,
 } from '../../services/analytics/TournamentAnalyticsService';
+import type { TournamentAnalytics as TournamentAnalyticsData } from '../../services/analytics/TournamentAnalyticsService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -71,7 +71,7 @@ const TournamentAnalytics: React.FC = () => {
   const [stats, setStats] = useState<TournamentStats | null>(null);
   const [playerAnalytics, setPlayerAnalytics] = useState<PlayerAnalytics[]>([]);
   const [matchAnalytics, setMatchAnalytics] = useState<MatchAnalytics[]>([]);
-  const [tournamentAnalytics, setTournamentAnalytics] = useState<TournamentAnalytics[]>([]);
+  const [tournamentAnalytics, setTournamentAnalytics] = useState<TournamentAnalyticsData[]>([]);
   const [predictiveInsights, setPredictiveInsights] = useState<PredictiveInsights[]>([]);
   const [config, setConfig] = useState<AnalyticsConfig | null>(null);
   const [isConnected, setIsConnected] = useState(false);

@@ -22,9 +22,11 @@ import {
   Smartphone,
 } from "@mui/icons-material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [aiMenuAnchor, setAiMenuAnchor] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
 
   const handleAiMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAiMenuAnchor(event.currentTarget);
@@ -296,24 +298,18 @@ const Navbar = () => {
             </Button>
             
             <Button
-              component={RouterLink}
-              to="/mobile/tournament-mobile"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
+              color="inherit"
+              onClick={() => navigate('/mobile')}
+              sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
             >
-              <Smartphone sx={{ mr: 1 }} />
               Mobile
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate('/streaming')}
+              sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
+            >
+              Streaming
             </Button>
           </Box>
         </Toolbar>
