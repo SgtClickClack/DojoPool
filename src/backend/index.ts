@@ -153,7 +153,20 @@ app.get('/api/v1/users/me', (req, res) => {
 
 app.get('/api/v1/venues', (req, res) => res.json([]));
 app.get('/api/v1/tournaments', (req, res) => res.json([]));
-app.get('/api/v1/wallet', (req, res) => res.json({}));
+
+// Updated wallet route to accept userId
+app.get('/api/v1/wallet/:userId', (req, res) => {
+  const { userId } = req.params;
+  console.log(`Fetching wallet for userId: ${userId}`);
+  // In a real app, you'd fetch this from a database based on userId
+  res.json({
+    balance: 1250.75,
+    currency: 'Dojo Coin',
+    lastTransactionDate: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+    // ... other mock wallet details
+  });
+});
+
 app.get('/api/v1/profile', (req, res) => res.json({
   username: 'demo_user',
   avatar: '',

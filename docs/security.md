@@ -1,60 +1,122 @@
-# Security Guide – DojoPool
+# DojoPool Security Documentation
 
-## Threat Model
+## Overview
+This document outlines the security measures and best practices implemented in the DojoPool application.
 
-1. **Transport** – Protect data in transit with TLS 1.2+/HSTS.
-2. **Application** – Sanitise user input, enforce auth.
-3. **Infrastructure** – Least-privilege file & process ownership, rate limiting, logging.
+## Security Features
 
-## TLS Configuration
+### Authentication & Authorization
+- Password hashing using Werkzeug's secure hash functions
+- Password requirements:
+  - Minimum 8 characters
+  - At least one uppercase letter
+  - At least one lowercase letter
+  - At least one number
+  - At least one special character
+- Email verification for new accounts
+- Secure password reset with time-limited tokens
+- Session management with secure cookie settings
 
-* TLS versions: `TLSv1.2`, `TLSv1.3` only.
-* Ciphers: Mozilla modern suite (see `nginx/dojopool.conf`).
-* HSTS: `max-age=63072000; includeSubDomains`.
-* OCSP stapling enabled by default with Certbot.
+### Data Protection
+- HTTPS/SSL encryption for all traffic
+- Secure headers:
+  - HTTP Strict Transport Security (HSTS)
+  - X-Frame-Options
+  - X-Content-Type-Options
+  - X-XSS-Protection
+  - Content-Security-Policy
+  - Referrer-Policy
+  - Permissions-Policy
+- Input validation and sanitization
+- CSRF protection
+- XSS prevention
 
-## HTTP Security Headers
+### Infrastructure Security
+- Modern SSL configuration with TLS 1.2/1.3
+- Strong cipher suite configuration
+- Regular security updates and patches
+- Environment-based configuration
+- Secure credential storage
+- Rate limiting and DDoS protection
 
-| Header | Value |
-|--------|-------|
-| X-Frame-Options | DENY |
-| X-Content-Type-Options | nosniff |
-| X-XSS-Protection | 1; mode=block |
-| Content-Security-Policy | See NGINX config |
-| Referrer-Policy | strict-origin-when-cross-origin |
-| Permissions-Policy | camera=(), microphone=(), geolocation=() |
+## Security Procedures
 
-## Rate Limiting
+### Incident Response
+1. Immediate assessment of the security incident
+2. Containment of the affected systems
+3. Evidence collection and analysis
+4. System recovery and hardening
+5. Post-incident review and improvements
 
-`10r/s` per IP with `burst=20`. Adjust in NGINX config if needed.
+### Certificate Management
+- SSL certificates managed through Let's Encrypt
+- Automatic certificate renewal
+- Certificate expiration monitoring
+- Backup certificate procedures
 
-## File & Process Ownership
+### Secret Management
+- Environment-based secret configuration
+- Regular secret rotation
+- Secure secret storage
+- Access control for sensitive data
 
-| Path | Owner | Perms |
-|------|-------|-------|
-| `/var/www/dojopool` | `dojopool:dojopool` | `755` (dirs) / `644` (files) |
-| `/etc/nginx/sites-available/dojopool.conf` | `root:root` | `644` |
-| SSL keys | `root:root` | `600` |
-| Logs `/var/log/dojo*` | `dojopool:adm` | `640` |
+## Best Practices
 
-Systemd units run as **non-root** `dojopool` user.
+### Code Security
+- Regular dependency updates
+- Code review process
+- Static code analysis
+- Security testing
+- Input validation
+- Output encoding
+- Error handling
 
-## Secrets Management
+### Infrastructure Security
+- Regular security audits
+- System hardening
+- Access control
+- Network security
+- Backup procedures
+- Monitoring and logging
 
-* Environment variables loaded via `/etc/systemd/system/uvicorn.service.d/env.conf` (not in repo).
-* GitHub Secrets store CI tokens – never commit `.env`.
+## Training Requirements
+- Security awareness training
+- Code security training
+- Incident response training
+- Regular security updates
 
-## Patching & Updates
+## Maintenance
+- Regular security assessments
+- Vulnerability scanning
+- Penetration testing
+- Security patch management
+- Configuration review
 
-* Enable unattended-upgrades on Ubuntu.
-* Weekly: `npm audit fix --production` & `pip install --upgrade --security`.
+## Contact
+For security-related issues or concerns, contact:
+- Security Team: security@dojopool.com.au
+- Emergency Contact: +61 XXX XXX XXX
 
-## Incident Response
+## Automated Security Tools
+1. Security Checker
+   - Location: `docs/cleanup/scripts/automated_security_check.py`
+   - Features:
+     - Dependency vulnerability scanning
+     - Secret detection
+     - Configuration validation
+     - Security header verification
 
-1. Rotate compromised secrets.
-2. Restore from latest good build (Docker / build artifacts).
-3. Review logs for IOC.
+2. Certificate Rotator
+   - Location: `docs/cleanup/scripts/certificate_rotation.py`
+   - Features:
+     - Automatic certificate renewal
+     - Certificate health monitoring
+     - Backup certificate management
 
----
-
-_Last updated {{date}}_
+3. Security Update Script
+   - Location: `src/dojopool/scripts/security_updates.py`
+   - Features:
+     - Environment file security updates
+     - Nginx security configuration
+     - Secret key generation
+     - Security header management 

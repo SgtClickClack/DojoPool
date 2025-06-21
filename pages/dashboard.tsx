@@ -4,15 +4,19 @@ import {
   Typography,
   Grid,
   Paper,
+  Button,
+  Card,
+  CardContent,
+  CardActions,
 } from "@mui/material";
-import Layout from "../layout/Layout";
-import MapView from "../MapView";
-import WalletBalanceView from "../../frontend/components/wallet/WalletBalanceView";
-import RewardsDisplayPanel from "../../frontend/components/rewards/RewardsDisplayPanel";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
+import Layout from "../src/components/layout/Layout";
+import MapView from "../src/components/MapView";
+import WalletBalanceView from "../src/frontend/components/wallet/WalletBalanceView";
+import RewardsDisplayPanel from "../src/frontend/components/rewards/RewardsDisplayPanel";
 
-const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
+const DashboardPage: React.FC = () => {
+  const router = useRouter();
 
   const gameFlowSteps = [
     {
@@ -121,7 +125,7 @@ const Dashboard: React.FC = () => {
                       boxShadow: `0 0 30px ${step.color}80`,
                     }
                   }}
-                  onClick={() => navigate(step.path)}
+                  onClick={() => router.push(step.path)}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Typography sx={{ fontSize: '2rem', mr: 2 }}>
@@ -295,4 +299,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default DashboardPage; 

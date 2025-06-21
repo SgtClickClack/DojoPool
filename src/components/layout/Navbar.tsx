@@ -12,7 +12,15 @@ import { Link as RouterLink } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <AppBar position="sticky">
+    <AppBar 
+      position="sticky"
+      sx={{
+        background: "linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)",
+        borderBottom: "2px solid #00ff9d",
+        boxShadow: "0 0 20px #00ff9d, 0 0 40px #00a8ff",
+        backdropFilter: "blur(10px)",
+      }}
+    >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <IconButton
@@ -21,7 +29,12 @@ const Navbar = () => {
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
-              color: "inherit",
+              color: "#00ff9d",
+              "&:hover": {
+                color: "#00a8ff",
+                transform: "scale(1.1)",
+                transition: "all 0.3s ease",
+              },
             }}
           >
             <SportsEsportsIcon />
@@ -35,8 +48,15 @@ const Navbar = () => {
               mr: 2,
               display: { xs: "none", md: "flex" },
               fontWeight: 700,
-              color: "inherit",
+              color: "#00ff9d",
               textDecoration: "none",
+              fontFamily: 'Orbitron, monospace',
+              textShadow: "0 0 10px #00ff9d",
+              "&:hover": {
+                color: "#00a8ff",
+                textShadow: "0 0 15px #00a8ff",
+                transition: "all 0.3s ease",
+              },
             }}
           >
             DojoPool
@@ -44,24 +64,98 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               component={RouterLink}
-              to="/practice"
-              sx={{ my: 2, color: "white", display: "block" }}
+              to="/onboarding"
+              sx={{ 
+                my: 2, 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px #00a8ff",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
             >
-              Practice
+              Onboarding
             </Button>
             <Button
               component={RouterLink}
-              to="/analysis"
-              sx={{ my: 2, color: "white", display: "block" }}
+              to="/avatar"
+              sx={{ 
+                my: 2, 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px #00a8ff",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
             >
-              Analysis
+              Avatar
             </Button>
             <Button
               component={RouterLink}
-              to="/monitoring"
-              sx={{ my: 2, color: "white", display: "block" }}
+              to="/venue"
+              sx={{ 
+                my: 2, 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px #00a8ff",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
             >
-              Monitoring
+              Venue
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/tournaments"
+              sx={{ 
+                my: 2, 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px #00a8ff",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Tournaments
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/social"
+              sx={{ 
+                my: 2, 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px #00a8ff",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Social
             </Button>
           </Box>
         </Toolbar>

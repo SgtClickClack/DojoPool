@@ -24,21 +24,26 @@ def generate_avatar():
     try:
         data = request.get_json()
 
-        # Generate avatar
-        avatar_image = avatar_generator.generate(
-            style=data.get("style", "default"),
-            features=data.get("features", {}),
-            colors=data.get("colors", {}),
+        # Extract parameters
+        style = data.get("style", "kung_fu_master")
+        features = data.get("features", {})
+        custom_prompt = features.get("prompt", "")
+        
+        # Generate avatar using the correct method
+        avatar_bytes = avatar_generator.generate_avatar(
+            style_name=style,
+            custom_prompt=custom_prompt
         )
+        
+        if not avatar_bytes:
+            return jsonify({"status": "error", "message": "Failed to generate avatar"}), 500
 
         # Convert to base64
-        buffered = io.BytesIO()
-        avatar_image.save(buffered, format="PNG")
-        avatar_base64 = base64.b64encode(buffered.getvalue()).decode()
+        avatar_base64 = base64.b64encode(avatar_bytes).decode()
 
         # Update user's avatar if requested
         if data.get("update_profile", False):
-            current_user.avatar = buffered.getvalue()
+            current_user.avatar = avatar_bytes
             current_user.avatar_updated_at = datetime.utcnow()
             db.session.commit()
 

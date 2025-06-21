@@ -5,17 +5,24 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { useAuth } from "./AuthContext"; // Depend on AuthContext
+import { useAuth } from "../../components/auth/AuthContext"; // Fixed import path to match main.tsx
 import axiosInstance from "../api/axiosInstance";
 
 // Define the structure of the user profile data we expect from the backend
 interface UserProfile {
-  id: number; // The internal database ID
+  id: string; // The internal database ID
   username: string;
   email: string;
-  profile_picture?: string;
-  // Add other relevant fields returned by /users/me endpoint
-  // e.g., first_name, last_name, roles, etc.
+  avatar?: string;
+  joinDate: string;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  achievements: string[];
+  recentGames: any[];
+  rank: number;
+  dojoCoins: number;
 }
 
 interface UserContextType {
@@ -38,14 +45,14 @@ export const useUserProfile = () => {
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { user: firebaseUser, loading: authLoading } = useAuth(); // Get Firebase user from AuthContext
+  const { user: authUser, loading: authLoading } = useAuth(); // Get user from AuthContext
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = async () => {
-    if (!firebaseUser) {
-      setProfile(null); // Clear profile if no Firebase user
+    if (!authUser) {
+      setProfile(null); // Clear profile if no authenticated user
       setIsLoading(false);
       return; // Don't fetch if not authenticated
     }
@@ -53,9 +60,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(true);
     setError(null);
     try {
-      // Assumes the endpoint is mounted under /v1/users/
+      // Use the correct endpoint that matches the backend
       const response = await axiosInstance.get<{ data: UserProfile }>(
-        "/v1/users/me",
+        "/api/v1/users/me",
       );
       if (response.data?.data) {
         setProfile(response.data.data);
@@ -76,12 +83,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    // Fetch profile whenever the Firebase user changes (login/logout)
+    // Fetch profile whenever the authenticated user changes (login/logout)
     // or when auth is no longer loading initially.
     if (!authLoading) {
       fetchProfile();
     }
-  }, [firebaseUser, authLoading]);
+  }, [authUser, authLoading]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(

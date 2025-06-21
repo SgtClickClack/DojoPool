@@ -11,19 +11,30 @@ A fully functional DojoPool platform with core gaming features, wallet system, a
 ### MVP Core Features (Priority Order)
 
 #### 1. Wallet System Frontend ✅ COMPLETED
-- **Status**: ✅ Complete with cyberpunk styling
+- **Status**: ✅ Complete with cyberpunk styling and centralized Ledger page
 - **Components**: 
+  - Centralized Ledger page for all wallet management
+  - Dashboard integration with "Manage Wallet" button
   - WalletDashboard with neon effects and dark theme
   - WalletTransactionList with cyberpunk styling
   - TransferDialog with cyberpunk form styling
   - Real-time balance updates
   - Transaction history with filtering
+  - MetaMask and hardware wallet integration
+  - NFT collection display and management
+  - Tournament trophies and achievements
+  - Bank details and payment methods
 - **File Paths**: 
-  - `src/components/wallet/WalletDashboard.tsx`
-  - `src/components/wallet/WalletTransactionList.tsx`
-  - `src/components/wallet/TransferDialog.tsx`
+  - `src/frontend/components/wallet/Ledger.tsx` (centralized wallet management)
+  - `src/frontend/components/Dashboard/Dashboard.tsx` (Ledger integration)
+  - `src/frontend/components/wallet/WalletDashboard.tsx`
+  - `src/frontend/components/wallet/WalletTransactionList.tsx`
+  - `src/frontend/components/wallet/TransferDialog.tsx`
   - `src/frontend/pages/wallet.tsx`
-- **Next**: Integrate with backend wallet unification
+  - `src/services/wallet/WalletConnectionService.ts`
+  - `src/frontend/hooks/useWalletConnection.ts`
+  - `src/frontend/hooks/useWalletService.ts`
+- **Next**: Continue with Tournament System Frontend completion
 
 #### 2. Tournament System Frontend (Next Priority)
 - **Status**: 🚧 Backend exists, Frontend needs completion

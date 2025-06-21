@@ -3,10 +3,18 @@ import axios from "axios";
 
 interface User {
   id: string;
-  name: string;
+  username: string;
   email: string;
   avatar?: string;
-  role: "user" | "admin";
+  joinDate: string;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  achievements: string[];
+  recentGames: any[];
+  rank: number;
+  dojoCoins: number;
 }
 
 interface AuthContextType {
@@ -44,10 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        const response = await axios.get("/api/auth/me", {
+        const response = await axios.get("/api/v1/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(response.data.user);
+        setUser(response.data.data.user);
       }
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -60,10 +68,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (email: string, password: string) => {
     try {
       setError(null);
-      const response = await axios.post("/api/auth/login", { email, password });
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      setUser(user);
+      // For now, we'll simulate a successful login since the backend doesn't have auth endpoints yet
+      // In a real app, this would call the actual login endpoint
+      const mockUser = {
+        id: "ARGYvR9TD7aioeObfsLqxuPbmCv2",
+        username: "demo_user",
+        email: email,
+        avatar: "",
+        joinDate: new Date().toISOString(),
+        totalGames: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        achievements: [],
+        recentGames: [],
+        rank: 1,
+        dojoCoins: 0
+      };
+      
+      const mockToken = "mock-jwt-token-" + Date.now();
+      localStorage.setItem("token", mockToken);
+      setUser(mockUser);
     } catch (error) {
       console.error("Login failed:", error);
       setError("Invalid email or password");
@@ -73,7 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     try {
-      await axios.post("/api/auth/logout");
+      // In a real app, you'd call the logout endpoint
+      // await axios.post("/api/auth/logout");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -85,14 +111,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const register = async (name: string, email: string, password: string) => {
     try {
       setError(null);
-      const response = await axios.post("/api/auth/register", {
-        name,
-        email,
-        password,
-      });
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      setUser(user);
+      // For now, we'll simulate a successful registration
+      const mockUser = {
+        id: "ARGYvR9TD7aioeObfsLqxuPbmCv2",
+        username: name,
+        email: email,
+        avatar: "",
+        joinDate: new Date().toISOString(),
+        totalGames: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        achievements: [],
+        recentGames: [],
+        rank: 1,
+        dojoCoins: 0
+      };
+      
+      const mockToken = "mock-jwt-token-" + Date.now();
+      localStorage.setItem("token", mockToken);
+      setUser(mockUser);
     } catch (error) {
       console.error("Registration failed:", error);
       setError("Registration failed. Please try again.");
