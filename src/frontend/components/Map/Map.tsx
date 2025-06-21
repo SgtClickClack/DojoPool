@@ -3,8 +3,6 @@ import {
   Box,
   Typography,
   Paper,
-  Card,
-  CardContent,
   Button,
   Chip,
   TextField,
@@ -22,21 +20,13 @@ import {
 } from '@mui/material';
 import {
   Search as SearchIcon,
-  LocationOn as LocationIcon,
-  Phone as PhoneIcon,
-  AccessTime as TimeIcon,
-  Star as StarIcon,
   Directions as DirectionsIcon,
   Close as CloseIcon,
-  Warning as WarningIcon,
   Security as SecurityIcon,
 } from '@mui/icons-material';
 import Layout from '../../../components/layout/Layout';
 import { APIProvider, Map as VisMap, AdvancedMarker, Pin, InfoWindow as VisInfoWindow, useMap } from '@vis.gl/react-google-maps';
 import { SocketIOService } from '../../../services/WebSocketService';
-
-// Move libraries array outside component to avoid re-creation
-const libraries: ("places" | "geometry")[] = ["places", "geometry"];
 
 const DEFAULT_CENTER = { lat: -27.4698, lng: 153.0251 }; // Brisbane, Australia
 
@@ -72,54 +62,6 @@ interface Territory {
   influence: number; // 0-100, represents territory control strength
 }
 
-// Mock territory data for overlay system
-const mockTerritories: Territory[] = [
-  {
-    id: 'territory_1',
-    name: 'Cyber District',
-    type: 'friend',
-    coordinates: [
-      { lat: -27.4698, lng: 153.0251 },
-      { lat: -27.4698, lng: 153.0351 },
-      { lat: -27.4598, lng: 153.0351 },
-      { lat: -27.4598, lng: 153.0251 },
-      { lat: -27.4698, lng: 153.0251 },
-    ],
-    description: 'Allied territory - safe zone for friendly players',
-    owner: 'Cyber Pool Hall',
-    influence: 85
-  },
-  {
-    id: 'territory_2',
-    name: 'Neutral Zone',
-    type: 'neutral',
-    coordinates: [
-      { lat: -27.4700, lng: 153.0255 },
-      { lat: -27.4700, lng: 153.0355 },
-      { lat: -27.4600, lng: 153.0355 },
-      { lat: -27.4600, lng: 153.0255 },
-      { lat: -27.4700, lng: 153.0255 },
-    ],
-    description: 'Neutral territory - no faction control',
-    influence: 50
-  },
-  {
-    id: 'territory_3',
-    name: 'Rival Territory',
-    type: 'enemy',
-    coordinates: [
-      { lat: -27.4710, lng: 153.0260 },
-      { lat: -27.4710, lng: 153.0360 },
-      { lat: -27.4610, lng: 153.0360 },
-      { lat: -27.4610, lng: 153.0260 },
-      { lat: -27.4710, lng: 153.0260 },
-    ],
-    description: 'Enemy territory - high risk area',
-    owner: 'Rival Faction',
-    influence: 75
-  }
-];
-
 // Mock dojo data as fallback
 const mockDojos: Dojo[] = [
   {
@@ -148,6 +90,16 @@ const mockDojos: Dojo[] = [
   }
 ];
 
+interface GooglePlaceResult {
+  id: string;
+  displayName?: { text: string };
+  formattedAddress: string;
+  location: { latitude: number; longitude: number };
+  rating?: number;
+  nationalPhoneNumber?: string;
+  types?: string[];
+}
+
 const MapHandler = ({ onMapLoad }: { onMapLoad: (map: google.maps.Map) => void }) => {
   const map = useMap();
   useEffect(() => {
@@ -155,7 +107,7 @@ const MapHandler = ({ onMapLoad }: { onMapLoad: (map: google.maps.Map) => void }
       try {
         onMapLoad(map);
       } catch (error) {
-        console.warn('Error in MapHandler onMapLoad:', error);
+        // REMOVE console.warn('Error in MapHandler onMapLoad:', error);
       }
     }
   }, [map, onMapLoad]);
@@ -173,12 +125,10 @@ const Map: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [mapsApiLoaded, setMapsApiLoaded] = useState(false);
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [debouncedBounds, setDebouncedBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [homeDojoId, setHomeDojoId] = useState<string | null>(null); // State for Home Dojo
   const [showTerritories, setShowTerritories] = useState(true); // Toggle for territory overlays
-  const [territories, setTerritories] = useState<Territory[]>(mockTerritories);
 
   // Debounce bounds changes
   useEffect(() => {
@@ -190,9 +140,8 @@ const Map: React.FC = () => {
   }, [mapBounds]);
 
   useEffect(() => {
-    const handleTerritoryUpdate = (data: Territory[]) => {
-      console.log('Received territory update:', data);
-      setTerritories(data);
+    const handleTerritoryUpdate = () => {
+      // No need to update territories as they are mocked
     };
 
     const unsubscribe = SocketIOService.subscribe('territory-updates', handleTerritoryUpdate);
@@ -224,40 +173,6 @@ const Map: React.FC = () => {
   const handleSetHomeDojo = async (dojoId: string) => {
     // Mock implementation - in real app, send to backend
     setHomeDojoId(dojoId);
-    console.log(`Set home dojo to: ${dojoId}`);
-  };
-
-  const getTerritoryStyle = (type: Territory['type']) => {
-    const baseStyle = {
-      fillColor: getTerritoryColor(type),
-      fillOpacity: 0.3,
-      strokeColor: getTerritoryColor(type),
-      strokeWeight: 2,
-      strokeOpacity: 0.8,
-    };
-
-    switch (type) {
-      case 'friend':
-        return {
-          ...baseStyle,
-          fillOpacity: 0.2,
-          strokeWeight: 3,
-        };
-      case 'neutral':
-        return {
-          ...baseStyle,
-          fillOpacity: 0.15,
-          strokeWeight: 2,
-        };
-      case 'enemy':
-        return {
-          ...baseStyle,
-          fillOpacity: 0.25,
-          strokeWeight: 4,
-        };
-      default:
-        return baseStyle;
-    }
   };
 
   const getTerritoryIcon = (type: Territory['type']) => {
@@ -289,7 +204,8 @@ const Map: React.FC = () => {
   // Search for pool halls using Google Places API
   const searchPoolHalls = useCallback(async (bounds: google.maps.LatLngBounds | null) => {
     if (!bounds || bounds.isEmpty()) {
-      console.log('Search skipped: bounds are invalid or empty.');
+      // REMOVE console.warn('Search skipped: bounds are invalid or empty.');
+      setMapError('Invalid map view. Please pan to a different area.');
       return;
     }
 
@@ -298,7 +214,7 @@ const Map: React.FC = () => {
 
     // Validate the coordinates to prevent API errors for invalid rectangles (e.g., crossing the antimeridian)
     if (sw.lat() > ne.lat() || sw.lng() > ne.lng()) {
-        console.warn('Search skipped: Invalid map bounds detected.');
+        // REMOVE console.warn('Search skipped: Invalid map bounds detected.');
         setMapError('Invalid map view. Please pan to a different area.');
         return;
     }
@@ -322,13 +238,10 @@ const Map: React.FC = () => {
       },
     };
 
-    // DEBUG: Log the exact request body to diagnose the 400 Bad Request error.
-    console.log('Sending Google Places API request with body:', JSON.stringify(requestBody, null, 2));
-
     try {
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
       if (!apiKey) {
-        console.warn('Google Maps API key not found, using mock data.');
+        // REMOVE console.warn('Google Maps API key not found, using mock data.');
         setMapError('Google Maps API key not found. Displaying mock data.');
         setDojos(mockDojos);
         return;
@@ -346,17 +259,16 @@ const Map: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error searching for pool halls:', errorData);
-        console.error('Full error response:', JSON.stringify(errorData, null, 2));
-        console.error('Response status:', response.status);
-        console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+        // REMOVE console.error('Full error response:', JSON.stringify(errorData, null, 2));
+        // REMOVE console.error('Response status:', response.status);
+        // REMOVE console.error('Response headers:', Object.fromEntries(response.headers.entries()));
         setMapError(`Failed to search for Dojos: ${errorData.error?.message || 'Unknown error'}`);
         setDojos(mockDojos); // Fallback to mock data on API error
         return;
       }
 
       const data = await response.json();
-      const foundDojos = (data.places || []).map((place: any) => ({
+      const foundDojos = (data.places || []).map((place: GooglePlaceResult) => ({
         id: place.id,
         name: place.displayName?.text || 'Name not available',
         address: place.formattedAddress,
@@ -381,7 +293,7 @@ const Map: React.FC = () => {
       }
 
     } catch (error) {
-      console.error('Error fetching from Places API:', error);
+      // REMOVE console.error('Error fetching from Places API:', error);
       setMapError('An error occurred while searching for Dojos.');
       setDojos(mockDojos); // Fallback to mock data on fetch error
     } finally {
@@ -437,15 +349,6 @@ const Map: React.FC = () => {
     }
   }, [map, userLocation, searchPoolHalls, dojos.length, debouncedBounds]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'open': return '#00ff9d';
-      case 'busy': return '#ff6b6b';
-      case 'closed': return '#666';
-      default: return '#666';
-    }
-  };
-
   const handleDojoClick = (dojo: Dojo) => {
     setSelectedDojo(dojo);
     setShowDojoDialog(true);
@@ -471,55 +374,7 @@ const Map: React.FC = () => {
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
-    setMapsApiLoaded(true);
   }, []);
-
-  const onLoadScriptLoad = () => {
-    setMapsApiLoaded(true);
-  };
-
-  const onMapError = (error: Error) => {
-    console.error('Google Maps error:', error);
-    setMapError('Failed to load Google Maps. Please check your internet connection or try again later.');
-  };
-
-  const onLoadScriptError = (error: Error) => {
-    console.error('Google Maps API error:', error);
-    setMapError('Google Maps API is not available. Please check your API key or billing status.');
-  };
-
-  const mapContainerStyle = {
-    width: '100%',
-    height: '400px'
-  };
-
-  const createUserMarkerIcon = () => {
-    return {
-      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-        <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="12" fill="#00ff9d" stroke="#000" stroke-width="2"/>
-          <circle cx="16" cy="12" r="4" fill="#fff"/>
-          <path d="M8 28 Q16 20 24 28" fill="#fff"/>
-        </svg>
-      `),
-      scaledSize: new google.maps.Size(32, 32),
-      anchor: new google.maps.Point(16, 32)
-    };
-  };
-
-  const createDojoMarkerIcon = (isSelected: boolean = false) => {
-    const color = isSelected ? '#ff6b6b' : '#00a8ff';
-    return {
-      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-        <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 2 L30 16 L16 30 L2 16 Z" fill="${color}" stroke="#000" stroke-width="2"/>
-          <circle cx="16" cy="16" r="6" fill="#fff"/>
-        </svg>
-      `),
-      scaledSize: new google.maps.Size(32, 32),
-      anchor: new google.maps.Point(16, 16)
-    };
-  };
 
   return (
     <Layout>
