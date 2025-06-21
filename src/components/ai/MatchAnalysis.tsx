@@ -297,9 +297,9 @@ const MatchAnalysisComponent: React.FC = () => {
                 </ListItemIcon>
                 <ListItemText
                   primary={
-                    <Typography sx={{ color: '#fff', fontWeight: 600 }}>
+                    <Box sx={{ color: '#fff', fontWeight: 600 }}>
                       {moment.description}
-                    </Typography>
+                    </Box>
                   }
                   secondary={
                     <Box>
@@ -428,9 +428,9 @@ const MatchAnalysisComponent: React.FC = () => {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Typography sx={{ color: '#fff', fontWeight: 600 }}>
+                  <Box sx={{ color: '#fff', fontWeight: 600 }}>
                     {exercise.name}
-                  </Typography>
+                  </Box>
                 }
                 secondary={
                   <Box>
