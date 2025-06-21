@@ -14,6 +14,7 @@ import { Link as RouterLink } from "react-router-dom";
 import {
   Psychology,
   School,
+  Speed,
   ExpandMore,
 } from "@mui/icons-material";
 import { useState } from "react";
@@ -207,6 +208,25 @@ const Navbar = () => {
                   <School sx={{ color: 'inherit' }} />
                 </ListItemIcon>
                 AI Coaching
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/performance/tournament-performance"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Speed sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                Performance
               </MenuItem>
             </Menu>
           </Box>

@@ -31,6 +31,9 @@ const Home = React.lazy(() => import('./components/Home/Home'));
 const MatchAnalysis = React.lazy(() => import('../pages/ai/match-analysis'));
 const Coaching = React.lazy(() => import('../pages/ai/coaching'));
 
+// Performance Components
+const TournamentPerformance = React.lazy(() => import('../pages/performance/tournament-performance'));
+
 // Theme definition should be moved to a separate file (e.g., theme.ts) and imported in main.tsx
 // const theme = createTheme({
 //   palette: {
@@ -119,6 +122,9 @@ const App: React.FC = () => {
               {/* AI Feature Routes */}
               <Route path="/ai/match-analysis" element={<MatchAnalysis />} />
               <Route path="/ai/coaching" element={<Coaching />} />
+              
+              {/* Performance Routes */}
+              <Route path="/performance/tournament-performance" element={<TournamentPerformance />} />
               
               {/* <Route path="/venue-dashboard" element={<VenueDashboard />} /> */}
               {/* Add other protected routes here */}
