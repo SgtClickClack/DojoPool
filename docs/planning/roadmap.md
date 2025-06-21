@@ -69,19 +69,24 @@ A fully functional DojoPool platform with core gaming features, wallet system, a
 - **Dependencies**: Tournament system
 
 #### 4. Map & Dojo Discovery
-- **Status**: 🚧 Backend exists, Frontend missing
-- **Components Needed**:
-  - Google Maps integration with cyberpunk overlay
+- **Status**: ✅ Google Places API working, Frontend functional
+- **Components Completed**:
+  - Google Maps integration with venue search ✅
+  - Google Places API integration for pool halls and billiards ✅
+  - Real-time venue discovery with location bias ✅
+  - Proper error handling and API request formatting ✅
+- **Components Still Needed**:
+  - Cyberpunk overlay styling for map
   - Venue markers with neon effects
   - Live occupancy indicators
-  - Venue details modal
+  - Venue details modal with cyberpunk styling
   - Check-in functionality
 - **File Paths**:
-  - `src/components/map/DojoMap.tsx` (needs creation)
-  - `src/components/map/VenueMarker.tsx` (needs creation)
-  - `src/components/map/VenueDetails.tsx` (needs creation)
+  - `src/frontend/components/Map/Map.tsx` ✅ (Google Places API working)
+  - `src/components/map/VenueMarker.tsx` (needs creation with cyberpunk styling)
+  - `src/components/map/VenueDetails.tsx` (needs creation with cyberpunk styling)
   - `src/components/map/CheckInModal.tsx` (needs creation)
-- **Timeline**: 3-4 days
+- **Timeline**: 1-2 days (basic functionality complete, styling needed)
 - **Dependencies**: Venue management system
 
 #### 5. Social Features Frontend
@@ -158,7 +163,7 @@ A fully functional DojoPool platform with core gaming features, wallet system, a
 - [ ] Wallet system fully functional
 - [ ] Tournament system complete
 - [ ] Venue management operational
-- [ ] Map discovery working
+- [x] Map discovery working ✅ (Google Places API functional)
 - [ ] Social features implemented
 - [ ] Avatar system functional
 - [ ] All cyberpunk styling applied

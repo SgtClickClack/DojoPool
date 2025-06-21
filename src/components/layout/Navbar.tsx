@@ -64,13 +64,13 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               component={RouterLink}
-              to="/onboarding"
+              to="/dashboard"
               sx={{ 
-                my: 2, 
                 color: "#00ff9d", 
                 display: "block",
                 fontFamily: 'Orbitron, monospace',
                 fontWeight: 600,
+                mx: 2,
                 "&:hover": {
                   color: "#00a8ff",
                   textShadow: "0 0 10px #00a8ff",
@@ -79,17 +79,17 @@ const Navbar = () => {
                 },
               }}
             >
-              Onboarding
+              Dashboard
             </Button>
             <Button
               component={RouterLink}
-              to="/avatar"
+              to="/map"
               sx={{ 
-                my: 2, 
                 color: "#00ff9d", 
                 display: "block",
                 fontFamily: 'Orbitron, monospace',
                 fontWeight: 600,
+                mx: 2,
                 "&:hover": {
                   color: "#00a8ff",
                   textShadow: "0 0 10px #00a8ff",
@@ -98,17 +98,17 @@ const Navbar = () => {
                 },
               }}
             >
-              Avatar
+              Map
             </Button>
             <Button
               component={RouterLink}
-              to="/venue"
+              to="/ledger"
               sx={{ 
-                my: 2, 
                 color: "#00ff9d", 
                 display: "block",
                 fontFamily: 'Orbitron, monospace',
                 fontWeight: 600,
+                mx: 2,
                 "&:hover": {
                   color: "#00a8ff",
                   textShadow: "0 0 10px #00a8ff",
@@ -117,45 +117,7 @@ const Navbar = () => {
                 },
               }}
             >
-              Venue
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/tournaments"
-              sx={{ 
-                my: 2, 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px #00a8ff",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Tournaments
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/social"
-              sx={{ 
-                my: 2, 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px #00a8ff",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Social
+              Ledger
             </Button>
           </Box>
         </Toolbar>

@@ -16,6 +16,7 @@ const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard'));
 const AvatarCreation = React.lazy(() => import('./components/Avatar/AvatarCreation'));
 const GameView = React.lazy(() => import('./components/Game/GameView'));
 const Ledger = React.lazy(() => import('./components/wallet/Ledger'));
+const Map = React.lazy(() => import('./components/Map/Map'));
 // const SpectatorView = React.lazy(() => import('./components/Game/SpectatorView'));
 // Consistent path convention (assuming components is a sibling of contexts, App.tsx is in src)
 const TournamentDetail = React.lazy(() => import('../components/tournaments/TournamentDetail'));
@@ -102,6 +103,7 @@ const App: React.FC = () => {
               <Route path="/avatar-creation" element={<AvatarCreation />} />
               <Route path="/ledger" element={<Ledger />} />
               <Route path="/game/:gameId" element={<GameView />} />
+              <Route path="/map" element={<Map />} />
               {/* <Route path="/spectate/:gameId" element={<SpectatorViewWrapper />} /> */}
               {/* <Route path="/tournaments" element={<TournamentDashboard />} /> */}
               <Route path="/tournaments/:id" element={<TournamentDetail />} />

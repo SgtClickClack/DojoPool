@@ -22,13 +22,13 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3102;
+const port = process.env.PORT || 8080;
 
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ['http://localhost:3101', 'http://127.0.0.1:3101'],
+    origin: ['http://localhost:3000', 'http://localhost:3101', 'http://127.0.0.1:3101'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -80,7 +80,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // CORS - Uncomment and configure if your frontend is on a different origin
 app.use(cors({
-  origin: 'http://localhost:3101',
+  origin: ['http://localhost:3000', 'http://localhost:3101'],
   credentials: true,
 }));
 

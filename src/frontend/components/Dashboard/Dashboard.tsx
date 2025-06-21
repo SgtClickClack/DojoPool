@@ -277,6 +277,27 @@ const Dashboard: React.FC = () => {
             
             <Button
               variant="contained"
+              onClick={() => navigate('/map')}
+              sx={{
+                background: 'linear-gradient(45deg, #00ff9d, #00a8ff)',
+                color: '#000',
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 700,
+                px: 4,
+                py: 2,
+                borderRadius: 2,
+                boxShadow: '0 0 20px rgba(0, 255, 157, 0.5)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #00a8ff, #00ff9d)',
+                  boxShadow: '0 0 30px rgba(0, 168, 255, 0.7)',
+                },
+              }}
+            >
+              🗺️ FIND VENUES
+            </Button>
+            
+            <Button
+              variant="contained"
               onClick={() => navigate('/tournaments')}
               sx={{
                 background: 'linear-gradient(45deg, #f7b731, #ff6b6b)',

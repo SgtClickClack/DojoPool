@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { useAuth } from "../../components/auth/AuthContext"; // Fixed import path to match main.tsx
+import { useAuth } from "../../components/auth/AuthContext";
 import axiosInstance from "../api/axiosInstance";
 
 // Define the structure of the user profile data we expect from the backend
