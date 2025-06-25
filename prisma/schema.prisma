@@ -23,6 +23,7 @@ model User {
   updatedAt DateTime @updatedAt
   profile   Profile?
   settings  UserSettings?
+  sponsorshipProgress PlayerSponsorshipProgress[]
 
   @@map("users")
 }
@@ -58,4 +59,63 @@ model UserSettings {
   updatedAt             DateTime @updatedAt
 
   @@map("user_settings")
+}
+
+model SponsorshipBracket {
+  id                  String   @id @default(uuid())
+  bracketId           String   @unique
+  sponsorName         String
+  sponsorLogo         String?
+  inGameTitle         String
+  requiredLevel       Int
+  narrativeIntro      String
+  narrativeOutro      String
+  challenges          Json     // Array of SponsorshipChallenge objects
+  digitalReward       Json     // DigitalReward object
+  physicalReward      Json     // PhysicalReward object
+  isActive            Boolean  @default(true)
+  startDate           DateTime?
+  endDate             DateTime?
+  maxParticipants     Int?
+  currentParticipants Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  playerProgress      PlayerSponsorshipProgress[]
+
+  @@map("sponsorship_brackets")
+}
+
+model PlayerSponsorshipProgress {
+  id                      String             @id @default(uuid())
+  playerId                String
+  bracketId               String
+  bracketTitle            String
+  status                  String             // 'locked' | 'unlocked' | 'in_progress' | 'completed' | 'redeemed'
+  challengeProgress       Json               // Record of challenge progress
+  startedAt               DateTime?
+  completedAt             DateTime?
+  digitalRewardClaimed    Boolean            @default(false)
+  physicalRewardRedeemed  Boolean            @default(false)
+  redemptionCode          String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  
+  user                    User               @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  bracket                 SponsorshipBracket @relation(fields: [bracketId], references: [bracketId], onDelete: Cascade)
+
+  @@unique([playerId, bracketId])
+  @@map("player_sponsorship_progress")
+}
+
+model SponsorshipEvent {
+  id          String   @id @default(uuid())
+  eventType   String
+  playerId    String
+  bracketId   String
+  challengeId String?
+  timestamp   DateTime @default(now())
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@map("sponsorship_events")
 }

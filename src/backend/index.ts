@@ -9,6 +9,15 @@ import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import cors from 'cors'; // If you need CORS
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
+import gameRoutes from './routes/games';
+import tournamentRoutes from './routes/tournaments';
+import venueRoutes from './routes/venues';
+import profileRoutes from './routes/profiles';
+import sponsorshipRoutes from './routes/sponsorship';
 // import morgan from 'morgan'; // For HTTP request logging
 
 // --- Route Imports (Example of modular routes) ---
@@ -272,3 +281,26 @@ server.listen(port, () => {
   logger.info(`Current environment: ${process.env.NODE_ENV || 'development'}`);
   logger.info('Socket.IO server started.');
 });
+
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/games', gameRoutes);
+app.use('/api/tournaments', tournamentRoutes);
+app.use('/api/venues', venueRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/sponsorship', sponsorshipRoutes);
+
+// Error handling
+app.use(errorHandler);
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+app.listen(port, () => {
+  console.log(`🚀 DojoPool API server running on port ${port}`);
+});
+
+export default app;
