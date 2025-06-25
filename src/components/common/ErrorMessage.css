@@ -1,0 +1,150 @@
+/* Error Message Component Styles */
+.error-message {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+.error-message.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.error-message.warning {
+  border-color: #fed7aa;
+  background: #fffbeb;
+}
+
+.error-message.info {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.error-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.error-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.error-text {
+  flex: 1;
+}
+
+.error-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.error-message.error .error-title {
+  color: #dc2626;
+}
+
+.error-message.warning .error-title {
+  color: #d97706;
+}
+
+.error-message.info .error-title {
+  color: #2563eb;
+}
+
+.error-description {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.error-message.error .error-description {
+  color: #991b1b;
+}
+
+.error-message.warning .error-description {
+  color: #92400e;
+}
+
+.error-message.info .error-description {
+  color: #1e40af;
+}
+
+.error-retry-button {
+  align-self: flex-start;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.error-message.error .error-retry-button {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+}
+
+.error-message.warning .error-retry-button {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: white;
+}
+
+.error-message.info .error-retry-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.error-retry-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .error-message {
+    padding: 1rem;
+  }
+  
+  .error-content {
+    gap: 0.75rem;
+  }
+  
+  .error-icon {
+    font-size: 1.25rem;
+  }
+  
+  .error-title {
+    font-size: 1rem;
+  }
+  
+  .error-description {
+    font-size: 0.9rem;
+  }
+  
+  .error-retry-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+}

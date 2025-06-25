@@ -1,0 +1,427 @@
+/* Reward Claim Component Styles */
+.reward-claim {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.reward-preview-container {
+  margin-bottom: 2rem;
+}
+
+.reward-error {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.error-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.reward-error p {
+  flex: 1;
+  margin: 0;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.dismiss-error {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dismiss-error:hover {
+  background: #b91c1c;
+}
+
+.reward-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.reward-section {
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid;
+  background: white;
+}
+
+.reward-section.digital {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.reward-section.physical {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.reward-section h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reward-section.digital h4 {
+  color: #1d4ed8;
+}
+
+.reward-section.physical h4 {
+  color: #d97706;
+}
+
+.reward-claimed {
+  text-align: center;
+  padding: 1rem;
+}
+
+.claimed-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.reward-claimed p {
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  color: #059669;
+}
+
+.claimed-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.claimed-item strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #374151;
+}
+
+.claimed-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: normal;
+}
+
+.reward-available {
+  text-align: center;
+}
+
+.reward-available p {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-weight: 600;
+}
+
+.claim-button {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.claim-button.digital {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.claim-button.physical {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.claim-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.claim-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.physical-reward-warning {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.physical-reward-warning p {
+  margin: 0;
+  color: #92400e;
+}
+
+.reward-locked {
+  text-align: center;
+  padding: 1rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.reward-locked p {
+  margin: 0 0 0.5rem 0;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.progress-summary,
+.estimated-value {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.redemption-details {
+  margin-top: 1rem;
+}
+
+.redemption-details p {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+  font-weight: 600;
+}
+
+.redemption-code {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.redemption-code code {
+  flex: 1;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #374151;
+  background: none;
+  padding: 0;
+}
+
+.copy-code-button {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.copy-code-button:hover {
+  background: #4b5563;
+}
+
+.redemption-instructions {
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.redemption-instructions p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.5;
+  font-weight: normal;
+}
+
+.redemption-success {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 2px solid #10b981;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.success-animation {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: bounce 1s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.redemption-success h3 {
+  color: #047857;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.new-redemption-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #10b981;
+  border-radius: 8px;
+}
+
+.new-redemption-code code {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #047857;
+}
+
+.redemption-success p {
+  margin: 0;
+  color: #047857;
+  font-weight: 600;
+}
+
+.completion-celebration {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.celebration-content h3 {
+  color: #92400e;
+  margin: 0 0 1rem 0;
+  font-size: 1.75rem;
+}
+
+.celebration-content > p {
+  color: #92400e;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.narrative-outro {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.narrative-outro p {
+  margin: 0;
+  color: #78350f;
+}
+
+.claim-locked {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.claim-locked p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reward-claim {
+    padding: 1rem;
+  }
+  
+  .reward-actions {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .reward-section {
+    padding: 1rem;
+  }
+  
+  .redemption-code {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .copy-code-button {
+    align-self: center;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .reward-claim {
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+  
+  .reward-error {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .completion-celebration,
+  .redemption-success {
+    padding: 1.5rem;
+  }
+  
+  .success-animation {
+    font-size: 2rem;
+  }
+  
+  .new-redemption-code {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,304 @@
+/* Bracket Card Styles */
+.bracket-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.bracket-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5a3c 0%, #a0664a 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bracket-card.clickable {
+  cursor: pointer;
+}
+
+.bracket-card.clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.bracket-card.clickable:hover::before {
+  opacity: 1;
+}
+
+/* Card States */
+.bracket-card.locked {
+  opacity: 0.7;
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.bracket-card.available::before {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  opacity: 1;
+}
+
+.bracket-card.unlocked::before,
+.bracket-card.in_progress::before {
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  opacity: 1;
+}
+
+.bracket-card.completed::before {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  opacity: 1;
+}
+
+.bracket-card.redeemed::before {
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  opacity: 1;
+}
+
+/* Card Header */
+.bracket-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bracket-sponsor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sponsor-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+}
+
+.sponsor-name {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.bracket-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bracket-status.locked {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.bracket-status.available {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.bracket-status.unlocked,
+.bracket-status.in_progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.bracket-status.completed {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.bracket-status.redeemed {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.status-icon {
+  font-size: 1rem;
+}
+
+/* Card Content */
+.bracket-content {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.bracket-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+.bracket-narrative {
+  margin-bottom: 1.5rem;
+}
+
+.narrative-intro {
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.bracket-requirements {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.requirement-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.requirement-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.requirement-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.requirement-value.met {
+  color: #059669;
+}
+
+.requirement-value.unmet {
+  color: #dc2626;
+}
+
+.bracket-progress {
+  margin-bottom: 1.5rem;
+}
+
+.bracket-rewards {
+  margin-bottom: 1.5rem;
+}
+
+/* Unlock Requirements */
+.unlock-requirements {
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.unlock-requirements p {
+  margin: 0 0 0.5rem 0;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.level-gap {
+  font-size: 0.9rem;
+  color: #991b1b;
+}
+
+/* Unlock Prompt */
+.unlock-prompt {
+  text-align: center;
+}
+
+.unlock-button {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.unlock-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Card Footer */
+.bracket-card-footer {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.bracket-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.participant-count,
+.end-date {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .bracket-card-header {
+    padding: 1rem 1rem 0.75rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .bracket-sponsor {
+    justify-content: center;
+  }
+  
+  .bracket-status {
+    justify-content: center;
+  }
+  
+  .bracket-content {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .bracket-requirements {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .requirement-item {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .bracket-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
