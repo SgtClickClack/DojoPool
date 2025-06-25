@@ -5,23 +5,19 @@ interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
     value: number;
-    [key: string]: any;
 }
 
-const TabPanel: React.FC<TabPanelProps> = React.memo(
-    ({ children, value, index, ...other }) => {
-        return (
-            <div
-                role="tabpanel"
-                hidden={value !== index}
-                id={`tabpanel-${index}`}
-                aria-labelledby={`tab-${index}`}
-                {...other}
-            >
-                {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-            </div>
-        );
-    }
-);
+const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => {
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`advanced-analysis-tabpanel-${index}`}
+            aria-labelledby={`advanced-analysis-tab-${index}`}
+        >
+            {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+        </div>
+    );
+};
 
 export default TabPanel; 

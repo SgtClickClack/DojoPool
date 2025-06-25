@@ -56,7 +56,7 @@ import { getVenue } from '@/dojopool/frontend/api/venues';
 import { joinTournament } from '@/frontend/api/tournaments';
 import { Tournament, Participant, TournamentStatus, Match } from '@/types/tournament';
 import { Venue } from '@/dojopool/frontend/types/venue';
-import { useAuth } from '@/frontend/contexts/AuthContext'; 
+import { useAuth } from '../../hooks/useAuth'; 
 import { SocketIOService } from '@/services/network/WebSocketService';
 import { submitMatchResult } from '@/services/tournament/tournament';
 import Snackbar from '@mui/material/Snackbar';

@@ -4,7 +4,7 @@ import { Box, Typography, List, ListItem, ListItemText, Paper, CircularProgress,
 // Import Link from react-router-dom
 import { Link as RouterLink } from 'react-router-dom';
 import { useTournaments } from '@/frontend/hooks/useTournaments';
-import { useAuth } from '@/frontend/contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { joinTournament } from '@/frontend/api/tournaments';
 import { Tournament, TournamentStatus } from '@/types/tournament'; // Import the type if needed for rendering logic
 

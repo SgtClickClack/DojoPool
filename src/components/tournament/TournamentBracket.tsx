@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import { Tournament, Match, Participant } from '../../types/tournament';
 import { useAuth } from '../../hooks/useAuth';
-import { BracketVisualization } from './BracketVisualization';
+import BracketVisualization from './BracketVisualization';
 
 interface TournamentBracketProps {
   tournament: Tournament;

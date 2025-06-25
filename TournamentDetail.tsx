@@ -9,7 +9,7 @@ import { joinTournament } from '@/frontend/api/tournaments'; // Import join func
 import { Tournament, Participant, TournamentStatus } from '@/types/tournament'; // Reverted: No Round/Match 
 import { Venue } from '@/dojopool/frontend/types/venue'; // Adjusted path
 // Auth Hook
-import { useAuth } from '@/frontend/contexts/AuthContext'; 
+import { useAuth } from 'src/hooks/useAuth'; 
 
 // Simple Participants List Component
 interface ParticipantsListProps {
