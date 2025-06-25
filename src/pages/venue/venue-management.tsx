@@ -1,13 +1,14 @@
 import React from 'react';
-import VenueManagement from '../../components/venue/VenueManagement';
+import Layout from '../../components/layout/Layout';
 import PageBackground from '../../components/common/PageBackground';
+import { EnhancedVenueManagementPanel } from '../../components/venue/EnhancedVenueManagementPanel';
 
-const VenueManagementPage: React.FC = () => {
-  return (
-    <PageBackground backgroundType="venue">
-      <VenueManagement />
+const VenueManagementPage: React.FC = () => (
+  <Layout>
+    <PageBackground variant="venue">
+      <EnhancedVenueManagementPanel />
     </PageBackground>
-  );
-};
+  </Layout>
+);
 
 export default VenueManagementPage; 

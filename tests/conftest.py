@@ -3,15 +3,28 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 import pytest
 from flask import Flask
-import fakeredis
+
+# Try to import fakeredis, but make it optional
+try:
+    import fakeredis
+    FAKEREDIS_AVAILABLE = True
+except ImportError:
+    FAKEREDIS_AVAILABLE = False
 
 # Import your Flask app instance here.
-from dojopool import create_app  # Changed: Import directly from dojopool package
-from dojopool.config.testing import TestingConfig  # Import TestingConfig
+try:
+    from dojopool import create_app  # Changed: Import directly from dojopool package
+    from dojopool.config.testing import TestingConfig  # Import TestingConfig
+    FLASK_APP_AVAILABLE = True
+except ImportError:
+    FLASK_APP_AVAILABLE = False
 
 @pytest.fixture(scope='session')
 def app():
     """Session-wide test Flask application."""
+    if not FLASK_APP_AVAILABLE:
+        pytest.skip("Flask app not available")
+    
     # Use the actual app factory and testing config
     app = create_app(config_name='testing') # Pass 'testing' or use TestingConfig directly
 
@@ -37,6 +50,9 @@ def client(app):
 @pytest.fixture(scope='function')
 def redis_client():
     """Provides a mock Redis client using fakeredis."""
+    if not FAKEREDIS_AVAILABLE:
+        pytest.skip("fakeredis not available")
+    
     # Use FakeStrictRedis for compatibility with redis-py's StrictRedis
     # Add decode_responses=True if your application code expects decoded strings
     fake_redis = fakeredis.FakeStrictRedis(decode_responses=True)

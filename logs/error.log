@@ -57,3 +57,331 @@
 {"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.223Z"}
 {"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.280Z"}
 {"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.990Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.858Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.880Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.884Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.890Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.921Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.925Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.939Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:47.957Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:47.960Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.153Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.175Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.179Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.184Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.216Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.219Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.224Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:48.248Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:48.251Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.670Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.617Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.651Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.658Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.666Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.687Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.694Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.702Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.734Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.737Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.710Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.757Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.767Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.789Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.795Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.803Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.824Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.831Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.870Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.896Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.902Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.908Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.927Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.935Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.939Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.969Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.985Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.088Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.110Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.119Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.128Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.158Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.163Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.170Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:50.185Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:50.188Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.610Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.631Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.635Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.640Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.674Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.682Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.687Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:03.710Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:03.714Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.604Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.511Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.534Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.550Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.588Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.593Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.598Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:04.615Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:04.617Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.629Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.634Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.640Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.704Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.711Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.717Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:04.738Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:04.742Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.022Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.048Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.055Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.075Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.110Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.116Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.131Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:05.159Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:05.167Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.433Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.458Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.468Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.487Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.512Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.517Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.525Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:05.538Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:05.542Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.329Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.350Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.356Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.360Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.376Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.380Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.390Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:06.418Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:06.425Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.434Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.455Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.460Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.466Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.484Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.491Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.497Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:16.513Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:16.519Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.738Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.779Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.793Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.811Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.852Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.856Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.862Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:16.877Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:16.879Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.870Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.904Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.896Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.901Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.907Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.933Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.937Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.945Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:18.962Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:18.966Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.926Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.931Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.937Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.007Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.014Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.026Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.041Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.045Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.155Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.180Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.185Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.192Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.253Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.259Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.267Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.288Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.291Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.469Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.493Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.498Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.502Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.556Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.561Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.569Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.596Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.600Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.189Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.212Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.216Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.225Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.250Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.254Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.260Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.275Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.278Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.527Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.651Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.550Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.555Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.560Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.594Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.597Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.615Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.639Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.650Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.674Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.682Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.695Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.720Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.725Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.732Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.747Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.749Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.915Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.938Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.952Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.965Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.017Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.031Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.084Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.106Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.114Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.438Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.444Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.475Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.499Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.524Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.530Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.535Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.550Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.553Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.460Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.473Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.531Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.540Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.546Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.563Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.566Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.101Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.136Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.145Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.153Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.181Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.188Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.196Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:41.217Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:41.220Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.920Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.952Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.976Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.983Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.001Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.007Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.012Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.020Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.023Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.156Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.103Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.128Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.133Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.138Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.161Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.165Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.170Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.189Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.192Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.231Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.181Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.186Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.193Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.208Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.212Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.216Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.224Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.227Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.252Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.259Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.266Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.290Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.294Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.301Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.320Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.322Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.776Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.799Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.804Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.810Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.831Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.835Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.846Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:56.863Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:56.868Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.018Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.051Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.057Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.062Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.101Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.109Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.121Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:57.135Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:57.138Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.141Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.176Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.184Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.189Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.213Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.218Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.223Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:35:07.239Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:35:07.246Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.075Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.084Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.533Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.545Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.674Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.684Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:52.843Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:52.852Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:53.178Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:53.191Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:53.395Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:53.412Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:37:05.137Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:37:05.147Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:37:26.463Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:37:26.474Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:39:57.051Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:39:57.079Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:40:39.864Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:40:39.876Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:40:49.810Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:40:49.818Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:20:45.426Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:20:45.439Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:21:04.020Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:21:04.028Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:21:26.592Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:21:26.729Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:22:16.887Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:22:16.899Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:18:15.494Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:18:15.501Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:25:08.715Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:25:08.724Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:31:53.523Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:31:53.530Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:40:24.333Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:40:24.342Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:43:54.063Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:43:54.073Z"}

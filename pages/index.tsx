@@ -23,6 +23,27 @@ const Home: React.FC = () => {
       icon: "🦊"
     },
     {
+      title: "Avatar Progression",
+      description: "Narrative-driven story arcs",
+      path: "/avatar-progression",
+      color: "#feca57",
+      icon: "📖"
+    },
+    {
+      title: "World Map",
+      description: "Live Dojo status & territory",
+      path: "/world-map",
+      color: "#ff6b6b",
+      icon: "🗺️"
+    },
+    {
+      title: "AI Commentary",
+      description: "Pool God & match analysis",
+      path: "/ai-commentary",
+      color: "#a55eea",
+      icon: "🎙️"
+    },
+    {
       title: "Venue Check-in",
       description: "Find and join a Dojo",
       path: "/venue",

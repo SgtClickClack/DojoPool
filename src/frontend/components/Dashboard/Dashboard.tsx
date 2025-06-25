@@ -318,6 +318,88 @@ const Dashboard: React.FC = () => {
             </Button>
           </Box>
         </Box>
+
+        {/* New Feature Cards */}
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>
+          <Box sx={{ flex: 1 }}>
+            <Paper
+              elevation={6}
+              sx={{
+                p: 3,
+                background: 'linear-gradient(135deg, #181818 60%, #ffb300 100%)',
+                border: '2px solid #ffb300',
+                borderRadius: 3,
+                boxShadow: '0 0 30px #ffb300, 0 0 50px rgba(255, 179, 0, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 40px #ffb300, 0 0 60px rgba(255, 179, 0, 0.5)',
+                },
+              }}
+              onClick={() => navigate('/avatar-progression')}
+            >
+              <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 'bold' }}>
+                🎭 Avatar Progression
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#fff', opacity: 0.9 }}>
+                Test narrative-driven avatar evolution and story progression
+              </Typography>
+            </Paper>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Paper
+              elevation={6}
+              sx={{
+                p: 3,
+                background: 'linear-gradient(135deg, #181818 60%, #ffb300 100%)',
+                border: '2px solid #ffb300',
+                borderRadius: 3,
+                boxShadow: '0 0 30px #ffb300, 0 0 50px rgba(255, 179, 0, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 40px #ffb300, 0 0 60px rgba(255, 179, 0, 0.5)',
+                },
+              }}
+              onClick={() => navigate('/world-map')}
+            >
+              <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 'bold' }}>
+                🗺️ World Map
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#fff', opacity: 0.9 }}>
+                Interactive territory control and Dojo status
+              </Typography>
+            </Paper>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Paper
+              elevation={6}
+              sx={{
+                p: 3,
+                background: 'linear-gradient(135deg, #181818 60%, #ffb300 100%)',
+                border: '2px solid #ffb300',
+                borderRadius: 3,
+                boxShadow: '0 0 30px #ffb300, 0 0 50px rgba(255, 179, 0, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 0 40px #ffb300, 0 0 60px rgba(255, 179, 0, 0.5)',
+                },
+              }}
+              onClick={() => navigate('/ai-commentary')}
+            >
+              <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 'bold' }}>
+                🎙️ AI Commentary
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#fff', opacity: 0.9 }}>
+                Pool God and Fluke God match commentary
+              </Typography>
+            </Paper>
+          </Box>
+        </Box>
         
         {/* Game Flow Steps */}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 4 }}>

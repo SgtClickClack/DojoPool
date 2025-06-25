@@ -110,7 +110,7 @@ const DashboardPage: React.FC = () => {
           </Typography>
           <Grid container spacing={2}>
             {gameFlowSteps.map((step, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+              <Grid key={index}>
                 <Paper
                   sx={{
                     p: 3,
@@ -155,6 +155,124 @@ const DashboardPage: React.FC = () => {
                 </Paper>
               </Grid>
             ))}
+            {/* New Feature Navigation Buttons */}
+            <Grid>
+              <Paper
+                sx={{
+                  p: 3,
+                  background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)',
+                  border: '2px solid #ffb300',
+                  borderRadius: 2,
+                  boxShadow: '0 0 20px #ffb30040',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 0 30px #ffb30080',
+                  }
+                }}
+                onClick={() => router.push('/avatar-progression-test')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography sx={{ fontSize: '2rem', mr: 2 }}>🧬</Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: '#ffb300',
+                      fontFamily: 'Orbitron, monospace',
+                      fontWeight: 600,
+                      textShadow: '0 0 10px #ffb300'
+                    }}
+                  >
+                    Avatar Progression Test
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ color: '#ccc', fontSize: '0.9rem' }}
+                >
+                  Test narrative-driven avatar progression and evolution.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid>
+              <Paper
+                sx={{
+                  p: 3,
+                  background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)',
+                  border: '2px solid #00e676',
+                  borderRadius: 2,
+                  boxShadow: '0 0 20px #00e67640',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 0 30px #00e67680',
+                  }
+                }}
+                onClick={() => router.push('/world-map')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography sx={{ fontSize: '2rem', mr: 2 }}>🗺️</Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: '#00e676',
+                      fontFamily: 'Orbitron, monospace',
+                      fontWeight: 600,
+                      textShadow: '0 0 10px #00e676'
+                    }}
+                  >
+                    World Map
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ color: '#ccc', fontSize: '0.9rem' }}
+                >
+                  View live Dojo status and territory control.
+                </Typography>
+              </Paper>
+            </Grid>
+            <Grid>
+              <Paper
+                sx={{
+                  p: 3,
+                  background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)',
+                  border: '2px solid #00bcd4',
+                  borderRadius: 2,
+                  boxShadow: '0 0 20px #00bcd440',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0 0 30px #00bcd480',
+                  }
+                }}
+                onClick={() => router.push('/ai-commentary')}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography sx={{ fontSize: '2rem', mr: 2 }}>🤖</Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: '#00bcd4',
+                      fontFamily: 'Orbitron, monospace',
+                      fontWeight: 600,
+                      textShadow: '0 0 10px #00bcd4'
+                    }}
+                  >
+                    AI Commentary
+                  </Typography>
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ color: '#ccc', fontSize: '0.9rem' }}
+                >
+                  Experience Pool God/Fluke God match commentary.
+                </Typography>
+              </Paper>
+            </Grid>
           </Grid>
         </Box>
 
@@ -173,7 +291,7 @@ const DashboardPage: React.FC = () => {
           </Typography>
           <Grid container spacing={3}>
             {stats.map((stat, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+              <Grid key={index}>
                 <Paper
                   sx={{
                     p: 3,
@@ -225,10 +343,10 @@ const DashboardPage: React.FC = () => {
         {/* Wallet and Rewards */}
         <Box sx={{ mb: 6 }}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid>
               <WalletBalanceView />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid>
               <RewardsDisplayPanel />
             </Grid>
           </Grid>

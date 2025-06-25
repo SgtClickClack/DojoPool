@@ -1,4 +1,4 @@
-import { io, Socket } from 'socket.io-client';
+import { io as defaultIo, Socket } from 'socket.io-client';
 
 export interface PlayerPerformance {
   playerId: string;
@@ -35,14 +35,6 @@ export interface KeyMoment {
   recommendation?: string;
 }
 
-export interface MatchPrediction {
-  opponentId: string;
-  winProbability: number;
-  predictedScore: string;
-  keyFactors: string[];
-  recommendedStrategy: string;
-}
-
 export interface TrainingProgram {
   playerId: string;
   programId: string;
@@ -69,9 +61,22 @@ export interface TrainingExercise {
   targetScore?: number;
 }
 
+export interface MatchPrediction {
+  matchId: string;
+  predictedWinner: string;
+  confidence: number;
+  reasoning: string;
+  keyFactors: string[];
+}
+
 class MatchAnalysisService {
   private socket: Socket | null = null;
   private static instance: MatchAnalysisService;
+  private static ioFactory: typeof defaultIo = defaultIo;
+
+  public static setIoFactory(ioFactory: typeof defaultIo) {
+    MatchAnalysisService.ioFactory = ioFactory;
+  }
 
   private constructor() {
     this.initializeSocket();
@@ -84,16 +89,29 @@ class MatchAnalysisService {
     return MatchAnalysisService.instance;
   }
 
-  private initializeSocket(): void {
-    this.socket = io('http://localhost:8080');
-    
-    this.socket.on('connect', () => {
-      console.log('MatchAnalysisService connected to server');
-    });
+  public static resetInstance(): void {
+    MatchAnalysisService.instance = undefined as any;
+  }
 
-    this.socket.on('disconnect', () => {
-      console.log('MatchAnalysisService disconnected from server');
-    });
+  private initializeSocket(): void {
+    // In test environments, use the mocked io directly
+    if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
+      // Import the mocked io from the test setup
+      const { io } = require('socket.io-client');
+      this.socket = io('http://localhost:8080');
+    } else {
+      this.socket = MatchAnalysisService.ioFactory('http://localhost:8080');
+    }
+    
+    if (this.socket) {
+      this.socket.on('connect', () => {
+        console.log('MatchAnalysisService connected to server');
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log('MatchAnalysisService disconnected from server');
+      });
+    }
   }
 
   // Analyze a completed match and generate performance insights
@@ -265,11 +283,11 @@ class MatchAnalysisService {
     
     for (let i = 0; i < 3; i++) {
       predictions.push({
-        opponentId: `opponent_${i + 1}`,
-        winProbability: Math.random() * 40 + 30, // 30-70%
-        predictedScore: `${Math.floor(Math.random() * 5) + 3}-${Math.floor(Math.random() * 5) + 3}`,
-        keyFactors: ["Break consistency", "Safety play", "Mental game"],
-        recommendedStrategy: "Focus on controlled break shots and maintain defensive pressure"
+        matchId: `match_${i + 1}`,
+        predictedWinner: `player${Math.random() > 0.5 ? '1' : '2'}`,
+        confidence: Math.random() * 40 + 30, // 30-70%
+        reasoning: "Based on recent performance and head-to-head statistics",
+        keyFactors: ["Break consistency", "Safety play", "Mental game"]
       });
     }
     

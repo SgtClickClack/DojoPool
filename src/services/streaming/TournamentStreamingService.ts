@@ -1,109 +1,70 @@
 import { io, Socket } from 'socket.io-client';
 
-export interface StreamConfig {
-  quality: 'low' | 'medium' | 'high' | 'ultra';
-  bitrate: number;
-  resolution: string;
-  frameRate: number;
-  audioEnabled: boolean;
-  videoEnabled: boolean;
-  commentaryEnabled: boolean;
-  chatEnabled: boolean;
-  recordingEnabled: boolean;
-}
-
-export interface StreamStats {
-  viewers: number;
-  peakViewers: number;
-  averageWatchTime: number;
-  chatMessages: number;
-  donations: number;
-  streamUptime: number;
-  bitrate: number;
-  frameRate: number;
-  droppedFrames: number;
-  audioLevel: number;
-  videoQuality: number;
-}
-
-export interface CommentaryEvent {
+export interface Stream {
   id: string;
-  type: 'shot' | 'foul' | 'game_end' | 'highlight' | 'analysis';
-  timestamp: Date;
-  message: string;
-  player?: string;
-  excitement: number;
-  priority: 'low' | 'medium' | 'high';
-  audioUrl?: string;
+  title: string;
+  description: string;
+  status: 'live' | 'offline' | 'scheduled';
+  quality: '720p' | '1080p' | '4k';
+  viewers: number;
+  maxViewers: number;
+  startTime: Date;
+  endTime?: Date;
+  match: string;
+  streamer: string;
+  url: string;
+  thumbnail: string;
 }
 
 export interface ChatMessage {
   id: string;
-  userId: string;
-  username: string;
+  streamId: string;
+  user: string;
   message: string;
   timestamp: Date;
-  type: 'user' | 'moderator' | 'system';
-  isHighlighted: boolean;
-  donation?: number;
+  type: 'text' | 'emote' | 'donation' | 'subscription';
+  moderation: 'clean' | 'flagged' | 'removed';
 }
 
 export interface BroadcastSettings {
-  title: string;
-  description: string;
-  tags: string[];
-  visibility: 'public' | 'private' | 'unlisted';
-  allowChat: boolean;
-  moderateChat: boolean;
-  allowDonations: boolean;
-  scheduleTime?: Date;
-  duration?: number;
-  thumbnail?: string;
+  quality: string;
+  bitrate: number;
+  fps: number;
+  resolution: string;
+  audioCodec: string;
+  videoCodec: string;
 }
 
-export interface StreamSession {
-  id: string;
-  tournamentId: string;
-  matchId?: string;
-  title: string;
-  status: 'preparing' | 'live' | 'paused' | 'ended';
-  startTime: Date;
-  endTime?: Date;
-  config: StreamConfig;
-  stats: StreamStats;
-  settings: BroadcastSettings;
-  commentary: CommentaryEvent[];
-  chat: ChatMessage[];
-  highlights: string[];
-  recordingUrl?: string;
-  replayUrl?: string;
+export interface StreamAnalytics {
+  streamId: string;
+  peakViewers: number;
+  avgViewers: number;
+  totalWatchTime: number;
+  chatMessages: number;
+  donations: number;
+  subscriptions: number;
+  engagement: number;
 }
 
 class TournamentStreamingService {
-  private socket: Socket | null = null;
   private static instance: TournamentStreamingService;
-  private config: StreamConfig;
-  private currentSession: StreamSession | null = null;
-  private _isConnected: boolean = false;
-  private _isStreaming: boolean = false;
-  private mediaStream: MediaStream | null = null;
-  private mediaRecorder: MediaRecorder | null = null;
-  private recordedChunks: Blob[] = [];
+  private socket: Socket | null = null;
+  private _isConnected = false;
+  private streams: Stream[] = [];
+  private chatMessages: ChatMessage[] = [];
+  private analytics: StreamAnalytics[] = [];
+  private settings: BroadcastSettings = {
+    quality: '1080p',
+    bitrate: 6000,
+    fps: 60,
+    resolution: '1920x1080',
+    audioCodec: 'AAC',
+    videoCodec: 'H.264'
+  };
 
   private constructor() {
-    this.config = {
-      quality: 'high',
-      bitrate: 5000000,
-      resolution: '1920x1080',
-      frameRate: 30,
-      audioEnabled: true,
-      videoEnabled: true,
-      commentaryEnabled: true,
-      chatEnabled: true,
-      recordingEnabled: true,
-    };
-    this.initializeSocket();
-    this.generateMockData();
+    this.initializeWebSocket();
+    this.loadMockData();
   }
 
   public static getInstance(): TournamentStreamingService {
@@ -113,335 +74,218 @@ class TournamentStreamingService {
     return TournamentStreamingService.instance;
   }
 
-  private initializeSocket(): void {
-    this.socket = io('http://localhost:8080', {
-      transports: ['websocket'],
-      autoConnect: true,
-    });
-
-    this.socket.on('connect', () => {
-      console.log('TournamentStreamingService connected to server');
-      this._isConnected = true;
-      this.requestStreamingData();
-    });
-
-    this.socket.on('disconnect', () => {
-      console.log('TournamentStreamingService disconnected from server');
-      this._isConnected = false;
-    });
-
-    this.socket.on('streaming-update', (data: any) => {
-      this.handleStreamingUpdate(data);
-    });
-
-    this.socket.on('commentary-update', (data: any) => {
-      this.handleCommentaryUpdate(data);
-    });
-
-    this.socket.on('chat-message', (data: any) => {
-      this.handleChatMessage(data);
-    });
-
-    this.socket.on('viewer-update', (data: any) => {
-      this.handleViewerUpdate(data);
-    });
-  }
-
-  private handleStreamingUpdate(data: any): void {
-    if (this.currentSession) {
-      this.currentSession.stats = { ...this.currentSession.stats, ...data.stats };
-      this.currentSession.status = data.status;
-    }
-  }
-
-  private handleCommentaryUpdate(data: any): void {
-    if (this.currentSession) {
-      this.currentSession.commentary.push(data);
-    }
-  }
-
-  private handleChatMessage(data: any): void {
-    if (this.currentSession) {
-      this.currentSession.chat.push(data);
-    }
-  }
-
-  private handleViewerUpdate(data: any): void {
-    if (this.currentSession) {
-      this.currentSession.stats.viewers = data.viewers;
-      this.currentSession.stats.peakViewers = Math.max(
-        this.currentSession.stats.peakViewers,
-        data.viewers
-      );
-    }
-  }
-
-  private requestStreamingData(): void {
-    this.socket?.emit('request-streaming-data');
-  }
-
-  private generateMockData(): void {
-    this.currentSession = {
-      id: 'stream-1',
-      tournamentId: 't1',
-      matchId: 'm1',
-      title: 'Spring Championship Finals - Live Stream',
-      status: 'live',
-      startTime: new Date(Date.now() - 30 * 60 * 1000), // Started 30 minutes ago
-      config: this.config,
-      stats: {
-        viewers: 1250,
-        peakViewers: 1800,
-        averageWatchTime: 25.5,
-        chatMessages: 3420,
-        donations: 1250,
-        streamUptime: 1800,
-        bitrate: 5000000,
-        frameRate: 30,
-        droppedFrames: 12,
-        audioLevel: 0.8,
-        videoQuality: 0.95,
-      },
-      settings: {
-        title: 'Spring Championship Finals - Live Stream',
-        description: 'Watch the epic finals of the Spring Championship 2024!',
-        tags: ['pool', 'tournament', 'finals', 'live'],
-        visibility: 'public',
-        allowChat: true,
-        moderateChat: true,
-        allowDonations: true,
-        thumbnail: '/images/stream-thumbnail.jpg',
-      },
-      commentary: [
-        {
-          id: 'c1',
-          type: 'shot',
-          timestamp: new Date(Date.now() - 5000),
-          message: 'Incredible bank shot by Alex Chen! That was a 3-rail shot that found the corner pocket perfectly.',
-          player: 'Alex Chen',
-          excitement: 9,
-          priority: 'high',
-        },
-        {
-          id: 'c2',
-          type: 'analysis',
-          timestamp: new Date(Date.now() - 3000),
-          message: 'Sarah Kim is setting up for a difficult combination shot. This could be the turning point of the match.',
-          player: 'Sarah Kim',
-          excitement: 7,
-          priority: 'medium',
-        },
-      ],
-      chat: [
-        {
-          id: 'chat1',
-          userId: 'u1',
-          username: 'PoolFan2024',
-          message: 'Amazing shot! 🔥',
-          timestamp: new Date(Date.now() - 2000),
-          type: 'user',
-          isHighlighted: false,
-        },
-        {
-          id: 'chat2',
-          userId: 'u2',
-          username: 'Moderator',
-          message: 'Welcome everyone to the finals!',
-          timestamp: new Date(Date.now() - 1000),
-          type: 'moderator',
-          isHighlighted: true,
-        },
-      ],
-      highlights: [
-        'Amazing 3-rail bank shot by Alex Chen',
-        'Incredible comeback by Sarah Kim',
-        'Perfect safety shot under pressure',
-      ],
-    };
-  }
-
-  public async startStream(tournamentId: string, matchId?: string): Promise<boolean> {
+  private initializeWebSocket(): void {
     try {
-      // Request media permissions
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          frameRate: { ideal: 30 },
-        },
-        audio: true,
+      this.socket = io('http://localhost:8080', {
+        transports: ['websocket'],
+        timeout: 10000
       });
-
-      // Start recording if enabled
-      if (this.config.recordingEnabled) {
-        this.startRecording();
-      }
-
-      // Update session status
-      if (this.currentSession) {
-        this.currentSession.status = 'live';
-        this.currentSession.startTime = new Date();
-        this.currentSession.tournamentId = tournamentId;
-        this.currentSession.matchId = matchId;
-      }
-
-      this._isStreaming = true;
-      this.socket?.emit('stream-started', {
-        tournamentId,
-        matchId,
-        config: this.config,
+      this.socket.on('connect', () => {
+        this._isConnected = true;
+        this.socket?.emit('streaming:join', { service: 'streaming' });
       });
-
-      return true;
+      this.socket.on('disconnect', () => {
+        this._isConnected = false;
+      });
+      this.socket.on('streaming:stream_update', (stream: Stream) => {
+        this.updateStream(stream);
+      });
+      this.socket.on('streaming:chat_message', (message: ChatMessage) => {
+        this.addChatMessage(message);
+      });
     } catch (error) {
-      console.error('Failed to start stream:', error);
-      return false;
+      this._isConnected = false;
     }
   }
 
-  public stopStream(): void {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
-      this.mediaStream = null;
-    }
-
-    if (this.mediaRecorder) {
-      this.mediaRecorder.stop();
-      this.mediaRecorder = null;
-    }
-
-    if (this.currentSession) {
-      this.currentSession.status = 'ended';
-      this.currentSession.endTime = new Date();
-    }
-
-    this._isStreaming = false;
-    this.socket?.emit('stream-stopped');
-  }
-
-  public pauseStream(): void {
-    if (this.currentSession) {
-      this.currentSession.status = 'paused';
-    }
-    this.socket?.emit('stream-paused');
-  }
-
-  public resumeStream(): void {
-    if (this.currentSession) {
-      this.currentSession.status = 'live';
-    }
-    this.socket?.emit('stream-resumed');
-  }
-
-  private startRecording(): void {
-    if (this.mediaStream && this.config.recordingEnabled) {
-      this.mediaRecorder = new MediaRecorder(this.mediaStream, {
-        mimeType: 'video/webm;codecs=vp9',
-      });
-
-      this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          this.recordedChunks.push(event.data);
-        }
-      };
-
-      this.mediaRecorder.onstop = () => {
-        const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        if (this.currentSession) {
-          this.currentSession.recordingUrl = url;
-        }
-        this.recordedChunks = [];
-      };
-
-      this.mediaRecorder.start(1000); // Record in 1-second chunks
-    }
-  }
-
-  public addCommentary(event: Omit<CommentaryEvent, 'id' | 'timestamp'>): void {
-    const commentaryEvent: CommentaryEvent = {
-      ...event,
-      id: `commentary-${Date.now()}`,
-      timestamp: new Date(),
+  // Stream Management
+  public createStream(stream: Omit<Stream, 'id' | 'viewers' | 'maxViewers' | 'startTime'>): Stream {
+    const newStream: Stream = {
+      ...stream,
+      id: this.generateId(),
+      viewers: 0,
+      maxViewers: 0,
+      startTime: new Date()
     };
-
-    if (this.currentSession) {
-      this.currentSession.commentary.push(commentaryEvent);
-    }
-
-    this.socket?.emit('commentary-added', commentaryEvent);
+    this.streams.push(newStream);
+    this.socket?.emit('streaming:stream_created', newStream);
+    return newStream;
   }
 
-  public sendChatMessage(message: string, userId: string, username: string): void {
-    const chatMessage: ChatMessage = {
-      id: `chat-${Date.now()}`,
-      userId,
-      username,
-      message,
-      timestamp: new Date(),
-      type: 'user',
-      isHighlighted: false,
+  public startStream(streamId: string): void {
+    const stream = this.streams.find(s => s.id === streamId);
+    if (stream) {
+      stream.status = 'live';
+      stream.startTime = new Date();
+      this.socket?.emit('streaming:stream_started', stream);
+    }
+  }
+
+  public endStream(streamId: string): void {
+    const stream = this.streams.find(s => s.id === streamId);
+    if (stream) {
+      stream.status = 'offline';
+      stream.endTime = new Date();
+      this.socket?.emit('streaming:stream_ended', stream);
+    }
+  }
+
+  public getStreams(): Stream[] {
+    return [...this.streams];
+  }
+
+  public getStreamById(id: string): Stream | undefined {
+    return this.streams.find(s => s.id === id);
+  }
+
+  public getLiveStreams(): Stream[] {
+    return this.streams.filter(s => s.status === 'live');
+  }
+
+  private updateStream(stream: Stream): void {
+    const index = this.streams.findIndex(s => s.id === stream.id);
+    if (index !== -1) {
+      this.streams[index] = stream;
+    } else {
+      this.streams.push(stream);
+    }
+  }
+
+  // Chat Management
+  public sendChatMessage(message: Omit<ChatMessage, 'id' | 'timestamp'>): ChatMessage {
+    const newMessage: ChatMessage = {
+      ...message,
+      id: this.generateId(),
+      timestamp: new Date()
     };
+    this.chatMessages.push(newMessage);
+    this.socket?.emit('streaming:chat_sent', newMessage);
+    return newMessage;
+  }
 
-    if (this.currentSession) {
-      this.currentSession.chat.push(chatMessage);
+  public getChatMessages(streamId: string): ChatMessage[] {
+    return this.chatMessages.filter(m => m.streamId === streamId);
+  }
+
+  public moderateMessage(messageId: string, action: 'flag' | 'remove'): void {
+    const message = this.chatMessages.find(m => m.id === messageId);
+    if (message) {
+      message.moderation = action === 'remove' ? 'removed' : 'flagged';
+      this.socket?.emit('streaming:message_moderated', message);
     }
-
-    this.socket?.emit('chat-message-sent', chatMessage);
   }
 
-  public updateConfig(newConfig: Partial<StreamConfig>): void {
-    this.config = { ...this.config, ...newConfig };
-    this.socket?.emit('streaming-config-updated', this.config);
+  private addChatMessage(message: ChatMessage): void {
+    const existingIndex = this.chatMessages.findIndex(m => m.id === message.id);
+    if (existingIndex !== -1) {
+      this.chatMessages[existingIndex] = message;
+    } else {
+      this.chatMessages.push(message);
+    }
   }
 
-  public getCurrentSession(): StreamSession | null {
-    return this.currentSession;
+  // Analytics
+  public getAnalytics(streamId: string): StreamAnalytics | undefined {
+    return this.analytics.find(a => a.streamId === streamId);
   }
 
-  public getConfig(): StreamConfig {
-    return { ...this.config };
+  public getAllAnalytics(): StreamAnalytics[] {
+    return [...this.analytics];
   }
 
+  // Settings
+  public getSettings(): BroadcastSettings {
+    return { ...this.settings };
+  }
+
+  public updateSettings(newSettings: Partial<BroadcastSettings>): void {
+    this.settings = { ...this.settings, ...newSettings };
+    this.socket?.emit('streaming:settings_updated', this.settings);
+  }
+
+  // Mock Data
+  private loadMockData(): void {
+    this.streams = [
+      {
+        id: 'stream1',
+        title: 'Championship Finals - Match 1',
+        description: 'Live coverage of the tournament championship finals',
+        status: 'live',
+        quality: '1080p',
+        viewers: 1250,
+        maxViewers: 1500,
+        startTime: new Date(Date.now() - 3600000),
+        match: 'Match 1',
+        streamer: 'DojoPool Official',
+        url: 'https://stream.dojopool.com/live/championship',
+        thumbnail: '/images/stream-thumbnail.jpg'
+      },
+      {
+        id: 'stream2',
+        title: 'Semi-Finals Preview',
+        description: 'Pre-match analysis and player interviews',
+        status: 'scheduled',
+        quality: '720p',
+        viewers: 0,
+        maxViewers: 0,
+        startTime: new Date(Date.now() + 7200000),
+        match: 'Semi-Finals',
+        streamer: 'DojoPool Official',
+        url: 'https://stream.dojopool.com/scheduled/semifinals',
+        thumbnail: '/images/stream-thumbnail-2.jpg'
+      }
+    ];
+
+    this.chatMessages = [
+      {
+        id: 'msg1',
+        streamId: 'stream1',
+        user: 'PoolMaster2024',
+        message: 'Amazing shot!',
+        timestamp: new Date(Date.now() - 300000),
+        type: 'text',
+        moderation: 'clean'
+      },
+      {
+        id: 'msg2',
+        streamId: 'stream1',
+        user: 'CueQueen',
+        message: '🔥🔥🔥',
+        timestamp: new Date(Date.now() - 180000),
+        type: 'emote',
+        moderation: 'clean'
+      }
+    ];
+
+    this.analytics = [
+      {
+        streamId: 'stream1',
+        peakViewers: 1500,
+        avgViewers: 1200,
+        totalWatchTime: 3600000,
+        chatMessages: 1250,
+        donations: 45,
+        subscriptions: 12,
+        engagement: 85
+      }
+    ];
+  }
+
+  private generateId(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  // Utility Methods
   public isConnected(): boolean {
     return this._isConnected;
   }
 
-  public isStreaming(): boolean {
-    return this._isStreaming;
-  }
-
-  public getStreamStats(): StreamStats | null {
-    return this.currentSession?.stats || null;
-  }
-
-  public getCommentary(): CommentaryEvent[] {
-    return this.currentSession?.commentary || [];
-  }
-
-  public getChatMessages(): ChatMessage[] {
-    return this.currentSession?.chat || [];
-  }
-
-  public getHighlights(): string[] {
-    return this.currentSession?.highlights || [];
-  }
-
-  public addHighlight(highlight: string): void {
-    if (this.currentSession) {
-      this.currentSession.highlights.push(highlight);
-    }
-  }
-
-  public updateBroadcastSettings(settings: Partial<BroadcastSettings>): void {
-    if (this.currentSession) {
-      this.currentSession.settings = { ...this.currentSession.settings, ...settings };
-    }
-    this.socket?.emit('broadcast-settings-updated', settings);
-  }
-
   public disconnect(): void {
-    this.socket?.disconnect();
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
+    this._isConnected = false;
   }
 }
 

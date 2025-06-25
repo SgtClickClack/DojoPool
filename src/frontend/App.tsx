@@ -30,6 +30,7 @@ const Home = React.lazy(() => import('./components/Home/Home'));
 // AI Feature Components
 const MatchAnalysis = React.lazy(() => import('../pages/ai/match-analysis'));
 const Coaching = React.lazy(() => import('../pages/ai/coaching'));
+const AdvancedMatchAnalysis = React.lazy(() => import('../pages/ai/advanced-match-analysis'));
 
 // Performance Components
 const TournamentPerformance = React.lazy(() => import('../pages/performance/tournament-performance'));
@@ -62,6 +63,29 @@ const VenueManagement = React.lazy(() => import('../pages/venue/venue-management
 import TournamentMobilePage from '../pages/mobile/tournament-mobile';
 import TournamentBlockchainPage from '../pages/blockchain/tournament-blockchain';
 import TournamentSecurityPage from '../pages/security/tournament-security';
+import TournamentCompliancePage from '../pages/compliance/tournament-compliance';
+import VenueManagementPage from '../pages/venue/venue-management';
+import DojoProfilePage from '../pages/venue/dojo-profile';
+import AIRefereePage from '../pages/referee/ai-referee';
+import AdvancedAnalyticsPage from '../pages/advanced-analytics';
+import TournamentCommentaryPage from '../pages/tournaments/tournament-commentary';
+import TournamentPredictionPage from '../pages/tournaments/tournament-prediction';
+import VenueAnalyticsPage from '../pages/venue/venue-analytics';
+import DojoCoinRewardsPage from '../pages/venue/dojo-coin-rewards';
+import VenueSpecialsPage from '../pages/venue/venue-specials';
+import DojoProfileCustomizationPage from '../pages/venue/dojo-profile-customization';
+import SocialCommunityPage from '../pages/SocialCommunityPage';
+import AdvancedAIRefereePage from '../pages/AdvancedAIRefereePage';
+import AdvancedGameReplayPage from '../pages/AdvancedGameReplayPage';
+import EquipmentManagementPage from '../pages/venue/equipment-management';
+import NFTMarketplacePage from '../pages/nft-marketplace';
+import AdvancedVenueAnalyticsPage from '../pages/advanced-venue-analytics';
+import VoiceAssistantPage from '../pages/voice-assistant';
+
+// New Narrative Features
+const AvatarProgression = React.lazy(() => import("../pages/avatar-progression-test"));
+const WorldMap = React.lazy(() => import("../pages/world-map"));
+const AdvancedMatchCommentary = React.lazy(() => import("../pages/ai-commentary"));
 
 interface ProtectedRouteProps {
   // children?: React.ReactNode; // Outlet will handle children for layout routes
@@ -144,12 +168,21 @@ const App: React.FC = () => {
               {/* AI Feature Routes */}
               <Route path="/ai/match-analysis" element={<MatchAnalysis />} />
               <Route path="/ai/coaching" element={<Coaching />} />
+              <Route path="/ai/advanced-match-analysis" element={<AdvancedMatchAnalysis />} />
+              <Route path="/voice-assistant" element={<VoiceAssistantPage />} />
+              
+              {/* New Narrative Features */}
+              <Route path="/avatar-progression" element={<AvatarProgression />} />
+              <Route path="/world-map" element={<WorldMap />} />
+              <Route path="/ai-commentary" element={<AdvancedMatchCommentary />} />
               
               {/* Performance Routes */}
               <Route path="/performance/tournament-performance" element={<TournamentPerformance />} />
               
               {/* Tournament Routes */}
               <Route path="/tournaments/bracket-visualization" element={<BracketVisualization />} />
+              <Route path="/tournaments/commentary" element={<TournamentCommentaryPage />} />
+              <Route path="/tournaments/prediction" element={<TournamentPredictionPage />} />
               
               {/* Social Routes */}
               <Route path="/social/tournament-social" element={<TournamentSocial />} />
@@ -161,17 +194,31 @@ const App: React.FC = () => {
               <Route path="/mobile" element={<TournamentMobilePage />} />
               <Route path="/blockchain" element={<TournamentBlockchainPage />} />
               <Route path="/security" element={<TournamentSecurityPage />} />
+              <Route path="/compliance/tournament-compliance" element={<TournamentCompliancePage />} />
               
               {/* Streaming Routes */}
               <Route path="/streaming/tournament-streaming" element={<TournamentStreaming />} />
               <Route path="/streaming" element={<TournamentStreaming />} />
               
               {/* Venue Routes */}
-              <Route path="/venues/venue-management" element={<VenueManagement />} />
+              <Route path="/venues/venue-management" element={<VenueManagementPage />} />
               <Route path="/venues" element={<VenueManagement />} />
+              <Route path="/venue/equipment-management" element={<EquipmentManagementPage />} />
               
               {/* <Route path="/venue-dashboard" element={<VenueDashboard />} /> */}
               {/* Add other protected routes here */}
+              <Route path="/referee/ai-referee" element={<AIRefereePage />} />
+              <Route path="/advanced-analytics" element={<AdvancedAnalyticsPage />} />
+              <Route path="/venue/dojo-profile" element={<DojoProfilePage />} />
+              <Route path="/venue/analytics" element={<VenueAnalyticsPage />} />
+              <Route path="/venue/dojo-coin-rewards" element={<DojoCoinRewardsPage />} />
+              <Route path="/venue/venue-specials" element={<VenueSpecialsPage />} />
+              <Route path="/venue/dojo-profile-customization" element={<DojoProfileCustomizationPage />} />
+              <Route path="/social/community" element={<SocialCommunityPage />} />
+              <Route path="/referee/advanced-ai-referee" element={<AdvancedAIRefereePage />} />
+              <Route path="/game-replay" element={<AdvancedGameReplayPage />} />
+              <Route path="/nft-marketplace" element={<NFTMarketplacePage />} />
+              <Route path="/advanced-venue-analytics" element={<AdvancedVenueAnalyticsPage />} />
             </Route>
 
             {/* Catch all route - should be last */}

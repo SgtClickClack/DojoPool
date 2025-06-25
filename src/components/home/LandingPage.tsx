@@ -170,6 +170,87 @@ export default function LandingPage() {
               </Button>
             )}
           </Box>
+          
+          {/* Venue Owner/Manager Section */}
+          <Box
+            sx={{
+              mt: 6,
+              animation: "fadeInUp 1s ease-out 0.9s",
+              animationFillMode: "both",
+            }}
+          >
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: { xs: "1.1rem", md: "1.3rem" },
+                mb: 3,
+                color: "rgba(255, 255, 255, 0.8)",
+                textShadow: "0 0 10px rgba(255, 255, 0, 0.3)",
+              }}
+            >
+              Are you a venue owner or manager?
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Button
+                component={Link}
+                to="/venue-management"
+                variant="contained"
+                size="large"
+                className="hover-glow"
+                sx={{
+                  fontSize: "1rem",
+                  py: 1.2,
+                  px: 3,
+                  borderWidth: "2px",
+                  borderRadius: "8px",
+                  background:
+                    "linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)",
+                  backdropFilter: "blur(4px)",
+                  boxShadow: "0 0 20px rgba(255, 107, 53, 0.3)",
+                  fontWeight: 600,
+                  "&:hover": {
+                    boxShadow: "0 0 30px rgba(255, 107, 53, 0.5)",
+                    transform: "translateY(-2px)",
+                    background:
+                      "linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)",
+                  },
+                }}
+              >
+                Venue Management
+              </Button>
+              <Button
+                component={Link}
+                to="/venue-onboarding"
+                variant="outlined"
+                size="large"
+                className="hover-glow"
+                sx={{
+                  fontSize: "1rem",
+                  py: 1.2,
+                  px: 3,
+                  borderWidth: "2px",
+                  borderRadius: "8px",
+                  borderColor: "rgba(255, 107, 53, 0.5)",
+                  color: "#fff",
+                  backdropFilter: "blur(4px)",
+                  "&:hover": {
+                    borderColor: "rgba(255, 107, 53, 0.8)",
+                    boxShadow: "0 0 20px rgba(255, 107, 53, 0.3)",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                Add Your Venue
+              </Button>
+            </Box>
+          </Box>
         </Container>
       </Box>
     </MainLayout>

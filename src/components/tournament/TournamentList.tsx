@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Box, TextField, MenuItem, Select, InputLabel, FormControl, Button, Typography, Card, Grid, Chip, CircularProgress, Alert } from '@mui/material';
 import { EmojiEvents, Search, FilterList, Add, SportsEsports } from '@mui/icons-material';
 import { SocketIOService } from '@/services/WebSocketService';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 
 // Updated interface to match our backend API response
 interface Tournament {

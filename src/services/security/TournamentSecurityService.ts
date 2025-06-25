@@ -143,10 +143,7 @@ class TournamentSecurityService {
     try {
       this.socket = io('http://localhost:8080', {
         transports: ['websocket'],
-        timeout: 10000,
-        reconnection: true,
-        reconnectionAttempts: this.maxReconnectAttempts,
-        reconnectionDelay: this.reconnectInterval
+        timeout: 10000
       });
 
       this.socket.on('connect', () => {
@@ -206,8 +203,8 @@ class TournamentSecurityService {
     };
 
     this.alerts.push(newAlert);
-    this.updateMetrics();
     this.socket?.emit('security:alert_created', newAlert);
+    this.recalculateMetrics();
 
     // Trigger automated actions for high/critical alerts
     if (alert.severity === 'high' || alert.severity === 'critical') {
@@ -221,8 +218,8 @@ class TournamentSecurityService {
     const alert = this.alerts.find(a => a.id === alertId);
     if (alert) {
       alert.status = status;
-      this.updateMetrics();
       this.socket?.emit('security:alert_updated', alert);
+      this.recalculateMetrics();
     }
   }
 
@@ -245,7 +242,7 @@ class TournamentSecurityService {
     } else {
       this.alerts.push(alert);
     }
-    this.updateMetrics();
+    this.recalculateMetrics();
   }
 
   // Fraud Pattern Management
@@ -259,15 +256,15 @@ class TournamentSecurityService {
 
     this.fraudPatterns.push(newPattern);
     this.socket?.emit('security:pattern_created', newPattern);
+    this.recalculateMetrics();
 
     return newPattern;
   }
 
-  public async updateFraudPattern(pattern: FraudPattern): Promise<void> {
+  public updateFraudPattern(pattern: FraudPattern): void {
     const index = this.fraudPatterns.findIndex(p => p.id === pattern.id);
     if (index !== -1) {
       this.fraudPatterns[index] = pattern;
-      this.socket?.emit('security:pattern_updated', pattern);
     }
   }
 
@@ -277,15 +274,6 @@ class TournamentSecurityService {
 
   public getFraudPatternById(id: string): FraudPattern | undefined {
     return this.fraudPatterns.find(p => p.id === id);
-  }
-
-  private updateFraudPattern(pattern: FraudPattern): void {
-    const index = this.fraudPatterns.findIndex(p => p.id === pattern.id);
-    if (index !== -1) {
-      this.fraudPatterns[index] = pattern;
-    } else {
-      this.fraudPatterns.push(pattern);
-    }
   }
 
   // Security Event Management
@@ -394,7 +382,7 @@ class TournamentSecurityService {
     }
 
     // Time-based scoring
-    const hour = event.timestamp.getHours();
+    const hour = new Date().getHours();
     if (hour < 6 || hour > 22) {
       score += 0.2;
     }
@@ -449,58 +437,77 @@ class TournamentSecurityService {
     return { ...this.metrics };
   }
 
-  private updateMetrics(): void {
+  private updateMetrics(metrics: SecurityMetrics): void {
+    this.metrics = metrics;
+    this.socket?.emit('security:metrics_update', metrics);
+  }
+
+  private recalculateMetrics(): void {
+    // Recalculate metrics based on current data
     const totalAlerts = this.alerts.length;
     const openAlerts = this.alerts.filter(a => a.status === 'open').length;
     const resolvedAlerts = this.alerts.filter(a => a.status === 'resolved').length;
     const falsePositives = this.alerts.filter(a => a.status === 'false_positive').length;
+    
+    const recentAlerts = this.alerts.filter(a => 
+      Date.now() - a.timestamp.getTime() < 24 * 60 * 60 * 1000 // Last 24 hours
+    );
+    
+    const averageResponseTime = recentAlerts.length > 0 
+      ? recentAlerts.reduce((sum, alert) => sum + (alert.riskScore || 0), 0) / recentAlerts.length
+      : 0;
 
-    // Calculate threat level based on open high/critical alerts
-    const criticalAlerts = this.alerts.filter(a => a.severity === 'critical' && a.status === 'open').length;
-    const highAlerts = this.alerts.filter(a => a.severity === 'high' && a.status === 'open').length;
+    const threatLevel = this.calculateThreatLevel();
+    const securityScore = this.calculateSecurityScore();
+    const complianceStatus = this.calculateComplianceStatus();
 
-    let threatLevel: SecurityMetrics['threatLevel'] = 'low';
-    if (criticalAlerts > 0) threatLevel = 'critical';
-    else if (highAlerts > 2) threatLevel = 'high';
-    else if (highAlerts > 0 || openAlerts > 5) threatLevel = 'medium';
-
-    // Calculate security score
-    const securityScore = Math.max(0, 100 - (openAlerts * 5) - (criticalAlerts * 20) - (highAlerts * 10));
-
-    // Calculate compliance status
-    let complianceStatus: SecurityMetrics['complianceStatus'] = 'compliant';
-    if (securityScore < 70) complianceStatus = 'non_compliant';
-    else if (securityScore < 85) complianceStatus = 'warning';
-
-    this.metrics = {
+    const updatedMetrics: SecurityMetrics = {
       totalAlerts,
       openAlerts,
       resolvedAlerts,
       falsePositives,
-      averageResponseTime: this.calculateAverageResponseTime(),
+      averageResponseTime,
       threatLevel,
       lastIncident: this.alerts.length > 0 ? this.alerts[0].timestamp : undefined,
       securityScore,
       complianceStatus
     };
 
-    this.socket?.emit('security:metrics_update', this.metrics);
+    this.metrics = updatedMetrics;
+    this.socket?.emit('security:metrics_update', updatedMetrics);
   }
 
-  private updateMetrics(metrics: SecurityMetrics): void {
-    this.metrics = metrics;
+  private calculateThreatLevel(): 'low' | 'medium' | 'high' | 'critical' {
+    const highSeverityAlerts = this.alerts.filter(a => 
+      a.severity === 'high' || a.severity === 'critical'
+    ).length;
+
+    if (highSeverityAlerts > 5) return 'critical';
+    if (highSeverityAlerts > 2) return 'high';
+    if (highSeverityAlerts > 0) return 'medium';
+    return 'low';
   }
 
-  private calculateAverageResponseTime(): number {
-    const resolvedAlerts = this.alerts.filter(a => a.status === 'resolved');
-    if (resolvedAlerts.length === 0) return 0;
+  private calculateSecurityScore(): number {
+    const totalAlerts = this.alerts.length;
+    const resolvedAlerts = this.alerts.filter(a => a.status === 'resolved').length;
+    const falsePositives = this.alerts.filter(a => a.status === 'false_positive').length;
+    
+    if (totalAlerts === 0) return 100;
+    
+    const resolutionRate = resolvedAlerts / totalAlerts;
+    const falsePositiveRate = falsePositives / totalAlerts;
+    
+    return Math.max(0, Math.min(100, (resolutionRate * 80) + ((1 - falsePositiveRate) * 20)));
+  }
 
-    const totalTime = resolvedAlerts.reduce((sum, alert) => {
-      // Mock response time calculation
-      return sum + Math.random() * 30 + 5; // 5-35 minutes
-    }, 0);
-
-    return totalTime / resolvedAlerts.length;
+  private calculateComplianceStatus(): 'compliant' | 'warning' | 'non_compliant' {
+    const securityScore = this.calculateSecurityScore();
+    const threatLevel = this.calculateThreatLevel();
+    
+    if (securityScore >= 80 && threatLevel === 'low') return 'compliant';
+    if (securityScore >= 60 && threatLevel !== 'critical') return 'warning';
+    return 'non_compliant';
   }
 
   // Configuration Management
@@ -584,7 +591,7 @@ class TournamentSecurityService {
   }
 
   // Utility Methods
-  public isOnline(): boolean {
+  public getOnlineStatus(): boolean {
     return this.isConnected;
   }
 
@@ -672,7 +679,7 @@ class TournamentSecurityService {
       }
     ];
 
-    this.updateMetrics();
+    this.recalculateMetrics();
   }
 
   public disconnect(): void {

@@ -17,7 +17,7 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from '../../../components/auth/AuthContext';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");

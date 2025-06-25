@@ -1,4 +1,20 @@
-"""Dojo Coins cryptocurrency and reward system for DojoPool."""
+"""
+Dojo Coins Management Module
+
+DEPRECATED: This module contains legacy wallet and transaction models that conflict
+with the unified system in dojopool/models/marketplace.py.
+
+The unified wallet system in marketplace.py provides:
+- Consistent SQLAlchemy models (Wallet, Transaction)
+- Proper database relationships and constraints
+- Audit logging and security features
+- Marketplace integration
+
+This module should be refactored to use the unified wallet service
+(dojopool/services/wallet_service.py) instead of maintaining separate models.
+
+TODO: Migrate DojoCoinsManager to use the unified WalletService
+"""
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -7,6 +23,8 @@ from typing import Dict, List, Optional
 import uuid
 from decimal import Decimal
 
+# DEPRECATED: These models conflict with the unified system in marketplace.py
+# TODO: Migrate to use WalletService from dojopool/services/wallet_service.py
 
 class RewardType(Enum):
     """Types of rewards that can earn Dojo Coins."""
@@ -69,11 +87,20 @@ class Wallet:
     balance: Decimal
     created_at: datetime
     stats: WalletStats = WalletStats()
-    transactions: List[Transaction] = None
+    transactions: Optional[List[Transaction]] = None
+
+    def __post_init__(self):
+        """Initialize default values after dataclass creation."""
+        if self.transactions is None:
+            self.transactions = []
 
 
 class DojoCoinsManager:
-    """Manages Dojo Coins system including wallets and transactions."""
+    """Manages Dojo Coins system including wallets and transactions.
+    
+    DEPRECATED: This class should be replaced with WalletService from 
+    dojopool/services/wallet_service.py which provides the unified wallet system.
+    """
 
     def __init__(self, blockchain_provider: str = "solana"):
         """Initialize the Dojo Coins manager."""

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 // Import MatchList - adjust path as necessary
 import MatchList from '../components/MatchList'; // Corrected path assumption
 import TournamentBracket from '../components/TournamentBracket'; // Import Bracket component
-// import Layout from '../components/Layout'; // Assuming a Layout component exists
+import Layout from '../components/layout/Layout';
 // Assuming you have an auth context/hook providing the current user
 // import { useAuth } from '../context/AuthContext'; // Example import
 
@@ -170,9 +170,9 @@ const TournamentDetailPage: React.FC = () => {
       }
   };
 
-  if (isLoading) return <div>Loading tournament details...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
-  if (!tournament) return <div>Tournament data not available.</div>;
+  if (isLoading) return <Layout><div>Loading tournament details...</div></Layout>;
+  if (error) return <Layout><div style={{ color: 'red' }}>Error: {error}</div></Layout>;
+  if (!tournament) return <Layout><div>Tournament data not available.</div></Layout>;
 
   // Check if the current user is registered using the actual user state
   const isUserRegistered = currentUser && tournament.participants?.some(p => p.user_id === currentUser.id) || false;
@@ -203,7 +203,7 @@ const TournamentDetailPage: React.FC = () => {
   };
 
   return (
-    // <Layout>
+    <Layout>
       <div>
         <h1>{tournament.name}</h1>
         <p><strong>Status:</strong> {tournament.status}</p>
@@ -248,7 +248,7 @@ const TournamentDetailPage: React.FC = () => {
         {renderMatches()}
 
       </div>
-    // </Layout>
+    </Layout>
   );
 };
 

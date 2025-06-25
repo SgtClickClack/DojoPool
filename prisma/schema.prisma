@@ -23,6 +23,8 @@ model User {
   updatedAt DateTime @updatedAt
   profile   Profile?
   settings  UserSettings?
+  territories Territory[] @relation("TerritoryOwner")
+  nfts      UserNFT[]
 
   @@map("users")
 }
@@ -58,4 +60,63 @@ model UserSettings {
   updatedAt             DateTime @updatedAt
 
   @@map("user_settings")
+}
+
+model Territory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  coordinates Json     // Array of {lat: number, lng: number}
+  requiredNFT String   @unique
+  influence   Int      @default(0)
+  ownerId     String?
+  owner       User?    @relation("TerritoryOwner", fields: [ownerId], references: [id])
+  clan        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  nfts        UserNFT[]
+
+  @@map("territories")
+}
+
+model UserNFT {
+  id          String   @id @default(uuid())
+  tokenId     String   @unique
+  name        String
+  description String?
+  imageUrl    String?
+  metadata    Json     @default("{}")
+  acquiredAt  DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  territoryId String?
+  territory   Territory? @relation(fields: [territoryId], references: [id])
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("user_nfts")
+}
+
+model Tournament {
+  id              String   @id @default(uuid())
+  name            String
+  format          String   // SINGLE_ELIMINATION, DOUBLE_ELIMINATION, ROUND_ROBIN, etc.
+  venueId         String
+  startDate       DateTime
+  endDate         DateTime
+  maxParticipants Int
+  entryFee        Float
+  prizePool       Float
+  status          String   @default("OPEN") // OPEN, ACTIVE, COMPLETED, CANCELLED
+  participants    String[] @default([]) // Array of participant IDs
+  matches         String[] @default([]) // Array of match IDs
+  winnerId        String?
+  finalStandings  String[] @default([]) // Array of player IDs in final order
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  endedAt         DateTime?
+
+  @@map("tournaments")
 }

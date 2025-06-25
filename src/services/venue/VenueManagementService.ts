@@ -1,182 +1,236 @@
 import { io, Socket } from 'socket.io-client';
+import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
 
-export interface VenueInfo {
+export type VenueType = 'bar' | 'club' | 'hall' | 'arcade' | 'academy';
+export interface Venue {
   id: string;
   name: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  phone: string;
-  email: string;
-  website?: string;
-  description: string;
-  capacity: number;
-  tableCount: number;
-  amenities: string[];
-  operatingHours: {
-    monday: { open: string; close: string };
-    tuesday: { open: string; close: string };
-    wednesday: { open: string; close: string };
-    thursday: { open: string; close: string };
-    friday: { open: string; close: string };
-    saturday: { open: string; close: string };
-    sunday: { open: string; close: string };
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    coordinates: { lat: number; lng: number };
   };
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
+  venueType: VenueType;
   status: 'active' | 'inactive' | 'maintenance';
-  rating: number;
-  reviewCount: number;
+  operatingHours: string;
+  tables: Table[];
+  devices: HardwareDevice[];
+  analytics: VenueAnalytics;
+  owner: string;
+  capacity: number;
+  amenities: string[];
+  branding: {
+    logo: string;
+    colors: { primary: string; secondary: string };
+    theme: string;
+  };
+  settings: {
+    autoTournaments: boolean;
+    maxTournamentSize: number;
+    entryFeeRange: { min: number; max: number };
+    dojoCoinRewards: boolean;
+    aiCommentary: boolean;
+  };
+  createdAt: Date;
+  lastUpdated: Date;
+}
+
+export interface Table {
+  id: string;
+  number: number;
+  status: 'available' | 'occupied' | 'maintenance';
+  occupancy: number;
   revenue: number;
-  expenses: number;
-  profit: number;
+  lastUsed: Date;
 }
 
 export interface HardwareDevice {
   id: string;
-  venueId: string;
-  name: string;
-  type: 'camera' | 'sensor' | 'display' | 'audio' | 'lighting' | 'table' | 'payment' | 'security';
-  model: string;
-  manufacturer: string;
-  serialNumber: string;
-  status: 'online' | 'offline' | 'maintenance' | 'error';
-  lastSeen: Date;
-  firmware: string;
-  ipAddress?: string;
-  macAddress?: string;
+  type: 'camera' | 'sensor' | 'display' | 'security' | 'climate' | 'lighting';
+  status: 'online' | 'offline' | 'maintenance';
+  lastCheck: Date;
+  health: number;
   location: string;
-  configuration: any;
-  health: {
-    temperature: number;
-    uptime: number;
-    errors: number;
-    warnings: number;
-  };
-}
-
-export interface TableInfo {
-  id: string;
-  venueId: string;
-  number: number;
-  type: 'pool' | 'snooker' | 'carom';
-  size: '7ft' | '8ft' | '9ft' | '12ft';
-  brand: string;
-  model: string;
-  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
-  currentGame?: string;
-  hourlyRate: number;
-  lastMaintenance: Date;
-  nextMaintenance: Date;
-  usageHours: number;
-  revenue: number;
-  sensors: {
-    occupancy: boolean;
-    temperature: number;
-    humidity: number;
-    lighting: number;
-  };
 }
 
 export interface VenueAnalytics {
   venueId: string;
+  period: 'daily' | 'weekly' | 'monthly';
   date: Date;
-  totalVisitors: number;
-  uniqueVisitors: number;
-  tableUtilization: number;
-  averageSessionTime: number;
-  revenue: number;
-  expenses: number;
-  profit: number;
-  popularTables: string[];
-  peakHours: string[];
-  customerSatisfaction: number;
-  maintenanceIssues: number;
-  hardwareAlerts: number;
+  metrics: {
+    totalVisitors: number;
+    uniqueVisitors: number;
+    matchesPlayed: number;
+    tournamentsHosted: number;
+    revenue: number;
+    dojoCoinsEarned: number;
+    averageSessionTime: number;
+    peakHours: { hour: number; visitors: number }[];
+    popularTables: { tableId: string; usage: number }[];
+    topPlayers: { userId: string; matches: number; wins: number }[];
+  };
+  trends: {
+    visitorGrowth: number;
+    revenueGrowth: number;
+    matchGrowth: number;
+    tournamentGrowth: number;
+  };
 }
 
-export interface MaintenanceSchedule {
+export interface VenueStatus {
+  venueId: string;
+  timestamp: Date;
+  status: 'online' | 'offline' | 'maintenance';
+  activeTables: number;
+  currentVisitors: number;
+  ongoingMatches: number;
+  activeTournaments: number;
+  systemHealth: {
+    cameras: boolean;
+    sensors: boolean;
+    network: boolean;
+    aiServices: boolean;
+  };
+  alerts: Array<{
+    id: string;
+    type: 'warning' | 'error' | 'info';
+    message: string;
+    timestamp: Date;
+    resolved: boolean;
+  }>;
+}
+
+export interface TournamentSchedule {
   id: string;
   venueId: string;
-  deviceId?: string;
-  tableId?: string;
-  type: 'preventive' | 'corrective' | 'emergency';
+  name: string;
+  type: 'daily' | 'weekly' | 'monthly' | 'special';
+  schedule: {
+    startTime: string;
+    endTime: string;
+    days: string[];
+    maxParticipants: number;
+    entryFee: number;
+    prizePool: number;
+  };
+  autoCreate: boolean;
+  enabled: boolean;
+  lastCreated: Date;
+  nextScheduled: Date;
+}
+
+export interface RevenueOptimization {
+  venueId: string;
+  period: 'daily' | 'weekly' | 'monthly';
+  date: Date;
+  recommendations: Array<{
+    id: string;
+    type: 'pricing' | 'scheduling' | 'promotion' | 'capacity';
+    title: string;
+    description: string;
+    impact: 'low' | 'medium' | 'high';
+    estimatedRevenueIncrease: number;
+    implementationCost: number;
+    priority: number;
+  }>;
+  pricingAnalysis: {
+    currentAveragePrice: number;
+    recommendedPrice: number;
+    competitorAnalysis: Array<{
+      competitor: string;
+      price: number;
+      marketShare: number;
+    }>;
+  };
+  capacityOptimization: {
+    currentUtilization: number;
+    recommendedCapacity: number;
+    peakHours: { hour: number; utilization: number }[];
+  };
+}
+
+export interface VenuePerformance {
+  venueId: string;
+  period: 'daily' | 'weekly' | 'monthly';
+  date: Date;
+  kpis: {
+    visitorSatisfaction: number;
+    tableUtilization: number;
+    tournamentSuccess: number;
+    revenuePerVisitor: number;
+    costPerMatch: number;
+    profitMargin: number;
+  };
+  benchmarks: {
+    industryAverage: {
+      visitorSatisfaction: number;
+      tableUtilization: number;
+      revenuePerVisitor: number;
+    };
+    topPerformers: {
+      visitorSatisfaction: number;
+      tableUtilization: number;
+      revenuePerVisitor: number;
+    };
+  };
+  improvements: Array<{
+    metric: string;
+    currentValue: number;
+    targetValue: number;
+    improvement: number;
+    actions: string[];
+  }>;
+}
+
+export interface MaintenanceTask {
+  id: string;
+  type: 'hardware' | 'table' | 'venue';
   description: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   scheduledDate: Date;
   completedDate?: Date;
-  assignedTechnician?: string;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  estimatedDuration: number;
-  actualDuration?: number;
-  cost: number;
-  parts: string[];
-  notes: string;
+  assignedTo?: string;
 }
 
 export interface VenueConfig {
-  enableHardwareMonitoring: boolean;
-  enableAutomatedMaintenance: boolean;
-  enableSmartLighting: boolean;
-  enableClimateControl: boolean;
-  enableSecurityMonitoring: boolean;
-  enablePaymentIntegration: boolean;
-  enableAnalytics: boolean;
   alertThresholds: {
-    temperature: { min: number; max: number };
-    humidity: { min: number; max: number };
-    occupancy: number;
+    deviceHealth: number;
+    tableOccupancy: number;
     revenue: number;
-    errors: number;
   };
-  maintenanceIntervals: {
-    tables: number;
-    cameras: number;
-    sensors: number;
-    displays: number;
-  };
+  climateControl: boolean;
+  smartLighting: boolean;
+  maintenanceInterval: number;
 }
 
 class VenueManagementService {
-  private socket: Socket | null = null;
   private static instance: VenueManagementService;
-  private config: VenueConfig;
-  private venues: Map<string, VenueInfo> = new Map();
-  private hardwareDevices: Map<string, HardwareDevice> = new Map();
-  private tables: Map<string, TableInfo> = new Map();
+  private socket: Socket | null = null;
+  private isConnected = false;
+  private venues: Map<string, Venue> = new Map();
   private analytics: Map<string, VenueAnalytics[]> = new Map();
-  private maintenanceSchedules: Map<string, MaintenanceSchedule[]> = new Map();
-  private _isConnected: boolean = false;
+  private status: Map<string, VenueStatus> = new Map();
+  private schedules: Map<string, TournamentSchedule[]> = new Map();
+  private optimizations: Map<string, RevenueOptimization[]> = new Map();
+  private performance: Map<string, VenuePerformance[]> = new Map();
+  private maintenanceTasks: MaintenanceTask[] = [];
+  private config: VenueConfig = {
+    alertThresholds: {
+      deviceHealth: 80,
+      tableOccupancy: 90,
+      revenue: 10000
+    },
+    climateControl: true,
+    smartLighting: true,
+    maintenanceInterval: 30
+  };
 
   private constructor() {
-    this.config = {
-      enableHardwareMonitoring: true,
-      enableAutomatedMaintenance: true,
-      enableSmartLighting: true,
-      enableClimateControl: true,
-      enableSecurityMonitoring: true,
-      enablePaymentIntegration: true,
-      enableAnalytics: true,
-      alertThresholds: {
-        temperature: { min: 18, max: 24 },
-        humidity: { min: 40, max: 60 },
-        occupancy: 80,
-        revenue: 1000,
-        errors: 5,
-      },
-      maintenanceIntervals: {
-        tables: 30,
-        cameras: 90,
-        sensors: 180,
-        displays: 365,
-      },
-    };
-    this.initializeSocket();
-    this.generateMockData();
+    this.initializeWebSocket();
+    this.loadMockData();
   }
 
   public static getInstance(): VenueManagementService {
@@ -186,443 +240,186 @@ class VenueManagementService {
     return VenueManagementService.instance;
   }
 
-  private initializeSocket(): void {
-    this.socket = io('http://localhost:8080', {
-      transports: ['websocket'],
-      autoConnect: true,
-    });
-
-    this.socket.on('connect', () => {
-      console.log('VenueManagementService connected to server');
-      this._isConnected = true;
-      this.requestVenueData();
-    });
-
-    this.socket.on('disconnect', () => {
-      console.log('VenueManagementService disconnected from server');
-      this._isConnected = false;
-    });
-
-    this.socket.on('venue-update', (data: any) => {
-      this.handleVenueUpdate(data);
-    });
-
-    this.socket.on('hardware-update', (data: any) => {
-      this.handleHardwareUpdate(data);
-    });
-
-    this.socket.on('table-update', (data: any) => {
-      this.handleTableUpdate(data);
-    });
-
-    this.socket.on('maintenance-alert', (data: any) => {
-      this.handleMaintenanceAlert(data);
-    });
-  }
-
-  private handleVenueUpdate(data: any): void {
-    if (data.venue) {
-      this.venues.set(data.venue.id, data.venue);
+  private initializeWebSocket(): void {
+    try {
+      this.socket = io('http://localhost:8080', {
+        transports: ['websocket'],
+        timeout: 10000,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 5000
+      });
+      this.socket.on('connect', () => {
+        this.isConnected = true;
+        this.socket?.emit('venue:join', { service: 'venue' });
+      });
+      this.socket.on('disconnect', () => {
+        this.isConnected = false;
+      });
+      this.socket.on('venue:update', (venue: Venue) => {
+        this.updateVenue(venue);
+      });
+      this.socket.on('venue:maintenance', (task: MaintenanceTask) => {
+        this.updateMaintenanceTask(task);
+      });
+    } catch (error) {
+      this.isConnected = false;
     }
   }
 
-  private handleHardwareUpdate(data: any): void {
-    if (data.device) {
-      this.hardwareDevices.set(data.device.id, data.device);
-    }
-  }
-
-  private handleTableUpdate(data: any): void {
-    if (data.table) {
-      this.tables.set(data.table.id, data.table);
-    }
-  }
-
-  private handleMaintenanceAlert(data: any): void {
-    console.log('Maintenance alert received:', data);
-    // Handle maintenance alerts
-  }
-
-  private requestVenueData(): void {
-    this.socket?.emit('request-venue-data');
-  }
-
-  private generateMockData(): void {
-    // Generate mock venues
-    const mockVenues = [
-      {
-        id: 'v1',
-        name: 'Championship Pool Hall',
-        address: '123 Main Street',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'USA',
-        phone: '+1-555-0123',
-        email: 'info@championshippool.com',
-        website: 'https://championshippool.com',
-        description: 'Premier pool hall with professional tables and tournament facilities',
-        capacity: 200,
-        tableCount: 12,
-        amenities: ['Pro Shop', 'Bar', 'Food Service', 'Tournament Room', 'Parking'],
-        operatingHours: {
-          monday: { open: '10:00', close: '02:00' },
-          tuesday: { open: '10:00', close: '02:00' },
-          wednesday: { open: '10:00', close: '02:00' },
-          thursday: { open: '10:00', close: '02:00' },
-          friday: { open: '10:00', close: '02:00' },
-          saturday: { open: '10:00', close: '02:00' },
-          sunday: { open: '10:00', close: '02:00' },
-        },
-        coordinates: { latitude: 40.7128, longitude: -74.0060 },
-        status: 'active',
-        rating: 4.8,
-        reviewCount: 156,
-        revenue: 45000,
-        expenses: 28000,
-        profit: 17000,
-      },
-      {
-        id: 'v2',
-        name: 'Elite Billiards Club',
-        address: '456 Oak Avenue',
-        city: 'Los Angeles',
-        state: 'CA',
-        zipCode: '90210',
-        country: 'USA',
-        phone: '+1-555-0456',
-        email: 'contact@elitebilliards.com',
-        description: 'Exclusive billiards club with luxury amenities',
-        capacity: 150,
-        tableCount: 8,
-        amenities: ['VIP Lounge', 'Bar', 'Restaurant', 'Private Rooms'],
-        operatingHours: {
-          monday: { open: '12:00', close: '00:00' },
-          tuesday: { open: '12:00', close: '00:00' },
-          wednesday: { open: '12:00', close: '00:00' },
-          thursday: { open: '12:00', close: '00:00' },
-          friday: { open: '12:00', close: '02:00' },
-          saturday: { open: '12:00', close: '02:00' },
-          sunday: { open: '12:00', close: '00:00' },
-        },
-        coordinates: { latitude: 34.0522, longitude: -118.2437 },
-        status: 'active',
-        rating: 4.9,
-        reviewCount: 89,
-        revenue: 35000,
-        expenses: 22000,
-        profit: 13000,
-      },
-    ];
-
-    mockVenues.forEach(venue => {
-      this.venues.set(venue.id, venue as VenueInfo);
-    });
-
-    // Generate mock hardware devices
-    const mockDevices = [
-      {
-        id: 'hw1',
-        venueId: 'v1',
-        name: 'Security Camera 1',
-        type: 'camera',
-        model: 'IP-CAM-4K',
-        manufacturer: 'SecureTech',
-        serialNumber: 'ST-001-2024',
-        status: 'online',
-        lastSeen: new Date(),
-        firmware: 'v2.1.4',
-        ipAddress: '192.168.1.100',
-        macAddress: '00:11:22:33:44:55',
-        location: 'Main Entrance',
-        configuration: { resolution: '4K', fps: 30, nightVision: true },
-        health: { temperature: 45, uptime: 720, errors: 0, warnings: 1 },
-      },
-      {
-        id: 'hw2',
-        venueId: 'v1',
-        name: 'Climate Sensor 1',
-        type: 'sensor',
-        model: 'CLIMATE-PRO',
-        manufacturer: 'SensorTech',
-        serialNumber: 'ST-002-2024',
-        status: 'online',
-        lastSeen: new Date(),
-        firmware: 'v1.8.2',
-        ipAddress: '192.168.1.101',
-        location: 'Main Hall',
-        configuration: { temperature: true, humidity: true, airQuality: true },
-        health: { temperature: 25, uptime: 1440, errors: 0, warnings: 0 },
-      },
-      {
-        id: 'hw3',
-        venueId: 'v1',
-        name: 'Smart Display 1',
-        type: 'display',
-        model: 'DISPLAY-55',
-        manufacturer: 'DisplayTech',
-        serialNumber: 'ST-003-2024',
-        status: 'online',
-        lastSeen: new Date(),
-        firmware: 'v3.2.1',
-        ipAddress: '192.168.1.102',
-        location: 'Tournament Area',
-        configuration: { resolution: '4K', brightness: 80, autoOff: true },
-        health: { temperature: 38, uptime: 360, errors: 0, warnings: 0 },
-      },
-    ];
-
-    mockDevices.forEach(device => {
-      this.hardwareDevices.set(device.id, device as HardwareDevice);
-    });
-
-    // Generate mock tables
-    const mockTables = [
-      {
-        id: 't1',
-        venueId: 'v1',
-        number: 1,
-        type: 'pool',
-        size: '9ft',
-        brand: 'Diamond',
-        model: 'Pro-Am',
-        status: 'available',
-        hourlyRate: 15,
-        lastMaintenance: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        nextMaintenance: new Date(Date.now() + 23 * 24 * 60 * 60 * 1000),
-        usageHours: 120,
-        revenue: 1800,
-        sensors: {
-          occupancy: false,
-          temperature: 22,
-          humidity: 45,
-          lighting: 85,
-        },
-      },
-      {
-        id: 't2',
-        venueId: 'v1',
-        number: 2,
-        type: 'pool',
-        size: '9ft',
-        brand: 'Diamond',
-        model: 'Pro-Am',
-        status: 'occupied',
-        currentGame: 'game-123',
-        hourlyRate: 15,
-        lastMaintenance: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        nextMaintenance: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
-        usageHours: 95,
-        revenue: 1425,
-        sensors: {
-          occupancy: true,
-          temperature: 23,
-          humidity: 47,
-          lighting: 90,
-        },
-      },
-    ];
-
-    mockTables.forEach(table => {
-      this.tables.set(table.id, table as TableInfo);
-    });
-
-    // Generate mock analytics
-    const mockAnalytics = [
-      {
-        venueId: 'v1',
-        date: new Date(),
-        totalVisitors: 85,
-        uniqueVisitors: 72,
-        tableUtilization: 75,
-        averageSessionTime: 2.5,
-        revenue: 1200,
-        expenses: 800,
-        profit: 400,
-        popularTables: ['t1', 't2', 't3'],
-        peakHours: ['19:00', '20:00', '21:00'],
-        customerSatisfaction: 4.6,
-        maintenanceIssues: 2,
-        hardwareAlerts: 1,
-      },
-    ];
-
-    mockAnalytics.forEach(analytics => {
-      const venueAnalytics = this.analytics.get(analytics.venueId) || [];
-      venueAnalytics.push(analytics as VenueAnalytics);
-      this.analytics.set(analytics.venueId, venueAnalytics);
-    });
-
-    // Generate mock maintenance schedules
-    const mockMaintenance = [
-      {
-        id: 'm1',
-        venueId: 'v1',
-        tableId: 't1',
-        type: 'preventive',
-        description: 'Regular table felt replacement and cushion check',
-        scheduledDate: new Date(Date.now() + 23 * 24 * 60 * 60 * 1000),
-        assignedTechnician: 'John Smith',
-        status: 'scheduled',
-        priority: 'medium',
-        estimatedDuration: 120,
-        cost: 200,
-        parts: ['Felt', 'Cushions', 'Cleaner'],
-        notes: 'Standard maintenance procedure',
-      },
-    ];
-
-    mockMaintenance.forEach(maintenance => {
-      const venueMaintenance = this.maintenanceSchedules.get(maintenance.venueId) || [];
-      venueMaintenance.push(maintenance as MaintenanceSchedule);
-      this.maintenanceSchedules.set(maintenance.venueId, venueMaintenance);
-    });
-  }
-
-  // Public Methods
-  public getVenues(): VenueInfo[] {
+  // Venue Management
+  public getVenues(): Venue[] {
     return Array.from(this.venues.values());
   }
-
-  public getVenue(venueId: string): VenueInfo | null {
-    return this.venues.get(venueId) || null;
+  public getVenueById(id: string): Venue | undefined {
+    return this.venues.get(id);
+  }
+  public updateVenue(venue: Venue): void {
+    const idx = this.venues.findIndex(v => v.id === venue.id);
+    if (idx !== -1) this.venues[idx] = venue;
+    else this.venues.push(venue);
   }
 
-  public getHardwareDevices(venueId?: string): HardwareDevice[] {
-    if (venueId) {
-      return Array.from(this.hardwareDevices.values()).filter(device => device.venueId === venueId);
+  // Table Management
+  public getTables(venueId: string): Table[] {
+    const venue = this.getVenueById(venueId);
+    return venue ? [...venue.tables] : [];
+  }
+  public updateTable(venueId: string, table: Table): void {
+    const venue = this.getVenueById(venueId);
+    if (venue) {
+      const idx = venue.tables.findIndex(t => t.id === table.id);
+      if (idx !== -1) venue.tables[idx] = table;
     }
-    return Array.from(this.hardwareDevices.values());
   }
 
-  public getTables(venueId?: string): TableInfo[] {
-    if (venueId) {
-      return Array.from(this.tables.values()).filter(table => table.venueId === venueId);
+  // Hardware Management
+  public getDevices(venueId: string): HardwareDevice[] {
+    const venue = this.getVenueById(venueId);
+    return venue ? [...venue.devices] : [];
+  }
+  public updateDevice(venueId: string, device: HardwareDevice): void {
+    const venue = this.getVenueById(venueId);
+    if (venue) {
+      const idx = venue.devices.findIndex(d => d.id === device.id);
+      if (idx !== -1) venue.devices[idx] = device;
     }
-    return Array.from(this.tables.values());
   }
 
-  public getAnalytics(venueId: string, days: number = 30): VenueAnalytics[] {
-    const venueAnalytics = this.analytics.get(venueId) || [];
-    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    return venueAnalytics.filter(analytics => analytics.date >= cutoffDate);
+  // Analytics
+  public getAnalytics(venueId: string): VenueAnalytics | undefined {
+    const venue = this.getVenueById(venueId);
+    return venue?.analytics;
   }
 
-  public getMaintenanceSchedules(venueId?: string): MaintenanceSchedule[] {
-    if (venueId) {
-      return this.maintenanceSchedules.get(venueId) || [];
-    }
-    return Array.from(this.maintenanceSchedules.values()).flat();
+  // Maintenance
+  public getMaintenanceTasks(): MaintenanceTask[] {
+    return [...this.maintenanceTasks];
+  }
+  public updateMaintenanceTask(task: MaintenanceTask): void {
+    const idx = this.maintenanceTasks.findIndex(t => t.id === task.id);
+    if (idx !== -1) this.maintenanceTasks[idx] = task;
+    else this.maintenanceTasks.push(task);
   }
 
+  // Config
   public getConfig(): VenueConfig {
     return { ...this.config };
   }
-
   public updateConfig(newConfig: Partial<VenueConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    this.socket?.emit('venue-config-updated', this.config);
   }
 
-  public addVenue(venue: Omit<VenueInfo, 'id'>): string {
-    const id = `v${Date.now()}`;
-    const newVenue: VenueInfo = { ...venue, id };
-    this.venues.set(id, newVenue);
-    this.socket?.emit('venue-added', newVenue);
-    return id;
-  }
-
-  public updateVenue(venueId: string, updates: Partial<VenueInfo>): void {
-    const venue = this.venues.get(venueId);
-    if (venue) {
-      const updatedVenue = { ...venue, ...updates };
-      this.venues.set(venueId, updatedVenue);
-      this.socket?.emit('venue-updated', updatedVenue);
-    }
-  }
-
-  public addHardwareDevice(device: Omit<HardwareDevice, 'id'>): string {
-    const id = `hw${Date.now()}`;
-    const newDevice: HardwareDevice = { ...device, id };
-    this.hardwareDevices.set(id, newDevice);
-    this.socket?.emit('hardware-device-added', newDevice);
-    return id;
-  }
-
-  public updateHardwareDevice(deviceId: string, updates: Partial<HardwareDevice>): void {
-    const device = this.hardwareDevices.get(deviceId);
-    if (device) {
-      const updatedDevice = { ...device, ...updates };
-      this.hardwareDevices.set(deviceId, updatedDevice);
-      this.socket?.emit('hardware-device-updated', updatedDevice);
-    }
-  }
-
-  public addTable(table: Omit<TableInfo, 'id'>): string {
-    const id = `t${Date.now()}`;
-    const newTable: TableInfo = { ...table, id };
-    this.tables.set(id, newTable);
-    this.socket?.emit('table-added', newTable);
-    return id;
-  }
-
-  public updateTable(tableId: string, updates: Partial<TableInfo>): void {
-    const table = this.tables.get(tableId);
-    if (table) {
-      const updatedTable = { ...table, ...updates };
-      this.tables.set(tableId, updatedTable);
-      this.socket?.emit('table-updated', updatedTable);
-    }
-  }
-
-  public scheduleMaintenance(maintenance: Omit<MaintenanceSchedule, 'id'>): string {
-    const id = `m${Date.now()}`;
-    const newMaintenance: MaintenanceSchedule = { ...maintenance, id };
-    const venueMaintenance = this.maintenanceSchedules.get(maintenance.venueId) || [];
-    venueMaintenance.push(newMaintenance);
-    this.maintenanceSchedules.set(maintenance.venueId, venueMaintenance);
-    this.socket?.emit('maintenance-scheduled', newMaintenance);
-    return id;
-  }
-
-  public updateMaintenance(maintenanceId: string, updates: Partial<MaintenanceSchedule>): void {
-    for (const [venueId, maintenanceList] of this.maintenanceSchedules.entries()) {
-      const maintenance = maintenanceList.find(m => m.id === maintenanceId);
-      if (maintenance) {
-        const updatedMaintenance = { ...maintenance, ...updates };
-        const updatedList = maintenanceList.map(m => m.id === maintenanceId ? updatedMaintenance : m);
-        this.maintenanceSchedules.set(venueId, updatedList);
-        this.socket?.emit('maintenance-updated', updatedMaintenance);
-        break;
+  // Mock Data
+  private loadMockData(): void {
+    this.venues = [
+      {
+        id: 'venue1',
+        name: 'Cyber Dojo Central',
+        location: 'Downtown',
+        venueType: 'hall',
+        status: 'open',
+        operatingHours: '10:00-02:00',
+        tables: [
+          { id: 't1', number: 1, status: 'available', occupancy: 0, revenue: 1200, lastUsed: new Date() },
+          { id: 't2', number: 2, status: 'occupied', occupancy: 2, revenue: 1500, lastUsed: new Date() },
+        ],
+        devices: [
+          { id: 'd1', type: 'camera', status: 'online', lastCheck: new Date(), health: 98, location: 'Table 1' },
+          { id: 'd2', type: 'sensor', status: 'online', lastCheck: new Date(), health: 95, location: 'Table 2' },
+        ],
+        analytics: {
+          visitors: 120,
+          tableUtilization: 85,
+          revenue: 2700,
+          avgSessionTime: 52,
+          deviceHealth: 96,
+          lastUpdated: new Date(),
+        },
+      },
+      {
+        id: 'venue2',
+        name: 'Neon Billiards Bar',
+        location: 'Uptown',
+        venueType: 'bar',
+        status: 'open',
+        operatingHours: '12:00-03:00',
+        tables: [
+          { id: 't3', number: 1, status: 'available', occupancy: 0, revenue: 900, lastUsed: new Date() },
+        ],
+        devices: [
+          { id: 'd3', type: 'camera', status: 'online', lastCheck: new Date(), health: 97, location: 'Table 1' },
+        ],
+        analytics: {
+          visitors: 80,
+          tableUtilization: 0.7,
+          revenue: 3000,
+          avgSessionTime: 45,
+          deviceHealth: 97,
+          lastUpdated: new Date()
+        }
+      },
+      {
+        id: 'venue3',
+        name: 'Arcade Pool Club',
+        location: 'Midtown',
+        venueType: 'arcade',
+        status: 'maintenance',
+        operatingHours: '14:00-00:00',
+        tables: [
+          { id: 't4', number: 1, status: 'maintenance', occupancy: 0, revenue: 0, lastUsed: new Date() },
+        ],
+        devices: [
+          { id: 'd4', type: 'sensor', status: 'offline', lastCheck: new Date(), health: 0, location: 'Table 1' },
+        ],
+        analytics: {
+          visitors: 0,
+          tableUtilization: 0,
+          revenue: 0,
+          avgSessionTime: 0,
+          deviceHealth: 0,
+          lastUpdated: new Date()
+        }
       }
-    }
-  }
-
-  public getVenueHealth(venueId: string): any {
-    const devices = this.getHardwareDevices(venueId);
-    const tables = this.getTables(venueId);
-    const analytics = this.getAnalytics(venueId, 1)[0];
-
-    const onlineDevices = devices.filter(d => d.status === 'online').length;
-    const availableTables = tables.filter(t => t.status === 'available').length;
-    const totalRevenue = analytics?.revenue || 0;
-    const totalErrors = devices.reduce((sum, d) => sum + d.health.errors, 0);
-
-    return {
-      deviceHealth: (onlineDevices / devices.length) * 100,
-      tableAvailability: (availableTables / tables.length) * 100,
-      revenue: totalRevenue,
-      errors: totalErrors,
-      alerts: devices.filter(d => d.health.warnings > 0).length,
-    };
-  }
-
-  public isConnected(): boolean {
-    return this._isConnected;
-  }
-
-  public disconnect(): void {
-    this.socket?.disconnect();
+    ];
+    this.maintenanceTasks = [
+      {
+        id: 'm1',
+        type: 'hardware',
+        description: 'Camera firmware update',
+        status: 'pending',
+        priority: 'medium',
+        scheduledDate: new Date(Date.now() + 86400000),
+      },
+      {
+        id: 'm2',
+        type: 'table',
+        description: 'Table 2 felt replacement',
+        status: 'in_progress',
+        priority: 'high',
+        scheduledDate: new Date(),
+      },
+    ];
   }
 }
 

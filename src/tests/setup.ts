@@ -1,41 +1,20 @@
 import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 import { cleanup } from '@testing-library/react';
-import { afterEach, vi } from 'vitest';
+import { vi } from 'vitest';
 
 // Mock browser APIs
 (global as any).TextEncoder = TextEncoder;
 (global as any).TextDecoder = TextDecoder;
 
-// Proper Jest shim for Vitest compatibility
-// Only expose Jest-compatible APIs to prevent compatibility issues
-if (typeof global.jest === 'undefined') {
-  global.jest = {
-    fn: vi.fn,
-    mock: vi.mock,
-    unmock: vi.unmock,
-    resetModules: vi.resetModules,
-    clearAllMocks: vi.clearAllMocks,
-    restoreAllMocks: vi.restoreAllMocks,
-    resetAllMocks: vi.resetAllMocks,
-    spyOn: vi.spyOn,
-    advanceTimersByTime: vi.advanceTimersByTime,
-    advanceTimersToNextTimer: vi.advanceTimersToNextTimer,
-    runAllTimers: vi.runAllTimers,
-    runOnlyPendingTimers: vi.runOnlyPendingTimers,
-    useRealTimers: vi.useRealTimers,
-    useFakeTimers: vi.useFakeTimers,
-    getTimerCount: vi.getTimerCount,
-    isMockFunction: vi.isMockFunction,
-    mocked: vi.mocked,
-  } as any;
-}
+// Proper Vitest shim for compatibility
+// Only expose Vitest-compatible APIs to prevent compatibility issues
 
 // Mock IntersectionObserver
 class IntersectionObserver {
-  observe = global.jest.fn();
-  disconnect = global.jest.fn();
-  unobserve = global.jest.fn();
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
 }
 
 Object.defineProperty(window, 'IntersectionObserver', {
@@ -46,9 +25,9 @@ Object.defineProperty(window, 'IntersectionObserver', {
 
 // Mock ResizeObserver
 class ResizeObserver {
-  observe = global.jest.fn();
-  disconnect = global.jest.fn();
-  unobserve = global.jest.fn();
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
 }
 
 Object.defineProperty(window, 'ResizeObserver', {
@@ -60,32 +39,32 @@ Object.defineProperty(window, 'ResizeObserver', {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: global.jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: global.jest.fn(),
-    removeListener: global.jest.fn(),
-    addEventListener: global.jest.fn(),
-    removeEventListener: global.jest.fn(),
-    dispatchEvent: global.jest.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 
 // Mock scrollTo
-window.scrollTo = global.jest.fn();
+window.scrollTo = vi.fn();
 
 // Mock fetch
-global.fetch = global.jest.fn();
+global.fetch = vi.fn();
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: global.jest.fn(),
-  setItem: global.jest.fn(),
-  removeItem: global.jest.fn(),
-  clear: global.jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
   length: 0,
-  key: global.jest.fn(),
+  key: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
@@ -93,12 +72,12 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock sessionStorage
 const sessionStorageMock = {
-  getItem: global.jest.fn(),
-  setItem: global.jest.fn(),
-  removeItem: global.jest.fn(),
-  clear: global.jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
   length: 0,
-  key: global.jest.fn(),
+  key: vi.fn(),
 };
 Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock,
@@ -107,16 +86,16 @@ Object.defineProperty(window, 'sessionStorage', {
 // Cleanup after each test
 afterEach(() => {
   cleanup();
-  global.jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 // Mock console methods in test environment
 const originalConsole = { ...console };
 const mockConsole = {
   ...console,
-  error: global.jest.fn(),
-  warn: global.jest.fn(),
-  log: global.jest.fn(),
+  error: vi.fn(),
+  warn: vi.fn(),
+  log: vi.fn(),
 };
 
 beforeAll(() => {

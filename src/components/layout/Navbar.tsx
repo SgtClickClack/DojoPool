@@ -20,6 +20,18 @@ import {
   Forum,
   Analytics,
   Smartphone,
+  Gavel,
+  Mic,
+  AutoAwesome,
+  Business,
+  Palette,
+  Assessment,
+  MonetizationOn,
+  LocalOffer,
+  People,
+  VideoLibrary,
+  Build,
+  Storefront,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -193,9 +205,28 @@ const Navbar = () => {
                 }}
               >
                 <ListItemIcon>
-                  <Psychology sx={{ color: 'inherit' }} />
+                  <Psychology sx={{ color: '#00ff9d' }} />
                 </ListItemIcon>
-                Match Analysis
+                AI Match Analysis
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/voice-assistant"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Mic sx={{ color: '#00ff9d' }} />
+                </ListItemIcon>
+                Voice Assistant
               </MenuItem>
               <MenuItem
                 component={RouterLink}
@@ -215,6 +246,25 @@ const Navbar = () => {
                   <School sx={{ color: 'inherit' }} />
                 </ListItemIcon>
                 AI Coaching
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/ai/advanced-match-analysis"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Analytics sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                Advanced Analysis
               </MenuItem>
               <MenuItem
                 component={RouterLink}
@@ -254,11 +304,49 @@ const Navbar = () => {
                 </ListItemIcon>
                 3D Bracket
               </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/tournaments/commentary"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Mic sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                AI Commentary
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/tournaments/prediction"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <AutoAwesome sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                AI Prediction
+              </MenuItem>
             </Menu>
 
             <Button
               component={RouterLink}
-              to="/social/tournament-social"
+              to="/Social"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -273,8 +361,50 @@ const Navbar = () => {
                 },
               }}
             >
-              <Forum sx={{ mr: 1 }} />
-              Social
+              <People sx={{ mr: 1 }} />
+              Social Hub
+            </Button>
+            
+            <Button
+              component={RouterLink}
+              to="/referee/advanced-ai-referee"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Gavel sx={{ mr: 1 }} />
+              AI Referee
+            </Button>
+            
+            <Button
+              component={RouterLink}
+              to="/game-replay"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <VideoLibrary sx={{ mr: 1 }} />
+              Game Replay
             </Button>
             
             <Button
@@ -329,6 +459,46 @@ const Navbar = () => {
               Blockchain
             </Button>
             <Button
+              component={RouterLink}
+              to="/nft-marketplace"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Storefront sx={{ mr: 1 }} />
+              NFT Marketplace
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/advanced-venue-analytics"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Analytics sx={{ mr: 1 }} />
+              Advanced Analytics
+            </Button>
+            <Button
               color="inherit"
               component={Link}
               to="/security"
@@ -357,6 +527,80 @@ const Navbar = () => {
             >
               Venues
             </Button>
+            <Button color="inherit" href="/compliance/tournament-compliance" sx={{ ml: 2 }}>
+              Compliance
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/venue-management"
+              startIcon={<Business />}
+              sx={{ mr: 1 }}
+            >
+              Venue Management
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/dojo-profile"
+              startIcon={<Palette />}
+              sx={{ mr: 1 }}
+            >
+              Dojo Profile
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/dojo-profile-customization"
+              startIcon={<AutoAwesome />}
+              sx={{ mr: 1 }}
+            >
+              Profile Customization
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/analytics"
+              startIcon={<Assessment />}
+              sx={{ mr: 1 }}
+            >
+              Venue Analytics
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/equipment-management"
+              startIcon={<Build />}
+              sx={{ mr: 1 }}
+            >
+              Equipment Management
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/referee/ai-referee"
+              startIcon={<Gavel />}
+              sx={{ mr: 1 }}
+            >
+              AI Referee
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/advanced-analytics"
+              startIcon={<Analytics />}
+              sx={{ mr: 1 }}
+            >
+              Advanced Analytics
+            </Button>
+            <MenuItem onClick={() => navigate('/venue/dojo-coin-rewards')}>
+              <MonetizationOn sx={{ mr: 1 }} />
+              Dojo Coin Rewards
+            </MenuItem>
+            <MenuItem onClick={() => navigate('/venue/venue-specials')}>
+              <LocalOffer sx={{ mr: 1 }} />
+              Venue Specials
+            </MenuItem>
           </Box>
         </Toolbar>
       </Container>

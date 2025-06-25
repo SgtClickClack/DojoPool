@@ -1,4 +1,9 @@
-"""Payment models module."""
+"""Payment models module.
+
+This module contains payment-related models that are separate from the unified wallet system.
+The unified wallet and transaction models are now located in dojopool/models/marketplace.py
+to avoid duplication and ensure consistency across the platform.
+"""
 
 from datetime import datetime
 
@@ -10,7 +15,7 @@ from .base import BaseModel
 
 
 class Payment(BaseModel):
-    """Payment model."""
+    """Payment model for external payment processing (credit cards, PayPal, etc.)."""
 
     __tablename__ = "payments"
     __table_args__ = {"extend_existing": True}
@@ -132,9 +137,12 @@ class PricingPlan(BaseModel):
         db.session.commit()
 
 
-# REMOVE WALLET AND TRANSACTION MODELS
-# These are now unified in dojopool/models/marketplace.py
-# Remove Payment, Wallet, Transaction, UserInventory, Inventory models from this file.
-# Retain Subscription and PricingPlan if used elsewhere.
+# WALLET AND TRANSACTION MODELS ARE NOW UNIFIED IN dojopool/models/marketplace.py
+# This prevents duplication and ensures consistency across the platform.
+# The unified models include:
+# - Wallet: Unified wallet model for all payment and marketplace operations
+# - Transaction: Unified transaction model for all wallet/payment/marketplace operations
+# - MarketplaceItem: Items available for purchase
+# - UserInventory: User's inventory of purchased items
 
 __all__ = ["Payment", "Subscription", "PricingPlan"]

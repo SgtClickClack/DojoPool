@@ -1,13 +1,14 @@
-import { Tournament, Match, Participant, TournamentFormat, TournamentStatus } from '../../types/tournament';
+import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
+import progressionService, { StoryEvent } from '../progression/ProgressionService';
 
 export interface ProgressionResult {
   success: boolean;
   message: string;
-  nextMatches?: Match[];
+  nextMatches?: TournamentMatch[];
   tournamentStatus?: TournamentStatus;
-  winner?: Participant;
-  eliminated?: Participant[];
-  updatedMatches?: Match[];
+  winner?: TournamentParticipant;
+  eliminated?: TournamentParticipant[];
+  updatedMatches?: TournamentMatch[];
 }
 
 export interface BracketPosition {
@@ -32,19 +33,21 @@ export class TournamentProgressionService {
    */
   async processMatchCompletion(
     tournament: Tournament,
-    completedMatch: Match,
-    winnerId: string,
-    loserId: string
+    participants: TournamentParticipant[],
+    matches: TournamentMatch[],
+    completedMatch: TournamentMatch,
+    winnerId: number,
+    loserId: number
   ): Promise<ProgressionResult> {
     try {
       console.log(`Processing match completion: ${completedMatch.id}, Winner: ${winnerId}, Loser: ${loserId}`);
 
       // Update the completed match
-      const updatedMatch = { ...completedMatch, winner_id: winnerId, status: 'completed' };
+      const updatedMatch = { ...completedMatch, winnerId: winnerId, status: MatchStatus.COMPLETED };
       
       // Get winner and loser participants
-      const winner = tournament.participants.find(p => p.id === winnerId);
-      const loser = tournament.participants.find(p => p.id === loserId);
+      const winner = participants.find(p => p.id === winnerId);
+      const loser = participants.find(p => p.id === loserId);
 
       if (!winner || !loser) {
         return {
@@ -58,16 +61,16 @@ export class TournamentProgressionService {
       
       switch (tournament.format) {
         case TournamentFormat.SINGLE_ELIMINATION:
-          result = await this.handleSingleEliminationProgression(tournament, updatedMatch, winner, loser);
+          result = await this.handleSingleEliminationProgression(tournament, participants, matches, updatedMatch, winner, loser);
           break;
         case TournamentFormat.DOUBLE_ELIMINATION:
-          result = await this.handleDoubleEliminationProgression(tournament, updatedMatch, winner, loser);
+          result = await this.handleDoubleEliminationProgression(tournament, participants, matches, updatedMatch, winner, loser);
           break;
         case TournamentFormat.ROUND_ROBIN:
-          result = await this.handleRoundRobinProgression(tournament, updatedMatch, winner, loser);
+          result = await this.handleRoundRobinProgression(tournament, participants, matches, updatedMatch, winner, loser);
           break;
         case TournamentFormat.SWISS:
-          result = await this.handleSwissProgression(tournament, updatedMatch, winner, loser);
+          result = await this.handleSwissProgression(tournament, participants, matches, updatedMatch, winner, loser);
           break;
         default:
           return {
@@ -94,14 +97,30 @@ export class TournamentProgressionService {
    */
   private async handleSingleEliminationProgression(
     tournament: Tournament,
-    completedMatch: Match,
-    winner: Participant,
-    loser: Participant
+    participants: TournamentParticipant[],
+    matches: TournamentMatch[],
+    completedMatch: TournamentMatch,
+    winner: TournamentParticipant,
+    loser: TournamentParticipant
   ): Promise<ProgressionResult> {
     const nextPosition = this.calculateNextPosition(completedMatch, 'single_elimination');
     
     if (!nextPosition) {
       // Tournament is complete
+      // Emit story event for tournament victory
+      const event: StoryEvent = {
+        id: `tournament-victory-${tournament.id}`,
+        title: `Tournament Victory!`,
+        description: `You won the "${tournament.name}" tournament and earned the "Tournament Champion" title.`,
+        type: 'tournament',
+        timestamp: new Date().toISOString(),
+        isRead: false,
+        impact: {
+          experience: 500,
+          reputation: 100
+        }
+      };
+      progressionService.addEvent(event);
       return {
         success: true,
         message: 'Tournament completed!',
@@ -117,7 +136,7 @@ export class TournamentProgressionService {
     
     return {
       success: true,
-      message: `Winner ${winner.name} advanced to Round ${nextPosition.round}`,
+      message: `Winner ${winner.username} advanced to Round ${nextPosition.round}`,
       nextMatches: nextMatch ? [nextMatch] : [],
       eliminated: [loser],
       updatedMatches: [completedMatch]
@@ -129,13 +148,15 @@ export class TournamentProgressionService {
    */
   private async handleDoubleEliminationProgression(
     tournament: Tournament,
-    completedMatch: Match,
-    winner: Participant,
-    loser: Participant
+    participants: TournamentParticipant[],
+    matches: TournamentMatch[],
+    completedMatch: TournamentMatch,
+    winner: TournamentParticipant,
+    loser: TournamentParticipant
   ): Promise<ProgressionResult> {
     const bracketType = completedMatch.bracket_type || 'winners';
-    const eliminated: Participant[] = [];
-    const nextMatches: Match[] = [];
+    const eliminated: TournamentParticipant[] = [];
+    const nextMatches: TournamentMatch[] = [];
 
     if (bracketType === 'winners') {
       // Winner advances in winners bracket
@@ -170,8 +191,8 @@ export class TournamentProgressionService {
       eliminated.push(loser);
     } else if (bracketType === 'grand_final') {
       // Check if this is the first or second grand final match
-      const isFirstGrandFinal = !tournament.matches.some(m => 
-        m.bracket_type === 'grand_final' && m.status === 'completed'
+      const isFirstGrandFinal = !matches.some(m => 
+        m.bracketType === 'grand_final' && m.status === MatchStatus.COMPLETED
       );
 
       if (isFirstGrandFinal) {
@@ -183,6 +204,20 @@ export class TournamentProgressionService {
         }
       } else {
         // Tournament is complete
+        // Emit story event for tournament victory
+        const event: StoryEvent = {
+          id: `tournament-victory-${tournament.id}`,
+          title: `Tournament Victory!`,
+          description: `You won the "${tournament.name}" tournament and earned the "Tournament Champion" title.`,
+          type: 'tournament',
+          timestamp: new Date().toISOString(),
+          isRead: false,
+          impact: {
+            experience: 500,
+            reputation: 100
+          }
+        };
+        progressionService.addEvent(event);
         return {
           success: true,
           message: 'Tournament completed!',
@@ -196,7 +231,7 @@ export class TournamentProgressionService {
 
     return {
       success: true,
-      message: `Match completed. ${winner.name} advances, ${loser.name} ${eliminated.length > 0 ? 'eliminated' : 'drops to losers bracket'}`,
+      message: `Match completed. ${winner.username} advances, ${loser.username} ${eliminated.length > 0 ? 'eliminated' : 'drops to losers bracket'}`,
       nextMatches,
       eliminated,
       updatedMatches: [completedMatch]
@@ -208,17 +243,19 @@ export class TournamentProgressionService {
    */
   private async handleRoundRobinProgression(
     tournament: Tournament,
-    completedMatch: Match,
-    winner: Participant,
-    loser: Participant
+    participants: TournamentParticipant[],
+    matches: TournamentMatch[],
+    completedMatch: TournamentMatch,
+    winner: TournamentParticipant,
+    loser: TournamentParticipant
   ): Promise<ProgressionResult> {
     // In round robin, no elimination - just track results
-    const allMatches = tournament.matches.filter(m => m.status === 'completed');
-    const totalMatches = tournament.matches.length;
+    const allMatches = matches.filter(m => m.status === 'completed');
+    const totalMatches = matches.length;
     
     if (allMatches.length === totalMatches) {
       // All matches completed, determine winner by points
-      const winner = this.determineRoundRobinWinner(tournament);
+      const winner = this.determineRoundRobinWinner(tournament, participants);
       return {
         success: true,
         message: 'Round robin tournament completed!',
@@ -240,17 +277,19 @@ export class TournamentProgressionService {
    */
   private async handleSwissProgression(
     tournament: Tournament,
-    completedMatch: Match,
-    winner: Participant,
-    loser: Participant
+    participants: TournamentParticipant[],
+    matches: TournamentMatch[],
+    completedMatch: TournamentMatch,
+    winner: TournamentParticipant,
+    loser: TournamentParticipant
   ): Promise<ProgressionResult> {
     // Swiss system - pair players for next round based on current standings
     const nextRound = completedMatch.round + 1;
-    const maxRounds = Math.ceil(Math.log2(tournament.participants.length));
+    const maxRounds = Math.ceil(Math.log2(participants.length));
     
     if (nextRound > maxRounds) {
       // Tournament complete
-      const winner = this.determineSwissWinner(tournament);
+      const winner = this.determineSwissWinner(tournament, participants);
       return {
         success: true,
         message: 'Swiss tournament completed!',
@@ -261,7 +300,7 @@ export class TournamentProgressionService {
     }
 
     // Generate next round pairings
-    const nextMatches = await this.generateSwissPairings(tournament, nextRound);
+    const nextMatches = await this.generateSwissPairings(tournament, nextRound, participants);
     
     return {
       success: true,
@@ -274,7 +313,7 @@ export class TournamentProgressionService {
   /**
    * Calculate next position for winner advancement
    */
-  private calculateNextPosition(match: Match, format: string): BracketPosition | null {
+  private calculateNextPosition(match: TournamentMatch, format: string): BracketPosition | null {
     const currentRound = match.round;
     const currentMatchNumber = match.match_number;
     
@@ -302,7 +341,7 @@ export class TournamentProgressionService {
   /**
    * Calculate loser bracket position for dropped players
    */
-  private calculateLoserBracketPosition(match: Match): BracketPosition | null {
+  private calculateLoserBracketPosition(match: TournamentMatch): BracketPosition | null {
     // Calculate where the loser should be placed in the losers bracket
     const currentRound = match.round;
     const currentMatchNumber = match.match_number;
@@ -337,7 +376,7 @@ export class TournamentProgressionService {
     tournament: Tournament,
     position: BracketPosition,
     playerId: string
-  ): Promise<Match | null> {
+  ): Promise<TournamentMatch | null> {
     // Find existing match at this position
     let nextMatch = tournament.matches.find(m => 
       m.round === position.round && 
@@ -356,7 +395,7 @@ export class TournamentProgressionService {
       return nextMatch;
     } else {
       // Create new match
-      const newMatch: Match = {
+      const newMatch: TournamentMatch = {
         id: `match_${Date.now()}`,
         tournament_id: tournament.id,
         round: position.round,
@@ -378,11 +417,11 @@ export class TournamentProgressionService {
   /**
    * Determine round robin winner
    */
-  private determineRoundRobinWinner(tournament: Tournament): Participant | null {
+  private determineRoundRobinWinner(tournament: Tournament, participants: TournamentParticipant[]): TournamentParticipant | null {
     // Calculate points for each participant
     const participantPoints = new Map<string, number>();
     
-    tournament.participants.forEach(participant => {
+    participants.forEach(participant => {
       participantPoints.set(participant.id, 0);
     });
 
@@ -394,13 +433,13 @@ export class TournamentProgressionService {
     });
 
     // Find participant with highest points
-    let winner: Participant | null = null;
+    let winner: TournamentParticipant | null = null;
     let maxPoints = 0;
 
     participantPoints.forEach((points, participantId) => {
       if (points > maxPoints) {
         maxPoints = points;
-        winner = tournament.participants.find(p => p.id === participantId) || null;
+        winner = participants.find(p => p.id === participantId) || null;
       }
     });
 
@@ -410,24 +449,24 @@ export class TournamentProgressionService {
   /**
    * Determine Swiss winner
    */
-  private determineSwissWinner(tournament: Tournament): Participant | null {
+  private determineSwissWinner(tournament: Tournament, participants: TournamentParticipant[]): TournamentParticipant | null {
     // Similar to round robin but with tiebreakers
-    return this.determineRoundRobinWinner(tournament);
+    return this.determineRoundRobinWinner(tournament, participants);
   }
 
   /**
    * Generate Swiss pairings for next round
    */
-  private async generateSwissPairings(tournament: Tournament, round: number): Promise<Match[]> {
+  private async generateSwissPairings(tournament: Tournament, round: number, participants: TournamentParticipant[]): Promise<TournamentMatch[]> {
     // Calculate current standings
-    const standings = this.calculateSwissStandings(tournament);
+    const standings = this.calculateSwissStandings(tournament, participants);
     
     // Generate pairings (simplified - in practice this would be more complex)
-    const matches: Match[] = [];
+    const matches: TournamentMatch[] = [];
     
     for (let i = 0; i < standings.length; i += 2) {
       if (i + 1 < standings.length) {
-        const match: Match = {
+        const match: TournamentMatch = {
           id: `match_${Date.now()}_${i}`,
           tournament_id: tournament.id,
           round,
@@ -450,11 +489,11 @@ export class TournamentProgressionService {
   /**
    * Calculate Swiss standings
    */
-  private calculateSwissStandings(tournament: Tournament): Participant[] {
+  private calculateSwissStandings(tournament: Tournament, participants: TournamentParticipant[]): TournamentParticipant[] {
     // Calculate points for each participant
     const participantPoints = new Map<string, number>();
     
-    tournament.participants.forEach(participant => {
+    participants.forEach(participant => {
       participantPoints.set(participant.id, 0);
     });
 
@@ -466,7 +505,7 @@ export class TournamentProgressionService {
     });
 
     // Sort participants by points
-    return tournament.participants
+    return participants
       .map(participant => ({
         ...participant,
         points: participantPoints.get(participant.id) || 0

@@ -12,6 +12,7 @@ export class SkyT1Service {
   constructor() {
     this.openai = new OpenAI({
       apiKey: config.openai.apiKey,
+      dangerouslyAllowBrowser: true
     });
   }
 
@@ -55,7 +56,7 @@ export class SkyT1Service {
         temperature: this.temperature,
       });
 
-      const violations = this.parseViolations(response.choices[0].message.content);
+      const violations = this.parseViolations(response.choices[0].message.content || '');
       logger.info('Sky-T1 analysis complete', { violations });
       return violations;
     } catch (error) {
@@ -93,7 +94,7 @@ export class SkyT1Service {
       });
 
       const interpretation = this.parseRuleInterpretation(
-        response.choices[0].message.content
+        response.choices[0].message.content || ''
       );
       logger.info('Sky-T1 rule interpretation complete', { interpretation });
       return interpretation;

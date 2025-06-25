@@ -2,6 +2,9 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import MapIcon from '@mui/icons-material/Map';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import {
   Box,
   Button,
@@ -43,6 +46,24 @@ const features = [
       "Learn advanced techniques and strategies from top players and AI-powered analysis.",
     icon: <SportsEsportsIcon sx={{ fontSize: 40 }} />,
     path: "/game-strategy",
+  },
+  {
+    title: 'Avatar Progression',
+    description: 'Advance your avatar through narrative-driven progression and unlock new abilities.',
+    icon: <EmojiEventsIcon sx={{ fontSize: 40 }} />,
+    path: '/avatar-progression',
+  },
+  {
+    title: 'World Map',
+    description: 'View live Dojo status and territory control on the interactive world map.',
+    icon: <MapIcon sx={{ fontSize: 40 }} />,
+    path: '/world-map',
+  },
+  {
+    title: 'AI Commentary',
+    description: 'Experience Pool God AI match commentary and fluke event analysis.',
+    icon: <PsychologyIcon sx={{ fontSize: 40 }} />,
+    path: '/ai-commentary',
   },
 ];
 

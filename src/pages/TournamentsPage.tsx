@@ -1,16 +1,16 @@
 import React from 'react';
 import TournamentList from '../components/TournamentList'; // Adjust path if needed
-// import Layout from '../components/Layout'; // Assuming a Layout component exists
+import Layout from '../components/layout/Layout';
 
 const TournamentsPage: React.FC = () => {
   return (
-    // <Layout>
+    <Layout>
       <div>
         <h1>Tournaments</h1>
         <p>Browse upcoming and active tournaments.</p>
         <TournamentList />
       </div>
-    // </Layout>
+    </Layout>
   );
 };
 

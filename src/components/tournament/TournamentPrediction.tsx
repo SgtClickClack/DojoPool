@@ -1,82 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
+  Typography,
+  Paper,
   Card,
   CardContent,
-  Typography,
-  Grid,
   Chip,
-  LinearProgress,
   IconButton,
   Tooltip,
-  Paper,
+  Grid,
+  Tabs,
+  Tab,
   Divider,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
   Avatar,
-  Badge,
-  Tabs,
-  Tab,
+  LinearProgress,
+  Button,
+  Switch,
+  FormControlLabel,
+  Slider,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Alert,
 } from '@mui/material';
 import {
-  TrendingUp,
-  TrendingDown,
   Psychology,
+  TrendingUp,
   EmojiEvents,
-  Analytics,
-  ShowChart,
-  Assessment,
-  Star,
-  Speed,
-  Target,
   Timeline,
-  Visibility,
+  Refresh,
+  Settings,
+  AutoAwesome,
+  Analytics,
+  SportsEsports,
+  Star,
+  Warning,
+  CheckCircle,
+  Schedule,
+  Person,
+  Group,
+  Assessment,
+  ExpandMore,
+  Info,
 } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-  border: '1px solid #00d4ff',
-  borderRadius: 12,
-  boxShadow: '0 8px 32px rgba(0, 212, 255, 0.1)',
-  backdropFilter: 'blur(10px)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 12px 40px rgba(0, 212, 255, 0.2)',
-  },
-}));
-
-const PredictionCard = styled(Box)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #0f3460 0%, #16213e 100%)',
-  border: '1px solid #00d4ff',
-  borderRadius: 8,
-  padding: 16,
-  textAlign: 'center',
-  position: 'relative',
-  overflow: 'hidden',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '2px',
-    background: 'linear-gradient(90deg, #00d4ff, #ff0080)',
-  },
-}));
-
-const PredictionBar = styled(LinearProgress)(({ theme }) => ({
-  height: 8,
-  borderRadius: 4,
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  '& .MuiLinearProgress-bar': {
-    background: 'linear-gradient(90deg, #00d4ff, #ff0080)',
-    borderRadius: 4,
-  },
-}));
+import TournamentPredictionService, {
+  PlayerPrediction,
+  MatchPrediction,
+  type TournamentPrediction,
+  PredictionMetrics,
+  PredictionConfig
+} from '../../services/ai/TournamentPredictionService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -86,7 +67,6 @@ interface TabPanelProps {
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
-
   return (
     <div
       role="tabpanel"
@@ -100,459 +80,691 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const TournamentPrediction: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
-  const [predictions, setPredictions] = useState({
-    playerStats: [],
-    matchPredictions: [],
-    tournamentSeedings: [],
-  });
+const TournamentPredictionComponent: React.FC = () => {
+  const service = TournamentPredictionService.getInstance();
+  const [tabValue, setTabValue] = useState(0);
+  const [playerPredictions, setPlayerPredictions] = useState<PlayerPrediction[]>([]);
+  const [matchPredictions, setMatchPredictions] = useState<MatchPrediction[]>([]);
+  const [tournamentPredictions, setTournamentPredictions] = useState<TournamentPrediction[]>([]);
+  const [metrics, setMetrics] = useState<PredictionMetrics | null>(null);
+  const [config, setConfig] = useState<PredictionConfig | null>(null);
+  const [isEnabled, setIsEnabled] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
+  const [confidenceThreshold, setConfidenceThreshold] = useState(70);
 
   useEffect(() => {
-    // Mock data for demonstration
-    const mockData = {
-      playerStats: [
-        {
-          id: 'player1',
-          name: 'Neon Shadow',
-          rating: 9.8,
-          winRate: 0.92,
-          recentForm: 0.95,
-          seed: 1,
-          strengths: ['Break shots', 'Position play', 'Mental game'],
-          weaknesses: ['Long shots under pressure'],
-          playStyle: 'aggressive',
-        },
-        {
-          id: 'player2',
-          name: 'Digital Phantom',
-          rating: 9.2,
-          winRate: 0.85,
-          recentForm: 0.88,
-          seed: 2,
-          strengths: ['Long shots', 'Bank shots', 'Defensive play'],
-          weaknesses: ['Break consistency'],
-          playStyle: 'defensive',
-        },
-        {
-          id: 'player3',
-          name: 'Cyber Striker',
-          rating: 8.9,
-          winRate: 0.78,
-          recentForm: 0.82,
-          seed: 3,
-          strengths: ['Safety shots', 'Consistency', 'Pressure handling'],
-          weaknesses: ['Aggressive play'],
-          playStyle: 'balanced',
-        },
-        {
-          id: 'player4',
-          name: 'Quantum Pool',
-          rating: 8.5,
-          winRate: 0.72,
-          recentForm: 0.78,
-          seed: 4,
-          strengths: ['Creativity', 'Unpredictable shots', 'Comeback ability'],
-          weaknesses: ['Consistency', 'Defensive play'],
-          playStyle: 'aggressive',
-        },
-      ],
-      matchPredictions: [
-        {
-          matchId: 'match_1_2',
-          player1Name: 'Neon Shadow',
-          player2Name: 'Digital Phantom',
-          player1WinProbability: 0.68,
-          player2WinProbability: 0.32,
-          confidence: 0.85,
-          aiInsights: [
-            'Neon Shadow has a significant advantage in this matchup',
-            'Neon Shadow\'s break shots could be the deciding factor',
-            'Digital Phantom is in excellent form and could cause an upset',
-          ],
-        },
-        {
-          matchId: 'match_1_3',
-          player1Name: 'Neon Shadow',
-          player2Name: 'Cyber Striker',
-          player1WinProbability: 0.72,
-          player2WinProbability: 0.28,
-          confidence: 0.82,
-          aiInsights: [
-            'This is a closely contested matchup with no clear favorite',
-            'Recent form and mental game will likely decide the outcome',
-          ],
-        },
-        {
-          matchId: 'match_2_3',
-          player1Name: 'Digital Phantom',
-          player2Name: 'Cyber Striker',
-          player1WinProbability: 0.55,
-          player2WinProbability: 0.45,
-          confidence: 0.78,
-          aiInsights: [
-            'Digital Phantom has historically dominated this matchup',
-            'Cyber Striker\'s consistency could be the key factor',
-          ],
-        },
-      ],
-      tournamentSeedings: [
-        {
-          tournamentId: 'current_tournament',
-          players: [
-            { id: 'player1', name: 'Neon Shadow', seed: 1, rating: 9.8, predictedFinish: 1 },
-            { id: 'player2', name: 'Digital Phantom', seed: 2, rating: 9.2, predictedFinish: 2 },
-            { id: 'player3', name: 'Cyber Striker', seed: 3, rating: 8.9, predictedFinish: 3 },
-            { id: 'player4', name: 'Quantum Pool', seed: 4, rating: 8.5, predictedFinish: 4 },
-          ],
-          tournamentWinner: {
-            playerId: 'player1',
-            playerName: 'Neon Shadow',
-            probability: 0.45,
-          },
-          darkHorses: [
-            {
-              playerId: 'player3',
-              playerName: 'Cyber Striker',
-              seed: 3,
-              probability: 0.25,
-              reason: 'Strong recent form and high consistency despite lower seeding',
-            },
-          ],
-        },
-      ],
+    setPlayerPredictions(service.getPlayerPredictions());
+    setMatchPredictions(service.getMatchPredictions());
+    setTournamentPredictions(service.getTournamentPredictions());
+    setMetrics(service.getMetrics());
+    setConfig(service.getConfig());
+    setIsConnected(service.isConnected());
+
+    const handlePlayerPredictionGenerated = (prediction: PlayerPrediction) => {
+      setPlayerPredictions(prev => [prediction, ...prev.slice(0, 49)]);
     };
 
-    setPredictions(mockData);
+    const handleMatchPredictionGenerated = (prediction: MatchPrediction) => {
+      setMatchPredictions(prev => [prediction, ...prev.slice(0, 49)]);
+    };
+
+    const handleTournamentPredictionGenerated = (prediction: TournamentPrediction) => {
+      setTournamentPredictions(prev => [prediction, ...prev.slice(0, 49)]);
+    };
+
+    service.on('playerPredictionGenerated', handlePlayerPredictionGenerated);
+    service.on('matchPredictionGenerated', handleMatchPredictionGenerated);
+    service.on('tournamentPredictionGenerated', handleTournamentPredictionGenerated);
+
+    return () => {
+      service.off('playerPredictionGenerated', handlePlayerPredictionGenerated);
+      service.off('matchPredictionGenerated', handleMatchPredictionGenerated);
+      service.off('tournamentPredictionGenerated', handleTournamentPredictionGenerated);
+    };
   }, []);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
+    setTabValue(newValue);
   };
 
-  const getPerformanceColor = (rating: number) => {
-    if (rating >= 9.0) return '#00ff88';
-    if (rating >= 8.0) return '#00d4ff';
-    if (rating >= 7.0) return '#ffaa00';
-    return '#ff4444';
+  const handleTogglePrediction = () => {
+    setIsEnabled(!isEnabled);
+    service.updateConfig({ enabled: !isEnabled });
   };
 
-  const renderPlayerRankings = () => (
-    <StyledCard sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ color: '#00d4ff', mb: 2, display: 'flex', alignItems: 'center' }}>
-          <EmojiEvents sx={{ mr: 1 }} />
-          Player Rankings & Predictions
+  const handleConfidenceThresholdChange = (event: Event, newValue: number | number[]) => {
+    setConfidenceThreshold(newValue as number);
+    service.updateConfig({ confidenceThreshold: newValue as number });
+  };
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 90) return '#00ff9d';
+    if (confidence >= 75) return '#00a8ff';
+    if (confidence >= 60) return '#ffcc00';
+    return '#ff6666';
+  };
+
+  const getUpsetPotentialColor = (potential: number) => {
+    if (potential >= 30) return '#ff6666';
+    if (potential >= 20) return '#ffcc00';
+    return '#00ff9d';
+  };
+
+  const cyberpunkPaper = {
+    background: 'rgba(20, 20, 40, 0.95)',
+    border: '1.5px solid #00fff7',
+    boxShadow: '0 0 24px #00fff7, 0 0 8px #ff00ea',
+    borderRadius: 10,
+    color: '#fff',
+    margin: '1.5rem 0',
+    padding: '1.5rem',
+  };
+
+  const neonTextStyle = {
+    color: '#fff',
+    textShadow: '0 0 10px rgba(0, 255, 157, 0.8), 0 0 20px rgba(0, 255, 157, 0.4), 0 0 30px rgba(0, 255, 157, 0.2)',
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textTransform: 'uppercase' as const,
+  };
+
+  const renderPlayerPredictions = () => (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ ...neonTextStyle, color: '#ff00ea' }}>
+          <Person sx={{ mr: 1, color: '#ff00ea' }} />
+          Player Predictions
         </Typography>
-        <List>
-          {predictions.playerStats.map((player: any, index: number) => (
-            <ListItem key={player.id} sx={{ px: 0 }}>
-              <ListItemIcon>
-                <Badge badgeContent={player.seed} color="primary">
-                  <Avatar sx={{ bgcolor: getPerformanceColor(player.rating) }}>
-                    {player.name.charAt(0)}
-                  </Avatar>
-                </Badge>
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography variant="subtitle1" sx={{ color: '#ffffff' }}>
-                      {player.name}
+        <Button
+          variant="outlined"
+          onClick={() => service.generatePlayerPrediction('player1', 'tournament_1')}
+          sx={{ color: '#00ff9d', borderColor: '#00ff9d' }}
+        >
+          Generate New
+        </Button>
+      </Box>
+      
+      <Grid container spacing={2}>
+        {playerPredictions.map((prediction) => (
+          <Grid item xs={12} md={6} key={prediction.playerId}>
+            <Card sx={{
+              background: 'rgba(0, 255, 157, 0.05)',
+              border: '1px solid rgba(0, 255, 157, 0.2)',
+              borderRadius: 2,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(0, 255, 157, 0.1)',
+                borderColor: 'rgba(0, 255, 157, 0.4)',
+              }
+            }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ color: '#00ff9d', fontWeight: 600 }}>
+                    {prediction.playerName}
+                  </Typography>
+                  <Chip
+                    label={`${prediction.predictedFinish}${prediction.predictedFinish === 1 ? 'st' : prediction.predictedFinish === 2 ? 'nd' : prediction.predictedFinish === 3 ? 'rd' : 'th'}`}
+                    sx={{
+                      background: 'linear-gradient(45deg, #ff00ea, #00fff7)',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  />
+                </Box>
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#00a8ff', mb: 1 }}>
+                    Win Probability: {prediction.winProbability.toFixed(1)}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={prediction.winProbability}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(0, 168, 255, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #00a8ff, #00ff9d)',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#ffcc00', mb: 1 }}>
+                    Confidence: {prediction.confidence.toFixed(1)}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={prediction.confidence}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 204, 0, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #ffcc00, #ff6600)',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Accordion sx={{ background: 'transparent', color: '#fff' }}>
+                  <AccordionSummary expandIcon={<ExpandMore sx={{ color: '#00ff9d' }} />}>
+                    <Typography sx={{ color: '#00ff9d' }}>Key Factors</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Grid container spacing={1}>
+                      {Object.entries(prediction.factors).map(([key, value]) => (
+                        <Grid item xs={6} key={key}>
+                          <Typography variant="body2" sx={{ color: '#ccc' }}>
+                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {value}
+                          </Typography>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </AccordionDetails>
+                </Accordion>
+                
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#00a8ff', fontWeight: 600, mb: 1 }}>
+                    Insights:
+                  </Typography>
+                  {prediction.insights.map((insight, index) => (
+                    <Typography key={index} variant="body2" sx={{ color: '#ccc', mb: 0.5 }}>
+                      • {insight}
                     </Typography>
-                    <Chip
-                      label={`${player.rating.toFixed(1)}`}
-                      size="small"
-                      sx={{
-                        bgcolor: getPerformanceColor(player.rating),
-                        color: '#000000',
-                        fontWeight: 'bold',
-                      }}
-                    />
-                  </Box>
-                }
-                secondary={
-                  <Box>
-                    <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
-                      Seed #{player.seed} • Win Rate: {(player.winRate * 100).toFixed(0)}% • Recent Form: {(player.recentForm * 100).toFixed(0)}%
-                    </Typography>
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="caption" sx={{ color: '#00d4ff' }}>
-                        Strengths: {player.strengths.slice(0, 2).join(', ')}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mt: 0.5 }}>
-                      <Typography variant="caption" sx={{ color: '#ff4444' }}>
-                        Weaknesses: {player.weaknesses.slice(0, 1).join(', ')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
-      </CardContent>
-    </StyledCard>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 
   const renderMatchPredictions = () => (
-    <StyledCard sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ color: '#00d4ff', mb: 2, display: 'flex', alignItems: 'center' }}>
-          <Analytics sx={{ mr: 1 }} />
-          AI Match Predictions
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ ...neonTextStyle, color: '#00a8ff' }}>
+          <SportsEsports sx={{ mr: 1, color: '#00a8ff' }} />
+          Match Predictions
         </Typography>
-        {predictions.matchPredictions.map((match: any) => (
-          <Box key={match.matchId} sx={{ mb: 3, p: 2, bgcolor: 'rgba(0, 212, 255, 0.05)', borderRadius: 2 }}>
-            <Typography variant="subtitle1" sx={{ color: '#ffffff', mb: 2, textAlign: 'center' }}>
-              {match.player1Name} vs {match.player2Name}
-            </Typography>
-            
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={6}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h6" sx={{ color: '#00d4ff' }}>
-                    {(match.player1WinProbability * 100).toFixed(0)}%
+        <Button
+          variant="outlined"
+          onClick={() => service.generateMatchPrediction('match_2', 'player1', 'player2')}
+          sx={{ color: '#00ff9d', borderColor: '#00ff9d' }}
+        >
+          Generate New
+        </Button>
+      </Box>
+      
+      <Grid container spacing={2}>
+        {matchPredictions.map((prediction) => (
+          <Grid item xs={12} md={6} key={prediction.matchId}>
+            <Card sx={{
+              background: 'rgba(0, 168, 255, 0.05)',
+              border: '1px solid rgba(0, 168, 255, 0.2)',
+              borderRadius: 2,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                background: 'rgba(0, 168, 255, 0.1)',
+                borderColor: 'rgba(0, 168, 255, 0.4)',
+              }
+            }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ color: '#00a8ff', fontWeight: 600 }}>
+                    {prediction.player1Name} vs {prediction.player2Name}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
-                    {match.player1Name}
+                  <Chip
+                    label={prediction.predictedScore}
+                    sx={{
+                      background: 'linear-gradient(45deg, #00a8ff, #00ff9d)',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  />
+                </Box>
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#ff00ea', mb: 1 }}>
+                    Predicted Winner: {prediction.predictedWinner}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#00ff9d', mb: 1 }}>
+                    Win Probability: {prediction.winProbability.toFixed(1)}%
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#ffcc00', mb: 1 }}>
+                    Estimated Duration: {prediction.estimatedDuration} minutes
                   </Typography>
                 </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h6" sx={{ color: '#ff0080' }}>
-                    {(match.player2WinProbability * 100).toFixed(0)}%
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#ffcc00', mb: 1 }}>
+                    Confidence: {prediction.confidence.toFixed(1)}%
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
-                    {match.player2Name}
-                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={prediction.confidence}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 204, 0, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #ffcc00, #ff6600)',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
                 </Box>
-              </Grid>
-            </Grid>
-            
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" sx={{ color: '#b0b0b0', mb: 1 }}>
-                Confidence: {(match.confidence * 100).toFixed(0)}%
-              </Typography>
-              <PredictionBar variant="determinate" value={match.confidence * 100} />
-            </Box>
-            
-            <Box>
-              <Typography variant="body2" sx={{ color: '#ffffff', mb: 1 }}>
-                AI Insights:
-              </Typography>
-              {match.aiInsights.map((insight: string, index: number) => (
-                <Typography key={index} variant="caption" sx={{ color: '#b0b0b0', display: 'block', mb: 0.5 }}>
-                  • {insight}
-                </Typography>
-              ))}
-            </Box>
-          </Box>
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#ff6666', mb: 1 }}>
+                    Upset Potential: {prediction.upsetPotential.toFixed(1)}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={prediction.upsetPotential}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 102, 102, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #ff6666, #ff0000)',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Box>
+                  <Typography variant="body2" sx={{ color: '#00a8ff', fontWeight: 600, mb: 1 }}>
+                    Key Insights:
+                  </Typography>
+                  {prediction.insights.map((insight, index) => (
+                    <Typography key={index} variant="body2" sx={{ color: '#ccc', mb: 0.5 }}>
+                      • {insight}
+                    </Typography>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </CardContent>
-    </StyledCard>
+      </Grid>
+    </Box>
   );
 
-  const renderTournamentSeeding = () => (
-    <StyledCard sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ color: '#00d4ff', mb: 2, display: 'flex', alignItems: 'center' }}>
-          <ShowChart sx={{ mr: 1 }} />
-          Tournament Seeding & Bracket Predictions
+  const renderTournamentPredictions = () => (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ ...neonTextStyle, color: '#ff00ea' }}>
+          <EmojiEvents sx={{ mr: 1, color: '#ff00ea' }} />
+          Tournament Predictions
         </Typography>
-        
-        {predictions.tournamentSeedings.map((seeding: any) => (
-          <Box key={seeding.tournamentId}>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Button
+          variant="outlined"
+          onClick={() => service.generateTournamentPrediction('tournament_1')}
+          sx={{ color: '#00ff9d', borderColor: '#00ff9d' }}
+        >
+          Generate New
+        </Button>
+      </Box>
+      
+      {tournamentPredictions.map((prediction) => (
+        <Card key={prediction.tournamentId} sx={{
+          background: 'rgba(255, 0, 234, 0.05)',
+          border: '1px solid rgba(255, 0, 234, 0.2)',
+          borderRadius: 2,
+          mb: 2,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            background: 'rgba(255, 0, 234, 0.1)',
+            borderColor: 'rgba(255, 0, 234, 0.4)',
+          }
+        }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h5" sx={{ color: '#ff00ea', fontWeight: 600 }}>
+                {prediction.tournamentName}
+              </Typography>
+              <Chip
+                label={`${prediction.confidence.toFixed(1)}% Confidence`}
+                sx={{
+                  background: 'linear-gradient(45deg, #ff00ea, #00fff7)',
+                  color: '#fff',
+                  fontWeight: 600
+                }}
+              />
+            </Box>
+            
+            <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1" sx={{ color: '#ffffff', mb: 2 }}>
-                  Tournament Winner Prediction
+                <Typography variant="h6" sx={{ color: '#00ff9d', mb: 1 }}>
+                  🏆 Predicted Winner: {prediction.predictedWinner}
                 </Typography>
-                <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'rgba(0, 255, 136, 0.1)', borderRadius: 2 }}>
-                  <Typography variant="h5" sx={{ color: '#00ff88' }}>
-                    {seeding.tournamentWinner.playerName}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
-                    {(seeding.tournamentWinner.probability * 100).toFixed(0)}% probability
-                  </Typography>
-                </Box>
+                <Typography variant="h6" sx={{ color: '#00a8ff', mb: 1 }}>
+                  🥈 Runner Up: {prediction.runnerUp}
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#ffcc00', mb: 2 }}>
+                  🥉 Semifinalists: {prediction.semifinalists.join(', ')}
+                </Typography>
               </Grid>
               
               <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1" sx={{ color: '#ffffff', mb: 2 }}>
-                  Dark Horses
+                <Typography variant="h6" sx={{ color: '#ff6666', mb: 1 }}>
+                  🐎 Dark Horses:
                 </Typography>
-                {seeding.darkHorses.map((horse: any) => (
-                  <Box key={horse.playerId} sx={{ mb: 2, p: 2, bgcolor: 'rgba(255, 170, 0, 0.1)', borderRadius: 2 }}>
-                    <Typography variant="h6" sx={{ color: '#ffaa00' }}>
-                      {horse.playerName} (Seed #{horse.seed})
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
-                      {(horse.probability * 100).toFixed(0)}% probability
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#ffaa00' }}>
-                      {horse.reason}
-                    </Typography>
-                  </Box>
+                {prediction.darkHorses.map((horse, index) => (
+                  <Typography key={index} variant="body2" sx={{ color: '#ccc', mb: 0.5 }}>
+                    • {horse.playerName} - {horse.upsetPotential.toFixed(1)}% upset potential
+                  </Typography>
                 ))}
               </Grid>
             </Grid>
             
-            <Typography variant="subtitle1" sx={{ color: '#ffffff', mb: 2 }}>
-              Seeding Order
-            </Typography>
-            <Grid container spacing={2}>
-              {seeding.players.map((player: any) => (
-                <Grid item xs={12} sm={6} md={3} key={player.id}>
-                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'rgba(0, 212, 255, 0.1)', borderRadius: 2 }}>
-                    <Typography variant="h6" sx={{ color: '#00d4ff' }}>
-                      #{player.seed}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#ffffff' }}>
-                      {player.name}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#b0b0b0' }}>
-                      Predicted Finish: {player.predictedFinish}
-                    </Typography>
-                  </Box>
-                </Grid>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body1" sx={{ color: '#00a8ff', fontWeight: 600, mb: 1 }}>
+                Tournament Insights:
+              </Typography>
+              {prediction.insights.map((insight, index) => (
+                <Typography key={index} variant="body2" sx={{ color: '#ccc', mb: 0.5 }}>
+                  • {insight}
+                </Typography>
               ))}
-            </Grid>
-          </Box>
-        ))}
-      </CardContent>
-    </StyledCard>
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
+    </Box>
   );
 
-  const renderAIAnalysis = () => (
-    <StyledCard>
-      <CardContent>
-        <Typography variant="h6" sx={{ color: '#00d4ff', mb: 2, display: 'flex', alignItems: 'center' }}>
-          <Psychology sx={{ mr: 1 }} />
-          AI Analysis & Strategy Recommendations
-        </Typography>
-        
+  const renderMetrics = () => (
+    <Box>
+      <Typography variant="h6" sx={{ ...neonTextStyle, color: '#00ff9d', mb: 2 }}>
+        <Analytics sx={{ mr: 1, color: '#00ff9d' }} />
+        Prediction Metrics
+      </Typography>
+      
+      {metrics && (
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <Typography variant="subtitle1" sx={{ color: '#ffffff', mb: 2 }}>
-              Key Insights
-            </Typography>
-            <List>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemIcon>
-                  <TrendingUp sx={{ color: '#00ff88' }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Neon Shadow's aggressive play style gives advantage in early rounds"
-                  secondary="Break shot dominance and mental game strength"
-                />
-              </ListItem>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemIcon>
-                  <Target sx={{ color: '#ff0080' }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Digital Phantom's defensive strategy effective against lower seeds"
-                  secondary="Bank shot accuracy and safety play key factors"
-                />
-              </ListItem>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemIcon>
-                  <Speed sx={{ color: '#ffaa00' }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Cyber Striker's consistency could lead to upset victories"
-                  secondary="Pressure handling and safety shot mastery"
-                />
-              </ListItem>
-            </List>
+            <Card sx={{
+              background: 'rgba(0, 255, 157, 0.05)',
+              border: '1px solid rgba(0, 255, 157, 0.2)',
+              borderRadius: 2
+            }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ color: '#00ff9d', mb: 2 }}>
+                  Overall Performance
+                </Typography>
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#00a8ff', mb: 1 }}>
+                    Accuracy: {metrics.accuracy.toFixed(1)}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={metrics.accuracy}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(0, 168, 255, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #00a8ff, #00ff9d)',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#ffcc00', mb: 1 }}>
+                    Average Confidence: {metrics.averageConfidence.toFixed(1)}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={metrics.averageConfidence}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 204, 0, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #ffcc00, #ff6600)',
+                        borderRadius: 4,
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Typography variant="body2" sx={{ color: '#ccc' }}>
+                  Total Predictions: {metrics.totalPredictions}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#ccc' }}>
+                  Correct Predictions: {metrics.correctPredictions}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#ccc' }}>
+                  Recent Accuracy: {metrics.recentAccuracy.toFixed(1)}%
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
           
           <Grid item xs={12} md={6}>
-            <Typography variant="subtitle1" sx={{ color: '#ffffff', mb: 2 }}>
-              Strategy Recommendations
-            </Typography>
-            <Box sx={{ p: 2, bgcolor: 'rgba(0, 212, 255, 0.1)', borderRadius: 2 }}>
-              <Typography variant="body2" sx={{ color: '#ffffff', mb: 1 }}>
-                For Top Seeds:
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#b0b0b0', display: 'block', mb: 1 }}>
-                • Maintain aggressive play but focus on shot selection
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#b0b0b0', display: 'block', mb: 1 }}>
-                • Use mental game advantage in pressure situations
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#b0b0b0', display: 'block', mb: 2 }}>
-                • Adapt strategy based on opponent's weaknesses
-              </Typography>
-              
-              <Typography variant="body2" sx={{ color: '#ffffff', mb: 1 }}>
-                For Underdogs:
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#b0b0b0', display: 'block', mb: 1 }}>
-                • Focus on consistency and safety play
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#b0b0b0', display: 'block', mb: 1 }}>
-                • Look for opportunities to be aggressive
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#b0b0b0', display: 'block' }}>
-                • Capitalize on opponent's pressure situations
-              </Typography>
-            </Box>
+            <Card sx={{
+              background: 'rgba(0, 168, 255, 0.05)',
+              border: '1px solid rgba(0, 168, 255, 0.2)',
+              borderRadius: 2
+            }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ color: '#00a8ff', mb: 2 }}>
+                  Model Performance
+                </Typography>
+                
+                {Object.entries(metrics.modelPerformance).map(([model, performance]) => (
+                  <Box key={model} sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ color: '#ffcc00', mb: 1 }}>
+                      {model.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {performance.toFixed(1)}%
+                    </Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={performance}
+                      sx={{
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: 'rgba(255, 204, 0, 0.2)',
+                        '& .MuiLinearProgress-bar': {
+                          background: 'linear-gradient(90deg, #ffcc00, #ff6600)',
+                          borderRadius: 3,
+                        }
+                      }}
+                    />
+                  </Box>
+                ))}
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
-      </CardContent>
-    </StyledCard>
+      )}
+    </Box>
+  );
+
+  const renderSettings = () => (
+    <Box>
+      <Typography variant="h6" sx={{ ...neonTextStyle, color: '#ffcc00', mb: 2 }}>
+        <Settings sx={{ mr: 1, color: '#ffcc00' }} />
+        Prediction Settings
+      </Typography>
+      
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Card sx={{
+            background: 'rgba(255, 204, 0, 0.05)',
+            border: '1px solid rgba(255, 204, 0, 0.2)',
+            borderRadius: 2
+          }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ color: '#ffcc00', mb: 2 }}>
+                General Settings
+              </Typography>
+              
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isEnabled}
+                    onChange={handleTogglePrediction}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: '#00ff9d',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#00ff9d',
+                      },
+                    }}
+                  />
+                }
+                label="Enable AI Predictions"
+                sx={{ color: '#fff', mb: 2 }}
+              />
+              
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: '#ffcc00', mb: 1 }}>
+                  Confidence Threshold: {confidenceThreshold}%
+                </Typography>
+                <Slider
+                  value={confidenceThreshold}
+                  onChange={handleConfidenceThresholdChange}
+                  min={50}
+                  max={95}
+                  step={5}
+                  sx={{
+                    color: '#ffcc00',
+                    '& .MuiSlider-thumb': {
+                      backgroundColor: '#ffcc00',
+                    },
+                    '& .MuiSlider-track': {
+                      backgroundColor: '#ffcc00',
+                    },
+                  }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} md={6}>
+          <Card sx={{
+            background: 'rgba(0, 255, 157, 0.05)',
+            border: '1px solid rgba(0, 255, 157, 0.2)',
+            borderRadius: 2
+          }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ color: '#00ff9d', mb: 2 }}>
+                Model Configuration
+              </Typography>
+              
+              {config && Object.entries(config.modelWeights).map(([factor, weight]) => (
+                <Box key={factor} sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#00a8ff', mb: 1 }}>
+                    {factor.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: {(weight * 100).toFixed(0)}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={weight * 100}
+                    sx={{
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: 'rgba(0, 168, 255, 0.2)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #00a8ff, #00ff9d)',
+                        borderRadius: 3,
+                      }
+                    }}
+                  />
+                </Box>
+              ))}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 
   return (
-    <Box sx={{ p: 3, minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)' }}>
-      <Typography variant="h4" sx={{ color: '#00d4ff', mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
-        Tournament Prediction & Seeding System
-      </Typography>
-      
-      <Box sx={{ borderBottom: 1, borderColor: 'rgba(0, 212, 255, 0.3)', mb: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
+    <Box sx={{ width: '100%', minHeight: '80vh', mt: 2 }}>
+      <Paper sx={cyberpunkPaper}>
+        <Alert 
+          severity="info" 
+          icon={<Info />}
           sx={{
-            '& .MuiTab-root': {
-              color: '#b0b0b0',
-              '&.Mui-selected': {
-                color: '#00d4ff',
-              },
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#00d4ff',
-            },
+            mb: 3,
+            background: 'rgba(0, 168, 255, 0.1)',
+            border: '1px solid rgba(0, 168, 255, 0.3)',
+            color: '#00a8ff',
+            '& .MuiAlert-icon': { color: '#00a8ff' },
+            '& .MuiAlert-message': { color: '#00a8ff' }
           }}
         >
-          <Tab label="Player Rankings" />
-          <Tab label="Match Predictions" />
-          <Tab label="Tournament Seeding" />
-          <Tab label="AI Analysis" />
+          <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
+            🎯 Analytics & Entertainment Only
+          </Typography>
+          <Typography variant="body2">
+            This AI prediction system is designed for <strong>analytics, entertainment, and performance analysis purposes only</strong>. 
+            It is <strong>NOT intended for betting or gambling</strong>. All predictions are for fun and educational purposes to enhance 
+            the tournament experience and provide insights into player performance and match dynamics.
+          </Typography>
+        </Alert>
+
+        <Typography variant="h4" sx={{ ...neonTextStyle, mb: 2 }}>
+          AI Tournament Prediction & Forecasting
+        </Typography>
+        
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            borderBottom: '2px solid #00fff7',
+            mb: 2,
+            '.MuiTab-root': { color: '#fff', fontWeight: 600 },
+            '.Mui-selected': { color: '#ff00ea !important' },
+            '.MuiTabs-indicator': { background: 'linear-gradient(90deg,#00fff7,#ff00ea)' },
+          }}
+        >
+          <Tab icon={<Person />} label="Player Predictions" />
+          <Tab icon={<SportsEsports />} label="Match Predictions" />
+          <Tab icon={<EmojiEvents />} label="Tournament Predictions" />
+          <Tab icon={<Analytics />} label="Metrics" />
+          <Tab icon={<Settings />} label="Settings" />
         </Tabs>
-      </Box>
-      
-      <TabPanel value={activeTab} index={0}>
-        {renderPlayerRankings()}
-      </TabPanel>
-      
-      <TabPanel value={activeTab} index={1}>
-        {renderMatchPredictions()}
-      </TabPanel>
-      
-      <TabPanel value={activeTab} index={2}>
-        {renderTournamentSeeding()}
-      </TabPanel>
-      
-      <TabPanel value={activeTab} index={3}>
-        {renderAIAnalysis()}
-      </TabPanel>
+        
+        <Divider sx={{ mb: 2, borderColor: '#00fff7' }} />
+        
+        <TabPanel value={tabValue} index={0}>
+          {renderPlayerPredictions()}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={1}>
+          {renderMatchPredictions()}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={2}>
+          {renderTournamentPredictions()}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={3}>
+          {renderMetrics()}
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={4}>
+          {renderSettings()}
+        </TabPanel>
+      </Paper>
     </Box>
   );
 };
 
-export default TournamentPrediction; 
+export default TournamentPredictionComponent; 
