@@ -1,4 +1,3 @@
-import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import {
   AppBar,
   Box,
@@ -7,62 +6,601 @@ import {
   IconButton,
   Toolbar,
   Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import {
+  Psychology,
+  School,
+  Speed,
+  ViewInAr,
+  ExpandMore,
+  Forum,
+  Analytics,
+  Smartphone,
+  Gavel,
+  Mic,
+  AutoAwesome,
+  Business,
+  Palette,
+  Assessment,
+  MonetizationOn,
+  LocalOffer,
+  People,
+  VideoLibrary,
+  Build,
+  Storefront,
+} from "@mui/icons-material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
+  const [aiMenuAnchor, setAiMenuAnchor] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+
+  const handleAiMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAiMenuAnchor(event.currentTarget);
+  };
+
+  const handleAiMenuClose = () => {
+    setAiMenuAnchor(null);
+  };
+
   return (
-    <AppBar position="sticky">
+    <AppBar 
+      position="sticky"
+      sx={{
+        background: "linear-gradient(90deg, rgba(10,10,10,0.95) 0%, rgba(26,26,26,0.95) 50%, rgba(10,10,10,0.95) 100%)",
+        borderBottom: "1px solid rgba(0,255,157,0.3)",
+        boxShadow: "0 4px 20px rgba(0,255,157,0.2)",
+        backdropFilter: "blur(20px)",
+        zIndex: 1200
+      }}
+    >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <IconButton
+          {/* Logo */}
+          <Box
             component={RouterLink}
             to="/"
             sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              color: "inherit",
-            }}
-          >
-            <SportsEsportsIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component={RouterLink}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontWeight: 700,
-              color: "inherit",
+              display: "flex",
+              alignItems: "center",
               textDecoration: "none",
+              mr: 3
             }}
           >
-            DojoPool
-          </Typography>
+            <img
+              src="/images/logo.webp"
+              alt="DojoPool Logo"
+              style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8, boxShadow: '0 0 15px rgba(0,255,157,0.5)' }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                color: "#00ff9d",
+                fontFamily: 'Orbitron, monospace',
+                textShadow: "0 0 10px rgba(0,255,157,0.5)",
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 15px rgba(0,168,255,0.5)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              DojoPool
+            </Typography>
+          </Box>
+
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Button
               component={RouterLink}
-              to="/practice"
-              sx={{ my: 2, color: "white", display: "block" }}
+              to="/dashboard"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
             >
-              Practice
+              Dashboard
             </Button>
             <Button
               component={RouterLink}
-              to="/analysis"
-              sx={{ my: 2, color: "white", display: "block" }}
+              to="/map"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
             >
-              Analysis
+              Map
             </Button>
             <Button
               component={RouterLink}
-              to="/monitoring"
-              sx={{ my: 2, color: "white", display: "block" }}
+              to="/ledger"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
             >
-              Monitoring
+              Ledger
             </Button>
+            
+            {/* AI Features Dropdown */}
+            <Button
+              onClick={handleAiMenuOpen}
+              endIcon={<ExpandMore />}
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              AI Features
+            </Button>
+            
+            <Menu
+              anchorEl={aiMenuAnchor}
+              open={Boolean(aiMenuAnchor)}
+              onClose={handleAiMenuClose}
+              sx={{
+                '& .MuiPaper-root': {
+                  background: 'rgba(20, 20, 20, 0.95)',
+                  border: '1px solid rgba(0, 255, 157, 0.3)',
+                  borderRadius: 2,
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: '0 8px 32px rgba(0, 255, 157, 0.3)',
+                },
+              }}
+            >
+              <MenuItem
+                component={RouterLink}
+                to="/ai/match-analysis"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Psychology sx={{ color: '#00ff9d' }} />
+                </ListItemIcon>
+                AI Match Analysis
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/voice-assistant"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Mic sx={{ color: '#00ff9d' }} />
+                </ListItemIcon>
+                Voice Assistant
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/ai/coaching"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <School sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                AI Coaching
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/ai/advanced-match-analysis"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Analytics sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                Advanced Analysis
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/performance/tournament-performance"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Speed sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                Performance
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/tournaments/bracket-visualization"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <ViewInAr sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                3D Bracket
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/tournaments/commentary"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <Mic sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                AI Commentary
+              </MenuItem>
+              <MenuItem
+                component={RouterLink}
+                to="/tournaments/prediction"
+                onClick={handleAiMenuClose}
+                sx={{
+                  color: '#00ff9d',
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                    color: '#00a8ff',
+                  },
+                }}
+              >
+                <ListItemIcon>
+                  <AutoAwesome sx={{ color: 'inherit' }} />
+                </ListItemIcon>
+                AI Prediction
+              </MenuItem>
+            </Menu>
+
+            <Button
+              component={RouterLink}
+              to="/Social"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <People sx={{ mr: 1 }} />
+              Social Hub
+            </Button>
+            
+            <Button
+              component={RouterLink}
+              to="/referee/advanced-ai-referee"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Gavel sx={{ mr: 1 }} />
+              AI Referee
+            </Button>
+            
+            <Button
+              component={RouterLink}
+              to="/game-replay"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <VideoLibrary sx={{ mr: 1 }} />
+              Game Replay
+            </Button>
+            
+            <Button
+              component={RouterLink}
+              to="/analytics/tournament-analytics"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Analytics sx={{ mr: 1 }} />
+              Analytics
+            </Button>
+            
+            <Button
+              color="inherit"
+              component={Link}
+              to="/mobile"
+              sx={{
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Mobile
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/blockchain"
+              sx={{
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Blockchain
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/nft-marketplace"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Storefront sx={{ mr: 1 }} />
+              NFT Marketplace
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/advanced-venue-analytics"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              <Analytics sx={{ mr: 1 }} />
+              Advanced Analytics
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/security"
+              sx={{
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Security
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate('/streaming')}
+              sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
+            >
+              Streaming
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate('/venues')}
+              sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
+            >
+              Venues
+            </Button>
+            <Button color="inherit" href="/compliance/tournament-compliance" sx={{ ml: 2 }}>
+              Compliance
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/venue-management"
+              startIcon={<Business />}
+              sx={{ mr: 1 }}
+            >
+              Venue Management
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/dojo-profile"
+              startIcon={<Palette />}
+              sx={{ mr: 1 }}
+            >
+              Dojo Profile
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/dojo-profile-customization"
+              startIcon={<AutoAwesome />}
+              sx={{ mr: 1 }}
+            >
+              Profile Customization
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/analytics"
+              startIcon={<Assessment />}
+              sx={{ mr: 1 }}
+            >
+              Venue Analytics
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/venue/equipment-management"
+              startIcon={<Build />}
+              sx={{ mr: 1 }}
+            >
+              Equipment Management
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/referee/ai-referee"
+              startIcon={<Gavel />}
+              sx={{ mr: 1 }}
+            >
+              AI Referee
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/advanced-analytics"
+              startIcon={<Analytics />}
+              sx={{ mr: 1 }}
+            >
+              Advanced Analytics
+            </Button>
+            <MenuItem onClick={() => navigate('/venue/dojo-coin-rewards')}>
+              <MonetizationOn sx={{ mr: 1 }} />
+              Dojo Coin Rewards
+            </MenuItem>
+            <MenuItem onClick={() => navigate('/venue/venue-specials')}>
+              <LocalOffer sx={{ mr: 1 }} />
+              Venue Specials
+            </MenuItem>
           </Box>
         </Toolbar>
       </Container>

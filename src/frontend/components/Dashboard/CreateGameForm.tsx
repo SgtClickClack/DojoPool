@@ -131,8 +131,10 @@ const CreateGameForm = () => {
       setIsFetchingVenues(true);
       setFetchVenuesError(null);
       try {
-        const response = await axiosInstance.get<Venue[]>("/venues");
-        setVenues(response.data || []); // Ensure it's always an array
+        const response = await axiosInstance.get("/v1/venues");
+        // Handle both array and object formats
+        const venuesData = response.data?.venues || response.data || [];
+        setVenues(Array.isArray(venuesData) ? venuesData : []);
       } catch (err) {
         console.error("Error fetching venues:", err);
         setFetchVenuesError("Failed to load venues.");

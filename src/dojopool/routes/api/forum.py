@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from ...core.middleware import rate_limit
 from ...services.forum_service import ForumService
@@ -13,7 +13,7 @@ forum_service = ForumService()
 
 def error_response(error: str, status_code: int = 400) -> tuple:
     """Create a standardized error response."""
-    return jsonify({"status": "error", "error": error}), status_code
+    return {"status": "error", "error": error}, status_code
 
 
 @forum.route("/categories", methods=["GET"])
@@ -27,7 +27,7 @@ def get_categories() -> Dict[str, Any]:
         include_private = False
 
     categories = forum_service.get_categories(include_private)
-    return jsonify({"categories": categories})
+    return {"categories": categories}
 
 
 @forum.route("/categories/<int:category_id>", methods=["GET"])
@@ -38,7 +38,7 @@ def get_category(category_id: int) -> Dict[str, Any]:
     if not category:
         return error_response("Category not found", 404)
 
-    return jsonify(category)
+    return category
 
 
 @forum.route("/topics", methods=["GET"])
@@ -57,7 +57,7 @@ def get_topics() -> Dict[str, Any]:
         result = forum_service.get_topics(
             category_id=category_id, page=page, per_page=per_page, sort_by=sort_by
         )
-        return jsonify(result)
+        return result
 
     except ValueError as e:
         return error_response(str(e))
@@ -84,7 +84,7 @@ def create_topic() -> Dict[str, Any]:
             title=data["title"],
             content=data["content"],
         )
-        return jsonify(topic), 201
+        return topic, 201
 
     except ValueError as e:
         return error_response(str(e))
@@ -100,7 +100,7 @@ def get_topic(topic_id: int) -> Dict[str, Any]:
     if not topic:
         return error_response("Topic not found", 404)
 
-    return jsonify(topic)
+    return topic
 
 
 @forum.route("/topics/<int:topic_id>/posts", methods=["GET"])
@@ -112,7 +112,7 @@ def get_posts(topic_id: int) -> Dict[str, Any]:
         per_page = min(100, request.args.get("per_page", 20, type=int))
 
         result = forum_service.get_posts(topic_id=topic_id, page=page, per_page=per_page)
-        return jsonify(result)
+        return result
 
     except ValueError as e:
         return error_response(str(e))
@@ -136,7 +136,7 @@ def create_post(topic_id: int) -> Dict[str, Any]:
         post = forum_service.create_post(
             user_id=user.id, topic_id=topic_id, content=data["content"]
         )
-        return jsonify(post), 201
+        return post, 201
 
     except ValueError as e:
         return error_response(str(e))
@@ -160,7 +160,7 @@ def add_reaction(post_id: int) -> Dict[str, Any]:
         result = forum_service.add_reaction(
             user_id=user.id, post_id=post_id, reaction_type=data["reaction_type"]
         )
-        return jsonify(result)
+        return result
 
     except ValueError as e:
         return error_response(str(e))
@@ -183,7 +183,7 @@ def subscribe() -> Dict[str, Any]:
         result = forum_service.subscribe(
             user_id=user.id, topic_id=data.get("topic_id"), category_id=data.get("category_id")
         )
-        return jsonify(result)
+        return result
 
     except ValueError as e:
         return error_response(str(e))

@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ...backup.backup_manager import BackupManager
-from ...config.backup_config import BackupSettings
+from dojopool.backup.backup_manager import BackupManager
+from dojopool.config import BackupSettings
 
 
 @pytest.fixture

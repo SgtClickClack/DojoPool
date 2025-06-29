@@ -8,7 +8,7 @@ from typing import Tuple, Union
 from flask import Flask, jsonify, render_template, request
 from werkzeug.exceptions import HTTPException
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class DojoPoolError(Exception):
@@ -72,7 +72,7 @@ def handle_error(error: Union[HTTPException, DojoPoolError]) -> Tuple[Union[str,
         status_code = 500
 
     if request.is_json or request.path.startswith("/api/"):
-        return jsonify({"error": str(error), "status_code": status_code}), status_code
+        return {"error": str(error), "status_code": status_code}, status_code
 
     return render_template("error.html", error=error), status_code
 

@@ -11,19 +11,30 @@ A fully functional DojoPool platform with core gaming features, wallet system, a
 ### MVP Core Features (Priority Order)
 
 #### 1. Wallet System Frontend ✅ COMPLETED
-- **Status**: ✅ Complete with cyberpunk styling
+- **Status**: ✅ Complete with cyberpunk styling and centralized Ledger page
 - **Components**: 
+  - Centralized Ledger page for all wallet management
+  - Dashboard integration with "Manage Wallet" button
   - WalletDashboard with neon effects and dark theme
   - WalletTransactionList with cyberpunk styling
   - TransferDialog with cyberpunk form styling
   - Real-time balance updates
   - Transaction history with filtering
+  - MetaMask and hardware wallet integration
+  - NFT collection display and management
+  - Tournament trophies and achievements
+  - Bank details and payment methods
 - **File Paths**: 
-  - `src/components/wallet/WalletDashboard.tsx`
-  - `src/components/wallet/WalletTransactionList.tsx`
-  - `src/components/wallet/TransferDialog.tsx`
+  - `src/frontend/components/wallet/Ledger.tsx` (centralized wallet management)
+  - `src/frontend/components/Dashboard/Dashboard.tsx` (Ledger integration)
+  - `src/frontend/components/wallet/WalletDashboard.tsx`
+  - `src/frontend/components/wallet/WalletTransactionList.tsx`
+  - `src/frontend/components/wallet/TransferDialog.tsx`
   - `src/frontend/pages/wallet.tsx`
-- **Next**: Integrate with backend wallet unification
+  - `src/services/wallet/WalletConnectionService.ts`
+  - `src/frontend/hooks/useWalletConnection.ts`
+  - `src/frontend/hooks/useWalletService.ts`
+- **Next**: Continue with Tournament System Frontend completion
 
 #### 2. Tournament System Frontend (Next Priority)
 - **Status**: 🚧 Backend exists, Frontend needs completion
@@ -58,19 +69,24 @@ A fully functional DojoPool platform with core gaming features, wallet system, a
 - **Dependencies**: Tournament system
 
 #### 4. Map & Dojo Discovery
-- **Status**: 🚧 Backend exists, Frontend missing
-- **Components Needed**:
-  - Google Maps integration with cyberpunk overlay
+- **Status**: ✅ Google Places API working, Frontend functional
+- **Components Completed**:
+  - Google Maps integration with venue search ✅
+  - Google Places API integration for pool halls and billiards ✅
+  - Real-time venue discovery with location bias ✅
+  - Proper error handling and API request formatting ✅
+- **Components Still Needed**:
+  - Cyberpunk overlay styling for map
   - Venue markers with neon effects
   - Live occupancy indicators
-  - Venue details modal
+  - Venue details modal with cyberpunk styling
   - Check-in functionality
 - **File Paths**:
-  - `src/components/map/DojoMap.tsx` (needs creation)
-  - `src/components/map/VenueMarker.tsx` (needs creation)
-  - `src/components/map/VenueDetails.tsx` (needs creation)
+  - `src/frontend/components/Map/Map.tsx` ✅ (Google Places API working)
+  - `src/components/map/VenueMarker.tsx` (needs creation with cyberpunk styling)
+  - `src/components/map/VenueDetails.tsx` (needs creation with cyberpunk styling)
   - `src/components/map/CheckInModal.tsx` (needs creation)
-- **Timeline**: 3-4 days
+- **Timeline**: 1-2 days (basic functionality complete, styling needed)
 - **Dependencies**: Venue management system
 
 #### 5. Social Features Frontend
@@ -147,7 +163,7 @@ A fully functional DojoPool platform with core gaming features, wallet system, a
 - [ ] Wallet system fully functional
 - [ ] Tournament system complete
 - [ ] Venue management operational
-- [ ] Map discovery working
+- [x] Map discovery working ✅ (Google Places API functional)
 - [ ] Social features implemented
 - [ ] Avatar system functional
 - [ ] All cyberpunk styling applied
@@ -573,3 +589,313 @@ This section outlines the step-by-step user journey and the required feature/com
 - [ ] Test all main user flows and fix any new errors
 
 - [2024-05-27] TournamentList and TournamentDetail integrated into main routing at /tournaments and /tournaments/:id
+
+---
+
+## 🎮 GAME FLOW & CSS IMPLEMENTATION PLAN (MVP DEPLOYMENT)
+
+### **📋 COMPREHENSIVE IMPLEMENTATION ROADMAP**
+
+This section outlines the complete plan to implement the game flow and CSS styling for MVP deployment, with realistic timelines and clear deliverables.
+
+#### **🎯 CURRENT STATUS ASSESSMENT**
+
+**✅ COMPLETED COMPONENTS:**
+- **Wallet System Frontend** - Cyberpunk styled, fully functional
+- **Basic Tournament Components** - TournamentList, TournamentDetail, TournamentBracket (needs styling)
+- **Basic Venue Components** - VenueList, VenueDetail, EventManagement (needs styling)
+- **Game Flow Components** - GamePlay, GameView, LiveGameDisplay (needs integration)
+- **Cyberpunk CSS Foundation** - Global styles, components, base styles exist
+
+**🔄 PENDING CRITICAL COMPONENTS:**
+- **Tournament Registration Flow** - Missing UI components
+- **Venue Check-in System** - QR/geolocation integration
+- **Game Flow Integration** - Connecting all components
+- **CSS Styling Completion** - Apply cyberpunk theme to all components
+
+---
+
+#### **🎮 PHASE 1: TOURNAMENT SYSTEM COMPLETION (Priority 1) - 3-5 days**
+
+**Task 1.1: Tournament Registration Flow**
+- **Duration:** 2-3 days
+- **Files to Create/Update:**
+  - `src/components/tournament/TournamentRegistration.tsx` (enhance existing)
+  - `src/components/tournament/TournamentDiscovery.tsx` (new)
+  - `src/components/tournament/TournamentPayment.tsx` (new)
+  - `src/styles/tournament.scss` (new)
+- **Features:**
+  - Tournament discovery with filters (venue, date, format)
+  - Registration workflow with wallet integration
+  - Entry fee payment with Dojo Coins
+  - Real-time registration status updates
+  - Cyberpunk styling with neon effects
+
+**Task 1.2: Tournament Bracket Enhancement**
+- **Duration:** 1-2 days
+- **Files to Update:**
+  - `src/components/tournament/TournamentBracket.tsx` (enhance existing)
+  - `src/components/tournament/BracketVisualization.tsx` (new)
+- **Features:**
+  - Interactive bracket visualization
+  - Real-time match updates
+  - Player progression tracking
+  - Cyberpunk grid styling
+
+---
+
+#### **🏢 PHASE 2: VENUE INTEGRATION COMPLETION (Priority 2) - 3-5 days**
+
+**Task 2.1: Venue Check-in System**
+- **Duration:** 2-3 days
+- **Files to Create/Update:**
+  - `src/components/venue/CheckInSystem.tsx` (enhance existing)
+  - `src/components/venue/QRCodeScanner.tsx` (new)
+  - `src/components/venue/GeolocationCheckIn.tsx` (new)
+  - `src/styles/venue.scss` (new)
+- **Features:**
+  - QR code scanning for venue check-in
+  - Geolocation verification
+  - Digital-physical presence linkage
+  - Real-time venue status updates
+
+**Task 2.2: Venue Dashboard Enhancement**
+- **Duration:** 1-2 days
+- **Files to Update:**
+  - `src/components/venue/VenueDashboard.tsx` (enhance existing)
+  - `src/components/venue/TableManagement.tsx` (new)
+- **Features:**
+  - Live table occupancy tracking
+  - Tournament management interface
+  - Revenue analytics display
+  - Cyberpunk dashboard styling
+
+---
+
+#### **🎮 PHASE 3: GAME FLOW INTEGRATION (Priority 3) - 5-7 days**
+
+**Task 3.1: Game Flow Orchestration**
+- **Duration:** 3-4 days
+- **Files to Create/Update:**
+  - `src/components/gameflow/GameFlowOrchestrator.tsx` (new)
+  - `src/components/gameflow/GameStateManager.tsx` (new)
+  - `src/hooks/useGameFlow.ts` (new)
+  - `src/styles/gameflow.scss` (new)
+- **Features:**
+  - Complete user journey orchestration
+  - State management across all game phases
+  - Seamless transitions between components
+  - Error handling and recovery
+
+**Task 3.2: Real-time Game Integration**
+- **Duration:** 2-3 days
+- **Files to Update:**
+  - `src/components/game/GamePlay.tsx` (enhance existing)
+  - `src/components/game/LiveGameDisplay.tsx` (enhance existing)
+  - `src/components/game/GameAnalytics.tsx` (new)
+- **Features:**
+  - AI ball tracking integration
+  - Real-time score updates
+  - Live commentary system
+  - Post-game analytics
+
+---
+
+#### **🎨 PHASE 4: CSS STYLING COMPLETION (Priority 4) - 3-5 days**
+
+**Task 4.1: Cyberpunk Theme Application**
+- **Duration:** 2-3 days
+- **Files to Create/Update:**
+  - `src/styles/components/_tournament.scss` (new)
+  - `src/styles/components/_venue.scss` (new)
+  - `src/styles/components/_gameflow.scss` (new)
+  - `src/styles/components/_game.scss` (enhance existing)
+- **Features:**
+  - Consistent cyberpunk styling across all components
+  - Neon effects and animations
+  - Responsive design for all screen sizes
+  - Dark theme with accent colors
+
+**Task 4.2: Animation and Effects**
+- **Duration:** 1-2 days
+- **Files to Create/Update:**
+  - `src/styles/animations/_cyberpunk.scss` (new)
+  - `src/styles/effects/_neon.scss` (new)
+  - `src/styles/effects/_glow.scss` (new)
+- **Features:**
+  - Smooth transitions between game states
+  - Neon text and border effects
+  - Loading animations
+  - Hover effects and interactions
+
+---
+
+#### **🔧 PHASE 5: INTEGRATION & TESTING (Priority 5) - 4-6 days**
+
+**Task 5.1: Component Integration**
+- **Duration:** 2-3 days
+- **Files to Update:**
+  - `src/App.tsx` (update routing)
+  - `src/components/Dashboard.tsx` (integrate new components)
+  - `src/hooks/useAuth.ts` (enhance for game flow)
+- **Features:**
+  - Complete routing setup
+  - Component state management
+  - Authentication flow integration
+  - Error boundary implementation
+
+**Task 5.2: Testing and Quality Assurance**
+- **Duration:** 2-3 days
+- **Files to Create/Update:**
+  - `cypress/e2e/tournament-flow.cy.ts` (new)
+  - `cypress/e2e/venue-checkin.cy.ts` (new)
+  - `cypress/e2e/game-flow-integration.cy.ts` (new)
+  - `src/components/__tests__/` (comprehensive test coverage)
+- **Features:**
+  - End-to-end testing for complete user journey
+  - Component unit tests
+  - Integration tests for API calls
+  - Performance testing
+
+---
+
+#### **📱 PHASE 6: MOBILE OPTIMIZATION (Priority 6) - 1-2 days**
+
+**Task 6.1: Responsive Design**
+- **Duration:** 1-2 days
+- **Files to Update:**
+  - `src/styles/responsive/_mobile.scss` (new)
+  - `src/styles/responsive/_tablet.scss` (new)
+  - All component CSS files (add responsive breakpoints)
+- **Features:**
+  - Mobile-first responsive design
+  - Touch-friendly interactions
+  - Optimized layouts for small screens
+  - Performance optimization
+
+---
+
+#### **🚀 PHASE 7: DEPLOYMENT PREPARATION (Priority 7) - 2-3 days**
+
+**Task 7.1: Production Optimization**
+- **Duration:** 1-2 days
+- **Files to Update:**
+  - `vite.config.ts` (optimize build)
+  - `package.json` (production dependencies)
+  - Environment configuration files
+- **Features:**
+  - Code splitting and lazy loading
+  - Asset optimization
+  - Performance monitoring setup
+  - Error tracking integration
+
+**Task 7.2: Documentation and Handoff**
+- **Duration:** 1 day
+- **Files to Create/Update:**
+  - `docs/GAME_FLOW_IMPLEMENTATION.md` (new)
+  - `docs/CSS_STYLING_GUIDE.md` (new)
+  - Update development tracking files
+- **Features:**
+  - Complete implementation documentation
+  - CSS styling guidelines
+  - Component usage examples
+  - Deployment instructions
+
+---
+
+#### **⏱️ TIMELINE SUMMARY**
+
+| Phase | Duration | Total Days |
+|-------|----------|------------|
+| Phase 1: Tournament System | 3-5 days | 3-5 |
+| Phase 2: Venue Integration | 3-5 days | 6-10 |
+| Phase 3: Game Flow Integration | 5-7 days | 11-17 |
+| Phase 4: CSS Styling | 3-5 days | 14-22 |
+| Phase 5: Integration & Testing | 4-6 days | 18-28 |
+| Phase 6: Mobile Optimization | 1-2 days | 19-30 |
+| Phase 7: Deployment Prep | 2-3 days | 21-33 |
+
+**Total Estimated Time: 21-33 days (3-5 weeks)**
+
+---
+
+#### **🎯 COMPLETE GAME FLOW ORDER (User Journey)**
+
+**1. LANDING & ACCOUNT CREATION** ✅ (Already Complete)
+- User registration/login
+- Wallet linking
+- Avatar setup
+
+**2. DASHBOARD (CENTRAL HUB)** ✅ (Already Complete)
+- Avatar display
+- Map access
+- Marketplace
+- Analytics
+- Trophy cabinet
+- Dojo Coins balance
+
+**3. MAP & VENUE DISCOVERY** ✅ (Already Complete)
+- Google Maps integration
+- Nearby venues display
+- Live occupancy indicators
+- Venue details
+
+**4. ENTERING VIRTUAL DOJO** ✅ (Already Complete)
+- Geolocation triggers
+- Stylized dojo interior
+- Live game visualization
+
+**5. TOURNAMENT DISCOVERY & REGISTRATION** 🔄 (Phase 1 - Priority)
+```
+User Flow: Dashboard → Tournament Discovery → Tournament Details → Registration → Payment → Confirmation
+```
+
+**6. PHYSICAL VENUE CHECK-IN** 🔄 (Phase 2 - Priority)
+```
+User Flow: Tournament Confirmation → Venue Navigation → QR Code Scan → Geolocation Verification → Check-in Complete
+```
+
+**7. TOURNAMENT BRACKET & MATCH SCHEDULING** 🔄 (Phase 1 - Priority)
+```
+User Flow: Check-in Complete → Tournament Bracket → Match Assignment → Wait for Opponent
+```
+
+**8. LIVE GAME PLAY** 🔄 (Phase 3 - Priority)
+```
+User Flow: Match Ready → Game Setup → Live Play → AI Tracking → Real-time Updates → Game Completion
+```
+
+**9. POST-GAME RESULTS & REWARDS** 🔄 (Phase 3 - Priority)
+```
+User Flow: Game Complete → Results Display → Analytics → Rewards Distribution → Tournament Progress
+```
+
+**10. SOCIAL & SHARING** 🔄 (Phase 3 - Priority)
+```
+User Flow: Rewards Complete → Social Sharing → Activity Feed → Friend Updates → Return to Dashboard
+```
+
+---
+
+#### **🎯 SUCCESS CRITERIA**
+
+**MVP Readiness Checklist:**
+- [ ] Complete tournament registration and discovery flow
+- [ ] Functional venue check-in system
+- [ ] Seamless game flow from registration to completion
+- [ ] Consistent cyberpunk styling across all components
+- [ ] Mobile-responsive design
+- [ ] Comprehensive test coverage (>80%)
+- [ ] Performance optimization for production
+- [ ] Complete documentation and handoff
+
+**Quality Gates:**
+- All components follow cyberpunk design system
+- Real-time updates work reliably
+- Mobile experience is smooth and intuitive
+- Error handling is comprehensive
+- Performance meets production standards
+
+---
+
+## Notes

@@ -4,7 +4,10 @@ const path = require('path');
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: [
+    '<rootDir>/src/tests/setup.ts',
+    '<rootDir>/src/tests/setup-ai-services.ts'
+  ],
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   moduleNameMapper: {
     // Path aliases

@@ -1,13 +1,15 @@
 """Unit tests for backup manager."""
 
 import os
+import tempfile
+import shutil
 from unittest.mock import MagicMock, patch
 
 import pytest
 from cryptography.fernet import Fernet
 
-from ...backup.backup_manager import BackupManager
-from ...config.backup_config import BackupSettings
+from dojopool.backup.backup_manager import BackupManager
+from dojopool.config import BackupSettings
 
 
 @pytest.fixture

@@ -8,11 +8,11 @@ const getEnvVar = (key: string, fallback: string = ''): string => {
   return fallback;
 };
 
-// NOTE: Vite will replace import.meta.env.VITE_NEXT_PUBLIC_API_URL with the correct value at build time.
-const API_BASE_URL = getEnvVar('VITE_NEXT_PUBLIC_API_URL', '/api/v1');
+// Use import.meta.env for Vite environment variables
+const API_BASE_URL = import.meta.env.VITE_NEXT_PUBLIC_API_URL || '';
 
 const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: '', // Use Vite proxy, do not hardcode /api or port
   withCredentials: true, // Always send cookies for cross-origin auth
 });
 

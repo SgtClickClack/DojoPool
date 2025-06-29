@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, render_template, request
 from flask_login import current_user, login_required
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -102,7 +102,7 @@ def create_venue():
         db.session.add(venue)
         db.session.commit()
 
-        return jsonify(venue.to_dict()), 201
+        return venue.to_dict(), 201
 
     return render_template("venue/create.html")
 
@@ -127,7 +127,7 @@ def edit_venue(venue_id):
 
         db.session.commit()
 
-        return jsonify(venue.to_dict())
+        return venue.to_dict()
 
     return render_template("venue/edit.html", venue=venue)
 
@@ -145,9 +145,9 @@ def check_in(venue_id):
             table_number=data.get("table_number"),
             game_type=data.get("game_type"),
         )
-        return jsonify(checkin.to_dict()), 201
+        return checkin.to_dict(), 201
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return {"error": str(e)}, 400
 
 
 @bp.route("/<int:venue_id>/checkout", methods=["POST"])
@@ -156,9 +156,9 @@ def check_out(venue_id):
     """Check out from a venue."""
     try:
         checkin = CheckInService.check_out(user_id=current_user.id, venue_id=venue_id)
-        return jsonify(checkin.to_dict())
+        return checkin.to_dict()
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return {"error": str(e)}, 400
 
 
 # Venue stats and activity
@@ -328,29 +328,25 @@ def api_search_venues():
     elif filter_type == "active":
         venues = sorted(venues, key=lambda v: v.active_players, reverse=True)
 
-    return jsonify(
-        {
-            "venues": [v.to_dict() for v in venues],
-            "has_more": False,  # Implement pagination if needed
-        }
-    )
+    return {
+        "venues": [v.to_dict() for v in venues],
+        "has_more": False,  # Implement pagination if needed
+    }
 
 
 @bp.route("/api/<int:venue_id>/active-players")
 def api_active_players(venue_id):
     """Get list of currently active players at venue."""
     active_checkins = CheckInService.get_active_checkins(venue_id)
-    return jsonify(
-        [
-            {
-                "user": checkin.user.to_dict(),
-                "checked_in_at": checkin.checked_in_at.isoformat(),
-                "table_number": checkin.table_number,
-                "game_type": checkin.game_type,
-            }
-            for checkin in active_checkins
-        ]
-    )
+    return [
+        {
+            "user": checkin.user.to_dict(),
+            "checked_in_at": checkin.checked_in_at.isoformat(),
+            "table_number": checkin.table_number,
+            "game_type": checkin.game_type,
+        }
+        for checkin in active_checkins
+    ]
 
 
 @bp.route("/api/<int:venue_id>/stats")
@@ -358,4 +354,4 @@ def api_venue_stats(venue_id):
     """Get venue statistics in JSON format."""
     venue = Venue.query.get_or_404(venue_id)
     time_range = request.args.get("range", "day")
-    return jsonify(venue.get_stats(time_range))
+    return venue.get_stats(time_range)

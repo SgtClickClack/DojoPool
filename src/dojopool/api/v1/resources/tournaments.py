@@ -1,7 +1,4 @@
-"""Tournament resources module.
-
-This module provides API resources for tournament operations.
-"""
+"""Tournament API resources."""
 
 from datetime import datetime
 from typing import Any, Dict
@@ -12,15 +9,16 @@ from marshmallow import Schema, ValidationError, fields, validate
 from dojopool.core.exceptions import NotFoundError
 from dojopool.core.security import require_auth, require_roles
 from dojopool.tournaments.tournament_manager import TournamentType, TournamentStatus, TournamentData
-from dojopool.models.tournament import Tournament
+from dojopool.models.tournament import Tournament, TournamentStatus, TournamentFormat
+from dojopool.services.tournament_service import TournamentService
+from dojopool.extensions import db
 
 from .base import BaseResource
 from dojopool.models.game import Game
 
+# Initialize tournament service
+tournament_service = TournamentService()
 
-# --- Tournament endpoints are temporarily disabled due to missing ORM model ---
-# All Tournament.query, .save(), .players, etc. usages are commented out to unblock backend startup.
-# Uncomment and refactor once a proper SQLAlchemy Tournament model is available.
 
 class TournamentSchema(Schema):
     """Schema for tournament data serialization."""
@@ -28,14 +26,15 @@ class TournamentSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True)
     description = fields.String()
-    type = fields.Enum(TournamentType, required=True)
+    format = fields.Enum(TournamentFormat, required=True)
     status = fields.Enum(TournamentStatus, dump_only=True)
-    max_players = fields.Integer(required=True, validate=[validate.Range(min=2)])
+    max_participants = fields.Integer(required=True, validate=[validate.Range(min=2)])
     entry_fee = fields.Float(required=True, validate=[validate.Range(min=0)])
-    prize_pool = fields.Float(dump_only=True)
-    winner_id = fields.Integer(dump_only=True)
-    started_at = fields.DateTime(dump_only=True)
-    ended_at = fields.DateTime(dump_only=True)
+    prize_pool = fields.Float(required=True, validate=[validate.Range(min=0)])
+    venue_id = fields.Integer(required=True)
+    organizer_id = fields.Integer(required=True)
+    start_date = fields.DateTime(required=True)
+    end_date = fields.DateTime(required=True)
     registration_deadline = fields.DateTime(required=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
@@ -46,8 +45,9 @@ class TournamentUpdateSchema(Schema):
 
     name = fields.String()
     description = fields.String()
-    max_players = fields.Integer(validate=[validate.Range(min=2)])
+    max_participants = fields.Integer(validate=[validate.Range(min=2)])
     entry_fee = fields.Float(validate=[validate.Range(min=0)])
+    prize_pool = fields.Float(validate=[validate.Range(min=0)])
     registration_deadline = fields.DateTime()
     status = fields.Enum(TournamentStatus)
 
@@ -80,12 +80,11 @@ class TournamentResource(BaseResource):
         Returns:
             Tournament details.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # return self.success_response(data=self.schema.dump(tournament))
-        pass
+        return self.success_response(data=tournament.to_dict())
 
     @require_roles("admin")
     def put(self, tournament_id):
@@ -97,30 +96,34 @@ class TournamentResource(BaseResource):
         Returns:
             Updated tournament details.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # data = self.update_schema.load(self.get_json_data())
+        data = self.update_schema.load(self.get_json_data())
+        
+        # Ensure data is a dictionary
+        if not isinstance(data, dict):
+            raise ValidationError("Invalid data format")
 
-        # # Update fields
-        # for field, value in data.items():
-        #     setattr(tournament, field, value)
+        # Update fields
+        for field, value in data.items():
+            if hasattr(tournament, field):
+                setattr(tournament, field, value)
 
-        # # Handle status changes
-        # if "status" in data:
-        #     if data["status"] == TournamentStatus.IN_PROGRESS:
-        #         if tournament.started_at is None:
-        #             tournament.started_at = datetime.utcnow()
-        #     elif data["status"] == TournamentStatus.COMPLETED:
-        #         tournament.ended_at = datetime.utcnow()
+        # Handle status changes
+        if "status" in data:
+            if data["status"] == TournamentStatus.IN_PROGRESS:
+                if not hasattr(tournament, 'started_at') or tournament.started_at is None:
+                    tournament.started_at = datetime.utcnow()
+            elif data["status"] == TournamentStatus.COMPLETED:
+                tournament.ended_at = datetime.utcnow()
 
-        # # tournament.save()
+        db.session.commit()
 
-        # return self.success_response(
-        #     data=self.schema.dump(tournament), message="Tournament updated successfully"
-        # )
-        pass
+        return self.success_response(
+            data=tournament.to_dict(), message="Tournament updated successfully"
+        )
 
     @require_roles("admin")
     def delete(self, tournament_id):
@@ -132,17 +135,17 @@ class TournamentResource(BaseResource):
         Returns:
             Success message.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # if tournament.status != TournamentStatus.PENDING:
-        #     raise ValidationError("Cannot delete tournament that has started")
+        if tournament.status != TournamentStatus.PENDING:
+            raise ValidationError("Cannot delete tournament that has started")
 
-        # # tournament.delete()
+        db.session.delete(tournament)
+        db.session.commit()
 
-        # return self.success_response(message="Tournament deleted successfully")
-        pass
+        return self.success_response(message="Tournament deleted successfully")
 
 
 class TournamentListResource(BaseResource):
@@ -153,72 +156,45 @@ class TournamentListResource(BaseResource):
     @require_auth
     def get(self):
         """Get list of tournaments."""
-        # query = Tournament.query
-
-        # # Apply filters
-        # status = request.args.get("status")
-        # if status:
-        #     query = query.filter_by(status=TournamentStatus[status.upper()])
-
-        # tournament_type = request.args.get("type")
-        # if tournament_type:
-        #     query = query.filter_by(type=TournamentType[tournament_type.upper()])
-
-        # # Filter by player participation
-        # player_id = request.args.get("player_id", type=int)
-        # if player_id:
-        #     query = query.filter(Tournament.players.any(id=player_id))
-
-        # # Apply date range filter
-        # start_date = request.args.get("start_date")
-        # if start_date:
-        #     query = query.filter(Tournament.created_at >= start_date)
-
-        # end_date = request.args.get("end_date")
-        # if end_date:
-        #     query = query.filter(Tournament.created_at <= end_date)
-
-        # # Apply sorting
-        # sort_by = request.args.get("sort_by", "created_at")
-        # sort_dir = request.args.get("sort_dir", "desc")
-
-        # if hasattr(Tournament, sort_by):
-        #     order_by = getattr(Tournament, sort_by)
-        #     if sort_dir.lower() == "desc":
-        #         order_by = order_by.desc()
-        #     query = query.order_by(order_by)
-
-        # return self.paginate(query)
-        pass
+        tournaments = Tournament.query.all()
+        return self.success_response(
+            data={"tournaments": [t.to_dict() for t in tournaments]}, 
+            message="Tournaments retrieved successfully"
+        )
 
     @require_roles("admin")
     def post(self):
         """Create new tournament."""
-        # data = self.get_json_data()
+        data = self.get_json_data()
 
-        # # Validate registration deadline
-        # if data["registration_deadline"] <= datetime.utcnow():
-        #     raise ValidationError("Registration deadline must be in the future")
+        # Validate registration deadline
+        if data["registration_deadline"] <= datetime.utcnow():
+            raise ValidationError("Registration deadline must be in the future")
 
-        # # Create tournament
-        # tournament = Tournament(
-        #     name=data["name"],
-        #     description=data.get("description"),
-        #     type=data["type"],
-        #     status=TournamentStatus.PENDING,
-        #     max_players=data["max_players"],
-        #     entry_fee=data["entry_fee"],
-        #     registration_deadline=data["registration_deadline"],
-        # )
+        # Create tournament
+        tournament = Tournament(
+            name=data["name"],
+            description=data.get("description", ""),
+            format=data["format"],
+            max_participants=data["max_participants"],
+            entry_fee=data["entry_fee"],
+            prize_pool=data["prize_pool"],
+            venue_id=data["venue_id"],
+            organizer_id=data["organizer_id"],
+            start_date=data["start_date"],
+            end_date=data["end_date"],
+            registration_deadline=data["registration_deadline"],
+            status=TournamentStatus.PENDING,
+        )
 
-        # # tournament.save()
+        db.session.add(tournament)
+        db.session.commit()
 
-        # return self.success_response(
-        #     data=self.schema.dump(tournament),
-        #     message="Tournament created successfully",
-        #     status_code=201,
-        # )
-        pass
+        return self.success_response(
+            data=tournament.to_dict(),
+            message="Tournament created successfully",
+            status_code=201,
+        )
 
 
 class TournamentStandingsResource(BaseResource):
@@ -236,62 +212,34 @@ class TournamentStandingsResource(BaseResource):
         Returns:
             Tournament standings.
         """
-        # tournament = Tournament.query.get(tournament_id)
-        # if not tournament:
-        #     raise NotFoundError("Tournament not found")
+        tournament = Tournament.query.get(tournament_id)
+        if not tournament:
+            raise NotFoundError("Tournament not found")
 
-        # # Get all games in the tournament
-        # games = Game.query.filter_by(tournament_id=tournament_id).all()
+        # Calculate standings based on games played
+        standings = []
+        for participant in tournament.participants:
+            user = participant.user
+            games_played = len([g for g in tournament.tournament_games if user in [g.game.player1, g.game.player2]])
+            games_won = len([g for g in tournament.tournament_games if g.game.winner_id == user.id])
+            total_score = sum(g.game.player1_score if g.game.player1_id == user.id else g.game.player2_score for g in tournament.tournament_games if user in [g.game.player1, g.game.player2])
+            average_score = total_score / games_played if games_played > 0 else 0
 
-        # # Calculate standings
-        # standings: Dict[int, Dict[str, Any]] = {}
+            standings.append({
+                "user_id": user.id,
+                "username": user.username,
+                "games_played": games_played,
+                "games_won": games_won,
+                "total_score": total_score,
+                "average_score": average_score,
+                "rank": 0  # Will be calculated after sorting
+            })
 
-        # for game in games:
-        #     # Process player 1
-        #     if game.player1.user_id not in standings:
-        #         standings[game.player1.user_id] = {
-        #             "user_id": game.player1.user_id,
-        #             "username": game.player1.user.username,
-        #             "games_played": 0,
-        #             "games_won": 0,
-        #             "total_score": 0,
-        #             "average_score": 0,
-        #         }
+        # Sort by wins, then by average score
+        standings.sort(key=lambda x: (x["games_won"], x["average_score"]), reverse=True)
 
-        #     standings[game.player1.user_id]["games_played"] += 1
-        #     standings[game.player1.user_id]["total_score"] += game.player1.score
-        #     if game.winner_id == game.player1.user_id:
-        #         standings[game.player1.user_id]["games_won"] += 1
+        # Assign ranks
+        for i, standing in enumerate(standings):
+            standing["rank"] = i + 1
 
-        #     # Process player 2
-        #     if game.player2.user_id not in standings:
-        #         standings[game.player2.user_id] = {
-        #             "user_id": game.player2.user_id,
-        #             "username": game.player2.user.username,
-        #             "games_played": 0,
-        #             "games_won": 0,
-        #             "total_score": 0,
-        #             "average_score": 0,
-        #         }
-
-        #     standings[game.player2.user_id]["games_played"] += 1
-        #     standings[game.player2.user_id]["total_score"] += game.player2.score
-        #     if game.winner_id == game.player2.user_id:
-        #         standings[game.player2.user_id]["games_won"] += 1
-
-        # # Calculate averages and create final list
-        # standings_list = []
-        # for stats in standings.values():
-        #     if stats["games_played"] > 0:
-        #         stats["average_score"] = stats["total_score"] / stats["games_played"]
-        #     standings_list.append(stats)
-
-        # # Sort by games won (descending) and average score (descending)
-        # standings_list.sort(key=lambda x: (-x["games_won"], -x["average_score"]))
-
-        # # Add ranks
-        # for i, stats in enumerate(standings_list, 1):
-        #     stats["rank"] = i
-
-        # return self.success_response(data=self.schema.dump(standings_list, many=True))
-        pass
+        return self.success_response(data=standings)

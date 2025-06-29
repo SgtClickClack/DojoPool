@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class PlayerRating(db.Model):
@@ -24,7 +24,7 @@ class PlayerRating(db.Model):
     previous_rating = Column(Float)
 
     # Relationships
-    user = relationship("User", backref="ratings")
+    user = relationship("User", back_populates="user_player_ratings")
 
     def __repr__(self):
         """String representation."""

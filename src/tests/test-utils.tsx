@@ -1,156 +1,127 @@
-import { render, RenderOptions } from '@testing-library/react';
-import { ReactElement } from 'react';
-import { vi, Mock } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
+import React, { ReactElement } from "react";
+import { render, RenderOptions } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+import userEvent from "@testing-library/user-event";
 
-// Create a custom render function that includes providers
+interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+  route?: string;
+  queryClient?: QueryClient;
+}
+
+// Create a custom render function with all providers
 const customRender = (
   ui: ReactElement,
-  {
-    route = '/',
+  options: CustomRenderOptions = {}
+) => {
+  const {
+    route = "/",
     queryClient = new QueryClient({
       defaultOptions: {
         queries: {
           retry: false,
-          cacheTime: 0,
+          staleTime: 0,
         },
       },
     }),
     ...renderOptions
-  } = {}
-) => {
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
+  } = options;
+
+  // Set initial route if provided
+  window.history.pushState({}, "Test page", route);
+
+  const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+    return (
       <BrowserRouter>
-        {children}
+        <ChakraProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </ChakraProvider>
       </BrowserRouter>
-    </QueryClientProvider>
-  );
+    );
+  };
 
   return {
-    ...render(ui, { wrapper: Wrapper, ...renderOptions }),
-    queryClient,
+    user: userEvent.setup(),
+    ...render(ui, { wrapper: AllTheProviders, ...renderOptions }),
   };
 };
 
-// Mock API response helper
-interface MockResponse<T = unknown> {
-  ok: boolean;
-  status: number;
-  json: () => Promise<T>;
-  text: () => Promise<string>;
-  headers?: Headers;
-}
+// Re-export everything from testing-library/react
+export * from "@testing-library/react";
 
-const createMockResponse = <T>(
-  data: T,
-  status = 200,
-  headers = new Headers()
-): MockResponse<T> => ({
-  ok: status >= 200 && status < 300,
-  status,
-  headers,
-  json: () => Promise.resolve(data),
-  text: () => Promise.resolve(JSON.stringify(data)),
-});
+// Override render method
+export { customRender as render };
 
-// Mock fetch helper
-const mockFetch = <T>(response: MockResponse<T>): Mock => {
-  return vi.fn().mockResolvedValue(response);
+// Export additional utilities
+export { userEvent };
+
+// Export test setup utilities
+export const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: 0,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+// Mock data utilities
+export const mockUser = {
+  id: "1",
+  username: "testuser",
+  email: "test@example.com",
+  isVerified: true,
+  roles: ["user"],
 };
 
-// Mock WebSocket helper
-const createMockWebSocket = () => {
-  const mockWs = {
-    send: vi.fn(),
-    close: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-    onopen: null as ((this: WebSocket, ev: Event) => any) | null,
-    onclose: null as ((this: WebSocket, ev: CloseEvent) => any) | null,
-    onmessage: null as ((this: WebSocket, ev: MessageEvent) => any) | null,
-    onerror: null as ((this: WebSocket, ev: Event) => any) | null,
-    readyState: WebSocket.CONNECTING,
-    url: 'ws://localhost',
-  };
-
-  return mockWs;
+export const mockGame = {
+  id: "1",
+  player1Id: "1",
+  player2Id: "2",
+  status: "active",
+  createdAt: new Date().toISOString(),
 };
 
-// Mock localStorage helper
-const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  key: vi.fn(),
-  length: 0,
+export const mockVenue = {
+  id: "1",
+  name: "Test Venue",
+  address: "123 Test St",
+  city: "Test City",
+  latitude: 40.7128,
+  longitude: -74.0060,
 };
 
-// Mock sessionStorage helper
-const mockSessionStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  key: vi.fn(),
-  length: 0,
+// Helper for async testing
+export const waitForCondition = (callback: () => void, timeout = 1000) => {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+    const poll = () => {
+      try {
+        callback();
+        resolve(true);
+      } catch (error) {
+        if (Date.now() - startTime > timeout) {
+          reject(error);
+        } else {
+          setTimeout(poll, 10);
+        }
+      }
+    };
+    poll();
+  });
 };
 
-// Mock IntersectionObserver helper
-const mockIntersectionObserver = {
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-};
-
-// Mock ResizeObserver helper
-const mockResizeObserver = {
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-};
-
-// Mock performance helper
-const mockPerformance = {
-  now: vi.fn(() => Date.now()),
-  mark: vi.fn(),
-  measure: vi.fn(),
-  clearMarks: vi.fn(),
-  clearMeasures: vi.fn(),
-  getEntriesByType: vi.fn(() => []),
-  getEntriesByName: vi.fn(() => []),
-  getEntries: vi.fn(() => []),
-  timeOrigin: Date.now(),
-};
-
-// Reset all mocks helper
-const resetAllMocks = () => {
-  vi.clearAllMocks();
-  mockLocalStorage.clear();
-  mockSessionStorage.clear();
-  mockIntersectionObserver.disconnect();
-  mockResizeObserver.disconnect();
-  mockPerformance.clearMarks();
-  mockPerformance.clearMeasures();
-};
-
-export {
-  customRender,
-  createMockResponse,
-  mockFetch,
-  createMockWebSocket,
-  mockLocalStorage,
-  mockSessionStorage,
-  mockIntersectionObserver,
-  mockResizeObserver,
-  mockPerformance,
-  resetAllMocks,
-};
-
-// Re-export testing-library utilities
-export * from '@testing-library/react';
-export * from '@testing-library/user-event';
-export * from '@testing-library/jest-dom'; 
+// Test cleanup
+export const cleanup = () => {
+  // Clean up any test state
+  if (global.fetch && typeof (global.fetch as any).mockClear === "function") {
+    (global.fetch as any).mockClear();
+  }
+}; 

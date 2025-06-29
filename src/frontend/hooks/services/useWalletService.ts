@@ -29,7 +29,7 @@ const useWalletService = (/* initialUserId?: string */): UseWalletServiceReturn 
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/wallet/${userId}`);
+      const response = await fetch(`/api/v1/wallet/${userId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch wallet data: ${response.statusText}`);
       }

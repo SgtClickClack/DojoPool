@@ -1,13 +1,17 @@
 import { Box } from "@mui/material";
 import Navbar from "./Navbar";
+import React from "react";
 
-const Layout = ({ children }) => {
+const Layout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   return (
     <Box
       sx={{
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        color: "#fff",
+        fontFamily: 'Orbitron, Roboto Mono, monospace',
+        position: "relative",
       }}
     >
       <Navbar />
@@ -17,8 +21,10 @@ const Layout = ({ children }) => {
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
-          bgcolor: "background.default",
-          color: "text.primary",
+          bgcolor: "transparent",
+          color: "inherit",
+          position: "relative",
+          zIndex: 1
         }}
       >
         {children}

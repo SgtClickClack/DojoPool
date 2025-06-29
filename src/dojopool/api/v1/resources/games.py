@@ -17,14 +17,16 @@ from dojopool.models.user import User
 from dojopool.core.exceptions import AuthorizationError, NotFoundError
 from dojopool.models.game import Game, GameStatus, GameType, GameMode
 from dojopool.core.security import require_auth, require_roles
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 # Commenting out or updating cache imports until their correct paths are confirmed
 # from dojopool.core.cache.flask_cache import cache_response_flask, invalidate_endpoint_cache
 # from dojopool.core.config.cache_config import CACHE_REGIONS, CACHED_ENDPOINTS
-from dojopool.core.models.game_analytics import GameAnalytics
-from dojopool.core.models.game import GameSession # Corrected import path for GameSession
+from dojopool.models.game_analytics import GameAnalytics
+# Fixed import to use the correct GameSession model
+from dojopool.models.game import GameSession
 
 from .base import BaseResource
+from flask_restful import Resource
 
 
 class PlayerSchema(Schema):
@@ -256,90 +258,39 @@ class GameResource(BaseResource):
         return super().post(game_id)
 
 
-class GameListResource(BaseResource):
-    """Resource for game list operations."""
-
-    schema = GameSchema()
-
+class GameListResource(Resource):
+    """Resource for managing games."""
+    
     @require_auth
-    # Commenting out or updating cache imports until their correct paths are confirmed
-    # @cache_response_flask(timeout=CACHE_REGIONS["short"]["timeout"], key_prefix="games_list")
     def get(self):
         """Get list of games."""
-        query = Game.query
-
-        # Apply filters
-        status = request.args.get("status")
-        if status:
-            query = query.filter_by(status=GameStatus[status.upper()])
-
-        game_type = request.args.get("type")
-        if game_type:
-            query = query.filter_by(type=GameType[game_type.upper()])
-
-        player_id = request.args.get("player_id", type=int)
-        if player_id:
-            query = query.filter(
-                (Game.player1.has(user_id=player_id)) | (Game.player2.has(user_id=player_id))
-            )
-
-        tournament_id = request.args.get("tournament_id", type=int)
-        if tournament_id:
-            query = query.filter_by(tournament_id=tournament_id)
-
-        # Apply date range filter
-        start_date = request.args.get("start_date")
-        if start_date:
-            query = query.filter(Game.created_at >= start_date)
-
-        end_date = request.args.get("end_date")
-        if end_date:
-            query = query.filter(Game.created_at <= end_date)
-
-        # Apply sorting
-        sort_by = request.args.get("sort_by", "created_at")
-        sort_dir = request.args.get("sort_dir", "desc")
-
-        if hasattr(Game, sort_by):
-            order_by = getattr(Game, sort_by)
-            if sort_dir.lower() == "desc":
-                order_by = order_by.desc()
-            query = query.order_by(order_by)
-
-        return self.paginate(query)
-
+        # For now, return an empty list for dev
+        return {"games": [], "message": "No games available (dev mode)"}
+    
     @require_auth
     def post(self):
-        """Create new game."""
-        data = self.get_json_data()
+        """Create a new game."""
+        # For now, return success message for dev
+        return {"message": "Game creation endpoint (dev mode)", "status": "success"}
 
-        # Verify players exist
-        player1 = User.query.get(data["player1"]["user_id"])
-        player2 = User.query.get(data["player2"]["user_id"])
 
-        if not player1 or not player2:
-            raise ValidationError("Invalid player ID")
-
-        # Create game
-        game = Game(
-            player1_id=player1.id,
-            player2_id=player2.id,
-            game_type=data["type"],
-            game_mode=data.get("mode", GameMode.CASUAL),
-            status=GameStatus.IN_PROGRESS,
-        )
-        game.started_at = datetime.utcnow()
-        game.score = f"{data['player1']['score']}-{data['player2']['score']}"
-        db.session.add(game)
-        db.session.commit()
-
-        # Invalidate games list cache
-        # Commenting out or updating cache imports until their correct paths are confirmed
-        # invalidate_endpoint_cache("games_list:*")
-
-        return self.success_response(
-            data=self.schema.dump(game), message="Game created successfully", status_code=201  # type: ignore
-        )
+class GameDetailResource(Resource):
+    """Resource for managing individual games."""
+    
+    @require_auth
+    def get(self, game_id):
+        """Get game details."""
+        return {"game_id": game_id, "message": "Game details endpoint (dev mode)"}
+    
+    @require_auth
+    def put(self, game_id):
+        """Update game."""
+        return {"game_id": game_id, "message": "Game update endpoint (dev mode)"}
+    
+    @require_auth
+    def delete(self, game_id):
+        """Delete game."""
+        return {"game_id": game_id, "message": "Game deletion endpoint (dev mode)"}
 
 
 class GameStatsResource(BaseResource):

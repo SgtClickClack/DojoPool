@@ -3,7 +3,6 @@
 from typing import Any, Dict, List, Optional
 
 from flask_caching import Cache
-from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -16,7 +15,6 @@ from flask_sqlalchemy import SQLAlchemy
 migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
-cors = CORS()
 socketio = SocketIO()
 jwt = JWTManager()
 ma = Marshmallow()
@@ -69,7 +67,27 @@ def init_app(app):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
-    cors.init_app(app)
+    socketio.init_app(app)
+    jwt.init_app(app)
+    ma.init_app(app)
+    cache.init_app(app)
+
+    # Configure login
+    login_manager.login_view = "auth.login"
+    login_manager.login_message_category = "info"
+
+    return app
+
+
+def init_extensions(app):
+    """Initialize all Flask extensions with the application."""
+    # Initialize database
+    db.init_app(app)
+    
+    # Initialize other extensions
+    migrate.init_app(app, db)
+    login_manager.init_app(app)
+    mail.init_app(app)
     socketio.init_app(app)
     jwt.init_app(app)
     ma.init_app(app)
@@ -86,7 +104,6 @@ __all__ = [
     "migrate",
     "login_manager",
     "mail",
-    "cors",
     "socketio",
     "jwt",
     "ma",
@@ -94,6 +111,7 @@ __all__ = [
     "cache_service",
     "db",
     "init_app",
+    "init_extensions",
 ]
 
 def get_config(timeout: Optional[int] = None) -> Dict[str, Any]:

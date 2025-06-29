@@ -1,355 +1,518 @@
+import React from "react";
 import {
-  Dashboard as DashboardIcon,
-  SportsEsports as GameIcon,
-  Logout as LogoutIcon,
-  Menu as MenuIcon,
-  Person as PersonIcon,
-  EmojiEvents as TrophyIcon,
-  Notifications as NotificationsIcon,
-  Settings as SettingsIcon,
-} from "@mui/icons-material";
-import {
-  AppBar,
   Box,
-  Button,
+  Typography,
+  Grid,
+  Paper,
   Card,
   CardContent,
-  CssBaseline,
+  Button,
+  Chip,
+  Avatar,
   Divider,
-  Drawer,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography,
-  Badge,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import {
+  TrendingUp,
+  EmojiEvents,
+  LocationOn,
+  AccountBalanceWallet,
+  Star,
+  Timeline,
+} from "@mui/icons-material";
+import Layout from "../layout/Layout";
+import MapView from "../../frontend/components/MapView";
+import WalletBalanceView from "../../frontend/components/wallet/WalletBalanceView";
+import RewardsDisplayPanel from "../../frontend/components/rewards/RewardsDisplayPanel";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./auth/AuthContext";
 
-const drawerWidth = 240;
-
-// Background images array
-const backgroundImages: string[] = [
-  "/static/images/hero-bg.webp",
-  "/static/images/spacetable.webp",
-  "/static/images/portalball.webp",
-  "/static/images/octopus.webp",
-  "/static/images/microchipball.webp",
-  "/static/images/mask.webp",
-  "/static/images/infinity.webp",
-  "/static/images/fox.webp",
-  "/static/images/dragon.webp",
-  "/static/images/yinyang.webp",
-];
-
-// Define a type for props if any, for now, an empty object as no props are explicitly passed
-interface DashboardProps {}
-
-const Dashboard: React.FC<DashboardProps> = () => {
-  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
-  const [currentBgIndex, setCurrentBgIndex] = useState<number>(0);
-  const { currentUser, logout } = useAuth();
+const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
-  // Background image rotation effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentBgIndex((prevIndex) =>
-        prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1,
-      );
-    }, 10000); // Change background every 10 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
-  async function handleLogout() {
-    try {
-      await logout();
-      navigate("/login");
-    } catch (error) {
-      console.error("Failed to log out:", error);
+  const gameFlowSteps = [
+    {
+      title: "Onboarding",
+      description: "Complete your profile setup",
+      path: "/onboarding",
+      color: "#00ff9d",
+      icon: "🎯",
+      gradient: "linear-gradient(135deg, #00ff9d 0%, #00cc7e 100%)"
+    },
+    {
+      title: "Avatar & Wallet",
+      description: "Customize your digital identity",
+      path: "/avatar",
+      color: "#00a8ff",
+      icon: "👤",
+      gradient: "linear-gradient(135deg, #00a8ff 0%, #0088cc 100%)"
+    },
+    {
+      title: "Venue Check-in",
+      description: "Find and join a Dojo",
+      path: "/venue",
+      color: "#ff6b6b",
+      icon: "🏢",
+      gradient: "linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%)"
+    },
+    {
+      title: "Tournaments",
+      description: "Compete in tournaments",
+      path: "/tournaments",
+      color: "#feca57",
+      icon: "🏆",
+      gradient: "linear-gradient(135deg, #feca57 0%, #ff9f43 100%)"
+    },
+    {
+      title: "Social",
+      description: "Connect with community",
+      path: "/social",
+      color: "#ff9ff3",
+      icon: "💬",
+      gradient: "linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%)"
     }
-  }
+  ];
 
-  const drawer = (
-    <div>
-      <Toolbar>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <img
-            src="/static/images/logo.webp"
-            alt="DojoPool Logo"
-            style={{
-              height: "40px",
-              width: "auto",
-              objectFit: "contain",
-            }}
-          />
-          <Typography variant="h6" noWrap component="div" className="neon-text">
-            DojoPool
-          </Typography>
-        </Box>
-      </Toolbar>
-      <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.12)" }} />
-      <List>
-        <ListItem button className="glow-button">
-          <ListItemIcon sx={{ color: "#00ff9f" }}>
-            <DashboardIcon />
-          </ListItemIcon>
-          <ListItemText primary="Dashboard" />
-        </ListItem>
-        <ListItem button className="glow-button">
-          <ListItemIcon sx={{ color: "#00ff9f" }}>
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText primary="Profile" />
-        </ListItem>
-        <ListItem button className="glow-button">
-          <ListItemIcon sx={{ color: "#00ff9f" }}>
-            <GameIcon />
-          </ListItemIcon>
-          <ListItemText primary="New Game" />
-        </ListItem>
-        <ListItem button className="glow-button">
-          <ListItemIcon sx={{ color: "#00ff9f" }}>
-            <TrophyIcon />
-          </ListItemIcon>
-          <ListItemText primary="Leaderboard" />
-        </ListItem>
-      </List>
-      <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.12)" }} />
-      <List>
-        <ListItem button onClick={handleLogout} className="glow-button">
-          <ListItemIcon sx={{ color: "#00ff9f" }}>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
-      </List>
-    </div>
-  );
+  const stats = [
+    {
+      label: "Total Games",
+      value: "0",
+      helpText: "Games played this month",
+      color: "#00ff9d",
+      icon: <TrendingUp />,
+      trend: "+0%"
+    },
+    {
+      label: "Win Rate",
+      value: "0%",
+      helpText: "Last 30 days",
+      color: "#00a8ff",
+      icon: <EmojiEvents />,
+      trend: "+0%"
+    },
+    {
+      label: "Skill Level",
+      value: "Beginner",
+      helpText: "Current ranking",
+      color: "#ff6b6b",
+      icon: <Star />,
+      trend: "New"
+    }
+  ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      type: "game",
+      title: "Welcome to DojoPool!",
+      description: "Complete your first game to start earning rewards",
+      timestamp: "Just now",
+      icon: "🎮"
+    }
+  ];
 
   return (
-    <Box sx={{ display: "flex", position: "relative" }}>
-      <CssBaseline />
-      {/* Background Image Container */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          overflow: "hidden",
-        }}
-      >
-        {backgroundImages.map((image, index) => (
-          <Box
-            key={image}
+    <Layout>
+      <Box sx={{ 
+        p: { xs: 2, md: 4 },
+        background: "linear-gradient(135deg, rgba(0,255,157,0.05) 0%, rgba(0,168,255,0.05) 100%)",
+        minHeight: "100vh"
+      }}>
+        {/* Header */}
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Typography
+            variant="h3"
+            component="h1"
             sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              opacity: index === currentBgIndex ? 1 : 0,
-              transition: "opacity 1s ease-in-out",
+              fontFamily: 'Orbitron, monospace',
+              fontWeight: 700,
+              background: 'linear-gradient(45deg, #00ff9d, #00a8ff)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 0 30px rgba(0,255,157,0.5)',
+              mb: 2
             }}
           >
-            <img
-              src={image}
-              alt={`Background ${index + 1}`}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center",
-              }}
-            />
-          </Box>
-        ))}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background:
-              "linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(26, 26, 26, 0.85) 100%)",
-          }}
-        />
-      </Box>
-
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          background: "rgba(30, 30, 30, 0.95)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Box
-            sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}
-          >
-            <img
-              src="/static/images/logo.webp"
-              alt="DojoPool Logo"
-              style={{
-                height: "40px",
-                width: "auto",
-                objectFit: "contain",
-              }}
-            />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              className="neon-text"
-            >
-              Welcome, {currentUser?.displayName || currentUser?.email}
-            </Typography>
-          </Box>
-          <IconButton color="inherit" sx={{ mr: 2 }}>
-            <Badge badgeContent={4} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-          <IconButton color="inherit" sx={{ mr: 2 }}>
-            <SettingsIcon />
-          </IconButton>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            className="glow-button"
+            Welcome to DojoPool
+          </Typography>
+          <Typography
+            variant="h6"
             sx={{
-              background: "linear-gradient(45deg, #00ff9f 30%, #00b36f 90%)",
-              "&:hover": {
-                background: "linear-gradient(45deg, #33ffb5 30%, #00ff9f 90%)",
-              },
+              color: '#ccc',
+              fontFamily: 'Orbitron, monospace',
+              fontWeight: 400
             }}
           >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
+            Your gaming journey starts here
+          </Typography>
+        </Box>
 
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-              background: "rgba(30, 30, 30, 0.85)",
-              backdropFilter: "blur(5px)",
-              color: "#fff",
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-              background: "rgba(20, 20, 20, 0.9)", // Darker for permanent drawer
-              color: "#fff",
-              borderRight: "1px solid rgba(255, 255, 255, 0.12)",
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
+        {/* Stats Cards */}
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: 'Orbitron, monospace',
+              color: '#00a8ff',
+              mb: 3,
+              fontWeight: 600
+            }}
+          >
+            Your Stats
+          </Typography>
+          <Grid container spacing={3}>
+            {stats.map((stat, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card
+                  sx={{
+                    background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(42,42,42,0.9) 100%)',
+                    border: `1px solid ${stat.color}40`,
+                    borderRadius: 3,
+                    boxShadow: `0 8px 32px ${stat.color}20`,
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: `0 12px 40px ${stat.color}40`,
+                    }
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: `${stat.color}20`,
+                          color: stat.color,
+                          mr: 2,
+                          width: 48,
+                          height: 48
+                        }}
+                      >
+                        {stat.icon}
+                      </Avatar>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            color: stat.color,
+                            fontFamily: 'Orbitron, monospace',
+                            fontWeight: 700,
+                            mb: 0.5
+                          }}
+                        >
+                          {stat.value}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#ccc',
+                            fontFamily: 'Orbitron, monospace',
+                            fontWeight: 500
+                          }}
+                        >
+                          {stat.label}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={stat.trend}
+                        size="small"
+                        sx={{
+                          bgcolor: `${stat.color}20`,
+                          color: stat.color,
+                          fontFamily: 'Orbitron, monospace',
+                          fontWeight: 600
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#999',
+                        fontFamily: 'Orbitron, monospace'
+                      }}
+                    >
+                      {stat.helpText}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* Game Flow Navigation */}
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: 'Orbitron, monospace',
+              color: '#00a8ff',
+              mb: 3,
+              fontWeight: 600
+            }}
+          >
+            Get Started
+          </Typography>
+          <Grid container spacing={3}>
+            {gameFlowSteps.map((step, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card
+                  sx={{
+                    background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(42,42,42,0.9) 100%)',
+                    border: `1px solid ${step.color}40`,
+                    borderRadius: 3,
+                    boxShadow: `0 8px 32px ${step.color}20`,
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: `0 12px 40px ${step.color}40`,
+                    }
+                  }}
+                  onClick={() => navigate(step.path)}
+                >
+                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: '50%',
+                        background: step.gradient,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 16px',
+                        fontSize: '2rem',
+                        boxShadow: `0 4px 20px ${step.color}40`
+                      }}
+                    >
+                      {step.icon}
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: step.color,
+                        fontFamily: 'Orbitron, monospace',
+                        fontWeight: 600,
+                        mb: 1
+                      }}
+                    >
+                      {step.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#ccc',
+                        fontFamily: 'Orbitron, monospace',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      {step.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* Wallet and Rewards */}
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: 'Orbitron, monospace',
+              color: '#00a8ff',
+              mb: 3,
+              fontWeight: 600
+            }}
+          >
+            Wallet & Rewards
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Card
+                sx={{
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(42,42,42,0.9) 100%)',
+                  border: '1px solid #00ff9d40',
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px #00ff9d20',
+                  backdropFilter: 'blur(10px)',
+                  height: '100%'
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <AccountBalanceWallet sx={{ color: '#00ff9d', mr: 2, fontSize: 28 }} />
+                    <Typography variant="h6" sx={{ color: '#00ff9d', fontFamily: 'Orbitron, monospace', fontWeight: 600 }}>
+                      Wallet
+                    </Typography>
+                  </Box>
+                  <WalletBalanceView />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Card
+                sx={{
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(42,42,42,0.9) 100%)',
+                  border: '1px solid #00a8ff40',
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px #00a8ff20',
+                  backdropFilter: 'blur(10px)',
+                  height: '100%'
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <EmojiEvents sx={{ color: '#00a8ff', mr: 2, fontSize: 28 }} />
+                    <Typography variant="h6" sx={{ color: '#00a8ff', fontFamily: 'Orbitron, monospace', fontWeight: 600 }}>
+                      Rewards
+                    </Typography>
+                  </Box>
+                  <RewardsDisplayPanel />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Recent Activity */}
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: 'Orbitron, monospace',
+              color: '#00a8ff',
+              mb: 3,
+              fontWeight: 600
+            }}
+          >
+            Recent Activity
+          </Typography>
+          <Card
+            sx={{
+              background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(42,42,42,0.9) 100%)',
+              border: '1px solid #00ff9d40',
+              borderRadius: 3,
+              boxShadow: '0 8px 32px #00ff9d20',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              {recentActivity.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Timeline sx={{ fontSize: 48, color: '#666', mb: 2 }} />
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: '#ccc',
+                      fontFamily: 'Orbitron, monospace',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    No recent activity to display.
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: '#999',
+                      fontFamily: 'Orbitron, monospace',
+                      mt: 1
+                    }}
+                  >
+                    Start playing to see your activity here!
+                  </Typography>
+                </Box>
+              ) : (
+                <Box>
+                  {recentActivity.map((activity, index) => (
+                    <Box key={activity.id}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', py: 2 }}>
+                        <Avatar sx={{ bgcolor: '#00ff9d20', color: '#00ff9d', mr: 2 }}>
+                          {activity.icon}
+                        </Avatar>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              color: '#fff',
+                              fontFamily: 'Orbitron, monospace',
+                              fontWeight: 600
+                            }}
+                          >
+                            {activity.title}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: '#ccc',
+                              fontFamily: 'Orbitron, monospace'
+                            }}
+                          >
+                            {activity.description}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: '#999',
+                            fontFamily: 'Orbitron, monospace'
+                          }}
+                        >
+                          {activity.timestamp}
+                        </Typography>
+                      </Box>
+                      {index < recentActivity.length - 1 && <Divider sx={{ borderColor: '#333' }} />}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Find a Dojo */}
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: 'Orbitron, monospace',
+              color: '#00a8ff',
+              mb: 3,
+              fontWeight: 600
+            }}
+          >
+            Find a Dojo
+          </Typography>
+          <Card
+            sx={{
+              background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(42,42,42,0.9) 100%)',
+              border: '1px solid #00ff9d40',
+              borderRadius: 3,
+              boxShadow: '0 8px 32px #00ff9d20',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <LocationOn sx={{ color: '#00ff9d', mr: 2, fontSize: 28 }} />
+                <Typography variant="h6" sx={{ color: '#00ff9d', fontFamily: 'Orbitron, monospace', fontWeight: 600 }}>
+                  Nearby Venues
+                </Typography>
+              </Box>
+              <Box sx={{ 
+                borderRadius: 2, 
+                overflow: 'hidden',
+                border: '1px solid #333'
+              }}>
+                <MapView />
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
       </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          overflow: "auto", // Ensure main content is scrollable if it overflows
-        }}
-      >
-        <Toolbar /> {/* Necessary to offset content below AppBar */}
-        {/* Main content for the dashboard will go here */}
-        <Grid container spacing={3}>
-          {/* Example Cards - Replace with actual dashboard content */}
-          <Grid item xs={12} md={6} lg={4}>
-            <Card sx={{ background: "rgba(50, 50, 50, 0.7)", color: "#fff" }}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Games Played
-                </Typography>
-                <Typography variant="h2" sx={{ color: "#00ff9f" }}>
-                  128
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Card sx={{ background: "rgba(50, 50, 50, 0.7)", color: "#fff" }}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Win Rate
-                </Typography>
-                <Typography variant="h2" sx={{ color: "#00ff9f" }}>
-                  65%
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <Card sx={{ background: "rgba(50, 50, 50, 0.7)", color: "#fff" }}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Current Rank
-                </Typography>
-                <Typography variant="h2" sx={{ color: "#00ff9f" }}>
-                  Diamond III
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          {/* Add more dashboard widgets/components here */}
-        </Grid>
-      </Box>
-    </Box>
+    </Layout>
   );
 };
 

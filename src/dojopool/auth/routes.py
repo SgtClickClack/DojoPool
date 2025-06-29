@@ -16,9 +16,10 @@ from requests_oauthlib import OAuth2Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from wtforms import BooleanField, PasswordField, StringField
 from wtforms.validators import DataRequired, Email, Length
-
-from ..core.auth.models import User, db
-from .oauth import GoogleOAuth
+from functools import wraps
+from firebase_admin import auth as firebase_auth
+from ..models.user import User
+from ..extensions import db
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -108,90 +109,99 @@ def login():
     return render_template("auth/login.html", form=form)
 
 
+def verify_firebase_token(token):
+    """Verify Firebase ID token."""
+    try:
+        decoded_token = firebase_auth.verify_id_token(token)
+        return decoded_token
+    except Exception as e:
+        current_app.logger.error(f"Firebase token verification failed: {str(e)}")
+        return None
+
+
+def firebase_auth_required(f):
+    """Decorator to require Firebase authentication."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'error': 'No token provided'}), 401
+        
+        token = auth_header.split('Bearer ')[1]
+        decoded_token = verify_firebase_token(token)
+        
+        if not decoded_token:
+            return jsonify({'error': 'Invalid token'}), 401
+            
+        # Get or create user
+        email = decoded_token.get('email')
+        if not email:
+            return jsonify({'error': 'No email in token'}), 401
+            
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Create new user with Firebase auth
+            user = User()
+            user.username = email.split('@')[0]
+            user.email = email
+            user.password_hash = generate_password_hash('firebase-auth-' + email)
+            user.is_verified = True  # Firebase emails are verified
+            user._is_active = True
+            db.session.add(user)
+            db.session.commit()
+            
+        login_user(user, remember=True)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@auth_bp.route('/verify-token', methods=['POST'])
+def verify_token():
+    """Verify Firebase token and return user info."""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({'error': 'No token provided'}), 401
+        
+    token = auth_header.split('Bearer ')[1]
+    decoded_token = verify_firebase_token(token)
+    
+    if not decoded_token:
+        return jsonify({'error': 'Invalid token'}), 401
+        
+    email = decoded_token.get('email')
+    if not email:
+        return jsonify({'error': 'No email in token'}), 401
+        
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Create new user with Firebase auth
+        user = User()
+        user.username = email.split('@')[0]
+        user.email = email
+        user.password_hash = generate_password_hash('firebase-auth-' + email)
+        user.is_verified = True  # Firebase emails are verified
+        user._is_active = True
+        db.session.add(user)
+        db.session.commit()
+        
+    login_user(user, remember=True)
+    return jsonify({
+        'user': {
+            'id': user.id,
+            'email': user.email,
+            'username': user.username,
+            'is_verified': user.is_verified,
+            'roles': [role.name for role in user.roles]
+        }
+    })
+
+
 @auth_bp.route("/logout")
 @login_required
 def logout():
     """Log out the current user."""
     logout_user()
-    flash("You have been logged out.")
-    return redirect(url_for("index"))
-
-
-@auth_bp.route("/google-login")
-def google_login():
-    """Initiate Google OAuth login."""
-    google = GoogleOAuth()
-    auth_url = google.get_auth_url()
-    if not auth_url:
-        flash("Failed to get Google authorization URL. Please try again later.", "error")
-        return redirect(url_for("auth.login"))
-    return redirect(auth_url)
-
-
-@auth_bp.route("/google-callback")
-def google_callback():
-    """Google OAuth callback route."""
-    google = GoogleOAuth()
-
-    # Get authorization code from Google
-    code = request.args.get("code")
-    if not code:
-        flash("Authentication failed. Please try again.", "error")
-        return redirect(url_for("auth.login"))
-
-    try:
-        # Create OAuth2 session
-        oauth = OAuth2Session(
-            google.client_id,
-            redirect_uri=url_for("auth.google_callback", _external=True),
-            scope=["openid", "email", "profile"],
-        )
-
-        # Get token using authorization code
-        token_url = google.get_token_url()
-        if not token_url:
-            raise Exception("Failed to get token URL")
-
-        oauth.fetch_token(
-            token_url, client_secret=google.client_secret, authorization_response=request.url
-        )
-
-        # Get user info URL
-        userinfo_url = google.get_userinfo_url()
-        if not userinfo_url:
-            raise Exception("Failed to get user info URL")
-
-        # Get user info from Google
-        userinfo = oauth.get(userinfo_url).json()
-
-        if not userinfo.get("email_verified"):
-            flash("Google account email is not verified.", "error")
-            return redirect(url_for("auth.login"))
-
-        # Get user info
-        email = userinfo["email"]
-        userinfo.get("given_name", "")
-
-        # Find or create user
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            user = User(
-                username=email.split("@")[0],
-                email=email,
-                password_hash="",  # No password for Google users
-                is_active=True,
-            )
-            db.session.add(user)
-            db.session.commit()
-
-        # Log in user
-        login_user(user, remember=True)
-        return redirect(url_for("dashboard"))
-
-    except Exception as e:
-        current_app.logger.error(f"Google OAuth error: {str(e)}")
-        flash("Authentication failed. Please try again.", "error")
-        return redirect(url_for("auth.login"))
+    return jsonify({'message': 'Logged out successfully'})
 
 
 @auth_bp.route("/forgot-password")

@@ -1,7 +1,7 @@
 {
   "name": "dojopool",
   "version": "1.0.0",
-  "description": "DojoPool image optimization and A/B testing platform",
+  "description": "DojoPool is a platform combining AI-powered training, analytics, and community features to help pool players improve their game, with image optimization and A/B testing capabilities.",
   "main": "index.js",
   "engines": {
     "node": "20.x"
@@ -12,8 +12,19 @@
     "start": "next start",
     "lint": "next lint",
     "test": "npm install --package-lock-only --no-package-lock --prefix test && jest",
-    "build:wasm": "node build-wasm.js"
+    "build:wasm": "node build-wasm.js",
+    "format": "prettier --write ."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/dojopool"
+  },
+  "author": "Your Name or Organization <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/dojopool/issues"
+  },
+  "homepage": "https://your-dojopool-website.com",
   "dependencies": {
     "@firebase/auth": "^1.8.2",
     "@mui/icons-material": "^6.4.1",

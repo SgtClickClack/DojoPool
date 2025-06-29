@@ -11,7 +11,7 @@ from dojopool.core.exceptions import PaymentError
 from dojopool.models.transaction import Transaction
 from dojopool.models.user import User
 from dojopool.models.wallet import Wallet
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class PaymentService:

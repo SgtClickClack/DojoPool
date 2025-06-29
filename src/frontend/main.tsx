@@ -1,23 +1,43 @@
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 // Assuming you will use Redux
 // import { Provider as ReduxProvider } from 'react-redux';
 // import store from './store'; // Your Redux store configuration
 
-// Assuming you will use Material UI
-// import { ThemeProvider } from '@mui/material/styles';
-// import theme from './theme'; // Your custom MUI theme
-
 // Assuming you have a custom AuthProvider
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from '../components/auth/AuthContext';
 
 import App from './App';
 import './index.css'; // Or your global stylesheet
 
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e',
+    },
+  },
+});
+
 // A more visually appealing or functional loading component is recommended
 const LoadingFallback = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.5rem' }}>
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh', 
+    fontSize: '1.5rem',
+    color: theme.palette.text.primary
+  }}>
     <p>Loading, please wait...</p>
     {/* You could add a spinner animation here */}
   </div>
@@ -32,12 +52,15 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <AuthProvider>
-      <BrowserRouter>
-        <Suspense fallback={<LoadingFallback />}>
-          <App />
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingFallback />}>
+            <App />
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );

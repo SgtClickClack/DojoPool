@@ -173,61 +173,6 @@ class Game(db.Model):
         return f"{self.player1_id} vs {self.player2_id}"
 
 
-class GameSession(db.Model):
-    """Game session model."""
-
-    __tablename__ = "game_sessions"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    start_time = db.Column(db.DateTime, default=datetime.utcnow)
-    end_time = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default="active")  # active, paused, ended
-    metrics = db.Column(db.JSON)  # Store session metrics
-    settings = db.Column(db.JSON)  # Store session settings
-
-    # Relationships
-    game = db.relationship("Game", backref=db.backref("sessions", lazy="dynamic"))
-    user = db.relationship("User", backref=db.backref("game_sessions", lazy="dynamic"))
-
-    def __init__(self, user_id: int, start_time: Optional[datetime] = None, status: str = "active"):
-        """Initialize game session."""
-        self.user_id = user_id
-        self.start_time = start_time or datetime.utcnow()
-        self.status = status
-
-    def save(self):
-        """Save game session."""
-        db.session.add(self)
-        db.session.commit()
-
-    def end(self, score: Optional[int] = None):
-        """End game session."""
-        self.end_time = datetime.utcnow()
-        self.status = "ended"
-        self.save()
-
-    def cancel(self):
-        """Cancel game session."""
-        self.status = "cancelled"
-        self.save()
-
-    def to_dict(self):
-        """Convert game session to dictionary."""
-        return {
-            "id": self.id,
-            "game_id": self.game_id,
-            "user_id": self.user_id,
-            "start_time": self.start_time.isoformat(),
-            "end_time": self.end_time.isoformat() if self.end_time else None,
-            "status": self.status,
-            "metrics": self.metrics,
-            "settings": self.settings,
-        }
-
-
 class GameComment(db.Model):
     """Game comment model."""
 
@@ -241,10 +186,9 @@ class GameComment(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     likes = db.Column(db.Integer, default=0)
 
-    # Relationships
-    game = db.relationship("Game", backref="comments")
+    # Relationships - removed duplicate backref since Game model already defines it
     user = db.relationship("User", backref="comments")
 
     def __repr__(self):
         """Represent game comment as string."""
-        return f"<GameComment {self.id}: {self.user_id} on {self.game_id}>"
+        return f"<GameComment {self.id}: {self.content[:50]}...>"

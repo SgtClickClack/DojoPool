@@ -46,7 +46,7 @@ class EnvironmentConfig:
                 max_payload_size=5 * 1024 * 1024,  # 5MB
                 max_connections_per_user=10,
                 token_expiry=timedelta(days=7),
-                allowed_origins=["http://localhost:3000"],
+                allowed_origins=["http://localhost:8000"],
             ),
             "metrics_config": MetricsConfig(
                 enabled=True,

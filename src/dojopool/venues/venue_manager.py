@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List, Optional, Set
 import uuid
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class TableStatus(Enum):

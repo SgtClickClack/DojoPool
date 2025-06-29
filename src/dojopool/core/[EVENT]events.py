@@ -141,8 +141,4 @@ def init_events(app):
         if not user_id:
             return "Unauthorized", 401
 
-        return Response(
-            event_stream(user_id),
-            mimetype="text/event-stream",
-            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
-        )
+        return {'data': event_stream(user_id)}, 200

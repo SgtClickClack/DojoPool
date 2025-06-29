@@ -1,0 +1,1 @@
+"""DojoPool auth module."""

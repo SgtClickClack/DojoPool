@@ -10,14 +10,63 @@ from sqlalchemy import JSON, Column, Integer, String, DateTime, Boolean, Float, 
 from sqlalchemy.orm import relationship
 
 from dojopool.core.database.db_utils import reference_col
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.core.venue.audit import AuditLogger, AuditEventType
-
 from .base import TimestampedModel
 
 # Instantiate AuditLogger (Consider dependency injection or app context for better practice)
 # Assuming log directory setup is handled elsewhere or defaults are okay
 audit_logger = AuditLogger()
+
+
+class Transaction(db.Model):
+    """Unified Transaction model for all wallet/payment/marketplace operations."""
+    __tablename__ = "transactions"
+    __table_args__ = {"extend_existing": True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    wallet_id = db.Column(db.Integer, db.ForeignKey("wallets.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    marketplace_item_id = db.Column(db.Integer, db.ForeignKey("marketplace_items.id"), nullable=True)
+    amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), nullable=False, default="DP")
+    type = db.Column(db.String(50), nullable=False)  # credit, debit, purchase, refund, etc.
+    status = db.Column(db.String(20), nullable=False, default="pending")
+    description = db.Column(db.String(255))
+    reference_id = db.Column(db.String(100))  # External payment reference or order ID
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship("dojopool.models.user.User", backref="transactions")
+    item = db.relationship("MarketplaceItem", back_populates="transactions")
+
+    # Add explicit __init__ to help type checkers
+    def __init__(self, wallet_id: int, user_id: int, amount: float, currency: str, type: str, status: str, description: Optional[str] = None, reference_id: Optional[str] = None):
+        self.wallet_id = wallet_id
+        self.user_id = user_id
+        self.amount = amount
+        self.currency = currency
+        self.type = type
+        self.status = status
+        self.description = description
+        self.reference_id = reference_id
+        # created_at and updated_at have defaults
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "wallet_id": self.wallet_id,
+            "user_id": self.user_id,
+            "marketplace_item_id": self.marketplace_item_id,
+            "amount": self.amount,
+            "currency": self.currency,
+            "type": self.type,
+            "status": self.status,
+            "description": self.description,
+            "reference_id": self.reference_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 
 class MarketplaceItem(TimestampedModel):
@@ -76,9 +125,10 @@ class Wallet(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = db.relationship("dojopool.models.user.User", backref=db.backref("wallet", uselist=False))
-    transactions = db.relationship("Transaction", backref="wallet", lazy="dynamic")
+    transactions = db.relationship('Transaction', backref='wallet', lazy='dynamic')
 
     def to_dict(self) -> Dict[str, Any]:
+        # Reference Transaction directly (class is defined above)
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -87,6 +137,8 @@ class Wallet(db.Model):
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "transactions": [txn.to_dict() for txn in self.transactions.order_by(Transaction.created_at.desc()).limit(20)],
+            "rewards": 0
         }
 
     def _log_wallet_event(self, event_type: AuditEventType, action: str, status: str, details: Dict[str, Any], reference_id: Optional[str] = None):
@@ -307,56 +359,6 @@ class Wallet(db.Model):
     def get_balance(self) -> float:
         """Return the current wallet balance."""
         return self.balance
-
-
-class Transaction(db.Model):
-    """Unified Transaction model for all wallet/payment/marketplace operations."""
-    __tablename__ = "transactions"
-    __table_args__ = {"extend_existing": True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    wallet_id = db.Column(db.Integer, db.ForeignKey("wallets.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    marketplace_item_id = db.Column(db.Integer, db.ForeignKey("marketplace_items.id"), nullable=True)
-    amount = db.Column(db.Float, nullable=False)
-    currency = db.Column(db.String(10), nullable=False, default="DP")
-    type = db.Column(db.String(50), nullable=False)  # credit, debit, purchase, refund, etc.
-    status = db.Column(db.String(20), nullable=False, default="pending")
-    description = db.Column(db.String(255))
-    reference_id = db.Column(db.String(100))  # External payment reference or order ID
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = db.relationship("dojopool.models.user.User", backref="transactions")
-    item = db.relationship("MarketplaceItem", back_populates="transactions")
-
-    # Add explicit __init__ to help type checkers
-    def __init__(self, wallet_id: int, user_id: int, amount: float, currency: str, type: str, status: str, description: Optional[str] = None, reference_id: Optional[str] = None):
-        self.wallet_id = wallet_id
-        self.user_id = user_id
-        self.amount = amount
-        self.currency = currency
-        self.type = type
-        self.status = status
-        self.description = description
-        self.reference_id = reference_id
-        # created_at and updated_at have defaults
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "id": self.id,
-            "wallet_id": self.wallet_id,
-            "user_id": self.user_id,
-            "marketplace_item_id": self.marketplace_item_id,
-            "amount": self.amount,
-            "currency": self.currency,
-            "type": self.type,
-            "status": self.status,
-            "description": self.description,
-            "reference_id": self.reference_id,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-        }
 
 
 class UserInventory(TimestampedModel):

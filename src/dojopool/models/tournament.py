@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Enum as SQLEnum, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
-from dojopool.core.extensions import db  # type: ignore
+from dojopool.extensions import db  # type: ignore
 from dojopool.models.user import User # Import User model
 from dojopool.models.venue import Venue
 from .game import Game

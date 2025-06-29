@@ -103,7 +103,7 @@ describe("Performance Tests", () => {
         // Simulate multiple spectator connections
         for (let i = 0; i < 50; i++) {
           cy.window().then((win) => {
-            new win.WebSocket(`ws://localhost:3000/games/${gameId}/spectate`);
+            new win.WebSocket(`ws://localhost:8000/games/${gameId}/spectate`);
           });
         }
 

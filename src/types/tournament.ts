@@ -1,75 +1,187 @@
-// Define possible tournament formats (Keep this)
-export enum TournamentFormat {
-    SINGLE_ELIMINATION = 'Single Elimination',
-    DOUBLE_ELIMINATION = 'Double Elimination',
-    ROUND_ROBIN = 'Round Robin',
-    SWISS = 'Swiss',
-    // Add other formats as needed
-}
+/**
+ * Tournament Type Definitions
+ * 
+ * Comprehensive type definitions for the unified tournament system
+ */
 
-// Define possible tournament statuses (Keep this)
-export enum TournamentStatus {
-    UPCOMING = 'Upcoming', // Not yet started, registration may be open or closed
-    OPEN = 'Open',       // Open for registration
-    FULL = 'Full',       // Registration closed (max participants reached)
-    CLOSED = 'Closed',     // Registration closed (manually or deadline passed)
-    ACTIVE = 'Active',     // Tournament in progress
-    COMPLETED = 'Completed',
-    CANCELLED = 'Cancelled',
-}
-
-// Define Participant structure based on src/dojopool/frontend/types/tournament.ts
-export interface Participant {
-  id: string;        // User ID likely
-  username: string;  // User's display name
-  status: string;    // Status within the tournament (e.g., 'registered', 'eliminated')
-  // Add other relevant fields if needed/available from API (e.g., seed, avatar)
-}
-
-// Define Match structure for tournament brackets
-export interface Match {
-  id: string;
-  round: number;
-  matchNumber: number;
-  participant1?: Participant;
-  participant2?: Participant;
-  winner?: Participant;
-  score?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'bye';
-  startTime?: string;
-  spectatorCount?: number;
-}
-
-// Define the UNIFIED Tournament interface
 export interface Tournament {
-  id: string;
+  id: number;
   name: string;
-  format: TournamentFormat; 
-  startDate: Date; 
-  endDate?: Date; 
-  venueId?: string; 
-  organizerId: string;
-  participants: number; 
+  description?: string;
+  venueId: number;
+  organizerId: number;
+  startDate: Date;
+  endDate: Date;
+  registrationDeadline: Date;
   maxParticipants: number;
-  entryFee?: number; 
-  currency?: string; 
+  entryFee: number;
+  prizePool: number;
   status: TournamentStatus;
-  winnerId?: string;
-  runnerUpId?: string;
-  description?: string; 
-  rules?: string; 
+  format: TournamentFormat;
+  rules?: string;
   createdAt: Date;
   updatedAt: Date;
-  endedAt?: Date;
-  participantsList?: Participant[]; // Keep participants list
-  matches?: Match[]; // Full match objects for bracket logic
-  prizePool?: number; // Add the missing prizePool property
+  participantCount: number;
+  venue?: Venue;
+  organizer?: User;
 }
 
-// Remove the duplicate interface definition and old enums below this line
-/*
-export interface Tournament {
-    id: string; // Unique identifier
-    // ... other fields ...
+export interface TournamentParticipant {
+  id: number;
+  tournamentId: number;
+  userId: number;
+  username: string;
+  seed?: number;
+  status: 'registered' | 'checked_in' | 'eliminated' | 'withdrawn';
+  registrationDate: Date;
+  checkInTime?: Date;
+  eliminationRound?: number;
+  finalPlacement?: number;
+  user?: User;
 }
-*/
+
+export interface TournamentMatch {
+  id: string;
+  tournamentId: number;
+  roundNumber: number;
+  matchNumber: number;
+  player1Id?: number;
+  player2Id?: number;
+  player1Name?: string;
+  player2Name?: string;
+  player1Score?: number;
+  player2Score?: number;
+  winnerId?: number;
+  status: MatchStatus;
+  bracketType: 'winners' | 'losers' | 'consolation';
+  isBye?: boolean;
+  isForfeit?: boolean;
+  startTime?: Date;
+  endTime?: Date;
+  nextMatchId?: string;
+  previousMatchIds?: string[];
+}
+
+export interface TournamentRound {
+  id: number;
+  tournamentId: number;
+  roundNumber: number;
+  name: string;
+  matches: TournamentMatch[];
+  isActive: boolean;
+  isCompleted: boolean;
+  startTime?: Date;
+  endTime?: Date;
+}
+
+export interface TournamentBracket {
+  id: string;
+  tournamentId: number;
+  type: TournamentFormat;
+  status: TournamentStatus;
+  rounds: TournamentRound[];
+  nodes: BracketNode[];
+  participants: TournamentParticipant[];
+  currentRound: number;
+  totalRounds: number;
+  totalMatches: number;
+  completedMatches: number;
+  startDate: Date;
+  endDate?: Date;
+  seedingMethod: SeedingMethod;
+  consolationRounds: boolean;
+}
+
+export interface BracketNode {
+  id: string;
+  matchId?: number;
+  player1Id?: number;
+  player2Id?: number;
+  player1Name?: string;
+  player2Name?: string;
+  player1Score?: number;
+  player2Score?: number;
+  winnerId?: number;
+  status: MatchStatus;
+  round: number;
+  matchNumber: number;
+  bracketType: 'winners' | 'losers' | 'consolation';
+  nextMatchId?: string;
+  previousMatchIds?: string[];
+  isBye?: boolean;
+  isForfeit?: boolean;
+}
+
+export interface TournamentConfig {
+  id?: number;
+  name: string;
+  description?: string;
+  venueId: number;
+  organizerId: number;
+  startDate: Date;
+  endDate: Date;
+  registrationDeadline: Date;
+  maxParticipants: number;
+  entryFee: number;
+  prizePool: number;
+  format: TournamentFormat;
+  rules?: string;
+  seedingMethod?: SeedingMethod;
+  autoStart?: boolean;
+  checkInRequired?: boolean;
+  consolationRounds?: boolean;
+}
+
+export enum TournamentFormat {
+  SINGLE_ELIMINATION = 'single_elimination',
+  DOUBLE_ELIMINATION = 'double_elimination',
+  ROUND_ROBIN = 'round_robin',
+  SWISS = 'swiss',
+  CONSOLATION = 'consolation'
+}
+
+export enum TournamentStatus {
+  DRAFT = 'draft',
+  REGISTRATION = 'registration',
+  CHECK_IN = 'check_in',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled'
+}
+
+export enum SeedingMethod {
+  RANDOM = 'random',
+  RATING = 'rating',
+  RANKING = 'ranking',
+  MANUAL = 'manual',
+  TOURNAMENT_HISTORY = 'tournament_history'
+}
+
+export enum MatchStatus {
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  BYE = 'bye',
+  FORFEIT = 'forfeit'
+}
+
+// Import types that are referenced
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  rating?: number;
+  ranking?: number;
+}
+
+export interface Venue {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+}

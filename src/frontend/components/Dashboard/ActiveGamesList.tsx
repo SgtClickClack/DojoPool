@@ -50,7 +50,7 @@ const ActiveGamesList: React.FC = () => {
     try {
       const response = await axiosInstance.get<
         GameListItem[] | { results: GameListItem[] }
-      >("/games");
+      >("/v1/games");
       const fetchedGames = Array.isArray(response.data)
         ? response.data
         : response.data.results || [];
@@ -102,7 +102,6 @@ const ActiveGamesList: React.FC = () => {
             games.map((game) => (
               <ListItem
                 key={game.id}
-                button
                 component={RouterLink}
                 to={`/game/${game.id}`}
               >

@@ -13,14 +13,12 @@ const center = {
   lng: -122.4194
 };
 
-const getEnvVar = (key: string, fallback: string = ''): string => {
-  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
-    return process.env[key] as string;
-  }
-  return fallback;
-};
+function getEnv(key: string): string | undefined {
+  // Use import.meta.env for Vite
+  return import.meta.env[key];
+}
 
-const googleMapsApiKey = getEnvVar('VITE_GOOGLE_MAPS_API_KEY', '');
+const googleMapsApiKey = getEnv('VITE_GOOGLE_MAPS_API_KEY') || '';
 
 const MapView: React.FC = () => {
   const { isLoaded, loadError } = useLoadScript({

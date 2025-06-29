@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.achievements import Achievement, UserAchievement, AchievementCategory
 from dojopool.services.achievement_service import AchievementService
 

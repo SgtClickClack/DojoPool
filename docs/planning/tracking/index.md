@@ -815,3 +815,120 @@ Implement backend highlights API endpoints, database models, and integrate with 
 Expected completion time: 1-2 days
 
 ### 2024-05-21: Firebase Config Validation Script – Interactive Prompts & Error Reporting (see DEVELOPMENT_TRACKING_PART_03.md)
+
+### 2025-01-17: Game Flow & CSS Implementation Plan (MVP Deployment)
+
+Created comprehensive implementation plan for game flow and CSS styling to complete MVP deployment. The plan includes 7 phases with realistic timelines and clear deliverables for implementing the complete user journey from tournament discovery to post-game social sharing.
+
+**Core Components Planned:**
+- Tournament registration and discovery flow
+- Venue check-in system with QR/geolocation
+- Game flow orchestration and state management
+- Complete cyberpunk CSS styling system
+- Mobile-responsive design implementation
+- Comprehensive testing and quality assurance
+
+**Key Features:**
+- Complete user journey implementation (10 steps)
+- Real-time game tracking and management
+- AI-enhanced features integration
+- Cross-platform compatibility
+- Performance optimization and monitoring
+
+**Integration Points:**
+- Frontend: React/TypeScript components
+- Backend: Flask API endpoints
+- AI Services: Diception, Sky-T1, Wan 2.1
+- Blockchain: Wallet integration
+- Real-time: WebSocket connections
+
+**File Paths:**
+- docs/planning/roadmap.md (updated with implementation plan)
+- docs/planning/tracking/part-03.md (detailed plan added)
+- src/components/tournament/ (new components planned)
+- src/components/venue/ (enhanced components planned)
+- src/components/gameflow/ (new orchestration components)
+- src/styles/ (cyberpunk theme implementation)
+
+**Next Priority Task:**
+Begin Phase 1 implementation: Tournament System Completion with tournament registration flow and bracket enhancement.
+
+Expected completion time: 3-5 days
+
+### 2025-01-17: Merge Conflict Resolution & Jest Shim Fix
+
+Successfully resolved all merge conflicts after pulling latest changes from GitHub. Fixed Jest shim compatibility issues and updated dependencies to latest versions. All conflicts in package.json, package-lock.json, and src/tests/setup.ts have been resolved and pushed to remote.
+
+**Core Components Implemented:**
+- Jest shim for Vitest compatibility (prevents API exposure issues)
+- Updated package dependencies to latest versions
+- Resolved merge conflicts in all affected files
+- Maintained proper Jest-compatible API exposure
+
+**Key Features:**
+- Clean Jest shim that only exposes Jest-compatible APIs
+- Updated vitest to version 3.2.3
+- Merged all unique dependencies from both branches
+- Proper mock implementations using global.jest.fn()
+
+**Integration Points:**
+- Testing: Jest shim integration with Vitest
+- Dependencies: Package.json and package-lock.json updates
+- Frontend: Tournament components and test setup
+- Backend: Flask application configuration
+
+**File Paths:**
+- package.json (resolved merge conflicts)
+- package-lock.json (resolved dependency conflicts)
+- src/tests/setup.ts (Jest shim implementation)
+- run_flask.py (no conflicts found)
+- src/dojopool/frontend/components/Tournament/TournamentDashboard.tsx (empty file)
+
+**Next Priority Task:**
+Continue with game flow and CSS implementation plan, starting with Phase 1: Tournament System Completion as outlined in the comprehensive implementation roadmap.
+
+Expected completion time: 3-5 days
+
+### 2025-01-21: Wallet Management Consolidation & Ledger Page Implementation
+
+Successfully consolidated all wallet-related features into a centralized Ledger page and integrated it with the dashboard navigation. Fixed provider hierarchy issues and ensured proper authentication flow throughout the application.
+
+**Core Components Implemented:**
+- Centralized Ledger page for all wallet management features
+- Dashboard integration with "Manage Wallet" button linking to Ledger
+- Fixed AuthContext and UserContext provider hierarchy
+- MetaMask and hardware wallet integration
+- Wallet data API endpoints and services
+- Proper routing and layout integration
+
+**Key Features:**
+- Dojo Coin balance and transaction management
+- NFT collection display and management
+- Tournament trophies and achievements
+- Bank details and payment methods
+- MetaMask wallet connection
+- Hardware wallet support
+- Real-time wallet data updates
+
+**Integration Points:**
+- Frontend: Ledger component, Dashboard integration, routing
+- Backend: Wallet API endpoints, user authentication
+- Blockchain: MetaMask integration, hardware wallet support
+- Context: AuthContext, UserContext, WalletContext
+- Services: WalletConnectionService, wallet data fetching
+
+**File Paths:**
+- src/frontend/components/wallet/Ledger.tsx (created/updated)
+- src/frontend/components/Dashboard/Dashboard.tsx (updated with Ledger link)
+- src/frontend/contexts/AuthContext.tsx (fixed provider hierarchy)
+- src/frontend/contexts/UserContext.tsx (fixed provider hierarchy)
+- src/frontend/App.tsx (added Ledger route)
+- src/services/wallet/WalletConnectionService.ts (updated)
+- src/backend/routes/wallet.ts (API endpoints)
+- src/frontend/hooks/useWalletConnection.ts (wallet integration)
+- src/frontend/hooks/useWalletService.ts (wallet data management)
+
+**Next Priority Task:**
+Update roadmap and development tracking files with current progress, then commit changes to GitHub repository.
+
+Expected completion time: 30 minutes

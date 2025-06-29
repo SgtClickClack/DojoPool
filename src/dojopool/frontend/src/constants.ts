@@ -84,7 +84,7 @@ export const ERROR_TRACKING_CONFIG = {
 };
 
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:3000",
+  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:8000",
   TIMEOUT: 5000,
   RETRY_COUNT: 3,
 };

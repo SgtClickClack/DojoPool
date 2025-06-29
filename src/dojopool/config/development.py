@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from dojopool.config.base import BaseConfig
+from dojopool.config import BaseConfig
 
 
 class DevelopmentConfig(BaseConfig):
@@ -24,7 +24,7 @@ class DevelopmentConfig(BaseConfig):
     REDIS_URL = "redis://localhost:6379/0"
 
     # CORS
-    CORS_ORIGINS = ["http://localhost:3100", "http://localhost:3101"]
+    CORS_ORIGINS = ["http://localhost:3000", "http://localhost:3100", "http://localhost:3101"]
 
     # Session
     SESSION_COOKIE_SECURE = False  # Allow HTTP in development

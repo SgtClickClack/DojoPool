@@ -16,7 +16,6 @@ from flask_marshmallow import Marshmallow  # type: ignore
 from flask_migrate import Migrate  # type: ignore
 from flask_socketio import SocketIO  # type: ignore
 from flask_sqlalchemy import SQLAlchemy  # type: ignore
-from flask import jsonify # Import jsonify
 
 # Initialize extensions
 db: SQLAlchemy = SQLAlchemy()  # type: ignore
@@ -41,10 +40,10 @@ def unauthorized():
     # Simple check: if path starts with /api
     from flask import request # Local import
     if request.path.startswith('/api'):
-        return jsonify(message="Authentication required"), 401
+        return {'message': 'Authentication required'}, 401
     # For non-API requests, you might still want to redirect to a login page
     # For now, return JSON for all unauthorized as this is primarily an API
-    return jsonify(message="Authentication required"), 401
+    return {'message': 'Authentication required'}, 401
 
 
 def init_extensions(app: Any) -> None:

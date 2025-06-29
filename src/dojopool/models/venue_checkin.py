@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class VenueCheckIn(db.Model):

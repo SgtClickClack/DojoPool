@@ -60,7 +60,7 @@ const Profile: React.FC = () => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get("/profile");
+        const response = await axiosInstance.get("/v1/profile");
         setProfileData(response.data);
         setError(null);
       } catch (err) {

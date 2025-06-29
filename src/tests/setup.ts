@@ -1,11 +1,14 @@
 import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { vi } from 'vitest';
 
 // Mock browser APIs
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+(global as any).TextEncoder = TextEncoder;
+(global as any).TextDecoder = TextDecoder;
+
+// Proper Vitest shim for compatibility
+// Only expose Vitest-compatible APIs to prevent compatibility issues
 
 // Mock IntersectionObserver
 class IntersectionObserver {
@@ -63,7 +66,6 @@ const localStorageMock = {
   length: 0,
   key: vi.fn(),
 };
-
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
@@ -77,7 +79,6 @@ const sessionStorageMock = {
   length: 0,
   key: vi.fn(),
 };
-
 Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock,
 });
@@ -106,30 +107,13 @@ afterAll(() => {
 });
 
 // Mock requestAnimationFrame
-global.requestAnimationFrame = (callback: FrameRequestCallback) => {
-  return setTimeout(() => callback(Date.now()), 0);
+global.requestAnimationFrame = (callback: FrameRequestCallback): number => {
+  return setTimeout(() => callback(Date.now()), 0) as unknown as number;
 };
 
 global.cancelAnimationFrame = (id: number) => {
   clearTimeout(id);
 };
-
-// Mock performance API
-const mockPerformance = {
-  now: vi.fn(() => Date.now()),
-  mark: vi.fn(),
-  measure: vi.fn(),
-  clearMarks: vi.fn(),
-  clearMeasures: vi.fn(),
-  getEntriesByType: vi.fn(() => []),
-  getEntriesByName: vi.fn(() => []),
-  getEntries: vi.fn(() => []),
-  timeOrigin: Date.now(),
-};
-
-Object.defineProperty(window, 'performance', {
-  value: mockPerformance,
-});
 
 // Mock WebSocket
 class MockWebSocket {
@@ -140,36 +124,37 @@ class MockWebSocket {
   onerror: ((this: WebSocket, ev: Event) => any) | null = null;
   readyState: number = WebSocket.CONNECTING;
   url: string;
-
+  // WebSocket interface properties
+  binaryType: BinaryType = 'blob';
+  bufferedAmount: number = 0;
+  extensions: string = '';
+  protocol: string = '';
+  CONNECTING: number = WebSocket.CONNECTING;
+  OPEN: number = WebSocket.OPEN;
+  CLOSING: number = WebSocket.CLOSING;
+  CLOSED: number = WebSocket.CLOSED;
   constructor(url: string) {
     this.url = url;
     MockWebSocket.instances.push(this);
   }
-
-  send(data: string | ArrayBufferLike | Blob | ArrayBufferView) {
-    // Mock implementation
-  }
-
-  close(code?: number, reason?: string) {
-    this.readyState = WebSocket.CLOSED;
-    if (this.onclose) {
-      this.onclose(new CloseEvent('close', { code, reason }));
-    }
-  }
-
-  static reset() {
-    MockWebSocket.instances = [];
-  }
+  send(data: string | ArrayBufferLike | Blob | ArrayBufferView) {}
+  close() {}
+  addEventListener() {}
+  removeEventListener() {}
+  dispatchEvent() { return false; }
 }
-
 Object.defineProperty(window, 'WebSocket', {
+  writable: true,
+  configurable: true,
   value: MockWebSocket,
 });
 
-// Reset all mocks before each test
-beforeEach(() => {
-  MockWebSocket.reset();
-  vi.clearAllMocks();
-  localStorageMock.clear();
-  sessionStorageMock.clear();
-}); 
+(global as any).URL = global.URL || class URL {
+  constructor(public href: string, base?: string) {}
+};
+
+(global as any).OffscreenCanvas = (global as any).OffscreenCanvas || class OffscreenCanvas {
+  constructor(public width: number, public height: number) {}
+  getContext() { return null; }
+  transferToImageBitmap() { return null; }
+}; 

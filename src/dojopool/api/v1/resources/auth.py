@@ -107,7 +107,7 @@ class RegisterResource(BaseResource):
     def post(self):
         """Handle registration request."""
         # Import db within the method to avoid potential circular imports
-        from dojopool.core.extensions import db
+        from dojopool.extensions import db
         
         data = self.get_json_data()
         if data is None: # Ensure payload exists

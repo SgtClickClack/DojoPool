@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 
 from dojopool.core.exceptions import PreferencesError
 from dojopool.models.user import User
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class PreferencesService:

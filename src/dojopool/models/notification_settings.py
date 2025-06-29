@@ -6,7 +6,7 @@ This module contains the NotificationSettings model for managing user notificati
 from typing import Any, Dict
 
 from dojopool.core.database.db_utils import reference_col
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 from .base import TimestampedModel
 

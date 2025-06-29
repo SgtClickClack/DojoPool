@@ -10,7 +10,7 @@
 import pytest
 from flask import g
 from dojopool.app import create_app
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.achievements import Achievement, UserAchievement, AchievementCategory
 
 @pytest.fixture(scope="module")

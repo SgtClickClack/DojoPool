@@ -3,7 +3,7 @@
 import secrets
 from datetime import datetime, timedelta
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 
 
 class Token(db.Model):

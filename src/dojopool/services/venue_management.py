@@ -4,10 +4,10 @@ from typing import Dict, List, Optional
 from geoalchemy2 import Geography
 from sqlalchemy import func
 
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.models.game import Game
-from dojopool.core.models.venue import Venue
-from dojopool.core.models.venue_checkin import VenueCheckIn
+from dojopool.models.venue import Venue
+from dojopool.models.venue_checkin import VenueCheckIn
 
 
 class VenueManagementService:
@@ -26,13 +26,10 @@ class VenueManagementService:
             phone=data.get("phone"),
             email=data.get("email"),
             website=data.get("website"),
-            hours=data.get("hours"),
-            features=data.get("features", []),
             tables=data.get("tables", 0),
-            pricing=data.get("pricing"),
-            is_active=True,
         )
-        venue.save()
+        db.session.add(venue)
+        db.session.commit()
         return venue
 
     def update_venue(self, venue_id: int, data: Dict) -> Optional[Venue]:
@@ -45,7 +42,7 @@ class VenueManagementService:
             if hasattr(venue, key):
                 setattr(venue, key, value)
 
-        venue.save()
+        db.session.commit()
         return venue
 
     def get_venue(self, venue_id: int) -> Optional[Venue]:
@@ -94,7 +91,7 @@ class VenueManagementService:
             return False
 
         venue.is_active = False
-        venue.save()
+        db.session.commit()
         return True
 
     def get_venue_stats(self, venue_id: int) -> Optional[Dict]:
@@ -140,42 +137,8 @@ class VenueManagementService:
 
         venue.rating = round(new_rating, 2)
         venue.total_ratings = new_total
-        venue.save()
+        db.session.commit()
         return True
 
-    def check_in_player(self, venue_id: int, player_id: int) -> bool:
-        """Record player check-in at venue."""
-        venue = self.get_venue(venue_id)
-        if not venue:
-            return False
-
-        # Record check-in in venue_checkins table
-        checkin = VenueCheckIn(
-            venue_id=venue_id, player_id=player_id, check_in_time=datetime.utcnow()
-        )
-        checkin.save()
-        return True
-
-    def get_venue_occupancy(self, venue_id: int) -> Optional[Dict]:
-        """Get current venue occupancy."""
-        venue = self.get_venue(venue_id)
-        if not venue:
-            return None
-
-        # Count active games and checked-in players
-        active_games = Game.query.filter(
-            Game.venue_id == venue_id, Game.status == "in_progress"
-        ).count()
-
-        # Get check-ins from last 3 hours
-        three_hours_ago = datetime.utcnow() - timedelta(hours=3)
-        checked_in_players = VenueCheckIn.query.filter(
-            VenueCheckIn.venue_id == venue_id, VenueCheckIn.check_in_time >= three_hours_ago
-        ).count()
-
-        return {
-            "active_games": active_games,
-            "checked_in_players": checked_in_players,
-            "total_tables": venue.tables,
-            "available_tables": max(0, venue.tables - active_games),
-        }
+    # Note: Check-in functionality has been moved to CheckInService
+    # Use CheckInService.check_in() and CheckInService.check_out() instead

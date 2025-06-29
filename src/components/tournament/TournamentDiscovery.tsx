@@ -14,11 +14,22 @@ import {
   Chip,
   CircularProgress,
   useTheme,
+  alpha,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
-import { Tournament, TournamentState, TournamentType } from '../../types/tournament';
+import {
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  LocationOn as LocationIcon,
+  CalendarToday as CalendarIcon,
+  SportsEsports as GameIcon,
+} from '@mui/icons-material';
+import { Tournament, TournamentStatus, TournamentFormat } from '../../types/tournament';
 import { useAuth } from '../../hooks/useAuth';
-import { getTournaments } from '../../services/tournament';
+import { getTournaments } from '../../services/tournament/tournament';
 import { TournamentRegistration } from './TournamentRegistration';
+import '../styles/tournament.scss';
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -28,14 +39,23 @@ interface TournamentCardProps {
 const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, onRegister }) => {
   const theme = useTheme();
   
-  const getStateColor = (state: TournamentState) => {
+  // Cyberpunk neon colors
+  const neonColors = {
+    primary: '#00ff88',
+    secondary: '#ff0099',
+    warning: '#ffcc00',
+    error: '#ff0044',
+    info: '#00ccff',
+  };
+  
+  const getStateColor = (state: TournamentStatus) => {
     switch (state) {
-      case TournamentState.REGISTRATION:
-        return theme.palette.success.main;
-      case TournamentState.IN_PROGRESS:
-        return theme.palette.warning.main;
-      case TournamentState.COMPLETED:
-        return theme.palette.error.main;
+      case TournamentStatus.OPEN:
+        return neonColors.primary;
+      case TournamentStatus.ACTIVE:
+        return neonColors.warning;
+      case TournamentStatus.COMPLETED:
+        return neonColors.error;
       default:
         return theme.palette.grey[500];
     }
@@ -47,39 +67,85 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, onRegister 
         height: '100%', 
         display: 'flex', 
         flexDirection: 'column',
-        background: theme.palette.background.paper,
+        background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)} 0%, ${alpha(theme.palette.background.default, 0.95)} 100%)`,
+        border: `2px solid ${alpha(neonColors.primary, 0.3)}`,
         borderRadius: 2,
+        transition: 'all 0.3s ease',
+        cursor: 'pointer',
         '&:hover': {
-          boxShadow: 6,
-          transform: 'translateY(-2px)',
-          transition: 'all 0.2s ease-in-out'
-        }
+          boxShadow: `0 0 30px ${alpha(neonColors.secondary, 0.5)}`,
+          transform: 'translateY(-5px) scale(1.02)',
+          border: `2px solid ${alpha(neonColors.secondary, 0.5)}`,
+        },
+        animation: 'fadeIn 0.5s ease-in',
+        '@keyframes fadeIn': {
+          '0%': { opacity: 0, transform: 'translateY(20px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
       }}
     >
       <CardContent sx={{ flexGrow: 1 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography 
+          variant="h6" 
+          gutterBottom
+          sx={{
+            color: neonColors.info,
+            textShadow: `0 0 10px ${neonColors.info}`,
+            fontWeight: 'bold',
+          }}
+        >
           {tournament.name}
         </Typography>
         <Box display="flex" gap={1} mb={2}>
           <Chip 
-            label={tournament.type} 
+            icon={<GameIcon />}
+            label={tournament.format} 
             size="small" 
-            color="primary"
+            sx={{
+              background: alpha(neonColors.primary, 0.2),
+              color: neonColors.primary,
+              border: `1px solid ${neonColors.primary}`,
+              '& .MuiChip-icon': { color: neonColors.primary },
+            }}
           />
           <Chip 
-            label={tournament.state} 
+            label={tournament.status} 
             size="small"
-            sx={{ backgroundColor: getStateColor(tournament.state) }}
+            sx={{ 
+              backgroundColor: alpha(getStateColor(tournament.status), 0.2),
+              color: getStateColor(tournament.status),
+              border: `1px solid ${getStateColor(tournament.status)}`,
+              fontWeight: 'bold',
+            }}
           />
         </Box>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          Start Date: {new Date(tournament.startDate).toLocaleDateString()}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <CalendarIcon sx={{ fontSize: 16, mr: 1, color: neonColors.warning }} />
+          <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+            {new Date(tournament.startDate).toLocaleDateString()}
+          </Typography>
+        </Box>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <LocationIcon sx={{ fontSize: 16, mr: 1, color: neonColors.warning }} />
+          <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+            {(tournament as any).venue || 'Online'}
+          </Typography>
+        </Box>
+        
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: neonColors.warning,
+            fontWeight: 'bold',
+            textShadow: `0 0 5px ${neonColors.warning}`,
+          }}
+        >
           Entry Fee: ${tournament.entryFee}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Participants: {tournament.maxParticipants}
+          Participants: {(tournament as any).currentParticipants || 0}/{tournament.maxParticipants}
         </Typography>
       </CardContent>
       <Box p={2} pt={0}>
@@ -87,7 +153,19 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, onRegister 
           variant="contained" 
           fullWidth
           onClick={() => onRegister(tournament)}
-          disabled={tournament.state !== TournamentState.REGISTRATION}
+          disabled={tournament.status !== TournamentStatus.OPEN}
+          sx={{
+            background: `linear-gradient(45deg, ${neonColors.primary} 30%, ${neonColors.info} 90%)`,
+            boxShadow: `0 0 20px ${alpha(neonColors.primary, 0.5)}`,
+            fontWeight: 'bold',
+            '&:hover': {
+              background: `linear-gradient(45deg, ${neonColors.primary} 10%, ${neonColors.info} 100%)`,
+              boxShadow: `0 0 30px ${alpha(neonColors.primary, 0.7)}`,
+            },
+            '&:disabled': {
+              background: theme.palette.action.disabledBackground,
+            },
+          }}
         >
           Register Now
         </Button>
@@ -103,9 +181,21 @@ export const TournamentDiscovery: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [stateFilter, setStateFilter] = useState<string>('');
+  const [venueFilter, setVenueFilter] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('');
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const { user } = useAuth();
+  const theme = useTheme();
+
+  // Cyberpunk neon colors
+  const neonColors = {
+    primary: '#00ff88',
+    secondary: '#ff0099',
+    warning: '#ffcc00',
+    error: '#ff0044',
+    info: '#00ccff',
+  };
 
   const loadTournaments = async () => {
     try {
@@ -122,6 +212,13 @@ export const TournamentDiscovery: React.FC = () => {
 
   useEffect(() => {
     loadTournaments();
+    
+    // Set up real-time updates (simulated with polling)
+    const interval = setInterval(() => {
+      loadTournaments();
+    }, 30000); // Refresh every 30 seconds
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleRegisterClick = (tournament: Tournament) => {
@@ -141,15 +238,23 @@ export const TournamentDiscovery: React.FC = () => {
 
   const filteredTournaments = tournaments.filter(tournament => {
     const matchesSearch = tournament.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = !typeFilter || tournament.type === typeFilter;
-    const matchesState = !stateFilter || tournament.state === stateFilter;
-    return matchesSearch && matchesType && matchesState;
+    const matchesType = !typeFilter || tournament.format === typeFilter;
+    const matchesState = !stateFilter || tournament.status === stateFilter;
+    const matchesVenue = !venueFilter || (tournament as any).venue?.toLowerCase().includes(venueFilter.toLowerCase());
+    const matchesDate = !dateFilter || new Date(tournament.startDate).toISOString().split('T')[0] >= dateFilter;
+    return matchesSearch && matchesType && matchesState && matchesVenue && matchesDate;
   });
 
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
+        <CircularProgress 
+          size={60}
+          sx={{ 
+            color: neonColors.primary,
+            filter: `drop-shadow(0 0 10px ${neonColors.primary})`,
+          }} 
+        />
       </Box>
     );
   }
@@ -157,24 +262,77 @@ export const TournamentDiscovery: React.FC = () => {
   if (error) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <Typography color="error">{error}</Typography>
+        <Typography color="error" sx={{ textShadow: `0 0 10px ${neonColors.error}` }}>
+          {error}
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Box sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography 
+        variant="h3" 
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          background: `linear-gradient(45deg, ${neonColors.primary} 30%, ${neonColors.secondary} 90%)`,
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textShadow: `0 0 20px ${alpha(neonColors.primary, 0.5)}`,
+          mb: 4,
+          animation: 'glow 2s ease-in-out infinite alternate',
+          '@keyframes glow': {
+            '0%': { filter: `drop-shadow(0 0 10px ${neonColors.primary})` },
+            '100%': { filter: `drop-shadow(0 0 20px ${neonColors.secondary})` },
+          },
+        }}
+      >
         Discover Tournaments
       </Typography>
       
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+      <Box 
+        sx={{ 
+          mb: 4, 
+          display: 'flex', 
+          gap: 2, 
+          flexWrap: 'wrap',
+          p: 3,
+          background: alpha(theme.palette.background.paper, 0.5),
+          borderRadius: 2,
+          border: `1px solid ${alpha(neonColors.primary, 0.3)}`,
+          backdropFilter: 'blur(10px)',
+        }}
+      >
         <TextField
           label="Search Tournaments"
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: 200 }}
+          sx={{ 
+            flexGrow: 1, 
+            minWidth: 200,
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: neonColors.primary,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: neonColors.primary,
+                boxShadow: `0 0 10px ${alpha(neonColors.primary, 0.5)}`,
+              },
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: neonColors.primary,
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: neonColors.primary }} />
+              </InputAdornment>
+            ),
+          }}
         />
         
         <FormControl sx={{ minWidth: 200 }}>
@@ -183,9 +341,18 @@ export const TournamentDiscovery: React.FC = () => {
             value={typeFilter}
             label="Tournament Type"
             onChange={(e) => setTypeFilter(e.target.value)}
+            sx={{
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: neonColors.primary,
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: neonColors.primary,
+                boxShadow: `0 0 10px ${alpha(neonColors.primary, 0.5)}`,
+              },
+            }}
           >
             <MenuItem value="">All Types</MenuItem>
-            {Object.values(TournamentType).map((type) => (
+            {Object.values(TournamentFormat).map((type) => (
               <MenuItem key={type} value={type}>{type}</MenuItem>
             ))}
           </Select>
@@ -197,18 +364,96 @@ export const TournamentDiscovery: React.FC = () => {
             value={stateFilter}
             label="Status"
             onChange={(e) => setStateFilter(e.target.value)}
+            sx={{
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: neonColors.primary,
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: neonColors.primary,
+                boxShadow: `0 0 10px ${alpha(neonColors.primary, 0.5)}`,
+              },
+            }}
           >
             <MenuItem value="">All Statuses</MenuItem>
-            {Object.values(TournamentState).map((state) => (
+            {Object.values(TournamentStatus).map((state) => (
               <MenuItem key={state} value={state}>{state}</MenuItem>
             ))}
           </Select>
         </FormControl>
+        
+        <TextField
+          label="Venue"
+          variant="outlined"
+          value={venueFilter}
+          onChange={(e) => setVenueFilter(e.target.value)}
+          sx={{ 
+            minWidth: 200,
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: neonColors.primary,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: neonColors.primary,
+                boxShadow: `0 0 10px ${alpha(neonColors.primary, 0.5)}`,
+              },
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LocationIcon sx={{ color: neonColors.primary }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+        
+        <TextField
+          label="Start Date"
+          type="date"
+          variant="outlined"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+          sx={{ 
+            minWidth: 200,
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: neonColors.primary,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: neonColors.primary,
+                boxShadow: `0 0 10px ${alpha(neonColors.primary, 0.5)}`,
+              },
+            },
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <CalendarIcon sx={{ color: neonColors.primary }} />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <Grid container spacing={3}>
-        {filteredTournaments.map((tournament) => (
-          <Grid item key={tournament.id} xs={12} sm={6} md={4}>
+        {filteredTournaments.map((tournament, index) => (
+          <Grid 
+            item 
+            key={tournament.id} 
+            xs={12} 
+            sm={6} 
+            md={4}
+            sx={{
+              animation: `slideIn 0.5s ease-out ${index * 0.1}s`,
+              '@keyframes slideIn': {
+                '0%': { opacity: 0, transform: 'translateX(-20px)' },
+                '100%': { opacity: 1, transform: 'translateX(0)' },
+              },
+            }}
+          >
             <TournamentCard
               tournament={tournament}
               onRegister={handleRegisterClick}
@@ -218,9 +463,18 @@ export const TournamentDiscovery: React.FC = () => {
       </Grid>
 
       {filteredTournaments.length === 0 && (
-        <Box textAlign="center" py={4}>
-          <Typography variant="h6" color="text.secondary">
+        <Box textAlign="center" py={8}>
+          <Typography 
+            variant="h5" 
+            sx={{
+              color: neonColors.secondary,
+              textShadow: `0 0 10px ${neonColors.secondary}`,
+            }}
+          >
             No tournaments found matching your criteria
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+            Try adjusting your filters or check back later for new tournaments!
           </Typography>
         </Box>
       )}

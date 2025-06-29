@@ -19,7 +19,7 @@ from flask import abort, current_app, request, session
 from itsdangerous import URLSafeTimedSerializer
 from itsdangerous.exc import BadData, BadSignature, SignatureExpired
 
-from dojopool.config.base import BaseConfig
+from dojopool.config import BaseConfig
 
 
 def generate_token(user_id: int, token_type: str, expires_in: int = 3600, **extra: Any) -> str:

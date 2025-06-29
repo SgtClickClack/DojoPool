@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLEnum, JSON
 from sqlalchemy.orm import relationship
 from enum import Enum
-from dojopool.core.extensions import db  # type: ignore
+from dojopool.extensions import db  # type: ignore
 
 
 class ActivityType(str, Enum):

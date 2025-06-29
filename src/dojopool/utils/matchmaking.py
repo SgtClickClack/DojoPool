@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from dojopool.models.game import Game
-from dojopool.core.extensions import cache
+from dojopool.extensions import cache
 
 
 class MatchmakingSystem:

@@ -18,8 +18,8 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
 from dojopool.venues.onboarding import VenueOnboardingManager, OnboardingStatus, EquipmentType
-from dojopool.core.models.venue import Venue, VenueEquipment
-from dojopool.core.models.staff import StaffMember
+from dojopool.models.venue import Venue, VenueEquipment
+from dojopool.models.staff import StaffMember
 
 # Configure logging
 logging.basicConfig(

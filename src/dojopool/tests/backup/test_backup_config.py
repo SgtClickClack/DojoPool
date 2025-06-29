@@ -5,8 +5,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+import tempfile
+from unittest.mock import Mock
 
-from ...config.backup_config import BackupSettings
+from dojopool.config import BackupSettings
+from dojopool.backup.backup_manager import BackupManager
 
 
 def test_backup_settings_defaults():

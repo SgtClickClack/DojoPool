@@ -199,6 +199,7 @@ class UserProfileResource(BaseResource):
     
     schema = UserProfileSchema()
     
+    @require_auth
     def get(self, user_id):
         """Get user profile.
         

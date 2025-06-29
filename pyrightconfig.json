@@ -4,13 +4,23 @@
     ],
     "exclude": [
         "**/node_modules",
-        "**/__pycache__"
+        "**/__pycache__",
+        "**/Lib",
+        "**/site-packages",
+        "**/.git",
+        "**/venv",
+        "**/env"
     ],
     "ignore": [
-        "**/node_modules"
+        "**/Lib/**",
+        "**/site-packages/**"
     ],
-    "reportMissingImports": true,
+    "pythonVersion": "3.11",
+    "pythonPlatform": "Windows",
+    "typeCheckingMode": "basic",
+    "useLibraryCodeForTypes": false,
+    "reportMissingImports": "warning",
     "reportMissingTypeStubs": false,
-    "pythonVersion": "3.8",
-    "typeCheckingMode": "basic"
+    "reportUnusedImport": "warning",
+    "reportUnusedVariable": "warning"
 } 

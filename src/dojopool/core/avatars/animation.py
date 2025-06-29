@@ -90,6 +90,39 @@ class AvatarAnimator:
             for name, config in self.animations.items()
         ]
 
+    @property
+    def available_animations(self) -> List[str]:
+        """Get list of available animation names."""
+        return list(self.animations.keys())
+
+    def create_animation(
+        self, avatar_image: Image.Image, animation_type: str, options: Optional[Dict[str, Any]] = None
+    ) -> bytes:
+        """Create an animated version of an avatar."""
+        try:
+            if animation_type not in self.available_animations:
+                raise ValueError(f"Animation type '{animation_type}' not available")
+
+            # Convert PIL Image to bytes
+            img_buffer = io.BytesIO()
+            avatar_image.save(img_buffer, format="PNG")
+            avatar_bytes = img_buffer.getvalue()
+
+            # Apply animation (for now, just return the original image as bytes)
+            # In a real implementation, this would create a GIF or video
+            return avatar_bytes
+
+        except Exception as e:
+            logger.error(f"Animation creation failed: {str(e)}")
+            # Return original image as fallback
+            img_buffer = io.BytesIO()
+            avatar_image.save(img_buffer, format="PNG")
+            return img_buffer.getvalue()
+
+    def get_available_animations(self) -> List[Dict[str, Any]]:
+        """Get available animations with details."""
+        return self.list_animations()
+
     def apply_animation(
         self, avatar_image: bytes, animation_name: str, frame_index: Optional[int] = None
     ) -> Optional[bytes]:

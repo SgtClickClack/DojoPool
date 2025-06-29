@@ -5,20 +5,21 @@ import {
   Flex,
   Text,
   Heading,
-  Stat as ChakraStat, // Renamed to avoid conflict with GameStats interface if any
+  Stat as ChakraStat,
   useColorModeValue,
   Icon,
   Tooltip,
   Button,
-  Spinner, // Added for loading state
-  Alert,   // Added for error/info messages
-  AlertIcon, // Added for error/info messages
-  IconButton, // For replay controls
+  Spinner,
+  Alert,
+  AlertIcon,
+  IconButton,
 } from "@chakra-ui/react";
-import { Stage, Layer, Circle, Line as KonvaLine, Arrow } from "react-konva";
-import Konva from "konva/lib/Core"; // For Stage ref typing
-import TimelineChart from './TimelineChart'; // Assuming this component is well-defined
-import PerformanceInsights from './PerformanceInsights'; // Assuming this component is well-defined
+import { Stage, Layer, Circle as KonvaCircle, Line as KonvaLine, Arrow } from "react-konva";
+import Konva from "konva";
+import { FaBullseye, FaChartLine, FaRegDotCircle, FaArrowLeft, FaArrowRight, FaPlay, FaStop } from "react-icons/fa";
+import TimelineChart from './TimelineChart';
+import PerformanceInsights from './PerformanceInsights';
 
 // --- Constants for Konva Visualization ---
 const TABLE_VIS_WIDTH = 500;
@@ -205,11 +206,11 @@ const GameAnalysisView: React.FC<GameAnalysisViewProps> = ({ gameId }) => {
             />
             {/* Pockets */}
             {POCKET_POSITIONS.map((pocket, i) => (
-              <Circle key={`pocket-${i}`} x={pocket.x} y={pocket.y} radius={POCKET_RADIUS} fill={useColorModeValue("gray.700", "black")} />
+              <KonvaCircle key={`pocket-${i}`} x={pocket.x} y={pocket.y} radius={POCKET_RADIUS} fill={useColorModeValue("gray.700", "black")} />
             ))}
 
             {/* Cue Ball Start Position */}
-            <Circle
+            <KonvaCircle
               x={shot.cue_ball_start.x}
               y={shot.cue_ball_start.y}
               radius={BALL_RADIUS}
@@ -220,7 +221,7 @@ const GameAnalysisView: React.FC<GameAnalysisViewProps> = ({ gameId }) => {
               shadowColor="rgba(0,0,0,0.3)"
             />
             {/* Object Ball Start Position */}
-            <Circle
+            <KonvaCircle
               x={shot.object_ball_start.x}
               y={shot.object_ball_start.y}
               radius={BALL_RADIUS}
@@ -258,7 +259,7 @@ const GameAnalysisView: React.FC<GameAnalysisViewProps> = ({ gameId }) => {
             )}
             {/* Actual Cue Ball End Position (if available and different from intent) */}
             {shot.cue_ball_end && (
-                 <Circle
+                 <KonvaCircle
                     x={shot.cue_ball_end.x}
                     y={shot.cue_ball_end.y}
                     radius={BALL_RADIUS -1} // Slightly smaller to differentiate

@@ -5,7 +5,7 @@ Health check endpoints for system monitoring.
 import time
 from typing import Tuple, Union
 
-from flask import Blueprint, Flask, Response, jsonify
+from flask import Blueprint, Flask, Response
 
 from ..core.monitoring.error_logger import ErrorSeverity, error_logger
 
@@ -27,17 +27,17 @@ def start_collector() -> None:
 
 
 @health_bp.route("/health")
-def health_check() -> Response:
+def health_check() -> Tuple[dict, int]:
     """Basic health check endpoint.
 
     Returns:
         Health status and basic metrics
     """
-    return jsonify({"status": "healthy", "timestamp": int(time.time())})
+    return {"status": "healthy", "timestamp": int(time.time())}, 200
 
 
 @health_bp.route("/health/detailed")
-def detailed_health() -> Union[Response, Tuple[Response, int]]:
+def detailed_health() -> Union[dict, Tuple[dict, int]]:
     """Detailed health check endpoint.
 
     Returns:
@@ -61,22 +61,20 @@ def detailed_health() -> Union[Response, Tuple[Response, int]]:
 
         total_errors = sum(float(v) for v in ERROR_COUNT._metrics.values())
 
-        return jsonify(
-            {
-                "status": "healthy",
-                "timestamp": int(time.time()),
-                "system": system_metrics,
-                "application": {
-                    "total_requests": total_requests,
-                    "average_latency": avg_latency,
-                    "total_errors": total_errors,
-                    "recent_errors": recent_errors,
-                },
-            }
-        )
+        return {
+            "status": "healthy",
+            "timestamp": int(time.time()),
+            "system": system_metrics,
+            "application": {
+                "total_requests": total_requests,
+                "average_latency": avg_latency,
+                "total_errors": total_errors,
+                "recent_errors": recent_errors,
+            },
+        }, 200
     except Exception as e:
         error_logger.log_error(error=e, severity=ErrorSeverity.ERROR, component="health_check")
-        return jsonify({"status": "error", "timestamp": int(time.time()), "error": str(e)}), 500
+        return {"status": "error", "timestamp": int(time.time()), "error": str(e)}, 500
 
 
 @health_bp.route("/health/metrics")

@@ -16,7 +16,6 @@ import {
   People,
   Timeline,
 } from "@mui/icons-material";
-import DojoPoolAppBar from "../AppBar";
 
 export const Dashboard: React.FC = () => {
   const stats = [
@@ -62,7 +61,7 @@ export const Dashboard: React.FC = () => {
       <Grid container spacing={3}>
         {/* Stats Cards */}
         {stats.map((stat) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.title}>
+          <Grid key={stat.title} sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
             <Paper elevation={2} sx={{ height: "100%" }}>
               <Card>
                 <CardContent sx={{ display: "flex", alignItems: "center" }}>
@@ -80,7 +79,7 @@ export const Dashboard: React.FC = () => {
         ))}
 
         {/* Recent Tournaments */}
-        <Grid item xs={12} md={6}>
+        <Grid sx={{ width: { xs: '100%', md: '50%' } }}>
           <Paper elevation={2}>
             <Card>
               <CardHeader
@@ -101,7 +100,7 @@ export const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Active Venues */}
-        <Grid item xs={12} md={6}>
+        <Grid sx={{ width: { xs: '100%', md: '50%' } }}>
           <Paper elevation={2}>
             <Card>
               <CardHeader
@@ -121,10 +120,6 @@ export const Dashboard: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
-
-      <DojoPoolAppBar position="fixed">
-        {/* AppBar content */}
-      </DojoPoolAppBar>
     </Box>
   );
 };

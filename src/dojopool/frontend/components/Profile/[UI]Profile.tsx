@@ -57,13 +57,13 @@ export const Profile: React.FC = () => {
         Profile
       </Typography>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
         {/* Profile Info */}
-        <Grid item xs={12} md={8}>
+        <Box sx={{ flex: { xs: '1', md: '2' } }}>
           <Paper elevation={2} sx={{ p: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
               <Box sx={{ position: "relative" }}>
-                <Avatar sx={{ width: 100, height: 100 }} src={user?.avatar} />
+                <Avatar sx={{ width: 100, height: 100 }} />
                 <IconButton
                   sx={{
                     position: "absolute",
@@ -108,79 +108,73 @@ export const Profile: React.FC = () => {
             <Divider sx={{ my: 3 }} />
 
             <Box component="form">
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Bio"
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleChange}
-                    multiline
-                    rows={3}
-                    disabled={!isEditing}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                  />
-                </Grid>
-              </Grid>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  multiline
+                  rows={3}
+                  disabled={!isEditing}
+                />
+              </Box>
+              <Box>
+                <TextField
+                  fullWidth
+                  label="Location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Box>
             </Box>
           </Paper>
-        </Grid>
+        </Box>
 
         {/* Stats */}
-        <Grid item xs={12} md={4}>
+        <Box sx={{ flex: { xs: '1', md: '1' } }}>
           <Paper elevation={2}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   Player Stats
                 </Typography>
-                <Grid container spacing={2}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)' }, gap: 2 }}>
                   {stats.map((stat) => (
-                    <Grid item xs={6} key={stat.label}>
-                      <Box textAlign="center">
-                        <Typography variant="h4">{stat.value}</Typography>
-                        <Typography color="textSecondary">
-                          {stat.label}
-                        </Typography>
-                      </Box>
-                    </Grid>
+                    <Box key={stat.label} textAlign="center">
+                      <Typography variant="h4">{stat.value}</Typography>
+                      <Typography color="textSecondary">
+                        {stat.label}
+                      </Typography>
+                    </Box>
                   ))}
-                </Grid>
+                </Box>
               </CardContent>
             </Card>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

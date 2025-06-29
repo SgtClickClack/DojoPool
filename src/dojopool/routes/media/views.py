@@ -12,7 +12,7 @@ from marshmallow import Schema, fields, validate
 from werkzeug.utils import secure_filename
 
 from dojopool.core.auth import login_required
-from dojopool.core.extensions import db
+from dojopool.extensions import db
 from dojopool.core.models import MediaFile
 from dojopool.core.security.sanitization import sanitize_filename
 from dojopool.core.security.virus_scan import scan_file
