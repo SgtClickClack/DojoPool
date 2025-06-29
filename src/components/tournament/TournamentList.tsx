@@ -3,93 +3,58 @@ import { Link } from 'react-router-dom';
 import { Box, TextField, MenuItem, Select, InputLabel, FormControl, Button, Typography, Card, Grid, Chip, CircularProgress, Alert } from '@mui/material';
 import { EmojiEvents, Search, FilterList, Add, SportsEsports } from '@mui/icons-material';
 import { SocketIOService } from '@/services/WebSocketService';
-import { useAuth } from '../../hooks/useAuth';
 
-// Updated interface to match our backend API response
+// Define a simple type for the tournament data expected from the API
+// Expand this based on the actual data returned by the API
 interface Tournament {
-  id: string;
+  id: number;
   name: string;
   format: string;
-  venueId: string;
-  startDate: string;
-  endDate: string;
-  maxParticipants: number;
-  entryFee: number;
-  prizePool: number;
   status: string;
-  participants: string[];
-  matches: string[];
-  winnerId?: string;
-  finalStandings: string[];
-  createdAt: string;
-  updatedAt: string;
-  endedAt?: string;
+  start_date: string; // Assuming ISO string format
+  entry_fee?: number;
+  max_participants?: number;
+  current_participants?: number;
+  venue_name?: string;
+  prize_pool?: number;
+  // Add other relevant fields: venue_name, entry_fee, max_participants, etc.
 }
 
-interface ApiResponse {
-  success: boolean;
-  tournaments: Tournament[];
-}
-
-const TOURNAMENT_FORMATS = ['SINGLE_ELIMINATION', 'DOUBLE_ELIMINATION', 'ROUND_ROBIN', 'SWISS'];
-const TOURNAMENT_STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+const TOURNAMENT_TYPES = ['8-ball', '9-ball', 'straight pool', 'other']; // Example types
+const TOURNAMENT_STATUSES = ['upcoming', 'open', 'active', 'full', 'closed', 'completed', 'cancelled'];
 
 const TournamentList: React.FC = () => {
-  const { user } = useAuth();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [formatFilter, setFormatFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [joinLoading, setJoinLoading] = useState<string | null>(null);
-  const [joinError, setJoinError] = useState<string | null>(null);
-  const [joinSuccess, setJoinSuccess] = useState<string | null>(null);
 
   // Real-time: fetchTournaments as a stable callback
   const fetchTournaments = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/api/tournaments');
+      let url = '/api/tournaments/';
+      const params = [];
+      if (typeFilter) params.push(`type=${encodeURIComponent(typeFilter)}`);
+      if (statusFilter) params.push(`status=${encodeURIComponent(statusFilter)}`);
+      if (search) params.push(`search=${encodeURIComponent(search)}`);
+      if (params.length) url += '?' + params.join('&');
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data: ApiResponse = await response.json();
-      
-      if (data.success) {
-        // Apply filters
-        let filteredTournaments = data.tournaments;
-        
-        if (search) {
-          filteredTournaments = filteredTournaments.filter(t => 
-            t.name.toLowerCase().includes(search.toLowerCase())
-          );
-        }
-        
-        if (formatFilter) {
-          filteredTournaments = filteredTournaments.filter(t => 
-            t.format === formatFilter
-          );
-        }
-        
-        if (statusFilter) {
-          filteredTournaments = filteredTournaments.filter(t => 
-            t.status === statusFilter
-          );
-        }
-        
-        setTournaments(filteredTournaments);
-      } else {
-        throw new Error('Failed to fetch tournaments');
-      }
+      const data: Tournament[] = await response.json();
+      setTournaments(data);
     } catch (err) {
       console.error('Failed to fetch tournaments:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setIsLoading(false);
     }
-  }, [search, formatFilter, statusFilter]);
+  }, [typeFilter, statusFilter, search]);
 
   useEffect(() => {
     fetchTournaments();
@@ -97,15 +62,15 @@ const TournamentList: React.FC = () => {
 
   // Real-time: subscribe to tournament_update
   useEffect(() => {
+    const socket = SocketIOService.getInstance();
+    socket.connect();
     const handleTournamentUpdate = () => {
       fetchTournaments();
     };
-    
-    // Subscribe to tournament updates
-    const unsubscribe = SocketIOService.subscribe('tournament_update', handleTournamentUpdate);
-    
+    socket.on('tournament_update', handleTournamentUpdate);
     return () => {
-      unsubscribe();
+      socket.off('tournament_update', handleTournamentUpdate);
+      socket.disconnect();
     };
   }, [fetchTournaments]);
 
@@ -185,49 +150,23 @@ const TournamentList: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'OPEN': return '#00ff9d';
-      case 'IN_PROGRESS': return '#00a8ff';
-      case 'COMPLETED': return '#ffff00';
-      case 'CANCELLED': return '#ff4444';
+      case 'open': return '#00ff9d';
+      case 'active': return '#00a8ff';
+      case 'full': return '#ff00ff';
+      case 'completed': return '#ffff00';
+      case 'cancelled': return '#ff4444';
       default: return '#888888';
     }
   };
 
   const getStatusChipStyle = (status: string) => ({
-    background: `rgba(${status === 'OPEN' ? '0, 255, 157' : status === 'IN_PROGRESS' ? '0, 168, 255' : status === 'COMPLETED' ? '255, 255, 0' : status === 'CANCELLED' ? '255, 68, 68' : '136, 136, 136'}, 0.2)`,
+    background: `rgba(${status === 'open' ? '0, 255, 157' : status === 'active' ? '0, 168, 255' : status === 'full' ? '255, 0, 255' : status === 'completed' ? '255, 255, 0' : status === 'cancelled' ? '255, 68, 68' : '136, 136, 136'}, 0.2)`,
     border: `1px solid ${getStatusColor(status)}`,
     color: getStatusColor(status),
     textShadow: `0 0 5px ${getStatusColor(status)}`,
     fontWeight: 600,
     letterSpacing: '1px',
   });
-
-  const handleJoinTournament = async (tournamentId: string) => {
-    setJoinLoading(tournamentId);
-    setJoinError(null);
-    setJoinSuccess(null);
-    try {
-      const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participantId: user?.uid || '' }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data.success) {
-        setJoinSuccess(tournamentId);
-        fetchTournaments();
-      } else {
-        throw new Error(data.error || 'Failed to join tournament');
-      }
-    } catch (err) {
-      setJoinError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setJoinLoading(null);
-    }
-  };
 
   return (
     <Box 
@@ -304,11 +243,11 @@ const TournamentList: React.FC = () => {
             </Grid>
             <Grid item xs={12} md={3}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: '#00ff9d' }}>Tournament Format</InputLabel>
+                <InputLabel sx={{ color: '#00ff9d' }}>Game Type</InputLabel>
                 <Select
-                  value={formatFilter}
-                  label="Tournament Format"
-                  onChange={e => setFormatFilter(e.target.value)}
+                  value={typeFilter}
+                  label="Game Type"
+                  onChange={e => setTypeFilter(e.target.value)}
                   startAdornment={<SportsEsports sx={{ color: '#00ff9d', mr: 1 }} />}
                   sx={{
                     color: '#fff',
@@ -323,11 +262,9 @@ const TournamentList: React.FC = () => {
                     },
                   }}
                 >
-                  <MenuItem value="">All Formats</MenuItem>
-                  {TOURNAMENT_FORMATS.map(format => (
-                    <MenuItem key={format} value={format} sx={{ color: '#fff' }}>
-                      {format.replace('_', ' ')}
-                    </MenuItem>
+                  <MenuItem value="">All Types</MenuItem>
+                  {TOURNAMENT_TYPES.map(type => (
+                    <MenuItem key={type} value={type} sx={{ color: '#fff' }}>{type}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -355,9 +292,7 @@ const TournamentList: React.FC = () => {
                 >
                   <MenuItem value="">All Status</MenuItem>
                   {TOURNAMENT_STATUSES.map(status => (
-                    <MenuItem key={status} value={status} sx={{ color: '#fff' }}>
-                      {status.replace('_', ' ')}
-                    </MenuItem>
+                    <MenuItem key={status} value={status} sx={{ color: '#fff' }}>{status}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -440,7 +375,7 @@ const TournamentList: React.FC = () => {
                       </Typography>
                       
                       <Chip 
-                        label={tournament.format.replace('_', ' ')} 
+                        label={tournament.format} 
                         size="small" 
                         sx={{ 
                           background: 'rgba(0, 168, 255, 0.2)',
@@ -453,7 +388,7 @@ const TournamentList: React.FC = () => {
                       />
                       
                       <Chip 
-                        label={tournament.status.replace('_', ' ')} 
+                        label={tournament.status} 
                         size="small" 
                         sx={getStatusChipStyle(tournament.status)}
                       />
@@ -461,24 +396,32 @@ const TournamentList: React.FC = () => {
 
                     <Box sx={{ mb: 2 }}>
                       <Typography sx={{ color: '#888', fontSize: '0.9rem', mb: 0.5 }}>
-                        Starts: {new Date(tournament.startDate).toLocaleDateString()}
+                        Starts: {new Date(tournament.start_date).toLocaleDateString()}
                       </Typography>
                       
-                      <Typography sx={{ color: '#888', fontSize: '0.9rem', mb: 0.5 }}>
-                        Ends: {new Date(tournament.endDate).toLocaleDateString()}
-                      </Typography>
+                      {tournament.venue_name && (
+                        <Typography sx={{ color: '#888', fontSize: '0.9rem', mb: 0.5 }}>
+                          Venue: {tournament.venue_name}
+                        </Typography>
+                      )}
                       
-                      <Typography sx={{ color: '#00ff9d', fontSize: '0.9rem', mb: 0.5 }}>
-                        Entry: {tournament.entryFee} coins
-                      </Typography>
+                      {tournament.entry_fee && (
+                        <Typography sx={{ color: '#00ff9d', fontSize: '0.9rem', mb: 0.5 }}>
+                          Entry: {tournament.entry_fee} coins
+                        </Typography>
+                      )}
                       
-                      <Typography sx={{ color: '#00a8ff', fontSize: '0.9rem', mb: 0.5 }}>
-                        Prize Pool: {tournament.prizePool} coins
-                      </Typography>
+                      {tournament.prize_pool && (
+                        <Typography sx={{ color: '#00a8ff', fontSize: '0.9rem', mb: 0.5 }}>
+                          Prize Pool: {tournament.prize_pool} coins
+                        </Typography>
+                      )}
                       
-                      <Typography sx={{ color: '#888', fontSize: '0.9rem' }}>
-                        Players: {tournament.participants.length}/{tournament.maxParticipants}
-                      </Typography>
+                      {tournament.current_participants !== undefined && tournament.max_participants && (
+                        <Typography sx={{ color: '#888', fontSize: '0.9rem' }}>
+                          Players: {tournament.current_participants}/{tournament.max_participants}
+                        </Typography>
+                      )}
                     </Box>
 
                     <Box sx={{ 
@@ -498,26 +441,6 @@ const TournamentList: React.FC = () => {
                       <EmojiEvents sx={{ color: '#00ff9d', fontSize: '1.2rem' }} />
                     </Box>
                   </Link>
-                  {tournament.status === 'OPEN' && !tournament.participants.includes(user?.uid || '') && (
-                    <Button
-                      variant="contained"
-                      sx={{ ...cyberButtonStyle, mt: 2 }}
-                      disabled={joinLoading === tournament.id}
-                      onClick={e => {
-                        e.preventDefault();
-                        handleJoinTournament(tournament.id);
-                      }}
-                      fullWidth
-                    >
-                      {joinLoading === tournament.id ? 'Joining...' : 'Join'}
-                    </Button>
-                  )}
-                  {joinSuccess === tournament.id && (
-                    <Alert severity="success" sx={{ mt: 1 }}>Joined successfully!</Alert>
-                  )}
-                  {joinError && joinLoading === null && (
-                    <Alert severity="error" sx={{ mt: 1 }}>{joinError}</Alert>
-                  )}
                 </Card>
               </Grid>
             ))}
