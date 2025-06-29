@@ -188,6 +188,7 @@ const TournamentDetailPage: React.FC = () => {
                   matches={tournament.matches}
                   participants={tournament.participants || []}
                   format={tournament.format}
+                  bracket={tournament}
               />
           );
       } else {

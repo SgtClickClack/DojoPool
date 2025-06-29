@@ -1,5 +1,5 @@
-import { Tournament, Match, Participant } from '../types/tournament';
-import { RealTimeMatchService } from './RealTimeMatchService';
+import { Tournament, TournamentMatch as Match, TournamentParticipant as Participant } from '../../types/tournament';
+import { RealTimeMatchService, RealTimeMatchData } from './RealTimeMatchService';
 import { TournamentAnalyticsService } from './TournamentAnalyticsService';
 
 export interface StreamConfig {
@@ -83,6 +83,15 @@ export interface StreamChat {
   isHighlighted: boolean;
 }
 
+export interface StreamEvent {
+  type: 'stream_started' | 'stream_ended' | 'viewer_joined' | 'viewer_left' | 'commentary_added' | 'chat_message' | 'overlay_updated';
+  streamKey?: string;
+  userId?: string;
+  viewerCount?: number;
+  stats?: StreamStats;
+  data?: Record<string, unknown>;
+}
+
 class TournamentStreamingService {
   private streams: Map<string, {
     config: StreamConfig;
@@ -97,7 +106,7 @@ class TournamentStreamingService {
 
   private realTimeMatchService: RealTimeMatchService;
   private analyticsService: TournamentAnalyticsService;
-  private subscribers: Map<string, Set<(data: any) => void>> = new Map();
+  private subscribers: Map<string, Set<(data: StreamEvent) => void>> = new Map();
 
   constructor() {
     this.realTimeMatchService = new RealTimeMatchService();
@@ -310,7 +319,7 @@ class TournamentStreamingService {
   /**
    * Subscribe to stream updates
    */
-  subscribeToStream(streamKey: string, callback: (data: any) => void): () => void {
+  subscribeToStream(streamKey: string, callback: (data: StreamEvent) => void): () => void {
     if (!this.subscribers.has(streamKey)) {
       this.subscribers.set(streamKey, new Set());
     }
@@ -373,7 +382,7 @@ class TournamentStreamingService {
   /**
    * Update stream overlay with match data
    */
-  private updateStreamOverlay(streamKey: string, matchData: any): void {
+  private updateStreamOverlay(streamKey: string, matchData: RealTimeMatchData): void {
     const stream = this.streams.get(streamKey);
     if (!stream) return;
 
@@ -412,7 +421,7 @@ class TournamentStreamingService {
   /**
    * Update stream analytics
    */
-  private updateStreamAnalytics(streamKey: string, analytics: any): void {
+  private updateStreamAnalytics(streamKey: string, analytics: Record<string, unknown>): void {
     const stream = this.streams.get(streamKey);
     if (!stream) return;
 
@@ -465,7 +474,7 @@ class TournamentStreamingService {
   /**
    * Publish updates to subscribers
    */
-  private publish(streamKey: string, data: any): void {
+  private publish(streamKey: string, data: StreamEvent): void {
     const subscribers = this.subscribers.get(streamKey);
     if (subscribers) {
       subscribers.forEach(callback => {

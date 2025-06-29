@@ -1,4 +1,4 @@
-import { Tournament, Match, Player, TournamentFormat } from '../types/tournament';
+import { Tournament, TournamentMatch as Match, TournamentParticipant as Player, TournamentFormat } from '../../types/tournament';
 import { EventEmitter } from 'events';
 
 export interface PlayerPerformance {
@@ -366,13 +366,10 @@ class TournamentAnalyticsService extends EventEmitter {
     return { topStrengths, commonWeaknesses, improvementRecommendations };
   }
 
-  public subscribeToUpdates(callback: (data: any) => void): () => void {
-    this.on('realTimeUpdate', callback);
-    this.on('performanceUpdate', callback);
-
+  public subscribeToUpdates(callback: (data: TournamentStats | PlayerPerformance | VenueAnalytics | RealTimeMetrics) => void): () => void {
+    this.on('analyticsUpdate', callback);
     return () => {
-      this.off('realTimeUpdate', callback);
-      this.off('performanceUpdate', callback);
+      this.off('analyticsUpdate', callback);
     };
   }
 }

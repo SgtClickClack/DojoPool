@@ -10,7 +10,7 @@ import { SocketProvider } from './contexts/SocketContext';
 import './three-extensions';
 
 // Lazy load components
-const Login = React.lazy(() => import('./components/Auth/Login'));
+const Login = React.lazy(() => import('../components/auth/Login'));
 const Register = React.lazy(() => import('./components/Auth/Register'));
 const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard'));
 const AvatarCreation = React.lazy(() => import('./components/Avatar/AvatarCreation'));

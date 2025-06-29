@@ -21,24 +21,24 @@ import {
   GridView,
   AccountTree,
 } from '@mui/icons-material';
-import { Tournament, Match, Participant } from '../../types/tournament';
+import { TournamentBracket, TournamentMatch, TournamentParticipant } from '../../types/tournament';
 import { useAuth } from '../../hooks/useAuth';
 import BracketVisualization from './BracketVisualization';
 
 interface TournamentBracketProps {
-  tournament: Tournament;
-  onMatchClick?: (match: Match) => void;
-  onReportResult?: (match: Match) => void;
+  bracket: TournamentBracket;
+  onMatchClick?: (match: TournamentMatch) => void;
+  onReportResult?: (match: TournamentMatch) => void;
   isAdmin?: boolean;
 }
 
 export const TournamentBracket: React.FC<TournamentBracketProps> = ({
-  tournament,
+  bracket,
   onMatchClick,
   onReportResult,
   isAdmin = false
 }) => {
-  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<TournamentMatch | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'interactive'>('interactive');
   const { user } = useAuth();
 
@@ -66,13 +66,13 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
     }
   };
 
-  const getParticipantDisplayName = (participant?: Participant) => {
+  const getParticipantDisplayName = (participant?: TournamentParticipant) => {
     if (!participant) return 'TBD';
     return participant.username || `Player ${participant.id}`;
   };
 
-  const getWinnerStyle = (match: Match, participant?: Participant) => {
-    if (match.winner && participant && match.winner.id === participant.id) {
+  const getWinnerStyle = (match: TournamentMatch, participant?: TournamentParticipant) => {
+    if (match.winnerId && participant && match.winnerId === participant.id) {
       return {
         color: '#00ff00',
         textShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
@@ -82,8 +82,8 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
     return { color: '#cccccc' };
   };
 
-  const getLoserStyle = (match: Match, participant?: Participant) => {
-    if (match.winner && participant && match.winner.id !== participant.id) {
+  const getLoserStyle = (match: TournamentMatch, participant?: TournamentParticipant) => {
+    if (match.winnerId && participant && match.winnerId !== participant.id) {
       return {
         color: '#ff6666',
         opacity: 0.6
@@ -173,7 +173,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   });
 
   // If interactive mode is selected and matches exist, use the new BracketVisualization
-  if (viewMode === 'interactive' && tournament.matches && tournament.matches.length > 0) {
+  if (viewMode === 'interactive' && bracket.rounds && bracket.rounds.flatMap(r => r.matches).length > 0) {
     return (
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -210,7 +210,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
           </ToggleButtonGroup>
         </Box>
         <BracketVisualization
-          tournament={tournament}
+          bracket={bracket}
           onMatchClick={onMatchClick}
           highlightUserId={user?.uid}
           enableRealTimeUpdates={true}
@@ -220,9 +220,9 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   }
 
   // Check if we have matches or need to use participant-based bracket
-  if (!tournament.matches || tournament.matches.length === 0) {
+  if (!bracket.rounds || bracket.rounds.flatMap(r => r.matches).length === 0) {
     // Check if we have participants for fallback bracket
-    if (!tournament.participantsList || tournament.participantsList.length < 2) {
+    if (!bracket.participantCount || bracket.participantCount < 2) {
       return (
         <Box
           sx={{
@@ -254,18 +254,18 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
     }
 
     // Generate bracket from participants
-    function generateBracket(participants: Participant[]): Participant[][] {
-      const participantRounds: Participant[][] = [];
+    function generateBracket(participants: TournamentParticipant[]): TournamentParticipant[][] {
+      const participantRounds: TournamentParticipant[][] = [];
       let currentRound = participants.slice();
       while (currentRound.length > 1) {
         participantRounds.push(currentRound);
-        const nextRound: Participant[] = [];
+        const nextRound: TournamentParticipant[] = [];
         for (let i = 0; i < currentRound.length; i += 2) {
           nextRound.push({
             id: `winner-${participantRounds.length}-${i/2}`,
             username: 'TBD',
             status: 'pending',
-          } as Participant);
+          } as unknown as TournamentParticipant);
         }
         currentRound = nextRound;
       }
@@ -275,7 +275,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
       return participantRounds;
     }
 
-    const participantRounds = generateBracket(tournament.participantsList);
+    const participantRounds = generateBracket(bracket.participants);
     
     return (
       <Box>
@@ -369,13 +369,13 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
   }
 
   // Group matches by round for grid view
-  const matchRounds = tournament.matches.reduce((acc, match) => {
+  const matchRounds = bracket.rounds.flatMap(r => r.matches).reduce((acc, match) => {
     if (!acc[match.round]) {
       acc[match.round] = [];
     }
     acc[match.round].push(match);
     return acc;
-  }, {} as Record<number, Match[]>);
+  }, {} as Record<number, TournamentMatch[]>);
 
   const roundNames = ['Quarter Finals', 'Semi Finals', 'Finals', 'Championship'];
 

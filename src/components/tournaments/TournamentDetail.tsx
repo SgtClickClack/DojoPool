@@ -723,7 +723,7 @@ const TournamentDetail: React.FC = () => {
 
           <TabPanel value={tabValue} index={1}>
             <TournamentBracket 
-              tournament={tournament}
+              bracket={tournament.bracket}
               isAdmin={false} // TODO: Get from auth context
             />
           </TabPanel>

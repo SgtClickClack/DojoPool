@@ -1,4 +1,4 @@
-import { Tournament } from '../types/tournament';
+import { Tournament, TournamentMatch, TournamentParticipant } from '../../types/tournament';
 import { api } from '../api';
 
 export const getTournaments = async (): Promise<Tournament[]> => {
@@ -19,12 +19,12 @@ export const withdrawFromTournament = async (tournamentId: string): Promise<void
   await api.post(`/api/tournaments/${tournamentId}/withdraw`);
 };
 
-export const getTournamentParticipants = async (tournamentId: string): Promise<any[]> => {
+export const getTournamentParticipants = async (tournamentId: string): Promise<TournamentParticipant[]> => {
   const response = await api.get(`/api/tournaments/${tournamentId}/participants`);
   return response.data;
 };
 
-export const getTournamentMatches = async (tournamentId: string): Promise<any[]> => {
+export const getTournamentMatches = async (tournamentId: string): Promise<TournamentMatch[]> => {
   const response = await api.get(`/api/tournaments/${tournamentId}/matches`);
   return response.data;
 };
@@ -41,12 +41,12 @@ export const checkInForMatch = async (tournamentId: string, matchId: string): Pr
 export const submitMatchResult = async (
   tournamentId: string,
   matchId: string,
-  result: any
+  result: Record<string, unknown>
 ): Promise<void> => {
   await api.post(`/api/tournaments/${tournamentId}/matches/${matchId}/result`, result);
 };
 
-export const getTournamentStats = async (tournamentId: string): Promise<any> => {
+export const getTournamentStats = async (tournamentId: string): Promise<Record<string, unknown>> => {
   const response = await api.get(`/api/tournaments/${tournamentId}/stats`);
   return response.data;
 };

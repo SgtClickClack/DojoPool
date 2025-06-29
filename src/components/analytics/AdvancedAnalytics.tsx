@@ -37,11 +37,10 @@ import {
   ShowChart,
   Refresh
 } from '@mui/icons-material';
-import AdvancedAnalyticsService, {
-  PerformanceMetrics,
-  PredictiveInsight,
-  TournamentROI,
-  AnalyticsConfig
+import {
+  AdvancedAnalyticsService,
+  VenueOptimization,
+  RevenueForecast
 } from '../../services/analytics/AdvancedAnalyticsService';
 
 interface TabPanelProps {
@@ -68,7 +67,7 @@ function TabPanel(props: TabPanelProps) {
 
 const AdvancedAnalytics: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [analyticsService] = useState(() => AdvancedAnalyticsService.getInstance());
+  const [analyticsService] = useState(() => new AdvancedAnalyticsService());
   const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics[]>([]);
   const [predictiveInsights, setPredictiveInsights] = useState<PredictiveInsight[]>([]);
   const [tournamentROIs, setTournamentROIs] = useState<TournamentROI[]>([]);

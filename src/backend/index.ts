@@ -20,6 +20,15 @@ import userNftsRoutes from './routes/userNfts';
 import challengeRoutes from './routes/challenge';
 import tournamentRoutes from './routes/tournament';
 import aiCommentaryRoutes from './routes/ai-commentary';
+import aiCommentaryHighlightsRoutes from './routes/ai-commentary-highlights';
+import passiveIncomeRoutes from './routes/passive-income';
+import enhancedSocialRoutes from './routes/enhanced-social';
+import advancedTournamentRoutes from './routes/advanced-tournament';
+import advancedPlayerAnalyticsRoutes from './routes/advanced-player-analytics';
+import advancedVenueManagementRoutes from './routes/advanced-venue-management';
+import advancedSocialCommunityRoutes from './routes/advanced-social-community';
+import advancedAIRefereeRuleEnforcementRoutes from './routes/advanced-ai-referee-rule-enforcement';
+import advancedAIMatchCommentaryHighlightsRoutes from './routes/advanced-ai-match-commentary-highlights';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import morgan from 'morgan';
@@ -28,6 +37,12 @@ import { errorHandler } from './middleware/errorHandler';
 import { authMiddleware } from './middleware/auth';
 import { validateRequest } from './middleware/validation';
 import { param, query } from 'express-validator';
+import venueLeaderboardRoutes from './routes/venue-leaderboard';
+import { venueLeaderboardService } from '../services/venue/VenueLeaderboardService';
+import advancedAnalyticsRoutes from './routes/advanced-analytics';
+import { advancedAnalyticsService } from '../services/analytics/AdvancedAnalyticsService';
+import highlightsRoutes from './routes/highlights';
+import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration';
 
 // Load environment variables
 config();
@@ -87,11 +102,24 @@ app.use('/api', socialRoutes);
 app.use('/api', territoryRoutes);
 app.use('/api', userNftsRoutes);
 app.use('/api', aiCommentaryRoutes);
+app.use('/api/ai-commentary-highlights', aiCommentaryHighlightsRoutes);
 app.use('/api', clanRoutes);
 app.use('/api', blockchainRoutes);
 app.use('/api', venueRoutes);
 app.use('/api', economyRoutes);
 app.use('/api', tournamentRoutes);
+app.use('/api/passive-income', passiveIncomeRoutes);
+app.use('/api/venue-leaderboard', venueLeaderboardRoutes);
+app.use('/api/advanced-analytics', advancedAnalyticsRoutes);
+app.use('/api/highlights', highlightsRoutes);
+app.use('/api/enhanced-social', enhancedSocialRoutes);
+app.use('/api/advanced-tournaments', advancedTournamentRoutes);
+app.use('/api/advanced-player-analytics', advancedPlayerAnalyticsRoutes);
+app.use('/api/advanced-venue-management', advancedVenueManagementRoutes);
+app.use('/api/advanced-blockchain-integration', advancedBlockchainIntegrationRouter);
+app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
+app.use('/api/advanced-ai-referee-rule-enforcement', advancedAIRefereeRuleEnforcementRoutes);
+app.use('/api/advanced-ai-match-commentary-highlights', advancedAIMatchCommentaryHighlightsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -127,6 +155,14 @@ io.on('connection', (socket) => {
     console.log('Socket.IO client disconnected:', socket.id);
   });
 });
+
+// Initialize venue leaderboard service
+venueLeaderboardService.startLeaderboardUpdates();
+console.log('Venue Leaderboard Service connected to server');
+
+// Initialize advanced analytics service
+advancedAnalyticsService.startAnalyticsUpdates();
+console.log('Advanced Analytics Service connected to server');
 
 // Start server
 if (require.main === module) {

@@ -80,6 +80,7 @@ export interface AnalyticsConfig {
   automatedReporting: boolean;
   performanceTracking: boolean;
   dataRetentionDays: number;
+  updateIntervalMinutes: number;
   alertThresholds: {
     cpuUsage: number;
     memoryUsage: number;
@@ -89,13 +90,119 @@ export interface AnalyticsConfig {
   reportSchedules: ReportTemplate[];
 }
 
-class AdvancedAnalyticsService extends EventEmitter {
+export interface PerformanceTrend {
+  playerId: string;
+  playerName: string;
+  metric: string;
+  values: number[];
+  dates: Date[];
+  trend: 'increasing' | 'decreasing' | 'stable';
+  changeRate: number;
+  prediction: number;
+}
+
+export interface VenueOptimization {
+  venueId: string;
+  venueName: string;
+  currentScore: number;
+  recommendations: string[];
+  potentialImprovements: {
+    category: string;
+    currentValue: number;
+    targetValue: number;
+    impact: 'high' | 'medium' | 'low';
+    estimatedRevenueIncrease: number;
+  }[];
+  optimizationScore: number;
+}
+
+export interface RevenueForecast {
+  venueId: string;
+  venueName: string;
+  currentRevenue: number;
+  forecastedRevenue: number;
+  confidence: number;
+  factors: {
+    factor: string;
+    impact: number;
+    trend: 'positive' | 'negative' | 'neutral';
+  }[];
+  timeframes: {
+    timeframe: string;
+    revenue: number;
+    confidence: number;
+  }[];
+}
+
+export interface TournamentPrediction {
+  tournamentId: string;
+  tournamentName: string;
+  participants: {
+    playerId: string;
+    playerName: string;
+    winProbability: number;
+    expectedFinish: number;
+    keyFactors: string[];
+  }[];
+  predictedWinner: {
+    playerId: string;
+    playerName: string;
+    probability: number;
+  };
+  tournamentMetrics: {
+    expectedDuration: number;
+    expectedRevenue: number;
+    expectedParticipants: number;
+    difficulty: 'easy' | 'medium' | 'hard';
+  };
+}
+
+export interface PlayerInsights {
+  playerId: string;
+  playerName: string;
+  strengths: string[];
+  weaknesses: string[];
+  improvementAreas: string[];
+  performanceMetrics: {
+    winRate: number;
+    averageRating: number;
+    tournamentPerformance: number;
+    consistency: number;
+    clutchFactor: number;
+  };
+  recommendations: string[];
+  potentialRating: number;
+}
+
+export interface VenueAnalytics {
+  venueId: string;
+  venueName: string;
+  performanceMetrics: {
+    totalRevenue: number;
+    averageRating: number;
+    playerRetention: number;
+    tournamentSuccess: number;
+    activityLevel: number;
+  };
+  trends: {
+    revenue: PerformanceTrend;
+    players: PerformanceTrend;
+    tournaments: PerformanceTrend;
+  };
+  insights: string[];
+  recommendations: string[];
+}
+
+export class AdvancedAnalyticsService extends EventEmitter {
   private static instance: AdvancedAnalyticsService;
   private socket: Socket | null = null;
   private _isConnected = false;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 5000;
+  private isRunning: boolean = false;
+  private updateInterval: NodeJS.Timeout | null = null;
+  private updateIntervalMinutes: number = 5; // default 5 minutes
 
   // Analytics state
   private performanceMetrics: PerformanceMetrics[] = [];
@@ -104,6 +211,12 @@ class AdvancedAnalyticsService extends EventEmitter {
   private viewershipMetrics: ViewershipMetrics[] = [];
   private playerTrends: PlayerPerformanceTrend[] = [];
   private reportTemplates: ReportTemplate[] = [];
+  private performanceTrends: Map<string, PerformanceTrend> = new Map();
+  private venueOptimizations: Map<string, VenueOptimization> = new Map();
+  private revenueForecasts: Map<string, RevenueForecast> = new Map();
+  private tournamentPredictions: Map<string, TournamentPrediction> = new Map();
+  private playerInsights: Map<string, PlayerInsights> = new Map();
+  private venueAnalytics: Map<string, VenueAnalytics> = new Map();
 
   // Configuration
   private config: AnalyticsConfig = {
@@ -112,6 +225,7 @@ class AdvancedAnalyticsService extends EventEmitter {
     automatedReporting: true,
     performanceTracking: true,
     dataRetentionDays: 90,
+    updateIntervalMinutes: 5,
     alertThresholds: {
       cpuUsage: 80,
       memoryUsage: 85,
@@ -754,6 +868,424 @@ class AdvancedAnalyticsService extends EventEmitter {
     this.performanceMetrics.push(metrics);
     this.emit('performanceMetricsUpdated', metrics);
   }
+
+  /**
+   * Start automatic analytics updates
+   */
+  public startAnalyticsUpdates(): void {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.updateInterval = setInterval(() => {
+      this.updateAllAnalytics();
+    }, this.updateIntervalMinutes * 60 * 1000);
+    // Initial update
+    this.updateAllAnalytics();
+    console.log('Advanced analytics update system started');
+  }
+
+  /**
+   * Stop automatic analytics updates
+   */
+  public stopAnalyticsUpdates(): void {
+    if (!this.isRunning) return;
+    this.isRunning = false;
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
+    console.log('Advanced analytics update system stopped');
+  }
+
+  /**
+   * Update all analytics data
+   */
+  private async updateAllAnalytics(): Promise<void> {
+    try {
+      await Promise.all([
+        this.updatePerformanceTrends(),
+        this.updateVenueOptimizations(),
+        this.updateRevenueForecasts(),
+        this.updateTournamentPredictions(),
+        this.updatePlayerInsights(),
+        this.updateVenueAnalytics()
+      ]);
+
+      this.socket?.emit('analytics:updated', {
+        timestamp: new Date().toISOString(),
+        trendsCount: this.performanceTrends.size,
+        optimizationsCount: this.venueOptimizations.size,
+        forecastsCount: this.revenueForecasts.size,
+        predictionsCount: this.tournamentPredictions.size
+      });
+
+      this.emit('analyticsUpdated');
+    } catch (error) {
+      console.error('Error updating analytics:', error);
+    }
+  }
+
+  /**
+   * Update performance trends
+   */
+  private async updatePerformanceTrends(): Promise<void> {
+    // Simulate performance trend analysis
+    const mockTrends: PerformanceTrend[] = [
+      {
+        playerId: 'player1',
+        playerName: 'John Doe',
+        metric: 'win_rate',
+        values: [0.65, 0.68, 0.72, 0.75, 0.78],
+        dates: [
+          new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+          new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+          new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          new Date(Date.now() - 24 * 60 * 60 * 1000),
+          new Date()
+        ],
+        trend: 'increasing',
+        changeRate: 0.13,
+        prediction: 0.82
+      }
+    ];
+
+    mockTrends.forEach(trend => {
+      this.performanceTrends.set(`${trend.playerId}-${trend.metric}`, trend);
+    });
+  }
+
+  /**
+   * Update venue optimizations
+   */
+  private async updateVenueOptimizations(): Promise<void> {
+    // Simulate venue optimization analysis
+    const mockOptimizations: VenueOptimization[] = [
+      {
+        venueId: 'venue1',
+        venueName: 'The Jade Tiger',
+        currentScore: 75,
+        recommendations: [
+          'Increase tournament frequency by 20%',
+          'Implement loyalty program for regular players',
+          'Add more premium table options'
+        ],
+        potentialImprovements: [
+          {
+            category: 'Tournament Frequency',
+            currentValue: 2,
+            targetValue: 3,
+            impact: 'high',
+            estimatedRevenueIncrease: 1500
+          },
+          {
+            category: 'Player Retention',
+            currentValue: 0.65,
+            targetValue: 0.75,
+            impact: 'medium',
+            estimatedRevenueIncrease: 800
+          }
+        ],
+        optimizationScore: 85
+      }
+    ];
+
+    mockOptimizations.forEach(optimization => {
+      this.venueOptimizations.set(optimization.venueId, optimization);
+    });
+  }
+
+  /**
+   * Update revenue forecasts
+   */
+  private async updateRevenueForecasts(): Promise<void> {
+    // Simulate revenue forecasting
+    const mockForecasts: RevenueForecast[] = [
+      {
+        venueId: 'venue1',
+        venueName: 'The Jade Tiger',
+        currentRevenue: 5000,
+        forecastedRevenue: 6500,
+        confidence: 0.85,
+        factors: [
+          {
+            factor: 'Tournament Growth',
+            impact: 0.3,
+            trend: 'positive'
+          },
+          {
+            factor: 'Player Retention',
+            impact: 0.2,
+            trend: 'positive'
+          },
+          {
+            factor: 'Seasonal Variation',
+            impact: -0.1,
+            trend: 'negative'
+          }
+        ],
+        timeframes: [
+          {
+            timeframe: '1 week',
+            revenue: 5200,
+            confidence: 0.9
+          },
+          {
+            timeframe: '1 month',
+            revenue: 6500,
+            confidence: 0.85
+          },
+          {
+            timeframe: '3 months',
+            revenue: 7200,
+            confidence: 0.7
+          }
+        ]
+      }
+    ];
+
+    mockForecasts.forEach(forecast => {
+      this.revenueForecasts.set(forecast.venueId, forecast);
+    });
+  }
+
+  /**
+   * Update tournament predictions
+   */
+  private async updateTournamentPredictions(): Promise<void> {
+    // Simulate tournament prediction analysis
+    const mockPredictions: TournamentPrediction[] = [
+      {
+        tournamentId: 'tournament1',
+        tournamentName: 'Spring Championship',
+        participants: [
+          {
+            playerId: 'player1',
+            playerName: 'John Doe',
+            winProbability: 0.35,
+            expectedFinish: 1,
+            keyFactors: ['High win rate', 'Recent form', 'Tournament experience']
+          },
+          {
+            playerId: 'player2',
+            playerName: 'Jane Smith',
+            winProbability: 0.28,
+            expectedFinish: 2,
+            keyFactors: ['Consistent performance', 'Strong defense']
+          }
+        ],
+        predictedWinner: {
+          playerId: 'player1',
+          playerName: 'John Doe',
+          probability: 0.35
+        },
+        tournamentMetrics: {
+          expectedDuration: 4,
+          expectedRevenue: 2500,
+          expectedParticipants: 16,
+          difficulty: 'medium'
+        }
+      }
+    ];
+
+    mockPredictions.forEach(prediction => {
+      this.tournamentPredictions.set(prediction.tournamentId, prediction);
+    });
+  }
+
+  /**
+   * Update player insights
+   */
+  private async updatePlayerInsights(): Promise<void> {
+    // Simulate player insight analysis
+    const mockInsights: PlayerInsights[] = [
+      {
+        playerId: 'player1',
+        playerName: 'John Doe',
+        strengths: ['Strong break shot', 'Excellent positioning', 'High pressure handling'],
+        weaknesses: ['Occasional defensive lapses', 'Limited trick shot repertoire'],
+        improvementAreas: ['Defensive play', 'Safety shots', 'End game strategy'],
+        performanceMetrics: {
+          winRate: 0.78,
+          averageRating: 1650,
+          tournamentPerformance: 0.85,
+          consistency: 0.72,
+          clutchFactor: 0.68
+        },
+        recommendations: [
+          'Practice defensive shots for 30 minutes daily',
+          'Study end game scenarios',
+          'Participate in more tournaments to gain experience'
+        ],
+        potentialRating: 1750
+      }
+    ];
+
+    mockInsights.forEach(insight => {
+      this.playerInsights.set(insight.playerId, insight);
+    });
+  }
+
+  /**
+   * Update venue analytics
+   */
+  private async updateVenueAnalytics(): Promise<void> {
+    // Simulate venue analytics
+    const mockAnalytics: VenueAnalytics[] = [
+      {
+        venueId: 'venue1',
+        venueName: 'The Jade Tiger',
+        performanceMetrics: {
+          totalRevenue: 5000,
+          averageRating: 1550,
+          playerRetention: 0.75,
+          tournamentSuccess: 0.8,
+          activityLevel: 0.85
+        },
+        trends: {
+          revenue: {
+            playerId: 'venue1',
+            playerName: 'The Jade Tiger',
+            metric: 'revenue',
+            values: [4000, 4200, 4500, 4800, 5000],
+            dates: [
+              new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 24 * 60 * 60 * 1000),
+              new Date()
+            ],
+            trend: 'increasing',
+            changeRate: 0.25,
+            prediction: 5500
+          },
+          players: {
+            playerId: 'venue1',
+            playerName: 'The Jade Tiger',
+            metric: 'players',
+            values: [45, 48, 52, 55, 58],
+            dates: [
+              new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 24 * 60 * 60 * 1000),
+              new Date()
+            ],
+            trend: 'increasing',
+            changeRate: 0.29,
+            prediction: 62
+          },
+          tournaments: {
+            playerId: 'venue1',
+            playerName: 'The Jade Tiger',
+            metric: 'tournaments',
+            values: [2, 2, 3, 3, 4],
+            dates: [
+              new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+              new Date(Date.now() - 24 * 60 * 60 * 1000),
+              new Date()
+            ],
+            trend: 'increasing',
+            changeRate: 1.0,
+            prediction: 5
+          }
+        },
+        insights: [
+          'Revenue growth is strong and consistent',
+          'Player base is expanding steadily',
+          'Tournament frequency is increasing'
+        ],
+        recommendations: [
+          'Consider adding more tables to accommodate growth',
+          'Implement advanced booking system',
+          'Explore partnership opportunities'
+        ]
+      }
+    ];
+
+    mockAnalytics.forEach(analytics => {
+      this.venueAnalytics.set(analytics.venueId, analytics);
+    });
+  }
+
+  /**
+   * Get performance trends
+   */
+  public getPerformanceTrends(): PerformanceTrend[] {
+    return Array.from(this.performanceTrends.values());
+  }
+
+  /**
+   * Get venue optimizations
+   */
+  public getVenueOptimizations(): VenueOptimization[] {
+    return Array.from(this.venueOptimizations.values());
+  }
+
+  /**
+   * Get revenue forecasts
+   */
+  public getRevenueForecasts(): RevenueForecast[] {
+    return Array.from(this.revenueForecasts.values());
+  }
+
+  /**
+   * Get tournament predictions
+   */
+  public getTournamentPredictions(): TournamentPrediction[] {
+    return Array.from(this.tournamentPredictions.values());
+  }
+
+  /**
+   * Get player insights
+   */
+  public getPlayerInsights(): PlayerInsights[] {
+    return Array.from(this.playerInsights.values());
+  }
+
+  /**
+   * Get venue analytics
+   */
+  public getVenueAnalytics(): VenueAnalytics[] {
+    return Array.from(this.venueAnalytics.values());
+  }
+
+  /**
+   * Get specific player insights
+   */
+  public getPlayerInsight(playerId: string): PlayerInsights | null {
+    return this.playerInsights.get(playerId) || null;
+  }
+
+  /**
+   * Get specific venue analytics
+   */
+  public getVenueAnalytic(venueId: string): VenueAnalytics | null {
+    return this.venueAnalytics.get(venueId) || null;
+  }
+
+  /**
+   * Get specific tournament prediction
+   */
+  public getTournamentPrediction(tournamentId: string): TournamentPrediction | null {
+    return this.tournamentPredictions.get(tournamentId) || null;
+  }
+
+  /**
+   * Update configuration
+   */
+  public updateConfig(newConfig: Partial<AnalyticsConfig> & { updateIntervalMinutes?: number }): void {
+    this.config = { ...this.config, ...newConfig };
+    if (typeof newConfig.updateIntervalMinutes === 'number') {
+      this.updateIntervalMinutes = newConfig.updateIntervalMinutes;
+    }
+    // Restart update system with new interval
+    if (this.isRunning) {
+      this.stopAnalyticsUpdates();
+      this.startAnalyticsUpdates();
+    }
+  }
 }
 
-export default AdvancedAnalyticsService; 
+// Export singleton instance
+export const advancedAnalyticsService = AdvancedAnalyticsService.getInstance(); 

@@ -1,18 +1,20 @@
+import { Tournament, TournamentMatch, TournamentParticipant, User } from '../../types/tournament';
+
 export interface MobileNotification {
   id: string;
   type: 'tournament_start' | 'match_update' | 'bracket_progress' | 'stream_start' | 'achievement' | 'reminder';
   title: string;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
   timestamp: Date;
   read: boolean;
   actionUrl?: string;
 }
 
 export interface OfflineData {
-  tournaments: any[];
-  matches: any[];
-  userProfile: any;
+  tournaments: Tournament[];
+  matches: TournamentMatch[];
+  userProfile: User;
   cachedAt: Date;
   version: string;
 }
@@ -49,7 +51,7 @@ class TournamentMobileService {
   private offlineData: OfflineData | null = null;
   private settings: MobileSettings;
   private syncStatus: SyncStatus;
-  private subscribers: Map<string, Set<(data: any) => void>> = new Map();
+  private subscribers: Map<string, Set<(data: Record<string, unknown>) => void>> = new Map();
   private isOnline: boolean = navigator.onLine;
 
   constructor() {
@@ -129,7 +131,7 @@ class TournamentMobileService {
   }
 
   // Offline Capabilities
-  async cacheTournamentData(tournaments: any[], matches: any[]): Promise<void> {
+  async cacheTournamentData(tournaments: Tournament[], matches: TournamentMatch[]): Promise<void> {
     this.offlineData = {
       tournaments,
       matches,
@@ -141,14 +143,14 @@ class TournamentMobileService {
     this.saveOfflineData();
   }
 
-  async getOfflineTournaments(): Promise<any[]> {
+  async getOfflineTournaments(): Promise<Tournament[]> {
     if (!this.offlineData) {
       await this.loadOfflineData();
     }
     return this.offlineData?.tournaments || [];
   }
 
-  async getOfflineMatches(): Promise<any[]> {
+  async getOfflineMatches(): Promise<TournamentMatch[]> {
     if (!this.offlineData) {
       await this.loadOfflineData();
     }
@@ -181,7 +183,7 @@ class TournamentMobileService {
   }
 
   // Mobile-specific Features
-  async getTournamentForMobile(tournamentId: string): Promise<any | null> {
+  async getTournamentForMobile(tournamentId: string): Promise<Tournament | null> {
     if (this.isOnline) {
       try {
         const response = await fetch(`/api/v1/tournaments/${tournamentId}`);
@@ -196,7 +198,7 @@ class TournamentMobileService {
 
     // Fallback to offline data
     const offlineTournaments = await this.getOfflineTournaments();
-    return offlineTournaments.find(t => t.id === tournamentId) || null;
+    return offlineTournaments.find(t => String(t.id) === String(tournamentId)) || null;
   }
 
   async getMatchForMobile(matchId: string): Promise<any | null> {
@@ -277,16 +279,22 @@ class TournamentMobileService {
     this.publish('online_status_changed', { isOnline: false });
   }
 
-  private async getUserProfile(): Promise<any> {
+  private async getUserProfile(): Promise<User> {
     try {
       const response = await fetch('/api/v1/profile');
       if (response.ok) {
-        return response.json();
+        const user = await response.json();
+        return user as User;
       }
+      throw new Error('Profile not found');
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      // Return a default User object or rethrow
+      return {
+        id: 0,
+        username: 'Unknown',
+        email: '',
+      };
     }
-    return null;
   }
 
   private loadSettings(): MobileSettings {

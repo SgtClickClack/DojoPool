@@ -32,8 +32,24 @@ export interface PoolGodInteraction {
 
 export interface TournamentAIEvent {
   type: 'commentary' | 'pool_god_interaction' | 'story_progression';
-  data: any;
+  data: AICommentaryEvent | PoolGodInteraction | null;
   timestamp: Date;
+}
+
+// Add AICommentaryEvent interface
+interface AICommentaryEvent {
+  eventType: string;
+  description: string;
+  context?: Record<string, unknown>;
+}
+
+// Use the NFT metadata type from TournamentReward if possible, otherwise define NFTMetadata
+// If NFTMetadata is not exported, define it here
+interface NFTMetadata {
+  name: string;
+  description: string;
+  image: string;
+  attributes: Array<{ trait_type: string; value: string }>;
 }
 
 export class EnhancedTournamentService {
@@ -245,7 +261,7 @@ export class EnhancedTournamentService {
   private async generatePoolGodInteraction(
     event: string,
     tournament: Tournament,
-    context?: any
+    context?: Record<string, unknown>
   ): Promise<PoolGodInteraction> {
     const gods = ['ai_umpire', 'match_commentator', 'fluke_god'] as const;
     const selectedGod = gods[Math.floor(Math.random() * gods.length)];
@@ -341,7 +357,7 @@ export class EnhancedTournamentService {
   private async generateNFTTrophy(
     tournament: Tournament,
     winner: TournamentParticipant
-  ): Promise<any> {
+  ): Promise<NFTMetadata> {
     const trophyName = `${tournament.name} Champion Trophy`;
     const trophyDescription = `Awarded to ${winner.username} for winning the ${tournament.name} tournament. Blessed by the Pool Gods.`;
 
