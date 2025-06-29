@@ -14,6 +14,12 @@ from .enums import GameType, GameMode, GameStatus
 # from ..services.achievement_service import achievement_service # Removed: Appears unused and causes circular import
 # Import game_completed_notification from its new location - MOVED INTO complete_game method
 # from ..services.game_service import game_completed_notification 
+# Import GamePlayer from core models
+from ..core.models.game import GamePlayer, GameResult
+# Import other models with Game relationships
+from .rating import Rating
+from .player_status import PlayerStatus
+from .video_highlight import VideoHighlight
 
 
 class Shot(db.Model):
@@ -66,6 +72,10 @@ class Game(db.Model):
     tournament_games = db.relationship(
         "TournamentGame", cascade="all, delete-orphan", back_populates="game"
     )
+    players = db.relationship("GamePlayer", back_populates="game", lazy="dynamic")
+    results = db.relationship("GameResult", back_populates="game", lazy="dynamic")
+    ratings = db.relationship("Rating", back_populates="last_game", lazy="dynamic")
+    comments = db.relationship("GameComment", backref="game", lazy="dynamic")
 
     def __init__(self, player1_id, player2_id, game_type: GameType, game_mode: GameMode, status: GameStatus = GameStatus.PENDING):
         """Initialize game."""

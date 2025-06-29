@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Paper, CircularProgress, Alert, Grid, Divider, List, ListItem, ListItemText, Avatar, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, TextField } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress, Alert, Grid, Divider, List, ListItem, ListItemText, Avatar, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, TextField, Card, Chip } from '@mui/material';
+import { EmojiEvents, People, Schedule, LocationOn, AttachMoney, SportsEsports, CheckCircle, Cancel, Warning } from '@mui/icons-material';
 // Import the API function to get a single tournament
 import { getTournament } from '@/frontend/api/tournaments'; 
 import { getVenue } from '@/dojopool/frontend/api/venues'; // Adjusted path
@@ -10,7 +11,7 @@ import { Tournament, Participant, TournamentStatus, Match } from '@/types/tourna
 import { Venue } from '@/dojopool/frontend/types/venue'; // Adjusted path
 // Auth Hook
 import { useAuth } from '@/frontend/contexts/AuthContext'; 
-import { SocketIOService } from '@/services/WebSocketService'; // Add import
+import { SocketIOService } from '@/services/network/WebSocketService'; // Fixed import path
 import { submitMatchResult } from '@/services/tournament/tournament';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
@@ -34,16 +35,46 @@ interface ParticipantsListProps {
 
 const ParticipantsList: React.FC<ParticipantsListProps> = ({ participants }) => {
     if (!participants || participants.length === 0) {
-        return <Typography color="textSecondary">No participants registered yet.</Typography>;
+        return <Typography sx={{ color: '#888', fontStyle: 'italic' }}>No participants registered yet.</Typography>;
     }
 
     return (
-        <List dense> {/* dense for tighter spacing */}
+        <List dense sx={{ background: 'rgba(10, 10, 10, 0.8)', borderRadius: 1, p: 1 }}>
             {participants.map(p => (
-                <ListItem key={p.id}>
-                    {/* TODO: Add avatar based on user ID if available */}
-                    <Avatar sx={{ width: 24, height: 24, mr: 1.5 }}>{p.username.charAt(0)}</Avatar> 
-                    <ListItemText primary={p.username} secondary={`Status: ${p.status}`} />
+                <ListItem key={p.id} sx={{ 
+                    border: '1px solid rgba(0, 255, 157, 0.2)', 
+                    borderRadius: 1, 
+                    mb: 1,
+                    background: 'rgba(0, 255, 157, 0.05)',
+                    '&:hover': {
+                        background: 'rgba(0, 255, 157, 0.1)',
+                        borderColor: 'rgba(0, 255, 157, 0.4)',
+                    }
+                }}>
+                    <Avatar sx={{ 
+                        width: 32, 
+                        height: 32, 
+                        mr: 1.5,
+                        background: 'linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)',
+                        color: '#000',
+                        fontWeight: 'bold'
+                    }}>
+                        {p.username.charAt(0).toUpperCase()}
+                    </Avatar> 
+                    <ListItemText 
+                        primary={p.username} 
+                        secondary={`Status: ${p.status}`}
+                        primaryTypographyProps={{
+                            sx: { 
+                                color: '#fff', 
+                                fontWeight: 600,
+                                textShadow: '0 0 5px rgba(0, 255, 157, 0.5)'
+                            }
+                        }}
+                        secondaryTypographyProps={{
+                            sx: { color: '#888' }
+                        }}
+                    />
                 </ListItem>
             ))}
         </List>
@@ -59,6 +90,77 @@ interface BracketSectionProps {
 }
 
 const BracketSection: React.FC<BracketSectionProps> = ({ matches, participants, isAdmin = false, onReportResult }) => {
+  const cyberCardStyle = {
+    background: 'rgba(10, 10, 10, 0.95)',
+    border: '1px solid #00ff9d',
+    borderRadius: '15px',
+    padding: '1.5rem',
+    height: '100%',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    transition: 'all 0.4s ease',
+    transformStyle: 'preserve-3d' as const,
+    perspective: '1000px' as const,
+    boxShadow: '0 0 30px rgba(0, 255, 157, 0.1), inset 0 0 30px rgba(0, 255, 157, 0.05)',
+    clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
+    '&:hover': {
+      transform: 'translateY(-5px) scale(1.02)',
+      borderColor: '#00a8ff',
+      boxShadow: '0 15px 40px rgba(0, 168, 255, 0.3), inset 0 0 40px rgba(0, 168, 255, 0.2)',
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(45deg, transparent, rgba(0, 255, 157, 0.1), transparent)',
+      transform: 'translateZ(-1px)',
+    }
+  };
+
+  const neonTextStyle = {
+    color: '#fff',
+    textShadow: '0 0 10px rgba(0, 255, 157, 0.8), 0 0 20px rgba(0, 255, 157, 0.4), 0 0 30px rgba(0, 255, 157, 0.2)',
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textTransform: 'uppercase' as const,
+  };
+
+  const cyberButtonStyle = {
+    background: 'linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#000',
+    padding: '8px 16px',
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
+    fontSize: '0.8rem',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 0 20px rgba(0, 255, 157, 0.4)',
+      background: 'linear-gradient(135deg, #00a8ff 0%, #00ff9d 100%)',
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: '-100%',
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+      transition: '0.5s',
+    },
+    '&:hover::before': {
+      left: '100%',
+    }
+  };
+
   if (matches && matches.length > 0) {
     // Group matches by round
     const roundsMap = new Map<number, Match[]>();
@@ -74,30 +176,62 @@ const BracketSection: React.FC<BracketSectionProps> = ({ matches, participants, 
 
     return (
       <Box>
-        <Typography variant="subtitle1" gutterBottom>Bracket</Typography>
-        <Grid container spacing={2}>
+        <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <EmojiEvents sx={{ color: '#00ff9d' }} />
+          Tournament Bracket
+        </Typography>
+        <Grid container spacing={3}>
           {rounds.map((roundMatches, roundIdx) => (
-            <Grid item key={roundIdx} xs>
-              <Paper sx={{ p: 1, mb: 2 }} elevation={2}>
-                <Typography variant="body2" align="center" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {roundIdx === rounds.length - 1 ? 'Final' : `Round ${roundIdx + 1}`}
+            <Grid item key={roundIdx} xs={12} md={6} lg={4}>
+              <Card sx={cyberCardStyle}>
+                <Typography variant="h6" align="center" sx={{ 
+                  ...neonTextStyle,
+                  fontSize: '1.1rem',
+                  mb: 2,
+                  color: roundIdx === rounds.length - 1 ? '#ffff00' : '#00a8ff'
+                }}>
+                  {roundIdx === rounds.length - 1 ? '🏆 FINAL' : `ROUND ${roundIdx + 1}`}
                 </Typography>
                 {roundMatches.map((match) => (
-                  <Box key={match.id} sx={{ mb: 2, p: 1, border: '1px solid #eee', borderRadius: 1 }}>
-                    <Typography sx={{ fontWeight: 'bold' }}>
+                  <Box key={match.id} sx={{ 
+                    mb: 2, 
+                    p: 2, 
+                    border: '1px solid rgba(0, 255, 157, 0.3)', 
+                    borderRadius: 2,
+                    background: 'rgba(0, 255, 157, 0.05)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      borderColor: 'rgba(0, 255, 157, 0.6)',
+                      background: 'rgba(0, 255, 157, 0.1)',
+                    }
+                  }}>
+                    <Typography sx={{ 
+                      fontWeight: 'bold',
+                      color: '#fff',
+                      textShadow: '0 0 5px rgba(0, 255, 157, 0.5)',
+                      mb: 1
+                    }}>
                       {match.participant1?.username || 'TBD'} vs {match.participant2?.username || 'TBD'}
                     </Typography>
-                    <Typography variant="caption" color="textSecondary">
+                    <Typography variant="caption" sx={{ 
+                      color: '#888',
+                      display: 'block',
+                      mb: 1
+                    }}>
                       Status: {match.status} {match.score ? `| Score: ${match.score}` : ''}
                     </Typography>
                     {isAdmin && (match.status === 'pending' || match.status === 'in_progress') && (
-                      <Button size="small" variant="outlined" sx={{ mt: 1 }} onClick={() => onReportResult && onReportResult(match)}>
+                      <Button 
+                        size="small" 
+                        sx={cyberButtonStyle}
+                        onClick={() => onReportResult && onReportResult(match)}
+                      >
                         Report Result
                       </Button>
                     )}
                   </Box>
                 ))}
-              </Paper>
+              </Card>
             </Grid>
           ))}
         </Grid>
@@ -106,7 +240,13 @@ const BracketSection: React.FC<BracketSectionProps> = ({ matches, participants, 
   }
   // Fallback: participant-based bracket (legacy)
   if (!participants || participants.length < 2) {
-    return <Typography color="textSecondary">Bracket will be generated when enough participants have registered.</Typography>;
+    return (
+      <Card sx={cyberCardStyle}>
+        <Typography sx={{ color: '#888', textAlign: 'center', py: 4 }}>
+          Bracket will be generated when enough participants have registered.
+        </Typography>
+      </Card>
+    );
   }
   // ... existing participant-based bracket logic ...
   function generateBracket(participants: Participant[]): Participant[][] {
@@ -132,40 +272,88 @@ const BracketSection: React.FC<BracketSectionProps> = ({ matches, participants, 
   const rounds = generateBracket(participants);
   return (
     <Box>
-      <Typography variant="subtitle1" gutterBottom>Single Elimination Bracket</Typography>
-      <Grid container spacing={2}>
+      <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <EmojiEvents sx={{ color: '#00ff9d' }} />
+        Single Elimination Bracket
+      </Typography>
+      <Grid container spacing={3}>
         {rounds.map((round, roundIdx) => (
-          <Grid item key={roundIdx} xs>
-            <Paper sx={{ p: 1, mb: 2 }} elevation={2}>
-              <Typography variant="body2" align="center" sx={{ fontWeight: 'bold', mb: 1 }}>
+          <Grid item key={roundIdx} xs={12} md={6} lg={4}>
+            <Card sx={cyberCardStyle}>
+              <Typography variant="h6" align="center" sx={{ 
+                ...neonTextStyle,
+                fontSize: '1.1rem',
+                mb: 2,
+                color: roundIdx === 0 ? '#00ff9d' : roundIdx === rounds.length - 1 ? '#ffff00' : '#00a8ff'
+              }}>
                 {roundIdx === 0
-                  ? 'Round 1'
+                  ? 'ROUND 1'
                   : roundIdx === rounds.length - 1
-                  ? 'Final'
-                  : `Round ${roundIdx + 1}`}
+                  ? '🏆 FINAL'
+                  : `ROUND ${roundIdx + 1}`}
               </Typography>
               {round.map((p, matchIdx) => {
                 if (roundIdx === 0) {
                   const p2 = round[matchIdx + 1];
                   if (matchIdx % 2 === 0) {
                     return (
-                      <Box key={p.id} sx={{ mb: 2 }}>
-                        <Typography sx={{ minWidth: 120 }}>{p.username || 'TBD'}</Typography>
-                        <Typography sx={{ mx: 1, display: 'inline' }}>vs</Typography>
-                        <Typography sx={{ minWidth: 120, display: 'inline' }}>{p2?.username || 'TBD'}</Typography>
+                      <Box key={p.id} sx={{ 
+                        mb: 2,
+                        p: 2,
+                        border: '1px solid rgba(0, 255, 157, 0.3)',
+                        borderRadius: 2,
+                        background: 'rgba(0, 255, 157, 0.05)',
+                        textAlign: 'center'
+                      }}>
+                        <Typography sx={{ 
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          textShadow: '0 0 5px rgba(0, 255, 157, 0.5)',
+                          mb: 1
+                        }}>
+                          {p.username || 'TBD'}
+                        </Typography>
+                        <Typography sx={{ 
+                          color: '#00ff9d',
+                          fontWeight: 'bold',
+                          fontSize: '0.9rem',
+                          mb: 1
+                        }}>
+                          VS
+                        </Typography>
+                        <Typography sx={{ 
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          textShadow: '0 0 5px rgba(0, 255, 157, 0.5)'
+                        }}>
+                          {p2?.username || 'TBD'}
+                        </Typography>
                       </Box>
                     );
                   }
                   return null;
                 } else {
                   return (
-                    <Box key={p.id} sx={{ mb: 2 }}>
-                      <Typography sx={{ minWidth: 120 }}>{p.username || 'TBD'}</Typography>
+                    <Box key={p.id} sx={{ 
+                      mb: 2,
+                      p: 2,
+                      border: '1px solid rgba(0, 168, 255, 0.3)',
+                      borderRadius: 2,
+                      background: 'rgba(0, 168, 255, 0.05)',
+                      textAlign: 'center'
+                    }}>
+                      <Typography sx={{ 
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        textShadow: '0 0 5px rgba(0, 168, 255, 0.5)'
+                      }}>
+                        {p.username || 'TBD'}
+                      </Typography>
                     </Box>
                   );
                 }
               })}
-            </Paper>
+            </Card>
           </Grid>
         ))}
       </Grid>
@@ -204,6 +392,88 @@ const TournamentDetail: React.FC = () => {
     severity: 'info',
   });
 
+  // Cyberpunk styling
+  const cyberCardStyle = {
+    background: 'rgba(10, 10, 10, 0.95)',
+    border: '1px solid #00ff9d',
+    borderRadius: '15px',
+    padding: '2rem',
+    height: '100%',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    transition: 'all 0.4s ease',
+    transformStyle: 'preserve-3d' as const,
+    perspective: '1000px' as const,
+    boxShadow: '0 0 30px rgba(0, 255, 157, 0.1), inset 0 0 30px rgba(0, 255, 157, 0.05)',
+    clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
+    '&:hover': {
+      transform: 'translateY(-10px) scale(1.02)',
+      borderColor: '#00a8ff',
+      boxShadow: '0 15px 40px rgba(0, 168, 255, 0.3), inset 0 0 40px rgba(0, 168, 255, 0.2)',
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(45deg, transparent, rgba(0, 255, 157, 0.1), transparent)',
+      transform: 'translateZ(-1px)',
+    }
+  };
+
+  const neonTextStyle = {
+    color: '#fff',
+    textShadow: '0 0 10px rgba(0, 255, 157, 0.8), 0 0 20px rgba(0, 255, 157, 0.4), 0 0 30px rgba(0, 255, 157, 0.2)',
+    fontWeight: 700,
+    letterSpacing: '2px',
+    textTransform: 'uppercase' as const,
+  };
+
+  const cyberButtonStyle = {
+    background: 'linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%)',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#000',
+    padding: '12px 24px',
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 0 20px rgba(0, 255, 157, 0.4)',
+      background: 'linear-gradient(135deg, #00a8ff 0%, #00ff9d 100%)',
+    },
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: '-100%',
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+      transition: '0.5s',
+    },
+    '&:hover::before': {
+      left: '100%',
+    }
+  };
+
+  const getStatusColor = (status: TournamentStatus) => {
+    switch (status) {
+      case TournamentStatus.OPEN: return '#00ff9d';
+      case TournamentStatus.ACTIVE: return '#00a8ff';
+      case TournamentStatus.FULL: return '#ff00ff';
+      case TournamentStatus.COMPLETED: return '#ffff00';
+      case TournamentStatus.CANCELLED: return '#ff4444';
+      default: return '#888888';
+    }
+  };
+
   useEffect(() => {
     if (!id) {
         setError("Tournament ID not found in URL.");
@@ -212,356 +482,662 @@ const TournamentDetail: React.FC = () => {
     }
 
     const fetchTournamentDetails = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getTournament(id);
-        setTournament(data);
-        // Fetch venue details if venueId exists
-        if (data.venueId) {
-          setVenueLoading(true);
-          try {
-            const venueData = await getVenue(Number(data.venueId));
-            setVenue(venueData);
-          } catch {
-            setError('Failed to load venue details.');
-            setVenue(null);
-          } finally {
-            setVenueLoading(false);
-          }
-        } else {
-          setVenue(null);
+        try {
+            setLoading(true);
+            setError(null);
+            const tournamentData = await getTournament(id);
+            setTournament(tournamentData);
+
+            // Fetch venue details if venue ID is available
+            if (tournamentData.venueId) {
+                setVenueLoading(true);
+                try {
+                    const venueData = await getVenue(Number(tournamentData.venueId));
+                    setVenue(venueData);
+                } catch (venueError) {
+                    console.error('Failed to fetch venue details:', venueError);
+                    // Don't fail the whole component if venue fetch fails
+                } finally {
+                    setVenueLoading(false);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch tournament details:', err);
+            setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        } finally {
+            setLoading(false);
         }
-      } catch (err) {
-        console.error("Error fetching tournament details:", err);
-        const message = err instanceof Error ? err.message : "Failed to load tournament details.";
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
     };
 
     fetchTournamentDetails();
 
-    // --- Real-time updates: join room and subscribe to updates ---
-    const socket = SocketIOService.getInstance();
-    socket.connect();
-    // Join the tournament room for real-time updates
-    socket.send && socket.send('join_tournament', { tournament_id: id });
-    // Subscribe to tournament_update events
+    // Real-time: subscribe to tournament updates
+    const socket = SocketIOService;
     const handleTournamentUpdate = (notification: unknown) => {
-      if (
-        notification &&
-        typeof notification === 'object' &&
-        'tournament_id' in notification &&
-        (notification as { tournament_id?: string }).tournament_id === id
-      ) {
-        // Optionally: check update_type for more granular control
+        console.log('Tournament update received:', notification);
+        // Refresh tournament data
         fetchTournamentDetails();
-      }
     };
-    socket.on('tournament_update', handleTournamentUpdate);
+    const unsubscribe = socket.subscribe('tournament_updates', handleTournamentUpdate);
 
     return () => {
-      // Leave the tournament room and clean up listener
-      socket.send && socket.send('leave_tournament', { tournament_id: id });
-      socket.off('tournament_update', handleTournamentUpdate);
+        // Cleanup subscription
+        unsubscribe();
     };
   }, [id]);
 
   const handleRegister = async () => {
-    if (!id || !user) return;
-    setIsRegistering(true);
-    setRegisterError(null);
+    if (!tournament || !user) return;
+    
     try {
-      await joinTournament(id);
-      setSnackbar({ open: true, message: 'Successfully registered!', severity: 'success' });
-      setRegistrationStep(RegistrationStep.COMPLETED);
+        setIsRegistering(true);
+        setRegisterError(null);
+        setRegistrationStep(RegistrationStep.REGISTERING);
+        
+        await joinTournament(tournament.id);
+        
+        setRegistrationStep(RegistrationStep.COMPLETED);
+        setSnackbar({
+            open: true,
+            message: 'Successfully registered for tournament!',
+            severity: 'success',
+        });
+        
+        // Refresh tournament data to show updated participant count
+        // You might want to refetch tournament data here
     } catch (err) {
-      console.error('Registration error:', err);
-      const message = err instanceof Error ? err.message : 'Failed to register.';
-      setRegisterError(message);
-      setSnackbar({ open: true, message: `Registration failed: ${message}`, severity: 'error' });
-      setRegistrationStep(RegistrationStep.ERROR);
+        console.error('Registration failed:', err);
+        setRegisterError(err instanceof Error ? err.message : 'Registration failed');
+        setRegistrationStep(RegistrationStep.ERROR);
+        setSnackbar({
+            open: true,
+            message: 'Registration failed. Please try again.',
+            severity: 'error',
+        });
     } finally {
-      setIsRegistering(false);
+        setIsRegistering(false);
     }
   };
 
-  // Function to render action buttons based on status
   const renderActionButtons = () => {
-    if (!tournament || authLoading) return null;
-    const isUserAuthenticated = user !== null;
-    const isAlreadyRegistered = isUserAuthenticated && tournament.participantsList?.some(p => p.id === user.id);
-    const canRegister =
-      (tournament.status === TournamentStatus.OPEN || tournament.status === TournamentStatus.UPCOMING) &&
-      isUserAuthenticated &&
-      !isAlreadyRegistered &&
-      tournament.participants < tournament.maxParticipants;
+    if (!tournament || !user) return null;
+
+    const isRegistered = tournament.participantsList?.some(p => p.id === user.uid);
+    const isAdmin = false; // TODO: Replace with real admin check
+
+    if (isRegistered) {
+        return (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <Chip 
+                    label="Registered" 
+                    color="success" 
+                    icon={<CheckCircle />}
+                    sx={{
+                        background: 'rgba(0, 255, 157, 0.2)',
+                        border: '1px solid #00ff9d',
+                        color: '#00ff9d',
+                        textShadow: '0 0 5px #00ff9d',
+                        fontWeight: 600,
+                    }}
+                />
+                {isAdmin && (
+                    <Button 
+                        variant="outlined" 
+                        sx={{
+                            borderColor: '#00a8ff',
+                            color: '#00a8ff',
+                            '&:hover': {
+                                borderColor: '#00ff9d',
+                                color: '#00ff9d',
+                                boxShadow: '0 0 10px rgba(0, 168, 255, 0.3)',
+                            }
+                        }}
+                    >
+                        Manage Tournament
+                    </Button>
+                )}
+            </Box>
+        );
+    }
+
+    if (tournament.status === TournamentStatus.OPEN && tournament.participants < tournament.maxParticipants) {
+        return (
+            <Button 
+                variant="contained" 
+                onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_DETAILS)}
+                sx={cyberButtonStyle}
+                startIcon={<EmojiEvents />}
+            >
+                Register Now
+            </Button>
+        );
+    }
+
+    if (tournament.status === TournamentStatus.FULL) {
+        return (
+            <Chip 
+                label="Tournament Full" 
+                color="warning" 
+                icon={<Warning />}
+                sx={{
+                    background: 'rgba(255, 0, 255, 0.2)',
+                    border: '1px solid #ff00ff',
+                    color: '#ff00ff',
+                    textShadow: '0 0 5px #ff00ff',
+                    fontWeight: 600,
+                }}
+            />
+        );
+    }
+
+    if (tournament.status === TournamentStatus.CLOSED || tournament.status === TournamentStatus.COMPLETED) {
+        return (
+            <Chip 
+                label={tournament.status === TournamentStatus.COMPLETED ? 'Completed' : 'Registration Closed'} 
+                color="default" 
+                icon={<Cancel />}
+                sx={{
+                    background: 'rgba(136, 136, 136, 0.2)',
+                    border: '1px solid #888888',
+                    color: '#888888',
+                    textShadow: '0 0 5px #888888',
+                    fontWeight: 600,
+                }}
+            />
+        );
+    }
+
+    return null;
+  };
+
+  const handleReportResult = async () => {
+    if (!reportingMatch || !winnerId) return;
+
+    try {
+        setReporting(true);
+        setReportError(null);
+        
+        await submitMatchResult(reportingMatch.id, winnerId, score);
+        
+        setSnackbar({
+            open: true,
+            message: 'Match result reported successfully!',
+            severity: 'success',
+        });
+        
+        setReportingMatch(null);
+        setWinnerId('');
+        setScore('');
+        
+        // Refresh tournament data
+        // You might want to refetch tournament data here
+    } catch (err) {
+        console.error('Failed to report result:', err);
+        setReportError(err instanceof Error ? err.message : 'Failed to report result');
+        setSnackbar({
+            open: true,
+            message: 'Failed to report result. Please try again.',
+            severity: 'error',
+        });
+    } finally {
+        setReporting(false);
+    }
+  };
+
+  if (authLoading) {
     return (
-      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-        {canRegister && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_DETAILS)}
-            disabled={isRegistering}
-          >
-            {isRegistering ? <CircularProgress size={24} /> : 'Register Now'}
-          </Button>
-        )}
-        {isAlreadyRegistered && (
-          <Button variant="outlined" color="success" disabled>Already Registered</Button>
-        )}
-        {!isUserAuthenticated && (
-          <Button variant="contained" color="primary" disabled>Login to Register</Button>
-        )}
-        {tournament.status === TournamentStatus.FULL && (
-          <Button variant="outlined" disabled>Registration Full</Button>
-        )}
-        {tournament.status === TournamentStatus.CLOSED && (
-          <Button variant="outlined" disabled>Registration Closed</Button>
-        )}
-        {tournament.status === TournamentStatus.ACTIVE && (
-          <Button variant="outlined" disabled>Tournament In Progress</Button>
-        )}
-        {tournament.status === TournamentStatus.COMPLETED && (
-          <Button variant="outlined" disabled>Tournament Completed</Button>
-        )}
-        {tournament.status === TournamentStatus.CANCELLED && (
-          <Button variant="outlined" color="error" disabled>Tournament Cancelled</Button>
-        )}
-        {/* TODO: Add View Bracket button (conditionally) */}
-        {/* TODO: Add Unregister button if user is registered */}
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="400px"
+        sx={{
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+          borderRadius: 2,
+          border: '1px solid rgba(0, 255, 157, 0.2)',
+          boxShadow: '0 0 20px rgba(0, 255, 157, 0.1)'
+        }}
+      >
+        <CircularProgress 
+          sx={{ 
+            color: '#00ff9d',
+            '& .MuiCircularProgress-circle': {
+              strokeLinecap: 'round',
+            }
+          }} 
+        />
       </Box>
     );
-  };
-
-  // TODO: Replace with proper user typing when available
-  const isAdmin = (typeof user === 'object' && user !== null && 'role' in user && (user as { role?: string }).role === 'admin') ||
-    (tournament?.organizerId && typeof user === 'object' && user !== null && 'id' in user && (user as { id?: string }).id === tournament.organizerId);
-
-  // Handler for reporting result
-  const handleReportResult = async () => {
-    if (!reportingMatch || !winnerId || !tournament) return;
-    setReporting(true);
-    setReportError(null);
-    try {
-      await submitMatchResult(
-        tournament.id,
-        reportingMatch.id,
-        {
-          status: 'completed',
-          winner_id: winnerId,
-          score: score || undefined,
-        }
-      );
-      setSnackbar({ open: true, message: 'Result reported successfully!', severity: 'success' });
-      setReportingMatch(null);
-      setWinnerId('');
-      setScore('');
-    } catch (err: unknown) {
-      let message = 'Failed to report result.';
-      if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
-        message = (err as { message: string }).message;
-      }
-      setReportError(message);
-      setSnackbar({ open: true, message, severity: 'error' });
-    } finally {
-      setReporting(false);
-    }
-  };
+  }
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CircularProgress />
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="400px"
+        sx={{
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+          borderRadius: 2,
+          border: '1px solid rgba(0, 255, 157, 0.2)',
+          boxShadow: '0 0 20px rgba(0, 255, 157, 0.1)'
+        }}
+      >
+        <CircularProgress 
+          sx={{ 
+            color: '#00ff9d',
+            '& .MuiCircularProgress-circle': {
+              strokeLinecap: 'round',
+            }
+          }} 
+        />
       </Box>
     );
   }
 
-  if (error) {
+  if (error || !tournament) {
     return (
-      <Box sx={{ p: 3 }}>
-         <Alert severity="error">{error}</Alert>
-      </Box>
-     
+      <Alert severity="error" sx={{ 
+        background: 'rgba(255, 68, 68, 0.1)',
+        border: '1px solid #ff4444',
+        color: '#ff4444',
+        '& .MuiAlert-icon': { color: '#ff4444' }
+      }}>
+        {error || 'Tournament not found'}
+      </Alert>
     );
   }
 
-  if (!tournament) {
-    return (
-       <Box sx={{ p: 3 }}>
-         <Alert severity="warning">Tournament not found.</Alert>
-       </Box>
-    );
-  }
-
-  // Basic structure to display tournament details
   return (
     <>
-      <Paper sx={{ p: 3, m: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
-            {tournament?.name}
-          </Typography>
-          {/* Render Action Buttons */} 
-          {!loading && registrationStep === RegistrationStep.IDLE && renderActionButtons()} {/* Only show buttons if idle */}
-        </Box>
-        
-        {/* Render content based on registration step */}
-        {registrationStep === RegistrationStep.CONFIRM_DETAILS && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6">Confirm Registration Details</Typography>
-            <Typography sx={{ mb: 2 }}>Please confirm your details before proceeding to the rules.</Typography>
-            {/* TODO: Show user details here if available */}
-            <Button variant="contained" onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_RULES)} sx={{ mr: 1 }}>
-              Next
-            </Button>
-            <Button variant="outlined" onClick={() => setRegistrationStep(RegistrationStep.IDLE)}>
-              Cancel
-            </Button>
-          </Box>
-        )}
-        {registrationStep === RegistrationStep.CONFIRM_RULES && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6">Tournament Rules</Typography>
-            <Typography sx={{ mb: 2 }}>Please review and accept the tournament rules to continue.</Typography>
-            <Box sx={{ maxHeight: 200, overflow: 'auto', mb: 2 }}>
-              <Typography sx={{ whiteSpace: 'pre-wrap' }}>{tournament.rules || 'No rules provided.'}</Typography>
+      <Box 
+        sx={{ 
+          p: 3,
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+          minHeight: '100vh',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `
+              linear-gradient(transparent 95%, rgba(0,255,157,0.2) 95%),
+              linear-gradient(90deg, transparent 95%, rgba(0,255,157,0.2) 95%)
+            `,
+            backgroundSize: '50px 50px',
+            opacity: 0.15,
+            pointerEvents: 'none',
+          }
+        }}
+      >
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          <Card sx={cyberCardStyle}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+              <Box>
+                <Typography variant="h3" sx={{ ...neonTextStyle, mb: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <EmojiEvents sx={{ fontSize: '2.5rem', color: '#00ff9d' }} />
+                  {tournament.name}
+                </Typography>
+                <Chip 
+                  label={tournament.status} 
+                  sx={{
+                    background: `rgba(${tournament.status === TournamentStatus.OPEN ? '0, 255, 157' : tournament.status === TournamentStatus.ACTIVE ? '0, 168, 255' : tournament.status === TournamentStatus.FULL ? '255, 0, 255' : tournament.status === TournamentStatus.COMPLETED ? '255, 255, 0' : tournament.status === TournamentStatus.CANCELLED ? '255, 68, 68' : '136, 136, 136'}, 0.2)`,
+                    border: `1px solid ${getStatusColor(tournament.status)}`,
+                    color: getStatusColor(tournament.status),
+                    textShadow: `0 0 5px ${getStatusColor(tournament.status)}`,
+                    fontWeight: 600,
+                    letterSpacing: '1px',
+                  }}
+                />
+              </Box>
+              {/* Render Action Buttons */} 
+              {!loading && registrationStep === RegistrationStep.IDLE && renderActionButtons()}
             </Box>
-            <Button variant="contained" onClick={() => setRegistrationStep(RegistrationStep.PAYMENT)} sx={{ mr: 1 }}>
-              Accept & Continue
-            </Button>
-            <Button variant="outlined" onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_DETAILS)}>
-              Back
-            </Button>
-            <Button variant="outlined" onClick={() => setRegistrationStep(RegistrationStep.IDLE)} sx={{ ml: 1 }}>
-              Cancel
-            </Button>
-          </Box>
-        )}
-        {registrationStep === RegistrationStep.PAYMENT && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6">Payment</Typography>
-            <Typography sx={{ mb: 2 }}>Pay the entry fee to complete your registration.</Typography>
-            {/* TODO: Integrate with payment system if available */}
-            {tournament.entryFee !== undefined ? (
-              <Typography sx={{ mb: 2 }}>
-                Entry Fee: <strong>{tournament.entryFee} {tournament.currency || ''}</strong>
+            
+            {/* Render content based on registration step */}
+            {registrationStep === RegistrationStep.CONFIRM_DETAILS && (
+              <Card sx={{ ...cyberCardStyle, mb: 3, background: 'rgba(0, 168, 255, 0.1)' }}>
+                <Typography variant="h5" sx={{ ...neonTextStyle, mb: 2, color: '#00a8ff' }}>
+                  Confirm Registration Details
+                </Typography>
+                <Typography sx={{ mb: 3, color: '#fff' }}>
+                  Please confirm your details before proceeding to the rules.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button sx={cyberButtonStyle} onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_RULES)}>
+                    Next
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => setRegistrationStep(RegistrationStep.IDLE)}
+                    sx={{
+                      borderColor: '#888',
+                      color: '#888',
+                      '&:hover': {
+                        borderColor: '#fff',
+                        color: '#fff',
+                      }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Card>
+            )}
+            
+            {registrationStep === RegistrationStep.CONFIRM_RULES && (
+              <Card sx={{ ...cyberCardStyle, mb: 3, background: 'rgba(0, 168, 255, 0.1)' }}>
+                <Typography variant="h5" sx={{ ...neonTextStyle, mb: 2, color: '#00a8ff' }}>
+                  Tournament Rules
+                </Typography>
+                <Typography sx={{ mb: 3, color: '#fff' }}>
+                  Please review and accept the tournament rules to continue.
+                </Typography>
+                <Box sx={{ 
+                  maxHeight: 200, 
+                  overflow: 'auto', 
+                  mb: 3,
+                  p: 2,
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(0, 255, 157, 0.3)',
+                  borderRadius: 1
+                }}>
+                  <Typography sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}>
+                    {tournament.rules || 'No rules provided.'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button sx={cyberButtonStyle} onClick={() => setRegistrationStep(RegistrationStep.PAYMENT)}>
+                    Accept & Continue
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_DETAILS)}
+                    sx={{
+                      borderColor: '#888',
+                      color: '#888',
+                      '&:hover': {
+                        borderColor: '#fff',
+                        color: '#fff',
+                      }
+                    }}
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => setRegistrationStep(RegistrationStep.IDLE)}
+                    sx={{
+                      borderColor: '#888',
+                      color: '#888',
+                      '&:hover': {
+                        borderColor: '#fff',
+                        color: '#fff',
+                      }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Card>
+            )}
+            
+            {registrationStep === RegistrationStep.PAYMENT && (
+              <Card sx={{ ...cyberCardStyle, mb: 3, background: 'rgba(0, 168, 255, 0.1)' }}>
+                <Typography variant="h5" sx={{ ...neonTextStyle, mb: 2, color: '#00a8ff' }}>
+                  Payment
+                </Typography>
+                <Typography sx={{ mb: 3, color: '#fff' }}>
+                  Pay the entry fee to complete your registration.
+                </Typography>
+                {tournament.entryFee !== undefined ? (
+                  <Typography sx={{ mb: 3, color: '#00ff9d', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                    Entry Fee: <strong>{tournament.entryFee} {tournament.currency || 'coins'}</strong>
+                  </Typography>
+                ) : (
+                  <Typography sx={{ mb: 3, color: '#00ff9d' }}>
+                    No entry fee required.
+                  </Typography>
+                )}
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button 
+                    sx={cyberButtonStyle} 
+                    onClick={handleRegister} 
+                    disabled={isRegistering}
+                    startIcon={isRegistering ? <CircularProgress size={20} sx={{ color: '#000' }} /> : null}
+                  >
+                    {isRegistering ? 'Processing...' : 'Pay & Register'}
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_RULES)} 
+                    disabled={isRegistering}
+                    sx={{
+                      borderColor: '#888',
+                      color: '#888',
+                      '&:hover': {
+                        borderColor: '#fff',
+                        color: '#fff',
+                      }
+                    }}
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    onClick={() => setRegistrationStep(RegistrationStep.IDLE)} 
+                    disabled={isRegistering}
+                    sx={{
+                      borderColor: '#888',
+                      color: '#888',
+                      '&:hover': {
+                        borderColor: '#fff',
+                        color: '#fff',
+                      }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Card>
+            )}
+
+            {registrationStep === RegistrationStep.COMPLETED && (
+              <Alert severity="success" sx={{ 
+                mb: 3,
+                background: 'rgba(0, 255, 157, 0.1)',
+                border: '1px solid #00ff9d',
+                color: '#00ff9d',
+                '& .MuiAlert-icon': { color: '#00ff9d' }
+              }}>
+                Registration successful!
+              </Alert>
+            )}
+
+            {registrationStep === RegistrationStep.ERROR && registerError && (
+               <Alert severity="error" sx={{ 
+                 mb: 3,
+                 background: 'rgba(255, 68, 68, 0.1)',
+                 border: '1px solid #ff4444',
+                 color: '#ff4444',
+                 '& .MuiAlert-icon': { color: '#ff4444' }
+               }}>
+                 {registerError}
+               </Alert>
+            )}
+
+            <Grid container spacing={3}>
+              {/* Left Column: Core Details */}
+              <Grid item xs={12} md={6}>
+                <Card sx={{ ...cyberCardStyle, background: 'rgba(0, 255, 157, 0.05)' }}>
+                  <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, color: '#00ff9d', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <SportsEsports sx={{ color: '#00ff9d' }} />
+                    Tournament Details
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip label="Status" size="small" sx={{ background: 'rgba(0, 168, 255, 0.2)', color: '#00a8ff', border: '1px solid #00a8ff' }} />
+                      <Typography sx={{ color: '#fff', fontWeight: 600 }}>{tournament.status}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip label="Format" size="small" sx={{ background: 'rgba(0, 168, 255, 0.2)', color: '#00a8ff', border: '1px solid #00a8ff' }} />
+                      <Typography sx={{ color: '#fff', fontWeight: 600 }}>{tournament.format}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Schedule sx={{ color: '#00ff9d' }} />
+                      <Typography sx={{ color: '#fff' }}>
+                        Starts: {new Date(tournament.startDate).toLocaleString()}
+                      </Typography>
+                    </Box>
+                    {tournament.endDate && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Schedule sx={{ color: '#00ff9d' }} />
+                        <Typography sx={{ color: '#fff' }}>
+                          Ends: {new Date(tournament.endDate).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <People sx={{ color: '#00ff9d' }} />
+                      <Typography sx={{ color: '#fff' }}>
+                        Players: {tournament.participants} / {tournament.maxParticipants}
+                      </Typography>
+                    </Box>
+                    {tournament.entryFee !== undefined && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <AttachMoney sx={{ color: '#00ff9d' }} />
+                        <Typography sx={{ color: '#fff' }}>
+                          Entry Fee: {tournament.entryFee} {tournament.currency || 'coins'}
+                        </Typography>
+                      </Box>
+                    )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <LocationOn sx={{ color: '#00ff9d' }} />
+                      <Typography sx={{ color: '#fff' }}>
+                        Venue: {venueLoading ? 'Loading...' : venue ? venue.name : '(Details TBD)'}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Card>
+              </Grid>
+
+              {/* Right Column: Description & Rules */}
+              <Grid item xs={12} md={6}>
+                <Card sx={{ ...cyberCardStyle, background: 'rgba(0, 168, 255, 0.05)' }}>
+                  {tournament.description && (
+                    <Box mb={3}>
+                      <Typography variant="h5" sx={{ ...neonTextStyle, mb: 2, color: '#00a8ff' }}>
+                        Description
+                      </Typography>
+                      <Typography sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}>
+                        {tournament.description}
+                      </Typography> 
+                    </Box>
+                  )}
+                  {tournament.rules && (
+                     <Box>
+                      <Typography variant="h5" sx={{ ...neonTextStyle, mb: 2, color: '#00a8ff' }}>
+                        Rules
+                      </Typography>
+                      <Typography sx={{ whiteSpace: 'pre-wrap', color: '#fff' }}>
+                        {tournament.rules}
+                      </Typography> 
+                    </Box>
+                  )}
+                </Card>
+              </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 4, borderColor: 'rgba(0, 255, 157, 0.3)' }} />
+
+            {/* Participants List Section */}
+            <Card sx={{ ...cyberCardStyle, mb: 3 }}>
+              <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, color: '#00ff9d', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <People sx={{ color: '#00ff9d' }} />
+                Participants ({tournament?.participantsList?.length || 0})
               </Typography>
-            ) : (
-              <Typography sx={{ mb: 2 }}>No entry fee required.</Typography>
-            )}
-            <Button variant="contained" onClick={handleRegister} disabled={isRegistering} sx={{ mr: 1 }}>
-              {isRegistering ? <CircularProgress size={24} /> : 'Pay & Register'}
-            </Button>
-            <Button variant="outlined" onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_RULES)} disabled={isRegistering}>
-              Back
-            </Button>
-            <Button variant="outlined" onClick={() => setRegistrationStep(RegistrationStep.IDLE)} disabled={isRegistering} sx={{ ml: 1 }}>
-              Cancel
-            </Button>
-          </Box>
-        )}
+              <ParticipantsList participants={tournament?.participantsList} />
+            </Card>
 
-        {registrationStep === RegistrationStep.COMPLETED && (
-          <Alert severity="success" sx={{ my: 2 }}>
-            Registration successful!
-          </Alert>
-        )}
+            <Divider sx={{ my: 4, borderColor: 'rgba(0, 255, 157, 0.3)' }} />
+            
+            {/* Bracket Section */}
+            <Card sx={{ ...cyberCardStyle, mb: 3 }}>
+              <BracketSection
+                matches={tournament.matches}
+                participants={tournament.participantsList}
+                isAdmin={Boolean(false)} // TODO: Replace with real admin check
+                onReportResult={(match) => {
+                  setReportingMatch(match);
+                  setWinnerId('');
+                  setScore('');
+                }}
+              />
+            </Card>
 
-        {registrationStep === RegistrationStep.ERROR && registerError && (
-           <Alert severity="error" sx={{ my: 2 }}>{registerError}</Alert>
-        )}
-
-        <Grid container spacing={3}>
-          {/* Left Column: Core Details */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>Details</Typography>
-            <Typography><strong>Status:</strong> {tournament.status}</Typography>
-            <Typography><strong>Format:</strong> {tournament.format}</Typography>
-            <Typography><strong>Starts:</strong> {new Date(tournament.startDate).toLocaleString()}</Typography>
-            {tournament.endDate && (
-              <Typography><strong>Ends:</strong> {new Date(tournament.endDate).toLocaleString()}</Typography>
-            )}
-            <Typography><strong>Players:</strong> {tournament.participants} / {tournament.maxParticipants}</Typography>
-            {tournament.entryFee !== undefined && (
-              <Typography><strong>Entry Fee:</strong> {tournament.entryFee} {tournament.currency || ''}</Typography>
-            )}
-            {/* Venue line for test compatibility */}
-            <Typography>
-              <strong>Venue:</strong> {venueLoading ? 'Loading...' : venue ? venue.name : '(Details TBD)'}
-            </Typography>
-          </Grid>
-
-          {/* Right Column: Description & Rules */}
-          <Grid item xs={12} md={6}>
-            {tournament.description && (
-              <Box mb={2}>
-                <Typography variant="h6" gutterBottom>Description</Typography>
-                <Typography sx={{ whiteSpace: 'pre-wrap' }}>{tournament.description}</Typography> 
-              </Box>
-            )}
-            {tournament.rules && (
-               <Box>
-                <Typography variant="h6" gutterBottom>Rules</Typography>
-                <Typography sx={{ whiteSpace: 'pre-wrap' }}>{tournament.rules}</Typography> 
-              </Box>
-            )}
-          </Grid>
-        </Grid>
-
-        <Divider sx={{ my: 3 }} />
-
-        {/* Participants List Section */}
-        <Box>
-          <Typography variant="h6" gutterBottom>Participants ({tournament?.participantsList?.length || 0})</Typography>
-          <ParticipantsList participants={tournament?.participantsList} />
+            <Divider sx={{ my: 4, borderColor: 'rgba(0, 255, 157, 0.3)' }} />
+            
+            {/* Video Highlights Section */}
+            <Card sx={{ ...cyberCardStyle }}>
+              <Typography variant="h5" sx={{ ...neonTextStyle, mb: 3, color: '#00ff9d' }}>
+                Video Highlights
+              </Typography>
+              <VideoHighlights tournamentId={tournament.id} />
+            </Card>
+          </Card>
         </Box>
+      </Box>
 
-        <Divider sx={{ my: 3 }} />
-        
-        {/* Bracket Section */}
-        <Box>
-          <Typography variant="h6" gutterBottom>Bracket</Typography>
-          <BracketSection
-            matches={tournament.matches}
-            participants={tournament.participantsList}
-            isAdmin={Boolean(isAdmin)}
-            onReportResult={(match) => {
-              setReportingMatch(match);
-              setWinnerId('');
-              setScore('');
-            }}
-          />
-        </Box>
-
-        <Divider sx={{ my: 3 }} />
-        {/* Video Highlights Section */}
-        <Box>
-          <Typography variant="h6" gutterBottom>Video Highlights</Typography>
-          <VideoHighlights tournamentId={tournament.id} />
-        </Box>
-
-      </Paper>
       {/* Result Reporting Modal */}
-      <Dialog open={!!reportingMatch} onClose={() => setReportingMatch(null)}>
-        <DialogTitle>Report Match Result</DialogTitle>
+      <Dialog 
+        open={!!reportingMatch} 
+        onClose={() => setReportingMatch(null)}
+        PaperProps={{
+          sx: {
+            background: 'rgba(10, 10, 10, 0.95)',
+            border: '1px solid #00ff9d',
+            borderRadius: '15px',
+            color: '#fff',
+          }
+        }}
+      >
+        <DialogTitle sx={{ ...neonTextStyle, color: '#00ff9d' }}>
+          Report Match Result
+        </DialogTitle>
         <DialogContent>
           <Select
             fullWidth
             value={winnerId || ""}
             onChange={e => setWinnerId(e.target.value as string)}
             displayEmpty
-            sx={{ mb: 2 }}
+            sx={{ 
+              mb: 2,
+              color: '#fff',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#00ff9d',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#00a8ff',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#00ff9d',
+              },
+            }}
           >
-            <MenuItem value="" disabled>Select Winner</MenuItem>
+            <MenuItem value="" disabled sx={{ color: '#888' }}>Select Winner</MenuItem>
             {reportingMatch?.participant1 && (
-              <MenuItem value={reportingMatch.participant1.id}>{reportingMatch.participant1.username}</MenuItem>
+              <MenuItem value={reportingMatch.participant1.id} sx={{ color: '#fff' }}>
+                {reportingMatch.participant1.username}
+              </MenuItem>
             )}
             {reportingMatch?.participant2 && (
-              <MenuItem value={reportingMatch.participant2.id}>{reportingMatch.participant2.username}</MenuItem>
+              <MenuItem value={reportingMatch.participant2.id} sx={{ color: '#fff' }}>
+                {reportingMatch.participant2.username}
+              </MenuItem>
             )}
           </Select>
           <TextField
@@ -569,15 +1145,62 @@ const TournamentDetail: React.FC = () => {
             label="Score (optional)"
             value={score}
             onChange={e => setScore(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                color: '#fff',
+                '& fieldset': {
+                  borderColor: '#00ff9d',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#00a8ff',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#00ff9d',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#00ff9d',
+                '&.Mui-focused': {
+                  color: '#00a8ff',
+                },
+              },
+            }}
           />
-          {reportError && <Alert severity="error">{reportError}</Alert>}
+          {reportError && (
+            <Alert severity="error" sx={{ 
+              background: 'rgba(255, 68, 68, 0.1)',
+              border: '1px solid #ff4444',
+              color: '#ff4444',
+              '& .MuiAlert-icon': { color: '#ff4444' }
+            }}>
+              {reportError}
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setReportingMatch(null)} disabled={!!reporting}>Cancel</Button>
-          <Button onClick={handleReportResult} disabled={Boolean(!winnerId || reporting)} variant="contained">{reporting ? 'Reporting...' : 'Submit'}</Button>
+          <Button 
+            onClick={() => setReportingMatch(null)} 
+            disabled={!!reporting}
+            sx={{
+              color: '#888',
+              '&:hover': {
+                color: '#fff',
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleReportResult} 
+            disabled={Boolean(!winnerId || reporting)} 
+            sx={cyberButtonStyle}
+          >
+            {reporting ? 'Reporting...' : 'Submit'}
+          </Button>
         </DialogActions>
       </Dialog>
+
       {/* Snackbar for user feedback */}
       <Snackbar
         open={snackbar.open}
@@ -590,7 +1213,12 @@ const TournamentDetail: React.FC = () => {
           severity={snackbar.severity}
           variant="filled"
           elevation={6}
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%',
+            background: snackbar.severity === 'success' ? 'rgba(0, 255, 157, 0.9)' : 'rgba(255, 68, 68, 0.9)',
+            color: '#000',
+            fontWeight: 600,
+          }}
         >
           {snackbar.message}
         </MuiAlert>

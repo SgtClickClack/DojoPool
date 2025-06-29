@@ -55,12 +55,12 @@ class GameState(db.Model):
     winner_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     # Relationships
-    venue = db.relationship("Venue", backref=db.backref("games", lazy=True))
+    venue = db.relationship("Venue", backref=db.backref("game_states", lazy=True))
     current_player = db.relationship("User", foreign_keys=[current_player_id])
     winner = db.relationship("User", foreign_keys=[winner_id])
-    players = db.relationship("User", secondary=game_players)
-    events = db.relationship("GameEvent", backref="game", lazy=True)
-    shots = db.relationship("Shot", backref="game", lazy=True)
+    players = db.relationship("User", secondary=game_players, lazy="dynamic")
+    events = db.relationship("GameEvent", backref="game_state", lazy=True)
+    shots = db.relationship("Shot", backref="game_state", lazy=True)
 
     def __init__(self, game_type: str, venue_id: int, table_number: Optional[int] = None):
         """Initialize a new game state."""
@@ -116,7 +116,7 @@ class GameState(db.Model):
         if self.status != GameStatus.ACTIVE.value:
             raise ValueError("Can only change turns in active games")
 
-        if next_player_id not in [p.id for p in self.players]:
+        if next_player_id not in [p.id for p in self.players.all()]:
             raise ValueError("Next player must be a participant in the game")
 
         self.current_player_id = next_player_id
@@ -134,7 +134,7 @@ class GameState(db.Model):
             "winner_id": self.winner_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "players": [p.id for p in self.players],
+            "players": [p.id for p in self.players.all()],
         }
 
     def __repr__(self) -> str:

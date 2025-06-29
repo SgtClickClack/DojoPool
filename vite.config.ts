@@ -12,7 +12,7 @@ export default defineConfig({
   root: path.resolve(__dirname),
   publicDir: path.resolve(__dirname, 'public'),
   server: {
-    port: 3101,
+    port: 3000,
     strictPort: true,
     host: true,
     cors: {

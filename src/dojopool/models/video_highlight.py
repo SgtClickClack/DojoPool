@@ -24,6 +24,7 @@ class VideoHighlight(BaseModel):
     """Video highlight model."""
 
     __tablename__ = "video_highlights"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True)
     game_id = Column(Integer, ForeignKey("games.id"), nullable=False)

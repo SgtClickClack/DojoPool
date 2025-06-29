@@ -1,4 +1,5 @@
 import pytest
+import os
 
 def test_pytest_runs():
     assert True
@@ -18,15 +19,20 @@ from dojopool.models.tournament import Tournament
 from dojopool.models.venue import Venue
 from dojopool.models.token import Token
 
-def create_user(client, username="testuser", email="test@example.com"):
+# Use environment variables for test credentials
+TEST_PASSWORD = os.getenv("TEST_PASSWORD", "test_password_123")
+TEST_EMAIL = os.getenv("TEST_EMAIL", "test@example.com")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
+
+def create_user(client, username="testuser", email=TEST_EMAIL):
     resp = client.post(
         url_for("auth.register"),
-        json={"username": username, "email": email, "password": "password123"},
+        json={"username": username, "email": email, "password": TEST_PASSWORD},
     )
     assert resp.status_code == 201
     return resp.get_json()["user"]["id"]
 
-def login_user(client, username="testuser", password="password123"):
+def login_user(client, username="testuser", password=TEST_PASSWORD):
     resp = client.post(
         url_for("auth.login"),
         json={"username": username, "password": password},
@@ -34,10 +40,10 @@ def login_user(client, username="testuser", password="password123"):
     assert resp.status_code == 200
     return resp.get_json()["access_token"]
 
-def create_admin_user(client, username="adminuser", email="admin@example.com"):
+def create_admin_user(client, username="adminuser", email=ADMIN_EMAIL):
     resp = client.post(
         url_for("auth.register"),
-        json={"username": username, "email": email, "password": "password123"},
+        json={"username": username, "email": email, "password": TEST_PASSWORD},
     )
     assert resp.status_code == 201
     user_id = resp.get_json()["user"]["id"]
@@ -66,15 +72,15 @@ def client():
 
 @pytest.fixture
 def auth_client(client):
-    user_id = create_user(client, username="testuser", email="test@example.com")
-    token = login_user(client, username="testuser", password="password123")
+    user_id = create_user(client, username="testuser", email=TEST_EMAIL)
+    token = login_user(client, username="testuser", password=TEST_PASSWORD)
     client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
     return client, user_id
 
 @pytest.fixture
 def admin_auth_client(client):
     admin_user_id = create_admin_user(client)
-    token = login_user(client, username="adminuser", password="password123")
+    token = login_user(client, username="adminuser", password=TEST_PASSWORD)
     client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
     return client, admin_user_id
 

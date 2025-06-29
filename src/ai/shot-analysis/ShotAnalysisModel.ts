@@ -263,17 +263,22 @@ export class ShotAnalysisModel {
 
   private preprocessData(shots: ShotData[]): tf.Tensor {
     const features = shots.map((shot) => {
-      const distance = this.calculateDistance(shot.cueBall, shot.targetBall);
-      const angle = this.calculateAngle(shot.cueBall, shot.targetBall);
+      // Use ballPositions or fallback to optional properties
+      const cueBall = shot.ballPositions?.cueBall || shot.cueBall || { x: 0, y: 0 };
+      const targetBall = shot.ballPositions?.targetBall || shot.targetBall || { x: 0, y: 0 };
+      const english = shot.english || shot.spin || { top: 0, side: 0 };
+      
+      const distance = this.calculateDistance(cueBall, targetBall);
+      const angle = this.calculateAngle(cueBall, targetBall);
       const accuracy = this.calculateAccuracy(shot);
 
       return [
-        shot.cueBall.x,
-        shot.cueBall.y,
-        shot.targetBall.x,
-        shot.targetBall.y,
-        shot.english.top,
-        shot.english.side,
+        cueBall.x,
+        cueBall.y,
+        targetBall.x,
+        targetBall.y,
+        english.top,
+        english.side,
         distance,
         angle,
         accuracy,
@@ -301,12 +306,17 @@ export class ShotAnalysisModel {
   }
 
   private calculateAccuracy(shot: ShotData): number {
+    // Use ballPositions or fallback to optional properties
+    const cueBall = shot.ballPositions?.cueBall || shot.cueBall || { x: 0, y: 0 };
+    const targetBall = shot.ballPositions?.targetBall || shot.targetBall || { x: 0, y: 0 };
+    const english = shot.english || shot.spin || { top: 0, side: 0 };
+    
     // Calculate accuracy based on multiple factors
     const distanceFactor =
-      1 - this.calculateDistance(shot.cueBall, shot.targetBall) / 100; // Normalize to table size
+      1 - this.calculateDistance(cueBall, targetBall) / 100; // Normalize to table size
 
     const spinFactor =
-      1 - (Math.abs(shot.english.top) + Math.abs(shot.english.side)) / 2;
+      1 - (Math.abs(english.top) + Math.abs(english.side)) / 2;
     const powerFactor = 1 - Math.abs(shot.power - 0.5); // Ideal power is 0.5
 
     // Weighted average of factors

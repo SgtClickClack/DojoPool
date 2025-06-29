@@ -36,7 +36,7 @@ class GameEvent(db.Model):
     data = db.Column(db.JSON)
 
     # Relationships
-    player = db.relationship("User", backref=db.backref("game_events", lazy=True))
+    player = db.relationship("User", backref=db.backref("core_game_events", lazy=True))
 
     def __init__(
         self,

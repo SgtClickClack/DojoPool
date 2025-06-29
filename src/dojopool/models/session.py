@@ -18,7 +18,7 @@ class Session(db.Model):
     last_activity = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships
-    user = db.relationship('User', backref=db.backref('sessions', lazy=True))
+    user = db.relationship('User', backref=db.backref('user_sessions', lazy=True))
 
     def __repr__(self):
         return f'<Session {self.id} for User {self.user_id}>'

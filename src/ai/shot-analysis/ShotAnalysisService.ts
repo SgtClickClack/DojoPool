@@ -14,6 +14,10 @@ export interface ShotData {
   };
   success: boolean;
   accuracy: number;
+  // Additional properties for compatibility
+  cueBall?: { x: number; y: number };
+  targetBall?: { x: number; y: number };
+  english?: { top: number; side: number };
 }
 
 export class ShotAnalysisService extends EventEmitter {
