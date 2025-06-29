@@ -1,0 +1,10 @@
+# Netlify redirects file for Dojo Pool
+# Investor Portal routing
+/investor-portal/* /investor-portal/index.html 200
+/invest/* /investor-portal/index.html 200
+
+# API routes (if using serverless functions)
+/api/* /.netlify/functions/:splat 200
+
+# SPA fallback for main app
+/* /index.html 200
