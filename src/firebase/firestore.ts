@@ -25,7 +25,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const CACHE_SIZE = 100; // Maximum number of documents to cache
 
 // In-memory cache
-const cache = new Map<string, { data: any; timestamp: number }>();
+const cache = new Map<string, { data: unknown; timestamp: number }>();
 
 // Generic CRUD operations with caching
 export const createDocument = async (collectionName: string, data: any) => {
@@ -71,7 +71,7 @@ export const getDocument = async (
 export const updateDocument = async (
   collectionName: string,
   documentId: string,
-  data: any,
+  data: Record<string, unknown>,
 ) => {
   try {
     const docRef = doc(db, collectionName, documentId);

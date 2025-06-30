@@ -65,6 +65,10 @@ class SessionManager:
                 if not session_data:
                     return None
 
+                # Handle Redis response type properly
+                if isinstance(session_data, bytes):
+                    session_data = session_data.decode('utf-8')
+                
                 # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
                 session_data = json.loads(session_data)
                 if time.time() > session_data["expires"]:
@@ -72,7 +76,7 @@ class SessionManager:
                     return None
 
                 return session_data
-            except redis.RedisError:
+            except (redis.RedisError, json.JSONDecodeError):
                 # Fall back to in-memory storage
                 session_data = self.sessions.get(token)
         else:
@@ -147,6 +151,10 @@ class SessionManager:
                 if not token_data:
                     return None
 
+                # Handle Redis response type properly
+                if isinstance(token_data, bytes):
+                    token_data = token_data.decode('utf-8')
+                
                 # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
                 token_data = json.loads(token_data)
                 if time.time() > token_data["expires"]:
@@ -154,7 +162,7 @@ class SessionManager:
                     return None
 
                 return token_data["user_id"]
-            except redis.RedisError:
+            except (redis.RedisError, json.JSONDecodeError):
                 # Fall back to in-memory storage
                 token_data = self.sessions.get(f"reset:{token}")
         else:

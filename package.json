@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run dev:backend\"",
     "start": "npx ts-node src/backend/index.ts",
-    "dev:backend": "nodemon --watch src/backend --ext ts --exec \".\\node_modules\\.bin\\ts-node src/backend/index.ts\"",
+    "dev:backend": "nodemon --watch src/backend --ext ts --exec \"npx ts-node src/backend/index.ts\"",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",

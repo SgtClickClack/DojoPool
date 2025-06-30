@@ -9,8 +9,8 @@ export default defineConfig({
   plugins: [react({
     include: /\.(?:jsx|tsx|js)$/,
   })],
-  root: path.resolve(__dirname),
-  publicDir: path.resolve(__dirname, 'public'),
+  root: '.',
+  publicDir: 'public',
   server: {
     port: 3000,
     strictPort: true,
@@ -38,8 +38,9 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
-      input: path.resolve(__dirname, 'public/index.html'),
-      external: ['pages', 'src/pages'],
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
     },
   },
   resolve: {

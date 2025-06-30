@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: any;
+  }
+}
+
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Basic auth middleware - for now just pass through
   // TODO: Implement proper authentication
