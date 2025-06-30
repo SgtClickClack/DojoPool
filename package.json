@@ -196,6 +196,6 @@
     "socket.io-client": "4.8.1",
     "three": "0.158.0",
     "web-vitals": "^3.5.2",
-    "winston": "^3.13.1"
+    "winston": "3.17.0"
   }
 }

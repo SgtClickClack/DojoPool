@@ -152,6 +152,7 @@ export class AdvancedSocialCommunityService extends EventEmitter {
     super();
     console.log('Advanced Social Community & Engagement Service initialized');
     this.initializeSampleData();
+    this.updateLeaderboards();
     this.startPeriodicUpdates();
   }
 
@@ -375,17 +376,24 @@ export class AdvancedSocialCommunityService extends EventEmitter {
     const weeklyLeaderboard = this.leaderboards.find(lb => lb.type === 'weekly' && lb.category === 'engagement');
     if (weeklyLeaderboard) {
       const entries: LeaderboardEntry[] = [];
-      userEngagements.forEach((score, userId) => {
-        const previousEntry = weeklyLeaderboard.entries.find(e => e.userId === userId);
-        entries.push({
-          userId,
-          score,
-          rank: 0, // Will be set after sorting
-          previousRank: previousEntry?.rank,
-          change: previousEntry ? previousEntry.rank - (previousEntry.rank || 0) : 0,
-          metadata: { posts: this.posts.filter(p => p.userId === userId).length }
+      
+      // If we have engagements, use them; otherwise, keep existing sample data
+      if (userEngagements.size > 0) {
+        userEngagements.forEach((score, userId) => {
+          const previousEntry = weeklyLeaderboard.entries.find(e => e.userId === userId);
+          entries.push({
+            userId,
+            score,
+            rank: 0, // Will be set after sorting
+            previousRank: previousEntry?.rank,
+            change: previousEntry ? previousEntry.rank - (previousEntry.rank || 0) : 0,
+            metadata: { posts: this.posts.filter(p => p.userId === userId).length }
+          });
         });
-      });
+      } else {
+        // Keep existing sample data if no engagements
+        entries.push(...weeklyLeaderboard.entries);
+      }
       
       // Sort by score and assign ranks
       entries.sort((a, b) => b.score - a.score);

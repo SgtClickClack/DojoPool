@@ -880,14 +880,72 @@ export class AdvancedAIMatchCommentaryHighlightsService extends EventEmitter {
   }
 
   private startPeriodicUpdates(): void {
-    setInterval(() => {
-      this.updateMetrics();
-      this.emit('metricsUpdated', this.metrics);
-    }, 60000);
+    // Placeholder for periodic updates
   }
 
-  private async processGenerationQueue(): Promise<void> {
-    // Placeholder for queue processing
+  /**
+   * Generate advanced highlight with enhanced features
+   */
+  public async generateAdvancedHighlight(request: AdvancedHighlightGenerationRequest): Promise<GeneratedAdvancedHighlight> {
+    try {
+      console.log(`Generating advanced highlight for match: ${request.matchId}`);
+
+      const commentaryEvents = await this.collectAdvancedMatchCommentary(request.matchId);
+      
+      const enhancedCommentary = await this.generateEnhancedAdvancedCommentary(commentaryEvents, request.commentaryStyle);
+      
+      const audioUrl = request.includeAudio ? 
+        await this.generateAdvancedAudio(enhancedCommentary[0]?.commentary || '', { id: 'ai-commentator' }) : undefined;
+      
+      const videoUrl = await this.generateAdvancedVideoHighlights(request, enhancedCommentary);
+      
+      const thumbnailUrl = await this.generateAdvancedThumbnail(request, enhancedCommentary);
+      
+      const socialSharing = await this.createAdvancedSocialSharingUrls(request, videoUrl);
+      
+      const analytics = this.calculateAdvancedAnalytics(enhancedCommentary);
+      
+      const highlight: GeneratedAdvancedHighlight = {
+        id: `advanced_${request.matchId}_${Date.now()}`,
+        title: this.generateAdvancedHighlightTitle(request),
+        description: this.generateAdvancedHighlightDescription(request, enhancedCommentary),
+        videoUrl,
+        audioUrl,
+        duration: request.duration || 60,
+        thumbnailUrl,
+        createdAt: new Date(),
+        matchId: request.matchId,
+        tournamentId: request.tournamentId,
+        userId: request.userId,
+        highlights: request.highlights,
+        commentary: enhancedCommentary,
+        metadata: {
+          quality: request.quality || 'high',
+          style: request.commentaryStyle || 'professional',
+          excitementLevel: this.calculateAverageExcitement(enhancedCommentary),
+          difficulty: this.calculateAverageDifficulty(enhancedCommentary),
+          impact: this.calculateAverageImpact(enhancedCommentary),
+          rarity: this.calculateOverallRarity(enhancedCommentary),
+          strategicValue: this.calculateStrategicValue(enhancedCommentary),
+          entertainmentValue: this.calculateEntertainmentValue(enhancedCommentary),
+          educationalValue: this.calculateEducationalValue(enhancedCommentary),
+          playerPerformance: this.calculatePlayerPerformance(enhancedCommentary)
+        },
+        socialSharing,
+        analytics
+      };
+
+      this.highlights.set(highlight.id, highlight);
+      this.metrics.totalHighlights++;
+      this.metrics.lastActivity = new Date();
+
+      console.log(`Advanced highlight generated successfully: ${highlight.id}`);
+      return highlight;
+
+    } catch (error) {
+      console.error('Error generating advanced highlight:', error);
+      throw new Error(`Failed to generate advanced highlight: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private handleCommentaryEvent(event: any): void {
@@ -920,6 +978,253 @@ export class AdvancedAIMatchCommentaryHighlightsService extends EventEmitter {
 
   private generateId(): string {
     return `advanced_commentary_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Collect advanced match commentary events
+   */
+  private async collectAdvancedMatchCommentary(matchId: string): Promise<AdvancedCommentaryEvent[]> {
+    // TODO: Implement actual commentary collection from database
+    return this.events.get(matchId) || [];
+  }
+
+  /**
+   * Generate enhanced advanced commentary
+   */
+  private async generateEnhancedAdvancedCommentary(
+    events: AdvancedCommentaryEvent[], 
+    style?: string
+  ): Promise<AdvancedCommentaryEvent[]> {
+    return events.map(event => ({
+      id: event.id,
+      matchId: event.matchId,
+      timestamp: event.timestamp,
+      eventType: event.eventType,
+      playerId: event.playerId,
+      playerName: event.playerName,
+      description: event.description,
+      commentary: event.commentary,
+      poolGod: event.poolGod,
+      style: event.style,
+      confidence: event.confidence,
+      context: event.context,
+      highlights: event.highlights,
+      insights: event.insights,
+      audioUrl: event.audioUrl,
+      reactions: event.reactions || [],
+      metadata: {
+        excitementLevel: event.metadata?.excitementLevel || 70,
+        difficulty: event.metadata?.difficulty || 5,
+        impact: event.metadata?.impact || 6,
+        rarity: event.metadata?.rarity || 'common',
+        strategicValue: 5,
+        entertainmentValue: 6,
+        educationalValue: 5
+      }
+    }));
+  }
+
+  /**
+   * Generate advanced highlight title
+   */
+  private generateAdvancedHighlightTitle(request: AdvancedHighlightGenerationRequest): string {
+    return `Advanced Highlight - Match ${request.matchId}`;
+  }
+
+  /**
+   * Generate advanced highlight description
+   */
+  private generateAdvancedHighlightDescription(
+    request: AdvancedHighlightGenerationRequest, 
+    commentary: AdvancedCommentaryEvent[]
+  ): string {
+    return `An advanced highlight compilation featuring ${commentary.length} incredible moments from match ${request.matchId}.`;
+  }
+
+  /**
+   * Generate advanced video highlights
+   */
+  private async generateAdvancedVideoHighlights(
+    request: AdvancedHighlightGenerationRequest, 
+    commentary: AdvancedCommentaryEvent[]
+  ): Promise<string> {
+    // TODO: Implement actual video generation
+    return `https://example.com/videos/advanced_${request.matchId}_${Date.now()}.mp4`;
+  }
+
+  /**
+   * Calculate average excitement
+   */
+  private calculateAverageExcitement(events: AdvancedCommentaryEvent[]): number {
+    if (events.length === 0) return 0;
+    const total = events.reduce((sum, event) => sum + (event.metadata.excitementLevel ?? 0), 0);
+    return total / events.length;
+  }
+
+  /**
+   * Calculate average difficulty
+   */
+  private calculateAverageDifficulty(events: AdvancedCommentaryEvent[]): number {
+    if (events.length === 0) return 0;
+    const total = events.reduce((sum, event) => sum + (event.metadata.difficulty ?? 0), 0);
+    return total / events.length;
+  }
+
+  /**
+   * Calculate average impact
+   */
+  private calculateAverageImpact(events: AdvancedCommentaryEvent[]): number {
+    if (events.length === 0) return 0;
+    const total = events.reduce((sum, event) => sum + (event.metadata.impact ?? 0), 0);
+    return total / events.length;
+  }
+
+  /**
+   * Calculate overall rarity
+   */
+  private calculateOverallRarity(events: AdvancedCommentaryEvent[]): 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' {
+    const rarities = events.map(e => e.metadata.rarity);
+    const epicCount = rarities.filter(r => r === 'epic').length;
+    const legendaryCount = rarities.filter(r => r === 'legendary').length;
+    
+    if (legendaryCount > 0) return 'legendary';
+    if (epicCount > 2) return 'epic';
+    if (epicCount > 0) return 'rare';
+    return 'uncommon';
+  }
+
+  /**
+   * Calculate strategic value
+   */
+  private calculateStrategicValue(events: AdvancedCommentaryEvent[]): number {
+    if (events.length === 0) return 0;
+    const total = events.reduce((sum, event) => sum + (event.metadata.strategicValue ?? 0), 0);
+    return total / events.length;
+  }
+
+  /**
+   * Calculate entertainment value
+   */
+  private calculateEntertainmentValue(events: AdvancedCommentaryEvent[]): number {
+    if (events.length === 0) return 0;
+    const total = events.reduce((sum, event) => sum + (event.metadata.entertainmentValue ?? 0), 0);
+    return total / events.length;
+  }
+
+  /**
+   * Calculate educational value
+   */
+  private calculateEducationalValue(events: AdvancedCommentaryEvent[]): number {
+    if (events.length === 0) return 0;
+    const total = events.reduce((sum, event) => sum + (event.metadata.educationalValue ?? 0), 0);
+    return total / events.length;
+  }
+
+  /**
+   * Calculate player performance
+   */
+  private calculatePlayerPerformance(events: AdvancedCommentaryEvent[]): any {
+    const playerStats: any = {};
+    
+    events.forEach(event => {
+      if (event.playerId) {
+        if (!playerStats[event.playerId]) {
+          playerStats[event.playerId] = {
+            accuracy: 0,
+            power: 0,
+            strategy: 0,
+            consistency: 0,
+            highlights: 0
+          };
+        }
+        
+        if (event.context?.accuracy) {
+          playerStats[event.playerId].accuracy = Math.max(playerStats[event.playerId].accuracy, event.context.accuracy);
+        }
+        if (event.context?.power) {
+          playerStats[event.playerId].power = Math.max(playerStats[event.playerId].power, event.context.power);
+        }
+        if (event.metadata?.strategicValue) {
+          playerStats[event.playerId].strategy = Math.max(playerStats[event.playerId].strategy, event.metadata.strategicValue);
+        }
+        if (event.eventType === 'highlight') {
+          playerStats[event.playerId].highlights++;
+        }
+      }
+    });
+    
+    return playerStats;
+  }
+
+  /**
+   * Calculate advanced analytics
+   */
+  private calculateAdvancedAnalytics(commentary: AdvancedCommentaryEvent[]): any {
+    return {
+      views: 0,
+      likes: 0,
+      shares: 0,
+      comments: 0,
+      watchTime: 0,
+      engagementRate: 0
+    };
+  }
+
+  /**
+   * Create advanced social sharing URLs
+   */
+  private async createAdvancedSocialSharingUrls(
+    request: AdvancedHighlightGenerationRequest, 
+    videoUrl: string
+  ): Promise<any> {
+    const baseUrl = `https://dojopool.com/highlights/${request.matchId}`;
+    
+    return {
+      shareUrl: baseUrl,
+      downloadUrl: videoUrl,
+      embedCode: `<iframe src="${baseUrl}/embed" width="560" height="315" frameborder="0"></iframe>`,
+      platforms: {
+        twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent('Check out this amazing pool highlight!')}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(baseUrl)}`,
+        instagram: baseUrl,
+        youtube: baseUrl,
+        tiktok: baseUrl
+      }
+    };
+  }
+
+  /**
+   * Generate advanced thumbnail
+   */
+  private async generateAdvancedThumbnail(
+    request: AdvancedHighlightGenerationRequest, 
+    commentary: AdvancedCommentaryEvent[]
+  ): Promise<string> {
+    // TODO: Generate AI-powered thumbnail
+    return `https://example.com/thumbnails/advanced_${request.matchId}_${Date.now()}.jpg`;
+  }
+
+  /**
+   * Enhance advanced commentary content
+   */
+  private async enhanceAdvancedCommentaryContent(content: string, style?: string): Promise<string> {
+    // TODO: Use AI to enhance commentary content
+    return `${content} [Enhanced with AI Analysis]`;
+  }
+
+  /**
+   * Generate advanced audio
+   */
+  private async generateAdvancedAudio(content: string, poolGod: any): Promise<string> {
+    // TODO: Generate advanced audio with multiple voices
+    return `https://example.com/audio/advanced_${poolGod.id}_${Date.now()}.mp3`;
+  }
+
+  /**
+   * Process generation queue
+   */
+  private async processGenerationQueue(): Promise<void> {
+    // Placeholder for queue processing
   }
 }
 

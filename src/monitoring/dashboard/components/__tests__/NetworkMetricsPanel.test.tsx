@@ -4,7 +4,6 @@ import "@testing-library/jest-dom";
 import { ThemeProvider, createTheme, Theme } from "@mui/material/styles";
 import { NetworkMetricsPanel } from "../NetworkMetricsPanel";
 import { NetworkMetricsData } from "../../../collectors/NetworkMetricsCollector";
-import { MonitoringConfig } from "../../../config";
 
 const theme = createTheme();
 
@@ -27,18 +26,6 @@ const mockMetrics: NetworkMetricsData = {
   timestamp: Date.now(),
 };
 
-const mockConfig: MonitoringConfig = {
-  metricsInterval: 10000,
-  retentionPeriod: 604800000,
-  performanceThresholds: {
-    rtt: { warning: 200, critical: 500 },
-    errorRate: { warning: 0.05, critical: 0.1 },
-    throughput: { warning: 500, critical: 100 },
-    stability: { warning: 0.95, critical: 0.9 },
-    queueSize: { warning: 10, critical: 20 },
-  },
-};
-
 const mockHistory: NetworkMetricsData[] = Array.from(
   { length: 10 },
   (_, i) => ({
@@ -57,7 +44,6 @@ describe("NetworkMetricsPanel", () => {
       <ThemeProvider theme={theme}>
         <NetworkMetricsPanel
           metrics={mockMetrics}
-          config={mockConfig}
           history={mockHistory}
           timeRange={3600000} // 1 hour
         />
@@ -73,39 +59,37 @@ describe("NetworkMetricsPanel", () => {
   describe("Metric Cards", () => {
     it("displays average latency with correct formatting", () => {
       renderPanel();
-      const card = screen.getByText("Average Latency").closest(".MuiCard-root");
+      const card = screen.getByText("Average Latency").closest(".MuiCard-root") as HTMLElement;
       expect(within(card!).getByText("150.00 ms")).toBeInTheDocument();
     });
 
     it("displays P95 latency with correct formatting", () => {
       renderPanel();
-      const card = screen.getByText("P95 Latency").closest(".MuiCard-root");
+      const card = screen.getByText("P95 Latency").closest(".MuiCard-root") as HTMLElement;
       expect(within(card!).getByText("250.00 ms")).toBeInTheDocument();
     });
 
     it("displays bandwidth usage with correct formatting", () => {
       renderPanel();
-      const card = screen.getByText("Bandwidth Usage").closest(".MuiCard-root");
+      const card = screen.getAllByText("Bandwidth Usage")[0].closest(".MuiCard-root") as HTMLElement;
       expect(within(card!).getByText("512.00 KB/s")).toBeInTheDocument();
     });
 
     it("displays connection stability with correct formatting", () => {
       renderPanel();
-      const card = screen
-        .getByText("Connection Stability")
-        .closest(".MuiCard-root");
+      const card = screen.getByText("Connection Stability").closest(".MuiCard-root") as HTMLElement;
       expect(within(card!).getByText("95.00%")).toBeInTheDocument();
     });
 
     it("displays queue size with correct formatting", () => {
       renderPanel();
-      const card = screen.getByText("Queue Size").closest(".MuiCard-root");
+      const card = screen.getByText("Queue Size").closest(".MuiCard-root") as HTMLElement;
       expect(within(card!).getByText("50.00 messages")).toBeInTheDocument();
     });
 
     it("displays error rate with correct formatting", () => {
       renderPanel();
-      const card = screen.getByText("Error Rate").closest(".MuiCard-root");
+      const card = screen.getAllByText("Error Rate")[0].closest(".MuiCard-root") as HTMLElement;
       const errorRate = (
         (mockMetrics.errors / mockMetrics.messagesSent) *
         100
@@ -124,15 +108,14 @@ describe("NetworkMetricsPanel", () => {
         <ThemeProvider theme={theme}>
           <NetworkMetricsPanel
             metrics={criticalMetrics}
-            config={mockConfig}
             history={mockHistory}
             timeRange={3600000}
           />
         </ThemeProvider>,
       );
 
-      const latencyValue = screen.getByText("600.00 ms").parentElement;
-      const errorValue = screen.getByText("15.0 %").parentElement;
+      const latencyValue = screen.getByText("600.00 ms").parentElement as HTMLElement;
+      const errorValue = screen.getByText("15.0 %").parentElement as HTMLElement;
 
       expect(latencyValue).toHaveStyle({ color: theme.palette.error.main });
       expect(errorValue).toHaveStyle({ color: theme.palette.error.main });
@@ -149,15 +132,14 @@ describe("NetworkMetricsPanel", () => {
         <ThemeProvider theme={theme}>
           <NetworkMetricsPanel
             metrics={warningMetrics}
-            config={mockConfig}
             history={mockHistory}
             timeRange={3600000}
           />
         </ThemeProvider>,
       );
 
-      const latencyValue = screen.getByText("250.00 ms").parentElement;
-      const errorValue = screen.getByText("7.0 %").parentElement;
+      const latencyValue = screen.getByText("250.00 ms").parentElement as HTMLElement;
+      const errorValue = screen.getByText("7.0 %").parentElement as HTMLElement;
 
       expect(latencyValue).toHaveStyle({ color: theme.palette.warning.main });
       expect(errorValue).toHaveStyle({ color: theme.palette.warning.main });
@@ -176,15 +158,13 @@ describe("NetworkMetricsPanel", () => {
 
     it("renders bandwidth usage chart", () => {
       renderPanel();
-      const chart = screen
-        .getByText("Bandwidth Usage")
-        .closest(".MuiCard-root");
+      const chart = screen.getAllByText("Bandwidth Usage")[1].closest(".MuiCard-root") as HTMLElement;
       expect(within(chart!).getByText("Usage")).toBeInTheDocument();
     });
 
     it("renders error rate chart", () => {
       renderPanel();
-      const chart = screen.getByText("Error Rate").closest(".MuiCard-root");
+      const chart = screen.getAllByText("Error Rate")[1].closest(".MuiCard-root") as HTMLElement;
       expect(within(chart!).getByText("Rate")).toBeInTheDocument();
     });
   });
@@ -200,7 +180,6 @@ describe("NetworkMetricsPanel", () => {
         <ThemeProvider theme={theme}>
           <NetworkMetricsPanel
             metrics={warningMetrics}
-            config={mockConfig}
             history={mockHistory}
             timeRange={3600000}
           />
@@ -226,7 +205,6 @@ describe("NetworkMetricsPanel", () => {
         <ThemeProvider theme={theme}>
           <NetworkMetricsPanel
             metrics={criticalMetrics}
-            config={mockConfig}
             history={mockHistory}
             timeRange={3600000}
           />

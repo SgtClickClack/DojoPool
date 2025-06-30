@@ -457,6 +457,12 @@ class AdvancedPlayerAnalyticsService extends EventEmitter {
   }
 
   private analyzeShots(shots: any[]): ShotAnalysis[] {
+    // Ensure shots is an array before calling map
+    if (!Array.isArray(shots)) {
+      console.warn('Shots data is not an array, creating default shot analysis');
+      return [];
+    }
+    
     return shots.map(shot => ({
       id: this.generateId(),
       shotType: shot.type,

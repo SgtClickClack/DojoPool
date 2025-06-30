@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import { logger } from '../utils/logger'; // Assuming your logger setup
+import { logger, httpLogger, errorLogger, performanceLogger, metricsMiddleware, healthCheck, gracefulShutdown } from '../config/monitoring';
 import rateLimit from 'express-rate-limit';
 import { body, validationResult, ValidationChain } from 'express-validator'; // Import ValidationChain
 import helmet from 'helmet';
@@ -42,12 +42,12 @@ import { venueLeaderboardService } from '../services/venue/VenueLeaderboardServi
 import advancedAnalyticsRoutes from './routes/advanced-analytics';
 import { advancedAnalyticsService } from '../services/analytics/AdvancedAnalyticsService';
 import highlightsRoutes from './routes/highlights';
-import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration';
+// import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration';
 
 // Load environment variables
 config();
 
-console.log('🔍 Backend index.ts loaded - app initialization starting');
+logger.info('🔍 Backend index.ts loaded - app initialization starting');
 
 dotenv.config();
 
@@ -58,7 +58,9 @@ const port = process.env.PORT || 8080;
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3101', 'http://127.0.0.1:3101'],
+    origin: process.env.NODE_ENV === 'production' 
+      ? [process.env.FRONTEND_URL || 'https://dojopool.com']
+      : ['http://localhost:3000', 'http://localhost:3101', 'http://127.0.0.1:3101'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -66,35 +68,90 @@ const io = new SocketIOServer(server, {
 });
 
 // --- Essential Middleware ---
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Helmet configuration
-app.use(helmet());
-
-// Rate limiting
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: 'Too many requests from this IP, please try again later',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// CORS
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3101'],
-  credentials: true,
+// Enhanced Helmet configuration for production
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "ws:", "wss:"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  noSniff: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
-// HTTP Request Logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+// Environment-specific CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'https://dojopool.com']
+    : ['http://localhost:3000', 'http://localhost:3101', 'http://127.0.0.1:3101'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Total-Count'],
+  maxAge: 86400 // 24 hours
+};
+
+app.use(cors(corsOptions));
+
+// Enhanced rate limiting for production
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 50 : 100, // Stricter in production
+  message: {
+    error: 'Too many requests from this IP, please try again later',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  skipFailedRequests: false,
+});
+
+// Apply rate limiting to all API routes
+app.use('/api', apiLimiter);
+
+// Additional security middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // Remove server information
+  res.removeHeader('X-Powered-By');
+  
+  // Add security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  
+  next();
+});
+
+// Monitoring and logging middleware
+app.use(metricsMiddleware);
+app.use(httpLogger);
+app.use(performanceLogger);
 
 // --- API Routes ---
 app.get('/', (req: Request, res: Response) => {
   res.send('DojoPool Platform Backend API');
 });
+
+// Enhanced health check with metrics
+app.get('/api/health', healthCheck);
 
 // Register routes
 app.use('/api', challengeRoutes);
@@ -116,23 +173,15 @@ app.use('/api/enhanced-social', enhancedSocialRoutes);
 app.use('/api/advanced-tournaments', advancedTournamentRoutes);
 app.use('/api/advanced-player-analytics', advancedPlayerAnalyticsRoutes);
 app.use('/api/advanced-venue-management', advancedVenueManagementRoutes);
-app.use('/api/advanced-blockchain-integration', advancedBlockchainIntegrationRouter);
+// app.use('/api/advanced-blockchain-integration', advancedBlockchainIntegrationRouter);
 app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
 app.use('/api/advanced-ai-referee-rule-enforcement', advancedAIRefereeRuleEnforcementRoutes);
 app.use('/api/advanced-ai-match-commentary-highlights', advancedAIMatchCommentaryHighlightsRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
 // --- Global Error Handling Middleware ---
+app.use(errorLogger);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(`[${req.method}] ${req.originalUrl} - Unhandled Error: ${err.message}`);
+  logger.error(`[${req.method}] ${req.originalUrl} - Unhandled Error: ${err.message}`);
 
   if (!res.headersSent) {
     res.status(500).json({
@@ -149,27 +198,31 @@ app.use('/api/*', (req: Request, res: Response) => {
 
 // Initialize Socket.IO
 io.on('connection', (socket) => {
-  console.log('Socket.IO client connected:', socket.id);
+  logger.info('Socket.IO client connected:', { socketId: socket.id });
   
   socket.on('disconnect', () => {
-    console.log('Socket.IO client disconnected:', socket.id);
+    logger.info('Socket.IO client disconnected:', { socketId: socket.id });
   });
 });
 
 // Initialize venue leaderboard service
 venueLeaderboardService.startLeaderboardUpdates();
-console.log('Venue Leaderboard Service connected to server');
+logger.info('Venue Leaderboard Service connected to server');
 
 // Initialize advanced analytics service
 advancedAnalyticsService.startAnalyticsUpdates();
-console.log('Advanced Analytics Service connected to server');
+logger.info('Advanced Analytics Service connected to server');
+
+// Graceful shutdown handlers
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start server
 if (require.main === module) {
   server.listen(port, () => {
-    console.log(`🚀 DojoPool Backend Server running on port ${port}`);
-    console.log(`📊 Health check available at http://localhost:${port}/api/health`);
-    console.log(`🏆 Tournament API available at http://localhost:${port}/api/tournaments`);
+    logger.info(`🚀 DojoPool Backend Server running on port ${port}`);
+    logger.info(`📊 Health check available at http://localhost:${port}/api/health`);
+    logger.info(`🏆 Tournament API available at http://localhost:${port}/api/tournaments`);
   });
 }
 

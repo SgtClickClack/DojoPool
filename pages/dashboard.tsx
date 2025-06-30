@@ -1,439 +1,302 @@
-import React from "react";
-import {
-  Box,
-  Typography,
-  Grid,
-  Paper,
-  Button,
-  Card,
-  CardContent,
-  CardActions,
-} from "@mui/material";
-import { useRouter } from "next/router";
-import Layout from "../src/components/layout/Layout";
-import MapView from "../src/frontend/components/MapView";
-import WalletBalanceView from "../src/frontend/components/wallet/WalletBalanceView";
-import RewardsDisplayPanel from "../src/frontend/components/rewards/RewardsDisplayPanel";
-import PageBackground from "../src/components/common/PageBackground";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../src/hooks/useAuth';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from '../src/components/ui/card';
+import { Button } from '../src/components/ui/button';
+import { Badge } from '../src/components/ui/badge';
+import { 
+  TrendingUp, 
+  Users, 
+  Trophy, 
+  MapPin, 
+  BarChart3, 
+  Mic, 
+  Shield, 
+  Settings,
+  Activity,
+  Target,
+  DollarSign,
+  MessageSquare,
+  Video,
+  Award,
+  Zap
+} from 'lucide-react';
 
-const DashboardPage: React.FC = () => {
+const Dashboard: React.FC = () => {
+  const { user, loading } = useAuth();
   const router = useRouter();
+  const [systemStatus, setSystemStatus] = useState({
+    analytics: true,
+    aiCommentary: true,
+    venueManagement: true,
+    aiReferee: true,
+    socialCommunity: true,
+    playerAnalytics: true,
+    diception: true
+  });
 
-  const gameFlowSteps = [
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const systemCards = [
     {
-      title: "Onboarding",
-      description: "Complete your profile setup",
-      path: "/onboarding",
-      color: "#00ff9d",
-      icon: "🎯"
+      title: 'Advanced Analytics',
+      description: 'Comprehensive platform analytics and insights',
+      icon: <BarChart3 className="w-8 h-8" />,
+      status: systemStatus.analytics,
+      href: '/advanced-analytics',
+      color: 'bg-blue-500',
+      features: ['Trend Analysis', 'Performance Metrics', 'Predictive Insights']
     },
     {
-      title: "Avatar & Wallet",
-      description: "Customize your digital identity",
-      path: "/avatar",
-      color: "#00a8ff",
-      icon: "👤"
+      title: 'AI Match Commentary',
+      description: 'AI-powered match commentary and highlights',
+      icon: <Mic className="w-8 h-8" />,
+      status: systemStatus.aiCommentary,
+      href: '/advanced-ai-match-commentary-highlights',
+      color: 'bg-purple-500',
+      features: ['Live Commentary', 'Video Highlights', 'Multi-Voice Synthesis']
     },
     {
-      title: "Venue Check-in",
-      description: "Find and join a Dojo",
-      path: "/venue",
-      color: "#ff6b6b",
-      icon: "🏢"
+      title: 'Venue Management',
+      description: 'Advanced venue analytics and management',
+      icon: <MapPin className="w-8 h-8" />,
+      status: systemStatus.venueManagement,
+      href: '/advanced-venue-management',
+      color: 'bg-green-500',
+      features: ['Performance Tracking', 'Revenue Analytics', 'Table Management']
     },
     {
-      title: "Tournaments",
-      description: "Compete in tournaments",
-      path: "/tournaments",
-      color: "#feca57",
-      icon: "🏆"
+      title: 'AI Referee System',
+      description: 'AI-powered rule enforcement and decisions',
+      icon: <Shield className="w-8 h-8" />,
+      status: systemStatus.aiReferee,
+      href: '/advanced-ai-referee-rule-enforcement',
+      color: 'bg-red-500',
+      features: ['Rule Interpretation', 'Foul Detection', 'Strategy Analysis']
     },
     {
-      title: "Social",
-      description: "Connect with community",
-      path: "/social",
-      color: "#ff9ff3",
-      icon: "💬"
+      title: 'Social Community',
+      description: 'Advanced social networking and engagement',
+      icon: <MessageSquare className="w-8 h-8" />,
+      status: systemStatus.socialCommunity,
+      href: '/advanced-social-community',
+      color: 'bg-pink-500',
+      features: ['Community Posts', 'Leaderboards', 'Event Management']
+    },
+    {
+      title: 'Player Analytics',
+      description: 'Comprehensive player performance tracking',
+      icon: <Users className="w-8 h-8" />,
+      status: systemStatus.playerAnalytics,
+      href: '/advanced-player-analytics',
+      color: 'bg-indigo-500',
+      features: ['Skill Analysis', 'Progression Tracking', 'Performance Insights']
+    },
+    {
+      title: 'Diception AI',
+      description: 'Real-time ball tracking and match analysis',
+      icon: <Target className="w-8 h-8" />,
+      status: systemStatus.diception,
+      href: '/diception-test',
+      color: 'bg-orange-500',
+      features: ['Ball Tracking', 'Shot Detection', 'AI Commentary']
     }
   ];
 
-  const stats = [
+  const quickStats = [
     {
-      label: "Total Games",
-      value: "0",
-      helpText: "Games played this month",
-      color: "#00ff9d"
+      title: 'Active Players',
+      value: '1,247',
+      change: '+12%',
+      icon: <Users className="w-4 h-4" />,
+      color: 'text-blue-600'
     },
     {
-      label: "Win Rate",
-      value: "0%",
-      helpText: "Last 30 days",
-      color: "#00a8ff"
+      title: 'Total Matches',
+      value: '8,934',
+      change: '+8%',
+      icon: <Trophy className="w-4 h-4" />,
+      color: 'text-green-600'
     },
     {
-      label: "Skill Level",
-      value: "Beginner",
-      helpText: "Current ranking",
-      color: "#ff6b6b"
+      title: 'Revenue',
+      value: '$125K',
+      change: '+15%',
+      icon: <DollarSign className="w-4 h-4" />,
+      color: 'text-purple-600'
+    },
+    {
+      title: 'System Health',
+      value: '98%',
+      change: '+2%',
+      icon: <Activity className="w-4 h-4" />,
+      color: 'text-orange-600'
     }
   ];
 
   return (
-    <Layout>
-      <PageBackground variant="dashboard">
-        <Box sx={{ p: { xs: 2, md: 4 }, position: 'relative', zIndex: 1 }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{
-              fontFamily: 'Orbitron, monospace',
-              fontWeight: 700,
-              color: '#00ff9d',
-              textShadow: '0 0 20px #00ff9d',
-              mb: 4,
-              textAlign: 'center'
-            }}
-          >
-            Dashboard
-          </Typography>
+    <>
+      <Head>
+        <title>DojoPool Dashboard - Advanced Gaming Platform</title>
+        <meta name="description" content="Comprehensive dashboard for DojoPool advanced gaming platform" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
 
-          {/* Game Flow Navigation */}
-          <Box sx={{ mb: 6 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontFamily: 'Orbitron, monospace',
-                color: '#00a8ff',
-                mb: 3,
-                textAlign: 'center'
-              }}
-            >
-              Game Flow
-            </Typography>
-            <Grid container spacing={2}>
-              {gameFlowSteps.map((step, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Paper
-                    sx={{
-                      p: 3,
-                      background: 'rgba(20,20,20,0.7)',
-                      border: `2px solid ${step.color}`,
-                      borderRadius: 2,
-                      boxShadow: `0 0 20px ${step.color}40`,
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: `0 0 30px ${step.color}80`,
-                      }
-                    }}
-                    onClick={() => router.push(step.path)}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Typography sx={{ fontSize: '2rem', mr: 2 }}>
-                        {step.icon}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          color: step.color,
-                          fontFamily: 'Orbitron, monospace',
-                          fontWeight: 600,
-                          textShadow: `0 0 10px ${step.color}`
-                        }}
-                      >
-                        {step.title}
-                      </Typography>
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: '#ccc',
-                        fontSize: '0.8rem'
-                      }}
-                    >
-                      {step.description}
-                    </Typography>
-                  </Paper>
-                </Grid>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              🎯 DojoPool Advanced Dashboard
+            </h1>
+            <p className="text-lg text-gray-600">
+              Welcome back, {user?.displayName || user?.email}! All systems are operational and ready.
+            </p>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {quickStats.map((stat, index) => (
+              <Card key={index}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    </div>
+                    <div className={`p-2 rounded-full ${stat.color} bg-opacity-10`}>
+                      {stat.icon}
+                    </div>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                    <span className="text-sm text-green-600">{stat.change}</span>
+                    <span className="text-sm text-gray-500 ml-1">from last month</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* System Status Overview */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">System Status</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+              {systemCards.map((system, index) => (
+                <Card key={index} className="text-center">
+                  <CardContent className="p-4">
+                    <div className={`${system.color} text-white p-3 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center`}>
+                      {system.icon}
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{system.title}</h3>
+                    <Badge variant={system.status ? "default" : "destructive"} className="text-xs">
+                      {system.status ? 'Operational' : 'Offline'}
+                    </Badge>
+                  </CardContent>
+                </Card>
               ))}
-            </Grid>
-          </Box>
+            </div>
+          </div>
 
-          {/* New Feature Navigation Cards */}
-          <Grid item xs={12} sm={6} md={4}>
-            <Paper
-              sx={{
-                p: 3,
-                background: 'rgba(20,20,20,0.7)',
-                border: '2px solid #ffb300',
-                borderRadius: 2,
-                boxShadow: '0 0 20px #ffb30040',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 0 30px #ffb30080',
-                }
-              }}
-              onClick={() => router.push('/avatar-progression-test')}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontSize: '2rem', mr: 2 }}>🧬</Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: '#ffb300',
-                    fontFamily: 'Orbitron, monospace',
-                    fontWeight: 600,
-                    textShadow: '0 0 10px #ffb300'
-                  }}
-                >
-                  Avatar Progression Test
-                </Typography>
-              </Box>
-              <Typography
-                variant="body2"
-                sx={{ color: '#ccc', fontSize: '0.9rem' }}
-              >
-                Test narrative-driven avatar progression and evolution.
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Paper
-              sx={{
-                p: 3,
-                background: 'rgba(20,20,20,0.7)',
-                border: '2px solid #00e676',
-                borderRadius: 2,
-                boxShadow: '0 0 20px #00e67640',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 0 30px #00e67680',
-                }
-              }}
-              onClick={() => router.push('/world-map')}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontSize: '2rem', mr: 2 }}>🗺️</Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: '#00e676',
-                    fontFamily: 'Orbitron, monospace',
-                    fontWeight: 600,
-                    textShadow: '0 0 10px #00e676'
-                  }}
-                >
-                  World Map
-                </Typography>
-              </Box>
-              <Typography
-                variant="body2"
-                sx={{ color: '#ccc', fontSize: '0.9rem' }}
-              >
-                View live Dojo status and territory control.
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Paper
-              sx={{
-                p: 3,
-                background: 'rgba(20,20,20,0.7)',
-                border: '2px solid #00bcd4',
-                borderRadius: 2,
-                boxShadow: '0 0 20px #00bcd440',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 0 30px #00bcd480',
-                }
-              }}
-              onClick={() => router.push('/ai-commentary')}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography sx={{ fontSize: '2rem', mr: 2 }}>🤖</Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: '#00bcd4',
-                    fontFamily: 'Orbitron, monospace',
-                    fontWeight: 600,
-                    textShadow: '0 0 10px #00bcd4'
-                  }}
-                >
-                  AI Commentary
-                </Typography>
-              </Box>
-              <Typography
-                variant="body2"
-                sx={{ color: '#ccc', fontSize: '0.9rem' }}
-              >
-                Experience Pool God/Fluke God match commentary.
-              </Typography>
-            </Paper>
-          </Grid>
-
-          {/* Stats */}
-          <Box sx={{ mb: 6 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontFamily: 'Orbitron, monospace',
-                color: '#00a8ff',
-                mb: 3,
-                textAlign: 'center'
-              }}
-            >
-              Your Stats
-            </Typography>
-            <Grid container spacing={3}>
-              {stats.map((stat, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Paper
-                    sx={{
-                      p: 3,
-                      background: 'rgba(20,20,20,0.7)',
-                      border: `2px solid ${stat.color}`,
-                      borderRadius: 2,
-                      boxShadow: `0 0 20px ${stat.color}40`,
-                      textAlign: 'center'
-                    }}
-                  >
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        color: stat.color,
-                        fontFamily: 'Orbitron, monospace',
-                        fontWeight: 700,
-                        textShadow: `0 0 10px ${stat.color}`,
-                        mb: 1
-                      }}
+          {/* Main System Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {systemCards.map((system, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`${system.color} text-white p-2 rounded-lg`}>
+                        {system.icon}
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">{system.title}</CardTitle>
+                        <p className="text-sm text-gray-600">{system.description}</p>
+                      </div>
+                    </div>
+                    <Badge variant={system.status ? "default" : "destructive"}>
+                      {system.status ? 'Online' : 'Offline'}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {system.features.map((feature, featureIndex) => (
+                        <Badge key={featureIndex} variant="outline" className="text-xs">
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
+                    <Button 
+                      onClick={() => router.push(system.href)}
+                      className="w-full"
+                      disabled={!system.status}
                     >
-                      {stat.value}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: '#fff',
-                        fontFamily: 'Orbitron, monospace',
-                        fontWeight: 600,
-                        mb: 1
-                      }}
-                    >
-                      {stat.label}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: '#ccc',
-                        fontSize: '0.8rem'
-                      }}
-                    >
-                      {stat.helpText}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-
-          {/* Map and Wallet Section */}
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={8}>
-              <Card
-                sx={{
-                  background: 'rgba(20,20,20,0.7)',
-                  border: '2px solid #00ff9d',
-                  borderRadius: 3,
-                  boxShadow: '0 0 30px rgba(0, 255, 157, 0.3)',
-                  backdropFilter: 'blur(10px)',
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      color: '#00ff9d',
-                      fontFamily: 'Orbitron, monospace',
-                      fontWeight: 600,
-                      mb: 2,
-                      textShadow: '0 0 10px rgba(0, 255, 157, 0.5)'
-                    }}
-                  >
-                    Venue Map
-                  </Typography>
-                  <Box sx={{ height: 400, borderRadius: 2, overflow: 'hidden' }}>
-                    <MapView />
-                  </Box>
+                      Access {system.title}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <Card
-                sx={{
-                  background: 'rgba(20,20,20,0.7)',
-                  border: '2px solid #00a8ff',
-                  borderRadius: 3,
-                  boxShadow: '0 0 30px rgba(0, 168, 255, 0.3)',
-                  backdropFilter: 'blur(10px)',
-                  mb: 3
-                }}
+            ))}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                onClick={() => router.push('/diception-test')}
+                className="h-16 text-lg"
+                variant="outline"
               >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: '#00a8ff',
-                      fontFamily: 'Orbitron, monospace',
-                      fontWeight: 600,
-                      mb: 2,
-                      textShadow: '0 0 10px rgba(0, 168, 255, 0.5)'
-                    }}
-                  >
-                    Wallet Balance
-                  </Typography>
-                  <WalletBalanceView />
-                </CardContent>
-              </Card>
-              
-              <Card
-                sx={{
-                  background: 'rgba(20,20,20,0.7)',
-                  border: '2px solid #ff6b6b',
-                  borderRadius: 3,
-                  boxShadow: '0 0 30px rgba(255, 107, 107, 0.3)',
-                  backdropFilter: 'blur(10px)',
-                }}
+                <Target className="w-5 h-5 mr-2" />
+                Test Diception AI
+              </Button>
+              <Button 
+                onClick={() => router.push('/advanced-social-community')}
+                className="h-16 text-lg"
+                variant="outline"
               >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: '#ff6b6b',
-                      fontFamily: 'Orbitron, monospace',
-                      fontWeight: 600,
-                      mb: 2,
-                      textShadow: '0 0 10px rgba(255, 107, 107, 0.5)'
-                    }}
-                  >
-                    Rewards
-                  </Typography>
-                  <RewardsDisplayPanel />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
-      </PageBackground>
-    </Layout>
+                <MessageSquare className="w-5 h-5 mr-2" />
+                View Community
+              </Button>
+              <Button 
+                onClick={() => router.push('/advanced-analytics')}
+                className="h-16 text-lg"
+                variant="outline"
+              >
+                <BarChart3 className="w-5 h-5 mr-2" />
+                View Analytics
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
-export default DashboardPage; 
+export default Dashboard; 

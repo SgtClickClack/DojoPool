@@ -87,6 +87,9 @@ const AvatarProgression = React.lazy(() => import("../pages/avatar-progression-t
 const WorldMap = React.lazy(() => import("../pages/world-map"));
 const AdvancedMatchCommentary = React.lazy(() => import("../pages/ai-commentary"));
 
+// Diception AI Integration
+const DiceptionTest = React.lazy(() => import("../pages/diception-test"));
+
 interface ProtectedRouteProps {
   // children?: React.ReactNode; // Outlet will handle children for layout routes
 }
@@ -149,6 +152,7 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/diception-test" element={<DiceptionTest />} />
 
             {/* Protected routes using an element for layout/protection */}
             <Route element={<ProtectedRoute />}>

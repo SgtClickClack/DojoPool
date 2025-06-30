@@ -8,6 +8,7 @@ import logging
 from datetime import datetime
 import threading
 from collections import deque
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +72,14 @@ class BallTracker:
 
     def _create_ball_detector(self) -> cv2.dnn.Net:
         """Create ball detection model."""
-        # Load YOLOv4 model trained on pool ball dataset
-        model = cv2.dnn.readNet("models/yolov4-pool-balls.weights", "models/yolov4-pool-balls.cfg")
+        weights_path = "models/yolov4-pool-balls.weights"
+        cfg_path = "models/yolov4-pool-balls.cfg"
+        if not os.path.exists(weights_path) or not os.path.exists(cfg_path):
+            raise FileNotFoundError(
+                f"YOLO model files not found. Expected at: {weights_path} and {cfg_path}. "
+                "Please place the trained YOLO weights and config files in the models/ directory."
+            )
+        model = cv2.dnn.readNet(weights_path, cfg_path)
         model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
         return model
