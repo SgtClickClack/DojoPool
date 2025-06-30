@@ -419,7 +419,7 @@ export const deleteAccount = async (
 // Export user data
 export const exportUserData = async (
   user: User,
-): Promise<{ success: boolean; data?: any; error?: string }> => {
+): Promise<{ success: boolean; data?: unknown; error?: string }> => {
   try {
     // Get user document from Firestore
     const userDoc = await getDoc(doc(db, "users", user.uid));
