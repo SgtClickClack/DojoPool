@@ -570,19 +570,16 @@
     </div>
 
     <script>
-        // Password Protection - Password should be validated server-side
-        // For demo purposes, using a simple check - in production, this should be server-side validated
+        // TODO: SECURITY - Temporary client-side password protection for development
+        // This should be replaced with proper server-side authentication in production
+        const ACCESS_PASSWORD = "DojoInvestor2025!";
         
         function checkPassword() {
             const input = document.getElementById('password-input');
             const password = input.value;
             const errorMessage = document.getElementById('error-message');
             
-            // In production, this should be a server-side API call
-            // For now, using a simple check that should be replaced
-            if (password && password.length > 0) {
-                // TODO: Replace with server-side validation
-                // This is a placeholder - should call /api/validate-investor-access
+            if (password === ACCESS_PASSWORD) {
                 document.getElementById('password-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
                 // Clear password from memory

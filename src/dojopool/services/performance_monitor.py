@@ -362,7 +362,8 @@ class PerformanceMonitor:
                 if redis_data:
                     if isinstance(redis_data, bytes):
                         redis_data = redis_data.decode('utf-8')
-                    metrics.append(json.loads(str(redis_data)))
+                    # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                    metrics.append(json.loads(redis_data))
 
         return {
             "metrics": metrics,
