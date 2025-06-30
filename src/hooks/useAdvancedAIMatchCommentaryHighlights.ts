@@ -1,5 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  ShotReplayData,
+  CinematicShot,
+  PlayerPattern,
+  MatchCommentary,
+  AdvancedCommentaryEvent,
+  AdvancedCommentaryConfig,
+  AdvancedCommentaryMetrics
+} from '../services/ai/AdvancedAIMatchCommentaryHighlightsService';
 
 // Types
 export interface AdvancedHighlightRequest {
@@ -52,45 +61,7 @@ export interface AdvancedHighlight {
   updatedAt: Date;
 }
 
-export interface AdvancedCommentaryEvent {
-  id: string;
-  matchId: string;
-  type: string;
-  playerId?: string;
-  playerName?: string;
-  description: string;
-  context: any;
-  timestamp: Date;
-  reactions: any[];
-}
-
-export interface AdvancedCommentaryConfig {
-  enabled: boolean;
-  realTimeCommentary: boolean;
-  highlightGeneration: boolean;
-  audioSynthesis: boolean;
-  videoSynthesis: boolean;
-  socialSharing: boolean;
-  analytics: boolean;
-  updateInterval: number;
-  retentionPeriod: number;
-  notificationSettings: {
-    email: boolean;
-    sms: boolean;
-    push: boolean;
-    webhook: boolean;
-  };
-}
-
-export interface AdvancedCommentaryMetrics {
-  totalEvents: number;
-  totalHighlights: number;
-  averageGenerationTime: number;
-  popularStyles: string[];
-  topReactions: string[];
-  shareRate: number;
-  lastActivity: Date;
-}
+// Using imported types from service instead of local definitions
 
 export interface ReactionRequest {
   commentaryId: string;
@@ -282,8 +253,40 @@ export const advancedCommentaryKeys = {
   health: () => [...advancedCommentaryKeys.all, 'health'] as const,
 };
 
-// Main Hook
-export const useAdvancedAIMatchCommentaryHighlights = () => {
+interface UseAdvancedAIMatchCommentaryHighlightsReturn {
+  // Core Features
+  calculateShotScore: (shot: ShotReplayData) => Promise<number>;
+  generateCinematicReplay: (shot: ShotReplayData) => Promise<CinematicShot>;
+  analyzePlayerPatterns: (playerId: string, recentShots: ShotReplayData[]) => Promise<PlayerPattern>;
+  generateCoachingAdvice: (playerId: string) => Promise<string[]>;
+  generateLiveCommentary: (shot: ShotReplayData, gameContext?: any) => Promise<MatchCommentary[]>;
+  
+  // Match Management
+  addShotToMatch: (shot: ShotReplayData) => Promise<void>;
+  getCurrentMatchShots: () => Promise<ShotReplayData[]>;
+  getMatchHighlights: () => Promise<CinematicShot[]>;
+  clearMatchData: () => Promise<void>;
+  
+  // Player Patterns
+  getPlayerPattern: (playerId: string) => Promise<PlayerPattern | null>;
+  
+  // Configuration & Metrics
+  getConfig: () => Promise<AdvancedCommentaryConfig>;
+  getMetrics: () => Promise<AdvancedCommentaryMetrics>;
+  getCommentaryEvents: (matchId: string) => Promise<AdvancedCommentaryEvent[]>;
+  
+  // State
+  loading: boolean;
+  error: string | null;
+  currentShots: ShotReplayData[];
+  highlights: CinematicShot[];
+  playerPatterns: Map<string, PlayerPattern>;
+  liveCommentary: MatchCommentary[];
+  config: AdvancedCommentaryConfig | null;
+  metrics: AdvancedCommentaryMetrics | null;
+}
+
+export const useAdvancedAIMatchCommentaryHighlights = (): UseAdvancedAIMatchCommentaryHighlightsReturn => {
   const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -373,33 +376,332 @@ export const useAdvancedAIMatchCommentaryHighlights = () => {
     }
   }, [generateHighlightsMutation]);
 
+  // State
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentShots, setCurrentShots] = useState<ShotReplayData[]>([]);
+  const [highlights, setHighlights] = useState<CinematicShot[]>([]);
+  const [playerPatterns, setPlayerPatterns] = useState<Map<string, PlayerPattern>>(new Map());
+  const [liveCommentary, setLiveCommentary] = useState<MatchCommentary[]>([]);
+  const [config, setConfig] = useState<AdvancedCommentaryConfig | null>(null);
+  const [metrics, setMetrics] = useState<AdvancedCommentaryMetrics | null>(null);
+
+  // Helper function for API calls
+  const apiCall = useCallback(async (endpoint: string, options: RequestInit = {}) => {
+    try {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
+      throw err;
+    }
+  }, []);
+
+  // Core Features
+  const calculateShotScore = useCallback(async (shot: ShotReplayData): Promise<number> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/shot-score', {
+        method: 'POST',
+        body: JSON.stringify({ shot }),
+      });
+      
+      return response.data.score;
+    } catch (err) {
+      console.error('Error calculating shot score:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const generateCinematicReplay = useCallback(async (shot: ShotReplayData): Promise<CinematicShot> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/cinematic-replay', {
+        method: 'POST',
+        body: JSON.stringify({ shot }),
+      });
+      
+      return response.data;
+    } catch (err) {
+      console.error('Error generating cinematic replay:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const analyzePlayerPatterns = useCallback(async (playerId: string, recentShots: ShotReplayData[]): Promise<PlayerPattern> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/analyze-patterns', {
+        method: 'POST',
+        body: JSON.stringify({ playerId, recentShots }),
+      });
+      
+      const pattern = response.data;
+      setPlayerPatterns(prev => new Map(prev.set(playerId, pattern)));
+      return pattern;
+    } catch (err) {
+      console.error('Error analyzing player patterns:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const generateCoachingAdvice = useCallback(async (playerId: string): Promise<string[]> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall(`/coaching-advice/${playerId}`);
+      return response.data.advice;
+    } catch (err) {
+      console.error('Error generating coaching advice:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const generateLiveCommentary = useCallback(async (shot: ShotReplayData, gameContext: any = {}): Promise<MatchCommentary[]> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/live-commentary', {
+        method: 'POST',
+        body: JSON.stringify({ shot, gameContext }),
+      });
+      
+      const commentary = response.data;
+      setLiveCommentary(prev => [...prev, ...commentary]);
+      return commentary;
+    } catch (err) {
+      console.error('Error generating live commentary:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  // Match Management
+  const addShotToMatch = useCallback(async (shot: ShotReplayData): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await apiCall('/add-shot', {
+        method: 'POST',
+        body: JSON.stringify({ shot }),
+      });
+      
+      setCurrentShots(prev => [...prev, shot]);
+    } catch (err) {
+      console.error('Error adding shot to match:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const getCurrentMatchShots = useCallback(async (): Promise<ShotReplayData[]> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/current-shots');
+      const shots = response.data.shots;
+      setCurrentShots(shots);
+      return shots;
+    } catch (err) {
+      console.error('Error getting current match shots:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const getMatchHighlights = useCallback(async (): Promise<CinematicShot[]> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/match-highlights');
+      const matchHighlights = response.data.highlights;
+      setHighlights(matchHighlights);
+      return matchHighlights;
+    } catch (err) {
+      console.error('Error getting match highlights:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const clearMatchData = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await apiCall('/clear-match', {
+        method: 'POST',
+      });
+      
+      setCurrentShots([]);
+      setHighlights([]);
+      setLiveCommentary([]);
+    } catch (err) {
+      console.error('Error clearing match data:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  // Player Patterns
+  const getPlayerPattern = useCallback(async (playerId: string): Promise<PlayerPattern | null> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall(`/player-pattern/${playerId}`);
+      const pattern = response.data;
+      setPlayerPatterns(prev => new Map(prev.set(playerId, pattern)));
+      return pattern;
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('404')) {
+        return null;
+      }
+      console.error('Error getting player pattern:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  // Configuration & Metrics
+  const getConfig = useCallback(async (): Promise<AdvancedCommentaryConfig> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/config');
+      const configData = response.data;
+      setConfig(configData);
+      return configData;
+    } catch (err) {
+      console.error('Error getting config:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const getMetrics = useCallback(async (): Promise<AdvancedCommentaryMetrics> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall('/metrics');
+      const metricsData = response.data;
+      setMetrics(metricsData);
+      return metricsData;
+    } catch (err) {
+      console.error('Error getting metrics:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  const getCommentaryEvents = useCallback(async (matchId: string): Promise<AdvancedCommentaryEvent[]> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiCall(`/commentary-events/${matchId}`);
+      return response.data.events;
+    } catch (err) {
+      console.error('Error getting commentary events:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiCall]);
+
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        await Promise.all([
+          getConfig(),
+          getMetrics(),
+          getCurrentMatchShots(),
+        ]);
+      } catch (err) {
+        console.error('Error loading initial data:', err);
+      }
+    };
+
+    loadInitialData();
+  }, [getConfig, getMetrics, getCurrentMatchShots]);
+
   return {
-    // Mutations
-    generateHighlights,
-    generateCommentary: generateCommentaryMutation.mutateAsync,
-    addReaction: addReactionMutation.mutateAsync,
-    shareHighlight: shareHighlightMutation.mutateAsync,
-    deleteHighlight: deleteHighlightMutation.mutateAsync,
-    updateConfig: updateConfigMutation.mutateAsync,
+    // Core Features
+    calculateShotScore,
+    generateCinematicReplay,
+    analyzePlayerPatterns,
+    generateCoachingAdvice,
+    generateLiveCommentary,
     
-    // Loading states
-    isGenerating,
-    generationProgress,
-    isGeneratingCommentary: generateCommentaryMutation.isPending,
-    isAddingReaction: addReactionMutation.isPending,
-    isSharing: shareHighlightMutation.isPending,
-    isDeleting: deleteHighlightMutation.isPending,
-    isUpdatingConfig: updateConfigMutation.isPending,
+    // Match Management
+    addShotToMatch,
+    getCurrentMatchShots,
+    getMatchHighlights,
+    clearMatchData,
     
-    // Error states
-    generateError: generateHighlightsMutation.error,
-    commentaryError: generateCommentaryMutation.error,
-    reactionError: addReactionMutation.error,
-    shareError: shareHighlightMutation.error,
-    deleteError: deleteHighlightMutation.error,
-    configError: updateConfigMutation.error,
+    // Player Patterns
+    getPlayerPattern,
+    
+    // Configuration & Metrics
+    getConfig,
+    getMetrics,
+    getCommentaryEvents,
+    
+    // State
+    loading,
+    error,
+    currentShots,
+    highlights,
+    playerPatterns,
+    liveCommentary,
+    config,
+    metrics,
   };
 };
+
+export default useAdvancedAIMatchCommentaryHighlights;
 
 // Query Hooks
 export const useMatchHighlights = (matchId: string) => {
