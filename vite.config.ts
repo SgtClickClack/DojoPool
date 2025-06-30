@@ -38,6 +38,7 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
+      input: path.resolve(__dirname, 'public/index.html'),
       external: ['pages', 'src/pages'],
     },
   },

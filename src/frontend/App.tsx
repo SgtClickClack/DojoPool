@@ -88,7 +88,7 @@ const WorldMap = React.lazy(() => import("../pages/world-map"));
 const AdvancedMatchCommentary = React.lazy(() => import("../pages/ai-commentary"));
 
 // Diception AI Integration
-const DiceptionTest = React.lazy(() => import("../pages/diception-test"));
+const DiceptionTest = React.lazy(() => import("../../pages/diception-test"));
 
 interface ProtectedRouteProps {
   // children?: React.ReactNode; // Outlet will handle children for layout routes
