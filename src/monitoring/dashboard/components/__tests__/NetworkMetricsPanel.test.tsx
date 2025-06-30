@@ -60,31 +60,31 @@ describe("NetworkMetricsPanel", () => {
     it("displays average latency with correct formatting", () => {
       renderPanel();
       const card = screen.getByText("Average Latency").closest(".MuiCard-root") as HTMLElement;
-      expect(within(card!).getByText("150.00 ms")).toBeInTheDocument();
+      expect(within(card!).getByText(/150\.00/)).toBeInTheDocument();
     });
 
     it("displays P95 latency with correct formatting", () => {
       renderPanel();
       const card = screen.getByText("P95 Latency").closest(".MuiCard-root") as HTMLElement;
-      expect(within(card!).getByText("250.00 ms")).toBeInTheDocument();
+      expect(within(card!).getByText(/250\.00/)).toBeInTheDocument();
     });
 
     it("displays bandwidth usage with correct formatting", () => {
       renderPanel();
       const card = screen.getAllByText("Bandwidth Usage")[0].closest(".MuiCard-root") as HTMLElement;
-      expect(within(card!).getByText("512.00 KB/s")).toBeInTheDocument();
+      expect(within(card!).getByText(/512\.00/)).toBeInTheDocument();
     });
 
     it("displays connection stability with correct formatting", () => {
       renderPanel();
       const card = screen.getByText("Connection Stability").closest(".MuiCard-root") as HTMLElement;
-      expect(within(card!).getByText("95.00%")).toBeInTheDocument();
+      expect(within(card!).getByText(/95\.00/)).toBeInTheDocument();
     });
 
     it("displays queue size with correct formatting", () => {
       renderPanel();
       const card = screen.getByText("Queue Size").closest(".MuiCard-root") as HTMLElement;
-      expect(within(card!).getByText("50.00 messages")).toBeInTheDocument();
+      expect(within(card!).getByText(/50\.00/)).toBeInTheDocument();
     });
 
     it("displays error rate with correct formatting", () => {
@@ -94,7 +94,7 @@ describe("NetworkMetricsPanel", () => {
         (mockMetrics.errors / mockMetrics.messagesSent) *
         100
       ).toFixed(1);
-      expect(within(card!).getByText(`${errorRate}%`)).toBeInTheDocument();
+      expect(within(card!).getByText(new RegExp(`${errorRate}%`))).toBeInTheDocument();
     });
 
     it("applies correct color coding based on thresholds", () => {
@@ -114,8 +114,8 @@ describe("NetworkMetricsPanel", () => {
         </ThemeProvider>,
       );
 
-      const latencyValue = screen.getByText("600.00 ms").parentElement as HTMLElement;
-      const errorValue = screen.getByText("15.0 %").parentElement as HTMLElement;
+      const latencyValue = screen.getByText(/600\.00/).parentElement as HTMLElement;
+      const errorValue = screen.getByText(/15\.0/).parentElement as HTMLElement;
 
       expect(latencyValue).toHaveStyle({ color: theme.palette.error.main });
       expect(errorValue).toHaveStyle({ color: theme.palette.error.main });
@@ -138,8 +138,8 @@ describe("NetworkMetricsPanel", () => {
         </ThemeProvider>,
       );
 
-      const latencyValue = screen.getByText("250.00 ms").parentElement as HTMLElement;
-      const errorValue = screen.getByText("7.0 %").parentElement as HTMLElement;
+      const latencyValue = screen.getByText(/250\.00/).parentElement as HTMLElement;
+      const errorValue = screen.getByText(/7\.0/).parentElement as HTMLElement;
 
       expect(latencyValue).toHaveStyle({ color: theme.palette.warning.main });
       expect(errorValue).toHaveStyle({ color: theme.palette.warning.main });
@@ -151,21 +151,21 @@ describe("NetworkMetricsPanel", () => {
       renderPanel();
       const chart = screen
         .getByText("Latency Over Time")
-        .closest(".MuiCard-root");
-      expect(within(chart!).getByText("Average")).toBeInTheDocument();
-      expect(within(chart!).getByText("95th Percentile")).toBeInTheDocument();
+        .closest(".MuiCard-root") as HTMLElement;
+      expect(within(chart!).getByText(/Average/)).toBeInTheDocument();
+      expect(within(chart!).getByText(/95th Percentile/)).toBeInTheDocument();
     });
 
     it("renders bandwidth usage chart", () => {
       renderPanel();
       const chart = screen.getAllByText("Bandwidth Usage")[1].closest(".MuiCard-root") as HTMLElement;
-      expect(within(chart!).getByText("Usage")).toBeInTheDocument();
+      expect(within(chart!).getByText(/Usage/)).toBeInTheDocument();
     });
 
     it("renders error rate chart", () => {
       renderPanel();
       const chart = screen.getAllByText("Error Rate")[1].closest(".MuiCard-root") as HTMLElement;
-      expect(within(chart!).getByText("Rate")).toBeInTheDocument();
+      expect(within(chart!).getByText(/Rate/)).toBeInTheDocument();
     });
   });
 

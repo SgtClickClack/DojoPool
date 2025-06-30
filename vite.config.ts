@@ -38,8 +38,11 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
+<<<<<<< Updated upstream
       input: path.resolve(__dirname, 'public/index.html'),
       external: ['pages', 'src/pages'],
+=======
+>>>>>>> Stashed changes
     },
   },
   resolve: {
@@ -49,6 +52,5 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', '@emotion/react', '@emotion/styled'],
-    exclude: ['pages', 'src/pages'],
   },
 });

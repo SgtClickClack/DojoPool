@@ -10,7 +10,11 @@ import { joinTournament } from '@/frontend/api/tournaments'; // Import join func
 import { Tournament, Participant, TournamentStatus, Match } from '@/types/tournament'; // Import Match
 import { Venue } from '@/dojopool/frontend/types/venue'; // Adjusted path
 // Auth Hook
+<<<<<<< Updated upstream
 import { useAuth } from '@/components/auth/AuthContext'; 
+=======
+import { useAuth } from '../auth/AuthContext';
+>>>>>>> Stashed changes
 import { SocketIOService } from '@/services/network/WebSocketService'; // Fixed import path
 import { submitMatchResult } from '@/services/tournament/tournament';
 import Snackbar from '@mui/material/Snackbar';
