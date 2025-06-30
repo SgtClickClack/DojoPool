@@ -132,8 +132,7 @@ router.post('/commentary', validateAdvancedCommentary, async (req: Request, res:
 router.get('/match/:matchId', async (req: Request, res: Response) => {
   try {
     const { matchId } = req.params;
-    // TODO: Implement getAdvancedHighlightsByMatch method
-    const highlights: any[] = [];
+    const highlights = service.getAdvancedHighlightsByMatch(matchId);
     const commentary = service.getAdvancedCommentaryEvents(matchId);
     
     res.json({
@@ -178,8 +177,7 @@ router.get('/commentary/:matchId', async (req: Request, res: Response) => {
 // GET /api/advanced-ai-match-commentary-highlights/all
 router.get('/all', async (req: Request, res: Response) => {
   try {
-    // TODO: Implement getAllAdvancedHighlights method
-    const highlights: any[] = [];
+    const highlights = service.getAllAdvancedHighlights();
     
     res.json({
       success: true,
@@ -200,9 +198,7 @@ router.get('/all', async (req: Request, res: Response) => {
 router.get('/highlight/:highlightId', async (req: Request, res: Response) => {
   try {
     const { highlightId } = req.params;
-    // TODO: Implement getAllAdvancedHighlights method
-    const allHighlights: any[] = [];
-    const highlight = allHighlights.find((h: any) => h.id === highlightId);
+    const highlight = service.getAdvancedHighlightById(highlightId);
     
     if (!highlight) {
       return res.status(404).json({
@@ -229,13 +225,12 @@ router.get('/highlight/:highlightId', async (req: Request, res: Response) => {
 router.put('/config', async (req: Request, res: Response) => {
   try {
     const newConfig = req.body;
-    // TODO: Implement updateConfig method
-    console.log('Config update requested:', newConfig);
+    const updatedConfig = service.updateConfig(newConfig);
     
     res.json({
       success: true,
       message: 'Configuration updated successfully',
-      data: service.getConfig()
+      data: updatedConfig
     });
 
   } catch (error) {
