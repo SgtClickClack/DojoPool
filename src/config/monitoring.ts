@@ -1,6 +1,52 @@
-import { Request, Response, NextFunction } from 'express';
+// Monitoring configuration for DojoPool
+export const monitoringConfig = {
+  // Performance monitoring
+  performance: {
+    enabled: true,
+    sampleRate: 0.1, // 10% of requests
+    metrics: {
+      responseTime: true,
+      memoryUsage: true,
+      cpuUsage: true,
+      errorRate: true
+    }
+  },
 
-// Simple console-based logger for development
+  // Error tracking
+  errorTracking: {
+    enabled: true,
+    captureUnhandled: true,
+    maxErrorsPerMinute: 100
+  },
+
+  // Health checks
+  healthChecks: {
+    enabled: true,
+    interval: 30000, // 30 seconds
+    timeout: 5000,   // 5 seconds
+    endpoints: [
+      '/api/health',
+      '/api/database/health',
+      '/api/redis/health'
+    ]
+  },
+
+  // Logging
+  logging: {
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+    format: 'json',
+    transports: ['console', 'file']
+  },
+
+  // Metrics collection
+  metrics: {
+    enabled: true,
+    interval: 60000, // 1 minute
+    retention: 7 * 24 * 60 * 60 * 1000 // 7 days
+  }
+};
+
+// Logger instances
 export const logger = {
   info: (message: string, meta?: any) => console.log(`[INFO] ${message}`, meta || ''),
   error: (message: string, meta?: any) => console.error(`[ERROR] ${message}`, meta || ''),
@@ -8,44 +54,33 @@ export const logger = {
   debug: (message: string, meta?: any) => console.debug(`[DEBUG] ${message}`, meta || ''),
 };
 
-// Simple HTTP logging middleware
-export const httpLogger = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    logger.info(`${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
-  });
+export const httpLogger = (req: any, res: any, next: any) => {
+  logger.info(`${req.method} ${req.url}`);
   next();
 };
 
-// Simple error logging middleware
-export const errorLogger = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`Error in ${req.method} ${req.originalUrl}: ${err.message}`);
+export const errorLogger = (err: any, req: any, res: any, next: any) => {
+  logger.error(`${err.message} - ${req.method} ${req.url}`);
   next(err);
 };
 
-// Simple performance logging middleware
-export const performanceLogger = (req: Request, res: Response, next: NextFunction) => {
+export const performanceLogger = (req: any, res: any, next: any) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    if (duration > 1000) {
-      logger.warn(`Slow request: ${req.method} ${req.originalUrl} took ${duration}ms`);
-    }
+    logger.info(`${req.method} ${req.url} - ${duration}ms`);
   });
   next();
 };
 
-// Simple metrics middleware
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  // Basic metrics collection could go here
+export const metricsMiddleware = (req: any, res: any, next: any) => {
+  // Basic metrics collection
   next();
 };
 
-// Simple health check endpoint
-export const healthCheck = (req: Request, res: Response) => {
-  res.status(200).json({
-    status: 'ok',
+export const healthCheck = (req: any, res: any) => {
+  res.json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     pid: process.pid,
@@ -53,8 +88,9 @@ export const healthCheck = (req: Request, res: Response) => {
   });
 };
 
-// Simple graceful shutdown
 export const gracefulShutdown = (signal: string) => {
-  logger.info(`Received ${signal}, shutting down gracefully...`);
+  logger.info(`Received ${signal}. Starting graceful shutdown...`);
   process.exit(0);
 };
+
+export default monitoringConfig;

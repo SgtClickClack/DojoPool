@@ -50,8 +50,6 @@ config();
 
 logger.info('🔍 Backend index.ts loaded - app initialization starting');
 
-dotenv.config();
-
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -200,10 +198,10 @@ app.use('/api/*', (req: Request, res: Response) => {
 
 // Initialize Socket.IO
 io.on('connection', (socket) => {
-  logger.info('Socket.IO client connected:', { socketId: socket.id });
+  logger.info(`Socket.IO client connected: ${socket.id}`);
   
   socket.on('disconnect', () => {
-    logger.info('Socket.IO client disconnected:', { socketId: socket.id });
+    logger.info(`Socket.IO client disconnected: ${socket.id}`);
   });
 });
 

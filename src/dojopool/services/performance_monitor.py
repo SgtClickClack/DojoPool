@@ -357,7 +357,12 @@ class PerformanceMonitor:
         for key in self.redis.scan_iter("system_metrics:*"):
             timestamp = key.decode().split(":")[1]
             if start_time <= datetime.fromisoformat(timestamp) <= end_time:
-                metrics.append(eval(self.redis.get(key).decode()))
+                # Handle Redis response type properly and use secure JSON parsing
+                redis_data = self.redis.get(key)
+                if redis_data:
+                    if isinstance(redis_data, bytes):
+                        redis_data = redis_data.decode('utf-8')
+                    metrics.append(json.loads(str(redis_data)))
 
         return {
             "metrics": metrics,

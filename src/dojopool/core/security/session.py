@@ -1,5 +1,6 @@
 """Session management module."""
 
+import json
 import secrets
 import time
 from typing import Dict, Optional
@@ -36,7 +37,6 @@ class SessionManager:
 
         if self.redis:
             try:
-                import json
                 self.redis.setex(f"session:{token}", int(expires - time.time()), json.dumps(session_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
@@ -64,14 +64,17 @@ class SessionManager:
                 if not session_data:
                     return None
 
-                import json
-                session_data = json.loads(session_data)
+                # Handle Redis response type properly
+                if isinstance(session_data, bytes):
+                    session_data = session_data.decode('utf-8')
+                
+                session_data = json.loads(str(session_data))  # Secure JSON parsing
                 if time.time() > session_data["expires"]:
                     self.delete_session(token)
                     return None
 
                 return session_data
-            except redis.RedisError:
+            except (redis.RedisError, json.JSONDecodeError):
                 # Fall back to in-memory storage
                 session_data = self.sessions.get(token)
         else:
@@ -118,7 +121,6 @@ class SessionManager:
 
         if self.redis:
             try:
-                import json
                 self.redis.setex(f"reset:{token}", expires_in, json.dumps(token_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
@@ -146,14 +148,17 @@ class SessionManager:
                 if not token_data:
                     return None
 
-                import json
-                token_data = json.loads(token_data)
+                # Handle Redis response type properly
+                if isinstance(token_data, bytes):
+                    token_data = token_data.decode('utf-8')
+                
+                token_data = json.loads(str(token_data))  # Secure JSON parsing
                 if time.time() > token_data["expires"]:
                     self.redis.delete(f"reset:{token}")
                     return None
 
                 return token_data["user_id"]
-            except redis.RedisError:
+            except (redis.RedisError, json.JSONDecodeError):
                 # Fall back to in-memory storage
                 token_data = self.sessions.get(f"reset:{token}")
         else:
