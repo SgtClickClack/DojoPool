@@ -88,9 +88,9 @@ const WorldMap = React.lazy(() => import("../pages/world-map"));
 const AdvancedMatchCommentary = React.lazy(() => import("../pages/ai-commentary"));
 
 // Core Game Features
-const BattlePage = React.lazy(() => import("../../pages/game/battle"));
-const AvatarEvolutionPage = React.lazy(() => import("../pages/avatar/evolution"));
-const ClanWarsPage = React.lazy(() => import("../pages/clan/wars"));
+// const BattlePage = React.lazy(() => import("../../pages/game/battle"));
+// const AvatarEvolutionPage = React.lazy(() => import("../pages/avatar/evolution"));
+// const ClanWarsPage = React.lazy(() => import("../pages/clan/wars"));
 
 // Diception AI Integration
 const DiceptionTest = React.lazy(() => import("../../pages/diception-test"));
@@ -186,9 +186,9 @@ const App: React.FC = () => {
               <Route path="/ai-commentary" element={<AdvancedMatchCommentary />} />
               
               {/* Core Game Features */}
-              <Route path="/game/battle" element={<BattlePage />} />
-              <Route path="/avatar/evolution" element={<AvatarEvolutionPage />} />
-              <Route path="/clan/wars" element={<ClanWarsPage />} />
+              {/* <Route path="/game/battle" element={<BattlePage />} /> */}
+              {/* <Route path="/avatar/evolution" element={<AvatarEvolutionPage />} /> */}
+              {/* <Route path="/clan/wars" element={<ClanWarsPage />} /> */}
               
               {/* Performance Routes */}
               <Route path="/performance/tournament-performance" element={<TournamentPerformance />} />

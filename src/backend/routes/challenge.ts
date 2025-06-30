@@ -149,7 +149,7 @@ router.put('/challenges/:challengeId/accept-challenge', async (req, res) => {
     });
     
   } catch (error) {
-    logger.error('Error accepting challenge:', error);
+    logger.error('Error accepting challenge:', error instanceof Error ? error : undefined);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -203,7 +203,7 @@ router.put('/challenges/:challengeId/decline-challenge', async (req, res) => {
     });
     
   } catch (error) {
-    logger.error('Error declining challenge:', error);
+    logger.error('Error declining challenge:', error instanceof Error ? error : undefined);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -254,7 +254,7 @@ router.post('/challenges', validateChallenge, async (req: Request, res: Response
     res.status(201).json(challenge);
 
   } catch (error) {
-    logger.error('Error creating challenge:', error);
+    logger.error('Error creating challenge:', error instanceof Error ? error : undefined);
     res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -285,7 +285,7 @@ router.get('/challenges/user/:userId', async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    logger.error('Error fetching user challenges:', error);
+    logger.error('Error fetching user challenges:', error instanceof Error ? error : undefined);
     res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -317,7 +317,7 @@ router.get('/challenges', async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    logger.error('Error fetching challenges:', error);
+    logger.error('Error fetching challenges:', error instanceof Error ? error : undefined);
     res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -389,7 +389,7 @@ router.post('/match-results', validateMatchResult, async (req: Request, res: Res
     });
 
   } catch (error) {
-    logger.error('Error recording match result:', error);
+    logger.error('Error recording match result:', error instanceof Error ? error : undefined);
     res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -429,7 +429,7 @@ router.get('/match-results', async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    logger.error('Error fetching match results:', error);
+    logger.error('Error fetching match results:', error instanceof Error ? error : undefined);
     res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -460,7 +460,7 @@ router.get('/challenges/:challengeId', async (req: Request, res: Response) => {
     });
     
   } catch (error) {
-    logger.error('Error fetching challenge:', error);
+    logger.error('Error fetching challenge:', error instanceof Error ? error : undefined);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
