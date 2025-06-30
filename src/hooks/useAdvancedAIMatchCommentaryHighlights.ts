@@ -459,7 +459,7 @@ export const useAdvancedAIMatchCommentaryHighlights = (): UseAdvancedAIMatchComm
       });
       
       const pattern = response.data;
-      setPlayerPatterns(prev => new Map(prev.set(playerId, pattern)));
+      setPlayerPatterns(prev => new Map(prev).set(playerId, pattern));
       return pattern;
     } catch (err) {
       console.error('Error analyzing player patterns:', err);
@@ -587,7 +587,7 @@ export const useAdvancedAIMatchCommentaryHighlights = (): UseAdvancedAIMatchComm
     try {
       const response = await apiCall(`/player-pattern/${playerId}`);
       const pattern = response.data;
-      setPlayerPatterns(prev => new Map(prev.set(playerId, pattern)));
+      setPlayerPatterns(prev => new Map(prev).set(playerId, pattern));
       return pattern;
     } catch (err) {
       if (err instanceof Error && err.message.includes('404')) {

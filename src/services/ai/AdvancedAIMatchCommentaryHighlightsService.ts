@@ -976,6 +976,24 @@ export class AdvancedAIMatchCommentaryHighlightsService extends EventEmitter {
     return this.metrics;
   }
 
+  public getAllAdvancedHighlights(): GeneratedAdvancedHighlight[] {
+    return Array.from(this.highlights.values());
+  }
+
+  public getAdvancedHighlightsByMatch(matchId: string): GeneratedAdvancedHighlight[] {
+    return Array.from(this.highlights.values()).filter(highlight => highlight.matchId === matchId);
+  }
+
+  public getAdvancedHighlightById(highlightId: string): GeneratedAdvancedHighlight | undefined {
+    return this.highlights.get(highlightId);
+  }
+
+  public updateConfig(newConfig: Partial<AdvancedCommentaryConfig>): AdvancedCommentaryConfig {
+    this.config = { ...this.config, ...newConfig };
+    console.log('Configuration updated successfully:', newConfig);
+    return this.config;
+  }
+
   private generateId(): string {
     return `advanced_commentary_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
