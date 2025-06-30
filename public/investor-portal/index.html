@@ -570,8 +570,9 @@
     </div>
 
     <script>
-        // Password Protection
-        const ACCESS_PASSWORD = "DojoInvestor2025!";
+        // TODO: SECURITY - Remove hardcoded secret and implement server-side authentication
+        // Password Protection moved to server-side
+        // const ACCESS_PASSWORD = "DojoInvestor2025!"; // REMOVED - Security vulnerability
         
         function checkPassword() {
             const input = document.getElementById('password-input');

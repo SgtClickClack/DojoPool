@@ -1,5 +1,6 @@
 """Session management module."""
 
+import json
 import secrets
 import time
 from typing import Dict, Optional
@@ -63,7 +64,8 @@ class SessionManager:
                 if not session_data:
                     return None
 
-                session_data = eval(session_data)  # Safe since we control the data
+                # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                session_data = json.loads(session_data)
                 if time.time() > session_data["expires"]:
                     self.delete_session(token)
                     return None
@@ -143,7 +145,8 @@ class SessionManager:
                 if not token_data:
                     return None
 
-                token_data = eval(token_data)  # Safe since we control the data
+                # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                token_data = json.loads(token_data)
                 if time.time() > token_data["expires"]:
                     self.redis.delete(f"reset:{token}")
                     return None

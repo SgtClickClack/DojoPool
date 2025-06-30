@@ -357,7 +357,8 @@ class PerformanceMonitor:
         for key in self.redis.scan_iter("system_metrics:*"):
             timestamp = key.decode().split(":")[1]
             if start_time <= datetime.fromisoformat(timestamp) <= end_time:
-                metrics.append(eval(self.redis.get(key).decode()))
+                # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                metrics.append(json.loads(self.redis.get(key).decode()))
 
         return {
             "metrics": metrics,
