@@ -29,6 +29,7 @@ import advancedVenueManagementRoutes from './routes/advanced-venue-management';
 import advancedSocialCommunityRoutes from './routes/advanced-social-community';
 import advancedAIRefereeRuleEnforcementRoutes from './routes/advanced-ai-referee-rule-enforcement';
 import advancedAIMatchCommentaryHighlightsRoutes from './routes/advanced-ai-match-commentary-highlights';
+import avatarCreationRoutes from './routes/avatarCreation';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import morgan from 'morgan';
@@ -177,6 +178,7 @@ app.use('/api/advanced-venue-management', advancedVenueManagementRoutes);
 app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
 app.use('/api/advanced-ai-referee-rule-enforcement', advancedAIRefereeRuleEnforcementRoutes);
 app.use('/api/advanced-ai-match-commentary-highlights', advancedAIMatchCommentaryHighlightsRoutes);
+app.use('/api/avatar', avatarCreationRoutes);
 
 // --- Global Error Handling Middleware ---
 app.use(errorLogger);
