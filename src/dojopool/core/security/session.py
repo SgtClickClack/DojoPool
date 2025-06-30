@@ -36,7 +36,8 @@ class SessionManager:
 
         if self.redis:
             try:
-                self.redis.setex(f"session:{token}", int(expires - time.time()), str(session_data))
+                import json
+                self.redis.setex(f"session:{token}", int(expires - time.time()), json.dumps(session_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
                 self.sessions[token] = session_data
@@ -63,7 +64,8 @@ class SessionManager:
                 if not session_data:
                     return None
 
-                session_data = eval(session_data)  # Safe since we control the data
+                import json
+                session_data = json.loads(session_data)
                 if time.time() > session_data["expires"]:
                     self.delete_session(token)
                     return None
@@ -116,7 +118,8 @@ class SessionManager:
 
         if self.redis:
             try:
-                self.redis.setex(f"reset:{token}", expires_in, str(token_data))
+                import json
+                self.redis.setex(f"reset:{token}", expires_in, json.dumps(token_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
                 self.sessions[f"reset:{token}"] = token_data
@@ -143,7 +146,8 @@ class SessionManager:
                 if not token_data:
                     return None
 
-                token_data = eval(token_data)  # Safe since we control the data
+                import json
+                token_data = json.loads(token_data)
                 if time.time() > token_data["expires"]:
                     self.redis.delete(f"reset:{token}")
                     return None
