@@ -8,35 +8,41 @@
 - **File**: `/public/investor-portal/index.html:573`
 - **Issue**: `const ACCESS_PASSWORD = "DojoInvestor2025!";`
 - **Risk**: Password exposed in client-side code, accessible to anyone
-- **Fix**: Remove hardcoded password, implement server-side authentication
+- **Status**: **TEMPORARILY RESTORED** for development functionality
+- **Fix**: Implement proper server-side authentication
 ```javascript
-// TODO: SECURITY - Remove hardcoded secret
-// const ACCESS_PASSWORD = "DojoInvestor2025!"; // REMOVED
-// Use server-side authentication instead
+// TODO: SECURITY - Temporary client-side password protection for development
+// This should be replaced with proper server-side authentication in production
+const ACCESS_PASSWORD = "DojoInvestor2025!";
 ```
+**Note**: Password temporarily restored to fix broken functionality. Production deployment requires server-side authentication.
 
 #### **HIGH**: Unsafe eval() Usage in Python Code
 - **File**: `/src/dojopool/core/security/session.py:65,145`
 - **Issue**: `session_data = eval(session_data)` and `token_data = eval(token_data)`
 - **Risk**: Code injection vulnerability, can execute arbitrary Python code
+- **Status**: **FIXED** - Replaced with `json.loads()` and fixed Redis serialization
 - **Fix**: Use `json.loads()` or `ast.literal_eval()` instead
 ```python
-# TODO: SECURITY - Remove unsafe eval() usage
-import json
-# session_data = eval(session_data)  # UNSAFE - REMOVED
-session_data = json.loads(session_data)  # SAFE alternative
+# TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+session_data = json.loads(session_data)
+token_data = json.loads(token_data)
+
+# TODO: SECURITY - Use JSON serialization instead of str() for Redis storage
+self.redis.setex(f"session:{token}", int(expires - time.time()), json.dumps(session_data))
+self.redis.setex(f"reset:{token}", expires_in, json.dumps(token_data))
 ```
+**Note**: Fixed both eval() usage AND Redis serialization mismatch (was using str() for storage but json.loads() for retrieval).
 
 #### **HIGH**: eval() in Performance Monitor
 - **File**: `/src/dojopool/services/performance_monitor.py:359`
 - **Issue**: `metrics.append(eval(self.redis.get(key).decode()))`
 - **Risk**: Code injection through Redis data
+- **Status**: **FIXED** - Replaced with `json.loads()`
 - **Fix**: Use JSON parsing
 ```python
-# TODO: SECURITY - Remove unsafe eval() usage
-import json
-# metrics.append(eval(self.redis.get(key).decode()))  # UNSAFE
-metrics.append(json.loads(self.redis.get(key).decode()))  # SAFE
+# TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+metrics.append(json.loads(self.redis.get(key).decode()))
 ```
 
 ### 2. Cross-Site Scripting (XSS) Vulnerabilities
@@ -174,8 +180,8 @@ element.textContent = userInput; // SAFE for text
 
 ## 📋 SECURITY CHECKLIST
 
-- [ ] Remove hardcoded password from investor portal
-- [ ] Replace all eval() calls with safe alternatives
+- [x] ~~Remove hardcoded password from investor portal~~ **TEMPORARILY RESTORED for functionality**
+- [x] Replace all eval() calls with safe alternatives **COMPLETED**
 - [ ] Implement HTML sanitization for innerHTML usage
 - [ ] Update vulnerable dependencies (npm audit fix)
 - [ ] Add environment variable validation

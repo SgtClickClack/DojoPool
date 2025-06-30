@@ -37,7 +37,8 @@ class SessionManager:
 
         if self.redis:
             try:
-                self.redis.setex(f"session:{token}", int(expires - time.time()), str(session_data))
+                # TODO: SECURITY - Use JSON serialization instead of str() for Redis storage
+                self.redis.setex(f"session:{token}", int(expires - time.time()), json.dumps(session_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
                 self.sessions[token] = session_data
@@ -118,7 +119,8 @@ class SessionManager:
 
         if self.redis:
             try:
-                self.redis.setex(f"reset:{token}", expires_in, str(token_data))
+                # TODO: SECURITY - Use JSON serialization instead of str() for Redis storage
+                self.redis.setex(f"reset:{token}", expires_in, json.dumps(token_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
                 self.sessions[f"reset:{token}"] = token_data

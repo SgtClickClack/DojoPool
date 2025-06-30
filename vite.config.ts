@@ -38,11 +38,8 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
-<<<<<<< Updated upstream
       input: path.resolve(__dirname, 'public/index.html'),
       external: ['pages', 'src/pages'],
-=======
->>>>>>> Stashed changes
     },
   },
   resolve: {
