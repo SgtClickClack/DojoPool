@@ -15,7 +15,7 @@ from dojopool.core.monitoring.security_monitor import (
     SecuritySeverity,
 )
 from dojopool.core.security.threat_detection import ThreatDetector
-from dojopool.core.security.types import ThreatEvent
+from dojopool.core.security.type_definitions import ThreatEvent
 
 
 @pytest.fixture

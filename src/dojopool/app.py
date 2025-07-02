@@ -167,6 +167,28 @@ def create_app(config_name=None, test_config=None, testing=False):
     app.register_blueprint(correct_main_bp)
     # Remove/comment out any other main_bp registrations here
 
+    # --- SPA Fallback Handler ---
+    @app.errorhandler(404)
+    def spa_fallback(e):
+        """Serve SPA index.html for unmatched routes."""
+        from flask import send_from_directory
+        import os
+        
+        # Try to serve from public directory first
+        public_path = os.path.join(app.root_path, '../../public')
+        index_path = os.path.join(public_path, 'index.html')
+        
+        if os.path.exists(index_path):
+            return send_from_directory(public_path, 'index.html')
+        
+        # Fallback to template rendering
+        try:
+            return render_template("index.html")
+        except Exception as template_error:
+            logger.error(f"Error sending SPA fallback file: {template_error}")
+            return jsonify({"error": "Page not found"}), 404
+    # ---------------------------
+
     # --- Register Tournament/Game Blueprint ---
     # try:
     #     from dojopool.api.tournament import tournament_bp
