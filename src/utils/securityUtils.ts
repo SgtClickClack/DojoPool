@@ -158,17 +158,16 @@ export function advancedSanitizeHTML(html: string, allowedTags: readonly string[
       }
     });
     
-    // Process children
-    Array.from(element.children).forEach(child => {
-      const cleanChild = filterElement(child);
-      if (cleanChild) {
-        clean.appendChild(cleanChild);
-      }
-    });
-    
-    // Add text nodes
+    // Process all child nodes in order to preserve mixed content structure
     Array.from(element.childNodes).forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        // Process element children
+        const cleanChild = filterElement(node as Element);
+        if (cleanChild) {
+          clean.appendChild(cleanChild);
+        }
+      } else if (node.nodeType === Node.TEXT_NODE) {
+        // Add text nodes
         clean.appendChild(document.createTextNode(node.textContent || ''));
       }
     });
@@ -176,12 +175,16 @@ export function advancedSanitizeHTML(html: string, allowedTags: readonly string[
     return clean;
   }
   
-  // Process all child elements
+  // Process all child nodes in order to preserve mixed content structure
   const cleanDiv = document.createElement('div');
-  Array.from(temp.children).forEach(child => {
-    const cleanChild = filterElement(child);
-    if (cleanChild) {
-      cleanDiv.appendChild(cleanChild);
+  Array.from(temp.childNodes).forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const cleanChild = filterElement(node as Element);
+      if (cleanChild) {
+        cleanDiv.appendChild(cleanChild);
+      }
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      cleanDiv.appendChild(document.createTextNode(node.textContent || ''));
     }
   });
   
