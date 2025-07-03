@@ -244,7 +244,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\generated\\prisma",
+      "value": "/workspace/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -253,17 +253,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\prisma\\schema.prisma",
+    "sourceFilePath": "/workspace/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../prisma",
   "clientVersion": "6.6.0",

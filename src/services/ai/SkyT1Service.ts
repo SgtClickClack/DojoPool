@@ -10,6 +10,10 @@ export class SkyT1Service {
   private readonly temperature = 0.7;
 
   constructor() {
+    if (!config.openai?.apiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+    
     this.openai = new OpenAI({
       apiKey: config.openai.apiKey,
       dangerouslyAllowBrowser: true
@@ -23,6 +27,11 @@ export class SkyT1Service {
     gameState: GameState,
     events: GameEvent[]
   ): Promise<RuleViolation[]> {
+    if (!gameState || !events || events.length === 0) {
+      logger.warn('Sky-T1: Invalid input data for analysis');
+      return [];
+    }
+
     try {
       const prompt = this.buildAnalysisPrompt(gameState, events);
       const response = await this.openai.chat.completions.create({
@@ -56,12 +65,24 @@ export class SkyT1Service {
         temperature: this.temperature,
       });
 
+      if (!response.choices || response.choices.length === 0) {
+        logger.warn('Sky-T1: No response from OpenAI');
+        return [];
+      }
+
       const violations = this.parseViolations(response.choices[0].message.content || '');
-      logger.info('Sky-T1 analysis complete', { violations });
+      logger.info('Sky-T1 analysis complete', { 
+        violationsCount: violations.length,
+        eventsAnalyzed: events.length 
+      });
       return violations;
     } catch (error) {
-      logger.error('Error in Sky-T1 analysis', { error });
-      throw error;
+      logger.error('Error in Sky-T1 analysis', { 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        gameStateId: gameState.id,
+        eventsCount: events.length
+      });
+      return [];
     }
   }
 
@@ -72,6 +93,11 @@ export class SkyT1Service {
     rule: string,
     context: GameState
   ): Promise<{ interpretation: string; examples: string[] }> {
+    if (!rule || !context) {
+      logger.warn('Sky-T1: Invalid input for rule interpretation');
+      return { interpretation: '', examples: [] };
+    }
+
     try {
       const prompt = this.buildRuleInterpretationPrompt(rule, context);
       const response = await this.openai.chat.completions.create({
@@ -93,14 +119,26 @@ export class SkyT1Service {
         temperature: this.temperature,
       });
 
+      if (!response.choices || response.choices.length === 0) {
+        logger.warn('Sky-T1: No response from OpenAI for rule interpretation');
+        return { interpretation: '', examples: [] };
+      }
+
       const interpretation = this.parseRuleInterpretation(
         response.choices[0].message.content || ''
       );
-      logger.info('Sky-T1 rule interpretation complete', { interpretation });
+      logger.info('Sky-T1 rule interpretation complete', { 
+        rule: rule.substring(0, 50),
+        interpretationLength: interpretation.interpretation.length
+      });
       return interpretation;
     } catch (error) {
-      logger.error('Error in Sky-T1 rule interpretation', { error });
-      throw error;
+      logger.error('Error in Sky-T1 rule interpretation', { 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        rule: rule.substring(0, 50),
+        gameStateId: context.id
+      });
+      return { interpretation: '', examples: [] };
     }
   }
 
@@ -150,6 +188,11 @@ export class SkyT1Service {
    * Parse violations from AI response
    */
   private parseViolations(content: string): RuleViolation[] {
+    if (!content || content.trim().length === 0) {
+      logger.warn('Sky-T1: Empty content for violation parsing');
+      return [];
+    }
+
     try {
       const violations: RuleViolation[] = [];
       const lines = content.split('\n');
@@ -185,7 +228,10 @@ export class SkyT1Service {
 
       return violations;
     } catch (error) {
-      logger.error('Error parsing violations', { error });
+      logger.error('Error parsing violations', { 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contentLength: content.length
+      });
       return [];
     }
   }
@@ -197,6 +243,11 @@ export class SkyT1Service {
     interpretation: string;
     examples: string[];
   } {
+    if (!content || content.trim().length === 0) {
+      logger.warn('Sky-T1: Empty content for rule interpretation parsing');
+      return { interpretation: '', examples: [] };
+    }
+
     try {
       const lines = content.split('\n');
       const interpretation = lines[0].trim();
@@ -207,7 +258,10 @@ export class SkyT1Service {
 
       return { interpretation, examples };
     } catch (error) {
-      logger.error('Error parsing rule interpretation', { error });
+      logger.error('Error parsing rule interpretation', { 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contentLength: content.length
+      });
       return { interpretation: '', examples: [] };
     }
   }

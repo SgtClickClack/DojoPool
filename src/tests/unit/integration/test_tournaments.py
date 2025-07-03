@@ -1,5 +1,5 @@
 import pytest
-from DojoPool.tournament.types import TournamentPlayer, TournamentConfig, MatchResult
+from DojoPool.tournament.type_definitions import TournamentPlayer, TournamentConfig, MatchResult
 from DojoPool.tournament.TournamentService import TournamentService
 
 # Test data
