@@ -57,7 +57,7 @@ export abstract class BaseService extends EventEmitter {
       reconnectAttempts: 5,
       reconnectInterval: 5000,
       timeout: 10000,
-      websocketUrl: 'http://localhost:8080',
+      websocketUrl: '/socket.io',
       ...config
     };
 

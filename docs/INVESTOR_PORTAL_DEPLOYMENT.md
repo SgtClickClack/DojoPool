@@ -18,7 +18,7 @@ The interactive investor portal has been successfully implemented and is ready f
 - **Smooth Navigation**: Sticky header with section navigation
 
 ### 📊 Content Sections
-1. **Hero Section**: "Pokémon Meets Pool" concept introduction
+1. **Hero Section**: "Pool Battle Arena" concept introduction
 2. **Core Experience**: Avatar gameplay, territory control, AI enhancement
 3. **Technology Stack**: AI integration and platform architecture
 4. **Market Opportunity**: $500B gaming market analysis

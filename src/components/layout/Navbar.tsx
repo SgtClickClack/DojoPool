@@ -118,7 +118,7 @@ const Navbar = () => {
             </Button>
             <Button
               component={RouterLink}
-              to="/map"
+              to="/"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -133,7 +133,83 @@ const Navbar = () => {
                 },
               }}
             >
-              Map
+              World Map
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/clan-wars"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Clan Wars
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/tournaments"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Tournaments
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/ai-commentary"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              AI Commentary
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/avatar-progression"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Avatar
             </Button>
             <Button
               component={RouterLink}

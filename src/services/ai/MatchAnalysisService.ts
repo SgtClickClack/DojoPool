@@ -98,9 +98,9 @@ class MatchAnalysisService {
     if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
       // Import the mocked io from the test setup
       const { io } = require('socket.io-client');
-      this.socket = io('http://localhost:8080');
+      this.socket = io('/socket.io');
     } else {
-      this.socket = MatchAnalysisService.ioFactory('http://localhost:8080');
+      this.socket = MatchAnalysisService.ioFactory('/socket.io');
     }
     
     if (this.socket) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
-import Map from '../frontend/components/Map/Map';
+import MapView from '../frontend/components/MapView';
 import { Box, Typography, Alert } from '@mui/material';
 import { getTerritories, getUserNFTs, Territory } from '../services/territory/TerritoryService';
 
@@ -39,15 +39,11 @@ const WorldMap: React.FC = () => {
       <Typography variant="body1" sx={{ mb: 2 }}>
         Explore Dojo territories. Locked areas require NFT trophies to enter.
       </Typography>
-      <Box sx={{ height: 600, width: '100%' }}>
+      <Box sx={{ height: '100vh', width: '100%' }}>
         {loading ? (
           <Typography>Loading map...</Typography>
         ) : (
-          <Map
-            unlockedTerritories={unlockedTerritories}
-            userNFTs={userNFTs}
-            userId={mockUserId}
-          />
+          <MapView />
         )}
       </Box>
       <Alert severity="info" sx={{ mt: 2 }}>

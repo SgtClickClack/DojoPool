@@ -24,7 +24,7 @@ const LiveCommentary: React.FC<LiveCommentaryProps> = ({ gameId }) => {
     setError(null);
     setEvents([]);
     try {
-      ws = new WebSocket(`ws://localhost:3000/api/games/${gameId}/commentary`);
+      ws = new WebSocket(`/api/games/${gameId}/commentary`);
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);

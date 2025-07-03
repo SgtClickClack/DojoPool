@@ -33,7 +33,7 @@ const GameTracker: React.FC<{ gameId: string }> = ({ gameId }) => {
   const [error, setError] = useState<string | null>(null);
 
   const { sendMessage, lastMessage } = useWebSocket(
-    `ws://localhost:3000/api/games/${gameId}/live`,
+            `/api/games/${gameId}/live`,
     {
       onError: () => setError("Connection lost. Trying to reconnect..."),
       shouldReconnect: () => true,

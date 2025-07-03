@@ -103,7 +103,7 @@ class ClanSystemService {
   }
 
   private initializeSocket() {
-    this.socket = io('http://localhost:8080');
+    this.socket = io('/socket.io');
     
     this.socket.on('connect', () => {
       console.log('Clan system connected');

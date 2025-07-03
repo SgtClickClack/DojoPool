@@ -40,7 +40,7 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
     try {
       // Use the correct WebSocket URL for real-time game state
       // This might need to be a dynamic URL based on environment or configuration
-      ws = new WebSocket(`ws://localhost:3100/api/games/${gameId}/live`); // Example WebSocket URL, verify actual endpoint
+      ws = new WebSocket(`http://localhost:3100/api/games/${gameId}/live`); // Example WebSocket URL, verify actual endpoint
       
       ws.onopen = () => {
           console.log('WebSocket connection opened');

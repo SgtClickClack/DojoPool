@@ -6,8 +6,7 @@ import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 // import { Provider as ReduxProvider } from 'react-redux';
 // import store from './store'; // Your Redux store configuration
 
-// Assuming you have a custom AuthProvider
-import { AuthProvider } from '../components/auth/AuthContext';
+// AuthProvider removed - using PlayerProvider from Living World prototype
 
 import App from './App';
 import './index.css'; // Or your global stylesheet
@@ -54,13 +53,11 @@ ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<LoadingFallback />}>
-            <App />
-          </Suspense>
-        </BrowserRouter>
-      </AuthProvider>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingFallback />}>
+          <App />
+        </Suspense>
+      </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>
 );

@@ -21,8 +21,8 @@ export const useRankingWebSocket = (userId?: number) => {
 
     // Create new WebSocket connection
     const wsUrl = userId
-      ? `ws://${window.location.host}/api/ws/rankings/${userId}`
-      : `ws://${window.location.host}/api/ws/rankings/global`;
+      ? `http://${window.location.host}/api/ws/rankings/${userId}`
+      : `http://${window.location.host}/api/ws/rankings/global`;
 
     const ws = new WebSocket(wsUrl);
 

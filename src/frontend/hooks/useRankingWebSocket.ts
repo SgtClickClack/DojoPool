@@ -130,7 +130,7 @@ export const useRankingWebSocket = ({
       ? `/api/ws/rankings/${userId}${reconnectTokenRef.current ? `?token=${reconnectTokenRef.current}` : ""}`
       : "/api/ws/rankings/global";
 
-    ws.current = new WebSocket(`ws://${window.location.host}${wsUrl}`);
+    ws.current = new WebSocket(`http://${window.location.host}${wsUrl}`);
 
     ws.current.onopen = () => {
       setIsConnected(true);

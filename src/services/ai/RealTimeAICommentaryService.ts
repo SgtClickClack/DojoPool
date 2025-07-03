@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 export interface PoolGod {
   id: string;
@@ -193,7 +193,7 @@ class RealTimeAICommentaryService extends EventEmitter {
 
   private initializeWebSocket(): void {
     try {
-      this.socket = io('http://localhost:8080', {
+      this.socket = io('/socket.io', {
         transports: ['websocket'],
         timeout: 10000
       });
@@ -205,6 +205,10 @@ class RealTimeAICommentaryService extends EventEmitter {
         this.emit('connected');
       });
 
+      this.socket?.on('connect_error', (error: any) => {
+        this.handleConnectionError(error);
+      });
+
       this.socket.on('disconnect', () => {
         this._isConnected = false;
         console.log('AI Commentary Service disconnected from server');
@@ -212,30 +216,34 @@ class RealTimeAICommentaryService extends EventEmitter {
         this.handleReconnection();
       });
 
-      this.socket.on('error', (error) => {
+      this.socket.on('error', (error: any) => {
         console.error('AI Commentary Service WebSocket error:', error);
         this.emit('error', error);
       });
 
       // Listen for match events
-      this.socket.on('match-event', (data) => {
+      this.socket.on('match-event', (data: any) => {
         this.handleMatchEvent(data);
       });
 
-      this.socket.on('shot-detected', (data) => {
+      this.socket.on('shot-detected', (data: any) => {
         this.handleShotEvent(data);
       });
 
-      this.socket.on('foul-detected', (data) => {
+      this.socket.on('foul-detected', (data: any) => {
         this.handleFoulEvent(data);
       });
 
-      this.socket.on('score-update', (data) => {
+      this.socket.on('score-update', (data: any) => {
         this.handleScoreEvent(data);
       });
 
-      this.socket.on('game-end', (data) => {
+      this.socket.on('game-end', (data: any) => {
         this.handleGameEndEvent(data);
+      });
+
+      this.socket?.on('commentary', (data: any) => {
+        this.handleCommentary(data);
       });
 
     } catch (error) {
@@ -742,6 +750,14 @@ class RealTimeAICommentaryService extends EventEmitter {
 
   private generateId(): string {
     return `commentary_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  private handleConnectionError(error: any): void {
+    console.warn('AI Commentary Service connection error:', error);
+  }
+
+  private handleCommentary(data: any): void {
+    console.warn('AI Commentary Service received commentary:', data);
   }
 }
 

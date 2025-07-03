@@ -54,7 +54,7 @@ export class CommentaryEngine extends BaseService {
   constructor() {
     super('CommentaryEngine', {
       enabled: true,
-      websocketUrl: 'http://localhost:8080'
+      websocketUrl: '/socket.io'
     });
 
     this.config = {
