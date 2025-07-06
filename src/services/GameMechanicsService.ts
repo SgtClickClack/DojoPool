@@ -65,7 +65,7 @@ export interface PlayerMovement {
   };
   startTime: Date;
   estimatedDuration: number; // in minutes
-  travelMethod: 'walking' | 'driving' | 'public_transport';
+  travelMethod: 'walking' | 'driving' | 'public_transport' | 'teleport' | 'fast_travel';
   status: 'traveling' | 'arrived' | 'cancelled';
 }
 
@@ -92,6 +92,124 @@ export interface MatchEvent {
   timestamp: Date;
   playerId: string;
   data?: any;
+}
+
+export interface Challenge {
+  id: string;
+  type: 'pilgrimage' | 'gauntlet' | 'duel' | 'tournament' | 'clan';
+  challengerId: string;
+  defenderId?: string;
+  dojoId: string;
+  status: 'pending' | 'accepted' | 'declined' | 'active' | 'completed' | 'cancelled';
+  createdAt: Date;
+  expiresAt?: Date;
+  requirements?: {
+    minLevel?: number;
+    minReputation?: number;
+    territoryControl?: boolean;
+  };
+  rewards?: {
+    experience?: number;
+    coins?: number;
+    items?: string[];
+  };
+}
+
+export interface AdvancedChallenge extends Challenge {
+  tournamentId?: string;
+  clanId?: string;
+  entryFee?: number;
+  prizePool?: number;
+  maxParticipants?: number;
+  currentParticipants?: number;
+  startDate?: Date;
+  endDate?: Date;
+  rules?: string[];
+  requirements?: {
+    minLevel?: number;
+    minReputation?: number;
+    clanMembership?: boolean;
+    territoryControl?: boolean;
+  };
+}
+
+export interface ClanChallenge extends AdvancedChallenge {
+  clanId: string;
+  clanName: string;
+  defendingClanId?: string;
+  defendingClanName?: string;
+  territoryStakes: string[];
+  diplomaticImplications: boolean;
+}
+
+export interface TournamentChallenge extends AdvancedChallenge {
+  tournamentId: string;
+  tournamentName: string;
+  bracketType: 'single_elimination' | 'double_elimination' | 'round_robin';
+  currentRound: number;
+  totalRounds: number;
+  participants: TournamentParticipant[];
+  matches: TournamentMatch[];
+}
+
+export interface TournamentParticipant {
+  playerId: string;
+  playerName: string;
+  clanId?: string;
+  clanName?: string;
+  seed?: number;
+  status: 'active' | 'eliminated' | 'winner';
+  wins: number;
+  losses: number;
+}
+
+export interface TournamentMatch {
+  matchId: string;
+  round: number;
+  player1Id: string;
+  player2Id: string;
+  winnerId?: string;
+  status: 'pending' | 'active' | 'completed';
+  score?: {
+    player1: number;
+    player2: number;
+  };
+}
+
+export interface TerritoryAlliance {
+  allianceId: string;
+  name: string;
+  leaderClanId: string;
+  memberClans: string[];
+  sharedTerritories: string[];
+  diplomaticStatus: 'friendly' | 'neutral' | 'hostile';
+  tradeAgreements: TradeAgreement[];
+  mutualDefensePacts: DefensePact[];
+}
+
+export interface TradeAgreement {
+  agreementId: string;
+  clan1Id: string;
+  clan2Id: string;
+  terms: {
+    resourceType: string;
+    amount: number;
+    frequency: 'daily' | 'weekly' | 'monthly';
+  };
+  startDate: Date;
+  endDate?: Date;
+  status: 'active' | 'expired' | 'cancelled';
+}
+
+export interface DefensePact {
+  pactId: string;
+  clan1Id: string;
+  clan2Id: string;
+  territoryScope: string[];
+  activationConditions: string[];
+  startDate: Date;
+  endDate?: Date;
+  status: 'active' | 'expired' | 'cancelled';
 }
 
 class GameMechanicsService extends EventEmitter {
@@ -197,6 +315,235 @@ class GameMechanicsService extends EventEmitter {
     }
   }
 
+  // Advanced Challenge Management
+  async createTournamentChallenge(tournamentData: {
+    name: string;
+    dojoId: string;
+    entryFee: number;
+    maxParticipants: number;
+    bracketType: 'single_elimination' | 'double_elimination' | 'round_robin';
+    startDate: Date;
+    endDate: Date;
+    rules: string[];
+    requirements: {
+      minLevel?: number;
+      minReputation?: number;
+      clanMembership?: boolean;
+    };
+  }): Promise<TournamentChallenge> {
+    try {
+      const tournamentChallenge: TournamentChallenge = {
+        id: `tournament-${Date.now()}`,
+        type: 'tournament',
+        challengerId: this.gameState.playerId,
+        dojoId: tournamentData.dojoId,
+        status: 'pending',
+        createdAt: new Date(),
+        tournamentId: `tournament-${Date.now()}`,
+        tournamentName: tournamentData.name,
+        entryFee: tournamentData.entryFee,
+        maxParticipants: tournamentData.maxParticipants,
+        currentParticipants: 0,
+        startDate: tournamentData.startDate,
+        endDate: tournamentData.endDate,
+        rules: tournamentData.rules,
+        requirements: tournamentData.requirements,
+        bracketType: tournamentData.bracketType,
+        currentRound: 0,
+        totalRounds: this.calculateTotalRounds(tournamentData.maxParticipants, tournamentData.bracketType),
+        participants: [],
+        matches: []
+      };
+
+      this.gameState.activeChallenges.push(tournamentChallenge);
+      this.emit('tournamentChallengeCreated', tournamentChallenge);
+
+      return tournamentChallenge;
+    } catch (error) {
+      console.error('Error creating tournament challenge:', error);
+      throw error;
+    }
+  }
+
+  async createClanChallenge(clanData: {
+    clanId: string;
+    clanName: string;
+    defendingClanId?: string;
+    defendingClanName?: string;
+    dojoId: string;
+    territoryStakes: string[];
+    diplomaticImplications: boolean;
+    entryFee?: number;
+    requirements: {
+      minLevel?: number;
+      minReputation?: number;
+      clanMembership: boolean;
+    };
+  }): Promise<ClanChallenge> {
+    try {
+      const clanChallenge: ClanChallenge = {
+        id: `clan-${Date.now()}`,
+        type: 'clan',
+        challengerId: this.gameState.playerId,
+        dojoId: clanData.dojoId,
+        status: 'pending',
+        createdAt: new Date(),
+        clanId: clanData.clanId,
+        clanName: clanData.clanName,
+        defendingClanId: clanData.defendingClanId,
+        defendingClanName: clanData.defendingClanName,
+        territoryStakes: clanData.territoryStakes,
+        diplomaticImplications: clanData.diplomaticImplications,
+        entryFee: clanData.entryFee,
+        requirements: clanData.requirements
+      };
+
+      this.gameState.activeChallenges.push(clanChallenge);
+      this.emit('clanChallengeCreated', clanChallenge);
+
+      return clanChallenge;
+    } catch (error) {
+      console.error('Error creating clan challenge:', error);
+      throw error;
+    }
+  }
+
+  async joinTournament(tournamentId: string): Promise<boolean> {
+    try {
+      const tournament = this.gameState.activeChallenges.find(
+        challenge => challenge.tournamentId === tournamentId
+      ) as TournamentChallenge;
+
+      if (!tournament) {
+        throw new Error('Tournament not found');
+      }
+
+      if ((tournament.currentParticipants || 0) >= (tournament.maxParticipants || 0)) {
+        throw new Error('Tournament is full');
+      }
+
+      const participant: TournamentParticipant = {
+        playerId: this.gameState.playerId,
+        playerName: 'Player Name', // Get from user profile
+        clanId: this.gameState.territoryControl.clanId,
+        clanName: 'Clan Name', // Get from clan service
+        status: 'active',
+        wins: 0,
+        losses: 0
+      };
+
+      tournament.participants.push(participant);
+      tournament.currentParticipants = (tournament.currentParticipants || 0) + 1;
+
+      this.emit('tournamentJoined', { tournamentId, participant });
+
+      return true;
+    } catch (error) {
+      console.error('Error joining tournament:', error);
+      throw error;
+    }
+  }
+
+  // Territory Alliance Management
+  async createTerritoryAlliance(allianceData: {
+    name: string;
+    leaderClanId: string;
+    memberClans: string[];
+    sharedTerritories: string[];
+  }): Promise<TerritoryAlliance> {
+    try {
+      const alliance: TerritoryAlliance = {
+        allianceId: `alliance-${Date.now()}`,
+        name: allianceData.name,
+        leaderClanId: allianceData.leaderClanId,
+        memberClans: allianceData.memberClans,
+        sharedTerritories: allianceData.sharedTerritories,
+        diplomaticStatus: 'friendly',
+        tradeAgreements: [],
+        mutualDefensePacts: []
+      };
+
+      this.emit('allianceCreated', alliance);
+      return alliance;
+    } catch (error) {
+      console.error('Error creating territory alliance:', error);
+      throw error;
+    }
+  }
+
+  async createTradeAgreement(agreementData: {
+    clan1Id: string;
+    clan2Id: string;
+    resourceType: string;
+    amount: number;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    duration: number; // in days
+  }): Promise<TradeAgreement> {
+    try {
+      const agreement: TradeAgreement = {
+        agreementId: `trade-${Date.now()}`,
+        clan1Id: agreementData.clan1Id,
+        clan2Id: agreementData.clan2Id,
+        terms: {
+          resourceType: agreementData.resourceType,
+          amount: agreementData.amount,
+          frequency: agreementData.frequency
+        },
+        startDate: new Date(),
+        endDate: new Date(Date.now() + agreementData.duration * 24 * 60 * 60 * 1000),
+        status: 'active'
+      };
+
+      this.emit('tradeAgreementCreated', agreement);
+      return agreement;
+    } catch (error) {
+      console.error('Error creating trade agreement:', error);
+      throw error;
+    }
+  }
+
+  async createDefensePact(pactData: {
+    clan1Id: string;
+    clan2Id: string;
+    territoryScope: string[];
+    activationConditions: string[];
+    duration: number; // in days
+  }): Promise<DefensePact> {
+    try {
+      const pact: DefensePact = {
+        pactId: `pact-${Date.now()}`,
+        clan1Id: pactData.clan1Id,
+        clan2Id: pactData.clan2Id,
+        territoryScope: pactData.territoryScope,
+        activationConditions: pactData.activationConditions,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + pactData.duration * 24 * 60 * 60 * 1000),
+        status: 'active'
+      };
+
+      this.emit('defensePactCreated', pact);
+      return pact;
+    } catch (error) {
+      console.error('Error creating defense pact:', error);
+      throw error;
+    }
+  }
+
+  // Helper Methods
+  private calculateTotalRounds(participants: number, bracketType: string): number {
+    switch (bracketType) {
+      case 'single_elimination':
+        return Math.ceil(Math.log2(participants));
+      case 'double_elimination':
+        return Math.ceil(Math.log2(participants)) * 2;
+      case 'round_robin':
+        return participants - 1;
+      default:
+        return Math.ceil(Math.log2(participants));
+    }
+  }
+
+  // Accept Challenge
   async acceptChallenge(challengeId: string): Promise<any> {
     try {
       const challenge = await this.challengeService.acceptChallenge(challengeId);
@@ -215,6 +562,7 @@ class GameMechanicsService extends EventEmitter {
     }
   }
 
+  // Decline Challenge
   async declineChallenge(challengeId: string): Promise<any> {
     try {
       const challenge = await this.challengeService.declineChallenge(challengeId);
@@ -283,45 +631,206 @@ class GameMechanicsService extends EventEmitter {
 
   // Player Movement
   async startTravel(destinationDojoId: string, travelMethod: 'walking' | 'driving' | 'public_transport' = 'walking'): Promise<PlayerMovement> {
-    const destination = await this.getDojoLocation(destinationDojoId);
-    if (!destination) {
-      throw new Error('Destination dojo not found');
+    try {
+      if (this.gameState.isTraveling) {
+        throw new Error('Player is already traveling');
+      }
+
+      const destination = await this.getDojoLocation(destinationDojoId);
+      const travelTime = this.calculateTravelTime(this.gameState.currentLocation, destination, travelMethod);
+
+      const movement: PlayerMovement = {
+        playerId: this.gameState.playerId,
+        fromLocation: { ...this.gameState.currentLocation },
+        toLocation: {
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+          dojoId: destinationDojoId,
+          dojoName: destination.name
+        },
+        startTime: new Date(),
+        estimatedDuration: travelTime,
+        travelMethod,
+        status: 'traveling'
+      };
+
+      this.gameState.isTraveling = true;
+      this.gameState.destination = {
+        dojoId: destinationDojoId,
+        dojoName: destination.name,
+        latitude: destination.latitude,
+        longitude: destination.longitude,
+        estimatedArrival: new Date(Date.now() + travelTime * 60 * 1000)
+      };
+
+      this.playerMovements.set(this.gameState.playerId, movement);
+      this.emit('travelStarted', movement);
+
+      return movement;
+    } catch (error) {
+      console.error('Error starting travel:', error);
+      throw error;
     }
+  }
 
-    const movement: PlayerMovement = {
-      playerId: this.gameState.playerId,
-      fromLocation: { ...this.gameState.currentLocation },
-      toLocation: destination,
-      startTime: new Date(),
-      estimatedDuration: this.calculateTravelTime(
-        this.gameState.currentLocation,
-        destination,
-        travelMethod
-      ),
-      travelMethod,
-      status: 'traveling'
-    };
+  // Advanced Movement Features
+  async teleportToDojo(dojoId: string, teleportType: 'instant' | 'ritual' | 'clan_gate'): Promise<PlayerMovement> {
+    try {
+      if (this.gameState.isTraveling) {
+        throw new Error('Player is already traveling');
+      }
 
-    this.playerMovements.set(this.gameState.playerId, movement);
-    this.gameState.isTraveling = true;
-    this.gameState.destination = {
-      dojoId: destination.dojoId,
-      dojoName: destination.dojoName,
-      latitude: destination.latitude,
-      longitude: destination.longitude,
-      estimatedArrival: new Date(Date.now() + movement.estimatedDuration * 60 * 1000)
-    };
+      const destination = await this.getDojoLocation(dojoId);
+      const teleportCost = this.calculateTeleportCost(teleportType, this.gameState.currentLocation, destination);
 
-    // Emit movement start
-    this.socket?.emit('player_movement_start', movement);
-    this.emit('travelStarted', movement);
+      // Check if player has enough resources for teleportation
+      if (!this.hasTeleportResources(teleportCost)) {
+        throw new Error('Insufficient resources for teleportation');
+      }
 
-    // Start travel timer
-    setTimeout(() => {
-      this.completeTravel();
-    }, movement.estimatedDuration * 60 * 1000);
+      const movement: PlayerMovement = {
+        playerId: this.gameState.playerId,
+        fromLocation: { ...this.gameState.currentLocation },
+        toLocation: {
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+          dojoId,
+          dojoName: destination.name
+        },
+        startTime: new Date(),
+        estimatedDuration: teleportType === 'instant' ? 0 : 5, // 5 minutes for ritual/clan gate
+        travelMethod: 'teleport',
+        status: 'traveling'
+      };
 
-    return movement;
+      this.gameState.isTraveling = true;
+      this.gameState.destination = {
+        dojoId,
+        dojoName: destination.name,
+        latitude: destination.latitude,
+        longitude: destination.longitude,
+        estimatedArrival: new Date(Date.now() + (teleportType === 'instant' ? 0 : 5 * 60 * 1000))
+      };
+
+      this.playerMovements.set(this.gameState.playerId, movement);
+      this.emit('teleportStarted', { movement, teleportType, cost: teleportCost });
+
+      return movement;
+    } catch (error) {
+      console.error('Error teleporting to dojo:', error);
+      throw error;
+    }
+  }
+
+  async fastTravelToDojo(dojoId: string, fastTravelType: 'clan_network' | 'alliance_network' | 'premium'): Promise<PlayerMovement> {
+    try {
+      if (this.gameState.isTraveling) {
+        throw new Error('Player is already traveling');
+      }
+
+      const destination = await this.getDojoLocation(dojoId);
+      const fastTravelCost = this.calculateFastTravelCost(fastTravelType, this.gameState.currentLocation, destination);
+
+      // Check if player has access to fast travel network
+      if (!this.hasFastTravelAccess(fastTravelType, dojoId)) {
+        throw new Error('No access to fast travel network for this destination');
+      }
+
+      const movement: PlayerMovement = {
+        playerId: this.gameState.playerId,
+        fromLocation: { ...this.gameState.currentLocation },
+        toLocation: {
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+          dojoId,
+          dojoName: destination.name
+        },
+        startTime: new Date(),
+        estimatedDuration: this.calculateFastTravelTime(fastTravelType),
+        travelMethod: 'fast_travel',
+        status: 'traveling'
+      };
+
+      this.gameState.isTraveling = true;
+      this.gameState.destination = {
+        dojoId,
+        dojoName: destination.name,
+        latitude: destination.latitude,
+        longitude: destination.longitude,
+        estimatedArrival: new Date(Date.now() + this.calculateFastTravelTime(fastTravelType) * 60 * 1000)
+      };
+
+      this.playerMovements.set(this.gameState.playerId, movement);
+      this.emit('fastTravelStarted', { movement, fastTravelType, cost: fastTravelCost });
+
+      return movement;
+    } catch (error) {
+      console.error('Error fast traveling to dojo:', error);
+      throw error;
+    }
+  }
+
+  // Helper Methods for Advanced Movement
+  private calculateTeleportCost(teleportType: string, from: any, to: any): any {
+    const distance = this.calculateDistance(from, to);
+    
+    switch (teleportType) {
+      case 'instant':
+        return { coins: distance * 10, energy: distance * 5 };
+      case 'ritual':
+        return { coins: distance * 5, energy: distance * 10, ritualItems: 1 };
+      case 'clan_gate':
+        return { coins: distance * 3, energy: distance * 3, clanPoints: distance * 2 };
+      default:
+        return { coins: distance * 10, energy: distance * 5 };
+    }
+  }
+
+  private calculateFastTravelCost(fastTravelType: string, from: any, to: any): any {
+    const distance = this.calculateDistance(from, to);
+    
+    switch (fastTravelType) {
+      case 'clan_network':
+        return { coins: distance * 2, clanPoints: distance * 1 };
+      case 'alliance_network':
+        return { coins: distance * 3, alliancePoints: distance * 1 };
+      case 'premium':
+        return { coins: distance * 5, premiumTokens: 1 };
+      default:
+        return { coins: distance * 3 };
+    }
+  }
+
+  private calculateFastTravelTime(fastTravelType: string): number {
+    switch (fastTravelType) {
+      case 'clan_network':
+        return 10; // 10 minutes
+      case 'alliance_network':
+        return 15; // 15 minutes
+      case 'premium':
+        return 5; // 5 minutes
+      default:
+        return 15; // 15 minutes
+    }
+  }
+
+  private hasTeleportResources(cost: any): boolean {
+    // Mock implementation - in real app, check player's actual resources
+    return true;
+  }
+
+  private hasFastTravelAccess(fastTravelType: string, dojoId: string): boolean {
+    // Mock implementation - in real app, check player's clan/alliance membership and dojo access
+    switch (fastTravelType) {
+      case 'clan_network':
+        return this.gameState.territoryControl.clanId !== undefined;
+      case 'alliance_network':
+        return true; // Mock - check alliance membership
+      case 'premium':
+        return true; // Mock - check premium status
+      default:
+        return false;
+    }
   }
 
   async completeTravel(): Promise<void> {
