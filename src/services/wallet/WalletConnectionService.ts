@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { env } from '../../config/environment';
 
 // Add this for type safety
 declare global {
@@ -27,7 +28,7 @@ export class WalletConnectionService {
   private currentConnection: WalletConnection | null = null;
   
   // Dojo Coin contract details (update with actual deployed address)
-  private readonly DOJO_COIN_ADDRESS = import.meta.env.VITE_DOJO_COIN_ADDRESS || '';
+  private readonly DOJO_COIN_ADDRESS = env.DOJO_COIN_ADDRESS;
   private readonly DOJO_COIN_ABI = [
     'function balanceOf(address owner) view returns (uint256)',
     'function transfer(address to, uint256 amount) returns (bool)',

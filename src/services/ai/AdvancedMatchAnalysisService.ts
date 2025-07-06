@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import { env } from '../../config/environment';
 
 export interface AdvancedPlayerPerformance {
   playerId: string;
@@ -210,7 +211,8 @@ class AdvancedMatchAnalysisService {
 
   private initializeWebSocket(): void {
     try {
-      this.socket = io('/socket.io', {
+      const wsUrl = env.WEBSOCKET_URL;
+      this.socket = io(wsUrl, {
         transports: ['websocket'],
         timeout: 5000
       });

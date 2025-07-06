@@ -92,6 +92,7 @@ const ClanWars = React.lazy(() => import("../pages/clan-wars"));
 const Tournaments = React.lazy(() => import("../pages/tournament-management"));
 const AICommentary = React.lazy(() => import("../pages/ai-commentary"));
 const AdvancedMatchCommentary = React.lazy(() => import("../pages/ai-commentary"));
+const GameMechanics = React.lazy(() => import("../pages/game-mechanics"));
 
 // Core Game Features
 // const BattlePage = React.lazy(() => import("../../pages/game/battle"));
@@ -213,6 +214,7 @@ const App: React.FC = () => {
           <Route path="/clan-wars" element={<ClanWars />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/ai-commentary" element={<AICommentary />} />
+          <Route path="/game-mechanics" element={<GameMechanics />} />
 
           {/* Protected routes using an element for layout/protection */}
           <Route element={<ProtectedRoute />}>

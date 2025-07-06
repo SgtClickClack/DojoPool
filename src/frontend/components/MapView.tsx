@@ -17,15 +17,16 @@ import {
   TrendingUp
 } from '@mui/icons-material';
 import DojoProfilePanel from '../../components/DojoProfilePanel';
+import { env } from '../../config/environment';
 
 // Debug environment variables
 console.log('Environment check:', {
-  VITE_GOOGLE_MAPS_API_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  NODE_ENV: import.meta.env.NODE_ENV,
-  MODE: import.meta.env.MODE
+  VITE_GOOGLE_MAPS_API_KEY: env.VITE_GOOGLE_MAPS_API_KEY,
+  NODE_ENV: env.NODE_ENV,
+  MODE: env.NODE_ENV
 });
 
-console.log('GOOGLE MAPS KEY:', import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
+console.log('GOOGLE MAPS KEY:', env.VITE_GOOGLE_MAPS_API_KEY);
 
 // Map container style
 const containerStyle = {
@@ -57,10 +58,10 @@ const mapStyles = [
 ];
 
 function getEnv(key: string): string | undefined {
-  return import.meta.env[key];
+  return env[key as keyof typeof env] || '';
 }
 
-const googleMapsApiKey = getEnv('VITE_GOOGLE_MAPS_API_KEY') || '';
+const googleMapsApiKey = env.VITE_GOOGLE_MAPS_API_KEY || '';
 
 // Enhanced DojoMarker SVG with territory level indicators
 const getDojoMarkerIcon = (dojo: DojoData) => {

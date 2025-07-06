@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
+import { env } from '../../config/environment';
 
 export interface CommentaryStyle {
   id: string;
@@ -193,7 +194,8 @@ class AdvancedMatchCommentaryService extends EventEmitter {
 
   private initializeWebSocket(): void {
     try {
-      this.socket = io('/socket.io', {
+      const wsUrl = env.WEBSOCKET_URL;
+      this.socket = io(wsUrl, {
         transports: ['websocket'],
         timeout: 10000
       });

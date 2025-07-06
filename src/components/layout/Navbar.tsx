@@ -213,6 +213,25 @@ const Navbar = () => {
             </Button>
             <Button
               component={RouterLink}
+              to="/game-mechanics"
+              sx={{ 
+                color: "#00ff9d", 
+                display: "block",
+                fontFamily: 'Orbitron, monospace',
+                fontWeight: 600,
+                mx: 2,
+                "&:hover": {
+                  color: "#00a8ff",
+                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                  transform: "translateY(-2px)",
+                  transition: "all 0.3s ease",
+                },
+              }}
+            >
+              Game Mechanics
+            </Button>
+            <Button
+              component={RouterLink}
               to="/ledger"
               sx={{ 
                 color: "#00ff9d", 

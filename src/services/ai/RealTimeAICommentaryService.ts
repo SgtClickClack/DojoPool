@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
+import { env } from '../../config/environment';
 
 export interface PoolGod {
   id: string;
@@ -193,7 +194,8 @@ class RealTimeAICommentaryService extends EventEmitter {
 
   private initializeWebSocket(): void {
     try {
-      this.socket = io('/socket.io', {
+      const wsUrl = process.env.WEBSOCKET_URL || 'ws://localhost:8080';
+      this.socket = io(wsUrl, {
         transports: ['websocket'],
         timeout: 10000
       });
