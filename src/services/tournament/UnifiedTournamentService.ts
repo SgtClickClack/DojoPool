@@ -483,7 +483,7 @@ export class UnifiedTournamentService {
   /**
    * Get tournament standings
    */
-  async getTournamentStandings(tournamentId: number): Promise<any[]> {
+  async getTournamentStandings(tournamentId: number): Promise<TournamentParticipant[]> {
     const tournament = this.tournaments.get(tournamentId);
     if (!tournament) {
       throw new Error('Tournament not found');
@@ -506,7 +506,7 @@ export class UnifiedTournamentService {
     return `Round ${round}`;
   }
 
-  private generateFirstRoundMatches(participants: TournamentParticipant[], numByes: number): any[] {
+  private generateFirstRoundMatches(participants: TournamentParticipant[], numByes: number): Array<{player1?: TournamentParticipant; player2?: TournamentParticipant | null; isBye: boolean}> {
     // Implement proper seeding for first round matches
     const matches = [];
     const numMatches = Math.floor(participants.length / 2);
@@ -566,17 +566,17 @@ export class UnifiedTournamentService {
     // Implementation for grand finals generation
   }
 
-  private generateRoundRobinSchedule(participants: TournamentParticipant[]): any[][] {
+  private generateRoundRobinSchedule(participants: TournamentParticipant[]): Array<Array<[TournamentParticipant?, TournamentParticipant?]>> {
     // Implementation for round robin schedule generation using circle method
     return [];
   }
 
-  private generateRandomPairings(participants: TournamentParticipant[]): any[] {
+  private generateRandomPairings(participants: TournamentParticipant[]): Array<{player1: TournamentParticipant; player2: TournamentParticipant}> {
     // Implementation for random pairings
     return [];
   }
 
-  private addMatchesToRound(tournament: TournamentBracket, matches: any[], roundNumber: number): void {
+  private addMatchesToRound(tournament: TournamentBracket, matches: Array<{player1: TournamentParticipant; player2: TournamentParticipant}>, roundNumber: number): void {
     // Implementation for adding matches to a round
   }
 

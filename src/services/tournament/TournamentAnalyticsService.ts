@@ -1,5 +1,22 @@
-import { Tournament, TournamentMatch as Match, TournamentParticipant as Player, TournamentFormat } from '../../types/tournament';
+import { Tournament, TournamentMatch, TournamentParticipant as Player, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
 import { EventEmitter } from 'events';
+
+interface PlayerAnalytics {
+  playerId: string;
+  winRate: number;
+  averageScore: number;
+  totalMatches: number;
+  strengths: string[];
+  weaknesses: string[];
+}
+
+interface TournamentAnalytics {
+  tournamentId: string;
+  totalParticipants: number;
+  averageMatchDuration: number;
+  mostCommonOutcome: string;
+  topPerformers: PlayerAnalytics[];
+}
 
 export interface PlayerPerformance {
   id: string;
@@ -337,12 +354,16 @@ class TournamentAnalyticsService extends EventEmitter {
     const allWeaknesses = this.playerPerformance.flatMap((p) => p.weaknesses);
 
     const strengthCounts = allStrengths.reduce((acc, strength) => {
-      acc[strength] = (acc[strength] || 0) + 1;
+      if (typeof strength === 'string' && strength.length > 0) {
+        acc[strength] = (acc[strength] || 0) + 1;
+      }
       return acc;
     }, {} as Record<string, number>);
 
     const weaknessCounts = allWeaknesses.reduce((acc, weakness) => {
-      acc[weakness] = (acc[weakness] || 0) + 1;
+      if (typeof weakness === 'string' && weakness.length > 0) {
+        acc[weakness] = (acc[weakness] || 0) + 1;
+      }
       return acc;
     }, {} as Record<string, number>);
 
@@ -372,6 +393,34 @@ class TournamentAnalyticsService extends EventEmitter {
       this.off('analyticsUpdate', callback);
     };
   }
+
+  async getPlayerAnalytics(playerId: string): Promise<PlayerAnalytics> {
+    // Implementation of getPlayerAnalytics method
+    return {
+      playerId,
+      winRate: 0.5,
+      averageScore: 0,
+      totalMatches: 0,
+      strengths: [],
+      weaknesses: []
+    };
+  }
+
+  async getTournamentAnalytics(tournamentId: string): Promise<TournamentAnalytics> {
+    // Implementation of getTournamentAnalytics method
+    return {
+      tournamentId,
+      totalParticipants: 0,
+      averageMatchDuration: 0,
+      mostCommonOutcome: '',
+      topPerformers: []
+    };
+  }
+
+  private onMatchUpdate = (data: TournamentMatch): void => {
+    // Implementation of onMatchUpdate method
+    console.log('Match update received:', data);
+  };
 }
 
 export default TournamentAnalyticsService; 

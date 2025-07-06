@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
+import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '../../../types/tournament';
 
 export interface AdvancedTournamentConfig {
   id: string;

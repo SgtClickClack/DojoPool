@@ -1,5 +1,6 @@
-import { Tournament, TournamentMatch as Match, TournamentParticipant as Participant } from '../../types/tournament';
-import { RealTimeMatchService, RealTimeMatchData } from './RealTimeMatchService';
+import { EventEmitter } from 'events';
+import { Tournament, TournamentMatch, TournamentParticipant } from '../../types/tournament';
+import { RealTimeMatchService, RealTimeMatchData, ShotData, RefereeDecision } from './RealTimeMatchService';
 import { TournamentAnalyticsService } from './TournamentAnalyticsService';
 
 export interface StreamConfig {
@@ -395,21 +396,21 @@ class TournamentStreamingService {
     };
 
     // Update statistics based on shot history
-    const player1Shots = matchData.shotHistory.filter((s: any) => s.playerId === matchData.match.player1Id);
-    const player2Shots = matchData.shotHistory.filter((s: any) => s.playerId === matchData.match.player2Id);
+    const player1Shots = matchData.shotHistory.filter((s: ShotData) => s.playerId === matchData.match.player1Id);
+    const player2Shots = matchData.shotHistory.filter((s: ShotData) => s.playerId === matchData.match.player2Id);
 
     stream.overlay.statistics.player1Stats = {
       shots: player1Shots.length,
-      accuracy: player1Shots.length > 0 ? (player1Shots.filter((s: any) => s.outcome === 'success').length / player1Shots.length) * 100 : 0,
-      highestBreak: Math.max(...player1Shots.map((s: any) => s.break || 0), 0),
-      fouls: matchData.refereeDecisions.filter((d: any) => d.affectedPlayer === matchData.match.player1Id).length,
+      accuracy: player1Shots.length > 0 ? (player1Shots.filter((s: ShotData) => s.outcome === 'success').length / player1Shots.length) * 100 : 0,
+      highestBreak: Math.max(...player1Shots.map((s: ShotData) => s.break || 0), 0),
+      fouls: matchData.refereeDecisions.filter((d: RefereeDecision) => d.affectedPlayer === matchData.match.player1Id).length,
     };
 
     stream.overlay.statistics.player2Stats = {
       shots: player2Shots.length,
-      accuracy: player2Shots.length > 0 ? (player2Shots.filter((s: any) => s.outcome === 'success').length / player2Shots.length) * 100 : 0,
-      highestBreak: Math.max(...player2Shots.map((s: any) => s.break || 0), 0),
-      fouls: matchData.refereeDecisions.filter((d: any) => d.affectedPlayer === matchData.match.player2Id).length,
+      accuracy: player2Shots.length > 0 ? (player2Shots.filter((s: ShotData) => s.outcome === 'success').length / player2Shots.length) * 100 : 0,
+      highestBreak: Math.max(...player2Shots.map((s: ShotData) => s.break || 0), 0),
+      fouls: matchData.refereeDecisions.filter((d: RefereeDecision) => d.affectedPlayer === matchData.match.player2Id).length,
     };
 
     this.publish(streamKey, { 
