@@ -66,7 +66,7 @@ interface UseVenueLeaderboardReturn {
   designateDojoMaster: (venueId: string, playerId: string, playerName: string) => Promise<void>;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export const useVenueLeaderboard = (): UseVenueLeaderboardReturn => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);

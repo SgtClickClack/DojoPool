@@ -111,6 +111,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -120,10 +123,7 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   role: 'role',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  homeDojoId: 'homeDojoId',
-  unlockedZones: 'unlockedZones',
-  relationships: 'relationships'
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.ProfileScalarFieldEnum = {
@@ -164,11 +164,7 @@ exports.Prisma.TerritoryScalarFieldEnum = {
   clan: 'clan',
   isActive: 'isActive',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  venueOwnerId: 'venueOwnerId',
-  status: 'status',
-  leaderboard: 'leaderboard',
-  allegianceMeter: 'allegianceMeter'
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.UserNFTScalarFieldEnum = {
@@ -206,48 +202,29 @@ exports.Prisma.TournamentScalarFieldEnum = {
   endedAt: 'endedAt'
 };
 
-exports.Prisma.ChallengeScalarFieldEnum = {
-  id: 'id',
-  type: 'type',
-  challengerId: 'challengerId',
-  defenderId: 'defenderId',
-  dojoId: 'dojoId',
-  status: 'status',
-  outcome: 'outcome',
-  winnerId: 'winnerId',
-  requirements: 'requirements',
-  matchData: 'matchData',
-  expiresAt: 'expiresAt',
-  acceptedAt: 'acceptedAt',
-  declinedAt: 'declinedAt',
-  completedAt: 'completedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.NominationScalarFieldEnum = {
-  id: 'id',
-  playerId: 'playerId',
-  name: 'name',
-  address: 'address',
-  latitude: 'latitude',
-  longitude: 'longitude',
-  description: 'description',
-  contactInfo: 'contactInfo',
-  status: 'status',
-  verified: 'verified',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
 
@@ -257,9 +234,7 @@ exports.Prisma.ModelName = {
   UserSettings: 'UserSettings',
   Territory: 'Territory',
   UserNFT: 'UserNFT',
-  Tournament: 'Tournament',
-  Challenge: 'Challenge',
-  Nomination: 'Nomination'
+  Tournament: 'Tournament'
 };
 
 /**

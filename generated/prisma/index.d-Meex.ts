@@ -43,16 +43,6 @@ export type UserNFT = $Result.DefaultSelection<Prisma.$UserNFTPayload>
  * 
  */
 export type Tournament = $Result.DefaultSelection<Prisma.$TournamentPayload>
-/**
- * Model Challenge
- * 
- */
-export type Challenge = $Result.DefaultSelection<Prisma.$ChallengePayload>
-/**
- * Model Nomination
- * 
- */
-export type Nomination = $Result.DefaultSelection<Prisma.$NominationPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -238,26 +228,6 @@ export class PrismaClient<
     * ```
     */
   get tournament(): Prisma.TournamentDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.challenge`: Exposes CRUD operations for the **Challenge** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Challenges
-    * const challenges = await prisma.challenge.findMany()
-    * ```
-    */
-  get challenge(): Prisma.ChallengeDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.nomination`: Exposes CRUD operations for the **Nomination** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Nominations
-    * const nominations = await prisma.nomination.findMany()
-    * ```
-    */
-  get nomination(): Prisma.NominationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -703,9 +673,7 @@ export namespace Prisma {
     UserSettings: 'UserSettings',
     Territory: 'Territory',
     UserNFT: 'UserNFT',
-    Tournament: 'Tournament',
-    Challenge: 'Challenge',
-    Nomination: 'Nomination'
+    Tournament: 'Tournament'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -724,7 +692,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "profile" | "userSettings" | "territory" | "userNFT" | "tournament" | "challenge" | "nomination"
+      modelProps: "user" | "profile" | "userSettings" | "territory" | "userNFT" | "tournament"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1172,154 +1140,6 @@ export namespace Prisma {
           }
         }
       }
-      Challenge: {
-        payload: Prisma.$ChallengePayload<ExtArgs>
-        fields: Prisma.ChallengeFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ChallengeFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ChallengeFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>
-          }
-          findFirst: {
-            args: Prisma.ChallengeFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ChallengeFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>
-          }
-          findMany: {
-            args: Prisma.ChallengeFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>[]
-          }
-          create: {
-            args: Prisma.ChallengeCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>
-          }
-          createMany: {
-            args: Prisma.ChallengeCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ChallengeCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>[]
-          }
-          delete: {
-            args: Prisma.ChallengeDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>
-          }
-          update: {
-            args: Prisma.ChallengeUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>
-          }
-          deleteMany: {
-            args: Prisma.ChallengeDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ChallengeUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.ChallengeUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>[]
-          }
-          upsert: {
-            args: Prisma.ChallengeUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ChallengePayload>
-          }
-          aggregate: {
-            args: Prisma.ChallengeAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateChallenge>
-          }
-          groupBy: {
-            args: Prisma.ChallengeGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ChallengeGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ChallengeCountArgs<ExtArgs>
-            result: $Utils.Optional<ChallengeCountAggregateOutputType> | number
-          }
-        }
-      }
-      Nomination: {
-        payload: Prisma.$NominationPayload<ExtArgs>
-        fields: Prisma.NominationFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.NominationFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.NominationFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>
-          }
-          findFirst: {
-            args: Prisma.NominationFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.NominationFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>
-          }
-          findMany: {
-            args: Prisma.NominationFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>[]
-          }
-          create: {
-            args: Prisma.NominationCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>
-          }
-          createMany: {
-            args: Prisma.NominationCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.NominationCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>[]
-          }
-          delete: {
-            args: Prisma.NominationDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>
-          }
-          update: {
-            args: Prisma.NominationUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>
-          }
-          deleteMany: {
-            args: Prisma.NominationDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.NominationUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.NominationUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>[]
-          }
-          upsert: {
-            args: Prisma.NominationUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NominationPayload>
-          }
-          aggregate: {
-            args: Prisma.NominationAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNomination>
-          }
-          groupBy: {
-            args: Prisma.NominationGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NominationGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.NominationCountArgs<ExtArgs>
-            result: $Utils.Optional<NominationCountAggregateOutputType> | number
-          }
-        }
-      }
     }
   } & {
     other: {
@@ -1410,8 +1230,6 @@ export namespace Prisma {
     territory?: TerritoryOmit
     userNFT?: UserNFTOmit
     tournament?: TournamentOmit
-    challenge?: ChallengeOmit
-    nomination?: NominationOmit
   }
 
   /* Types for Logging */
@@ -1508,17 +1326,11 @@ export namespace Prisma {
   export type UserCountOutputType = {
     territories: number
     nfts: number
-    challengesAsChallenger: number
-    challengesAsDefender: number
-    nominations: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     territories?: boolean | UserCountOutputTypeCountTerritoriesArgs
     nfts?: boolean | UserCountOutputTypeCountNftsArgs
-    challengesAsChallenger?: boolean | UserCountOutputTypeCountChallengesAsChallengerArgs
-    challengesAsDefender?: boolean | UserCountOutputTypeCountChallengesAsDefenderArgs
-    nominations?: boolean | UserCountOutputTypeCountNominationsArgs
   }
 
   // Custom InputTypes
@@ -1546,27 +1358,6 @@ export namespace Prisma {
     where?: UserNFTWhereInput
   }
 
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountChallengesAsChallengerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChallengeWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountChallengesAsDefenderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChallengeWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountNominationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NominationWhereInput
-  }
-
 
   /**
    * Count Type TerritoryCountOutputType
@@ -1574,14 +1365,10 @@ export namespace Prisma {
 
   export type TerritoryCountOutputType = {
     nfts: number
-    challenges: number
-    homeDojoUsers: number
   }
 
   export type TerritoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     nfts?: boolean | TerritoryCountOutputTypeCountNftsArgs
-    challenges?: boolean | TerritoryCountOutputTypeCountChallengesArgs
-    homeDojoUsers?: boolean | TerritoryCountOutputTypeCountHomeDojoUsersArgs
   }
 
   // Custom InputTypes
@@ -1600,20 +1387,6 @@ export namespace Prisma {
    */
   export type TerritoryCountOutputTypeCountNftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserNFTWhereInput
-  }
-
-  /**
-   * TerritoryCountOutputType without action
-   */
-  export type TerritoryCountOutputTypeCountChallengesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChallengeWhereInput
-  }
-
-  /**
-   * TerritoryCountOutputType without action
-   */
-  export type TerritoryCountOutputTypeCountHomeDojoUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserWhereInput
   }
 
 
@@ -1638,9 +1411,6 @@ export namespace Prisma {
     role: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    homeDojoId: string | null
-    unlockedZones: string | null
-    relationships: string | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1650,9 +1420,6 @@ export namespace Prisma {
     role: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    homeDojoId: string | null
-    unlockedZones: string | null
-    relationships: string | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1662,9 +1429,6 @@ export namespace Prisma {
     role: number
     createdAt: number
     updatedAt: number
-    homeDojoId: number
-    unlockedZones: number
-    relationships: number
     _all: number
   }
 
@@ -1676,9 +1440,6 @@ export namespace Prisma {
     role?: true
     createdAt?: true
     updatedAt?: true
-    homeDojoId?: true
-    unlockedZones?: true
-    relationships?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1688,9 +1449,6 @@ export namespace Prisma {
     role?: true
     createdAt?: true
     updatedAt?: true
-    homeDojoId?: true
-    unlockedZones?: true
-    relationships?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1700,9 +1458,6 @@ export namespace Prisma {
     role?: true
     createdAt?: true
     updatedAt?: true
-    homeDojoId?: true
-    unlockedZones?: true
-    relationships?: true
     _all?: true
   }
 
@@ -1785,9 +1540,6 @@ export namespace Prisma {
     role: string
     createdAt: Date
     updatedAt: Date
-    homeDojoId: string | null
-    unlockedZones: string
-    relationships: string
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -1814,17 +1566,10 @@ export namespace Prisma {
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    homeDojoId?: boolean
-    unlockedZones?: boolean
-    relationships?: boolean
     profile?: boolean | User$profileArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     territories?: boolean | User$territoriesArgs<ExtArgs>
     nfts?: boolean | User$nftsArgs<ExtArgs>
-    challengesAsChallenger?: boolean | User$challengesAsChallengerArgs<ExtArgs>
-    challengesAsDefender?: boolean | User$challengesAsDefenderArgs<ExtArgs>
-    nominations?: boolean | User$nominationsArgs<ExtArgs>
-    homeDojo?: boolean | User$homeDojoArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1835,10 +1580,6 @@ export namespace Prisma {
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    homeDojoId?: boolean
-    unlockedZones?: boolean
-    relationships?: boolean
-    homeDojo?: boolean | User$homeDojoArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1848,10 +1589,6 @@ export namespace Prisma {
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    homeDojoId?: boolean
-    unlockedZones?: boolean
-    relationships?: boolean
-    homeDojo?: boolean | User$homeDojoArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1861,29 +1598,18 @@ export namespace Prisma {
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    homeDojoId?: boolean
-    unlockedZones?: boolean
-    relationships?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "role" | "createdAt" | "updatedAt" | "homeDojoId" | "unlockedZones" | "relationships", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     profile?: boolean | User$profileArgs<ExtArgs>
     settings?: boolean | User$settingsArgs<ExtArgs>
     territories?: boolean | User$territoriesArgs<ExtArgs>
     nfts?: boolean | User$nftsArgs<ExtArgs>
-    challengesAsChallenger?: boolean | User$challengesAsChallengerArgs<ExtArgs>
-    challengesAsDefender?: boolean | User$challengesAsDefenderArgs<ExtArgs>
-    nominations?: boolean | User$nominationsArgs<ExtArgs>
-    homeDojo?: boolean | User$homeDojoArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    homeDojo?: boolean | User$homeDojoArgs<ExtArgs>
-  }
-  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    homeDojo?: boolean | User$homeDojoArgs<ExtArgs>
-  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
@@ -1892,10 +1618,6 @@ export namespace Prisma {
       settings: Prisma.$UserSettingsPayload<ExtArgs> | null
       territories: Prisma.$TerritoryPayload<ExtArgs>[]
       nfts: Prisma.$UserNFTPayload<ExtArgs>[]
-      challengesAsChallenger: Prisma.$ChallengePayload<ExtArgs>[]
-      challengesAsDefender: Prisma.$ChallengePayload<ExtArgs>[]
-      nominations: Prisma.$NominationPayload<ExtArgs>[]
-      homeDojo: Prisma.$TerritoryPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1904,9 +1626,6 @@ export namespace Prisma {
       role: string
       createdAt: Date
       updatedAt: Date
-      homeDojoId: string | null
-      unlockedZones: string
-      relationships: string
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2305,10 +2024,6 @@ export namespace Prisma {
     settings<T extends User$settingsArgs<ExtArgs> = {}>(args?: Subset<T, User$settingsArgs<ExtArgs>>): Prisma__UserSettingsClient<$Result.GetResult<Prisma.$UserSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     territories<T extends User$territoriesArgs<ExtArgs> = {}>(args?: Subset<T, User$territoriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TerritoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     nfts<T extends User$nftsArgs<ExtArgs> = {}>(args?: Subset<T, User$nftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserNFTPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    challengesAsChallenger<T extends User$challengesAsChallengerArgs<ExtArgs> = {}>(args?: Subset<T, User$challengesAsChallengerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    challengesAsDefender<T extends User$challengesAsDefenderArgs<ExtArgs> = {}>(args?: Subset<T, User$challengesAsDefenderArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    nominations<T extends User$nominationsArgs<ExtArgs> = {}>(args?: Subset<T, User$nominationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    homeDojo<T extends User$homeDojoArgs<ExtArgs> = {}>(args?: Subset<T, User$homeDojoArgs<ExtArgs>>): Prisma__TerritoryClient<$Result.GetResult<Prisma.$TerritoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2344,9 +2059,6 @@ export namespace Prisma {
     readonly role: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
-    readonly homeDojoId: FieldRef<"User", 'String'>
-    readonly unlockedZones: FieldRef<"User", 'String'>
-    readonly relationships: FieldRef<"User", 'String'>
   }
     
 
@@ -2576,6 +2288,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2594,10 +2307,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserIncludeCreateManyAndReturn<ExtArgs> | null
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2668,10 +2378,6 @@ export namespace Prisma {
      * Limit how many Users to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2824,97 +2530,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserNFTScalarFieldEnum | UserNFTScalarFieldEnum[]
-  }
-
-  /**
-   * User.challengesAsChallenger
-   */
-  export type User$challengesAsChallengerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    where?: ChallengeWhereInput
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    cursor?: ChallengeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ChallengeScalarFieldEnum | ChallengeScalarFieldEnum[]
-  }
-
-  /**
-   * User.challengesAsDefender
-   */
-  export type User$challengesAsDefenderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    where?: ChallengeWhereInput
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    cursor?: ChallengeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ChallengeScalarFieldEnum | ChallengeScalarFieldEnum[]
-  }
-
-  /**
-   * User.nominations
-   */
-  export type User$nominationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    where?: NominationWhereInput
-    orderBy?: NominationOrderByWithRelationInput | NominationOrderByWithRelationInput[]
-    cursor?: NominationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: NominationScalarFieldEnum | NominationScalarFieldEnum[]
-  }
-
-  /**
-   * User.homeDojo
-   */
-  export type User$homeDojoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Territory
-     */
-    select?: TerritorySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Territory
-     */
-    omit?: TerritoryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TerritoryInclude<ExtArgs> | null
-    where?: TerritoryWhereInput
   }
 
   /**
@@ -3908,6 +3523,7 @@ export namespace Prisma {
      * The data used to create many Profiles.
      */
     data: ProfileCreateManyInput | ProfileCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3926,6 +3542,7 @@ export namespace Prisma {
      * The data used to create many Profiles.
      */
     data: ProfileCreateManyInput | ProfileCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4109,8 +3726,6 @@ export namespace Prisma {
     darkMode: boolean | null
     language: string | null
     timezone: string | null
-    privacySettings: string | null
-    notificationSettings: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4123,8 +3738,6 @@ export namespace Prisma {
     darkMode: boolean | null
     language: string | null
     timezone: string | null
-    privacySettings: string | null
-    notificationSettings: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4153,8 +3766,6 @@ export namespace Prisma {
     darkMode?: true
     language?: true
     timezone?: true
-    privacySettings?: true
-    notificationSettings?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4167,8 +3778,6 @@ export namespace Prisma {
     darkMode?: true
     language?: true
     timezone?: true
-    privacySettings?: true
-    notificationSettings?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4268,8 +3877,8 @@ export namespace Prisma {
     darkMode: boolean
     language: string
     timezone: string
-    privacySettings: string
-    notificationSettings: string
+    privacySettings: JsonValue
+    notificationSettings: JsonValue
     createdAt: Date
     updatedAt: Date
     _count: UserSettingsCountAggregateOutputType | null
@@ -4374,8 +3983,8 @@ export namespace Prisma {
       darkMode: boolean
       language: string
       timezone: string
-      privacySettings: string
-      notificationSettings: string
+      privacySettings: Prisma.JsonValue
+      notificationSettings: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["userSettings"]>
@@ -4809,8 +4418,8 @@ export namespace Prisma {
     readonly darkMode: FieldRef<"UserSettings", 'Boolean'>
     readonly language: FieldRef<"UserSettings", 'String'>
     readonly timezone: FieldRef<"UserSettings", 'String'>
-    readonly privacySettings: FieldRef<"UserSettings", 'String'>
-    readonly notificationSettings: FieldRef<"UserSettings", 'String'>
+    readonly privacySettings: FieldRef<"UserSettings", 'Json'>
+    readonly notificationSettings: FieldRef<"UserSettings", 'Json'>
     readonly createdAt: FieldRef<"UserSettings", 'DateTime'>
     readonly updatedAt: FieldRef<"UserSettings", 'DateTime'>
   }
@@ -5042,6 +4651,7 @@ export namespace Prisma {
      * The data used to create many UserSettings.
      */
     data: UserSettingsCreateManyInput | UserSettingsCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5060,6 +4670,7 @@ export namespace Prisma {
      * The data used to create many UserSettings.
      */
     data: UserSettingsCreateManyInput | UserSettingsCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5239,19 +4850,16 @@ export namespace Prisma {
 
   export type TerritoryAvgAggregateOutputType = {
     influence: number | null
-    allegianceMeter: number | null
   }
 
   export type TerritorySumAggregateOutputType = {
     influence: number | null
-    allegianceMeter: number | null
   }
 
   export type TerritoryMinAggregateOutputType = {
     id: string | null
     name: string | null
     description: string | null
-    coordinates: string | null
     requiredNFT: string | null
     influence: number | null
     ownerId: string | null
@@ -5259,17 +4867,12 @@ export namespace Prisma {
     isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
-    venueOwnerId: string | null
-    status: string | null
-    leaderboard: string | null
-    allegianceMeter: number | null
   }
 
   export type TerritoryMaxAggregateOutputType = {
     id: string | null
     name: string | null
     description: string | null
-    coordinates: string | null
     requiredNFT: string | null
     influence: number | null
     ownerId: string | null
@@ -5277,10 +4880,6 @@ export namespace Prisma {
     isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
-    venueOwnerId: string | null
-    status: string | null
-    leaderboard: string | null
-    allegianceMeter: number | null
   }
 
   export type TerritoryCountAggregateOutputType = {
@@ -5295,29 +4894,22 @@ export namespace Prisma {
     isActive: number
     createdAt: number
     updatedAt: number
-    venueOwnerId: number
-    status: number
-    leaderboard: number
-    allegianceMeter: number
     _all: number
   }
 
 
   export type TerritoryAvgAggregateInputType = {
     influence?: true
-    allegianceMeter?: true
   }
 
   export type TerritorySumAggregateInputType = {
     influence?: true
-    allegianceMeter?: true
   }
 
   export type TerritoryMinAggregateInputType = {
     id?: true
     name?: true
     description?: true
-    coordinates?: true
     requiredNFT?: true
     influence?: true
     ownerId?: true
@@ -5325,17 +4917,12 @@ export namespace Prisma {
     isActive?: true
     createdAt?: true
     updatedAt?: true
-    venueOwnerId?: true
-    status?: true
-    leaderboard?: true
-    allegianceMeter?: true
   }
 
   export type TerritoryMaxAggregateInputType = {
     id?: true
     name?: true
     description?: true
-    coordinates?: true
     requiredNFT?: true
     influence?: true
     ownerId?: true
@@ -5343,10 +4930,6 @@ export namespace Prisma {
     isActive?: true
     createdAt?: true
     updatedAt?: true
-    venueOwnerId?: true
-    status?: true
-    leaderboard?: true
-    allegianceMeter?: true
   }
 
   export type TerritoryCountAggregateInputType = {
@@ -5361,10 +4944,6 @@ export namespace Prisma {
     isActive?: true
     createdAt?: true
     updatedAt?: true
-    venueOwnerId?: true
-    status?: true
-    leaderboard?: true
-    allegianceMeter?: true
     _all?: true
   }
 
@@ -5458,7 +5037,7 @@ export namespace Prisma {
     id: string
     name: string
     description: string | null
-    coordinates: string
+    coordinates: JsonValue
     requiredNFT: string
     influence: number
     ownerId: string | null
@@ -5466,10 +5045,6 @@ export namespace Prisma {
     isActive: boolean
     createdAt: Date
     updatedAt: Date
-    venueOwnerId: string | null
-    status: string
-    leaderboard: string
-    allegianceMeter: number
     _count: TerritoryCountAggregateOutputType | null
     _avg: TerritoryAvgAggregateOutputType | null
     _sum: TerritorySumAggregateOutputType | null
@@ -5503,14 +5078,8 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    venueOwnerId?: boolean
-    status?: boolean
-    leaderboard?: boolean
-    allegianceMeter?: boolean
     owner?: boolean | Territory$ownerArgs<ExtArgs>
     nfts?: boolean | Territory$nftsArgs<ExtArgs>
-    challenges?: boolean | Territory$challengesArgs<ExtArgs>
-    homeDojoUsers?: boolean | Territory$homeDojoUsersArgs<ExtArgs>
     _count?: boolean | TerritoryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["territory"]>
 
@@ -5526,10 +5095,6 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    venueOwnerId?: boolean
-    status?: boolean
-    leaderboard?: boolean
-    allegianceMeter?: boolean
     owner?: boolean | Territory$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["territory"]>
 
@@ -5545,10 +5110,6 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    venueOwnerId?: boolean
-    status?: boolean
-    leaderboard?: boolean
-    allegianceMeter?: boolean
     owner?: boolean | Territory$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["territory"]>
 
@@ -5564,18 +5125,12 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    venueOwnerId?: boolean
-    status?: boolean
-    leaderboard?: boolean
-    allegianceMeter?: boolean
   }
 
-  export type TerritoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "coordinates" | "requiredNFT" | "influence" | "ownerId" | "clan" | "isActive" | "createdAt" | "updatedAt" | "venueOwnerId" | "status" | "leaderboard" | "allegianceMeter", ExtArgs["result"]["territory"]>
+  export type TerritoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "coordinates" | "requiredNFT" | "influence" | "ownerId" | "clan" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["territory"]>
   export type TerritoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | Territory$ownerArgs<ExtArgs>
     nfts?: boolean | Territory$nftsArgs<ExtArgs>
-    challenges?: boolean | Territory$challengesArgs<ExtArgs>
-    homeDojoUsers?: boolean | Territory$homeDojoUsersArgs<ExtArgs>
     _count?: boolean | TerritoryCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TerritoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5590,14 +5145,12 @@ export namespace Prisma {
     objects: {
       owner: Prisma.$UserPayload<ExtArgs> | null
       nfts: Prisma.$UserNFTPayload<ExtArgs>[]
-      challenges: Prisma.$ChallengePayload<ExtArgs>[]
-      homeDojoUsers: Prisma.$UserPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       description: string | null
-      coordinates: string
+      coordinates: Prisma.JsonValue
       requiredNFT: string
       influence: number
       ownerId: string | null
@@ -5605,10 +5158,6 @@ export namespace Prisma {
       isActive: boolean
       createdAt: Date
       updatedAt: Date
-      venueOwnerId: string | null
-      status: string
-      leaderboard: string
-      allegianceMeter: number
     }, ExtArgs["result"]["territory"]>
     composites: {}
   }
@@ -6005,8 +5554,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     owner<T extends Territory$ownerArgs<ExtArgs> = {}>(args?: Subset<T, Territory$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     nfts<T extends Territory$nftsArgs<ExtArgs> = {}>(args?: Subset<T, Territory$nftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserNFTPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    challenges<T extends Territory$challengesArgs<ExtArgs> = {}>(args?: Subset<T, Territory$challengesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    homeDojoUsers<T extends Territory$homeDojoUsersArgs<ExtArgs> = {}>(args?: Subset<T, Territory$homeDojoUsersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6039,7 +5586,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Territory", 'String'>
     readonly name: FieldRef<"Territory", 'String'>
     readonly description: FieldRef<"Territory", 'String'>
-    readonly coordinates: FieldRef<"Territory", 'String'>
+    readonly coordinates: FieldRef<"Territory", 'Json'>
     readonly requiredNFT: FieldRef<"Territory", 'String'>
     readonly influence: FieldRef<"Territory", 'Int'>
     readonly ownerId: FieldRef<"Territory", 'String'>
@@ -6047,10 +5594,6 @@ export namespace Prisma {
     readonly isActive: FieldRef<"Territory", 'Boolean'>
     readonly createdAt: FieldRef<"Territory", 'DateTime'>
     readonly updatedAt: FieldRef<"Territory", 'DateTime'>
-    readonly venueOwnerId: FieldRef<"Territory", 'String'>
-    readonly status: FieldRef<"Territory", 'String'>
-    readonly leaderboard: FieldRef<"Territory", 'String'>
-    readonly allegianceMeter: FieldRef<"Territory", 'Int'>
   }
     
 
@@ -6280,6 +5823,7 @@ export namespace Prisma {
      * The data used to create many Territories.
      */
     data: TerritoryCreateManyInput | TerritoryCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -6298,6 +5842,7 @@ export namespace Prisma {
      * The data used to create many Territories.
      */
     data: TerritoryCreateManyInput | TerritoryCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6488,54 +6033,6 @@ export namespace Prisma {
   }
 
   /**
-   * Territory.challenges
-   */
-  export type Territory$challengesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    where?: ChallengeWhereInput
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    cursor?: ChallengeWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ChallengeScalarFieldEnum | ChallengeScalarFieldEnum[]
-  }
-
-  /**
-   * Territory.homeDojoUsers
-   */
-  export type Territory$homeDojoUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
-    cursor?: UserWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
-  }
-
-  /**
    * Territory without action
    */
   export type TerritoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6570,7 +6067,6 @@ export namespace Prisma {
     name: string | null
     description: string | null
     imageUrl: string | null
-    metadata: string | null
     acquiredAt: Date | null
     userId: string | null
     territoryId: string | null
@@ -6585,7 +6081,6 @@ export namespace Prisma {
     name: string | null
     description: string | null
     imageUrl: string | null
-    metadata: string | null
     acquiredAt: Date | null
     userId: string | null
     territoryId: string | null
@@ -6617,7 +6112,6 @@ export namespace Prisma {
     name?: true
     description?: true
     imageUrl?: true
-    metadata?: true
     acquiredAt?: true
     userId?: true
     territoryId?: true
@@ -6632,7 +6126,6 @@ export namespace Prisma {
     name?: true
     description?: true
     imageUrl?: true
-    metadata?: true
     acquiredAt?: true
     userId?: true
     territoryId?: true
@@ -6735,7 +6228,7 @@ export namespace Prisma {
     name: string
     description: string | null
     imageUrl: string | null
-    metadata: string
+    metadata: JsonValue
     acquiredAt: Date
     userId: string
     territoryId: string | null
@@ -6853,7 +6346,7 @@ export namespace Prisma {
       name: string
       description: string | null
       imageUrl: string | null
-      metadata: string
+      metadata: Prisma.JsonValue
       acquiredAt: Date
       userId: string
       territoryId: string | null
@@ -7290,7 +6783,7 @@ export namespace Prisma {
     readonly name: FieldRef<"UserNFT", 'String'>
     readonly description: FieldRef<"UserNFT", 'String'>
     readonly imageUrl: FieldRef<"UserNFT", 'String'>
-    readonly metadata: FieldRef<"UserNFT", 'String'>
+    readonly metadata: FieldRef<"UserNFT", 'Json'>
     readonly acquiredAt: FieldRef<"UserNFT", 'DateTime'>
     readonly userId: FieldRef<"UserNFT", 'String'>
     readonly territoryId: FieldRef<"UserNFT", 'String'>
@@ -7526,6 +7019,7 @@ export namespace Prisma {
      * The data used to create many UserNFTS.
      */
     data: UserNFTCreateManyInput | UserNFTCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -7544,6 +7038,7 @@ export namespace Prisma {
      * The data used to create many UserNFTS.
      */
     data: UserNFTCreateManyInput | UserNFTCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7763,10 +7258,7 @@ export namespace Prisma {
     entryFee: number | null
     prizePool: number | null
     status: string | null
-    participants: string | null
-    matches: string | null
     winnerId: string | null
-    finalStandings: string | null
     createdAt: Date | null
     updatedAt: Date | null
     endedAt: Date | null
@@ -7783,10 +7275,7 @@ export namespace Prisma {
     entryFee: number | null
     prizePool: number | null
     status: string | null
-    participants: string | null
-    matches: string | null
     winnerId: string | null
-    finalStandings: string | null
     createdAt: Date | null
     updatedAt: Date | null
     endedAt: Date | null
@@ -7837,10 +7326,7 @@ export namespace Prisma {
     entryFee?: true
     prizePool?: true
     status?: true
-    participants?: true
-    matches?: true
     winnerId?: true
-    finalStandings?: true
     createdAt?: true
     updatedAt?: true
     endedAt?: true
@@ -7857,10 +7343,7 @@ export namespace Prisma {
     entryFee?: true
     prizePool?: true
     status?: true
-    participants?: true
-    matches?: true
     winnerId?: true
-    finalStandings?: true
     createdAt?: true
     updatedAt?: true
     endedAt?: true
@@ -7984,10 +7467,10 @@ export namespace Prisma {
     entryFee: number
     prizePool: number
     status: string
-    participants: string
-    matches: string
+    participants: string[]
+    matches: string[]
     winnerId: string | null
-    finalStandings: string
+    finalStandings: string[]
     createdAt: Date
     updatedAt: Date
     endedAt: Date | null
@@ -8108,10 +7591,10 @@ export namespace Prisma {
       entryFee: number
       prizePool: number
       status: string
-      participants: string
-      matches: string
+      participants: string[]
+      matches: string[]
       winnerId: string | null
-      finalStandings: string
+      finalStandings: string[]
       createdAt: Date
       updatedAt: Date
       endedAt: Date | null
@@ -8548,10 +8031,10 @@ export namespace Prisma {
     readonly entryFee: FieldRef<"Tournament", 'Float'>
     readonly prizePool: FieldRef<"Tournament", 'Float'>
     readonly status: FieldRef<"Tournament", 'String'>
-    readonly participants: FieldRef<"Tournament", 'String'>
-    readonly matches: FieldRef<"Tournament", 'String'>
+    readonly participants: FieldRef<"Tournament", 'String[]'>
+    readonly matches: FieldRef<"Tournament", 'String[]'>
     readonly winnerId: FieldRef<"Tournament", 'String'>
-    readonly finalStandings: FieldRef<"Tournament", 'String'>
+    readonly finalStandings: FieldRef<"Tournament", 'String[]'>
     readonly createdAt: FieldRef<"Tournament", 'DateTime'>
     readonly updatedAt: FieldRef<"Tournament", 'DateTime'>
     readonly endedAt: FieldRef<"Tournament", 'DateTime'>
@@ -8760,6 +8243,7 @@ export namespace Prisma {
      * The data used to create many Tournaments.
      */
     data: TournamentCreateManyInput | TournamentCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -8778,6 +8262,7 @@ export namespace Prisma {
      * The data used to create many Tournaments.
      */
     data: TournamentCreateManyInput | TournamentCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -8920,2410 +8405,13 @@ export namespace Prisma {
 
 
   /**
-   * Model Challenge
-   */
-
-  export type AggregateChallenge = {
-    _count: ChallengeCountAggregateOutputType | null
-    _min: ChallengeMinAggregateOutputType | null
-    _max: ChallengeMaxAggregateOutputType | null
-  }
-
-  export type ChallengeMinAggregateOutputType = {
-    id: string | null
-    type: string | null
-    challengerId: string | null
-    defenderId: string | null
-    dojoId: string | null
-    status: string | null
-    outcome: string | null
-    winnerId: string | null
-    requirements: string | null
-    matchData: string | null
-    expiresAt: Date | null
-    acceptedAt: Date | null
-    declinedAt: Date | null
-    completedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type ChallengeMaxAggregateOutputType = {
-    id: string | null
-    type: string | null
-    challengerId: string | null
-    defenderId: string | null
-    dojoId: string | null
-    status: string | null
-    outcome: string | null
-    winnerId: string | null
-    requirements: string | null
-    matchData: string | null
-    expiresAt: Date | null
-    acceptedAt: Date | null
-    declinedAt: Date | null
-    completedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type ChallengeCountAggregateOutputType = {
-    id: number
-    type: number
-    challengerId: number
-    defenderId: number
-    dojoId: number
-    status: number
-    outcome: number
-    winnerId: number
-    requirements: number
-    matchData: number
-    expiresAt: number
-    acceptedAt: number
-    declinedAt: number
-    completedAt: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type ChallengeMinAggregateInputType = {
-    id?: true
-    type?: true
-    challengerId?: true
-    defenderId?: true
-    dojoId?: true
-    status?: true
-    outcome?: true
-    winnerId?: true
-    requirements?: true
-    matchData?: true
-    expiresAt?: true
-    acceptedAt?: true
-    declinedAt?: true
-    completedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type ChallengeMaxAggregateInputType = {
-    id?: true
-    type?: true
-    challengerId?: true
-    defenderId?: true
-    dojoId?: true
-    status?: true
-    outcome?: true
-    winnerId?: true
-    requirements?: true
-    matchData?: true
-    expiresAt?: true
-    acceptedAt?: true
-    declinedAt?: true
-    completedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type ChallengeCountAggregateInputType = {
-    id?: true
-    type?: true
-    challengerId?: true
-    defenderId?: true
-    dojoId?: true
-    status?: true
-    outcome?: true
-    winnerId?: true
-    requirements?: true
-    matchData?: true
-    expiresAt?: true
-    acceptedAt?: true
-    declinedAt?: true
-    completedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type ChallengeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Challenge to aggregate.
-     */
-    where?: ChallengeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Challenges to fetch.
-     */
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ChallengeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Challenges from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Challenges.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Challenges
-    **/
-    _count?: true | ChallengeCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ChallengeMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ChallengeMaxAggregateInputType
-  }
-
-  export type GetChallengeAggregateType<T extends ChallengeAggregateArgs> = {
-        [P in keyof T & keyof AggregateChallenge]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateChallenge[P]>
-      : GetScalarType<T[P], AggregateChallenge[P]>
-  }
-
-
-
-
-  export type ChallengeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChallengeWhereInput
-    orderBy?: ChallengeOrderByWithAggregationInput | ChallengeOrderByWithAggregationInput[]
-    by: ChallengeScalarFieldEnum[] | ChallengeScalarFieldEnum
-    having?: ChallengeScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ChallengeCountAggregateInputType | true
-    _min?: ChallengeMinAggregateInputType
-    _max?: ChallengeMaxAggregateInputType
-  }
-
-  export type ChallengeGroupByOutputType = {
-    id: string
-    type: string
-    challengerId: string
-    defenderId: string
-    dojoId: string
-    status: string
-    outcome: string | null
-    winnerId: string | null
-    requirements: string
-    matchData: string | null
-    expiresAt: Date
-    acceptedAt: Date | null
-    declinedAt: Date | null
-    completedAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-    _count: ChallengeCountAggregateOutputType | null
-    _min: ChallengeMinAggregateOutputType | null
-    _max: ChallengeMaxAggregateOutputType | null
-  }
-
-  type GetChallengeGroupByPayload<T extends ChallengeGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ChallengeGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ChallengeGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ChallengeGroupByOutputType[P]>
-            : GetScalarType<T[P], ChallengeGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ChallengeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    type?: boolean
-    challengerId?: boolean
-    defenderId?: boolean
-    dojoId?: boolean
-    status?: boolean
-    outcome?: boolean
-    winnerId?: boolean
-    requirements?: boolean
-    matchData?: boolean
-    expiresAt?: boolean
-    acceptedAt?: boolean
-    declinedAt?: boolean
-    completedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    challenger?: boolean | UserDefaultArgs<ExtArgs>
-    defender?: boolean | UserDefaultArgs<ExtArgs>
-    dojo?: boolean | TerritoryDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["challenge"]>
-
-  export type ChallengeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    type?: boolean
-    challengerId?: boolean
-    defenderId?: boolean
-    dojoId?: boolean
-    status?: boolean
-    outcome?: boolean
-    winnerId?: boolean
-    requirements?: boolean
-    matchData?: boolean
-    expiresAt?: boolean
-    acceptedAt?: boolean
-    declinedAt?: boolean
-    completedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    challenger?: boolean | UserDefaultArgs<ExtArgs>
-    defender?: boolean | UserDefaultArgs<ExtArgs>
-    dojo?: boolean | TerritoryDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["challenge"]>
-
-  export type ChallengeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    type?: boolean
-    challengerId?: boolean
-    defenderId?: boolean
-    dojoId?: boolean
-    status?: boolean
-    outcome?: boolean
-    winnerId?: boolean
-    requirements?: boolean
-    matchData?: boolean
-    expiresAt?: boolean
-    acceptedAt?: boolean
-    declinedAt?: boolean
-    completedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    challenger?: boolean | UserDefaultArgs<ExtArgs>
-    defender?: boolean | UserDefaultArgs<ExtArgs>
-    dojo?: boolean | TerritoryDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["challenge"]>
-
-  export type ChallengeSelectScalar = {
-    id?: boolean
-    type?: boolean
-    challengerId?: boolean
-    defenderId?: boolean
-    dojoId?: boolean
-    status?: boolean
-    outcome?: boolean
-    winnerId?: boolean
-    requirements?: boolean
-    matchData?: boolean
-    expiresAt?: boolean
-    acceptedAt?: boolean
-    declinedAt?: boolean
-    completedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type ChallengeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "challengerId" | "defenderId" | "dojoId" | "status" | "outcome" | "winnerId" | "requirements" | "matchData" | "expiresAt" | "acceptedAt" | "declinedAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["challenge"]>
-  export type ChallengeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    challenger?: boolean | UserDefaultArgs<ExtArgs>
-    defender?: boolean | UserDefaultArgs<ExtArgs>
-    dojo?: boolean | TerritoryDefaultArgs<ExtArgs>
-  }
-  export type ChallengeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    challenger?: boolean | UserDefaultArgs<ExtArgs>
-    defender?: boolean | UserDefaultArgs<ExtArgs>
-    dojo?: boolean | TerritoryDefaultArgs<ExtArgs>
-  }
-  export type ChallengeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    challenger?: boolean | UserDefaultArgs<ExtArgs>
-    defender?: boolean | UserDefaultArgs<ExtArgs>
-    dojo?: boolean | TerritoryDefaultArgs<ExtArgs>
-  }
-
-  export type $ChallengePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Challenge"
-    objects: {
-      challenger: Prisma.$UserPayload<ExtArgs>
-      defender: Prisma.$UserPayload<ExtArgs>
-      dojo: Prisma.$TerritoryPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      type: string
-      challengerId: string
-      defenderId: string
-      dojoId: string
-      status: string
-      outcome: string | null
-      winnerId: string | null
-      requirements: string
-      matchData: string | null
-      expiresAt: Date
-      acceptedAt: Date | null
-      declinedAt: Date | null
-      completedAt: Date | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["challenge"]>
-    composites: {}
-  }
-
-  type ChallengeGetPayload<S extends boolean | null | undefined | ChallengeDefaultArgs> = $Result.GetResult<Prisma.$ChallengePayload, S>
-
-  type ChallengeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ChallengeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ChallengeCountAggregateInputType | true
-    }
-
-  export interface ChallengeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Challenge'], meta: { name: 'Challenge' } }
-    /**
-     * Find zero or one Challenge that matches the filter.
-     * @param {ChallengeFindUniqueArgs} args - Arguments to find a Challenge
-     * @example
-     * // Get one Challenge
-     * const challenge = await prisma.challenge.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ChallengeFindUniqueArgs>(args: SelectSubset<T, ChallengeFindUniqueArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Challenge that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {ChallengeFindUniqueOrThrowArgs} args - Arguments to find a Challenge
-     * @example
-     * // Get one Challenge
-     * const challenge = await prisma.challenge.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ChallengeFindUniqueOrThrowArgs>(args: SelectSubset<T, ChallengeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Challenge that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeFindFirstArgs} args - Arguments to find a Challenge
-     * @example
-     * // Get one Challenge
-     * const challenge = await prisma.challenge.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ChallengeFindFirstArgs>(args?: SelectSubset<T, ChallengeFindFirstArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Challenge that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeFindFirstOrThrowArgs} args - Arguments to find a Challenge
-     * @example
-     * // Get one Challenge
-     * const challenge = await prisma.challenge.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ChallengeFindFirstOrThrowArgs>(args?: SelectSubset<T, ChallengeFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Challenges that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Challenges
-     * const challenges = await prisma.challenge.findMany()
-     * 
-     * // Get first 10 Challenges
-     * const challenges = await prisma.challenge.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const challengeWithIdOnly = await prisma.challenge.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends ChallengeFindManyArgs>(args?: SelectSubset<T, ChallengeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Challenge.
-     * @param {ChallengeCreateArgs} args - Arguments to create a Challenge.
-     * @example
-     * // Create one Challenge
-     * const Challenge = await prisma.challenge.create({
-     *   data: {
-     *     // ... data to create a Challenge
-     *   }
-     * })
-     * 
-     */
-    create<T extends ChallengeCreateArgs>(args: SelectSubset<T, ChallengeCreateArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Challenges.
-     * @param {ChallengeCreateManyArgs} args - Arguments to create many Challenges.
-     * @example
-     * // Create many Challenges
-     * const challenge = await prisma.challenge.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ChallengeCreateManyArgs>(args?: SelectSubset<T, ChallengeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Challenges and returns the data saved in the database.
-     * @param {ChallengeCreateManyAndReturnArgs} args - Arguments to create many Challenges.
-     * @example
-     * // Create many Challenges
-     * const challenge = await prisma.challenge.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Challenges and only return the `id`
-     * const challengeWithIdOnly = await prisma.challenge.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ChallengeCreateManyAndReturnArgs>(args?: SelectSubset<T, ChallengeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Challenge.
-     * @param {ChallengeDeleteArgs} args - Arguments to delete one Challenge.
-     * @example
-     * // Delete one Challenge
-     * const Challenge = await prisma.challenge.delete({
-     *   where: {
-     *     // ... filter to delete one Challenge
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ChallengeDeleteArgs>(args: SelectSubset<T, ChallengeDeleteArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Challenge.
-     * @param {ChallengeUpdateArgs} args - Arguments to update one Challenge.
-     * @example
-     * // Update one Challenge
-     * const challenge = await prisma.challenge.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ChallengeUpdateArgs>(args: SelectSubset<T, ChallengeUpdateArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Challenges.
-     * @param {ChallengeDeleteManyArgs} args - Arguments to filter Challenges to delete.
-     * @example
-     * // Delete a few Challenges
-     * const { count } = await prisma.challenge.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ChallengeDeleteManyArgs>(args?: SelectSubset<T, ChallengeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Challenges.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Challenges
-     * const challenge = await prisma.challenge.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ChallengeUpdateManyArgs>(args: SelectSubset<T, ChallengeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Challenges and returns the data updated in the database.
-     * @param {ChallengeUpdateManyAndReturnArgs} args - Arguments to update many Challenges.
-     * @example
-     * // Update many Challenges
-     * const challenge = await prisma.challenge.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Challenges and only return the `id`
-     * const challengeWithIdOnly = await prisma.challenge.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends ChallengeUpdateManyAndReturnArgs>(args: SelectSubset<T, ChallengeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Challenge.
-     * @param {ChallengeUpsertArgs} args - Arguments to update or create a Challenge.
-     * @example
-     * // Update or create a Challenge
-     * const challenge = await prisma.challenge.upsert({
-     *   create: {
-     *     // ... data to create a Challenge
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Challenge we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ChallengeUpsertArgs>(args: SelectSubset<T, ChallengeUpsertArgs<ExtArgs>>): Prisma__ChallengeClient<$Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Challenges.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeCountArgs} args - Arguments to filter Challenges to count.
-     * @example
-     * // Count the number of Challenges
-     * const count = await prisma.challenge.count({
-     *   where: {
-     *     // ... the filter for the Challenges we want to count
-     *   }
-     * })
-    **/
-    count<T extends ChallengeCountArgs>(
-      args?: Subset<T, ChallengeCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ChallengeCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Challenge.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ChallengeAggregateArgs>(args: Subset<T, ChallengeAggregateArgs>): Prisma.PrismaPromise<GetChallengeAggregateType<T>>
-
-    /**
-     * Group by Challenge.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ChallengeGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ChallengeGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ChallengeGroupByArgs['orderBy'] }
-        : { orderBy?: ChallengeGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ChallengeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetChallengeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Challenge model
-   */
-  readonly fields: ChallengeFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Challenge.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ChallengeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    challenger<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    defender<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    dojo<T extends TerritoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TerritoryDefaultArgs<ExtArgs>>): Prisma__TerritoryClient<$Result.GetResult<Prisma.$TerritoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Challenge model
-   */
-  interface ChallengeFieldRefs {
-    readonly id: FieldRef<"Challenge", 'String'>
-    readonly type: FieldRef<"Challenge", 'String'>
-    readonly challengerId: FieldRef<"Challenge", 'String'>
-    readonly defenderId: FieldRef<"Challenge", 'String'>
-    readonly dojoId: FieldRef<"Challenge", 'String'>
-    readonly status: FieldRef<"Challenge", 'String'>
-    readonly outcome: FieldRef<"Challenge", 'String'>
-    readonly winnerId: FieldRef<"Challenge", 'String'>
-    readonly requirements: FieldRef<"Challenge", 'String'>
-    readonly matchData: FieldRef<"Challenge", 'String'>
-    readonly expiresAt: FieldRef<"Challenge", 'DateTime'>
-    readonly acceptedAt: FieldRef<"Challenge", 'DateTime'>
-    readonly declinedAt: FieldRef<"Challenge", 'DateTime'>
-    readonly completedAt: FieldRef<"Challenge", 'DateTime'>
-    readonly createdAt: FieldRef<"Challenge", 'DateTime'>
-    readonly updatedAt: FieldRef<"Challenge", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Challenge findUnique
-   */
-  export type ChallengeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * Filter, which Challenge to fetch.
-     */
-    where: ChallengeWhereUniqueInput
-  }
-
-  /**
-   * Challenge findUniqueOrThrow
-   */
-  export type ChallengeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * Filter, which Challenge to fetch.
-     */
-    where: ChallengeWhereUniqueInput
-  }
-
-  /**
-   * Challenge findFirst
-   */
-  export type ChallengeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * Filter, which Challenge to fetch.
-     */
-    where?: ChallengeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Challenges to fetch.
-     */
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Challenges.
-     */
-    cursor?: ChallengeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Challenges from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Challenges.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Challenges.
-     */
-    distinct?: ChallengeScalarFieldEnum | ChallengeScalarFieldEnum[]
-  }
-
-  /**
-   * Challenge findFirstOrThrow
-   */
-  export type ChallengeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * Filter, which Challenge to fetch.
-     */
-    where?: ChallengeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Challenges to fetch.
-     */
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Challenges.
-     */
-    cursor?: ChallengeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Challenges from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Challenges.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Challenges.
-     */
-    distinct?: ChallengeScalarFieldEnum | ChallengeScalarFieldEnum[]
-  }
-
-  /**
-   * Challenge findMany
-   */
-  export type ChallengeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * Filter, which Challenges to fetch.
-     */
-    where?: ChallengeWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Challenges to fetch.
-     */
-    orderBy?: ChallengeOrderByWithRelationInput | ChallengeOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Challenges.
-     */
-    cursor?: ChallengeWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Challenges from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Challenges.
-     */
-    skip?: number
-    distinct?: ChallengeScalarFieldEnum | ChallengeScalarFieldEnum[]
-  }
-
-  /**
-   * Challenge create
-   */
-  export type ChallengeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Challenge.
-     */
-    data: XOR<ChallengeCreateInput, ChallengeUncheckedCreateInput>
-  }
-
-  /**
-   * Challenge createMany
-   */
-  export type ChallengeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Challenges.
-     */
-    data: ChallengeCreateManyInput | ChallengeCreateManyInput[]
-  }
-
-  /**
-   * Challenge createManyAndReturn
-   */
-  export type ChallengeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * The data used to create many Challenges.
-     */
-    data: ChallengeCreateManyInput | ChallengeCreateManyInput[]
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Challenge update
-   */
-  export type ChallengeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Challenge.
-     */
-    data: XOR<ChallengeUpdateInput, ChallengeUncheckedUpdateInput>
-    /**
-     * Choose, which Challenge to update.
-     */
-    where: ChallengeWhereUniqueInput
-  }
-
-  /**
-   * Challenge updateMany
-   */
-  export type ChallengeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Challenges.
-     */
-    data: XOR<ChallengeUpdateManyMutationInput, ChallengeUncheckedUpdateManyInput>
-    /**
-     * Filter which Challenges to update
-     */
-    where?: ChallengeWhereInput
-    /**
-     * Limit how many Challenges to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Challenge updateManyAndReturn
-   */
-  export type ChallengeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * The data used to update Challenges.
-     */
-    data: XOR<ChallengeUpdateManyMutationInput, ChallengeUncheckedUpdateManyInput>
-    /**
-     * Filter which Challenges to update
-     */
-    where?: ChallengeWhereInput
-    /**
-     * Limit how many Challenges to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Challenge upsert
-   */
-  export type ChallengeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Challenge to update in case it exists.
-     */
-    where: ChallengeWhereUniqueInput
-    /**
-     * In case the Challenge found by the `where` argument doesn't exist, create a new Challenge with this data.
-     */
-    create: XOR<ChallengeCreateInput, ChallengeUncheckedCreateInput>
-    /**
-     * In case the Challenge was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ChallengeUpdateInput, ChallengeUncheckedUpdateInput>
-  }
-
-  /**
-   * Challenge delete
-   */
-  export type ChallengeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-    /**
-     * Filter which Challenge to delete.
-     */
-    where: ChallengeWhereUniqueInput
-  }
-
-  /**
-   * Challenge deleteMany
-   */
-  export type ChallengeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Challenges to delete
-     */
-    where?: ChallengeWhereInput
-    /**
-     * Limit how many Challenges to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Challenge without action
-   */
-  export type ChallengeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Challenge
-     */
-    select?: ChallengeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Challenge
-     */
-    omit?: ChallengeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ChallengeInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Nomination
-   */
-
-  export type AggregateNomination = {
-    _count: NominationCountAggregateOutputType | null
-    _avg: NominationAvgAggregateOutputType | null
-    _sum: NominationSumAggregateOutputType | null
-    _min: NominationMinAggregateOutputType | null
-    _max: NominationMaxAggregateOutputType | null
-  }
-
-  export type NominationAvgAggregateOutputType = {
-    latitude: number | null
-    longitude: number | null
-  }
-
-  export type NominationSumAggregateOutputType = {
-    latitude: number | null
-    longitude: number | null
-  }
-
-  export type NominationMinAggregateOutputType = {
-    id: string | null
-    playerId: string | null
-    name: string | null
-    address: string | null
-    latitude: number | null
-    longitude: number | null
-    description: string | null
-    contactInfo: string | null
-    status: string | null
-    verified: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type NominationMaxAggregateOutputType = {
-    id: string | null
-    playerId: string | null
-    name: string | null
-    address: string | null
-    latitude: number | null
-    longitude: number | null
-    description: string | null
-    contactInfo: string | null
-    status: string | null
-    verified: boolean | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type NominationCountAggregateOutputType = {
-    id: number
-    playerId: number
-    name: number
-    address: number
-    latitude: number
-    longitude: number
-    description: number
-    contactInfo: number
-    status: number
-    verified: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type NominationAvgAggregateInputType = {
-    latitude?: true
-    longitude?: true
-  }
-
-  export type NominationSumAggregateInputType = {
-    latitude?: true
-    longitude?: true
-  }
-
-  export type NominationMinAggregateInputType = {
-    id?: true
-    playerId?: true
-    name?: true
-    address?: true
-    latitude?: true
-    longitude?: true
-    description?: true
-    contactInfo?: true
-    status?: true
-    verified?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type NominationMaxAggregateInputType = {
-    id?: true
-    playerId?: true
-    name?: true
-    address?: true
-    latitude?: true
-    longitude?: true
-    description?: true
-    contactInfo?: true
-    status?: true
-    verified?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type NominationCountAggregateInputType = {
-    id?: true
-    playerId?: true
-    name?: true
-    address?: true
-    latitude?: true
-    longitude?: true
-    description?: true
-    contactInfo?: true
-    status?: true
-    verified?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type NominationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Nomination to aggregate.
-     */
-    where?: NominationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Nominations to fetch.
-     */
-    orderBy?: NominationOrderByWithRelationInput | NominationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: NominationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Nominations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Nominations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Nominations
-    **/
-    _count?: true | NominationCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: NominationAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: NominationSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: NominationMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: NominationMaxAggregateInputType
-  }
-
-  export type GetNominationAggregateType<T extends NominationAggregateArgs> = {
-        [P in keyof T & keyof AggregateNomination]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateNomination[P]>
-      : GetScalarType<T[P], AggregateNomination[P]>
-  }
-
-
-
-
-  export type NominationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NominationWhereInput
-    orderBy?: NominationOrderByWithAggregationInput | NominationOrderByWithAggregationInput[]
-    by: NominationScalarFieldEnum[] | NominationScalarFieldEnum
-    having?: NominationScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: NominationCountAggregateInputType | true
-    _avg?: NominationAvgAggregateInputType
-    _sum?: NominationSumAggregateInputType
-    _min?: NominationMinAggregateInputType
-    _max?: NominationMaxAggregateInputType
-  }
-
-  export type NominationGroupByOutputType = {
-    id: string
-    playerId: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description: string | null
-    contactInfo: string | null
-    status: string
-    verified: boolean
-    createdAt: Date
-    updatedAt: Date
-    _count: NominationCountAggregateOutputType | null
-    _avg: NominationAvgAggregateOutputType | null
-    _sum: NominationSumAggregateOutputType | null
-    _min: NominationMinAggregateOutputType | null
-    _max: NominationMaxAggregateOutputType | null
-  }
-
-  type GetNominationGroupByPayload<T extends NominationGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<NominationGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof NominationGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], NominationGroupByOutputType[P]>
-            : GetScalarType<T[P], NominationGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type NominationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    playerId?: boolean
-    name?: boolean
-    address?: boolean
-    latitude?: boolean
-    longitude?: boolean
-    description?: boolean
-    contactInfo?: boolean
-    status?: boolean
-    verified?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    player?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["nomination"]>
-
-  export type NominationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    playerId?: boolean
-    name?: boolean
-    address?: boolean
-    latitude?: boolean
-    longitude?: boolean
-    description?: boolean
-    contactInfo?: boolean
-    status?: boolean
-    verified?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    player?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["nomination"]>
-
-  export type NominationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    playerId?: boolean
-    name?: boolean
-    address?: boolean
-    latitude?: boolean
-    longitude?: boolean
-    description?: boolean
-    contactInfo?: boolean
-    status?: boolean
-    verified?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    player?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["nomination"]>
-
-  export type NominationSelectScalar = {
-    id?: boolean
-    playerId?: boolean
-    name?: boolean
-    address?: boolean
-    latitude?: boolean
-    longitude?: boolean
-    description?: boolean
-    contactInfo?: boolean
-    status?: boolean
-    verified?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type NominationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "playerId" | "name" | "address" | "latitude" | "longitude" | "description" | "contactInfo" | "status" | "verified" | "createdAt" | "updatedAt", ExtArgs["result"]["nomination"]>
-  export type NominationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    player?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type NominationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    player?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type NominationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    player?: boolean | UserDefaultArgs<ExtArgs>
-  }
-
-  export type $NominationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Nomination"
-    objects: {
-      player: Prisma.$UserPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      playerId: string
-      name: string
-      address: string
-      latitude: number
-      longitude: number
-      description: string | null
-      contactInfo: string | null
-      status: string
-      verified: boolean
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["nomination"]>
-    composites: {}
-  }
-
-  type NominationGetPayload<S extends boolean | null | undefined | NominationDefaultArgs> = $Result.GetResult<Prisma.$NominationPayload, S>
-
-  type NominationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<NominationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: NominationCountAggregateInputType | true
-    }
-
-  export interface NominationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Nomination'], meta: { name: 'Nomination' } }
-    /**
-     * Find zero or one Nomination that matches the filter.
-     * @param {NominationFindUniqueArgs} args - Arguments to find a Nomination
-     * @example
-     * // Get one Nomination
-     * const nomination = await prisma.nomination.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends NominationFindUniqueArgs>(args: SelectSubset<T, NominationFindUniqueArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Nomination that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {NominationFindUniqueOrThrowArgs} args - Arguments to find a Nomination
-     * @example
-     * // Get one Nomination
-     * const nomination = await prisma.nomination.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends NominationFindUniqueOrThrowArgs>(args: SelectSubset<T, NominationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Nomination that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationFindFirstArgs} args - Arguments to find a Nomination
-     * @example
-     * // Get one Nomination
-     * const nomination = await prisma.nomination.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends NominationFindFirstArgs>(args?: SelectSubset<T, NominationFindFirstArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Nomination that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationFindFirstOrThrowArgs} args - Arguments to find a Nomination
-     * @example
-     * // Get one Nomination
-     * const nomination = await prisma.nomination.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends NominationFindFirstOrThrowArgs>(args?: SelectSubset<T, NominationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Nominations that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Nominations
-     * const nominations = await prisma.nomination.findMany()
-     * 
-     * // Get first 10 Nominations
-     * const nominations = await prisma.nomination.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const nominationWithIdOnly = await prisma.nomination.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends NominationFindManyArgs>(args?: SelectSubset<T, NominationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Nomination.
-     * @param {NominationCreateArgs} args - Arguments to create a Nomination.
-     * @example
-     * // Create one Nomination
-     * const Nomination = await prisma.nomination.create({
-     *   data: {
-     *     // ... data to create a Nomination
-     *   }
-     * })
-     * 
-     */
-    create<T extends NominationCreateArgs>(args: SelectSubset<T, NominationCreateArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Nominations.
-     * @param {NominationCreateManyArgs} args - Arguments to create many Nominations.
-     * @example
-     * // Create many Nominations
-     * const nomination = await prisma.nomination.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends NominationCreateManyArgs>(args?: SelectSubset<T, NominationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Nominations and returns the data saved in the database.
-     * @param {NominationCreateManyAndReturnArgs} args - Arguments to create many Nominations.
-     * @example
-     * // Create many Nominations
-     * const nomination = await prisma.nomination.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Nominations and only return the `id`
-     * const nominationWithIdOnly = await prisma.nomination.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends NominationCreateManyAndReturnArgs>(args?: SelectSubset<T, NominationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Nomination.
-     * @param {NominationDeleteArgs} args - Arguments to delete one Nomination.
-     * @example
-     * // Delete one Nomination
-     * const Nomination = await prisma.nomination.delete({
-     *   where: {
-     *     // ... filter to delete one Nomination
-     *   }
-     * })
-     * 
-     */
-    delete<T extends NominationDeleteArgs>(args: SelectSubset<T, NominationDeleteArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Nomination.
-     * @param {NominationUpdateArgs} args - Arguments to update one Nomination.
-     * @example
-     * // Update one Nomination
-     * const nomination = await prisma.nomination.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends NominationUpdateArgs>(args: SelectSubset<T, NominationUpdateArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Nominations.
-     * @param {NominationDeleteManyArgs} args - Arguments to filter Nominations to delete.
-     * @example
-     * // Delete a few Nominations
-     * const { count } = await prisma.nomination.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends NominationDeleteManyArgs>(args?: SelectSubset<T, NominationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Nominations.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Nominations
-     * const nomination = await prisma.nomination.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends NominationUpdateManyArgs>(args: SelectSubset<T, NominationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Nominations and returns the data updated in the database.
-     * @param {NominationUpdateManyAndReturnArgs} args - Arguments to update many Nominations.
-     * @example
-     * // Update many Nominations
-     * const nomination = await prisma.nomination.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Nominations and only return the `id`
-     * const nominationWithIdOnly = await prisma.nomination.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends NominationUpdateManyAndReturnArgs>(args: SelectSubset<T, NominationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Nomination.
-     * @param {NominationUpsertArgs} args - Arguments to update or create a Nomination.
-     * @example
-     * // Update or create a Nomination
-     * const nomination = await prisma.nomination.upsert({
-     *   create: {
-     *     // ... data to create a Nomination
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Nomination we want to update
-     *   }
-     * })
-     */
-    upsert<T extends NominationUpsertArgs>(args: SelectSubset<T, NominationUpsertArgs<ExtArgs>>): Prisma__NominationClient<$Result.GetResult<Prisma.$NominationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Nominations.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationCountArgs} args - Arguments to filter Nominations to count.
-     * @example
-     * // Count the number of Nominations
-     * const count = await prisma.nomination.count({
-     *   where: {
-     *     // ... the filter for the Nominations we want to count
-     *   }
-     * })
-    **/
-    count<T extends NominationCountArgs>(
-      args?: Subset<T, NominationCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], NominationCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Nomination.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends NominationAggregateArgs>(args: Subset<T, NominationAggregateArgs>): Prisma.PrismaPromise<GetNominationAggregateType<T>>
-
-    /**
-     * Group by Nomination.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {NominationGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends NominationGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NominationGroupByArgs['orderBy'] }
-        : { orderBy?: NominationGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, NominationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNominationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Nomination model
-   */
-  readonly fields: NominationFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Nomination.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__NominationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    player<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Nomination model
-   */
-  interface NominationFieldRefs {
-    readonly id: FieldRef<"Nomination", 'String'>
-    readonly playerId: FieldRef<"Nomination", 'String'>
-    readonly name: FieldRef<"Nomination", 'String'>
-    readonly address: FieldRef<"Nomination", 'String'>
-    readonly latitude: FieldRef<"Nomination", 'Float'>
-    readonly longitude: FieldRef<"Nomination", 'Float'>
-    readonly description: FieldRef<"Nomination", 'String'>
-    readonly contactInfo: FieldRef<"Nomination", 'String'>
-    readonly status: FieldRef<"Nomination", 'String'>
-    readonly verified: FieldRef<"Nomination", 'Boolean'>
-    readonly createdAt: FieldRef<"Nomination", 'DateTime'>
-    readonly updatedAt: FieldRef<"Nomination", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Nomination findUnique
-   */
-  export type NominationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * Filter, which Nomination to fetch.
-     */
-    where: NominationWhereUniqueInput
-  }
-
-  /**
-   * Nomination findUniqueOrThrow
-   */
-  export type NominationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * Filter, which Nomination to fetch.
-     */
-    where: NominationWhereUniqueInput
-  }
-
-  /**
-   * Nomination findFirst
-   */
-  export type NominationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * Filter, which Nomination to fetch.
-     */
-    where?: NominationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Nominations to fetch.
-     */
-    orderBy?: NominationOrderByWithRelationInput | NominationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Nominations.
-     */
-    cursor?: NominationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Nominations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Nominations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Nominations.
-     */
-    distinct?: NominationScalarFieldEnum | NominationScalarFieldEnum[]
-  }
-
-  /**
-   * Nomination findFirstOrThrow
-   */
-  export type NominationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * Filter, which Nomination to fetch.
-     */
-    where?: NominationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Nominations to fetch.
-     */
-    orderBy?: NominationOrderByWithRelationInput | NominationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Nominations.
-     */
-    cursor?: NominationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Nominations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Nominations.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Nominations.
-     */
-    distinct?: NominationScalarFieldEnum | NominationScalarFieldEnum[]
-  }
-
-  /**
-   * Nomination findMany
-   */
-  export type NominationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * Filter, which Nominations to fetch.
-     */
-    where?: NominationWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Nominations to fetch.
-     */
-    orderBy?: NominationOrderByWithRelationInput | NominationOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Nominations.
-     */
-    cursor?: NominationWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Nominations from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Nominations.
-     */
-    skip?: number
-    distinct?: NominationScalarFieldEnum | NominationScalarFieldEnum[]
-  }
-
-  /**
-   * Nomination create
-   */
-  export type NominationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Nomination.
-     */
-    data: XOR<NominationCreateInput, NominationUncheckedCreateInput>
-  }
-
-  /**
-   * Nomination createMany
-   */
-  export type NominationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Nominations.
-     */
-    data: NominationCreateManyInput | NominationCreateManyInput[]
-  }
-
-  /**
-   * Nomination createManyAndReturn
-   */
-  export type NominationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * The data used to create many Nominations.
-     */
-    data: NominationCreateManyInput | NominationCreateManyInput[]
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Nomination update
-   */
-  export type NominationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Nomination.
-     */
-    data: XOR<NominationUpdateInput, NominationUncheckedUpdateInput>
-    /**
-     * Choose, which Nomination to update.
-     */
-    where: NominationWhereUniqueInput
-  }
-
-  /**
-   * Nomination updateMany
-   */
-  export type NominationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Nominations.
-     */
-    data: XOR<NominationUpdateManyMutationInput, NominationUncheckedUpdateManyInput>
-    /**
-     * Filter which Nominations to update
-     */
-    where?: NominationWhereInput
-    /**
-     * Limit how many Nominations to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Nomination updateManyAndReturn
-   */
-  export type NominationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * The data used to update Nominations.
-     */
-    data: XOR<NominationUpdateManyMutationInput, NominationUncheckedUpdateManyInput>
-    /**
-     * Filter which Nominations to update
-     */
-    where?: NominationWhereInput
-    /**
-     * Limit how many Nominations to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Nomination upsert
-   */
-  export type NominationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Nomination to update in case it exists.
-     */
-    where: NominationWhereUniqueInput
-    /**
-     * In case the Nomination found by the `where` argument doesn't exist, create a new Nomination with this data.
-     */
-    create: XOR<NominationCreateInput, NominationUncheckedCreateInput>
-    /**
-     * In case the Nomination was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<NominationUpdateInput, NominationUncheckedUpdateInput>
-  }
-
-  /**
-   * Nomination delete
-   */
-  export type NominationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-    /**
-     * Filter which Nomination to delete.
-     */
-    where: NominationWhereUniqueInput
-  }
-
-  /**
-   * Nomination deleteMany
-   */
-  export type NominationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Nominations to delete
-     */
-    where?: NominationWhereInput
-    /**
-     * Limit how many Nominations to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Nomination without action
-   */
-  export type NominationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Nomination
-     */
-    select?: NominationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Nomination
-     */
-    omit?: NominationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NominationInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Enums
    */
 
   export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -11336,10 +8424,7 @@ export namespace Prisma {
     password: 'password',
     role: 'role',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    homeDojoId: 'homeDojoId',
-    unlockedZones: 'unlockedZones',
-    relationships: 'relationships'
+    updatedAt: 'updatedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -11389,11 +8474,7 @@ export namespace Prisma {
     clan: 'clan',
     isActive: 'isActive',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    venueOwnerId: 'venueOwnerId',
-    status: 'status',
-    leaderboard: 'leaderboard',
-    allegianceMeter: 'allegianceMeter'
+    updatedAt: 'updatedAt'
   };
 
   export type TerritoryScalarFieldEnum = (typeof TerritoryScalarFieldEnum)[keyof typeof TerritoryScalarFieldEnum]
@@ -11440,46 +8521,6 @@ export namespace Prisma {
   export type TournamentScalarFieldEnum = (typeof TournamentScalarFieldEnum)[keyof typeof TournamentScalarFieldEnum]
 
 
-  export const ChallengeScalarFieldEnum: {
-    id: 'id',
-    type: 'type',
-    challengerId: 'challengerId',
-    defenderId: 'defenderId',
-    dojoId: 'dojoId',
-    status: 'status',
-    outcome: 'outcome',
-    winnerId: 'winnerId',
-    requirements: 'requirements',
-    matchData: 'matchData',
-    expiresAt: 'expiresAt',
-    acceptedAt: 'acceptedAt',
-    declinedAt: 'declinedAt',
-    completedAt: 'completedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type ChallengeScalarFieldEnum = (typeof ChallengeScalarFieldEnum)[keyof typeof ChallengeScalarFieldEnum]
-
-
-  export const NominationScalarFieldEnum: {
-    id: 'id',
-    playerId: 'playerId',
-    name: 'name',
-    address: 'address',
-    latitude: 'latitude',
-    longitude: 'longitude',
-    description: 'description',
-    contactInfo: 'contactInfo',
-    status: 'status',
-    verified: 'verified',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type NominationScalarFieldEnum = (typeof NominationScalarFieldEnum)[keyof typeof NominationScalarFieldEnum]
-
-
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -11488,12 +8529,36 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
   export const NullsOrder: {
     first: 'first',
     last: 'last'
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -11509,9 +8574,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'String[]'
+   */
+  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -11523,6 +8602,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -11530,9 +8616,30 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -11549,17 +8656,10 @@ export namespace Prisma {
     role?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    homeDojoId?: StringNullableFilter<"User"> | string | null
-    unlockedZones?: StringFilter<"User"> | string
-    relationships?: StringFilter<"User"> | string
     profile?: XOR<ProfileNullableScalarRelationFilter, ProfileWhereInput> | null
     settings?: XOR<UserSettingsNullableScalarRelationFilter, UserSettingsWhereInput> | null
     territories?: TerritoryListRelationFilter
     nfts?: UserNFTListRelationFilter
-    challengesAsChallenger?: ChallengeListRelationFilter
-    challengesAsDefender?: ChallengeListRelationFilter
-    nominations?: NominationListRelationFilter
-    homeDojo?: XOR<TerritoryNullableScalarRelationFilter, TerritoryWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -11569,17 +8669,10 @@ export namespace Prisma {
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    homeDojoId?: SortOrderInput | SortOrder
-    unlockedZones?: SortOrder
-    relationships?: SortOrder
     profile?: ProfileOrderByWithRelationInput
     settings?: UserSettingsOrderByWithRelationInput
     territories?: TerritoryOrderByRelationAggregateInput
     nfts?: UserNFTOrderByRelationAggregateInput
-    challengesAsChallenger?: ChallengeOrderByRelationAggregateInput
-    challengesAsDefender?: ChallengeOrderByRelationAggregateInput
-    nominations?: NominationOrderByRelationAggregateInput
-    homeDojo?: TerritoryOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -11592,17 +8685,10 @@ export namespace Prisma {
     role?: StringFilter<"User"> | string
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    homeDojoId?: StringNullableFilter<"User"> | string | null
-    unlockedZones?: StringFilter<"User"> | string
-    relationships?: StringFilter<"User"> | string
     profile?: XOR<ProfileNullableScalarRelationFilter, ProfileWhereInput> | null
     settings?: XOR<UserSettingsNullableScalarRelationFilter, UserSettingsWhereInput> | null
     territories?: TerritoryListRelationFilter
     nfts?: UserNFTListRelationFilter
-    challengesAsChallenger?: ChallengeListRelationFilter
-    challengesAsDefender?: ChallengeListRelationFilter
-    nominations?: NominationListRelationFilter
-    homeDojo?: XOR<TerritoryNullableScalarRelationFilter, TerritoryWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -11612,9 +8698,6 @@ export namespace Prisma {
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    homeDojoId?: SortOrderInput | SortOrder
-    unlockedZones?: SortOrder
-    relationships?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -11630,9 +8713,6 @@ export namespace Prisma {
     role?: StringWithAggregatesFilter<"User"> | string
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
-    homeDojoId?: StringNullableWithAggregatesFilter<"User"> | string | null
-    unlockedZones?: StringWithAggregatesFilter<"User"> | string
-    relationships?: StringWithAggregatesFilter<"User"> | string
   }
 
   export type ProfileWhereInput = {
@@ -11728,8 +8808,8 @@ export namespace Prisma {
     darkMode?: BoolFilter<"UserSettings"> | boolean
     language?: StringFilter<"UserSettings"> | string
     timezone?: StringFilter<"UserSettings"> | string
-    privacySettings?: StringFilter<"UserSettings"> | string
-    notificationSettings?: StringFilter<"UserSettings"> | string
+    privacySettings?: JsonFilter<"UserSettings">
+    notificationSettings?: JsonFilter<"UserSettings">
     createdAt?: DateTimeFilter<"UserSettings"> | Date | string
     updatedAt?: DateTimeFilter<"UserSettings"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -11761,8 +8841,8 @@ export namespace Prisma {
     darkMode?: BoolFilter<"UserSettings"> | boolean
     language?: StringFilter<"UserSettings"> | string
     timezone?: StringFilter<"UserSettings"> | string
-    privacySettings?: StringFilter<"UserSettings"> | string
-    notificationSettings?: StringFilter<"UserSettings"> | string
+    privacySettings?: JsonFilter<"UserSettings">
+    notificationSettings?: JsonFilter<"UserSettings">
     createdAt?: DateTimeFilter<"UserSettings"> | Date | string
     updatedAt?: DateTimeFilter<"UserSettings"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -11796,8 +8876,8 @@ export namespace Prisma {
     darkMode?: BoolWithAggregatesFilter<"UserSettings"> | boolean
     language?: StringWithAggregatesFilter<"UserSettings"> | string
     timezone?: StringWithAggregatesFilter<"UserSettings"> | string
-    privacySettings?: StringWithAggregatesFilter<"UserSettings"> | string
-    notificationSettings?: StringWithAggregatesFilter<"UserSettings"> | string
+    privacySettings?: JsonWithAggregatesFilter<"UserSettings">
+    notificationSettings?: JsonWithAggregatesFilter<"UserSettings">
     createdAt?: DateTimeWithAggregatesFilter<"UserSettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"UserSettings"> | Date | string
   }
@@ -11809,7 +8889,7 @@ export namespace Prisma {
     id?: StringFilter<"Territory"> | string
     name?: StringFilter<"Territory"> | string
     description?: StringNullableFilter<"Territory"> | string | null
-    coordinates?: StringFilter<"Territory"> | string
+    coordinates?: JsonFilter<"Territory">
     requiredNFT?: StringFilter<"Territory"> | string
     influence?: IntFilter<"Territory"> | number
     ownerId?: StringNullableFilter<"Territory"> | string | null
@@ -11817,14 +8897,8 @@ export namespace Prisma {
     isActive?: BoolFilter<"Territory"> | boolean
     createdAt?: DateTimeFilter<"Territory"> | Date | string
     updatedAt?: DateTimeFilter<"Territory"> | Date | string
-    venueOwnerId?: StringNullableFilter<"Territory"> | string | null
-    status?: StringFilter<"Territory"> | string
-    leaderboard?: StringFilter<"Territory"> | string
-    allegianceMeter?: IntFilter<"Territory"> | number
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     nfts?: UserNFTListRelationFilter
-    challenges?: ChallengeListRelationFilter
-    homeDojoUsers?: UserListRelationFilter
   }
 
   export type TerritoryOrderByWithRelationInput = {
@@ -11839,14 +8913,8 @@ export namespace Prisma {
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    venueOwnerId?: SortOrderInput | SortOrder
-    status?: SortOrder
-    leaderboard?: SortOrder
-    allegianceMeter?: SortOrder
     owner?: UserOrderByWithRelationInput
     nfts?: UserNFTOrderByRelationAggregateInput
-    challenges?: ChallengeOrderByRelationAggregateInput
-    homeDojoUsers?: UserOrderByRelationAggregateInput
   }
 
   export type TerritoryWhereUniqueInput = Prisma.AtLeast<{
@@ -11857,21 +8925,15 @@ export namespace Prisma {
     OR?: TerritoryWhereInput[]
     NOT?: TerritoryWhereInput | TerritoryWhereInput[]
     description?: StringNullableFilter<"Territory"> | string | null
-    coordinates?: StringFilter<"Territory"> | string
+    coordinates?: JsonFilter<"Territory">
     influence?: IntFilter<"Territory"> | number
     ownerId?: StringNullableFilter<"Territory"> | string | null
     clan?: StringNullableFilter<"Territory"> | string | null
     isActive?: BoolFilter<"Territory"> | boolean
     createdAt?: DateTimeFilter<"Territory"> | Date | string
     updatedAt?: DateTimeFilter<"Territory"> | Date | string
-    venueOwnerId?: StringNullableFilter<"Territory"> | string | null
-    status?: StringFilter<"Territory"> | string
-    leaderboard?: StringFilter<"Territory"> | string
-    allegianceMeter?: IntFilter<"Territory"> | number
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     nfts?: UserNFTListRelationFilter
-    challenges?: ChallengeListRelationFilter
-    homeDojoUsers?: UserListRelationFilter
   }, "id" | "name" | "requiredNFT">
 
   export type TerritoryOrderByWithAggregationInput = {
@@ -11886,10 +8948,6 @@ export namespace Prisma {
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    venueOwnerId?: SortOrderInput | SortOrder
-    status?: SortOrder
-    leaderboard?: SortOrder
-    allegianceMeter?: SortOrder
     _count?: TerritoryCountOrderByAggregateInput
     _avg?: TerritoryAvgOrderByAggregateInput
     _max?: TerritoryMaxOrderByAggregateInput
@@ -11904,7 +8962,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Territory"> | string
     name?: StringWithAggregatesFilter<"Territory"> | string
     description?: StringNullableWithAggregatesFilter<"Territory"> | string | null
-    coordinates?: StringWithAggregatesFilter<"Territory"> | string
+    coordinates?: JsonWithAggregatesFilter<"Territory">
     requiredNFT?: StringWithAggregatesFilter<"Territory"> | string
     influence?: IntWithAggregatesFilter<"Territory"> | number
     ownerId?: StringNullableWithAggregatesFilter<"Territory"> | string | null
@@ -11912,10 +8970,6 @@ export namespace Prisma {
     isActive?: BoolWithAggregatesFilter<"Territory"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Territory"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Territory"> | Date | string
-    venueOwnerId?: StringNullableWithAggregatesFilter<"Territory"> | string | null
-    status?: StringWithAggregatesFilter<"Territory"> | string
-    leaderboard?: StringWithAggregatesFilter<"Territory"> | string
-    allegianceMeter?: IntWithAggregatesFilter<"Territory"> | number
   }
 
   export type UserNFTWhereInput = {
@@ -11927,7 +8981,7 @@ export namespace Prisma {
     name?: StringFilter<"UserNFT"> | string
     description?: StringNullableFilter<"UserNFT"> | string | null
     imageUrl?: StringNullableFilter<"UserNFT"> | string | null
-    metadata?: StringFilter<"UserNFT"> | string
+    metadata?: JsonFilter<"UserNFT">
     acquiredAt?: DateTimeFilter<"UserNFT"> | Date | string
     userId?: StringFilter<"UserNFT"> | string
     territoryId?: StringNullableFilter<"UserNFT"> | string | null
@@ -11964,7 +9018,7 @@ export namespace Prisma {
     name?: StringFilter<"UserNFT"> | string
     description?: StringNullableFilter<"UserNFT"> | string | null
     imageUrl?: StringNullableFilter<"UserNFT"> | string | null
-    metadata?: StringFilter<"UserNFT"> | string
+    metadata?: JsonFilter<"UserNFT">
     acquiredAt?: DateTimeFilter<"UserNFT"> | Date | string
     userId?: StringFilter<"UserNFT"> | string
     territoryId?: StringNullableFilter<"UserNFT"> | string | null
@@ -12002,7 +9056,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"UserNFT"> | string
     description?: StringNullableWithAggregatesFilter<"UserNFT"> | string | null
     imageUrl?: StringNullableWithAggregatesFilter<"UserNFT"> | string | null
-    metadata?: StringWithAggregatesFilter<"UserNFT"> | string
+    metadata?: JsonWithAggregatesFilter<"UserNFT">
     acquiredAt?: DateTimeWithAggregatesFilter<"UserNFT"> | Date | string
     userId?: StringWithAggregatesFilter<"UserNFT"> | string
     territoryId?: StringNullableWithAggregatesFilter<"UserNFT"> | string | null
@@ -12025,10 +9079,10 @@ export namespace Prisma {
     entryFee?: FloatFilter<"Tournament"> | number
     prizePool?: FloatFilter<"Tournament"> | number
     status?: StringFilter<"Tournament"> | string
-    participants?: StringFilter<"Tournament"> | string
-    matches?: StringFilter<"Tournament"> | string
+    participants?: StringNullableListFilter<"Tournament">
+    matches?: StringNullableListFilter<"Tournament">
     winnerId?: StringNullableFilter<"Tournament"> | string | null
-    finalStandings?: StringFilter<"Tournament"> | string
+    finalStandings?: StringNullableListFilter<"Tournament">
     createdAt?: DateTimeFilter<"Tournament"> | Date | string
     updatedAt?: DateTimeFilter<"Tournament"> | Date | string
     endedAt?: DateTimeNullableFilter<"Tournament"> | Date | string | null
@@ -12068,10 +9122,10 @@ export namespace Prisma {
     entryFee?: FloatFilter<"Tournament"> | number
     prizePool?: FloatFilter<"Tournament"> | number
     status?: StringFilter<"Tournament"> | string
-    participants?: StringFilter<"Tournament"> | string
-    matches?: StringFilter<"Tournament"> | string
+    participants?: StringNullableListFilter<"Tournament">
+    matches?: StringNullableListFilter<"Tournament">
     winnerId?: StringNullableFilter<"Tournament"> | string | null
-    finalStandings?: StringFilter<"Tournament"> | string
+    finalStandings?: StringNullableListFilter<"Tournament">
     createdAt?: DateTimeFilter<"Tournament"> | Date | string
     updatedAt?: DateTimeFilter<"Tournament"> | Date | string
     endedAt?: DateTimeNullableFilter<"Tournament"> | Date | string | null
@@ -12116,221 +9170,13 @@ export namespace Prisma {
     entryFee?: FloatWithAggregatesFilter<"Tournament"> | number
     prizePool?: FloatWithAggregatesFilter<"Tournament"> | number
     status?: StringWithAggregatesFilter<"Tournament"> | string
-    participants?: StringWithAggregatesFilter<"Tournament"> | string
-    matches?: StringWithAggregatesFilter<"Tournament"> | string
+    participants?: StringNullableListFilter<"Tournament">
+    matches?: StringNullableListFilter<"Tournament">
     winnerId?: StringNullableWithAggregatesFilter<"Tournament"> | string | null
-    finalStandings?: StringWithAggregatesFilter<"Tournament"> | string
+    finalStandings?: StringNullableListFilter<"Tournament">
     createdAt?: DateTimeWithAggregatesFilter<"Tournament"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tournament"> | Date | string
     endedAt?: DateTimeNullableWithAggregatesFilter<"Tournament"> | Date | string | null
-  }
-
-  export type ChallengeWhereInput = {
-    AND?: ChallengeWhereInput | ChallengeWhereInput[]
-    OR?: ChallengeWhereInput[]
-    NOT?: ChallengeWhereInput | ChallengeWhereInput[]
-    id?: StringFilter<"Challenge"> | string
-    type?: StringFilter<"Challenge"> | string
-    challengerId?: StringFilter<"Challenge"> | string
-    defenderId?: StringFilter<"Challenge"> | string
-    dojoId?: StringFilter<"Challenge"> | string
-    status?: StringFilter<"Challenge"> | string
-    outcome?: StringNullableFilter<"Challenge"> | string | null
-    winnerId?: StringNullableFilter<"Challenge"> | string | null
-    requirements?: StringFilter<"Challenge"> | string
-    matchData?: StringNullableFilter<"Challenge"> | string | null
-    expiresAt?: DateTimeFilter<"Challenge"> | Date | string
-    acceptedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    declinedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    completedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    createdAt?: DateTimeFilter<"Challenge"> | Date | string
-    updatedAt?: DateTimeFilter<"Challenge"> | Date | string
-    challenger?: XOR<UserScalarRelationFilter, UserWhereInput>
-    defender?: XOR<UserScalarRelationFilter, UserWhereInput>
-    dojo?: XOR<TerritoryScalarRelationFilter, TerritoryWhereInput>
-  }
-
-  export type ChallengeOrderByWithRelationInput = {
-    id?: SortOrder
-    type?: SortOrder
-    challengerId?: SortOrder
-    defenderId?: SortOrder
-    dojoId?: SortOrder
-    status?: SortOrder
-    outcome?: SortOrderInput | SortOrder
-    winnerId?: SortOrderInput | SortOrder
-    requirements?: SortOrder
-    matchData?: SortOrderInput | SortOrder
-    expiresAt?: SortOrder
-    acceptedAt?: SortOrderInput | SortOrder
-    declinedAt?: SortOrderInput | SortOrder
-    completedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    challenger?: UserOrderByWithRelationInput
-    defender?: UserOrderByWithRelationInput
-    dojo?: TerritoryOrderByWithRelationInput
-  }
-
-  export type ChallengeWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ChallengeWhereInput | ChallengeWhereInput[]
-    OR?: ChallengeWhereInput[]
-    NOT?: ChallengeWhereInput | ChallengeWhereInput[]
-    type?: StringFilter<"Challenge"> | string
-    challengerId?: StringFilter<"Challenge"> | string
-    defenderId?: StringFilter<"Challenge"> | string
-    dojoId?: StringFilter<"Challenge"> | string
-    status?: StringFilter<"Challenge"> | string
-    outcome?: StringNullableFilter<"Challenge"> | string | null
-    winnerId?: StringNullableFilter<"Challenge"> | string | null
-    requirements?: StringFilter<"Challenge"> | string
-    matchData?: StringNullableFilter<"Challenge"> | string | null
-    expiresAt?: DateTimeFilter<"Challenge"> | Date | string
-    acceptedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    declinedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    completedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    createdAt?: DateTimeFilter<"Challenge"> | Date | string
-    updatedAt?: DateTimeFilter<"Challenge"> | Date | string
-    challenger?: XOR<UserScalarRelationFilter, UserWhereInput>
-    defender?: XOR<UserScalarRelationFilter, UserWhereInput>
-    dojo?: XOR<TerritoryScalarRelationFilter, TerritoryWhereInput>
-  }, "id">
-
-  export type ChallengeOrderByWithAggregationInput = {
-    id?: SortOrder
-    type?: SortOrder
-    challengerId?: SortOrder
-    defenderId?: SortOrder
-    dojoId?: SortOrder
-    status?: SortOrder
-    outcome?: SortOrderInput | SortOrder
-    winnerId?: SortOrderInput | SortOrder
-    requirements?: SortOrder
-    matchData?: SortOrderInput | SortOrder
-    expiresAt?: SortOrder
-    acceptedAt?: SortOrderInput | SortOrder
-    declinedAt?: SortOrderInput | SortOrder
-    completedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: ChallengeCountOrderByAggregateInput
-    _max?: ChallengeMaxOrderByAggregateInput
-    _min?: ChallengeMinOrderByAggregateInput
-  }
-
-  export type ChallengeScalarWhereWithAggregatesInput = {
-    AND?: ChallengeScalarWhereWithAggregatesInput | ChallengeScalarWhereWithAggregatesInput[]
-    OR?: ChallengeScalarWhereWithAggregatesInput[]
-    NOT?: ChallengeScalarWhereWithAggregatesInput | ChallengeScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Challenge"> | string
-    type?: StringWithAggregatesFilter<"Challenge"> | string
-    challengerId?: StringWithAggregatesFilter<"Challenge"> | string
-    defenderId?: StringWithAggregatesFilter<"Challenge"> | string
-    dojoId?: StringWithAggregatesFilter<"Challenge"> | string
-    status?: StringWithAggregatesFilter<"Challenge"> | string
-    outcome?: StringNullableWithAggregatesFilter<"Challenge"> | string | null
-    winnerId?: StringNullableWithAggregatesFilter<"Challenge"> | string | null
-    requirements?: StringWithAggregatesFilter<"Challenge"> | string
-    matchData?: StringNullableWithAggregatesFilter<"Challenge"> | string | null
-    expiresAt?: DateTimeWithAggregatesFilter<"Challenge"> | Date | string
-    acceptedAt?: DateTimeNullableWithAggregatesFilter<"Challenge"> | Date | string | null
-    declinedAt?: DateTimeNullableWithAggregatesFilter<"Challenge"> | Date | string | null
-    completedAt?: DateTimeNullableWithAggregatesFilter<"Challenge"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"Challenge"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Challenge"> | Date | string
-  }
-
-  export type NominationWhereInput = {
-    AND?: NominationWhereInput | NominationWhereInput[]
-    OR?: NominationWhereInput[]
-    NOT?: NominationWhereInput | NominationWhereInput[]
-    id?: StringFilter<"Nomination"> | string
-    playerId?: StringFilter<"Nomination"> | string
-    name?: StringFilter<"Nomination"> | string
-    address?: StringFilter<"Nomination"> | string
-    latitude?: FloatFilter<"Nomination"> | number
-    longitude?: FloatFilter<"Nomination"> | number
-    description?: StringNullableFilter<"Nomination"> | string | null
-    contactInfo?: StringNullableFilter<"Nomination"> | string | null
-    status?: StringFilter<"Nomination"> | string
-    verified?: BoolFilter<"Nomination"> | boolean
-    createdAt?: DateTimeFilter<"Nomination"> | Date | string
-    updatedAt?: DateTimeFilter<"Nomination"> | Date | string
-    player?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }
-
-  export type NominationOrderByWithRelationInput = {
-    id?: SortOrder
-    playerId?: SortOrder
-    name?: SortOrder
-    address?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
-    description?: SortOrderInput | SortOrder
-    contactInfo?: SortOrderInput | SortOrder
-    status?: SortOrder
-    verified?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    player?: UserOrderByWithRelationInput
-  }
-
-  export type NominationWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: NominationWhereInput | NominationWhereInput[]
-    OR?: NominationWhereInput[]
-    NOT?: NominationWhereInput | NominationWhereInput[]
-    playerId?: StringFilter<"Nomination"> | string
-    name?: StringFilter<"Nomination"> | string
-    address?: StringFilter<"Nomination"> | string
-    latitude?: FloatFilter<"Nomination"> | number
-    longitude?: FloatFilter<"Nomination"> | number
-    description?: StringNullableFilter<"Nomination"> | string | null
-    contactInfo?: StringNullableFilter<"Nomination"> | string | null
-    status?: StringFilter<"Nomination"> | string
-    verified?: BoolFilter<"Nomination"> | boolean
-    createdAt?: DateTimeFilter<"Nomination"> | Date | string
-    updatedAt?: DateTimeFilter<"Nomination"> | Date | string
-    player?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
-
-  export type NominationOrderByWithAggregationInput = {
-    id?: SortOrder
-    playerId?: SortOrder
-    name?: SortOrder
-    address?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
-    description?: SortOrderInput | SortOrder
-    contactInfo?: SortOrderInput | SortOrder
-    status?: SortOrder
-    verified?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: NominationCountOrderByAggregateInput
-    _avg?: NominationAvgOrderByAggregateInput
-    _max?: NominationMaxOrderByAggregateInput
-    _min?: NominationMinOrderByAggregateInput
-    _sum?: NominationSumOrderByAggregateInput
-  }
-
-  export type NominationScalarWhereWithAggregatesInput = {
-    AND?: NominationScalarWhereWithAggregatesInput | NominationScalarWhereWithAggregatesInput[]
-    OR?: NominationScalarWhereWithAggregatesInput[]
-    NOT?: NominationScalarWhereWithAggregatesInput | NominationScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Nomination"> | string
-    playerId?: StringWithAggregatesFilter<"Nomination"> | string
-    name?: StringWithAggregatesFilter<"Nomination"> | string
-    address?: StringWithAggregatesFilter<"Nomination"> | string
-    latitude?: FloatWithAggregatesFilter<"Nomination"> | number
-    longitude?: FloatWithAggregatesFilter<"Nomination"> | number
-    description?: StringNullableWithAggregatesFilter<"Nomination"> | string | null
-    contactInfo?: StringNullableWithAggregatesFilter<"Nomination"> | string | null
-    status?: StringWithAggregatesFilter<"Nomination"> | string
-    verified?: BoolWithAggregatesFilter<"Nomination"> | boolean
-    createdAt?: DateTimeWithAggregatesFilter<"Nomination"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Nomination"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -12340,16 +9186,10 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileCreateNestedOneWithoutUserInput
     settings?: UserSettingsCreateNestedOneWithoutUserInput
     territories?: TerritoryCreateNestedManyWithoutOwnerInput
     nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -12359,16 +9199,10 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
     settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
     territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
     nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type UserUpdateInput = {
@@ -12378,16 +9212,10 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUpdateOneWithoutUserNestedInput
     settings?: UserSettingsUpdateOneWithoutUserNestedInput
     territories?: TerritoryUpdateManyWithoutOwnerNestedInput
     nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -12397,16 +9225,10 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
     settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
     territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
     nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -12416,9 +9238,6 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
   }
 
   export type UserUpdateManyMutationInput = {
@@ -12428,8 +9247,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -12439,9 +9256,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
   }
 
   export type ProfileCreateInput = {
@@ -12541,8 +9355,8 @@ export namespace Prisma {
     darkMode?: boolean
     language?: string
     timezone?: string
-    privacySettings?: string
-    notificationSettings?: string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSettingsInput
@@ -12556,8 +9370,8 @@ export namespace Prisma {
     darkMode?: boolean
     language?: string
     timezone?: string
-    privacySettings?: string
-    notificationSettings?: string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12569,8 +9383,8 @@ export namespace Prisma {
     darkMode?: BoolFieldUpdateOperationsInput | boolean
     language?: StringFieldUpdateOperationsInput | string
     timezone?: StringFieldUpdateOperationsInput | string
-    privacySettings?: StringFieldUpdateOperationsInput | string
-    notificationSettings?: StringFieldUpdateOperationsInput | string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSettingsNestedInput
@@ -12584,8 +9398,8 @@ export namespace Prisma {
     darkMode?: BoolFieldUpdateOperationsInput | boolean
     language?: StringFieldUpdateOperationsInput | string
     timezone?: StringFieldUpdateOperationsInput | string
-    privacySettings?: StringFieldUpdateOperationsInput | string
-    notificationSettings?: StringFieldUpdateOperationsInput | string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12598,8 +9412,8 @@ export namespace Prisma {
     darkMode?: boolean
     language?: string
     timezone?: string
-    privacySettings?: string
-    notificationSettings?: string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12611,8 +9425,8 @@ export namespace Prisma {
     darkMode?: BoolFieldUpdateOperationsInput | boolean
     language?: StringFieldUpdateOperationsInput | string
     timezone?: StringFieldUpdateOperationsInput | string
-    privacySettings?: StringFieldUpdateOperationsInput | string
-    notificationSettings?: StringFieldUpdateOperationsInput | string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12625,8 +9439,8 @@ export namespace Prisma {
     darkMode?: BoolFieldUpdateOperationsInput | boolean
     language?: StringFieldUpdateOperationsInput | string
     timezone?: StringFieldUpdateOperationsInput | string
-    privacySettings?: StringFieldUpdateOperationsInput | string
-    notificationSettings?: StringFieldUpdateOperationsInput | string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12635,28 +9449,22 @@ export namespace Prisma {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     clan?: string | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
     owner?: UserCreateNestedOneWithoutTerritoriesInput
     nfts?: UserNFTCreateNestedManyWithoutTerritoryInput
-    challenges?: ChallengeCreateNestedManyWithoutDojoInput
-    homeDojoUsers?: UserCreateNestedManyWithoutHomeDojoInput
   }
 
   export type TerritoryUncheckedCreateInput = {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     ownerId?: string | null
@@ -12664,41 +9472,29 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
     nfts?: UserNFTUncheckedCreateNestedManyWithoutTerritoryInput
-    challenges?: ChallengeUncheckedCreateNestedManyWithoutDojoInput
-    homeDojoUsers?: UserUncheckedCreateNestedManyWithoutHomeDojoInput
   }
 
   export type TerritoryUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     clan?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
     owner?: UserUpdateOneWithoutTerritoriesNestedInput
     nfts?: UserNFTUpdateManyWithoutTerritoryNestedInput
-    challenges?: ChallengeUpdateManyWithoutDojoNestedInput
-    homeDojoUsers?: UserUpdateManyWithoutHomeDojoNestedInput
   }
 
   export type TerritoryUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     ownerId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12706,20 +9502,14 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
     nfts?: UserNFTUncheckedUpdateManyWithoutTerritoryNestedInput
-    challenges?: ChallengeUncheckedUpdateManyWithoutDojoNestedInput
-    homeDojoUsers?: UserUncheckedUpdateManyWithoutHomeDojoNestedInput
   }
 
   export type TerritoryCreateManyInput = {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     ownerId?: string | null
@@ -12727,34 +9517,26 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
   }
 
   export type TerritoryUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     clan?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
   }
 
   export type TerritoryUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     ownerId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12762,10 +9544,6 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserNFTCreateInput = {
@@ -12774,7 +9552,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     isActive?: boolean
     createdAt?: Date | string
@@ -12789,7 +9567,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     userId: string
     territoryId?: string | null
@@ -12804,7 +9582,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12819,7 +9597,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
     territoryId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12834,7 +9612,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     userId: string
     territoryId?: string | null
@@ -12849,7 +9627,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12862,7 +9640,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
     territoryId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -12882,10 +9660,10 @@ export namespace Prisma {
     entryFee: number
     prizePool: number
     status?: string
-    participants?: string
-    matches?: string
+    participants?: TournamentCreateparticipantsInput | string[]
+    matches?: TournamentCreatematchesInput | string[]
     winnerId?: string | null
-    finalStandings?: string
+    finalStandings?: TournamentCreatefinalStandingsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     endedAt?: Date | string | null
@@ -12902,10 +9680,10 @@ export namespace Prisma {
     entryFee: number
     prizePool: number
     status?: string
-    participants?: string
-    matches?: string
+    participants?: TournamentCreateparticipantsInput | string[]
+    matches?: TournamentCreatematchesInput | string[]
     winnerId?: string | null
-    finalStandings?: string
+    finalStandings?: TournamentCreatefinalStandingsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     endedAt?: Date | string | null
@@ -12922,10 +9700,10 @@ export namespace Prisma {
     entryFee?: FloatFieldUpdateOperationsInput | number
     prizePool?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
-    participants?: StringFieldUpdateOperationsInput | string
-    matches?: StringFieldUpdateOperationsInput | string
+    participants?: TournamentUpdateparticipantsInput | string[]
+    matches?: TournamentUpdatematchesInput | string[]
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    finalStandings?: StringFieldUpdateOperationsInput | string
+    finalStandings?: TournamentUpdatefinalStandingsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12942,10 +9720,10 @@ export namespace Prisma {
     entryFee?: FloatFieldUpdateOperationsInput | number
     prizePool?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
-    participants?: StringFieldUpdateOperationsInput | string
-    matches?: StringFieldUpdateOperationsInput | string
+    participants?: TournamentUpdateparticipantsInput | string[]
+    matches?: TournamentUpdatematchesInput | string[]
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    finalStandings?: StringFieldUpdateOperationsInput | string
+    finalStandings?: TournamentUpdatefinalStandingsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12962,10 +9740,10 @@ export namespace Prisma {
     entryFee: number
     prizePool: number
     status?: string
-    participants?: string
-    matches?: string
+    participants?: TournamentCreateparticipantsInput | string[]
+    matches?: TournamentCreatematchesInput | string[]
     winnerId?: string | null
-    finalStandings?: string
+    finalStandings?: TournamentCreatefinalStandingsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     endedAt?: Date | string | null
@@ -12982,10 +9760,10 @@ export namespace Prisma {
     entryFee?: FloatFieldUpdateOperationsInput | number
     prizePool?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
-    participants?: StringFieldUpdateOperationsInput | string
-    matches?: StringFieldUpdateOperationsInput | string
+    participants?: TournamentUpdateparticipantsInput | string[]
+    matches?: TournamentUpdatematchesInput | string[]
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    finalStandings?: StringFieldUpdateOperationsInput | string
+    finalStandings?: TournamentUpdatefinalStandingsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -13002,253 +9780,19 @@ export namespace Prisma {
     entryFee?: FloatFieldUpdateOperationsInput | number
     prizePool?: FloatFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
-    participants?: StringFieldUpdateOperationsInput | string
-    matches?: StringFieldUpdateOperationsInput | string
+    participants?: TournamentUpdateparticipantsInput | string[]
+    matches?: TournamentUpdatematchesInput | string[]
     winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    finalStandings?: StringFieldUpdateOperationsInput | string
+    finalStandings?: TournamentUpdatefinalStandingsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type ChallengeCreateInput = {
-    id?: string
-    type: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    challenger: UserCreateNestedOneWithoutChallengesAsChallengerInput
-    defender: UserCreateNestedOneWithoutChallengesAsDefenderInput
-    dojo: TerritoryCreateNestedOneWithoutChallengesInput
-  }
-
-  export type ChallengeUncheckedCreateInput = {
-    id?: string
-    type: string
-    challengerId: string
-    defenderId: string
-    dojoId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    challenger?: UserUpdateOneRequiredWithoutChallengesAsChallengerNestedInput
-    defender?: UserUpdateOneRequiredWithoutChallengesAsDefenderNestedInput
-    dojo?: TerritoryUpdateOneRequiredWithoutChallengesNestedInput
-  }
-
-  export type ChallengeUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    challengerId?: StringFieldUpdateOperationsInput | string
-    defenderId?: StringFieldUpdateOperationsInput | string
-    dojoId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeCreateManyInput = {
-    id?: string
-    type: string
-    challengerId: string
-    defenderId: string
-    dojoId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    challengerId?: StringFieldUpdateOperationsInput | string
-    defenderId?: StringFieldUpdateOperationsInput | string
-    dojoId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NominationCreateInput = {
-    id?: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description?: string | null
-    contactInfo?: string | null
-    status?: string
-    verified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    player: UserCreateNestedOneWithoutNominationsInput
-  }
-
-  export type NominationUncheckedCreateInput = {
-    id?: string
-    playerId: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description?: string | null
-    contactInfo?: string | null
-    status?: string
-    verified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type NominationUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    player?: UserUpdateOneRequiredWithoutNominationsNestedInput
-  }
-
-  export type NominationUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    playerId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NominationCreateManyInput = {
-    id?: string
-    playerId: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description?: string | null
-    contactInfo?: string | null
-    status?: string
-    verified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type NominationUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NominationUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    playerId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -13256,32 +9800,19 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type ProfileNullableScalarRelationFilter = {
@@ -13306,41 +9837,11 @@ export namespace Prisma {
     none?: UserNFTWhereInput
   }
 
-  export type ChallengeListRelationFilter = {
-    every?: ChallengeWhereInput
-    some?: ChallengeWhereInput
-    none?: ChallengeWhereInput
-  }
-
-  export type NominationListRelationFilter = {
-    every?: NominationWhereInput
-    some?: NominationWhereInput
-    none?: NominationWhereInput
-  }
-
-  export type TerritoryNullableScalarRelationFilter = {
-    is?: TerritoryWhereInput | null
-    isNot?: TerritoryWhereInput | null
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
-  }
-
   export type TerritoryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type UserNFTOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type ChallengeOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type NominationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -13351,9 +9852,6 @@ export namespace Prisma {
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    homeDojoId?: SortOrder
-    unlockedZones?: SortOrder
-    relationships?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -13363,9 +9861,6 @@ export namespace Prisma {
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    homeDojoId?: SortOrder
-    unlockedZones?: SortOrder
-    relationships?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -13375,15 +9870,12 @@ export namespace Prisma {
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    homeDojoId?: SortOrder
-    unlockedZones?: SortOrder
-    relationships?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -13391,6 +9883,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -13399,8 +9892,8 @@ export namespace Prisma {
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -13411,10 +9904,10 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+  export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -13422,16 +9915,14 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -13442,6 +9933,11 @@ export namespace Prisma {
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type ProfileCountOrderByAggregateInput = {
@@ -13491,10 +9987,28 @@ export namespace Prisma {
     skillLevel?: SortOrder
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -13510,6 +10024,29 @@ export namespace Prisma {
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type UserSettingsCountOrderByAggregateInput = {
@@ -13534,8 +10071,6 @@ export namespace Prisma {
     darkMode?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
-    privacySettings?: SortOrder
-    notificationSettings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13548,8 +10083,6 @@ export namespace Prisma {
     darkMode?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
-    privacySettings?: SortOrder
-    notificationSettings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13561,20 +10094,36 @@ export namespace Prisma {
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
   }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
 
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
-  }
-
-  export type UserListRelationFilter = {
-    every?: UserWhereInput
-    some?: UserWhereInput
-    none?: UserWhereInput
-  }
-
-  export type UserOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type TerritoryCountOrderByAggregateInput = {
@@ -13589,22 +10138,16 @@ export namespace Prisma {
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    venueOwnerId?: SortOrder
-    status?: SortOrder
-    leaderboard?: SortOrder
-    allegianceMeter?: SortOrder
   }
 
   export type TerritoryAvgOrderByAggregateInput = {
     influence?: SortOrder
-    allegianceMeter?: SortOrder
   }
 
   export type TerritoryMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
-    coordinates?: SortOrder
     requiredNFT?: SortOrder
     influence?: SortOrder
     ownerId?: SortOrder
@@ -13612,17 +10155,12 @@ export namespace Prisma {
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    venueOwnerId?: SortOrder
-    status?: SortOrder
-    leaderboard?: SortOrder
-    allegianceMeter?: SortOrder
   }
 
   export type TerritoryMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
-    coordinates?: SortOrder
     requiredNFT?: SortOrder
     influence?: SortOrder
     ownerId?: SortOrder
@@ -13630,15 +10168,15 @@ export namespace Prisma {
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    venueOwnerId?: SortOrder
-    status?: SortOrder
-    leaderboard?: SortOrder
-    allegianceMeter?: SortOrder
   }
 
   export type TerritorySumOrderByAggregateInput = {
     influence?: SortOrder
-    allegianceMeter?: SortOrder
+  }
+
+  export type TerritoryNullableScalarRelationFilter = {
+    is?: TerritoryWhereInput | null
+    isNot?: TerritoryWhereInput | null
   }
 
   export type UserNFTCountOrderByAggregateInput = {
@@ -13662,7 +10200,6 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     imageUrl?: SortOrder
-    metadata?: SortOrder
     acquiredAt?: SortOrder
     userId?: SortOrder
     territoryId?: SortOrder
@@ -13677,7 +10214,6 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     imageUrl?: SortOrder
-    metadata?: SortOrder
     acquiredAt?: SortOrder
     userId?: SortOrder
     territoryId?: SortOrder
@@ -13688,8 +10224,8 @@ export namespace Prisma {
 
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -13697,10 +10233,18 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -13745,10 +10289,7 @@ export namespace Prisma {
     entryFee?: SortOrder
     prizePool?: SortOrder
     status?: SortOrder
-    participants?: SortOrder
-    matches?: SortOrder
     winnerId?: SortOrder
-    finalStandings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     endedAt?: SortOrder
@@ -13765,10 +10306,7 @@ export namespace Prisma {
     entryFee?: SortOrder
     prizePool?: SortOrder
     status?: SortOrder
-    participants?: SortOrder
-    matches?: SortOrder
     winnerId?: SortOrder
-    finalStandings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     endedAt?: SortOrder
@@ -13782,8 +10320,8 @@ export namespace Prisma {
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -13798,8 +10336,8 @@ export namespace Prisma {
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -13808,123 +10346,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
-  export type TerritoryScalarRelationFilter = {
-    is?: TerritoryWhereInput
-    isNot?: TerritoryWhereInput
-  }
-
-  export type ChallengeCountOrderByAggregateInput = {
-    id?: SortOrder
-    type?: SortOrder
-    challengerId?: SortOrder
-    defenderId?: SortOrder
-    dojoId?: SortOrder
-    status?: SortOrder
-    outcome?: SortOrder
-    winnerId?: SortOrder
-    requirements?: SortOrder
-    matchData?: SortOrder
-    expiresAt?: SortOrder
-    acceptedAt?: SortOrder
-    declinedAt?: SortOrder
-    completedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type ChallengeMaxOrderByAggregateInput = {
-    id?: SortOrder
-    type?: SortOrder
-    challengerId?: SortOrder
-    defenderId?: SortOrder
-    dojoId?: SortOrder
-    status?: SortOrder
-    outcome?: SortOrder
-    winnerId?: SortOrder
-    requirements?: SortOrder
-    matchData?: SortOrder
-    expiresAt?: SortOrder
-    acceptedAt?: SortOrder
-    declinedAt?: SortOrder
-    completedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type ChallengeMinOrderByAggregateInput = {
-    id?: SortOrder
-    type?: SortOrder
-    challengerId?: SortOrder
-    defenderId?: SortOrder
-    dojoId?: SortOrder
-    status?: SortOrder
-    outcome?: SortOrder
-    winnerId?: SortOrder
-    requirements?: SortOrder
-    matchData?: SortOrder
-    expiresAt?: SortOrder
-    acceptedAt?: SortOrder
-    declinedAt?: SortOrder
-    completedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type NominationCountOrderByAggregateInput = {
-    id?: SortOrder
-    playerId?: SortOrder
-    name?: SortOrder
-    address?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
-    description?: SortOrder
-    contactInfo?: SortOrder
-    status?: SortOrder
-    verified?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type NominationAvgOrderByAggregateInput = {
-    latitude?: SortOrder
-    longitude?: SortOrder
-  }
-
-  export type NominationMaxOrderByAggregateInput = {
-    id?: SortOrder
-    playerId?: SortOrder
-    name?: SortOrder
-    address?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
-    description?: SortOrder
-    contactInfo?: SortOrder
-    status?: SortOrder
-    verified?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type NominationMinOrderByAggregateInput = {
-    id?: SortOrder
-    playerId?: SortOrder
-    name?: SortOrder
-    address?: SortOrder
-    latitude?: SortOrder
-    longitude?: SortOrder
-    description?: SortOrder
-    contactInfo?: SortOrder
-    status?: SortOrder
-    verified?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type NominationSumOrderByAggregateInput = {
-    latitude?: SortOrder
-    longitude?: SortOrder
   }
 
   export type ProfileCreateNestedOneWithoutUserInput = {
@@ -13953,33 +10374,6 @@ export namespace Prisma {
     connect?: UserNFTWhereUniqueInput | UserNFTWhereUniqueInput[]
   }
 
-  export type ChallengeCreateNestedManyWithoutChallengerInput = {
-    create?: XOR<ChallengeCreateWithoutChallengerInput, ChallengeUncheckedCreateWithoutChallengerInput> | ChallengeCreateWithoutChallengerInput[] | ChallengeUncheckedCreateWithoutChallengerInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutChallengerInput | ChallengeCreateOrConnectWithoutChallengerInput[]
-    createMany?: ChallengeCreateManyChallengerInputEnvelope
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-  }
-
-  export type ChallengeCreateNestedManyWithoutDefenderInput = {
-    create?: XOR<ChallengeCreateWithoutDefenderInput, ChallengeUncheckedCreateWithoutDefenderInput> | ChallengeCreateWithoutDefenderInput[] | ChallengeUncheckedCreateWithoutDefenderInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDefenderInput | ChallengeCreateOrConnectWithoutDefenderInput[]
-    createMany?: ChallengeCreateManyDefenderInputEnvelope
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-  }
-
-  export type NominationCreateNestedManyWithoutPlayerInput = {
-    create?: XOR<NominationCreateWithoutPlayerInput, NominationUncheckedCreateWithoutPlayerInput> | NominationCreateWithoutPlayerInput[] | NominationUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: NominationCreateOrConnectWithoutPlayerInput | NominationCreateOrConnectWithoutPlayerInput[]
-    createMany?: NominationCreateManyPlayerInputEnvelope
-    connect?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-  }
-
-  export type TerritoryCreateNestedOneWithoutHomeDojoUsersInput = {
-    create?: XOR<TerritoryCreateWithoutHomeDojoUsersInput, TerritoryUncheckedCreateWithoutHomeDojoUsersInput>
-    connectOrCreate?: TerritoryCreateOrConnectWithoutHomeDojoUsersInput
-    connect?: TerritoryWhereUniqueInput
-  }
-
   export type ProfileUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<ProfileCreateWithoutUserInput, ProfileUncheckedCreateWithoutUserInput>
     connectOrCreate?: ProfileCreateOrConnectWithoutUserInput
@@ -14004,27 +10398,6 @@ export namespace Prisma {
     connectOrCreate?: UserNFTCreateOrConnectWithoutUserInput | UserNFTCreateOrConnectWithoutUserInput[]
     createMany?: UserNFTCreateManyUserInputEnvelope
     connect?: UserNFTWhereUniqueInput | UserNFTWhereUniqueInput[]
-  }
-
-  export type ChallengeUncheckedCreateNestedManyWithoutChallengerInput = {
-    create?: XOR<ChallengeCreateWithoutChallengerInput, ChallengeUncheckedCreateWithoutChallengerInput> | ChallengeCreateWithoutChallengerInput[] | ChallengeUncheckedCreateWithoutChallengerInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutChallengerInput | ChallengeCreateOrConnectWithoutChallengerInput[]
-    createMany?: ChallengeCreateManyChallengerInputEnvelope
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-  }
-
-  export type ChallengeUncheckedCreateNestedManyWithoutDefenderInput = {
-    create?: XOR<ChallengeCreateWithoutDefenderInput, ChallengeUncheckedCreateWithoutDefenderInput> | ChallengeCreateWithoutDefenderInput[] | ChallengeUncheckedCreateWithoutDefenderInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDefenderInput | ChallengeCreateOrConnectWithoutDefenderInput[]
-    createMany?: ChallengeCreateManyDefenderInputEnvelope
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-  }
-
-  export type NominationUncheckedCreateNestedManyWithoutPlayerInput = {
-    create?: XOR<NominationCreateWithoutPlayerInput, NominationUncheckedCreateWithoutPlayerInput> | NominationCreateWithoutPlayerInput[] | NominationUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: NominationCreateOrConnectWithoutPlayerInput | NominationCreateOrConnectWithoutPlayerInput[]
-    createMany?: NominationCreateManyPlayerInputEnvelope
-    connect?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -14083,62 +10456,6 @@ export namespace Prisma {
     deleteMany?: UserNFTScalarWhereInput | UserNFTScalarWhereInput[]
   }
 
-  export type ChallengeUpdateManyWithoutChallengerNestedInput = {
-    create?: XOR<ChallengeCreateWithoutChallengerInput, ChallengeUncheckedCreateWithoutChallengerInput> | ChallengeCreateWithoutChallengerInput[] | ChallengeUncheckedCreateWithoutChallengerInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutChallengerInput | ChallengeCreateOrConnectWithoutChallengerInput[]
-    upsert?: ChallengeUpsertWithWhereUniqueWithoutChallengerInput | ChallengeUpsertWithWhereUniqueWithoutChallengerInput[]
-    createMany?: ChallengeCreateManyChallengerInputEnvelope
-    set?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    disconnect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    delete?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    update?: ChallengeUpdateWithWhereUniqueWithoutChallengerInput | ChallengeUpdateWithWhereUniqueWithoutChallengerInput[]
-    updateMany?: ChallengeUpdateManyWithWhereWithoutChallengerInput | ChallengeUpdateManyWithWhereWithoutChallengerInput[]
-    deleteMany?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-  }
-
-  export type ChallengeUpdateManyWithoutDefenderNestedInput = {
-    create?: XOR<ChallengeCreateWithoutDefenderInput, ChallengeUncheckedCreateWithoutDefenderInput> | ChallengeCreateWithoutDefenderInput[] | ChallengeUncheckedCreateWithoutDefenderInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDefenderInput | ChallengeCreateOrConnectWithoutDefenderInput[]
-    upsert?: ChallengeUpsertWithWhereUniqueWithoutDefenderInput | ChallengeUpsertWithWhereUniqueWithoutDefenderInput[]
-    createMany?: ChallengeCreateManyDefenderInputEnvelope
-    set?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    disconnect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    delete?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    update?: ChallengeUpdateWithWhereUniqueWithoutDefenderInput | ChallengeUpdateWithWhereUniqueWithoutDefenderInput[]
-    updateMany?: ChallengeUpdateManyWithWhereWithoutDefenderInput | ChallengeUpdateManyWithWhereWithoutDefenderInput[]
-    deleteMany?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-  }
-
-  export type NominationUpdateManyWithoutPlayerNestedInput = {
-    create?: XOR<NominationCreateWithoutPlayerInput, NominationUncheckedCreateWithoutPlayerInput> | NominationCreateWithoutPlayerInput[] | NominationUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: NominationCreateOrConnectWithoutPlayerInput | NominationCreateOrConnectWithoutPlayerInput[]
-    upsert?: NominationUpsertWithWhereUniqueWithoutPlayerInput | NominationUpsertWithWhereUniqueWithoutPlayerInput[]
-    createMany?: NominationCreateManyPlayerInputEnvelope
-    set?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    disconnect?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    delete?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    connect?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    update?: NominationUpdateWithWhereUniqueWithoutPlayerInput | NominationUpdateWithWhereUniqueWithoutPlayerInput[]
-    updateMany?: NominationUpdateManyWithWhereWithoutPlayerInput | NominationUpdateManyWithWhereWithoutPlayerInput[]
-    deleteMany?: NominationScalarWhereInput | NominationScalarWhereInput[]
-  }
-
-  export type TerritoryUpdateOneWithoutHomeDojoUsersNestedInput = {
-    create?: XOR<TerritoryCreateWithoutHomeDojoUsersInput, TerritoryUncheckedCreateWithoutHomeDojoUsersInput>
-    connectOrCreate?: TerritoryCreateOrConnectWithoutHomeDojoUsersInput
-    upsert?: TerritoryUpsertWithoutHomeDojoUsersInput
-    disconnect?: TerritoryWhereInput | boolean
-    delete?: TerritoryWhereInput | boolean
-    connect?: TerritoryWhereUniqueInput
-    update?: XOR<XOR<TerritoryUpdateToOneWithWhereWithoutHomeDojoUsersInput, TerritoryUpdateWithoutHomeDojoUsersInput>, TerritoryUncheckedUpdateWithoutHomeDojoUsersInput>
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
-  }
-
   export type ProfileUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<ProfileCreateWithoutUserInput, ProfileUncheckedCreateWithoutUserInput>
     connectOrCreate?: ProfileCreateOrConnectWithoutUserInput
@@ -14187,52 +10504,14 @@ export namespace Prisma {
     deleteMany?: UserNFTScalarWhereInput | UserNFTScalarWhereInput[]
   }
 
-  export type ChallengeUncheckedUpdateManyWithoutChallengerNestedInput = {
-    create?: XOR<ChallengeCreateWithoutChallengerInput, ChallengeUncheckedCreateWithoutChallengerInput> | ChallengeCreateWithoutChallengerInput[] | ChallengeUncheckedCreateWithoutChallengerInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutChallengerInput | ChallengeCreateOrConnectWithoutChallengerInput[]
-    upsert?: ChallengeUpsertWithWhereUniqueWithoutChallengerInput | ChallengeUpsertWithWhereUniqueWithoutChallengerInput[]
-    createMany?: ChallengeCreateManyChallengerInputEnvelope
-    set?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    disconnect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    delete?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    update?: ChallengeUpdateWithWhereUniqueWithoutChallengerInput | ChallengeUpdateWithWhereUniqueWithoutChallengerInput[]
-    updateMany?: ChallengeUpdateManyWithWhereWithoutChallengerInput | ChallengeUpdateManyWithWhereWithoutChallengerInput[]
-    deleteMany?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-  }
-
-  export type ChallengeUncheckedUpdateManyWithoutDefenderNestedInput = {
-    create?: XOR<ChallengeCreateWithoutDefenderInput, ChallengeUncheckedCreateWithoutDefenderInput> | ChallengeCreateWithoutDefenderInput[] | ChallengeUncheckedCreateWithoutDefenderInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDefenderInput | ChallengeCreateOrConnectWithoutDefenderInput[]
-    upsert?: ChallengeUpsertWithWhereUniqueWithoutDefenderInput | ChallengeUpsertWithWhereUniqueWithoutDefenderInput[]
-    createMany?: ChallengeCreateManyDefenderInputEnvelope
-    set?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    disconnect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    delete?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    update?: ChallengeUpdateWithWhereUniqueWithoutDefenderInput | ChallengeUpdateWithWhereUniqueWithoutDefenderInput[]
-    updateMany?: ChallengeUpdateManyWithWhereWithoutDefenderInput | ChallengeUpdateManyWithWhereWithoutDefenderInput[]
-    deleteMany?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-  }
-
-  export type NominationUncheckedUpdateManyWithoutPlayerNestedInput = {
-    create?: XOR<NominationCreateWithoutPlayerInput, NominationUncheckedCreateWithoutPlayerInput> | NominationCreateWithoutPlayerInput[] | NominationUncheckedCreateWithoutPlayerInput[]
-    connectOrCreate?: NominationCreateOrConnectWithoutPlayerInput | NominationCreateOrConnectWithoutPlayerInput[]
-    upsert?: NominationUpsertWithWhereUniqueWithoutPlayerInput | NominationUpsertWithWhereUniqueWithoutPlayerInput[]
-    createMany?: NominationCreateManyPlayerInputEnvelope
-    set?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    disconnect?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    delete?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    connect?: NominationWhereUniqueInput | NominationWhereUniqueInput[]
-    update?: NominationUpdateWithWhereUniqueWithoutPlayerInput | NominationUpdateWithWhereUniqueWithoutPlayerInput[]
-    updateMany?: NominationUpdateManyWithWhereWithoutPlayerInput | NominationUpdateManyWithWhereWithoutPlayerInput[]
-    deleteMany?: NominationScalarWhereInput | NominationScalarWhereInput[]
-  }
-
   export type UserCreateNestedOneWithoutProfileInput = {
     create?: XOR<UserCreateWithoutProfileInput, UserUncheckedCreateWithoutProfileInput>
     connectOrCreate?: UserCreateOrConnectWithoutProfileInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -14282,39 +10561,11 @@ export namespace Prisma {
     connect?: UserNFTWhereUniqueInput | UserNFTWhereUniqueInput[]
   }
 
-  export type ChallengeCreateNestedManyWithoutDojoInput = {
-    create?: XOR<ChallengeCreateWithoutDojoInput, ChallengeUncheckedCreateWithoutDojoInput> | ChallengeCreateWithoutDojoInput[] | ChallengeUncheckedCreateWithoutDojoInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDojoInput | ChallengeCreateOrConnectWithoutDojoInput[]
-    createMany?: ChallengeCreateManyDojoInputEnvelope
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-  }
-
-  export type UserCreateNestedManyWithoutHomeDojoInput = {
-    create?: XOR<UserCreateWithoutHomeDojoInput, UserUncheckedCreateWithoutHomeDojoInput> | UserCreateWithoutHomeDojoInput[] | UserUncheckedCreateWithoutHomeDojoInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutHomeDojoInput | UserCreateOrConnectWithoutHomeDojoInput[]
-    createMany?: UserCreateManyHomeDojoInputEnvelope
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-  }
-
   export type UserNFTUncheckedCreateNestedManyWithoutTerritoryInput = {
     create?: XOR<UserNFTCreateWithoutTerritoryInput, UserNFTUncheckedCreateWithoutTerritoryInput> | UserNFTCreateWithoutTerritoryInput[] | UserNFTUncheckedCreateWithoutTerritoryInput[]
     connectOrCreate?: UserNFTCreateOrConnectWithoutTerritoryInput | UserNFTCreateOrConnectWithoutTerritoryInput[]
     createMany?: UserNFTCreateManyTerritoryInputEnvelope
     connect?: UserNFTWhereUniqueInput | UserNFTWhereUniqueInput[]
-  }
-
-  export type ChallengeUncheckedCreateNestedManyWithoutDojoInput = {
-    create?: XOR<ChallengeCreateWithoutDojoInput, ChallengeUncheckedCreateWithoutDojoInput> | ChallengeCreateWithoutDojoInput[] | ChallengeUncheckedCreateWithoutDojoInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDojoInput | ChallengeCreateOrConnectWithoutDojoInput[]
-    createMany?: ChallengeCreateManyDojoInputEnvelope
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-  }
-
-  export type UserUncheckedCreateNestedManyWithoutHomeDojoInput = {
-    create?: XOR<UserCreateWithoutHomeDojoInput, UserUncheckedCreateWithoutHomeDojoInput> | UserCreateWithoutHomeDojoInput[] | UserUncheckedCreateWithoutHomeDojoInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutHomeDojoInput | UserCreateOrConnectWithoutHomeDojoInput[]
-    createMany?: UserCreateManyHomeDojoInputEnvelope
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type UserUpdateOneWithoutTerritoriesNestedInput = {
@@ -14341,34 +10592,6 @@ export namespace Prisma {
     deleteMany?: UserNFTScalarWhereInput | UserNFTScalarWhereInput[]
   }
 
-  export type ChallengeUpdateManyWithoutDojoNestedInput = {
-    create?: XOR<ChallengeCreateWithoutDojoInput, ChallengeUncheckedCreateWithoutDojoInput> | ChallengeCreateWithoutDojoInput[] | ChallengeUncheckedCreateWithoutDojoInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDojoInput | ChallengeCreateOrConnectWithoutDojoInput[]
-    upsert?: ChallengeUpsertWithWhereUniqueWithoutDojoInput | ChallengeUpsertWithWhereUniqueWithoutDojoInput[]
-    createMany?: ChallengeCreateManyDojoInputEnvelope
-    set?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    disconnect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    delete?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    update?: ChallengeUpdateWithWhereUniqueWithoutDojoInput | ChallengeUpdateWithWhereUniqueWithoutDojoInput[]
-    updateMany?: ChallengeUpdateManyWithWhereWithoutDojoInput | ChallengeUpdateManyWithWhereWithoutDojoInput[]
-    deleteMany?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-  }
-
-  export type UserUpdateManyWithoutHomeDojoNestedInput = {
-    create?: XOR<UserCreateWithoutHomeDojoInput, UserUncheckedCreateWithoutHomeDojoInput> | UserCreateWithoutHomeDojoInput[] | UserUncheckedCreateWithoutHomeDojoInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutHomeDojoInput | UserCreateOrConnectWithoutHomeDojoInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutHomeDojoInput | UserUpsertWithWhereUniqueWithoutHomeDojoInput[]
-    createMany?: UserCreateManyHomeDojoInputEnvelope
-    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutHomeDojoInput | UserUpdateWithWhereUniqueWithoutHomeDojoInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutHomeDojoInput | UserUpdateManyWithWhereWithoutHomeDojoInput[]
-    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
-  }
-
   export type UserNFTUncheckedUpdateManyWithoutTerritoryNestedInput = {
     create?: XOR<UserNFTCreateWithoutTerritoryInput, UserNFTUncheckedCreateWithoutTerritoryInput> | UserNFTCreateWithoutTerritoryInput[] | UserNFTUncheckedCreateWithoutTerritoryInput[]
     connectOrCreate?: UserNFTCreateOrConnectWithoutTerritoryInput | UserNFTCreateOrConnectWithoutTerritoryInput[]
@@ -14381,34 +10604,6 @@ export namespace Prisma {
     update?: UserNFTUpdateWithWhereUniqueWithoutTerritoryInput | UserNFTUpdateWithWhereUniqueWithoutTerritoryInput[]
     updateMany?: UserNFTUpdateManyWithWhereWithoutTerritoryInput | UserNFTUpdateManyWithWhereWithoutTerritoryInput[]
     deleteMany?: UserNFTScalarWhereInput | UserNFTScalarWhereInput[]
-  }
-
-  export type ChallengeUncheckedUpdateManyWithoutDojoNestedInput = {
-    create?: XOR<ChallengeCreateWithoutDojoInput, ChallengeUncheckedCreateWithoutDojoInput> | ChallengeCreateWithoutDojoInput[] | ChallengeUncheckedCreateWithoutDojoInput[]
-    connectOrCreate?: ChallengeCreateOrConnectWithoutDojoInput | ChallengeCreateOrConnectWithoutDojoInput[]
-    upsert?: ChallengeUpsertWithWhereUniqueWithoutDojoInput | ChallengeUpsertWithWhereUniqueWithoutDojoInput[]
-    createMany?: ChallengeCreateManyDojoInputEnvelope
-    set?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    disconnect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    delete?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    connect?: ChallengeWhereUniqueInput | ChallengeWhereUniqueInput[]
-    update?: ChallengeUpdateWithWhereUniqueWithoutDojoInput | ChallengeUpdateWithWhereUniqueWithoutDojoInput[]
-    updateMany?: ChallengeUpdateManyWithWhereWithoutDojoInput | ChallengeUpdateManyWithWhereWithoutDojoInput[]
-    deleteMany?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-  }
-
-  export type UserUncheckedUpdateManyWithoutHomeDojoNestedInput = {
-    create?: XOR<UserCreateWithoutHomeDojoInput, UserUncheckedCreateWithoutHomeDojoInput> | UserCreateWithoutHomeDojoInput[] | UserUncheckedCreateWithoutHomeDojoInput[]
-    connectOrCreate?: UserCreateOrConnectWithoutHomeDojoInput | UserCreateOrConnectWithoutHomeDojoInput[]
-    upsert?: UserUpsertWithWhereUniqueWithoutHomeDojoInput | UserUpsertWithWhereUniqueWithoutHomeDojoInput[]
-    createMany?: UserCreateManyHomeDojoInputEnvelope
-    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
-    update?: UserUpdateWithWhereUniqueWithoutHomeDojoInput | UserUpdateWithWhereUniqueWithoutHomeDojoInput[]
-    updateMany?: UserUpdateManyWithWhereWithoutHomeDojoInput | UserUpdateManyWithWhereWithoutHomeDojoInput[]
-    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutNftsInput = {
@@ -14441,6 +10636,18 @@ export namespace Prisma {
     update?: XOR<XOR<TerritoryUpdateToOneWithWhereWithoutNftsInput, TerritoryUpdateWithoutNftsInput>, TerritoryUncheckedUpdateWithoutNftsInput>
   }
 
+  export type TournamentCreateparticipantsInput = {
+    set: string[]
+  }
+
+  export type TournamentCreatematchesInput = {
+    set: string[]
+  }
+
+  export type TournamentCreatefinalStandingsInput = {
+    set: string[]
+  }
+
   export type FloatFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -14449,70 +10656,29 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type TournamentUpdateparticipantsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type TournamentUpdatematchesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type TournamentUpdatefinalStandingsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
   }
 
-  export type UserCreateNestedOneWithoutChallengesAsChallengerInput = {
-    create?: XOR<UserCreateWithoutChallengesAsChallengerInput, UserUncheckedCreateWithoutChallengesAsChallengerInput>
-    connectOrCreate?: UserCreateOrConnectWithoutChallengesAsChallengerInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type UserCreateNestedOneWithoutChallengesAsDefenderInput = {
-    create?: XOR<UserCreateWithoutChallengesAsDefenderInput, UserUncheckedCreateWithoutChallengesAsDefenderInput>
-    connectOrCreate?: UserCreateOrConnectWithoutChallengesAsDefenderInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type TerritoryCreateNestedOneWithoutChallengesInput = {
-    create?: XOR<TerritoryCreateWithoutChallengesInput, TerritoryUncheckedCreateWithoutChallengesInput>
-    connectOrCreate?: TerritoryCreateOrConnectWithoutChallengesInput
-    connect?: TerritoryWhereUniqueInput
-  }
-
-  export type UserUpdateOneRequiredWithoutChallengesAsChallengerNestedInput = {
-    create?: XOR<UserCreateWithoutChallengesAsChallengerInput, UserUncheckedCreateWithoutChallengesAsChallengerInput>
-    connectOrCreate?: UserCreateOrConnectWithoutChallengesAsChallengerInput
-    upsert?: UserUpsertWithoutChallengesAsChallengerInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutChallengesAsChallengerInput, UserUpdateWithoutChallengesAsChallengerInput>, UserUncheckedUpdateWithoutChallengesAsChallengerInput>
-  }
-
-  export type UserUpdateOneRequiredWithoutChallengesAsDefenderNestedInput = {
-    create?: XOR<UserCreateWithoutChallengesAsDefenderInput, UserUncheckedCreateWithoutChallengesAsDefenderInput>
-    connectOrCreate?: UserCreateOrConnectWithoutChallengesAsDefenderInput
-    upsert?: UserUpsertWithoutChallengesAsDefenderInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutChallengesAsDefenderInput, UserUpdateWithoutChallengesAsDefenderInput>, UserUncheckedUpdateWithoutChallengesAsDefenderInput>
-  }
-
-  export type TerritoryUpdateOneRequiredWithoutChallengesNestedInput = {
-    create?: XOR<TerritoryCreateWithoutChallengesInput, TerritoryUncheckedCreateWithoutChallengesInput>
-    connectOrCreate?: TerritoryCreateOrConnectWithoutChallengesInput
-    upsert?: TerritoryUpsertWithoutChallengesInput
-    connect?: TerritoryWhereUniqueInput
-    update?: XOR<XOR<TerritoryUpdateToOneWithWhereWithoutChallengesInput, TerritoryUpdateWithoutChallengesInput>, TerritoryUncheckedUpdateWithoutChallengesInput>
-  }
-
-  export type UserCreateNestedOneWithoutNominationsInput = {
-    create?: XOR<UserCreateWithoutNominationsInput, UserUncheckedCreateWithoutNominationsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutNominationsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type UserUpdateOneRequiredWithoutNominationsNestedInput = {
-    create?: XOR<UserCreateWithoutNominationsInput, UserUncheckedCreateWithoutNominationsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutNominationsInput
-    upsert?: UserUpsertWithoutNominationsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNominationsInput, UserUpdateWithoutNominationsInput>, UserUncheckedUpdateWithoutNominationsInput>
-  }
-
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -14525,8 +10691,8 @@ export namespace Prisma {
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -14534,24 +10700,10 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -14567,8 +10719,8 @@ export namespace Prisma {
 
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -14578,8 +10730,8 @@ export namespace Prisma {
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -14590,10 +10742,24 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -14609,8 +10775,8 @@ export namespace Prisma {
 
   export type NestedIntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -14620,8 +10786,8 @@ export namespace Prisma {
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -14636,8 +10802,8 @@ export namespace Prisma {
 
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -14657,11 +10823,34 @@ export namespace Prisma {
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -14671,8 +10860,8 @@ export namespace Prisma {
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -14687,8 +10876,8 @@ export namespace Prisma {
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -14735,8 +10924,8 @@ export namespace Prisma {
     darkMode?: boolean
     language?: string
     timezone?: string
-    privacySettings?: string
-    notificationSettings?: string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14748,8 +10937,8 @@ export namespace Prisma {
     darkMode?: boolean
     language?: string
     timezone?: string
-    privacySettings?: string
-    notificationSettings?: string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14763,40 +10952,28 @@ export namespace Prisma {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     clan?: string | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
     nfts?: UserNFTCreateNestedManyWithoutTerritoryInput
-    challenges?: ChallengeCreateNestedManyWithoutDojoInput
-    homeDojoUsers?: UserCreateNestedManyWithoutHomeDojoInput
   }
 
   export type TerritoryUncheckedCreateWithoutOwnerInput = {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     clan?: string | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
     nfts?: UserNFTUncheckedCreateNestedManyWithoutTerritoryInput
-    challenges?: ChallengeUncheckedCreateNestedManyWithoutDojoInput
-    homeDojoUsers?: UserUncheckedCreateNestedManyWithoutHomeDojoInput
   }
 
   export type TerritoryCreateOrConnectWithoutOwnerInput = {
@@ -14806,6 +10983,7 @@ export namespace Prisma {
 
   export type TerritoryCreateManyOwnerInputEnvelope = {
     data: TerritoryCreateManyOwnerInput | TerritoryCreateManyOwnerInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserNFTCreateWithoutUserInput = {
@@ -14814,7 +10992,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     isActive?: boolean
     createdAt?: Date | string
@@ -14828,7 +11006,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     territoryId?: string | null
     isActive?: boolean
@@ -14843,178 +11021,7 @@ export namespace Prisma {
 
   export type UserNFTCreateManyUserInputEnvelope = {
     data: UserNFTCreateManyUserInput | UserNFTCreateManyUserInput[]
-  }
-
-  export type ChallengeCreateWithoutChallengerInput = {
-    id?: string
-    type: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    defender: UserCreateNestedOneWithoutChallengesAsDefenderInput
-    dojo: TerritoryCreateNestedOneWithoutChallengesInput
-  }
-
-  export type ChallengeUncheckedCreateWithoutChallengerInput = {
-    id?: string
-    type: string
-    defenderId: string
-    dojoId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeCreateOrConnectWithoutChallengerInput = {
-    where: ChallengeWhereUniqueInput
-    create: XOR<ChallengeCreateWithoutChallengerInput, ChallengeUncheckedCreateWithoutChallengerInput>
-  }
-
-  export type ChallengeCreateManyChallengerInputEnvelope = {
-    data: ChallengeCreateManyChallengerInput | ChallengeCreateManyChallengerInput[]
-  }
-
-  export type ChallengeCreateWithoutDefenderInput = {
-    id?: string
-    type: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    challenger: UserCreateNestedOneWithoutChallengesAsChallengerInput
-    dojo: TerritoryCreateNestedOneWithoutChallengesInput
-  }
-
-  export type ChallengeUncheckedCreateWithoutDefenderInput = {
-    id?: string
-    type: string
-    challengerId: string
-    dojoId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeCreateOrConnectWithoutDefenderInput = {
-    where: ChallengeWhereUniqueInput
-    create: XOR<ChallengeCreateWithoutDefenderInput, ChallengeUncheckedCreateWithoutDefenderInput>
-  }
-
-  export type ChallengeCreateManyDefenderInputEnvelope = {
-    data: ChallengeCreateManyDefenderInput | ChallengeCreateManyDefenderInput[]
-  }
-
-  export type NominationCreateWithoutPlayerInput = {
-    id?: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description?: string | null
-    contactInfo?: string | null
-    status?: string
-    verified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type NominationUncheckedCreateWithoutPlayerInput = {
-    id?: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description?: string | null
-    contactInfo?: string | null
-    status?: string
-    verified?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type NominationCreateOrConnectWithoutPlayerInput = {
-    where: NominationWhereUniqueInput
-    create: XOR<NominationCreateWithoutPlayerInput, NominationUncheckedCreateWithoutPlayerInput>
-  }
-
-  export type NominationCreateManyPlayerInputEnvelope = {
-    data: NominationCreateManyPlayerInput | NominationCreateManyPlayerInput[]
-  }
-
-  export type TerritoryCreateWithoutHomeDojoUsersInput = {
-    id?: string
-    name: string
-    description?: string | null
-    coordinates: string
-    requiredNFT: string
-    influence?: number
-    clan?: string | null
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
-    owner?: UserCreateNestedOneWithoutTerritoriesInput
-    nfts?: UserNFTCreateNestedManyWithoutTerritoryInput
-    challenges?: ChallengeCreateNestedManyWithoutDojoInput
-  }
-
-  export type TerritoryUncheckedCreateWithoutHomeDojoUsersInput = {
-    id?: string
-    name: string
-    description?: string | null
-    coordinates: string
-    requiredNFT: string
-    influence?: number
-    ownerId?: string | null
-    clan?: string | null
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
-    nfts?: UserNFTUncheckedCreateNestedManyWithoutTerritoryInput
-    challenges?: ChallengeUncheckedCreateNestedManyWithoutDojoInput
-  }
-
-  export type TerritoryCreateOrConnectWithoutHomeDojoUsersInput = {
-    where: TerritoryWhereUniqueInput
-    create: XOR<TerritoryCreateWithoutHomeDojoUsersInput, TerritoryUncheckedCreateWithoutHomeDojoUsersInput>
+    skipDuplicates?: boolean
   }
 
   export type ProfileUpsertWithoutUserInput = {
@@ -15070,8 +11077,8 @@ export namespace Prisma {
     darkMode?: BoolFieldUpdateOperationsInput | boolean
     language?: StringFieldUpdateOperationsInput | string
     timezone?: StringFieldUpdateOperationsInput | string
-    privacySettings?: StringFieldUpdateOperationsInput | string
-    notificationSettings?: StringFieldUpdateOperationsInput | string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15083,8 +11090,8 @@ export namespace Prisma {
     darkMode?: BoolFieldUpdateOperationsInput | boolean
     language?: StringFieldUpdateOperationsInput | string
     timezone?: StringFieldUpdateOperationsInput | string
-    privacySettings?: StringFieldUpdateOperationsInput | string
-    notificationSettings?: StringFieldUpdateOperationsInput | string
+    privacySettings?: JsonNullValueInput | InputJsonValue
+    notificationSettings?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15112,7 +11119,7 @@ export namespace Prisma {
     id?: StringFilter<"Territory"> | string
     name?: StringFilter<"Territory"> | string
     description?: StringNullableFilter<"Territory"> | string | null
-    coordinates?: StringFilter<"Territory"> | string
+    coordinates?: JsonFilter<"Territory">
     requiredNFT?: StringFilter<"Territory"> | string
     influence?: IntFilter<"Territory"> | number
     ownerId?: StringNullableFilter<"Territory"> | string | null
@@ -15120,10 +11127,6 @@ export namespace Prisma {
     isActive?: BoolFilter<"Territory"> | boolean
     createdAt?: DateTimeFilter<"Territory"> | Date | string
     updatedAt?: DateTimeFilter<"Territory"> | Date | string
-    venueOwnerId?: StringNullableFilter<"Territory"> | string | null
-    status?: StringFilter<"Territory"> | string
-    leaderboard?: StringFilter<"Territory"> | string
-    allegianceMeter?: IntFilter<"Territory"> | number
   }
 
   export type UserNFTUpsertWithWhereUniqueWithoutUserInput = {
@@ -15151,152 +11154,13 @@ export namespace Prisma {
     name?: StringFilter<"UserNFT"> | string
     description?: StringNullableFilter<"UserNFT"> | string | null
     imageUrl?: StringNullableFilter<"UserNFT"> | string | null
-    metadata?: StringFilter<"UserNFT"> | string
+    metadata?: JsonFilter<"UserNFT">
     acquiredAt?: DateTimeFilter<"UserNFT"> | Date | string
     userId?: StringFilter<"UserNFT"> | string
     territoryId?: StringNullableFilter<"UserNFT"> | string | null
     isActive?: BoolFilter<"UserNFT"> | boolean
     createdAt?: DateTimeFilter<"UserNFT"> | Date | string
     updatedAt?: DateTimeFilter<"UserNFT"> | Date | string
-  }
-
-  export type ChallengeUpsertWithWhereUniqueWithoutChallengerInput = {
-    where: ChallengeWhereUniqueInput
-    update: XOR<ChallengeUpdateWithoutChallengerInput, ChallengeUncheckedUpdateWithoutChallengerInput>
-    create: XOR<ChallengeCreateWithoutChallengerInput, ChallengeUncheckedCreateWithoutChallengerInput>
-  }
-
-  export type ChallengeUpdateWithWhereUniqueWithoutChallengerInput = {
-    where: ChallengeWhereUniqueInput
-    data: XOR<ChallengeUpdateWithoutChallengerInput, ChallengeUncheckedUpdateWithoutChallengerInput>
-  }
-
-  export type ChallengeUpdateManyWithWhereWithoutChallengerInput = {
-    where: ChallengeScalarWhereInput
-    data: XOR<ChallengeUpdateManyMutationInput, ChallengeUncheckedUpdateManyWithoutChallengerInput>
-  }
-
-  export type ChallengeScalarWhereInput = {
-    AND?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-    OR?: ChallengeScalarWhereInput[]
-    NOT?: ChallengeScalarWhereInput | ChallengeScalarWhereInput[]
-    id?: StringFilter<"Challenge"> | string
-    type?: StringFilter<"Challenge"> | string
-    challengerId?: StringFilter<"Challenge"> | string
-    defenderId?: StringFilter<"Challenge"> | string
-    dojoId?: StringFilter<"Challenge"> | string
-    status?: StringFilter<"Challenge"> | string
-    outcome?: StringNullableFilter<"Challenge"> | string | null
-    winnerId?: StringNullableFilter<"Challenge"> | string | null
-    requirements?: StringFilter<"Challenge"> | string
-    matchData?: StringNullableFilter<"Challenge"> | string | null
-    expiresAt?: DateTimeFilter<"Challenge"> | Date | string
-    acceptedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    declinedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    completedAt?: DateTimeNullableFilter<"Challenge"> | Date | string | null
-    createdAt?: DateTimeFilter<"Challenge"> | Date | string
-    updatedAt?: DateTimeFilter<"Challenge"> | Date | string
-  }
-
-  export type ChallengeUpsertWithWhereUniqueWithoutDefenderInput = {
-    where: ChallengeWhereUniqueInput
-    update: XOR<ChallengeUpdateWithoutDefenderInput, ChallengeUncheckedUpdateWithoutDefenderInput>
-    create: XOR<ChallengeCreateWithoutDefenderInput, ChallengeUncheckedCreateWithoutDefenderInput>
-  }
-
-  export type ChallengeUpdateWithWhereUniqueWithoutDefenderInput = {
-    where: ChallengeWhereUniqueInput
-    data: XOR<ChallengeUpdateWithoutDefenderInput, ChallengeUncheckedUpdateWithoutDefenderInput>
-  }
-
-  export type ChallengeUpdateManyWithWhereWithoutDefenderInput = {
-    where: ChallengeScalarWhereInput
-    data: XOR<ChallengeUpdateManyMutationInput, ChallengeUncheckedUpdateManyWithoutDefenderInput>
-  }
-
-  export type NominationUpsertWithWhereUniqueWithoutPlayerInput = {
-    where: NominationWhereUniqueInput
-    update: XOR<NominationUpdateWithoutPlayerInput, NominationUncheckedUpdateWithoutPlayerInput>
-    create: XOR<NominationCreateWithoutPlayerInput, NominationUncheckedCreateWithoutPlayerInput>
-  }
-
-  export type NominationUpdateWithWhereUniqueWithoutPlayerInput = {
-    where: NominationWhereUniqueInput
-    data: XOR<NominationUpdateWithoutPlayerInput, NominationUncheckedUpdateWithoutPlayerInput>
-  }
-
-  export type NominationUpdateManyWithWhereWithoutPlayerInput = {
-    where: NominationScalarWhereInput
-    data: XOR<NominationUpdateManyMutationInput, NominationUncheckedUpdateManyWithoutPlayerInput>
-  }
-
-  export type NominationScalarWhereInput = {
-    AND?: NominationScalarWhereInput | NominationScalarWhereInput[]
-    OR?: NominationScalarWhereInput[]
-    NOT?: NominationScalarWhereInput | NominationScalarWhereInput[]
-    id?: StringFilter<"Nomination"> | string
-    playerId?: StringFilter<"Nomination"> | string
-    name?: StringFilter<"Nomination"> | string
-    address?: StringFilter<"Nomination"> | string
-    latitude?: FloatFilter<"Nomination"> | number
-    longitude?: FloatFilter<"Nomination"> | number
-    description?: StringNullableFilter<"Nomination"> | string | null
-    contactInfo?: StringNullableFilter<"Nomination"> | string | null
-    status?: StringFilter<"Nomination"> | string
-    verified?: BoolFilter<"Nomination"> | boolean
-    createdAt?: DateTimeFilter<"Nomination"> | Date | string
-    updatedAt?: DateTimeFilter<"Nomination"> | Date | string
-  }
-
-  export type TerritoryUpsertWithoutHomeDojoUsersInput = {
-    update: XOR<TerritoryUpdateWithoutHomeDojoUsersInput, TerritoryUncheckedUpdateWithoutHomeDojoUsersInput>
-    create: XOR<TerritoryCreateWithoutHomeDojoUsersInput, TerritoryUncheckedCreateWithoutHomeDojoUsersInput>
-    where?: TerritoryWhereInput
-  }
-
-  export type TerritoryUpdateToOneWithWhereWithoutHomeDojoUsersInput = {
-    where?: TerritoryWhereInput
-    data: XOR<TerritoryUpdateWithoutHomeDojoUsersInput, TerritoryUncheckedUpdateWithoutHomeDojoUsersInput>
-  }
-
-  export type TerritoryUpdateWithoutHomeDojoUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
-    requiredNFT?: StringFieldUpdateOperationsInput | string
-    influence?: IntFieldUpdateOperationsInput | number
-    clan?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
-    owner?: UserUpdateOneWithoutTerritoriesNestedInput
-    nfts?: UserNFTUpdateManyWithoutTerritoryNestedInput
-    challenges?: ChallengeUpdateManyWithoutDojoNestedInput
-  }
-
-  export type TerritoryUncheckedUpdateWithoutHomeDojoUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
-    requiredNFT?: StringFieldUpdateOperationsInput | string
-    influence?: IntFieldUpdateOperationsInput | number
-    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
-    clan?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
-    nfts?: UserNFTUncheckedUpdateManyWithoutTerritoryNestedInput
-    challenges?: ChallengeUncheckedUpdateManyWithoutDojoNestedInput
   }
 
   export type UserCreateWithoutProfileInput = {
@@ -15306,15 +11170,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
     settings?: UserSettingsCreateNestedOneWithoutUserInput
     territories?: TerritoryCreateNestedManyWithoutOwnerInput
     nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
   }
 
   export type UserUncheckedCreateWithoutProfileInput = {
@@ -15324,15 +11182,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
     settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
     territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
     nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type UserCreateOrConnectWithoutProfileInput = {
@@ -15358,15 +11210,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     settings?: UserSettingsUpdateOneWithoutUserNestedInput
     territories?: TerritoryUpdateManyWithoutOwnerNestedInput
     nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProfileInput = {
@@ -15376,15 +11222,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
     territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
     nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type UserCreateWithoutSettingsInput = {
@@ -15394,15 +11234,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileCreateNestedOneWithoutUserInput
     territories?: TerritoryCreateNestedManyWithoutOwnerInput
     nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
   }
 
   export type UserUncheckedCreateWithoutSettingsInput = {
@@ -15412,15 +11246,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
     territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
     nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type UserCreateOrConnectWithoutSettingsInput = {
@@ -15446,15 +11274,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUpdateOneWithoutUserNestedInput
     territories?: TerritoryUpdateManyWithoutOwnerNestedInput
     nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingsInput = {
@@ -15464,15 +11286,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
     territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
     nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type UserCreateWithoutTerritoriesInput = {
@@ -15482,15 +11298,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileCreateNestedOneWithoutUserInput
     settings?: UserSettingsCreateNestedOneWithoutUserInput
     nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
   }
 
   export type UserUncheckedCreateWithoutTerritoriesInput = {
@@ -15500,15 +11310,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
     settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
     nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type UserCreateOrConnectWithoutTerritoriesInput = {
@@ -15522,7 +11326,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     isActive?: boolean
     createdAt?: Date | string
@@ -15536,7 +11340,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     userId: string
     isActive?: boolean
@@ -15551,96 +11355,7 @@ export namespace Prisma {
 
   export type UserNFTCreateManyTerritoryInputEnvelope = {
     data: UserNFTCreateManyTerritoryInput | UserNFTCreateManyTerritoryInput[]
-  }
-
-  export type ChallengeCreateWithoutDojoInput = {
-    id?: string
-    type: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    challenger: UserCreateNestedOneWithoutChallengesAsChallengerInput
-    defender: UserCreateNestedOneWithoutChallengesAsDefenderInput
-  }
-
-  export type ChallengeUncheckedCreateWithoutDojoInput = {
-    id?: string
-    type: string
-    challengerId: string
-    defenderId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeCreateOrConnectWithoutDojoInput = {
-    where: ChallengeWhereUniqueInput
-    create: XOR<ChallengeCreateWithoutDojoInput, ChallengeUncheckedCreateWithoutDojoInput>
-  }
-
-  export type ChallengeCreateManyDojoInputEnvelope = {
-    data: ChallengeCreateManyDojoInput | ChallengeCreateManyDojoInput[]
-  }
-
-  export type UserCreateWithoutHomeDojoInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileCreateNestedOneWithoutUserInput
-    settings?: UserSettingsCreateNestedOneWithoutUserInput
-    territories?: TerritoryCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-  }
-
-  export type UserUncheckedCreateWithoutHomeDojoInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
-    settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
-    territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
-  }
-
-  export type UserCreateOrConnectWithoutHomeDojoInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutHomeDojoInput, UserUncheckedCreateWithoutHomeDojoInput>
-  }
-
-  export type UserCreateManyHomeDojoInputEnvelope = {
-    data: UserCreateManyHomeDojoInput | UserCreateManyHomeDojoInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserUpsertWithoutTerritoriesInput = {
@@ -15661,15 +11376,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUpdateOneWithoutUserNestedInput
     settings?: UserSettingsUpdateOneWithoutUserNestedInput
     nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTerritoriesInput = {
@@ -15679,15 +11388,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
     settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
     nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type UserNFTUpsertWithWhereUniqueWithoutTerritoryInput = {
@@ -15706,53 +11409,6 @@ export namespace Prisma {
     data: XOR<UserNFTUpdateManyMutationInput, UserNFTUncheckedUpdateManyWithoutTerritoryInput>
   }
 
-  export type ChallengeUpsertWithWhereUniqueWithoutDojoInput = {
-    where: ChallengeWhereUniqueInput
-    update: XOR<ChallengeUpdateWithoutDojoInput, ChallengeUncheckedUpdateWithoutDojoInput>
-    create: XOR<ChallengeCreateWithoutDojoInput, ChallengeUncheckedCreateWithoutDojoInput>
-  }
-
-  export type ChallengeUpdateWithWhereUniqueWithoutDojoInput = {
-    where: ChallengeWhereUniqueInput
-    data: XOR<ChallengeUpdateWithoutDojoInput, ChallengeUncheckedUpdateWithoutDojoInput>
-  }
-
-  export type ChallengeUpdateManyWithWhereWithoutDojoInput = {
-    where: ChallengeScalarWhereInput
-    data: XOR<ChallengeUpdateManyMutationInput, ChallengeUncheckedUpdateManyWithoutDojoInput>
-  }
-
-  export type UserUpsertWithWhereUniqueWithoutHomeDojoInput = {
-    where: UserWhereUniqueInput
-    update: XOR<UserUpdateWithoutHomeDojoInput, UserUncheckedUpdateWithoutHomeDojoInput>
-    create: XOR<UserCreateWithoutHomeDojoInput, UserUncheckedCreateWithoutHomeDojoInput>
-  }
-
-  export type UserUpdateWithWhereUniqueWithoutHomeDojoInput = {
-    where: UserWhereUniqueInput
-    data: XOR<UserUpdateWithoutHomeDojoInput, UserUncheckedUpdateWithoutHomeDojoInput>
-  }
-
-  export type UserUpdateManyWithWhereWithoutHomeDojoInput = {
-    where: UserScalarWhereInput
-    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutHomeDojoInput>
-  }
-
-  export type UserScalarWhereInput = {
-    AND?: UserScalarWhereInput | UserScalarWhereInput[]
-    OR?: UserScalarWhereInput[]
-    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
-    id?: StringFilter<"User"> | string
-    email?: StringFilter<"User"> | string
-    password?: StringFilter<"User"> | string
-    role?: StringFilter<"User"> | string
-    createdAt?: DateTimeFilter<"User"> | Date | string
-    updatedAt?: DateTimeFilter<"User"> | Date | string
-    homeDojoId?: StringNullableFilter<"User"> | string | null
-    unlockedZones?: StringFilter<"User"> | string
-    relationships?: StringFilter<"User"> | string
-  }
-
   export type UserCreateWithoutNftsInput = {
     id?: string
     email: string
@@ -15760,15 +11416,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileCreateNestedOneWithoutUserInput
     settings?: UserSettingsCreateNestedOneWithoutUserInput
     territories?: TerritoryCreateNestedManyWithoutOwnerInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
   }
 
   export type UserUncheckedCreateWithoutNftsInput = {
@@ -15778,15 +11428,9 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
     profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
     settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
     territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
   }
 
   export type UserCreateOrConnectWithoutNftsInput = {
@@ -15798,27 +11442,21 @@ export namespace Prisma {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     clan?: string | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
     owner?: UserCreateNestedOneWithoutTerritoriesInput
-    challenges?: ChallengeCreateNestedManyWithoutDojoInput
-    homeDojoUsers?: UserCreateNestedManyWithoutHomeDojoInput
   }
 
   export type TerritoryUncheckedCreateWithoutNftsInput = {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     ownerId?: string | null
@@ -15826,12 +11464,6 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
-    challenges?: ChallengeUncheckedCreateNestedManyWithoutDojoInput
-    homeDojoUsers?: UserUncheckedCreateNestedManyWithoutHomeDojoInput
   }
 
   export type TerritoryCreateOrConnectWithoutNftsInput = {
@@ -15857,15 +11489,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUpdateOneWithoutUserNestedInput
     settings?: UserSettingsUpdateOneWithoutUserNestedInput
     territories?: TerritoryUpdateManyWithoutOwnerNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNftsInput = {
@@ -15875,15 +11501,9 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
     profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
     settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
     territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
   }
 
   export type TerritoryUpsertWithoutNftsInput = {
@@ -15901,27 +11521,21 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     clan?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
     owner?: UserUpdateOneWithoutTerritoriesNestedInput
-    challenges?: ChallengeUpdateManyWithoutDojoNestedInput
-    homeDojoUsers?: UserUpdateManyWithoutHomeDojoNestedInput
   }
 
   export type TerritoryUncheckedUpdateWithoutNftsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     ownerId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15929,389 +11543,19 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
-    challenges?: ChallengeUncheckedUpdateManyWithoutDojoNestedInput
-    homeDojoUsers?: UserUncheckedUpdateManyWithoutHomeDojoNestedInput
-  }
-
-  export type UserCreateWithoutChallengesAsChallengerInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileCreateNestedOneWithoutUserInput
-    settings?: UserSettingsCreateNestedOneWithoutUserInput
-    territories?: TerritoryCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
-  }
-
-  export type UserUncheckedCreateWithoutChallengesAsChallengerInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
-    settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
-    territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
-  }
-
-  export type UserCreateOrConnectWithoutChallengesAsChallengerInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutChallengesAsChallengerInput, UserUncheckedCreateWithoutChallengesAsChallengerInput>
-  }
-
-  export type UserCreateWithoutChallengesAsDefenderInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileCreateNestedOneWithoutUserInput
-    settings?: UserSettingsCreateNestedOneWithoutUserInput
-    territories?: TerritoryCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    nominations?: NominationCreateNestedManyWithoutPlayerInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
-  }
-
-  export type UserUncheckedCreateWithoutChallengesAsDefenderInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
-    settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
-    territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    nominations?: NominationUncheckedCreateNestedManyWithoutPlayerInput
-  }
-
-  export type UserCreateOrConnectWithoutChallengesAsDefenderInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutChallengesAsDefenderInput, UserUncheckedCreateWithoutChallengesAsDefenderInput>
-  }
-
-  export type TerritoryCreateWithoutChallengesInput = {
-    id?: string
-    name: string
-    description?: string | null
-    coordinates: string
-    requiredNFT: string
-    influence?: number
-    clan?: string | null
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
-    owner?: UserCreateNestedOneWithoutTerritoriesInput
-    nfts?: UserNFTCreateNestedManyWithoutTerritoryInput
-    homeDojoUsers?: UserCreateNestedManyWithoutHomeDojoInput
-  }
-
-  export type TerritoryUncheckedCreateWithoutChallengesInput = {
-    id?: string
-    name: string
-    description?: string | null
-    coordinates: string
-    requiredNFT: string
-    influence?: number
-    ownerId?: string | null
-    clan?: string | null
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
-    nfts?: UserNFTUncheckedCreateNestedManyWithoutTerritoryInput
-    homeDojoUsers?: UserUncheckedCreateNestedManyWithoutHomeDojoInput
-  }
-
-  export type TerritoryCreateOrConnectWithoutChallengesInput = {
-    where: TerritoryWhereUniqueInput
-    create: XOR<TerritoryCreateWithoutChallengesInput, TerritoryUncheckedCreateWithoutChallengesInput>
-  }
-
-  export type UserUpsertWithoutChallengesAsChallengerInput = {
-    update: XOR<UserUpdateWithoutChallengesAsChallengerInput, UserUncheckedUpdateWithoutChallengesAsChallengerInput>
-    create: XOR<UserCreateWithoutChallengesAsChallengerInput, UserUncheckedCreateWithoutChallengesAsChallengerInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutChallengesAsChallengerInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutChallengesAsChallengerInput, UserUncheckedUpdateWithoutChallengesAsChallengerInput>
-  }
-
-  export type UserUpdateWithoutChallengesAsChallengerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutChallengesAsChallengerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
-  }
-
-  export type UserUpsertWithoutChallengesAsDefenderInput = {
-    update: XOR<UserUpdateWithoutChallengesAsDefenderInput, UserUncheckedUpdateWithoutChallengesAsDefenderInput>
-    create: XOR<UserCreateWithoutChallengesAsDefenderInput, UserUncheckedCreateWithoutChallengesAsDefenderInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutChallengesAsDefenderInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutChallengesAsDefenderInput, UserUncheckedUpdateWithoutChallengesAsDefenderInput>
-  }
-
-  export type UserUpdateWithoutChallengesAsDefenderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutChallengesAsDefenderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
-  }
-
-  export type TerritoryUpsertWithoutChallengesInput = {
-    update: XOR<TerritoryUpdateWithoutChallengesInput, TerritoryUncheckedUpdateWithoutChallengesInput>
-    create: XOR<TerritoryCreateWithoutChallengesInput, TerritoryUncheckedCreateWithoutChallengesInput>
-    where?: TerritoryWhereInput
-  }
-
-  export type TerritoryUpdateToOneWithWhereWithoutChallengesInput = {
-    where?: TerritoryWhereInput
-    data: XOR<TerritoryUpdateWithoutChallengesInput, TerritoryUncheckedUpdateWithoutChallengesInput>
-  }
-
-  export type TerritoryUpdateWithoutChallengesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
-    requiredNFT?: StringFieldUpdateOperationsInput | string
-    influence?: IntFieldUpdateOperationsInput | number
-    clan?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
-    owner?: UserUpdateOneWithoutTerritoriesNestedInput
-    nfts?: UserNFTUpdateManyWithoutTerritoryNestedInput
-    homeDojoUsers?: UserUpdateManyWithoutHomeDojoNestedInput
-  }
-
-  export type TerritoryUncheckedUpdateWithoutChallengesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
-    requiredNFT?: StringFieldUpdateOperationsInput | string
-    influence?: IntFieldUpdateOperationsInput | number
-    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
-    clan?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
-    nfts?: UserNFTUncheckedUpdateManyWithoutTerritoryNestedInput
-    homeDojoUsers?: UserUncheckedUpdateManyWithoutHomeDojoNestedInput
-  }
-
-  export type UserCreateWithoutNominationsInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileCreateNestedOneWithoutUserInput
-    settings?: UserSettingsCreateNestedOneWithoutUserInput
-    territories?: TerritoryCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeCreateNestedManyWithoutDefenderInput
-    homeDojo?: TerritoryCreateNestedOneWithoutHomeDojoUsersInput
-  }
-
-  export type UserUncheckedCreateWithoutNominationsInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    homeDojoId?: string | null
-    unlockedZones?: string
-    relationships?: string
-    profile?: ProfileUncheckedCreateNestedOneWithoutUserInput
-    settings?: UserSettingsUncheckedCreateNestedOneWithoutUserInput
-    territories?: TerritoryUncheckedCreateNestedManyWithoutOwnerInput
-    nfts?: UserNFTUncheckedCreateNestedManyWithoutUserInput
-    challengesAsChallenger?: ChallengeUncheckedCreateNestedManyWithoutChallengerInput
-    challengesAsDefender?: ChallengeUncheckedCreateNestedManyWithoutDefenderInput
-  }
-
-  export type UserCreateOrConnectWithoutNominationsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutNominationsInput, UserUncheckedCreateWithoutNominationsInput>
-  }
-
-  export type UserUpsertWithoutNominationsInput = {
-    update: XOR<UserUpdateWithoutNominationsInput, UserUncheckedUpdateWithoutNominationsInput>
-    create: XOR<UserCreateWithoutNominationsInput, UserUncheckedCreateWithoutNominationsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutNominationsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutNominationsInput, UserUncheckedUpdateWithoutNominationsInput>
-  }
-
-  export type UserUpdateWithoutNominationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    homeDojo?: TerritoryUpdateOneWithoutHomeDojoUsersNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutNominationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    homeDojoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
   }
 
   export type TerritoryCreateManyOwnerInput = {
     id?: string
     name: string
     description?: string | null
-    coordinates: string
+    coordinates: JsonNullValueInput | InputJsonValue
     requiredNFT: string
     influence?: number
     clan?: string | null
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    venueOwnerId?: string | null
-    status?: string
-    leaderboard?: string
-    allegianceMeter?: number
   }
 
   export type UserNFTCreateManyUserInput = {
@@ -16320,60 +11564,10 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     territoryId?: string | null
     isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeCreateManyChallengerInput = {
-    id?: string
-    type: string
-    defenderId: string
-    dojoId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ChallengeCreateManyDefenderInput = {
-    id?: string
-    type: string
-    challengerId: string
-    dojoId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type NominationCreateManyPlayerInput = {
-    id?: string
-    name: string
-    address: string
-    latitude: number
-    longitude: number
-    description?: string | null
-    contactInfo?: string | null
-    status?: string
-    verified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16382,57 +11576,41 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     clan?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
     nfts?: UserNFTUpdateManyWithoutTerritoryNestedInput
-    challenges?: ChallengeUpdateManyWithoutDojoNestedInput
-    homeDojoUsers?: UserUpdateManyWithoutHomeDojoNestedInput
   }
 
   export type TerritoryUncheckedUpdateWithoutOwnerInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     clan?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
     nfts?: UserNFTUncheckedUpdateManyWithoutTerritoryNestedInput
-    challenges?: ChallengeUncheckedUpdateManyWithoutDojoNestedInput
-    homeDojoUsers?: UserUncheckedUpdateManyWithoutHomeDojoNestedInput
   }
 
   export type TerritoryUncheckedUpdateManyWithoutOwnerInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    coordinates?: StringFieldUpdateOperationsInput | string
+    coordinates?: JsonNullValueInput | InputJsonValue
     requiredNFT?: StringFieldUpdateOperationsInput | string
     influence?: IntFieldUpdateOperationsInput | number
     clan?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    venueOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    leaderboard?: StringFieldUpdateOperationsInput | string
-    allegianceMeter?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserNFTUpdateWithoutUserInput = {
@@ -16441,7 +11619,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16455,7 +11633,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     territoryId?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -16469,160 +11647,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     territoryId?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUpdateWithoutChallengerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    defender?: UserUpdateOneRequiredWithoutChallengesAsDefenderNestedInput
-    dojo?: TerritoryUpdateOneRequiredWithoutChallengesNestedInput
-  }
-
-  export type ChallengeUncheckedUpdateWithoutChallengerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    defenderId?: StringFieldUpdateOperationsInput | string
-    dojoId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUncheckedUpdateManyWithoutChallengerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    defenderId?: StringFieldUpdateOperationsInput | string
-    dojoId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUpdateWithoutDefenderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    challenger?: UserUpdateOneRequiredWithoutChallengesAsChallengerNestedInput
-    dojo?: TerritoryUpdateOneRequiredWithoutChallengesNestedInput
-  }
-
-  export type ChallengeUncheckedUpdateWithoutDefenderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    challengerId?: StringFieldUpdateOperationsInput | string
-    dojoId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUncheckedUpdateManyWithoutDefenderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    challengerId?: StringFieldUpdateOperationsInput | string
-    dojoId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NominationUpdateWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NominationUncheckedUpdateWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type NominationUncheckedUpdateManyWithoutPlayerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    address?: StringFieldUpdateOperationsInput | string
-    latitude?: FloatFieldUpdateOperationsInput | number
-    longitude?: FloatFieldUpdateOperationsInput | number
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    contactInfo?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    verified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16633,41 +11661,12 @@ export namespace Prisma {
     name: string
     description?: string | null
     imageUrl?: string | null
-    metadata?: string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: Date | string
     userId: string
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type ChallengeCreateManyDojoInput = {
-    id?: string
-    type: string
-    challengerId: string
-    defenderId: string
-    status?: string
-    outcome?: string | null
-    winnerId?: string | null
-    requirements?: string
-    matchData?: string | null
-    expiresAt: Date | string
-    acceptedAt?: Date | string | null
-    declinedAt?: Date | string | null
-    completedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type UserCreateManyHomeDojoInput = {
-    id?: string
-    email: string
-    password: string
-    role?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unlockedZones?: string
-    relationships?: string
   }
 
   export type UserNFTUpdateWithoutTerritoryInput = {
@@ -16676,7 +11675,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16690,7 +11689,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
@@ -16704,113 +11703,12 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: StringFieldUpdateOperationsInput | string
+    metadata?: JsonNullValueInput | InputJsonValue
     acquiredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUpdateWithoutDojoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    challenger?: UserUpdateOneRequiredWithoutChallengesAsChallengerNestedInput
-    defender?: UserUpdateOneRequiredWithoutChallengesAsDefenderNestedInput
-  }
-
-  export type ChallengeUncheckedUpdateWithoutDojoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    challengerId?: StringFieldUpdateOperationsInput | string
-    defenderId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChallengeUncheckedUpdateManyWithoutDojoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    challengerId?: StringFieldUpdateOperationsInput | string
-    defenderId?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    outcome?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    requirements?: StringFieldUpdateOperationsInput | string
-    matchData?: NullableStringFieldUpdateOperationsInput | string | null
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    declinedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type UserUpdateWithoutHomeDojoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUpdateManyWithoutPlayerNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutHomeDojoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
-    profile?: ProfileUncheckedUpdateOneWithoutUserNestedInput
-    settings?: UserSettingsUncheckedUpdateOneWithoutUserNestedInput
-    territories?: TerritoryUncheckedUpdateManyWithoutOwnerNestedInput
-    nfts?: UserNFTUncheckedUpdateManyWithoutUserNestedInput
-    challengesAsChallenger?: ChallengeUncheckedUpdateManyWithoutChallengerNestedInput
-    challengesAsDefender?: ChallengeUncheckedUpdateManyWithoutDefenderNestedInput
-    nominations?: NominationUncheckedUpdateManyWithoutPlayerNestedInput
-  }
-
-  export type UserUncheckedUpdateManyWithoutHomeDojoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unlockedZones?: StringFieldUpdateOperationsInput | string
-    relationships?: StringFieldUpdateOperationsInput | string
   }
 
 

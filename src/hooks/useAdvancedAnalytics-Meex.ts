@@ -121,7 +121,7 @@ interface UseAdvancedAnalyticsReturn {
   getRevenueForecast: (venueId: string) => Promise<RevenueForecast | null>;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export const useAdvancedAnalytics = (): UseAdvancedAnalyticsReturn => {
   const [trends, setTrends] = useState<PerformanceTrend[]>([]);
