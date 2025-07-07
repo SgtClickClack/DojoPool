@@ -2,6 +2,8 @@
  * PWA initialization and management
  */
 
+import { safeSetInnerHTML } from '../utils/securityUtils.js';
+
 class NotificationHandler {
   constructor(userId, token) {
     this.userId = userId;
@@ -86,7 +88,7 @@ class NotificationHandler {
     // Update notification list
     const list = document.getElementById("notification-list");
     if (list) {
-      list.innerHTML = this.notifications
+      const notificationsHTML = this.notifications
         .map(
           (notification) => `
                     <div class="notification-item">
@@ -97,6 +99,7 @@ class NotificationHandler {
                 `,
         )
         .join("");
+      safeSetInnerHTML(list, notificationsHTML);
     }
 
     // Update connection status

@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../utils/securityUtils.js';
+
 class DebugPanel {
   constructor() {
     this.panel = this.createPanel();
@@ -16,7 +18,7 @@ class DebugPanel {
   createPanel() {
     const panel = document.createElement("div");
     panel.className = "debug-panel";
-    panel.innerHTML = `
+    const panelHTML = `
             <div class="debug-header">
                 <h3>Performance Monitor</h3>
                 <button class="debug-toggle">_</button>
@@ -65,6 +67,7 @@ class DebugPanel {
                 </div>
             </div>
         `;
+    safeSetInnerHTML(panel, panelHTML);
     document.body.appendChild(panel);
     return panel;
   }
@@ -144,12 +147,13 @@ class DebugPanel {
     const logEntries = this.panel.querySelector(".log-entries");
     const entry = document.createElement("div");
     entry.className = "log-entry";
-    entry.innerHTML = `
+    const entryHTML = `
             <span class="timestamp">${new Date().toLocaleTimeString()}</span>
             <ul>
                 ${recommendations.map((rec) => `<li>${rec}</li>`).join("")}
             </ul>
         `;
+    safeSetInnerHTML(entry, entryHTML);
     logEntries.insertBefore(entry, logEntries.firstChild);
 
     // Keep only last 10 entries

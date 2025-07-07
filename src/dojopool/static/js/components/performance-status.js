@@ -1,4 +1,5 @@
 import { initializePerformanceMonitoring } from "../performance-init.js";
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
 
 export class PerformanceStatus extends HTMLElement {
   constructor() {
@@ -12,7 +13,7 @@ export class PerformanceStatus extends HTMLElement {
   }
 
   render() {
-    this.shadowRoot.innerHTML = `
+    const statusHTML = `
             <style>
                 :host {
                     --status-bg: rgba(255, 255, 255, 0.9);
@@ -137,6 +138,7 @@ export class PerformanceStatus extends HTMLElement {
                 <div class="optimization-tip" id="tip"></div>
             </div>
         `;
+    safeSetInnerHTML(this.shadowRoot, statusHTML);
 
     // Add toggle functionality
     const widget = this.shadowRoot.querySelector(".status-widget");

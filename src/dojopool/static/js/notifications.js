@@ -2,6 +2,9 @@
  * Notification handler for real-time notifications
  */
 
+// Import security utilities
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 class NotificationManager {
   constructor() {
     this.socket = io();
@@ -273,9 +276,12 @@ class NotificationManager {
     }
 
     emptyState.style.display = "none";
-    container.innerHTML = this.notifications
+    
+    // Use safe template creation for notifications
+    const notificationsHTML = this.notifications
       .map(
-        (notification) => `
+        (notification) => {
+          const notificationTemplate = `
             <div class="notification-item ${notification.is_read ? "read" : "unread"}" data-id="${notification.id}">
                 <div class="notification-content">
                     <h4>${notification.title}</h4>
@@ -297,9 +303,20 @@ class NotificationManager {
                     </button>
                 </div>
             </div>
-        `,
+        `;
+          
+          return createSafeTemplate(notificationTemplate, {
+            id: notification.id,
+            is_read: notification.is_read ? "read" : "unread",
+            title: notification.title,
+            message: notification.message,
+            created_at: notification.created_at
+          });
+        }
       )
       .join("");
+    
+    safeSetInnerHTML(container, notificationsHTML);
 
     loadMoreContainer.style.display = this.hasMorePages ? "block" : "none";
   }
@@ -311,7 +328,7 @@ class NotificationManager {
     toast.setAttribute("aria-live", "assertive");
     toast.setAttribute("aria-atomic", "true");
 
-    toast.innerHTML = `
+    const toastTemplate = `
             <div class="toast-header">
                 <strong class="me-auto">${notification.title}</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -320,6 +337,14 @@ class NotificationManager {
                 ${notification.message}
             </div>
         `;
+
+    // Use safe template creation
+    const safeToastHTML = createSafeTemplate(toastTemplate, {
+      title: notification.title,
+      message: notification.message
+    });
+    
+    safeSetInnerHTML(toast, safeToastHTML);
 
     const container = document.getElementById("toast-container");
     container.appendChild(toast);
@@ -373,8 +398,9 @@ class NotificationManager {
     const button = document.querySelector("#load-more-container button");
     if (button) {
       button.disabled = true;
-      button.innerHTML =
-        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+      
+      const loadingTemplate = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+      safeSetInnerHTML(button, loadingTemplate);
     }
   }
 
@@ -383,7 +409,7 @@ class NotificationManager {
     const button = document.querySelector("#load-more-container button");
     if (button) {
       button.disabled = false;
-      button.innerHTML = "Load More";
+      safeSetInnerHTML(button, "Load More");
     }
   }
 
@@ -398,7 +424,7 @@ class NotificationManager {
       toast.setAttribute("aria-live", "assertive");
       toast.setAttribute("aria-atomic", "true");
 
-      toast.innerHTML = `
+      const errorTemplate = `
                 <div class="d-flex">
                     <div class="toast-body">
                         <i class="fas fa-exclamation-circle me-2"></i>
@@ -407,6 +433,10 @@ class NotificationManager {
                     <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
             `;
+
+      // Use safe template creation
+      const safeErrorHTML = createSafeTemplate(errorTemplate, { message });
+      safeSetInnerHTML(toast, safeErrorHTML);
 
       const container = document.getElementById("toast-container");
       container.appendChild(toast);

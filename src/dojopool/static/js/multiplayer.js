@@ -1,3 +1,5 @@
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 let socket;
 let currentRoom = null;
 let activeChallenge = null;
@@ -194,7 +196,8 @@ function showChallengeNotification(data) {
   const notification = document.createElement("div");
   notification.className =
     "alert alert-info alert-dismissible fade show position-fixed top-50 start-50 translate-middle";
-  notification.innerHTML = `
+  
+  const notificationTemplate = `
         ${data.challenger} challenged you to a ${data.duration / 60} minute coin collection competition!
         <div class="mt-2">
             <button class="btn btn-sm btn-success me-2" onclick="respondToChallenge('${data.challenge_id}', true)">Accept</button>
@@ -202,6 +205,15 @@ function showChallengeNotification(data) {
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
+  
+  // Use safe template creation
+  const safeNotificationHTML = createSafeTemplate(notificationTemplate, {
+    challenger: data.challenger,
+    duration: data.duration,
+    challenge_id: data.challenge_id
+  });
+  
+  safeSetInnerHTML(notification, safeNotificationHTML);
   document.body.appendChild(notification);
 }
 
@@ -241,7 +253,8 @@ function showChallengeStarted(data) {
   scoreboard.id = "challenge-scoreboard";
   scoreboard.className =
     "position-fixed top-0 end-0 m-3 bg-dark p-3 rounded shadow";
-  scoreboard.innerHTML = `
+  
+  const scoreboardTemplate = `
         <h5>Challenge Scoreboard</h5>
         <div id="challenge-timer" class="text-warning mb-2"></div>
         <div id="challenge-scores">
@@ -257,6 +270,13 @@ function showChallengeStarted(data) {
               .join("")}
         </div>
     `;
+  
+  // Use safe template creation
+  const safeScoreboardHTML = createSafeTemplate(scoreboardTemplate, {
+    players: data.players
+  });
+  
+  safeSetInnerHTML(scoreboard, safeScoreboardHTML);
   document.body.appendChild(scoreboard);
 }
 
@@ -303,7 +323,8 @@ function showChallengeResults(data) {
 
   const resultsModal = document.createElement("div");
   resultsModal.className = "modal fade";
-  resultsModal.innerHTML = `
+  
+  const resultsTemplate = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -328,6 +349,14 @@ function showChallengeResults(data) {
             </div>
         </div>
     `;
+  
+  // Use safe template creation
+  const safeResultsHTML = createSafeTemplate(resultsTemplate, {
+    winner: data.winner,
+    scores: data.scores
+  });
+  
+  safeSetInnerHTML(resultsModal, safeResultsHTML);
   document.body.appendChild(resultsModal);
   new bootstrap.Modal(resultsModal).show();
 }

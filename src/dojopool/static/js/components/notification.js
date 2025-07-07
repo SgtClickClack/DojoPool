@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
+
 class NotificationManager {
   constructor() {
     this.container = this.createContainer();
@@ -102,7 +104,7 @@ class NotificationManager {
 
     // Add close button
     const closeButton = document.createElement("button");
-    closeButton.innerHTML = "×";
+    safeSetInnerHTML(closeButton, "×");
     closeButton.style.cssText = `
             background: none;
             border: none;

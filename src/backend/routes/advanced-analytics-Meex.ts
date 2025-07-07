@@ -386,39 +386,4 @@ router.put('/config', async (req, res) => {
   }
 });
 
-/**
- * POST /api/analytics/track
- * Track analytics events and performance metrics
- */
-router.post('/track', async (req, res) => {
-  try {
-    const { events, performance, session } = req.body;
-    
-    console.log('[Analytics] Received tracking data:', {
-      eventsCount: events?.length || 0,
-      performanceCount: performance?.length || 0,
-      sessionId: session?.sessionId
-    });
-
-    // Store analytics data (in a real app, this would go to a database)
-    // For now, we'll just log it and acknowledge receipt
-    
-    res.json({
-      success: true,
-      message: 'Analytics data received successfully',
-      received: {
-        events: events?.length || 0,
-        performance: performance?.length || 0,
-        sessionId: session?.sessionId
-      }
-    });
-  } catch (error) {
-    console.error('Error tracking analytics:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to track analytics'
-    });
-  }
-});
-
 export default router; 

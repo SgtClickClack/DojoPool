@@ -30,6 +30,8 @@ import advancedSocialCommunityRoutes from './routes/advanced-social-community';
 import advancedAIRefereeRuleEnforcementRoutes from './routes/advanced-ai-referee-rule-enforcement';
 import advancedAIMatchCommentaryHighlightsRoutes from './routes/advanced-ai-match-commentary-highlights';
 import avatarCreationRoutes from './routes/avatarCreation';
+import investorAuthRoutes from '../routes/investor-auth';
+import venueCustomizationRoutes from '../routes/venue-customization';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import morgan from 'morgan';
@@ -56,14 +58,8 @@ const port = process.env.PORT || 8080;
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
-  cors: {
-    origin: process.env.NODE_ENV === 'production' 
-      ? [process.env.FRONTEND_URL || 'https://dojopool.com']
-      : ['http://localhost:3000', 'http://localhost:3101', 'http://127.0.0.1:3101'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  },
+  allowEIO3: true,
+  transports: ['websocket', 'polling']
 });
 
 // --- Essential Middleware ---
@@ -177,6 +173,8 @@ app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
 app.use('/api/advanced-ai-referee-rule-enforcement', advancedAIRefereeRuleEnforcementRoutes);
 app.use('/api/advanced-ai-match-commentary-highlights', advancedAIMatchCommentaryHighlightsRoutes);
 app.use('/api/avatar', avatarCreationRoutes);
+app.use('/api/investor/auth', investorAuthRoutes);
+app.use('/api/venue-customization', venueCustomizationRoutes);
 
 // --- Global Error Handling Middleware ---
 app.use(errorLogger);

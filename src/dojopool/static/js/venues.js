@@ -1,3 +1,6 @@
+// Import security utilities
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 // Venue list management
 class VenueManager {
   constructor() {
@@ -80,9 +83,11 @@ class VenueManager {
     const grid = document.getElementById("venuesGrid");
     if (!grid) return;
 
-    grid.innerHTML = venues
+    // Use safe template creation for venue grid
+    const venuesHTML = venues
       .map(
-        (venue) => `
+        (venue) => {
+          const venueTemplate = `
             <div class="venue-card">
                 <div class="venue-image">
                     <img src="${venue.images?.[0] || "/static/img/default-venue.jpg"}" alt="${venue.name}">
@@ -112,9 +117,24 @@ class VenueManager {
                     </div>
                 </div>
             </div>
-        `,
+        `;
+          
+          return createSafeTemplate(venueTemplate, {
+            images: venue.images?.[0] || "/static/img/default-venue.jpg",
+            name: venue.name,
+            address: venue.address,
+            average_rating: venue.average_rating,
+            ratings_count: venue.ratings_count,
+            tables_count: venue.tables_count,
+            hourly_rate: venue.hourly_rate,
+            is_owner: venue.is_owner,
+            id: venue.id
+          });
+        }
       )
       .join("");
+    
+    safeSetInnerHTML(grid, venuesHTML);
   }
 
   renderStars(rating) {
@@ -122,11 +142,13 @@ class VenueManager {
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-    return `
+    const starsTemplate = `
             ${'<i class="fas fa-star"></i>'.repeat(fullStars)}
             ${hasHalfStar ? '<i class="fas fa-star-half-alt"></i>' : ""}
             ${'<i class="far fa-star"></i>'.repeat(emptyStars)}
         `;
+    
+    return createSafeTemplate(starsTemplate, {});
   }
 
   renderPagination(data) {
@@ -137,7 +159,7 @@ class VenueManager {
     let paginationHtml = "";
 
     if (totalPages > 1) {
-      paginationHtml = `
+      const paginationTemplate = `
                 <button class="btn btn-secondary" 
                     ${this.currentPage === 1 ? "disabled" : ""}
                     onclick="venueManager.changePage(${this.currentPage - 1})">
@@ -150,9 +172,14 @@ class VenueManager {
                     Next
                 </button>
             `;
+      
+      paginationHtml = createSafeTemplate(paginationTemplate, {
+        currentPage: this.currentPage,
+        totalPages: totalPages
+      });
     }
 
-    pagination.innerHTML = paginationHtml;
+    safeSetInnerHTML(pagination, paginationHtml);
   }
 
   async handleCreateVenue(e) {

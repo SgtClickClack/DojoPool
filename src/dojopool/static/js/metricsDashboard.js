@@ -1,4 +1,5 @@
 import performanceMetrics from "./performanceMetrics.js";
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
 
 class MetricsDashboard {
   constructor() {
@@ -24,20 +25,27 @@ class MetricsDashboard {
     sections.forEach((section) => {
       const div = document.createElement("div");
       div.className = `metrics-section ${section}-section`;
-      div.innerHTML = `
+      
+      const sectionTemplate = `
                 <h3>${section.replace("-", " ").toUpperCase()}</h3>
                 <div class="chart-container">
                     <canvas id="${section}-chart"></canvas>
                 </div>
                 <div class="metrics-stats" id="${section}-stats"></div>
             `;
+      
+      const safeSectionHTML = createSafeTemplate(sectionTemplate, {
+        section: section.replace("-", " ").toUpperCase()
+      });
+      
+      safeSetInnerHTML(div, safeSectionHTML);
       this.container.appendChild(div);
     });
 
     // Add alert section
     const alertSection = document.createElement("div");
     alertSection.className = "metrics-alerts";
-    alertSection.innerHTML = '<h3>ALERTS</h3><div class="alerts-list"></div>';
+    safeSetInnerHTML(alertSection, '<h3>ALERTS</h3><div class="alerts-list"></div>');
     this.container.appendChild(alertSection);
 
     document.body.appendChild(this.container);
@@ -207,12 +215,18 @@ class MetricsDashboard {
 
   updateStats(elementId, stats) {
     const container = document.getElementById(elementId);
-    container.innerHTML = Object.entries(stats)
+    
+    // Use safe template creation for stats
+    const statsHTML = Object.entries(stats)
       .map(
-        ([key, value]) =>
-          `<div class="stat-item"><span>${key}:</span> ${value}</div>`,
+        ([key, value]) => {
+          const statTemplate = `<div class="stat-item"><span>${key}:</span> ${value}</div>`;
+          return createSafeTemplate(statTemplate, { key, value });
+        }
       )
       .join("");
+    
+    safeSetInnerHTML(container, statsHTML);
   }
 
   checkAlerts() {
@@ -254,17 +268,28 @@ class MetricsDashboard {
 
   updateAlerts(alerts) {
     const container = document.querySelector(".alerts-list");
-    container.innerHTML = alerts.length
-      ? alerts
-          .map(
-            (alert) => `
+    
+    if (alerts.length > 0) {
+      const alertsHTML = alerts
+        .map(
+          (alert) => {
+            const alertTemplate = `
                 <div class="alert alert-${alert.type}">
                     ${alert.message}
                 </div>
-            `,
-          )
-          .join("")
-      : '<div class="no-alerts">No active alerts</div>';
+            `;
+            return createSafeTemplate(alertTemplate, {
+              type: alert.type,
+              message: alert.message
+            });
+          }
+        )
+        .join("");
+      
+      safeSetInnerHTML(container, alertsHTML);
+    } else {
+      safeSetInnerHTML(container, '<div class="no-alerts">No active alerts</div>');
+    }
   }
 }
 

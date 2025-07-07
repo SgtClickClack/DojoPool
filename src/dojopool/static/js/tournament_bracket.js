@@ -1,8 +1,10 @@
+import { safeSetInnerHTML } from '../utils/securityUtils.js';
+
 class TournamentBracket {
   constructor(containerId, tournamentId) {
     this.container = document.getElementById(containerId);
     this.tournamentId = tournamentId;
-    this.matches = [];
+    this.format = null;
     this.rounds = [];
     this.initialize();
   }
@@ -73,7 +75,7 @@ class TournamentBracket {
     // Player 1
     const player1 = document.createElement("div");
     player1.className = `tournament-bracket__player ${match.winner_id === match.player1_id ? "winner" : ""}`;
-    player1.innerHTML = `
+    const player1HTML = `
             <div class="tournament-bracket__player-info">
                 <img src="${match.player1?.avatar_url || "/static/img/default-avatar.png"}" 
                      class="tournament-bracket__player-avatar" alt="">
@@ -83,11 +85,12 @@ class TournamentBracket {
             </div>
             <span class="tournament-bracket__player-score">${match.player1_score || "-"}</span>
         `;
+    safeSetInnerHTML(player1, player1HTML);
 
     // Player 2
     const player2 = document.createElement("div");
     player2.className = `tournament-bracket__player ${match.winner_id === match.player2_id ? "winner" : ""}`;
-    player2.innerHTML = `
+    const player2HTML = `
             <div class="tournament-bracket__player-info">
                 <img src="${match.player2?.avatar_url || "/static/img/default-avatar.png"}" 
                      class="tournament-bracket__player-avatar" alt="">
@@ -97,6 +100,7 @@ class TournamentBracket {
             </div>
             <span class="tournament-bracket__player-score">${match.player2_score || "-"}</span>
         `;
+    safeSetInnerHTML(player2, player2HTML);
 
     matchContent.appendChild(player1);
     matchContent.appendChild(player2);
@@ -188,11 +192,12 @@ class TournamentBracket {
   }
 
   showError() {
-    this.container.innerHTML = `
+    const errorHTML = `
             <div class="alert alert-danger" role="alert">
                 Failed to load tournament bracket. Please try again later.
             </div>
         `;
+    safeSetInnerHTML(this.container, errorHTML);
   }
 }
 

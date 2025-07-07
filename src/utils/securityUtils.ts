@@ -44,6 +44,28 @@ export function safeSetInnerHTML(element: HTMLElement, html: string): void {
 }
 
 /**
+ * Safely sets innerHTML with advanced sanitization and custom allowed tags
+ * @param element - DOM element to update
+ * @param html - HTML content to set
+ * @param allowedTags - Array of allowed HTML tags
+ * @param allowedAttrs - Array of allowed attributes
+ */
+export function safeSetInnerHTMLAdvanced(
+  element: HTMLElement, 
+  html: string, 
+  allowedTags: readonly string[] = SECURITY_CONFIG.SAFE_TAGS,
+  allowedAttrs: readonly string[] = SECURITY_CONFIG.SAFE_ATTRIBUTES
+): void {
+  if (!element) {
+    console.warn('safeSetInnerHTMLAdvanced: element is null or undefined');
+    return;
+  }
+  
+  const sanitized = advancedSanitizeHTML(html, allowedTags, allowedAttrs);
+  element.innerHTML = sanitized;
+}
+
+/**
  * Basic HTML sanitization - removes dangerous elements and attributes
  * @param html - HTML to sanitize
  * @returns Sanitized HTML

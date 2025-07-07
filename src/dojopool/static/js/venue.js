@@ -1,3 +1,6 @@
+// Import security utilities
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 // Venue Management JavaScript
 
 // Toast notification system
@@ -6,7 +9,8 @@ const toastContainer = document.querySelector(".toast-container");
 function showToast(message, type = "error") {
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  toast.innerHTML = `
+  
+  const toastTemplate = `
         <div class="toast-header">
             <i class="fas fa-${type === "error" ? "exclamation-circle" : "check-circle"} ${type}"></i>
             <strong class="me-auto">${type === "error" ? "Error" : "Success"}</strong>
@@ -14,6 +18,15 @@ function showToast(message, type = "error") {
         </div>
         <div class="toast-body">${message}</div>
     `;
+  
+  // Use safe template creation
+  const safeToastHTML = createSafeTemplate(toastTemplate, {
+    type: type === "error" ? "exclamation-circle" : "check-circle",
+    errorType: type === "error" ? "Error" : "Success",
+    message: message
+  });
+  
+  safeSetInnerHTML(toast, safeToastHTML);
   toastContainer.appendChild(toast);
   setTimeout(() => toast.remove(), 5000);
 }
@@ -164,50 +177,66 @@ function updateVenueGrid(venues) {
   venueGrid.style.display = "grid";
   if (noVenues) noVenues.style.display = "none";
 
-  venueGrid.innerHTML = venues
+  // Use safe template creation for venue grid
+  const venuesHTML = venues
     .map(
-      (venue) => `
-        <div class="venue-card gaming-card">
-            <div class="venue-card-header">
-                <h3>${venue.name}</h3>
-                <span class="venue-status ${venue.is_open ? "open" : "closed"}">
-                    ${venue.is_open ? "Open" : "Closed"}
-                </span>
-            </div>
-            <div class="venue-card-body">
-                <p><i class="fas fa-map-marker-alt"></i> ${venue.address}</p>
-                <p><i class="fas fa-users"></i> ${venue.active_players} players now</p>
-                <p><i class="fas fa-table"></i> ${venue.tables} tables</p>
-                ${
-                  venue.current_tournament
-                    ? `
-                    <p class="tournament-badge">
-                        <i class="fas fa-trophy"></i> Tournament in progress
-                    </p>
-                `
-                    : ""
-                }
-            </div>
-            <div class="venue-card-footer">
-                <a href="/venues/${venue.id}" class="gaming-button">View Details</a>
-                ${
-                  venue.user_checked_in
-                    ? `
-                    <button class="gaming-button danger checkout-btn" data-venue-id="${venue.id}">
-                        Check Out
-                    </button>
-                `
-                    : `
-                    <button class="gaming-button success checkin-btn" data-venue-id="${venue.id}">
-                        Check In
-                    </button>
-                `
-                }
-            </div>
-        </div>
-    `,
+      (venue) => {
+        const venueTemplate = `
+          <div class="venue-card gaming-card">
+              <div class="venue-card-header">
+                  <h3>${venue.name}</h3>
+                  <span class="venue-status ${venue.is_open ? "open" : "closed"}">
+                      ${venue.is_open ? "Open" : "Closed"}
+                  </span>
+              </div>
+              <div class="venue-card-body">
+                  <p><i class="fas fa-map-marker-alt"></i> ${venue.address}</p>
+                  <p><i class="fas fa-users"></i> ${venue.active_players} players now</p>
+                  <p><i class="fas fa-table"></i> ${venue.tables} tables</p>
+                  ${
+                    venue.current_tournament
+                      ? `
+                      <p class="tournament-badge">
+                          <i class="fas fa-trophy"></i> Tournament in progress
+                      </p>
+                  `
+                      : ""
+                  }
+              </div>
+              <div class="venue-card-footer">
+                  <a href="/venues/${venue.id}" class="gaming-button">View Details</a>
+                  ${
+                    venue.user_checked_in
+                      ? `
+                      <button class="gaming-button danger checkout-btn" data-venue-id="${venue.id}">
+                          Check Out
+                      </button>
+                  `
+                      : `
+                      <button class="gaming-button success checkin-btn" data-venue-id="${venue.id}">
+                          Check In
+                      </button>
+                  `
+                  }
+              </div>
+          </div>
+      `;
+        
+        return createSafeTemplate(venueTemplate, {
+          name: venue.name,
+          is_open: venue.is_open,
+          address: venue.address,
+          active_players: venue.active_players,
+          tables: venue.tables,
+          current_tournament: venue.current_tournament,
+          user_checked_in: venue.user_checked_in,
+          id: venue.id
+        });
+      }
     )
     .join("");
+
+  safeSetInnerHTML(venueGrid, venuesHTML);
 
   // Reattach event listeners
   attachVenueEventListeners();
@@ -308,7 +337,7 @@ if (loadMoreBtn) {
 }
 
 function createVenueCard(venue) {
-  return `
+  const venueTemplate = `
         <div class="venue-card gaming-card">
             <div class="venue-card-header">
                 <h3>${venue.name}</h3>
@@ -348,4 +377,15 @@ function createVenueCard(venue) {
             </div>
         </div>
     `;
+  
+  return createSafeTemplate(venueTemplate, {
+    name: venue.name,
+    is_open: venue.is_open,
+    address: venue.address,
+    active_players: venue.active_players,
+    tables: venue.tables,
+    current_tournament: venue.current_tournament,
+    user_checked_in: venue.user_checked_in,
+    id: venue.id
+  });
 }

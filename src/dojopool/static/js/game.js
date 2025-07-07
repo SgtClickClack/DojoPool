@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../utils/securityUtils.js';
+
 // Update player's location on the server
 function updatePlayerLocation(position) {
   fetch("/api/update-location", {
@@ -19,10 +21,11 @@ function showSuccess(message) {
   const successDiv = document.createElement("div");
   successDiv.className =
     "alert alert-success alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3";
-  successDiv.innerHTML = `
+  const successHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
+  safeSetInnerHTML(successDiv, successHTML);
   document.body.appendChild(successDiv);
   setTimeout(() => successDiv.remove(), 3000);
 }

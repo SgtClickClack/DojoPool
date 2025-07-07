@@ -1,15 +1,16 @@
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
+
 class ReviewComponent {
   constructor(container, options = {}) {
     this.container = container;
     this.options = {
-      ratingId: options.ratingId,
-      readOnly: options.readOnly || false,
-      showResponses: options.showResponses || false,
-      showVoting: options.showVoting || false,
-      onUpdate: options.onUpdate || (() => {}),
-      onDelete: options.onDelete || (() => {}),
+      ratingId: "",
+      readOnly: false,
+      showVoting: true,
+      showResponses: true,
+      onUpdate: () => {},
+      ...options,
     };
-
     this.init();
   }
 
@@ -22,7 +23,7 @@ class ReviewComponent {
   }
 
   createElements() {
-    this.container.innerHTML = `
+    const containerHTML = `
             <div class="review-component">
                 ${
                   !this.options.readOnly
@@ -83,6 +84,7 @@ class ReviewComponent {
                 </div>
             </div>
         `;
+    safeSetInnerHTML(this.container, containerHTML);
 
     // Store references to elements
     this.reviewForm = this.container.querySelector(".review-form");
@@ -297,18 +299,24 @@ class ReviewComponent {
   displayResponses(responses) {
     if (!this.responsesList) return;
 
-    this.responsesList.innerHTML = responses
+    if (responses.length === 0) {
+      safeSetInnerHTML(this.responsesList, '<p class="text-muted">No responses yet</p>');
+      return;
+    }
+
+    const responsesHTML = responses
       .map(
         (response) => `
-            <div class="response-item mb-2">
-                <div class="response-content">${response.content}</div>
-                <small class="text-muted">
-                    By ${response.user_name} on ${new Date(response.created_at).toLocaleDateString()}
-                </small>
+          <div class="response-item">
+            <div class="response-text">${response.content}</div>
+            <div class="response-meta">
+              <small class="text-muted">${response.user_name} - ${new Date(response.created_at).toLocaleDateString()}</small>
             </div>
+          </div>
         `,
       )
       .join("");
+    safeSetInnerHTML(this.responsesList, responsesHTML);
   }
 }
 

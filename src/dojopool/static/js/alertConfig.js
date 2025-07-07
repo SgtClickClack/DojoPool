@@ -1,4 +1,5 @@
 import alertSystem from "./alertSystem.js";
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
 
 class AlertConfig {
   constructor() {
@@ -19,10 +20,11 @@ class AlertConfig {
     // Create tabs
     const tabs = document.createElement("div");
     tabs.className = "config-tabs";
-    tabs.innerHTML = `
+    const tabsHTML = `
             <button class="tab-btn active" data-tab="thresholds">Thresholds</button>
             <button class="tab-btn" data-tab="history">Alert History</button>
         `;
+    safeSetInnerHTML(tabs, tabsHTML);
 
     // Create content container
     const content = document.createElement("div");
@@ -31,12 +33,14 @@ class AlertConfig {
     // Create threshold configuration
     const thresholds = document.createElement("div");
     thresholds.className = "config-section thresholds active";
-    thresholds.innerHTML = this.createThresholdConfig();
+    const thresholdConfigHTML = this.createThresholdConfig();
+    safeSetInnerHTML(thresholds, thresholdConfigHTML);
 
     // Create history view
     const history = document.createElement("div");
     history.className = "config-section history";
-    history.innerHTML = this.createHistoryView();
+    const historyViewHTML = this.createHistoryView();
+    safeSetInnerHTML(history, historyViewHTML);
 
     content.appendChild(thresholds);
     content.appendChild(history);
@@ -119,11 +123,11 @@ class AlertConfig {
             (alert) => alert.category.toLowerCase().replace(" ", "") === filter,
           );
 
-    listContainer.innerHTML = filteredHistory.length
-      ? filteredHistory
-          .reverse()
-          .map(
-            (alert) => `
+    if (filteredHistory.length) {
+      const historyItemsHTML = filteredHistory
+        .reverse()
+        .map(
+          (alert) => `
                 <div class="history-item alert-${alert.severity}">
                     <div class="alert-info">
                         <span class="alert-category">${alert.category}</span>
@@ -134,9 +138,12 @@ class AlertConfig {
                     <div class="alert-message">${alert.message}</div>
                 </div>
             `,
-          )
-          .join("")
-      : '<div class="no-history">No alerts in history</div>';
+        )
+        .join("");
+      safeSetInnerHTML(listContainer, historyItemsHTML);
+    } else {
+      safeSetInnerHTML(listContainer, '<div class="no-history">No alerts in history</div>');
+    }
   }
 
   bindEvents() {

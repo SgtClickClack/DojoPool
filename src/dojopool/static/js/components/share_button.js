@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
+
 class ShareButton {
   constructor(container, options = {}) {
     this.container = container;
@@ -22,10 +24,11 @@ class ShareButton {
   createButton() {
     this.button = document.createElement("button");
     this.button.className = `btn ${this.options.buttonClass}`;
-    this.button.innerHTML = `
+    const buttonHTML = `
             <i class="bi ${this.options.iconClass} me-2"></i>
             ${this.options.buttonText}
         `;
+    safeSetInnerHTML(this.button, buttonHTML);
     this.container.appendChild(this.button);
   }
 
@@ -33,7 +36,7 @@ class ShareButton {
     this.modal = document.createElement("div");
     this.modal.className = "modal fade";
     this.modal.id = `shareModal_${this.options.type}_${this.options.id}`;
-    this.modal.innerHTML = `
+    const modalHTML = `
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -59,6 +62,7 @@ class ShareButton {
                 </div>
             </div>
         `;
+    safeSetInnerHTML(this.modal, modalHTML);
     document.body.appendChild(this.modal);
     this.bsModal = new bootstrap.Modal(this.modal);
   }
