@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@types/nodemailer": "6.4.17",
+    "jspdf": "3.0.1",
+    "nodemailer": "7.0.3",
+    "xlsx": "0.18.5"
+  }
+}
