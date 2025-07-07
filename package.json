@@ -1,8 +1,31 @@
 {
+  "name": "dojopool",
+  "version": "1.0.0",
+  "description": "DojoPool Platform",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "vite",
+    "start": "node_modules/.bin/ts-node src/index.ts",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest",
+    "benchmark": "node_modules/.bin/ts-node src/tests/benchmarks/NetworkTransport.bench.ts"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/ws": "^8.18.1",
+    "ws": "^8.18.1"
+  },
   "dependencies": {
-    "@types/nodemailer": "6.4.17",
-    "jspdf": "3.0.1",
-    "nodemailer": "7.0.3",
-    "xlsx": "0.18.5"
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.17.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-jaeger": "^2.0.0",
+    "@opentelemetry/sdk-node": "^0.200.0",
+    "@types/recharts": "^1.8.29",
+    "recharts": "^2.15.2"
   }
 }

@@ -1,0 +1,18 @@
+node_modules
+npm-debug.log*
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env
+.vscode
+dist
+logs
+*.log
+*.bak
+
+# Ignore specific directories if they are large and not needed in the image
+# e.g.,
+# cypress/
+# test-project/
+# DojoPoolMobile/ 

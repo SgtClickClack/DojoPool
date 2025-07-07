@@ -1,108 +1,163 @@
-# DojoPool
+# Dojo Pool - Location-Based Coin Collection Game
 
-DojoPool is an innovative platform that transforms traditional pool gaming into an immersive, tech-enhanced, AI-driven experience. By merging real-world venues with digital enhancements, it creates an ecosystem where players, venues, and competitive gaming thrive together.
+A real-time multiplayer location-based game built with Flask and Google Maps SDK, featuring interactive gameplay, AI-powered umpire system, and robust authentication.
 
 ## Features
 
-- Smart Venues ("Dojos") with AI-powered cameras and real-time tracking
-- Mobile App & Web Portal for game management and community engagement
-- Dojo Coins hybrid currency system
-- AI-driven, context-aware gameplay
-- Venue integration and business model
-- Dynamic background system with smooth transitions
-- Modern gaming aesthetics with neon effects
-- Enhanced visual hierarchy and user experience
+- **Location-Based Gameplay**
+  - Real-time coin collection mechanics
+  - Interactive Google Maps integration
+  - Dynamic coin spawning system
+  - Score tracking and leaderboards
 
-## Recent Updates (2024-04-12)
+- **Multiplayer Capabilities**
+  - Real-time player interactions
+  - Local chat system
+  - Challenge system between players
+  - Player proximity detection
+  - Real-time score updates
 
-- Enhanced frontend with dynamic background cycling
-- Implemented neon text and glow effects
-- Improved card and button styling
-- Updated logo placement and scaling
-- Enhanced visual hierarchy
-- Added security test suite
-- Updated monitoring modules
+- **Advanced Map Features**
+  - Multiple theme support (dark, retro, night)
+  - Custom map controls
+  - Dynamic theme switching
+  - Responsive map interface
 
-## Installation
+- **AI-Powered Umpire System**
+  - OpenCV-based ball detection
+  - Real-time movement analysis
+  - Thread-safe monitoring
+  - WebSocket integration
+  - Color calibration
 
-**Prerequisites:**
-- Python 3.13
-- Node.js (LTS version recommended)
-- `uv` (Python package manager, can be installed via `pip install uv`)
+- **Authentication & Security**
+  - Email/password authentication
+  - Secure password hashing
+  - Session management
+  - HTTPS enforcement
+  - CORS protection
 
-**Python Environment Setup (using uv):**
+## Tech Stack
 
-1.  **Install uv (if not already installed):**
-    ```bash
-    pip install uv
-    # OR, for a standalone install, refer to official uv documentation: https://github.com/astral-sh/uv
-    ```
+- **Backend**
+  - Flask (Python web framework)
+  - PostgreSQL (Database)
+  - Socket.IO (Real-time communication)
+  - OpenCV (Computer vision)
 
-2.  **Create and activate the virtual environment (named .venv):**
-    ```bash
-    uv venv .venv -p python3.13  # Or specify the path to your Python 3.13 interpreter
-    # Activate the environment:
-    # Windows (PowerShell):
-    . .\.venv\Scripts\Activate.ps1
-    # Windows (CMD):
-    .\.venv\Scripts\activate.bat
-    # Linux/Mac:
-    source .venv/bin/activate
-    ```
-    *Note: If `uv venv .venv -p python3.13` doesn't find Python 3.13 automatically, you might need to provide the full path to your Python 3.13 executable.*
+- **Frontend**
+  - Bootstrap (UI framework)
+  - Google Maps SDK
+  - Socket.IO client
+  - Webview support
 
-3.  **Install Python dependencies:**
-    ```bash
-    uv pip install -r requirements.txt
-    ```
+- **Infrastructure**
+  - Replit hosting
+  - Git version control
+  - Environment validation
+  - Enhanced logging system
 
-**Node.js Dependencies:**
+## Setup Instructions
 
-1.  **Install Node.js dependencies:**
-    ```bash
-    npm install
-    ```
+1. **Environment Setup**
+   ```bash
+   # Clone the repository
+   git clone <repository-url>
+   cd dojo-pool
 
-**Application Setup:**
+   # Install dependencies
+   pip install -r requirements.txt
+   ```
 
-1.  **Set up environment variables:**
-    ```bash
-    cp .env.template .env
-    # Edit .env with your configuration
-    ```
+2. **Environment Variables**
+   Required environment variables:
+   - `FLASK_SECRET_KEY`: For session management
+   - `DATABASE_URL`: PostgreSQL connection string
+   - `GOOGLE_MAPS_API_KEY`: For maps integration
+   - `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`: Database configuration
 
-2.  **Initialize the database (if applicable for your setup):**
-    ```bash
-    # Ensure your .venv is activated
-    python init_db_script.py 
-    # Or using uv:
-    # uv run python init_db_script.py
-    ```
+3. **Database Setup**
+   The application will automatically create necessary tables on first run.
 
-## Development
+4. **Running the Application**
+   ```bash
+   python app.py
+   ```
+   The application will be available at `http://localhost:5000`
 
-- Run tests: `pytest`
-- Start development server: `python run.py`
-# If using uv and your .venv is activated, this should work.
-# Alternatively, you can use: uv run python run.py
-- Start frontend development: `npm run dev`
-- Format code: `black .`
-- Check types: `mypy .`
+## Project Structure
 
-## Performance Metrics
+```
+├── app.py                 # Main application entry point
+├── blueprints/           # Feature-specific routes
+├── static/
+│   ├── css/             # Stylesheets
+│   ├── js/              # Client-side scripts
+│   └── images/          # Static assets
+├── templates/           # HTML templates
+├── utils/              # Helper functions
+└── models.py           # Database models
+```
 
-- Shot Analysis Accuracy: 95%
-- Real-time Analysis Latency: <50ms
-- Test Coverage: 95%
-- Documentation Coverage: 90%
+## Current Status
 
-## Security
+- ✅ Core gameplay mechanics implemented
+- ✅ Multiplayer system operational
+- ✅ Authentication system complete
+- ✅ Map customization features added
+- ✅ AI umpire system integrated
+- ✅ Socket.IO connection stability enhanced
+- ✅ Git configuration optimized
 
-- Regular security audits
-- Automated vulnerability scanning
-- Comprehensive test suite
-- Secure authentication system
+## Future Roadmap
+
+### Short-term Goals
+1. **Performance Optimization**
+   - Implement caching for map data
+   - Optimize database queries
+   - Add request rate limiting
+
+2. **Enhanced User Experience**
+   - Add tutorial system
+   - Implement achievement system
+   - Add progressive web app support
+
+3. **Game Mechanics**
+   - Add power-ups and special items
+   - Implement team-based gameplay
+   - Add competitive seasons
+
+### Long-term Goals
+1. **Platform Expansion**
+   - Mobile app development
+   - Cross-platform compatibility
+   - Offline mode support
+
+2. **Social Features**
+   - Friend system
+   - Global chat rooms
+   - Player rankings
+
+3. **Technical Improvements**
+   - Microservices architecture
+   - Advanced analytics
+   - AI-powered game balancing
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-Copyright © 2024 DojoPool. All rights reserved. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Google Maps Platform for mapping capabilities
+- OpenCV community for computer vision tools
+- Flask and Socket.IO communities for real-time features
+- Replit for hosting and development platform

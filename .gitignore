@@ -1,0 +1,127 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# Keep virtual environment requirements
+!requirements*.txt
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+coverage.xml
+*.cover
+
+# Logs
+*.log
+logs/
+log/
+
+# Database
+*.db
+*.sqlite3
+*.sqlite
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.dylib
+*.dll
+*.class
+
+# Docker
+.docker/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Environment Files
+.env
+.env.*
+!.env.example
+src/config/env/.env
+src/config/env/.env.production
+src/config/env/.env.local
+src/config/env/.env.*.local
+
+# Keep example and test configs
+!src/config/env/.env.example
+!src/config/env/.env.test
+
+# Tool configurations
+src/config/tools/*
+!src/config/tools/README.md
+!src/config/tools/setup.cfg.example
+!src/config/tools/.eslintrc.js
+!src/config/tools/package.json
+
+# Demo and Development
+demo/**/site-packages/
+demo/**/__pycache__/
+demo/**/*.pyc
+demo/venv/
+demo/demo_venv/
+demo/env/
+
+# Instance and Sensitive Data
+instance/*
+!instance/.gitkeep
+!instance/README.md
+instance/client_secret.json
+instance/dojopool.db
+instance/logs/*
+!instance/logs/.gitkeep
+instance/reports/*
+!instance/reports/.gitkeep
+instance/uploads/*
+!instance/uploads/.gitkeep
+
+# Configuration
+src/config/env/*
+!src/config/env/.env.example
+!src/config/env/.env.test
+src/config/tools/*
+!src/config/tools/README.md
+!src/config/tools/setup.cfg.example
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+
+# Project specific
+Dojo_Pool/ctags
+secrets.*
