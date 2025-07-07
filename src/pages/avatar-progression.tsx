@@ -1,17 +1,18 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import Layout from '../src/components/layout/Layout';
-import { AvatarProgression } from '../src/components/avatar/AvatarProgression';
-import PageBackground from '../src/components/common/PageBackground';
+import Layout from '../components/layout/Layout';
+import AvatarProgression from '../components/avatar/AvatarProgression';
+import PageBackground from '../components/common/PageBackground';
 
 const AvatarProgressionPage: React.FC = () => {
+  // Use a mock userId for demo/testing
+  const userId = 'demo-user';
   return (
     <Layout>
-      <PageBackground variant="avatar">
-        <Box sx={{ minHeight: '100vh', position: 'relative' }}>
-          <AvatarProgression />
-        </Box>
-      </PageBackground>
+      <PageBackground />
+      <Box sx={{ p: 4 }}>
+        <AvatarProgression userId={userId} />
+      </Box>
     </Layout>
   );
 };

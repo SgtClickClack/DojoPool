@@ -30,7 +30,7 @@ const TournamentManagementPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/tournaments');
+      const response = await fetch('http://localhost:8080/api/tournaments');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

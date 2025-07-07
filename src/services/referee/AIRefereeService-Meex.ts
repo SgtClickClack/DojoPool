@@ -1,5 +1,4 @@
 import { io, Socket } from 'socket.io-client';
-import { env } from '../../config/environment';
 
 export interface RefereeDecision {
   id: string;
@@ -74,10 +73,12 @@ class AIRefereeService {
 
   private initializeWebSocket(): void {
     try {
-      const wsUrl = env.WEBSOCKET_URL;
-      this.socket = io(wsUrl, {
+      this.socket = io('http://localhost:8080', {
         transports: ['websocket'],
-        timeout: 10000
+        timeout: 10000,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 5000
       });
       this.socket.on('connect', () => {
         this.isConnected = true;

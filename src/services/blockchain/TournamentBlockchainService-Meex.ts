@@ -124,7 +124,7 @@ class TournamentBlockchainService {
 
   private initializeWebSocket(): void {
     try {
-      this.socket = io('/socket.io', {
+      this.socket = io('http://localhost:8080', {
         transports: ['websocket'],
         timeout: 10000,
         reconnection: true,

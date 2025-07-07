@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { Tournament, TournamentParticipant, TournamentMatch, TournamentStatus } from '../types/tournament';
+import { Tournament, TournamentParticipant, TournamentMatch } from '../types/tournament';
 import { EnhancedTournamentService, TournamentReward, PoolGodInteraction, TournamentAIEvent } from '../services/tournament/EnhancedTournamentService';
+import { useSocket } from './useSocket';
 
 export interface TournamentMatchData {
   duration: number;
@@ -32,18 +32,8 @@ export const useEnhancedTournament = (tournamentId: string) => {
     error: null
   });
 
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const { socket } = useSocket();
   const tournamentService = new EnhancedTournamentService();
-
-  // Initialize socket connection
-  useEffect(() => {
-    const newSocket = io('/socket.io');
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
 
   // Load tournament data
   const loadTournament = useCallback(async () => {
@@ -75,7 +65,7 @@ export const useEnhancedTournament = (tournamentId: string) => {
       }));
 
       // Start tournament with AI commentary if not already started
-      if (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.REGISTRATION) {
+      if (tournament.status === 'registration' || tournament.status === 'pending') {
         await tournamentService.startTournament(tournament);
       }
     } catch (error) {

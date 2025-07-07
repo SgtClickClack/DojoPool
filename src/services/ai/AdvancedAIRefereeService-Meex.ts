@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
-import { env } from '../../config/environment';
 
 export interface AIRefereeDecision {
   id: string;
@@ -112,8 +111,7 @@ class AdvancedAIRefereeService extends EventEmitter {
 
   private initializeWebSocket(): void {
     try {
-      const wsUrl = env.WEBSOCKET_URL;
-      this.socket = io(wsUrl, {
+      this.socket = io('http://localhost:8080', {
         transports: ['websocket'],
         timeout: 10000
       });

@@ -183,7 +183,7 @@ class TournamentMobileService {
   }
 
   private initializeSocket(): void {
-    this.socket = io('/socket.io');
+    this.socket = io('http://localhost:8080');
     
     this.socket.on('connect', () => {
       console.log('TournamentMobileService connected to server');
