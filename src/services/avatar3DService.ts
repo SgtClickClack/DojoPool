@@ -1,3 +1,5 @@
+// This service is frontend-only. Do not use in backend.
+
 interface Avatar3DRequest {
   image?: string; // base64 encoded image
   prompt?: string; // text prompt for generation

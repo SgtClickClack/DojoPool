@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2020"],
+    "outDir": "./dist/backend",
+    "rootDir": "./src/backend",
+    "baseUrl": "./src/backend",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "declaration": false,
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src/backend/**/*"
+  ],
+  "exclude": [
+    "src/frontend",
+    "src/components",
+    "src/services",
+    "src/firebase",
+    "src/config",
+    "node_modules",
+    "dist"
+  ]
+} 

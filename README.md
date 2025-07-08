@@ -67,7 +67,11 @@ DojoPool is an innovative platform that transforms traditional pool gaming into 
 
 1.  **Set up environment variables:**
     ```bash
-    cp .env.template .env
+    # Quick setup for frontend development
+    npm run setup-env
+    
+    # Or manually copy and configure:
+    cp .env.example .env
     # Edit .env with your configuration
     ```
 

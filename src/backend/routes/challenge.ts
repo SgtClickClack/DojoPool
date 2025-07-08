@@ -326,6 +326,162 @@ router.get('/challenges', async (req: Request, res: Response) => {
 });
 
 /**
+ * Create a new challenge (API endpoint for ChallengeService)
+ */
+router.post('/challenge/create', async (req: Request, res: Response) => {
+  try {
+    const { defenderId, dojoId, type } = req.body;
+    
+    // Validate required fields
+    if (!defenderId || !dojoId || !type) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: defenderId, dojoId, type'
+      });
+    }
+
+    // Validate challenge type
+    if (!['pilgrimage', 'gauntlet', 'duel'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid challenge type. Must be: pilgrimage, gauntlet, or duel'
+      });
+    }
+
+    // TODO: Validate challenger requirements based on type
+    // For now, we'll allow all challenges
+
+    const challenge = {
+      id: `challenge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      challengerId: req.user?.id || 'anonymous', // TODO: Get from auth
+      defenderId,
+      dojoId,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      requirements: {
+        wins: type === 'pilgrimage' ? 2 : type === 'gauntlet' ? 5 : 1,
+        topTenDefeats: type === 'pilgrimage' ? 2 : type === 'gauntlet' ? 3 : 0,
+        masterDefeat: type === 'pilgrimage' || type === 'gauntlet' ? 1 : 0
+      }
+    };
+
+    challenges.set(challenge.id, challenge);
+
+    logger.info(`Challenge created: ${challenge.id} for dojo ${dojoId}`);
+
+    res.status(201).json({
+      success: true,
+      data: challenge
+    });
+
+  } catch (error) {
+    logger.error('Error creating challenge:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Get active challenges for current user
+ */
+router.get('/challenge/active', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id || 'anonymous'; // TODO: Get from auth
+    
+    const userChallenges = Array.from(challenges.values()).filter(
+      (c: any) => (c.challengerId === userId || c.defenderId === userId) && 
+                  c.status !== 'completed' && c.status !== 'declined'
+    );
+
+    res.json({
+      success: true,
+      data: userChallenges
+    });
+
+  } catch (error) {
+    logger.error('Error fetching active challenges:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Respond to a challenge (accept/decline)
+ */
+router.post('/challenge/:id/respond', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { response } = req.body;
+    
+    if (!['accept', 'decline'].includes(response)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid response. Must be: accept or decline'
+      });
+    }
+
+    if (!challenges.has(id)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Challenge not found'
+      });
+    }
+
+    const challenge = challenges.get(id);
+    const userId = req.user?.id || 'anonymous'; // TODO: Get from auth
+
+    // Verify user is the defender
+    if (challenge.defenderId !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Only the defender can respond to this challenge'
+      });
+    }
+
+    if (challenge.status !== 'active') {
+      return res.status(400).json({
+        success: false,
+        error: 'Challenge cannot be responded to',
+        currentStatus: challenge.status
+      });
+    }
+
+    // Update challenge status
+    challenge.status = response === 'accept' ? 'accepted' : 'declined';
+    if (response === 'accept') {
+      challenge.acceptedAt = new Date().toISOString();
+    } else {
+      challenge.declinedAt = new Date().toISOString();
+    }
+
+    challenges.set(id, challenge);
+
+    logger.info(`Challenge ${response}d: ${id}`);
+
+    res.json({
+      success: true,
+      data: challenge
+    });
+
+  } catch (error) {
+    logger.error('Error responding to challenge:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * Submit match result
  */
 router.post('/match-results', validateMatchResult, async (req: Request, res: Response) => {

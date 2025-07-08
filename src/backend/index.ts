@@ -46,6 +46,7 @@ import highlightsRoutes from './routes/highlights';
 import dojoRoutes from './routes/dojo';
 import challengePhase4Routes from './routes/challenge-phase4';
 import playerRoutes from './routes/player';
+import matchTrackingRoutes from './routes/match-tracking';
 // import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration';
 
 // Load environment variables
@@ -184,6 +185,7 @@ app.use('/api/avatar', avatarCreationRoutes);
 app.use('/api/dojo', dojoRoutes);
 app.use('/api/player', playerRoutes);
 app.use('/api/challenge', challengePhase4Routes);
+app.use('/api/match-tracking', matchTrackingRoutes);
 
 // --- Global Error Handling Middleware ---
 app.use(errorLogger);

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run dev:backend\"",
     "start": "npx ts-node src/backend/index.ts",
-    "dev:backend": "nodemon --watch src/backend --ext ts --exec \"npx ts-node src/backend/index.ts\"",
+    "dev:backend": "nodemon --watch src/backend --ext ts --exec \"npx ts-node --skip-project --esm src/backend/index.ts\"",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -20,6 +20,7 @@
     "validate-firebase-config": "node scripts/validate-firebase-config.js",
     "validate-firebase-config:fix": "node scripts/validate-firebase-config.js --fix",
     "validate-firebase-config:fetch": "node scripts/validate-firebase-config.js --fetch",
+    "setup-env": "node scripts/setup-env.js",
     "lint": "eslint src/ --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",

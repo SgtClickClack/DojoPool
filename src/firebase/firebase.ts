@@ -1,3 +1,4 @@
+// This file is frontend-only. Do not use in backend.
 import { getAnalytics, Analytics } from 'firebase/analytics';
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import {
@@ -39,9 +40,17 @@ const firebaseConfig = {
   measurementId: env.FIREBASE_MEASUREMENT_ID,
 };
 
+console.log('[FB][DEBUG] Firebase API Key:', env.FIREBASE_API_KEY);
+console.log('[FB][DEBUG] Full Firebase Config:', firebaseConfig);
+
 let app: FirebaseApp | null = null;
 try {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  // Only initialize Firebase if we have valid config (not mock values)
+  if (env.FIREBASE_API_KEY && env.FIREBASE_API_KEY !== 'mock-api-key-for-development') {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  } else {
+    console.log('Firebase not configured - running in development mode without Firebase');
+  }
 } catch (error) {
   console.error('Firebase initialization error:', error);
   // app remains null
@@ -74,11 +83,11 @@ if (app) {
       });
   }
 } else {
-  console.error('Firebase app initialization failed. Firebase services will be unavailable.');
+  console.log('Firebase app not initialized - running in development mode without Firebase services');
 }
 
 const googleAuthProvider = new GoogleAuthProvider();
-if (authInstance) {
+if (authInstance && Object.keys(authInstance).length > 0) {
   if (typeof googleAuthProvider.setCustomParameters === 'function') {
     googleAuthProvider.setCustomParameters({
       prompt: 'select_account',
@@ -86,11 +95,13 @@ if (authInstance) {
     });
   }
 } else {
-  console.warn('Auth instance not available for GoogleAuthProvider configuration.');
+  console.log('Auth instance not available for GoogleAuthProvider configuration - running in development mode');
 }
 
 if (!authInstance) {
-  throw new Error('Firebase Auth instance could not be initialized.');
+  console.warn('Firebase Auth instance could not be initialized. Running in development mode without Firebase.');
+  // Create a mock auth instance for development
+  authInstance = {} as Auth;
 }
 export const auth: Auth = authInstance;
 export const db: Firestore | null = dbInstance;

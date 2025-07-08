@@ -16,7 +16,8 @@ import {
   Timer,
   TrendingUp
 } from '@mui/icons-material';
-import DojoProfilePanel from '../../components/DojoProfilePanel';
+import DojoProfilePanel from '../../components/dojo/DojoProfilePanel';
+import ChallengeManager from '../../components/challenge/ChallengeManager';
 import { env } from '../../config/environment';
 
 // Debug environment variables
@@ -57,11 +58,15 @@ const mapStyles = [
   {"featureType":"water","elementType":"all","stylers":[{"color":"#021019"}]}
 ];
 
-function getEnv(key: string): string | undefined {
-  return env[key as keyof typeof env] || '';
-}
+// Environment variables are accessed directly from the centralized config
 
 const googleMapsApiKey = env.VITE_GOOGLE_MAPS_API_KEY || '';
+
+// Permanent Google Maps API key check
+const isMapsKeyMissingOrInvalid = !googleMapsApiKey ||
+  googleMapsApiKey === 'your_actual_api_key' ||
+  googleMapsApiKey.toLowerCase().includes('mock') ||
+  googleMapsApiKey.length < 30;
 
 // Enhanced DojoMarker SVG with territory level indicators
 const getDojoMarkerIcon = (dojo: DojoData) => {
@@ -522,6 +527,7 @@ const MapView: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
   const [showPerformanceMetrics, setShowPerformanceMetrics] = useState(false);
+  const [showChallengeManager, setShowChallengeManager] = useState(false);
   
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
@@ -761,6 +767,31 @@ const MapView: React.FC = () => {
     );
   }, [showPerformanceMetrics, performanceMetrics]);
 
+  // Permanent Google Maps API key check (before any map logic)
+  if (isMapsKeyMissingOrInvalid) {
+    return (
+      <div style={{
+        width: '100vw', height: '100vh', background: '#111', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+      }}>
+        <h2 style={{ color: '#00fff7', marginBottom: 16 }}>Google Maps API Key Required</h2>
+        <p style={{ maxWidth: 400, textAlign: 'center', marginBottom: 16 }}>
+          A valid Google Maps API key is required for the map to function.<br/>
+          <b>Set <code>VITE_GOOGLE_MAPS_API_KEY</code> in your <code>.env</code> file.</b><br/>
+          <span style={{ color: '#ff6b6b' }}>
+            The current key is missing or invalid.
+          </span>
+        </p>
+        <code style={{ background: '#222', padding: 8, borderRadius: 4, color: '#00fff7' }}>
+          VITE_GOOGLE_MAPS_API_KEY=your_real_key_here
+        </code>
+        <p style={{ marginTop: 24, color: '#aaa', fontSize: 14 }}>
+          See the README for setup instructions.<br/>
+          <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style={{ color: '#00a8ff' }}>Get a Google Maps API key</a>
+        </p>
+      </div>
+    );
+  }
+
   // Handle loading state while the script is fetched
   if (!isLoaded) {
     return (
@@ -869,10 +900,25 @@ const MapView: React.FC = () => {
         {/* Player HUD */}
         {player && <PlayerHUD player={player} />}
 
+        {/* Challenges Button */}
+        <button
+          onClick={() => setShowChallengeManager(true)}
+          className="fixed top-24 right-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-colors z-[1500]"
+        >
+          Challenges
+        </button>
+
         {/* Dojo Profile Panel */}
         <DojoProfilePanel 
           dojo={selectedDojo} 
           onClose={() => setSelectedDojo(null)} 
+          isLocked={selectedDojo?.isLocked || false}
+        />
+
+        {/* Challenge Manager */}
+        <ChallengeManager 
+          isOpen={showChallengeManager}
+          onClose={() => setShowChallengeManager(false)}
         />
 
         {/* Performance metrics */}

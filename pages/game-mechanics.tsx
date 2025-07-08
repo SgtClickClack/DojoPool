@@ -1,11 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, Text, Button, VStack, HStack, Grid, GridItem, Badge, useToast } from '@chakra-ui/react';
+import { 
+  Box, 
+  Tabs, 
+  TabsList, 
+  TabsPanels, 
+  Tab, 
+  TabPanel, 
+  Heading, 
+  Text, 
+  Button, 
+  VStack, 
+  HStack, 
+  Grid, 
+  GridItem, 
+  Badge, 
+  useToast 
+} from '@chakra-ui/react';
 import ChallengeCreationPanel from '../src/components/game/ChallengeCreationPanel';
 import TerritoryControlPanel from '../src/components/game/TerritoryControlPanel';
 import PlayerMovementPanel from '../src/components/game/PlayerMovementPanel';
 import AchievementPanel from '../src/components/game/AchievementPanel';
 import RealTimeMatchTracker from '../src/components/game/RealTimeMatchTracker';
-import { GameMechanicsService } from '../src/services/GameMechanicsService';
+import GameBalancePanel from '../src/components/game/GameBalancePanel';
+import PerformanceOptimizationPanel from '../src/components/performance/PerformanceOptimizationPanel';
+import GameMechanicsService from '../src/services/GameMechanicsService';
 
 // Advanced Components
 const AdvancedChallengePanel: React.FC = () => {
@@ -371,16 +389,18 @@ const GameMechanicsPage: React.FC = () => {
         </Heading>
 
         <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
-          <TabList>
+          <TabsList>
             <Tab>Basic Mechanics</Tab>
             <Tab>Advanced Challenges</Tab>
             <Tab>Advanced Movement</Tab>
             <Tab>Territory Alliances</Tab>
             <Tab>Achievements</Tab>
             <Tab>Match Tracking</Tab>
-          </TabList>
+            <Tab>Game Balance</Tab>
+            <Tab>Performance Optimization</Tab>
+          </TabsList>
 
-          <TabPanels>
+          <TabsPanels>
             <TabPanel>
               <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                 <GridItem>
@@ -414,7 +434,15 @@ const GameMechanicsPage: React.FC = () => {
             <TabPanel>
               <RealTimeMatchTracker />
             </TabPanel>
-          </TabPanels>
+
+            <TabPanel>
+              <GameBalancePanel />
+            </TabPanel>
+
+            <TabPanel>
+              <PerformanceOptimizationPanel />
+            </TabPanel>
+          </TabsPanels>
         </Tabs>
       </Box>
     </Box>
