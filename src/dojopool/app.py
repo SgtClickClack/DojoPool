@@ -190,13 +190,14 @@ def create_app(config_name=None, test_config=None, testing=False):
     # ---------------------------
 
     # --- Register Tournament/Game Blueprint ---
-    # try:
-    #     from dojopool.api.tournament import tournament_bp
-    #     app.register_blueprint(tournament_bp, url_prefix="/api")
-    # except ImportError as e:
-    #     print(f"[ERROR] Could not import tournament blueprint: {e}")
-    # except Exception as e:
-    #     print(f"[ERROR] Could not register tournament blueprint: {e}")
+    try:
+        from dojopool.api.tournament import tournament_bp
+        app.register_blueprint(tournament_bp, url_prefix="/api/v1")
+        print("[INFO] Tournament blueprint registered successfully.")
+    except ImportError as e:
+        print(f"[ERROR] Could not import tournament blueprint: {e}")
+    except Exception as e:
+        print(f"[ERROR] Could not register tournament blueprint: {e}")
 
     # Register blueprints
     from dojopool.api.v1 import api_v1_bp

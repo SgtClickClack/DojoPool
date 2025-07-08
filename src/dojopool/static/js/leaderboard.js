@@ -1,3 +1,6 @@
+// Import security utilities
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 class LeaderboardManager {
   constructor() {
     this.currentCategory = "overall";
@@ -37,7 +40,7 @@ class LeaderboardManager {
 
     entries.forEach((entry) => {
       const row = document.createElement("tr");
-      row.innerHTML = `
+      const rowTemplate = `
                 <td class="text-center">
                     <span class="badge bg-${this.getRankBadgeColor(entry.rank)}">${entry.rank}</span>
                 </td>
@@ -51,6 +54,19 @@ class LeaderboardManager {
                 <td>${entry.win_rate}%</td>
                 <td>${entry.tournaments_won}</td>
             `;
+      
+      // Use safe template creation with security utilities
+      const safeRowHTML = createSafeTemplate(rowTemplate, {
+        rank: entry.rank,
+        avatar_url: entry.avatar_url,
+        username: entry.username,
+        user_id: entry.user_id,
+        score: entry.score.toLocaleString(),
+        win_rate: entry.win_rate,
+        tournaments_won: entry.tournaments_won
+      });
+      
+      safeSetInnerHTML(row, safeRowHTML);
       tableBody.appendChild(row);
     });
   }
@@ -66,10 +82,16 @@ class LeaderboardManager {
     // Create and show error toast or alert
     const alertDiv = document.createElement("div");
     alertDiv.className = "alert alert-danger alert-dismissible fade show";
-    alertDiv.innerHTML = `
+    
+    const alertTemplate = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
+    
+    // Use safe template creation
+    const safeAlertHTML = createSafeTemplate(alertTemplate, { message });
+    safeSetInnerHTML(alertDiv, safeAlertHTML);
+    
     document.querySelector(".container").prepend(alertDiv);
   }
 }

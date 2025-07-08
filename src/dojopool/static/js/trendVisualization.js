@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../utils/securityUtils.js';
+
 export class TrendVisualization {
   constructor() {
     this.selectedRange = "24h";

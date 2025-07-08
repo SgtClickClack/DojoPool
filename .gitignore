@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-.env
+
 venv/
 ENV/
 
@@ -50,7 +50,7 @@ Thumbs.db
 # Python virtual environment
 venv/
 env/
-.env/
+/
 .venv/
 
 # Python cache files
@@ -70,9 +70,9 @@ build/
 *.swo
 
 # Environment variables
-.env
-.env.local
-.env.*.local
+
+.local
+.*.local
 
 # Logs
 *.log

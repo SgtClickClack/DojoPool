@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../utils/securityUtils.js';
+
 // Animation frame IDs and state tracking
 let frameProcessingId = null;
 let statusAnimationId = null;
@@ -439,10 +441,11 @@ function showError(message) {
   errorDiv.className =
     "alert alert-danger alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3";
   errorDiv.setAttribute("role", "alert");
-  errorDiv.innerHTML = `
+  const errorHTML = `
     ${message}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   `;
+  safeSetInnerHTML(errorDiv, errorHTML);
   document.body.appendChild(errorDiv);
 
   errorDiv.addEventListener("closed.bs.alert", () => {
@@ -461,10 +464,11 @@ function showSuccess(message) {
   successDiv.className =
     "alert alert-success alert-dismissible fade show position-fixed bottom-0 start-50 translate-middle-x mb-3";
   successDiv.setAttribute("role", "alert");
-  successDiv.innerHTML = `
+  const successHTML = `
     ${message}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   `;
+  safeSetInnerHTML(successDiv, successHTML);
   document.body.appendChild(successDiv);
 
   successDiv.addEventListener("closed.bs.alert", () => {

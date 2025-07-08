@@ -13,7 +13,7 @@ const getEnvVar = (key: string, fallback: string = ''): string => {
 const API_BASE_URL = env.API_URL;
 
 const axiosInstance = axios.create({
-  baseURL: '', // Use Vite proxy, do not hardcode /api or port
+  baseURL: '/api', // Use Vite proxy to forward to backend
   withCredentials: true, // Always send cookies for cross-origin auth
 });
 

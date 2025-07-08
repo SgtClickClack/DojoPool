@@ -1,3 +1,6 @@
+// Import security utilities
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 document.addEventListener("DOMContentLoaded", function () {
   const achievementLists = document.querySelectorAll(".achievement-list");
   const leaderboardList = document.querySelector(".leaderboard-list");
@@ -70,11 +73,12 @@ document.addEventListener("DOMContentLoaded", function () {
     container.innerHTML = "";
 
     if (filteredAchievements.length === 0) {
-      container.innerHTML = `
+      const emptyTemplate = `
                 <div class="text-center py-5">
                     <p class="text-muted mb-0">No achievements found</p>
                 </div>
             `;
+      safeSetInnerHTML(container, emptyTemplate);
       return;
     }
 
@@ -107,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     card.className =
       "achievement-card mb-3 p-3 bg-light rounded cursor-pointer";
 
-    card.innerHTML = `
+    const cardTemplate = `
             <div class="d-flex align-items-center">
                 <img src="${achievement.icon_url || "/static/img/default-achievement.png"}" 
                      class="achievement-icon me-3" width="48" height="48" alt="">
@@ -128,6 +132,19 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
+    const safeCardHTML = createSafeTemplate(cardTemplate, {
+      icon_url: achievement.icon_url || "/static/img/default-achievement.png",
+      name: achievement.name,
+      description: achievement.description,
+      completed: achievement.completed,
+      progress: progress,
+      achievement_progress: achievement.progress,
+      target_value: achievement.target_value,
+      points: achievement.points
+    });
+    
+    safeSetInnerHTML(card, safeCardHTML);
+
     return card;
   }
 
@@ -135,11 +152,12 @@ document.addEventListener("DOMContentLoaded", function () {
     leaderboardList.innerHTML = "";
 
     if (leaderboard.length === 0) {
-      leaderboardList.innerHTML = `
+      const emptyLeaderboardTemplate = `
                 <div class="text-center py-5">
                     <p class="text-muted mb-0">No leaderboard data available</p>
                 </div>
             `;
+      safeSetInnerHTML(leaderboardList, emptyLeaderboardTemplate);
       return;
     }
 
@@ -148,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
       item.className =
         "leaderboard-item d-flex align-items-center p-3 border-bottom";
 
-      item.innerHTML = `
+      const itemTemplate = `
                 <div class="position-indicator me-3 ${index < 3 ? "text-warning" : "text-muted"}">
                     ${index + 1}
                 </div>
@@ -163,6 +181,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span class="badge bg-primary">${entry.points} points</span>
                 </div>
             `;
+
+      const safeItemHTML = createSafeTemplate(itemTemplate, {
+        index: index,
+        user_avatar: entry.user_avatar || "/static/img/default-avatar.png",
+        username: entry.username || "Anonymous",
+        points: entry.points
+      });
+      
+      safeSetInnerHTML(item, safeItemHTML);
 
       leaderboardList.appendChild(item);
     });
@@ -215,10 +242,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function showError(message) {
     const errorAlert = document.createElement("div");
     errorAlert.className = "alert alert-danger alert-dismissible fade show";
-    errorAlert.innerHTML = `
+    
+    const errorTemplate = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
+
+    const safeErrorHTML = createSafeTemplate(errorTemplate, { message });
+    safeSetInnerHTML(errorAlert, safeErrorHTML);
 
     document
       .querySelector(".container")

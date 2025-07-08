@@ -57,13 +57,15 @@
         <div class="card-glow rounded-lg p-8 max-w-md w-full text-center">
             <img src="/images/logo.jpg" alt="Dojo Pool Logo" class="h-20 w-20 rounded-full object-cover mx-auto mb-6">
             <h1 class="orbitron text-2xl font-bold mb-4 glow-text">Dojo Pool Investor Portal</h1>
-            <p class="mb-6 text-gray-300">Enter the access code to view confidential investor materials</p>
+            <p class="mb-6 text-gray-300">Enter credentials to access confidential investor materials</p>
+            <input type="email" id="email-input" placeholder="Enter email address..." 
+                   class="w-full p-3 bg-gray-800 border border-dojo-orange rounded-lg text-white mb-4 focus:outline-none focus:ring-2 focus:ring-dojo-gold">
             <input type="password" id="password-input" placeholder="Enter password..." 
                    class="w-full p-3 bg-gray-800 border border-dojo-orange rounded-lg text-white mb-4 focus:outline-none focus:ring-2 focus:ring-dojo-gold">
             <button onclick="checkPassword()" class="w-full bg-dojo-orange hover:bg-dojo-gold text-white font-bold py-3 px-6 rounded-lg transition-colors">
                 Access Portal
             </button>
-            <div id="error-message" class="text-red-400 mt-4 hidden">Incorrect password. Access denied.</div>
+            <div id="error-message" class="text-red-400 mt-4 hidden"></div>
         </div>
     </div>
 
@@ -570,27 +572,63 @@
     </div>
 
     <script>
-        // TODO: SECURITY - Temporary client-side password protection for development
-        // This should be replaced with proper server-side authentication in production
-        const ACCESS_PASSWORD = "DojoInvestor2025!";
+        // Server-side authentication for investor portal
+        let currentUser = null;
         
-        function checkPassword() {
-            const input = document.getElementById('password-input');
-            const password = input.value;
+        async function checkPassword() {
+            const emailInput = document.getElementById('email-input');
+            const passwordInput = document.getElementById('password-input');
             const errorMessage = document.getElementById('error-message');
             
-            if (password === ACCESS_PASSWORD) {
-                document.getElementById('password-screen').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                // Clear password from memory
-                input.value = '';
-            } else {
-                errorMessage.classList.remove('hidden');
-                input.value = '';
-                setTimeout(() => {
-                    errorMessage.classList.add('hidden');
-                }, 3000);
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showError('Email and password are required');
+                return;
             }
+            
+            try {
+                const response = await fetch('/api/investor/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    document.getElementById('password-screen').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                    // Clear sensitive data from memory
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    hideError();
+                } else {
+                    showError(result.error || 'Authentication failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Connection error. Please try again.');
+            }
+        }
+        
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        }
+        
+        function hideError() {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.classList.add('hidden');
         }
         
         // Allow Enter key to submit password
@@ -599,6 +637,42 @@
                 checkPassword();
             }
         });
+        
+        // Check authentication status on page load
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/investor/auth/verify', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    document.getElementById('password-screen').classList.add('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+        
+        // Logout function
+        async function logout() {
+            try {
+                await fetch('/api/investor/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                currentUser = null;
+                document.getElementById('password-screen').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
         
         // Gemini AI Integration
         const apiKey = ""; // This should remain empty for Canvas environment
@@ -740,9 +814,12 @@
             });
         });
         
-        // Initialize password protection
+        // Initialize authentication
         document.getElementById('main-content').classList.add('hidden');
         document.getElementById('password-screen').classList.remove('hidden');
+        
+        // Check authentication status on page load
+        checkAuthStatus();
     </script>
 </body>
 </html>

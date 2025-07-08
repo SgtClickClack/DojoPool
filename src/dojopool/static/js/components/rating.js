@@ -1,18 +1,19 @@
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
+
 class Rating {
   constructor(container, options = {}) {
     this.container = container;
-    this.options = {
-      targetType: options.targetType,
-      targetId: options.targetId,
-      readOnly: options.readOnly || false,
-      showAverage: options.showAverage || false,
-      showReviews: options.showReviews || false,
-      verifiedOnly: options.verifiedOnly || false,
-      onChange: options.onChange || (() => {}),
-      onDelete: options.onDelete || (() => {}),
-    };
-
     this.currentRating = 0;
+    this.options = {
+      targetType: "venue",
+      targetId: "",
+      readOnly: false,
+      showAverage: true,
+      showReviews: false,
+      verifiedOnly: false,
+      onChange: () => {},
+      ...options,
+    };
     this.init();
   }
 
@@ -27,7 +28,7 @@ class Rating {
   }
 
   createElements() {
-    this.container.innerHTML = `
+    const containerHTML = `
             <div class="rating-component">
                 <div class="rating-stars">
                     ${this.createStars()}
@@ -64,6 +65,7 @@ class Rating {
                 }
             </div>
         `;
+    safeSetInnerHTML(this.container, containerHTML);
 
     // Store references to elements
     this.starsContainer = this.container.querySelector(".rating-stars");
@@ -210,44 +212,36 @@ class Rating {
     if (!this.reviewsContainer) return;
 
     if (ratings.length === 0) {
-      this.reviewsContainer.innerHTML =
-        '<p class="text-muted">No reviews yet</p>';
+      safeSetInnerHTML(this.reviewsContainer, '<p class="text-muted">No reviews yet</p>');
       return;
     }
 
-    this.reviewsContainer.innerHTML = ratings
+    const ratingsHTML = ratings
       .map(
         (rating) => `
-            <div class="review-item mb-3">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <strong>${rating.user_name}</strong>
-                        <span class="text-warning ms-2">${"★".repeat(rating.rating)}</span>
-                        ${rating.is_verified ? '<span class="badge bg-success ms-2">Verified</span>' : ""}
-                    </div>
-                    ${
-                      rating.user_id === window.currentUserId
-                        ? `
-                        <button class="btn btn-sm btn-outline-danger delete-review" data-rating-id="${rating.id}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    `
-                        : ""
-                    }
-                </div>
-                ${rating.review ? `<p class="mt-1 mb-0">${rating.review}</p>` : ""}
-                <small class="text-muted">${new Date(rating.created_at).toLocaleDateString()}</small>
+          <div class="review-item">
+            <div class="review-header">
+              <div class="review-stars">
+                ${Array(5)
+                  .fill()
+                  .map(
+                    (_, i) => `
+                      <i class="bi bi-star${rating.rating > i ? "-fill" : ""}"></i>
+                    `,
+                  )
+                  .join("")}
+              </div>
+              <div class="review-meta">
+                <span class="reviewer-name">${rating.reviewer_name}</span>
+                <span class="review-date">${new Date(rating.created_at).toLocaleDateString()}</span>
+              </div>
             </div>
+            ${rating.review ? `<div class="review-text">${rating.review}</div>` : ""}
+          </div>
         `,
       )
       .join("");
-
-    // Bind delete buttons
-    this.reviewsContainer.querySelectorAll(".delete-review").forEach((btn) => {
-      btn.addEventListener("click", () =>
-        this.deleteRating(btn.dataset.ratingId),
-      );
-    });
+    safeSetInnerHTML(this.reviewsContainer, ratingsHTML);
   }
 
   async deleteRating(ratingId) {
@@ -273,7 +267,6 @@ class Rating {
   }
 
   destroy() {
-    // Clean up event listeners
     this.container.innerHTML = "";
   }
 }

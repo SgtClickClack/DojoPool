@@ -1,3 +1,5 @@
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
+
 /**
  * Custom info window component for displaying venue information
  */
@@ -128,7 +130,7 @@ export default class VenueInfoWindow {
     this.isOpen = true;
 
     // Update content
-    this.container.innerHTML = `
+    const venueHTML = `
             <button class="venue-info-close">&times;</button>
             <div class="venue-info-header">
                 <h3 class="venue-info-name">${venue.name}</h3>
@@ -165,6 +167,7 @@ export default class VenueInfoWindow {
                 }
             </div>
         `;
+    safeSetInnerHTML(this.container, venueHTML);
 
     // Position the info window
     const point = this.map

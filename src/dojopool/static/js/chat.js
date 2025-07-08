@@ -1,3 +1,6 @@
+// Import security utilities
+import { safeSetInnerHTML, createSafeTemplate } from '../utils/securityUtils.js';
+
 // Global variables
 let currentRoomId = null;
 let socket = null;
@@ -69,10 +72,17 @@ function createRoomElement(room) {
       ? room.messages[0]
       : { content: "No messages yet" };
 
-  div.innerHTML = `
-        <div class="room-name">${room.name || getRoomName(room)}</div>
-        <div class="last-message">${lastMessage.content}</div>
-    `;
+  // Use safe text content instead of innerHTML for security
+  const roomNameDiv = document.createElement('div');
+  roomNameDiv.className = 'room-name';
+  roomNameDiv.textContent = room.name || getRoomName(room);
+  
+  const lastMessageDiv = document.createElement('div');
+  lastMessageDiv.className = 'last-message';
+  lastMessageDiv.textContent = lastMessage.content;
+  
+  div.appendChild(roomNameDiv);
+  div.appendChild(lastMessageDiv);
 
   return div;
 }
@@ -147,12 +157,17 @@ function createMessageElement(message) {
     div.textContent = message.content;
   } else {
     div.className = `chat-message ${message.sender_id === currentUser.id ? "sent" : "received"}`;
-    div.innerHTML = `
-            <div class="message-content">${message.content}</div>
-            <div class="message-meta">
-                ${message.sender_name} • ${formatDate(message.created_at)}
-            </div>
-        `;
+    // Use safe text content instead of innerHTML for security
+    const messageContentDiv = document.createElement('div');
+    messageContentDiv.className = 'message-content';
+    messageContentDiv.textContent = message.content;
+    
+    const messageMetaDiv = document.createElement('div');
+    messageMetaDiv.className = 'message-meta';
+    messageMetaDiv.textContent = `${message.sender_name} • ${formatDate(message.created_at)}`;
+    
+    div.appendChild(messageContentDiv);
+    div.appendChild(messageMetaDiv);
   }
 
   return div;
@@ -309,7 +324,7 @@ function createFriendElement(friend) {
   const statusClass = canInteract ? "status-available" : "status-unavailable";
   const statusText = canInteract ? "In Same Dojo" : "Different Dojo";
 
-  div.innerHTML = `
+  const friendTemplate = `
     <div class="friend-info">
       <img src="${friend.avatar_url || "/static/img/default-avatar.png"}" alt="${friend.username}" class="friend-avatar">
       <span class="friend-name">${friend.username}</span>
@@ -317,6 +332,18 @@ function createFriendElement(friend) {
     </div>
     <input type="checkbox" value="${friend.id}" ${!canInteract ? "disabled" : ""}>
   `;
+
+  // Use safe template creation
+  const safeFriendHTML = createSafeTemplate(friendTemplate, {
+    avatar_url: friend.avatar_url || "/static/img/default-avatar.png",
+    username: friend.username,
+    statusClass,
+    statusText,
+    id: friend.id,
+    canInteract: !canInteract ? "disabled" : ""
+  });
+  
+  safeSetInnerHTML(div, safeFriendHTML);
 
   const checkbox = div.querySelector('input[type="checkbox"]');
   checkbox.addEventListener("change", (e) => {
@@ -382,7 +409,11 @@ function setupMobileResponsiveness() {
     const header = document.getElementById("chat-messages-header");
     const backButton = document.createElement("button");
     backButton.className = "btn btn-link back-to-rooms";
-    backButton.innerHTML = '<i class="fas fa-arrow-left"></i>';
+    
+    // Use safe template for back button
+    const backButtonTemplate = '<i class="fas fa-arrow-left"></i>';
+    safeSetInnerHTML(backButton, backButtonTemplate);
+    
     backButton.onclick = () => {
       document.querySelector(".chat-rooms").classList.add("show");
       document.querySelector(".chat-messages").style.display = "none";

@@ -4,6 +4,7 @@ import {
   THEME_LIGHT,
   THEME_DARK,
 } from "../theme.js";
+import { safeSetInnerHTML } from '../../utils/securityUtils.js';
 
 class ThemeToggle extends HTMLElement {
   constructor() {
@@ -20,7 +21,7 @@ class ThemeToggle extends HTMLElement {
     const currentTheme = getStoredTheme() || THEME_LIGHT;
     const isDark = currentTheme === THEME_DARK;
 
-    this.shadowRoot.innerHTML = `
+    const themeHTML = `
             <style>
                 :host {
                     display: inline-block;
@@ -56,6 +57,7 @@ class ThemeToggle extends HTMLElement {
                 ${isDark ? this.moonIcon : this.sunIcon}
             </button>
         `;
+    safeSetInnerHTML(this.shadowRoot, themeHTML);
   }
 
   addEventListeners() {
