@@ -104,7 +104,7 @@
     "k6": "0.0.0",
     "morgan": "1.10.0",
     "msw": "2.7.5",
-    "next": "15.3.1",
+    "next": "15.3.5",
     "next-test-api-route-handler": "4.0.16",
     "node-fetch": "^2.6.7",
     "node-mocks-http": "1.17.2",
@@ -114,8 +114,8 @@
     "perf_hooks": "0.0.1",
     "prisma": "6.6.0",
     "puppeteer": "24.6.1",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-icons": "5.5.0",
     "react-router-dom": "7.6.0",
     "react-window": "1.8.11",
@@ -195,7 +195,7 @@
     "recharts": "^2.12.7",
     "socket.io": "4.8.1",
     "socket.io-client": "4.8.1",
-    "three": "0.158.0",
+    "three": "0.178.0",
     "web-vitals": "^3.5.2",
     "winston": "3.17.0"
   }
