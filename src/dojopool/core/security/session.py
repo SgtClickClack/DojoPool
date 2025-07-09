@@ -37,7 +37,7 @@ class SessionManager:
 
         if self.redis:
             try:
-                # TODO: SECURITY - Use JSON serialization instead of str() for Redis storage
+                # Use secure JSON serialization for Redis storage
                 self.redis.setex(f"session:{token}", int(expires - time.time()), json.dumps(session_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
@@ -69,7 +69,7 @@ class SessionManager:
                 if isinstance(session_data, bytes):
                     session_data = session_data.decode('utf-8')
                 
-                # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                # Use secure JSON parsing instead of eval()
                 session_data = json.loads(session_data)
                 if time.time() > session_data["expires"]:
                     self.delete_session(token)
@@ -123,7 +123,7 @@ class SessionManager:
 
         if self.redis:
             try:
-                # TODO: SECURITY - Use JSON serialization instead of str() for Redis storage
+                # Use secure JSON serialization for Redis storage
                 self.redis.setex(f"reset:{token}", expires_in, json.dumps(token_data))
             except redis.RedisError:
                 # Fall back to in-memory storage
@@ -155,7 +155,7 @@ class SessionManager:
                 if isinstance(token_data, bytes):
                     token_data = token_data.decode('utf-8')
                 
-                # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                # Use secure JSON parsing instead of eval()
                 token_data = json.loads(token_data)
                 if time.time() > token_data["expires"]:
                     self.redis.delete(f"reset:{token}")

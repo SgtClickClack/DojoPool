@@ -362,7 +362,7 @@ class PerformanceMonitor:
                 if redis_data:
                     if isinstance(redis_data, bytes):
                         redis_data = redis_data.decode('utf-8')
-                    # TODO: SECURITY - Replaced unsafe eval() with safe JSON parsing
+                    # Use secure JSON parsing instead of eval()
                     metrics.append(json.loads(redis_data))
 
         return {

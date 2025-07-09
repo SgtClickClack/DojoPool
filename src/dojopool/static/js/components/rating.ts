@@ -1,4 +1,6 @@
 // Generated type definitions
+// Security: Import DOMPurify for HTML sanitization
+import DOMPurify from 'dompurify';
 
 class Rating {
   // Properties and methods
@@ -24,6 +26,18 @@ class Rating {
     this.init();
   }
 
+  // Security: Helper method to sanitize HTML content
+  sanitizeHtml(html) {
+    return DOMPurify.sanitize(html);
+  }
+
+  // Security: Safely escape text content to prevent XSS
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   init() {
     this.createElements();
     if (this.options.showAverage || this.options.showReviews) {
@@ -35,7 +49,8 @@ class Rating {
   }
 
   createElements() {
-    this.container.innerHTML = `
+    // Security: Use sanitized HTML content
+    const htmlContent = `
             <div class="rating-component">
                 <div class="rating-stars">
                     ${this.createStars()}
@@ -72,6 +87,7 @@ class Rating {
                 }
             </div>
         `;
+    this.container.innerHTML = this.sanitizeHtml(htmlContent);
 
     // Store references to elements
     this.starsContainer = this.container.querySelector(".rating-stars");
@@ -218,37 +234,39 @@ class Rating {
     if (!this.reviewsContainer) return;
 
     if (ratings.length === 0) {
-      this.reviewsContainer.innerHTML =
-        '<p class="text-muted">No reviews yet</p>';
+      this.reviewsContainer.innerHTML = this.sanitizeHtml('<p class="text-muted">No reviews yet</p>');
       return;
     }
 
-    this.reviewsContainer.innerHTML = ratings
+    // Security: Sanitize all user-generated content before inserting into DOM
+    const reviewsHtml = ratings
       .map(
         (rating) => `
             <div class="review-item mb-3">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <strong>${rating.user_name}</strong>
-                        <span class="text-warning ms-2">${"★".repeat(rating.rating)}</span>
+                        <strong>${this.escapeHtml(rating.user_name)}</strong>
+                        <span class="text-warning ms-2">${"★".repeat(Math.max(0, Math.min(5, rating.rating)))}</span>
                         ${rating.is_verified ? '<span class="badge bg-success ms-2">Verified</span>' : ""}
                     </div>
                     ${
                       rating.user_id === window.currentUserId
                         ? `
-                        <button class="btn btn-sm btn-outline-danger delete-review" data-rating-id="${rating.id}">
+                        <button class="btn btn-sm btn-outline-danger delete-review" data-rating-id="${this.escapeHtml(rating.id)}">
                             <i class="bi bi-trash"></i>
                         </button>
                     `
                         : ""
                     }
                 </div>
-                ${rating.review ? `<p class="mt-1 mb-0">${rating.review}</p>` : ""}
-                <small class="text-muted">${new Date(rating.created_at).toLocaleDateString()}</small>
+                ${rating.review ? `<p class="mt-1 mb-0">${this.escapeHtml(rating.review)}</p>` : ""}
+                <small class="text-muted">${this.escapeHtml(new Date(rating.created_at).toLocaleDateString())}</small>
             </div>
         `,
       )
       .join("");
+
+    this.reviewsContainer.innerHTML = this.sanitizeHtml(reviewsHtml);
 
     // Bind delete buttons
     this.reviewsContainer.querySelectorAll(".delete-review").forEach((btn) => {
