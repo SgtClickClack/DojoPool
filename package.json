@@ -4,11 +4,11 @@
   "description": "DojoPool Platform",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "concurrently \"vite\" \"npm run dev:backend\"",
+    "dev": "concurrently \"vite --config .config/build/vite.config.ts\" \"npm run dev:backend\"",
     "start": "npx ts-node src/backend/index.ts",
     "dev:backend": "nodemon --watch src/backend --ext ts --exec \"npx ts-node --skip-project --esm src/backend/index.ts\"",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "vite build --config .config/build/vite.config.ts",
+    "preview": "vite preview --config .config/build/vite.config.ts",
     "test": "vitest",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
@@ -21,11 +21,11 @@
     "validate-firebase-config:fix": "node scripts/validate-firebase-config.js --fix",
     "validate-firebase-config:fetch": "node scripts/validate-firebase-config.js --fetch",
     "setup-env": "node scripts/setup-env.js",
-    "lint": "eslint src/ --ext .ts,.tsx,.js,.jsx",
-    "lint:fix": "eslint src/ --ext .ts,.tsx,.js,.jsx --fix",
-    "type-check": "tsc --noEmit",
-    "format": "prettier --write src/",
-    "format:check": "prettier --check src/"
+    "lint": "eslint src/ --ext .ts,.tsx,.js,.jsx --config .config/build/eslint.config.mjs",
+    "lint:fix": "eslint src/ --ext .ts,.tsx,.js,.jsx --config .config/build/eslint.config.mjs --fix",
+    "type-check": "tsc --noEmit --project .config/build/[CONFIG]tsconfig.json",
+    "format": "prettier --write src/ --config .config/build/[FMT].prettierrc",
+    "format:check": "prettier --check src/ --config .config/build/[FMT].prettierrc"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.787.0",

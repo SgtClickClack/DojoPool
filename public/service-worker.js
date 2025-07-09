@@ -1,3 +1,18 @@
+// Simple logging system for service workers (production-safe)
+const serviceWorkerLogger = {
+  info: (message, data) => {
+    if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+      console.log(`[SW] ${message}`, data || '');
+    }
+  },
+  error: (message, error) => {
+    if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+      console.error(`[SW] ${message}`, error || '');
+    }
+    // In production, send to logging service
+  }
+};
+
 const CACHE_NAME = 'dojopool-v2';
 const DYNAMIC_CACHE = 'dojopool-dynamic-v2';
 const IMG_CACHE = 'dojopool-images-v1';
@@ -55,11 +70,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
       caches.open(CACHE_NAME).then((cache) => {
-        console.log('Caching static assets');
+        serviceWorkerLogger.info('Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       }),
       caches.open(IMG_CACHE).then((cache) => {
-        console.log('Caching image assets');
+                  serviceWorkerLogger.info('Caching image assets');
         return cache.addAll([
           '/static/images/placeholder.jpg',
           '/static/images/offline.jpg'
@@ -81,7 +96,7 @@ self.addEventListener('activate', (event) => {
               if (
                 ![CACHE_NAME, DYNAMIC_CACHE, IMG_CACHE, API_CACHE].includes(name)
               ) {
-                console.log('Deleting old cache:', name);
+                serviceWorkerLogger.info('Deleting old cache', name);
                 return caches.delete(name);
               }
             })
@@ -92,7 +107,7 @@ self.addEventListener('activate', (event) => {
       // Update runtime caching
       updateRuntimeCaching()
     ]).then(() => {
-      console.log('Service Worker activated');
+      serviceWorkerLogger.info('Service Worker activated');
       return self.clients.claim();
     })
   );
@@ -167,7 +182,7 @@ async function handleApiRequest(request) {
       return response;
     }
   } catch (error) {
-    console.log('Fetch failed, trying cache', error);
+    serviceWorkerLogger.error('Fetch failed, trying cache', error);
     const cachedResponse = await caches.match(request);
     if (cachedResponse && !isExpired(API_CACHE, request.url)) {
       return cachedResponse;
@@ -204,7 +219,7 @@ async function handleImageRequest(request) {
       return response;
     }
   } catch (error) {
-    console.log('Image fetch failed:', error);
+    serviceWorkerLogger.error('Image fetch failed', error);
   }
 
   // Return placeholder image
@@ -314,7 +329,7 @@ async function syncGameData() {
         }
         return false;
       } catch (error) {
-        console.error('Failed to sync game data:', error);
+        serviceWorkerLogger.error('Failed to sync game data', error);
         return false;
       }
     })
@@ -349,7 +364,7 @@ async function syncUserData() {
         }
         return false;
       } catch (error) {
-        console.error('Failed to sync user data:', error);
+        serviceWorkerLogger.error('Failed to sync user data', error);
         return false;
       }
     })
@@ -366,7 +381,7 @@ async function updateLeaderboard() {
       setExpirationMetadata(API_CACHE, '/api/leaderboard');
     }
   } catch (error) {
-    console.error('Failed to update leaderboard:', error);
+    serviceWorkerLogger.error('Failed to update leaderboard', error);
   }
 }
 
@@ -380,7 +395,7 @@ async function updateTournaments() {
       setExpirationMetadata(API_CACHE, '/api/tournaments');
     }
   } catch (error) {
-    console.error('Failed to update tournaments:', error);
+    serviceWorkerLogger.error('Failed to update tournaments', error);
   }
 }
 
@@ -394,7 +409,7 @@ async function updateAchievements() {
       setExpirationMetadata(API_CACHE, '/api/achievements');
     }
   } catch (error) {
-    console.error('Failed to update achievements:', error);
+    serviceWorkerLogger.error('Failed to update achievements', error);
   }
 }
 
@@ -408,7 +423,7 @@ async function updateNotificationBadge() {
         navigator.setAppBadge(count);
       }
     } catch (error) {
-      console.error('Failed to update notification badge:', error);
+      serviceWorkerLogger.error('Failed to update notification badge', error);
     }
   }
 }
@@ -472,7 +487,7 @@ async function updateRuntimeCaching() {
           setExpirationMetadata(DYNAMIC_CACHE, request.url);
         }
       } catch (error) {
-        console.error('Failed to update runtime cache:', error);
+        serviceWorkerLogger.error('Failed to update runtime cache', error);
       }
     })
   );
