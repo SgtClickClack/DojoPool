@@ -274,6 +274,35 @@ class GameMechanicsService extends EventEmitter {
       };
 
       match.events.push(matchEvent);
+
+      // Handle 'game_end' events to update match scores
+      if (event.type === 'game_end' && event.data) {
+        const { winner, score } = event.data;
+        
+        // Update match score based on the winner
+        if (winner === match.player1Id) {
+          match.score.player1++;
+        } else if (winner === match.player2Id) {
+          match.score.player2++;
+        }
+
+        // Update game state with new score
+        const currentPlayerId = this.gameStateService.getPlayerId();
+        const isPlayer1 = currentPlayerId === match.player1Id;
+        
+        this.gameStateService.updateMatchState({
+          isInMatch: true,
+          matchId: match.matchId,
+          opponentId: isPlayer1 ? match.player2Id : match.player1Id,
+          dojoId: match.dojoId,
+          startTime: match.startTime,
+          score: {
+            player: isPlayer1 ? match.score.player1 : match.score.player2,
+            opponent: isPlayer1 ? match.score.player2 : match.score.player1
+          }
+        });
+      }
+
       this.activeMatches.set(matchId, match);
 
       this.emit('matchEventRecorded', { matchId, event: matchEvent });
@@ -298,6 +327,25 @@ class GameMechanicsService extends EventEmitter {
       match.winnerId = winnerId;
 
       this.activeMatches.set(matchId, match);
+
+      // Award experience and update progression
+      const loserId = match.player1Id === winnerId ? match.player2Id : match.player1Id;
+      const currentPlayerId = this.gameStateService.getPlayerId();
+      
+      // Award 100 XP to winner, 25 XP to loser
+      try {
+        // Only award experience to current player
+        if (winnerId === currentPlayerId) {
+          this.progressionService.addExperience(100);
+          this.progressionService.updateGameResult(true);
+        } else if (loserId === currentPlayerId) {
+          this.progressionService.addExperience(25);
+          this.progressionService.updateGameResult(false);
+        }
+      } catch (progressionError) {
+        console.error('Error updating progression after match:', progressionError);
+        // Don't throw - match completion is more important than progression updates
+      }
 
       // Update game state
       this.gameStateService.updateMatchState({
