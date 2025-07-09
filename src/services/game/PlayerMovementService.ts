@@ -18,6 +18,7 @@ export interface PlayerMovement {
   estimatedDuration: number; // in minutes
   travelMethod: 'walking' | 'driving' | 'public_transport' | 'teleport' | 'fast_travel';
   status: 'traveling' | 'arrived' | 'cancelled';
+  timeoutId?: NodeJS.Timeout; // Add timeout ID for cancellation
 }
 
 export interface TeleportCost {
@@ -56,6 +57,9 @@ export class PlayerMovementService extends EventEmitter {
       const currentLocation = this.gameStateService.getCurrentLocation();
       const playerId = this.gameStateService.getPlayerId();
       
+      // Cancel any existing travel for this player
+      await this.cancelTravel();
+      
       const destinationLocation = await this.getDojoLocation(destinationDojoId);
       const travelTime = this.calculateTravelTime(currentLocation, destinationLocation, travelMethod);
 
@@ -74,6 +78,12 @@ export class PlayerMovementService extends EventEmitter {
         status: 'traveling'
       };
 
+      // Store timeout ID for later cancellation
+      const timeoutId = setTimeout(() => {
+        this.completeTravel();
+      }, travelTime * 60000);
+      
+      movement.timeoutId = timeoutId;
       this.activeMovements.set(playerId, movement);
       
       // Update game state
@@ -86,11 +96,6 @@ export class PlayerMovementService extends EventEmitter {
       });
 
       this.emit('travelStarted', movement);
-
-      // Schedule automatic arrival
-      setTimeout(() => {
-        this.completeTravel();
-      }, travelTime * 60000);
 
       return movement;
     } catch (error) {
@@ -109,6 +114,10 @@ export class PlayerMovementService extends EventEmitter {
     try {
       const currentLocation = this.gameStateService.getCurrentLocation();
       const playerId = this.gameStateService.getPlayerId();
+      
+      // Cancel any existing travel for this player
+      await this.cancelTravel();
+      
       const destinationLocation = await this.getDojoLocation(dojoId);
       
       const teleportCost = this.calculateTeleportCost(teleportType, currentLocation, destinationLocation);
@@ -133,10 +142,9 @@ export class PlayerMovementService extends EventEmitter {
         status: teleportType === 'instant' ? 'arrived' : 'traveling'
       };
 
-      this.activeMovements.set(playerId, movement);
-
       if (teleportType === 'instant') {
-        // Immediate arrival
+        // Immediate arrival - no timeout needed
+        this.activeMovements.set(playerId, movement);
         this.gameStateService.updatePlayerLocation(
           destinationLocation.latitude,
           destinationLocation.longitude,
@@ -144,7 +152,14 @@ export class PlayerMovementService extends EventEmitter {
         );
         this.gameStateService.setTravelingState(false);
       } else {
-        // Ritual teleport with short delay
+        // Ritual teleport with short delay - store timeout ID
+        const timeoutId = setTimeout(() => {
+          this.completeTravel();
+        }, 60000);
+        
+        movement.timeoutId = timeoutId;
+        this.activeMovements.set(playerId, movement);
+        
         this.gameStateService.setTravelingState(true, {
           dojoId,
           dojoName: destinationLocation.name,
@@ -152,10 +167,6 @@ export class PlayerMovementService extends EventEmitter {
           longitude: destinationLocation.longitude,
           estimatedArrival: new Date(Date.now() + 60000)
         });
-
-        setTimeout(() => {
-          this.completeTravel();
-        }, 60000);
       }
 
       this.emit('teleportStarted', { movement, cost: teleportCost });
@@ -176,6 +187,9 @@ export class PlayerMovementService extends EventEmitter {
     try {
       const currentLocation = this.gameStateService.getCurrentLocation();
       const playerId = this.gameStateService.getPlayerId();
+      
+      // Cancel any existing travel for this player
+      await this.cancelTravel();
       
       // Check fast travel access
       if (!this.hasFastTravelAccess(fastTravelType, dojoId)) {
@@ -201,6 +215,12 @@ export class PlayerMovementService extends EventEmitter {
         status: 'traveling'
       };
 
+      // Store timeout ID for later cancellation
+      const timeoutId = setTimeout(() => {
+        this.completeTravel();
+      }, travelTime * 60000);
+      
+      movement.timeoutId = timeoutId;
       this.activeMovements.set(playerId, movement);
       
       this.gameStateService.setTravelingState(true, {
@@ -212,11 +232,6 @@ export class PlayerMovementService extends EventEmitter {
       });
 
       this.emit('fastTravelStarted', { movement, cost: fastTravelCost });
-
-      // Schedule arrival
-      setTimeout(() => {
-        this.completeTravel();
-      }, travelTime * 60000);
 
       return movement;
     } catch (error) {
@@ -235,6 +250,12 @@ export class PlayerMovementService extends EventEmitter {
       
       if (!movement) {
         throw new Error('No active travel to complete');
+      }
+
+      // Clear any existing timeout
+      if (movement.timeoutId) {
+        clearTimeout(movement.timeoutId);
+        movement.timeoutId = undefined;
       }
 
       // Update player location
@@ -272,7 +293,13 @@ export class PlayerMovementService extends EventEmitter {
       const movement = this.activeMovements.get(playerId);
       
       if (!movement) {
-        throw new Error('No active travel to cancel');
+        return; // No active travel to cancel
+      }
+
+      // Clear any existing timeout
+      if (movement.timeoutId) {
+        clearTimeout(movement.timeoutId);
+        movement.timeoutId = undefined;
       }
 
       movement.status = 'cancelled';

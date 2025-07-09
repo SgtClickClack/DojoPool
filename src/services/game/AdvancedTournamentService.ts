@@ -74,9 +74,19 @@ export interface CreateTournamentData {
  */
 export class AdvancedTournamentService extends EventEmitter {
   private tournaments: Map<string, TournamentChallenge> = new Map();
+  private idCounter: number = 0; // Add counter to prevent ID collisions
 
   constructor() {
     super();
+  }
+
+  /**
+   * Generate unique ID with timestamp and counter to prevent collisions
+   */
+  private generateUniqueId(prefix: string): string {
+    const timestamp = Date.now();
+    const counter = ++this.idCounter;
+    return `${prefix}-${timestamp}-${counter}`;
   }
 
   /**
@@ -84,14 +94,17 @@ export class AdvancedTournamentService extends EventEmitter {
    */
   async createTournamentChallenge(tournamentData: CreateTournamentData): Promise<TournamentChallenge> {
     try {
+      // Generate single unique ID and use it for both challenge and tournament
+      const uniqueId = this.generateUniqueId('tournament');
+      
       const tournamentChallenge: TournamentChallenge = {
-        id: `tournament-${Date.now()}`,
+        id: uniqueId,
         type: 'tournament',
         challengerId: 'current-player', // Get from game state
         dojoId: tournamentData.dojoId,
         status: 'pending',
         createdAt: new Date(),
-        tournamentId: `tournament-${Date.now()}`,
+        tournamentId: uniqueId, // Use same ID for internal consistency
         tournamentName: tournamentData.name,
         entryFee: tournamentData.entryFee,
         maxParticipants: tournamentData.maxParticipants,
