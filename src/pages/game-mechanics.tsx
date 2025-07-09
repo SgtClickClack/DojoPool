@@ -26,14 +26,14 @@ import {
   Add,
   Info
 } from '@mui/icons-material';
-import Layout from '../src/components/layout/Layout';
-import PageBackground from '../src/components/common/PageBackground';
-import ChallengeCreationPanel from '../src/components/game/ChallengeCreationPanel';
-import TerritoryControlPanel from '../src/components/game/TerritoryControlPanel';
-import PlayerMovementPanel from '../src/components/game/PlayerMovementPanel';
-import AchievementPanel from '../src/components/game/AchievementPanel';
-import RealTimeMatchTracker from '../src/components/game/RealTimeMatchTracker';
-import GameMechanicsService from '../src/services/GameMechanicsService';
+import Layout from '../components/layout/Layout';
+import PageBackground from '../components/common/PageBackground';
+import ChallengeCreationPanel from '../components/game/ChallengeCreationPanel';
+import TerritoryControlPanel from '../components/game/TerritoryControlPanel';
+import PlayerMovementPanel from '../components/game/PlayerMovementPanel';
+import AchievementPanel from '../components/game/AchievementPanel';
+import RealTimeMatchTracker from '../components/game/RealTimeMatchTracker';
+import GameMechanicsService from '../services/GameMechanicsService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
