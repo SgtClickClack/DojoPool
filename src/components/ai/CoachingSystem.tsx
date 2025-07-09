@@ -53,7 +53,7 @@ import {
 import MatchAnalysisService, {
   TrainingProgram,
   PlayerPerformance,
-} from '../../services/ai/MatchAnalysisService';
+} from '../../services/ai/MatchAnalysisService-Meex';
 
 interface TabPanelProps {
   children?: React.ReactNode;
