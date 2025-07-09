@@ -14,6 +14,7 @@ import { analytics, trackPageView } from '../services/AnalyticsService';
 import { security } from '../services/SecurityService';
 import { bundleOptimizer } from '../utils/bundleOptimizer';
 import { deploymentManager } from '../config/deployment';
+import { logger } from '../utils/logger';
 
 // Lazy load components
 const Login = React.lazy(() => import('../components/auth/Login'));
@@ -153,7 +154,7 @@ const SocialFeedWrapper = () => <SocialFeed />;
 // This App component assumes ThemeProvider, CssBaseline, AuthProvider, and BrowserRouter
 // are wrapping it from main.tsx (or your root index file)
 const App: React.FC = () => {
-  console.log('[DEBUG] App render');
+  logger.debug('App component rendering');
 
   // Initialize SPRINT 9 services
   useEffect(() => {
@@ -163,37 +164,39 @@ const App: React.FC = () => {
         if (deploymentManager.isFeatureEnabled('serviceWorkerEnabled')) {
           await registerServiceWorker({
             onSuccess: (registration) => {
-              console.log('[App] Service Worker registered successfully');
+              logger.info('Service Worker registered successfully');
             },
             onUpdate: (registration) => {
-              console.log('[App] Service Worker update available');
+              logger.info('Service Worker update available');
             },
             onError: (error) => {
-              console.error('[App] Service Worker registration failed:', error);
+              logger.error('Service Worker registration failed', { error: error.message });
             }
           });
         }
 
         // Initialize analytics
         if (deploymentManager.isFeatureEnabled('analyticsEnabled')) {
-          console.log('[App] Analytics service initialized');
+          logger.info('Analytics service initialized');
           trackPageView('app_loaded');
         }
 
         // Initialize security
         if (deploymentManager.isFeatureEnabled('securityEnabled')) {
-          console.log('[App] Security service initialized');
+          logger.info('Security service initialized');
         }
 
         // Initialize bundle optimization
         if (deploymentManager.isFeatureEnabled('monitoringEnabled')) {
           await bundleOptimizer.trackBundleSize();
-          console.log('[App] Bundle optimization monitoring initialized');
+          logger.info('Bundle optimization monitoring initialized');
         }
 
-        console.log('[App] All SPRINT 9 services initialized successfully');
+        logger.info('All SPRINT 9 services initialized successfully');
       } catch (error) {
-        console.error('[App] Failed to initialize services:', error);
+        logger.error('Failed to initialize services', { 
+          error: error instanceof Error ? error.message : String(error) 
+        });
       }
     };
 
