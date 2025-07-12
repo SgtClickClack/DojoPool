@@ -128,7 +128,7 @@ class TournamentAnalyticsService {
   }
 
   private initializeSocket(): void {
-    this.socket = io('http://localhost:8080');
+    this.socket = io('/socket.io');
     
     this.socket.on('connect', () => {
       console.log('TournamentAnalyticsService connected to server');

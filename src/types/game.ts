@@ -15,6 +15,12 @@ export interface GameState {
     seconds: number;
   };
   possession: string; // team id
+  // Additional fields for analysis service
+  currentPlayer?: string;
+  turn?: number;
+  status?: string;
+  player1?: number;
+  player2?: number;
 }
 
 export enum GameType {
@@ -90,6 +96,10 @@ export interface GameEvent {
   timestamp: number;
   playerId?: string;
   teamId?: string;
+  shotType?: string;
+  success?: boolean;
+  accuracy?: number;
+  duration?: number;
 }
 
 export interface RuleViolation {
@@ -120,4 +130,23 @@ export interface GameSpecificReward {
   // type?: 'COIN' | 'NFT_SHARD' | 'ITEM_UNLOCK' | 'XP'; // More specific reward types
   // amount?: number; // For countable rewards like coins or XP
   // relatedGameId?: string; // To link back to the game
+}
+
+// Added for GameAnalysisService
+export interface PlayerStats {
+  shotsTaken: number;
+  successfulShots: number;
+  averageAccuracy: number;
+  preferredShotTypes: Map<string, number>;
+  weaknesses: Set<string>;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface MatchStats {
+  totalShots: number;
+  successfulShots: number;
+  averageShotTime: number;
+  longestStreak: number;
+  currentStreak: number;
 }

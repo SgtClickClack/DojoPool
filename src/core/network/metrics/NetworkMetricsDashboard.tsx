@@ -38,7 +38,7 @@ export const NetworkMetricsDashboard: React.FC<NetworkMetricsDashboardProps> = (
   const [currentMetrics, setCurrentMetrics] = useState<NetworkMetrics | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:3002/metrics/${nodeId}`);
+          const ws = new WebSocket(`/metrics/${nodeId}`);
 
     ws.onmessage = (event) => {
       const metrics: NetworkMetrics = JSON.parse(event.data);

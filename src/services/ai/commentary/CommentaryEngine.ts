@@ -1,5 +1,5 @@
 import { BaseService } from '../../core/BaseService';
-import { logger } from '../../../utils/Logger';
+import { logger } from '../../../utils/logger';
 import { CommentaryEventContext, ShotEventContext } from '../../../types/common';
 
 /**
@@ -54,10 +54,10 @@ export class CommentaryEngine extends BaseService {
   constructor() {
     super('CommentaryEngine', {
       enabled: true,
-      websocketUrl: 'http://localhost:8080'
+      websocketUrl: '/socket.io'
     });
 
-    this.config = {
+    this.commentaryConfig = {
       enabled: true,
       realTimeCommentary: true,
       autoCommentary: true,
@@ -141,7 +141,8 @@ export class CommentaryEngine extends BaseService {
   private getBaseCommentary(event: Partial<CommentaryEvent>): string {
     switch (event.eventType) {
       case 'shot':
-        return `Player ${event.playerName} takes a shot with ${event.context?.power || 'unknown'}% power and ${event.context?.accuracy || 'unknown'}% accuracy.`;
+        const shotContext = event.context as unknown as ShotEventContext;
+        return `Player ${event.playerName} takes a shot with ${shotContext?.power || 'unknown'}% power and ${shotContext?.accuracy || 'unknown'}% accuracy.`;
       case 'foul':
         return `Foul called on ${event.playerName} for ${event.context?.description || 'rule violation'}.`;
       case 'score':

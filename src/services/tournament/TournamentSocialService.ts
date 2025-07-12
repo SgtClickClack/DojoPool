@@ -551,7 +551,7 @@ class TournamentSocialService extends EventEmitter {
     return false;
   }
 
-  public subscribeToUpdates(callback: (data: any) => void): () => void {
+  public subscribeToUpdates(callback: (data: unknown) => void): () => void {
     this.on('socialUpdate', callback);
     this.on('postCreated', callback);
     this.on('postLiked', callback);

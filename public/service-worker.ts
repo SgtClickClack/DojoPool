@@ -1,18 +1,20 @@
-// Generated type definitions
+// Service Worker for DojoPool Platform
+// Note: Service workers run in a separate context and cannot import ES modules
 
-function handleApiRequest(request: any): any {
-    // Implementation
-}
-
-function syncGameData(): any {
-    // Implementation
-}
-
-function updateLeaderboard(): any {
-    // Implementation
-}
-
-// Type imports
+// Simple logging system for service workers
+const serviceWorkerLogger = {
+  info: (message: string, data?: any) => {
+    if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+      console.log(`[SW] ${message}`, data || '');
+    }
+  },
+  error: (message: string, error?: any) => {
+    if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+      console.error(`[SW] ${message}`, error || '');
+    }
+    // In production, send to logging service
+  }
+};
 
 
 const CACHE_NAME: any = 'dojopool-v1';
@@ -45,7 +47,7 @@ self.addEventListener('install', (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        console.log('Caching static assets');
+        serviceWorkerLogger.info('Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => self.skipWaiting())
@@ -68,7 +70,7 @@ self.addEventListener('activate', (event) => {
         );
       })
       .then(() => {
-        console.log('Service Worker activated');
+        serviceWorkerLogger.info('Service Worker activated');
         return self.clients.claim();
       })
   );
@@ -122,7 +124,7 @@ async function handleApiRequest(request: any): any {
       return response;
     }
   } catch (error) {
-    console.log('Fetch failed, trying cache', error);
+    serviceWorkerLogger.error('Fetch failed, trying cache', error);
     const cachedResponse: any = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
@@ -189,7 +191,7 @@ async function syncGameData(): any {
         await fetch(request);
         await cache.delete(request);
       } catch (error) {
-        console.error('Failed to sync game data:', error);
+        serviceWorkerLogger.error('Failed to sync game data', error);
       }
     }
   }
@@ -204,6 +206,6 @@ async function updateLeaderboard(): any {
       await cache.put('/api/leaderboard', response);
     }
   } catch (error) {
-    console.error('Failed to update leaderboard:', error);
+    serviceWorkerLogger.error('Failed to update leaderboard', error);
   }
 }

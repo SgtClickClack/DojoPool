@@ -1,8 +1,10 @@
+// This service is frontend-only. Do not use in backend.
 import axios from 'axios';
+import { env } from '../config/environment';
 
 // Create an axios instance with default config
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: env.API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

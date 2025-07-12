@@ -98,7 +98,7 @@ export class SocialService extends EventEmitter {
   private baseUrl: string;
   private authToken: string | null = null;
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
+  constructor(baseUrl: string = '/api') {
     super();
     this.baseUrl = baseUrl;
   }

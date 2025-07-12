@@ -1,4 +1,5 @@
 import axios from "axios";
+import { env } from '../../config/environment';
 import { auth } from "../../firebase/firebase"; // Import Firebase auth instance
 
 const getEnvVar = (key: string, fallback: string = ''): string => {
@@ -8,8 +9,8 @@ const getEnvVar = (key: string, fallback: string = ''): string => {
   return fallback;
 };
 
-// Use import.meta.env for Vite environment variables
-const API_BASE_URL = import.meta.env.VITE_NEXT_PUBLIC_API_URL || '';
+// Use environment variables with fallback for different environments
+const API_BASE_URL = env.API_URL;
 
 const axiosInstance = axios.create({
   baseURL: '/api', // Use Vite proxy to forward to backend

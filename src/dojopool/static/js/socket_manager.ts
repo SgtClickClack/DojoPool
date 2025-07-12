@@ -247,5 +247,5 @@ export class SocketManagerImpl implements ISocketManager {
 // Create singleton instance
 export const socketManager = SocketManagerImpl.getInstance({
   debug: true,
-  url: process.env.REACT_APP_WS_URL || "ws://localhost:8000",
+  url: process.env.REACT_APP_WS_URL || "http://localhost:8080",
 });

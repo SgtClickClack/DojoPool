@@ -25,7 +25,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Avatar3DPreview from './Avatar3DPreview';
 import Avatar3DModelViewer from './Avatar3DModelViewer';
-import { avatar3DService, Avatar3DRequest } from '../../../services/avatar3DService';
+import { avatar3DService, Avatar3DRequest } from '../../../services/avatar3DService-Meex';
 
 interface AvatarCreationProps {
   onAvatarCreated?: (avatarUrl: string) => void;

@@ -1,15 +1,17 @@
-// Generated type definitions
-
-class VenueInfoWindow {
-  // Properties and methods
-}
-
-// Type imports
+// Security: Import DOMPurify for HTML sanitization
+import DOMPurify from 'dompurify';
 
 /**
  * Custom info window component for displaying venue information
  */
 export default class VenueInfoWindow {
+  container: HTMLElement;
+  content: any;
+  isOpen: boolean;
+  currentMarker: any;
+  map: any;
+  clickListener: any;
+
   constructor() {
     this.container = document.createElement("div");
     this.container.className = "venue-info-window";
@@ -126,6 +128,18 @@ export default class VenueInfoWindow {
     document.head.appendChild(style);
   }
 
+  // Security: Helper method to sanitize HTML content
+  sanitizeHtml(html: string): string {
+    return DOMPurify.sanitize(html);
+  }
+
+  // Security: Safely escape text content to prevent XSS
+  escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   setMap(map) {
     this.map = map;
     this.map.getDiv().appendChild(this.container);
@@ -135,11 +149,11 @@ export default class VenueInfoWindow {
     this.currentMarker = marker;
     this.isOpen = true;
 
-    // Update content
-    this.container.innerHTML = `
+    // Security: Sanitize all venue data before inserting into DOM
+    const htmlContent = `
             <button class="venue-info-close">&times;</button>
             <div class="venue-info-header">
-                <h3 class="venue-info-name">${venue.name}</h3>
+                <h3 class="venue-info-name">${this.escapeHtml(venue.name)}</h3>
                 <div class="venue-info-status">
                     ${venue.status === "active" ? "● OPEN NOW" : "○ CLOSED"}
                 </div>
@@ -147,25 +161,25 @@ export default class VenueInfoWindow {
             <div class="venue-info-content">
                 <div class="venue-info-stat">
                     <span class="venue-info-label">Tables Available</span>
-                    <span class="venue-info-value">${venue.availableTables || "N/A"}</span>
+                    <span class="venue-info-value">${this.escapeHtml(venue.availableTables || "N/A")}</span>
                 </div>
                 <div class="venue-info-stat">
                     <span class="venue-info-label">Players Present</span>
-                    <span class="venue-info-value">${venue.currentPlayers || "0"}</span>
+                    <span class="venue-info-value">${this.escapeHtml(venue.currentPlayers || "0")}</span>
                 </div>
                 <div class="venue-info-stat">
                     <span class="venue-info-label">Rating</span>
-                    <span class="venue-info-value">★ ${venue.rating || "N/A"}</span>
+                    <span class="venue-info-value">★ ${this.escapeHtml(venue.rating || "N/A")}</span>
                 </div>
             </div>
             <div class="venue-info-actions">
-                <button class="venue-info-button" onclick="window.location.href='/venues/${venue.id}'">
+                <button class="venue-info-button" onclick="window.location.href='/venues/${this.escapeHtml(venue.id)}'">
                     VIEW DETAILS
                 </button>
                 ${
                   venue.status === "active"
                     ? `
-                    <button class="venue-info-button" onclick="window.location.href='/venues/${venue.id}/book'">
+                    <button class="venue-info-button" onclick="window.location.href='/venues/${this.escapeHtml(venue.id)}/book'">
                         BOOK NOW
                     </button>
                 `
@@ -173,6 +187,7 @@ export default class VenueInfoWindow {
                 }
             </div>
         `;
+    this.container.innerHTML = this.sanitizeHtml(htmlContent);
 
     // Position the info window
     const point: any = this.map

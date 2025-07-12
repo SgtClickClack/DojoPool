@@ -1,4 +1,4 @@
-import { GameState, PlayerStats, MatchStats, GameEvent } from "../types/game";
+import { GameState, PlayerStats, MatchStats, GameEvent } from "../../types/game";
 
 export class GameAnalysisService {
   private gameState: GameState;

@@ -45,6 +45,10 @@ import { venueLeaderboardService } from '../services/venue/VenueLeaderboardServi
 import advancedAnalyticsRoutes from './routes/advanced-analytics';
 import { advancedAnalyticsService } from '../services/analytics/AdvancedAnalyticsService';
 import highlightsRoutes from './routes/highlights';
+import dojoRoutes from './routes/dojo';
+import challengePhase4Routes from './routes/challenge-phase4';
+import playerRoutes from './routes/player';
+import matchTrackingRoutes from './routes/match-tracking';
 // import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration';
 
 // Load environment variables
@@ -163,6 +167,7 @@ app.use('/api', tournamentRoutes);
 app.use('/api/passive-income', passiveIncomeRoutes);
 app.use('/api/venue-leaderboard', venueLeaderboardRoutes);
 app.use('/api/advanced-analytics', advancedAnalyticsRoutes);
+app.use('/api/analytics', advancedAnalyticsRoutes);
 app.use('/api/highlights', highlightsRoutes);
 app.use('/api/enhanced-social', enhancedSocialRoutes);
 app.use('/api/advanced-tournaments', advancedTournamentRoutes);
@@ -173,6 +178,10 @@ app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
 app.use('/api/advanced-ai-referee-rule-enforcement', advancedAIRefereeRuleEnforcementRoutes);
 app.use('/api/advanced-ai-match-commentary-highlights', advancedAIMatchCommentaryHighlightsRoutes);
 app.use('/api/avatar', avatarCreationRoutes);
+app.use('/api/dojo', dojoRoutes);
+app.use('/api/player', playerRoutes);
+app.use('/api/challenge', challengePhase4Routes);
+app.use('/api/match-tracking', matchTrackingRoutes);
 app.use('/api/investor/auth', investorAuthRoutes);
 app.use('/api/venue-customization', venueCustomizationRoutes);
 

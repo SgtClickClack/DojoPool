@@ -1,2 +1,2 @@
-process.env.REACT_APP_API_URL || "http://localhost:8000/api";
-process.env.REACT_APP_WEBSOCKET_URL || "ws://localhost:8000"; 
+export const API_BASE_URL = process.env.REACT_APP_API_URL || "/api";
+export const WEBSOCKET_BASE_URL = process.env.REACT_APP_WEBSOCKET_URL || "/socket.io"; 

@@ -1,3 +1,5 @@
+// This service is frontend-only. Do not use in backend.
+
 interface Avatar3DRequest {
   image?: string; // base64 encoded image
   prompt?: string; // text prompt for generation
@@ -11,18 +13,20 @@ interface Avatar3DResponse {
   modelId?: string;
 }
 
+import { env } from '../config/environment';
+
 class Avatar3DService {
   private apiKey: string;
   private baseUrl = 'https://api.3daistudio.com/v1';
   private mockModelUrl = '/models/default-avatar.glb'; // Local placeholder model
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_3DAI_STUDIO_API_KEY || '';
+    this.apiKey = env.VITE_3DAI_STUDIO_API_KEY;
   }
 
   async generateAvatar(request: Avatar3DRequest): Promise<Avatar3DResponse> {
     // Use mock implementation in development
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       return this.generateMockAvatar(request);
     }
 
@@ -74,7 +78,7 @@ class Avatar3DService {
 
   async getModelStatus(modelId: string): Promise<Avatar3DResponse> {
     // Use mock implementation in development
-    if (import.meta.env.DEV) {
+    if (env.DEV) {
       return {
         success: true,
         modelUrl: this.mockModelUrl,

@@ -54,7 +54,7 @@ export interface AvatarAsset {
 }
 
 class AvatarCreationService {
-  private readonly baseUrl = process.env.REACT_APP_AVATAR_API_URL || 'http://localhost:8080/api/avatar';
+  private readonly baseUrl = process.env.REACT_APP_AVATAR_API_URL || '/api/avatar';
 
   // Phase 1: iOS ARKit Scanning
   async initializeARKitScanning(userId: string): Promise<{ sessionId: string }> {

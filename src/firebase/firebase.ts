@@ -1,3 +1,4 @@
+// This file is frontend-only. Do not use in backend.
 import { getAnalytics, Analytics } from 'firebase/analytics';
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import {
@@ -16,42 +17,40 @@ import {
 } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { env } from '../config/environment';
 
-// Helper to get environment variables that works in both Jest and Vite
-const getEnvVar = (key: string, fallback: string = ''): string => {
-  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
-    return process.env[key] as string;
-  }
-  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key] !== undefined) {
-    return import.meta.env[key] as string;
-  }
-  return fallback;
-};
-
-// Use getEnvVar for Jest/node compatibility
+// Use centralized environment config
 console.log('[FB]firebase.ts:2 [Firebase Config Debug]', {
-  apiKey: getEnvVar('VITE_FIREBASE_API_KEY'),
-  authDomain: getEnvVar('VITE_FIREBASE_AUTH_DOMAIN'),
-  projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID'),
-  storageBucket: getEnvVar('VITE_FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID'),
-  appId: getEnvVar('VITE_FIREBASE_APP_ID'),
-  measurementId: getEnvVar('VITE_FIREBASE_MEASUREMENT_ID'),
+  apiKey: env.FIREBASE_API_KEY,
+  authDomain: env.FIREBASE_AUTH_DOMAIN,
+  projectId: env.FIREBASE_PROJECT_ID,
+  storageBucket: env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: env.FIREBASE_APP_ID,
+  measurementId: env.FIREBASE_MEASUREMENT_ID,
 });
 
 const firebaseConfig = {
-  apiKey: getEnvVar('VITE_FIREBASE_API_KEY'),
-  authDomain: getEnvVar('VITE_FIREBASE_AUTH_DOMAIN'),
-  projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID'),
-  storageBucket: getEnvVar('VITE_FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID'),
-  appId: getEnvVar('VITE_FIREBASE_APP_ID'),
-  measurementId: getEnvVar('VITE_FIREBASE_MEASUREMENT_ID'),
+  apiKey: env.FIREBASE_API_KEY,
+  authDomain: env.FIREBASE_AUTH_DOMAIN,
+  projectId: env.FIREBASE_PROJECT_ID,
+  storageBucket: env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: env.FIREBASE_APP_ID,
+  measurementId: env.FIREBASE_MEASUREMENT_ID,
 };
+
+console.log('[FB][DEBUG] Firebase API Key:', env.FIREBASE_API_KEY);
+console.log('[FB][DEBUG] Full Firebase Config:', firebaseConfig);
 
 let app: FirebaseApp | null = null;
 try {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  // Only initialize Firebase if we have valid config (not mock values)
+  if (env.FIREBASE_API_KEY && env.FIREBASE_API_KEY !== 'mock-api-key-for-development') {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  } else {
+    console.log('Firebase not configured - running in development mode without Firebase');
+  }
 } catch (error) {
   console.error('Firebase initialization error:', error);
   // app remains null
@@ -77,18 +76,18 @@ if (app) {
   }
 
   // Configure auth persistence (example, adjust as needed)
-  if (authInstance && (getEnvVar('NODE_ENV') === 'production' || getEnvVar('MODE') === 'production')) {
+  if (authInstance && (env.NODE_ENV === 'production' || env.PROD)) {
     setPersistence(authInstance, browserLocalPersistence)
       .catch((error: any) => {
         console.error('Error setting auth persistence:', error);
       });
   }
 } else {
-  console.error('Firebase app initialization failed. Firebase services will be unavailable.');
+  console.log('Firebase app not initialized - running in development mode without Firebase services');
 }
 
 const googleAuthProvider = new GoogleAuthProvider();
-if (authInstance) {
+if (authInstance && Object.keys(authInstance).length > 0) {
   if (typeof googleAuthProvider.setCustomParameters === 'function') {
     googleAuthProvider.setCustomParameters({
       prompt: 'select_account',
@@ -96,11 +95,13 @@ if (authInstance) {
     });
   }
 } else {
-  console.warn('Auth instance not available for GoogleAuthProvider configuration.');
+  console.log('Auth instance not available for GoogleAuthProvider configuration - running in development mode');
 }
 
 if (!authInstance) {
-  throw new Error('Firebase Auth instance could not be initialized.');
+  console.warn('Firebase Auth instance could not be initialized. Running in development mode without Firebase.');
+  // Create a mock auth instance for development
+  authInstance = {} as Auth;
 }
 export const auth: Auth = authInstance;
 export const db: Firestore | null = dbInstance;

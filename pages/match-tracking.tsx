@@ -1,255 +1,512 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { RealTimeMatchTracker } from '../src/components/match/RealTimeMatchTracker';
-import { MatchReplayComponent } from '../src/components/match/MatchReplayComponent';
-import { MatchAnalyticsComponent } from '../src/components/match/MatchAnalyticsComponent';
-import { MatchResult, MatchEvent } from '../src/services/RealTimeMatchTrackingService';
+import {
+  Box,
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  Button,
+  Alert,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Paper,
+  Tabs,
+  Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Switch,
+  FormControlLabel
+} from '@mui/material';
+import {
+  SportsEsports,
+  PlayArrow,
+  Stop,
+  Timer,
+  EmojiEvents,
+  TrendingUp,
+  Analytics,
+  Highlight,
+  Replay,
+  Videocam,
+  Settings,
+  Add,
+  Close,
+  CheckCircle,
+  Warning,
+  Info
+} from '@mui/icons-material';
+import RealTimeMatchTracker from '../src/components/match/RealTimeMatchTracker';
+import { ChallengeService } from '../src/services/ChallengeService';
 
-export default function MatchTrackingPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'tracking' | 'replay' | 'analytics'>('tracking');
-  const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
-  const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([]);
-  const [challengeId, setChallengeId] = useState<string>('');
-  const [matchData, setMatchData] = useState<any>(null);
-  const [isMatchComplete, setIsMatchComplete] = useState(false);
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
 
-  // Get challenge ID from URL params
-  useEffect(() => {
-    if (router.query.challengeId) {
-      setChallengeId(router.query.challengeId as string);
-      
-      // Mock match data for demonstration
-      setMatchData({
-        players: [
-          { id: 'player-1', name: 'Player One' },
-          { id: 'player-2', name: 'Player Two' },
-        ],
-        territoryId: router.query.territoryId as string || null,
-        challengeType: router.query.challengeType as string || 'standard',
-      });
-    }
-  }, [router.query]);
-
-  // Handle match end
-  const handleMatchEnd = (result: MatchResult) => {
-    setMatchResult(result);
-    setIsMatchComplete(true);
-    setActiveTab('replay');
-  };
-
-  // Mock match events for demonstration
-  useEffect(() => {
-    if (isMatchComplete && matchResult) {
-      const mockEvents: MatchEvent[] = [
-        {
-          id: 'event_1',
-          matchId: matchResult.matchId,
-          type: 'shot',
-          playerId: 'player-1',
-          timestamp: new Date(Date.now() - 300000),
-          data: { success: true, ball: '8-ball' },
-        },
-        {
-          id: 'event_2',
-          matchId: matchResult.matchId,
-          type: 'shot',
-          playerId: 'player-2',
-          timestamp: new Date(Date.now() - 280000),
-          data: { success: false, ball: '8-ball' },
-        },
-        {
-          id: 'event_3',
-          matchId: matchResult.matchId,
-          type: 'foul',
-          playerId: 'player-1',
-          timestamp: new Date(Date.now() - 260000),
-          data: { type: 'scratch', ball: 'cue' },
-        },
-        {
-          id: 'event_4',
-          matchId: matchResult.matchId,
-          type: 'highlight',
-          playerId: 'player-2',
-          timestamp: new Date(Date.now() - 240000),
-          data: { description: 'Amazing bank shot!' },
-        },
-        {
-          id: 'event_5',
-          matchId: matchResult.matchId,
-          type: 'shot',
-          playerId: 'player-1',
-          timestamp: new Date(Date.now() - 220000),
-          data: { success: true, ball: '8-ball' },
-        },
-      ];
-      setMatchEvents(mockEvents);
-    }
-  }, [isMatchComplete, matchResult]);
-
-  if (!challengeId || !matchData) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500">
-            <h1 className="text-2xl font-bold mb-4">Match Tracking</h1>
-            <p className="text-gray-300">Loading match data...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Match Tracking</h1>
-          <p className="text-gray-300">
-            Challenge ID: {challengeId} | 
-            Players: {matchData.players.map((p: any) => p.name).join(' vs ')}
-            {matchData.territoryId && ` | Territory: ${matchData.territoryId}`}
-          </p>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="mb-6">
-          <div className="flex space-x-1 bg-gray-800 p-1 rounded-lg">
-            <button
-              onClick={() => setActiveTab('tracking')}
-              className={`flex-1 py-2 px-4 rounded-md font-semibold transition-colors ${
-                activeTab === 'tracking'
-                  ? 'bg-cyan-600 text-white'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Live Tracking
-            </button>
-            <button
-              onClick={() => setActiveTab('replay')}
-              disabled={!isMatchComplete}
-              className={`flex-1 py-2 px-4 rounded-md font-semibold transition-colors ${
-                activeTab === 'replay'
-                  ? 'bg-cyan-600 text-white'
-                  : isMatchComplete
-                  ? 'text-gray-300 hover:text-white'
-                  : 'text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              Match Replay
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              disabled={!isMatchComplete}
-              className={`flex-1 py-2 px-4 rounded-md font-semibold transition-colors ${
-                activeTab === 'analytics'
-                  ? 'bg-cyan-600 text-white'
-                  : isMatchComplete
-                  ? 'text-gray-300 hover:text-white'
-                  : 'text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              Analytics
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        <div className="space-y-6">
-          {activeTab === 'tracking' && (
-            <div>
-              <div className="mb-4">
-                <h2 className="text-xl font-bold mb-2">Real-Time Match Tracking</h2>
-                <p className="text-gray-300">
-                  Track your match in real-time, record events, and monitor performance.
-                </p>
-              </div>
-              <RealTimeMatchTracker
-                challengeId={challengeId}
-                matchData={matchData}
-                onMatchEnd={handleMatchEnd}
-              />
-            </div>
-          )}
-
-          {activeTab === 'replay' && isMatchComplete && matchResult && (
-            <div>
-              <div className="mb-4">
-                <h2 className="text-xl font-bold mb-2">Match Replay & Highlights</h2>
-                <p className="text-gray-300">
-                  Review the match, watch highlights, and analyze key moments.
-                </p>
-              </div>
-              <MatchReplayComponent
-                matchResult={matchResult}
-                matchEvents={matchEvents}
-                onClose={() => setActiveTab('tracking')}
-              />
-            </div>
-          )}
-
-          {activeTab === 'analytics' && isMatchComplete && matchResult && (
-            <div>
-              <div className="mb-4">
-                <h2 className="text-xl font-bold mb-2">Match Analytics & Insights</h2>
-                <p className="text-gray-300">
-                  Detailed performance analysis, insights, and recommendations.
-                </p>
-              </div>
-              <MatchAnalyticsComponent
-                matchResult={matchResult}
-                onClose={() => setActiveTab('tracking')}
-              />
-            </div>
-          )}
-
-          {activeTab === 'replay' && !isMatchComplete && (
-            <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500">
-              <h2 className="text-xl font-bold mb-4">Match Replay</h2>
-              <p className="text-gray-300">
-                Match replay will be available once the match is completed.
-              </p>
-            </div>
-          )}
-
-          {activeTab === 'analytics' && !isMatchComplete && (
-            <div className="bg-gray-800 p-6 rounded-lg border border-cyan-500">
-              <h2 className="text-xl font-bold mb-4">Match Analytics</h2>
-              <p className="text-gray-300">
-                Match analytics will be available once the match is completed.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 bg-gray-800 p-4 rounded-lg border border-cyan-500">
-          <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => router.push('/map')}
-              className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded font-semibold transition-colors"
-            >
-              Back to Map
-            </button>
-            <button
-              onClick={() => router.push('/game-mechanics')}
-              className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded font-semibold transition-colors"
-            >
-              Game Mechanics
-            </button>
-            {isMatchComplete && (
-              <button
-                onClick={() => setActiveTab('replay')}
-                className="bg-cyan-600 hover:bg-cyan-700 px-4 py-2 rounded font-semibold transition-colors"
-              >
-                View Replay
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`match-tracking-tabpanel-${index}`}
+      aria-labelledby={`match-tracking-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
-} 
+}
+
+const MatchTrackingPage: React.FC = () => {
+  const [tabValue, setTabValue] = useState(0);
+  const [showMatchTracker, setShowMatchTracker] = useState(false);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string>('');
+  const [challenges, setChallenges] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [matchHistory, setMatchHistory] = useState<any[]>([]);
+  const [activeMatches, setActiveMatches] = useState<any[]>([]);
+  const [showCreateChallenge, setShowCreateChallenge] = useState(false);
+  const [newChallenge, setNewChallenge] = useState({
+    type: 'duel',
+    defenderId: '',
+    dojoId: ''
+  });
+
+  useEffect(() => {
+    loadChallenges();
+    loadActiveMatches();
+  }, []);
+
+  const loadChallenges = async () => {
+    try {
+      setLoading(true);
+      const activeChallenges = await ChallengeService.getActiveChallenges();
+      setChallenges(activeChallenges);
+    } catch (error) {
+      setError('Failed to load challenges');
+      console.error('Error loading challenges:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadActiveMatches = async () => {
+    try {
+      // In a real implementation, this would fetch from the match tracking API
+      const mockActiveMatches = [
+        {
+          id: 'match-1',
+          challengeId: 'challenge-1',
+          player1Id: 'player-1',
+          player2Id: 'player-2',
+          status: 'active',
+          score: { player1: 5, player2: 3 },
+          startTime: new Date(Date.now() - 300000) // 5 minutes ago
+        }
+      ];
+      setActiveMatches(mockActiveMatches);
+    } catch (error) {
+      console.error('Error loading active matches:', error);
+    }
+  };
+
+  const handleCreateChallenge = async () => {
+    try {
+      setLoading(true);
+      const challenge = await ChallengeService.createChallenge(newChallenge);
+      setChallenges(prev => [...prev, challenge]);
+      setShowCreateChallenge(false);
+      setNewChallenge({ type: 'duel', defenderId: '', dojoId: '' });
+    } catch (error) {
+      setError('Failed to create challenge');
+      console.error('Error creating challenge:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStartMatch = (challengeId: string) => {
+    setSelectedChallengeId(challengeId);
+    setShowMatchTracker(true);
+  };
+
+  const handleMatchStart = (match: any) => {
+    console.log('Match started:', match);
+    setActiveMatches(prev => [...prev, match]);
+  };
+
+  const handleMatchEnd = (result: any) => {
+    console.log('Match ended:', result);
+    setMatchHistory(prev => [...prev, result]);
+    setActiveMatches(prev => prev.filter(m => m.id !== result.matchId));
+    setShowMatchTracker(false);
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const getChallengeTypeName = (type: string) => {
+    const types = {
+      pilgrimage: 'Pilgrimage',
+      gauntlet: 'Gauntlet',
+      duel: 'Duel'
+    };
+    return types[type as keyof typeof types] || type;
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors = {
+      active: 'success',
+      accepted: 'primary',
+      declined: 'error',
+      completed: 'default'
+    };
+    return colors[status as keyof typeof colors] || 'default';
+  };
+
+  return (
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Typography variant="h3" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <SportsEsports color="primary" />
+        Real-Time Match Tracking
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={tabValue} onChange={handleTabChange} aria-label="match tracking tabs">
+          <Tab label="Active Matches" />
+          <Tab label="Challenges" />
+          <Tab label="Match History" />
+          <Tab label="Analytics" />
+        </Tabs>
+      </Box>
+
+      {/* Active Matches Tab */}
+      <TabPanel value={tabValue} index={0}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5">
+            Active Matches ({activeMatches.length})
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setShowCreateChallenge(true)}
+          >
+            Create Challenge
+          </Button>
+        </Box>
+
+        {activeMatches.length === 0 ? (
+          <Card>
+            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+              <SportsEsports sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No Active Matches
+              </Typography>
+              <Typography color="text.secondary">
+                Create a challenge to start tracking a match
+              </Typography>
+            </CardContent>
+          </Card>
+        ) : (
+          <Grid container spacing={3}>
+            {activeMatches.map((match) => (
+              <Grid item xs={12} md={6} key={match.id}>
+                <Card>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        Match {match.id}
+                      </Typography>
+                      <Chip 
+                        label={match.status} 
+                        color={getStatusColor(match.status)}
+                        size="small"
+                      />
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography variant="body2">
+                        Player 1: {match.player1Id}
+                      </Typography>
+                      <Typography variant="h6" color="primary">
+                        {match.score.player1}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography variant="body2">
+                        Player 2: {match.player2Id}
+                      </Typography>
+                      <Typography variant="h6" color="secondary">
+                        {match.score.player2}
+                      </Typography>
+                    </Box>
+                    
+                    <Typography variant="caption" color="text.secondary">
+                      Started: {match.startTime.toLocaleTimeString()}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </TabPanel>
+
+      {/* Challenges Tab */}
+      <TabPanel value={tabValue} index={1}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5">
+            Challenges ({challenges.length})
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setShowCreateChallenge(true)}
+          >
+            Create Challenge
+          </Button>
+        </Box>
+
+        {loading ? (
+          <Card>
+            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+              <Typography>Loading challenges...</Typography>
+            </CardContent>
+          </Card>
+        ) : challenges.length === 0 ? (
+          <Card>
+            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No Challenges
+              </Typography>
+              <Typography color="text.secondary">
+                Create a challenge to start a match
+              </Typography>
+            </CardContent>
+          </Card>
+        ) : (
+          <Grid container spacing={3}>
+            {challenges.map((challenge) => (
+              <Grid item xs={12} md={6} key={challenge.id}>
+                <Card>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        {getChallengeTypeName(challenge.type)} Challenge
+                      </Typography>
+                      <Chip 
+                        label={challenge.status} 
+                        color={getStatusColor(challenge.status)}
+                        size="small"
+                      />
+                    </Box>
+                    
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Challenger: {challenge.challengerId}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Defender: {challenge.defenderId}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      Dojo: {challenge.dojoId}
+                    </Typography>
+                    
+                    <Box sx={{ mt: 2 }}>
+                      {challenge.status === 'accepted' && (
+                        <Button
+                          variant="contained"
+                          startIcon={<PlayArrow />}
+                          onClick={() => handleStartMatch(challenge.id)}
+                          fullWidth
+                        >
+                          Start Match
+                        </Button>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </TabPanel>
+
+      {/* Match History Tab */}
+      <TabPanel value={tabValue} index={2}>
+        <Typography variant="h5" gutterBottom>
+          Match History ({matchHistory.length})
+        </Typography>
+        
+        {matchHistory.length === 0 ? (
+          <Card>
+            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+              <EmojiEvents sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No Match History
+              </Typography>
+              <Typography color="text.secondary">
+                Completed matches will appear here
+              </Typography>
+            </CardContent>
+          </Card>
+        ) : (
+          <List>
+            {matchHistory.map((result, index) => (
+              <ListItem key={index} divider>
+                <ListItemIcon>
+                  <EmojiEvents color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  primary={`Match ${result.matchId}`}
+                  secondary={
+                    <>
+                      <Typography variant="body2">
+                        Winner: {result.winnerId} ({result.winnerScore} - {result.loserScore})
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Duration: {Math.round(result.matchDuration / 1000)}s
+                      </Typography>
+                    </>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </TabPanel>
+
+      {/* Analytics Tab */}
+      <TabPanel value={tabValue} index={3}>
+        <Typography variant="h5" gutterBottom>
+          Match Analytics
+        </Typography>
+        
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  <Analytics sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  Performance Metrics
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Analytics will be displayed here as matches are completed
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  <Highlight sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  Match Highlights
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Highlights will be generated for completed matches
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </TabPanel>
+
+      {/* Create Challenge Dialog */}
+      <Dialog open={showCreateChallenge} onClose={() => setShowCreateChallenge(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Create New Challenge</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel>Challenge Type</InputLabel>
+              <Select
+                value={newChallenge.type}
+                onChange={(e) => setNewChallenge(prev => ({ ...prev, type: e.target.value }))}
+                label="Challenge Type"
+              >
+                <MenuItem value="duel">Duel</MenuItem>
+                <MenuItem value="pilgrimage">Pilgrimage</MenuItem>
+                <MenuItem value="gauntlet">Gauntlet</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <TextField
+              label="Defender ID"
+              value={newChallenge.defenderId}
+              onChange={(e) => setNewChallenge(prev => ({ ...prev, defenderId: e.target.value }))}
+              fullWidth
+            />
+            
+            <TextField
+              label="Dojo ID"
+              value={newChallenge.dojoId}
+              onChange={(e) => setNewChallenge(prev => ({ ...prev, dojoId: e.target.value }))}
+              fullWidth
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowCreateChallenge(false)}>Cancel</Button>
+          <Button 
+            onClick={handleCreateChallenge} 
+            variant="contained"
+            disabled={loading || !newChallenge.defenderId || !newChallenge.dojoId}
+          >
+            Create Challenge
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Real-Time Match Tracker Dialog */}
+      <Dialog 
+        open={showMatchTracker} 
+        onClose={() => setShowMatchTracker(false)} 
+        maxWidth="lg" 
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">Real-Time Match Tracker</Typography>
+            <IconButton onClick={() => setShowMatchTracker(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <RealTimeMatchTracker
+            challengeId={selectedChallengeId}
+            onMatchStart={handleMatchStart}
+            onMatchEnd={handleMatchEnd}
+            onClose={() => setShowMatchTracker(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </Container>
+  );
+};
+
+export default MatchTrackingPage; 

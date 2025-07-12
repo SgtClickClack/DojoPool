@@ -1,8 +1,8 @@
 // API and Websocket URLs
 export const API_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8000/api";
+  process.env.REACT_APP_API_URL || "/api";
 export const WEBSOCKET_URL =
-  process.env.REACT_APP_WEBSOCKET_URL || "ws://localhost:8000";
+  process.env.REACT_APP_WEBSOCKET_URL || "/socket.io";
 
 // Location Options
 export const LOCATION_OPTIONS = {

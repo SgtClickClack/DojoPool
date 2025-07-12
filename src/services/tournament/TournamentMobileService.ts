@@ -51,7 +51,7 @@ class TournamentMobileService {
   private offlineData: OfflineData | null = null;
   private settings: MobileSettings;
   private syncStatus: SyncStatus;
-  private subscribers: Map<string, Set<(data: Record<string, unknown>) => void>> = new Map();
+  private subscribers: Map<string, Set<(data: unknown) => void>> = new Map();
   private isOnline: boolean = navigator.onLine;
 
   constructor() {
@@ -201,7 +201,7 @@ class TournamentMobileService {
     return offlineTournaments.find(t => String(t.id) === String(tournamentId)) || null;
   }
 
-  async getMatchForMobile(matchId: string): Promise<any | null> {
+  async getMatchForMobile(matchId: string): Promise<TournamentMatch | null> {
     if (this.isOnline) {
       try {
         const response = await fetch(`/api/v1/matches/${matchId}`);
@@ -251,7 +251,7 @@ class TournamentMobileService {
   }
 
   // Subscription System
-  subscribe(event: string, callback: (data: any) => void): () => void {
+  subscribe(event: string, callback: (data: unknown) => void): () => void {
     if (!this.subscribers.has(event)) {
       this.subscribers.set(event, new Set());
     }
@@ -374,7 +374,7 @@ class TournamentMobileService {
     }
   }
 
-  private publish(event: string, data: any): void {
+  private publish(event: string, data: unknown): void {
     const subscribers = this.subscribers.get(event);
     if (subscribers) {
       subscribers.forEach(callback => {

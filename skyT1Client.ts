@@ -1,10 +1,12 @@
 import axios from 'axios'; // Assuming axios is available
 import { RefereeInput, RefereeResult, FoulType } from './AIRefereeService';
+import { logger } from './src/utils/logger';
+import { CONFIG } from './src/config/constants';
 
 // --- Sky-T1 API Client ---
 
 // Get the API endpoint from environment variables (ensure this is set in your .env files)
-const SKY_T1_API_ENDPOINT = process.env.REACT_APP_SKY_T1_API_ENDPOINT || '/api/mock/sky-t1/analyze'; // Fallback to a mock endpoint if not set
+const SKY_T1_API_ENDPOINT = CONFIG.API.SKY_T1_ENDPOINT;
 
 /**
  * Calls the Sky-T1 AI Referee service endpoint to analyze a shot.
@@ -16,11 +18,14 @@ const SKY_T1_API_ENDPOINT = process.env.REACT_APP_SKY_T1_API_ENDPOINT || '/api/m
 export const skyT1AnalyzeShot = async (
   input: RefereeInput
 ): Promise<RefereeResult> => {
-  console.log(`[skyT1Client] Sending analysis request to ${SKY_T1_API_ENDPOINT} for player: ${input.currentPlayerId}`);
+  logger.debug(`Sending analysis request to Sky-T1 API`, { 
+    playerId: input.currentPlayerId,
+    endpoint: SKY_T1_API_ENDPOINT 
+  });
 
   try {
     const response = await axios.post<RefereeResult>(SKY_T1_API_ENDPOINT, input, {
-      timeout: 10000, // Set a reasonable timeout (e.g., 10 seconds)
+      timeout: CONFIG.TIMEOUTS.API_REQUEST,
       headers: {
         'Content-Type': 'application/json',
         // Add any necessary authentication headers here (e.g., API Key)
@@ -35,14 +40,23 @@ export const skyT1AnalyzeShot = async (
       typeof response.data.isBallInHand === 'boolean' &&
       typeof response.data.nextPlayerId === 'string'
     ) {
-      console.log('[skyT1Client] Received valid response:', response.data);
+      logger.info('Sky-T1 API analysis completed successfully', { 
+        isBallInHand: response.data.isBallInHand,
+        nextPlayerId: response.data.nextPlayerId,
+        foul: response.data.foul 
+      });
       return response.data;
     } else {
-      console.error('[skyT1Client] Received invalid response structure:', response.data);
+      logger.error('Invalid response structure from Sky-T1 API', { 
+        responseData: response.data 
+      });
       throw new Error('Invalid response structure received from Sky-T1 API.');
     }
   } catch (error) {
-    console.error('[skyT1Client] Error calling Sky-T1 API:', error);
+    logger.error('Sky-T1 API request failed', { 
+      error: error instanceof Error ? error.message : String(error),
+      endpoint: SKY_T1_API_ENDPOINT 
+    });
 
     let errorMessage = 'Failed to analyze shot via Sky-T1 API.';
     if (axios.isAxiosError(error)) {

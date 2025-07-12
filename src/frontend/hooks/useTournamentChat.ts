@@ -109,7 +109,7 @@ export const useTournamentChat = (tournamentId: string) => {
     fetchChatData();
 
     // Set up real-time updates
-    const socket = new WebSocket(`ws://localhost:8000/tournaments/${tournamentId}/chat`);
+          const socket = new WebSocket(`/tournaments/${tournamentId}/chat`);
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);

@@ -1,5 +1,5 @@
-import { Tournament, TournamentMatch, TournamentParticipant } from '../../types/tournament';
-import { api } from '../api';
+import { Tournament, TournamentMatch, TournamentParticipant, TournamentBracket } from '../../types/tournament';
+import { api } from '../../services/api';
 
 export const getTournaments = async (): Promise<Tournament[]> => {
   const response = await api.get('/api/tournaments');
@@ -29,7 +29,7 @@ export const getTournamentMatches = async (tournamentId: string): Promise<Tourna
   return response.data;
 };
 
-export const getTournamentBracket = async (tournamentId: string): Promise<any> => {
+export const getTournamentBracket = async (tournamentId: string): Promise<TournamentBracket> => {
   const response = await api.get(`/api/tournaments/${tournamentId}/bracket`);
   return response.data;
 };

@@ -49,7 +49,7 @@ export class SocketClient {
       return;
     }
 
-    this.socket = io('ws://localhost:8000', {
+    this.socket = io('http://localhost:8080', {
       ...this.options,
       auth: {
         token,
