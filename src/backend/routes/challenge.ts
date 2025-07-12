@@ -469,13 +469,227 @@ router.get('/challenges/:challengeId', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Start match tracking for a challenge
+ */
+router.post('/challenges/:challengeId/start-match', async (req: Request, res: Response) => {
+  try {
+    const { challengeId } = req.params;
+    const { matchData } = req.body;
+    
+    if (!challenges.has(challengeId)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Challenge not found',
+        challengeId
+      });
+    }
+    
+    const challenge = challenges.get(challengeId);
+    
+    if (challenge.status !== 'accepted') {
+      return res.status(400).json({
+        success: false,
+        error: 'Challenge must be accepted before starting match',
+        currentStatus: challenge.status
+      });
+    }
+    
+    // Update challenge status to in-progress
+    challenge.status = 'in-progress';
+    challenge.matchStartedAt = new Date();
+    challenge.matchData = matchData;
+    challenges.set(challengeId, challenge);
+    
+    logger.info(`Match started for challenge: ${challengeId}`);
+    
+    res.json({
+      success: true,
+      challenge: {
+        id: challengeId,
+        status: 'in-progress',
+        matchStartedAt: challenge.matchStartedAt
+      }
+    });
+    
+  } catch (error) {
+    logger.error('Error starting match:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Record match event
+ */
+router.post('/challenges/:challengeId/match-events', async (req: Request, res: Response) => {
+  try {
+    const { challengeId } = req.params;
+    const { eventData } = req.body;
+    
+    if (!challenges.has(challengeId)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Challenge not found',
+        challengeId
+      });
+    }
+    
+    const challenge = challenges.get(challengeId);
+    
+    if (challenge.status !== 'in-progress') {
+      return res.status(400).json({
+        success: false,
+        error: 'Match must be in progress to record events',
+        currentStatus: challenge.status
+      });
+    }
+    
+    // Initialize events array if it doesn't exist
+    if (!challenge.matchEvents) {
+      challenge.matchEvents = [];
+    }
+    
+    // Add event to challenge
+    const event = {
+      id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date(),
+      ...eventData
+    };
+    
+    challenge.matchEvents.push(event);
+    challenges.set(challengeId, challenge);
+    
+    logger.info(`Match event recorded for challenge: ${challengeId}`, event);
+    
+    res.json({
+      success: true,
+      event
+    });
+    
+  } catch (error) {
+    logger.error('Error recording match event:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Get match events for a challenge
+ */
+router.get('/challenges/:challengeId/match-events', async (req: Request, res: Response) => {
+  try {
+    const { challengeId } = req.params;
+    
+    if (!challenges.has(challengeId)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Challenge not found',
+        challengeId
+      });
+    }
+    
+    const challenge = challenges.get(challengeId);
+    const events = challenge.matchEvents || [];
+    
+    res.json({
+      success: true,
+      events,
+      count: events.length
+    });
+    
+  } catch (error) {
+    logger.error('Error fetching match events:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * End match and record final result
+ */
+router.post('/challenges/:challengeId/end-match', async (req: Request, res: Response) => {
+  try {
+    const { challengeId } = req.params;
+    const { resultData } = req.body;
+    
+    if (!challenges.has(challengeId)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Challenge not found',
+        challengeId
+      });
+    }
+    
+    const challenge = challenges.get(challengeId);
+    
+    if (challenge.status !== 'in-progress') {
+      return res.status(400).json({
+        success: false,
+        error: 'Match must be in progress to end',
+        currentStatus: challenge.status
+      });
+    }
+    
+    // Update challenge status to completed
+    challenge.status = 'completed';
+    challenge.completedAt = new Date();
+    challenge.matchResult = resultData;
+    challenges.set(challengeId, challenge);
+    
+    // Record match result
+    const matchResult = {
+      matchId: resultData.matchId,
+      challengeId,
+      territoryId: resultData.territoryId,
+      winnerId: resultData.winnerId,
+      loserId: resultData.loserId,
+      winnerScore: resultData.winnerScore,
+      loserScore: resultData.loserScore,
+      matchType: 'challenge',
+      isTerritoryMatch: resultData.isTerritoryMatch,
+      highlights: resultData.highlights || [],
+      duration: resultData.duration,
+      timestamp: new Date(),
+    };
+    
+    matchResults.set(resultData.matchId, matchResult);
+    
+    logger.info(`Match ended for challenge: ${challengeId}`, matchResult);
+    
+    res.json({
+      success: true,
+      challenge: {
+        id: challengeId,
+        status: 'completed',
+        completedAt: challenge.completedAt
+      },
+      matchResult
+    });
+    
+  } catch (error) {
+    logger.error('Error ending match:', error instanceof Error ? error : undefined);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Debug catch-all for unmatched requests
 router.all('/challenges/*', (req, res, next) => {
   console.log('DEBUG: challenge router catch-all', req.method, req.originalUrl);
   next();
 });
-
-// Move this to the very end:
-// router.get('/challenges/:challengeId', async (req: Request, res: Response) => { ... });
 
 export default router; 

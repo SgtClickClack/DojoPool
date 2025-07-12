@@ -194,7 +194,7 @@ class RealTimeAICommentaryService extends EventEmitter {
 
   private initializeWebSocket(): void {
     try {
-      const wsUrl = process.env.WEBSOCKET_URL || 'ws://localhost:8080';
+      const wsUrl = env.WEBSOCKET_URL;
       this.socket = io(wsUrl, {
         transports: ['websocket'],
         timeout: 10000
