@@ -1,6 +1,5 @@
-import { EventEmitter } from 'events';
-import { Socket } from 'socket.io-client';
-import io from 'socket.io-client';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { Socket, io } from 'socket.io-client';
 
 export interface VenueTheme {
   id: string;
@@ -114,7 +113,7 @@ export interface ProfileConfig {
   maxSpecials: number;
 }
 
-class DojoProfileService extends EventEmitter {
+class DojoProfileService extends BrowserEventEmitter {
   private static instance: DojoProfileService;
   private socket: Socket | null = null;
   private _isConnected = false;

@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-const API_URL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const getEnv = (): Record<string, any> => (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : (typeof process !== 'undefined' ? process.env : {}));
+const env = getEnv();
+const API_URL: string = env['NEXT_PUBLIC_API_URL'] || 'http://localhost:5000/api';
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,

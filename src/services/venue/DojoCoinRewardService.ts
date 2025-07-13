@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { Socket } from 'socket.io-client';
 import io from 'socket.io-client';
 
@@ -125,7 +125,7 @@ export interface RewardTrigger {
   parameters: any;
 }
 
-class DojoCoinRewardService extends EventEmitter {
+class DojoCoinRewardService extends BrowserEventEmitter {
   private static instance: DojoCoinRewardService;
   private socket: Socket | null = null;
   private _isConnected = false;

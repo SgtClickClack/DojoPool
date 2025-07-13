@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { VenueCustomizationService, VenueCustomizationOptions, GeneratedVenueAttributes } from '../services/venue/VenueCustomizationService';
-import { logger } from '../utils/logger';
+import { logger } from '../config/monitoring';
 
 const router = Router();
 const venueCustomizationService = new VenueCustomizationService();

@@ -12,7 +12,7 @@ import {
   BackupNotification,
 } from "../../types/backup";
 import { prisma } from "../../lib/prisma";
-import { logger } from "../../utils/logger";
+import { logger } from "../../config/monitoring";
 
 export class BackupService {
   private s3Client: S3Client | null = null;

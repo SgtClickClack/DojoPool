@@ -1,6 +1,5 @@
-import { EventEmitter } from 'events';
-import { Socket } from 'socket.io-client';
-import io from 'socket.io-client';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { io, Socket } from 'socket.io-client';
 
 export interface ReplayEvent {
   id: string;
@@ -137,7 +136,7 @@ export interface ReplayMetrics {
   recentActivity: ReplayEvent[];
 }
 
-class AdvancedGameReplayService extends EventEmitter {
+class AdvancedGameReplayService extends BrowserEventEmitter {
   private static instance: AdvancedGameReplayService;
   private socket: Socket | null = null;
   private _isConnected = false;
@@ -364,8 +363,8 @@ class AdvancedGameReplayService extends EventEmitter {
     const difficulty = this.calculateDifficulty(event);
     const skillLevel = this.determineSkillLevel(event);
     const technique = this.identifyTechnique(event);
-    const strategy = this.analyzeStrategy(event);
-    const improvement = this.suggestImprovements(event);
+    const strategy = await this.analyzeStrategy(event);
+    const improvement = await this.suggestImprovements(event);
     const comparison = this.compareToSimilar(event);
     const prediction = this.predictOutcome(event);
 
@@ -420,7 +419,7 @@ class AdvancedGameReplayService extends EventEmitter {
     return 'Standard Shot';
   }
 
-  private analyzeStrategy(event: any): string {
+  private async analyzeStrategy(event: any): Promise<string> {
     const context = event.context;
     const position = event.position;
 
@@ -431,9 +430,9 @@ class AdvancedGameReplayService extends EventEmitter {
     return 'Balanced strategic approach';
   }
 
-  private suggestImprovements(event: any): string[] {
+  private async suggestImprovements(event: any): Promise<string[]> {
     const improvements: string[] = [];
-    const analysis = this.analyzeEvent(event);
+    const analysis = await this.analyzeEvent(event);
 
     if (analysis.shotQuality < 70) {
       improvements.push('Focus on accuracy over power');

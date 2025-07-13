@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { io, Socket } from 'socket.io-client';
 
 export interface VenuePerformance {
@@ -68,7 +68,7 @@ export interface LeaderboardConfig {
   };
 }
 
-export class VenueLeaderboardService extends EventEmitter {
+export class VenueLeaderboardService extends BrowserEventEmitter {
   private socket: Socket | null = null;
   private venues: Map<string, VenuePerformance> = new Map();
   private players: Map<string, PlayerPerformance> = new Map();

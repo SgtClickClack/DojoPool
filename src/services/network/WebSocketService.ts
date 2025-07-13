@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { env } from "../../config/environment";
+import { env } from "../../config/environment.backend";
 
 interface WebSocketState {
   connected: boolean;

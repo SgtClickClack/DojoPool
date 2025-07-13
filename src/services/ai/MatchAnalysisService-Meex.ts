@@ -1,4 +1,4 @@
-import { io as defaultIo, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 export interface PlayerPerformance {
   playerId: string;
@@ -72,11 +72,6 @@ export interface MatchPrediction {
 class MatchAnalysisService {
   private socket: Socket | null = null;
   private static instance: MatchAnalysisService;
-  private static ioFactory: typeof defaultIo = defaultIo;
-
-  public static setIoFactory(ioFactory: typeof defaultIo) {
-    MatchAnalysisService.ioFactory = ioFactory;
-  }
 
   private constructor() {
     this.initializeSocket();
@@ -97,10 +92,9 @@ class MatchAnalysisService {
     // In test environments, use the mocked io directly
     if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') {
       // Import the mocked io from the test setup
-      const { io } = require('socket.io-client');
       this.socket = io('/socket.io');
     } else {
-      this.socket = MatchAnalysisService.ioFactory('/socket.io');
+      this.socket = io('/socket.io');
     }
     
     if (this.socket) {

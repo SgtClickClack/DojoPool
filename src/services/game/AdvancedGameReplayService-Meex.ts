@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { Socket } from 'socket.io-client';
 import io from 'socket.io-client';
 
@@ -137,7 +137,7 @@ export interface ReplayMetrics {
   recentActivity: ReplayEvent[];
 }
 
-class AdvancedGameReplayService extends EventEmitter {
+class AdvancedGameReplayService extends BrowserEventEmitter {
   private static instance: AdvancedGameReplayService;
   private socket: Socket | null = null;
   private _isConnected = false;

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../utils/BrowserEventEmitter';
 import { io, Socket } from 'socket.io-client';
 import { ChallengeService, Challenge } from './ChallengeService';
 
@@ -105,11 +105,15 @@ export interface MatchRewards {
   clanInfluence?: number;
 }
 
-export class RealTimeMatchTrackingService extends EventEmitter {
+export class RealTimeMatchTrackingService extends BrowserEventEmitter {
   private socket: Socket | null = null;
   private activeMatches: Map<string, MatchData> = new Map();
   private matchAnalytics: Map<string, MatchAnalytics> = new Map();
   private isConnected = false;
+
+  public on!: (event: string, listener: (...args: any[]) => void) => void;
+  public emit!: (event: string, ...args: any[]) => void;
+  public removeListener!: (event: string, listener: (...args: any[]) => void) => void;
 
   constructor() {
     super();
@@ -384,7 +388,7 @@ export class RealTimeMatchTrackingService extends EventEmitter {
    */
   unsubscribeFromMatch(matchId: string, callback: (data: any) => void): void {
     this.socket?.emit('unsubscribe_from_match', { matchId });
-    this.off(`match_update_${matchId}`, callback);
+    this.removeListener(`match_update_${matchId}`, callback);
   }
 
   /**

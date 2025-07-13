@@ -1,12 +1,12 @@
 import { getAnalytics, logEvent as firebaseLogEvent, setUserId as firebaseSetUserId } from "firebase/analytics";
-import app from "../../firebase/firebase";
+import { analytics, currentApp } from '../../firebase/firebase';
 
 class AnalyticsService {
   private analytics;
 
   constructor() {
-    if (app) {
-      this.analytics = getAnalytics(app);
+    if (currentApp) {
+      this.analytics = getAnalytics(currentApp);
     }
   }
 

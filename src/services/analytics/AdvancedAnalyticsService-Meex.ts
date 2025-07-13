@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 
 export interface PerformanceMetrics {
   cpuUsage: number;
@@ -193,7 +193,7 @@ export interface VenueAnalytics {
   recommendations: string[];
 }
 
-export class AdvancedAnalyticsService extends EventEmitter {
+export class AdvancedAnalyticsService extends BrowserEventEmitter {
   private static instance: AdvancedAnalyticsService;
   private socket: Socket | null = null;
   private _isConnected = false;

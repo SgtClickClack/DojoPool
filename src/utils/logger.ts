@@ -13,13 +13,25 @@ const LOG_LEVELS: LogLevel = {
   DEBUG: 'debug'
 };
 
+function getEnv(): Record<string, any> {
+  // Use import.meta.env for Vite/browser, fallback to process.env for Node
+  // TypeScript does not allow 'import.meta' in type guards in class bodies
+  try {
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env) return import.meta.env;
+  } catch {}
+  if (typeof process !== 'undefined' && process.env) return process.env;
+  return {};
+}
+
 class Logger {
   private isDevelopment: boolean;
   private logLevel: string;
 
   constructor() {
-    this.isDevelopment = process.env.NODE_ENV === 'development';
-    this.logLevel = process.env.LOG_LEVEL || (this.isDevelopment ? 'debug' : 'info');
+    const env = getEnv();
+    this.isDevelopment = env['MODE'] === 'development' || env['NODE_ENV'] === 'development';
+    this.logLevel = env['LOG_LEVEL'] || (this.isDevelopment ? 'debug' : 'info');
   }
 
   private shouldLog(level: string): boolean {
@@ -73,14 +85,13 @@ class Logger {
   }
 
   private sendToLoggingService(level: string, message: string, context?: any): void {
-    // In production, send logs to external service like Winston, LogTail, etc.
-    // For now, we'll use console but this should be replaced with proper service
+    const env = getEnv();
     const logData = {
       timestamp: new Date().toISOString(),
       level,
       message,
       context,
-      environment: process.env.NODE_ENV,
+      environment: env['MODE'] || env['NODE_ENV'],
       service: 'dojopool'
     };
     
@@ -94,4 +105,3 @@ export const logger = new Logger();
 
 // Convenience exports
 export { LOG_LEVELS };
-export default logger;

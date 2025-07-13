@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { io, Socket } from 'socket.io-client';
 
 // Venue Analytics Interfaces
@@ -170,7 +170,7 @@ export interface VenueROIAnalysis {
   recommendations: string[];
 }
 
-class VenueAnalyticsService extends EventEmitter {
+class VenueAnalyticsService extends BrowserEventEmitter {
   private static instance: VenueAnalyticsService;
   private socket: Socket | null = null;
   private isConnected: boolean = false;

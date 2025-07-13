@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 
 export interface Equipment {
   id: string;
@@ -166,7 +166,7 @@ export interface PredictiveMaintenance {
   priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
-export class EquipmentManagementService extends EventEmitter {
+export class EquipmentManagementService extends BrowserEventEmitter {
   private static instance: EquipmentManagementService;
   private socket: Socket | null = null;
   private equipment: Map<string, Equipment> = new Map();

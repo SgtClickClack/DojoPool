@@ -1,25 +1,17 @@
 import { getAnalytics, logEvent as firebaseLogEvent, Analytics } from "firebase/analytics";
 import { getPerformance, FirebasePerformance } from "firebase/performance";
-import app from "../firebase/firebase"; // Adjusted import path if needed, assuming firebase.js is the default export
+import { analytics as firebaseAnalytics, currentApp } from '../firebase/firebase';
 
-// Ensure app is not null before using it, especially if firebase initialization can fail
-let analytics: Analytics | null = null;
 let perf: FirebasePerformance | null = null;
 
-if (app) {
+if (currentApp) {
   try {
-    analytics = getAnalytics(app);
-  } catch (e) {
-    console.error("Failed to initialize Firebase Analytics:", e);
-  }
-
-  try {
-    perf = getPerformance(app);
+    perf = getPerformance(currentApp);
   } catch (e) {
     console.error("Failed to initialize Firebase Performance:", e);
   }
 } else {
-  console.error("Firebase app is not initialized. Analytics and Performance monitoring will be disabled.");
+  console.error("Firebase app is not initialized. Performance monitoring will be disabled.");
 }
 
 interface EventParams {
@@ -31,8 +23,8 @@ interface EventParams {
 
 // Custom event logging
 export const logCustomEvent = (eventName: string, eventParams: EventParams = {}): void => {
-  if (analytics) {
-    firebaseLogEvent(analytics, eventName, eventParams);
+  if (firebaseAnalytics) {
+    firebaseLogEvent(firebaseAnalytics, eventName, eventParams);
   } else {
     console.warn(`Analytics not initialized. Event not logged: ${eventName}`, eventParams);
   }
@@ -40,8 +32,8 @@ export const logCustomEvent = (eventName: string, eventParams: EventParams = {})
 
 // Page view logging
 export const logPageView = (pagePath: string, pageTitle: string): void => {
-  if (analytics) {
-    firebaseLogEvent(analytics, "page_view", {
+  if (firebaseAnalytics) {
+    firebaseLogEvent(firebaseAnalytics, "page_view", {
       page_path: pagePath,
       page_title: pageTitle,
     });
@@ -54,8 +46,8 @@ interface UserActionParams extends EventParams {}
 
 // User action logging
 export const logUserAction = (actionName: string, actionParams: UserActionParams = {}): void => {
-  if (analytics) {
-    firebaseLogEvent(analytics, actionName, {
+  if (firebaseAnalytics) {
+    firebaseLogEvent(firebaseAnalytics, actionName, {
       timestamp: new Date().toISOString(),
       ...actionParams,
     });
@@ -68,8 +60,8 @@ interface ErrorContext extends EventParams {}
 
 // Error logging
 export const logErrorToAnalytics = (error: Error, context: ErrorContext = {}): void => {
-  if (analytics) {
-    firebaseLogEvent(analytics, "error", {
+  if (firebaseAnalytics) {
+    firebaseLogEvent(firebaseAnalytics, "error", {
       error_name: error.name,
       error_message: error.message,
       error_stack: error.stack,
@@ -81,4 +73,4 @@ export const logErrorToAnalytics = (error: Error, context: ErrorContext = {}): v
 };
 
 // Exporting initialized instances for direct use if needed, though functions are preferred
-export { analytics, perf };
+export { firebaseAnalytics as analytics, perf };

@@ -12,7 +12,9 @@ declare global {
 // Web Vitals
 export const reportWebVitals = (metric: any) => {
   // Send to Google Analytics
-  if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
+  const getEnv = (): Record<string, any> => (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : (typeof process !== 'undefined' ? process.env : {}));
+  const env = getEnv();
+  if (env['NEXT_PUBLIC_GA_TRACKING_ID']) {
     window.gtag("event", metric.name, {
       event_category: "Web Vitals",
       event_label: metric.id,
@@ -27,7 +29,9 @@ export const captureError = (error: Error, context?: Record<string, any>) => {
   console.error("Error:", error);
 
   // Send to Google Analytics
-  if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
+  const getEnv = (): Record<string, any> => (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : (typeof process !== 'undefined' ? process.env : {}));
+  const env = getEnv();
+  if (env['NEXT_PUBLIC_GA_TRACKING_ID']) {
     window.gtag("event", "error", {
       event_category: "Error",
       event_label: error.message,
@@ -44,7 +48,9 @@ export const measurePerformance = (name: string, callback: () => void) => {
   const duration = performance.now() - start;
 
   // Send to Google Analytics
-  if (process.env.NEXT_PUBLIC_GA_TRACKING_ID) {
+  const getEnv = (): Record<string, any> => (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : (typeof process !== 'undefined' ? process.env : {}));
+  const env = getEnv();
+  if (env['NEXT_PUBLIC_GA_TRACKING_ID']) {
     window.gtag("event", "performance", {
       event_category: "Performance",
       event_label: name,

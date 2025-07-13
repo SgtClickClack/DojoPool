@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { env } from '../../config/environment.backend';
 
 export interface PoolGod {
@@ -86,7 +86,7 @@ export interface AICommentaryMetrics {
   audioGenerated: number;
 }
 
-class RealTimeAICommentaryService extends EventEmitter {
+class RealTimeAICommentaryService extends BrowserEventEmitter {
   private static instance: RealTimeAICommentaryService;
   private socket: Socket | null = null;
   private _isConnected = false;
@@ -255,15 +255,15 @@ class RealTimeAICommentaryService extends EventEmitter {
 
   private setupEventListeners(): void {
     // Listen for territory gameplay events
-    this.on('territory-challenge', (data) => {
+    this.on('territory-challenge', (data: any) => {
       this.generateTerritoryCommentary(data);
     });
 
-    this.on('territory-captured', (data) => {
+    this.on('territory-captured', (data: any) => {
       this.generateTerritoryCaptureCommentary(data);
     });
 
-    this.on('trophy-minted', (data) => {
+    this.on('trophy-minted', (data: any) => {
       this.generateTrophyCommentary(data);
     });
   }

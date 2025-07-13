@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 
 /**
  * 🎯 TOURNAMENT PREDICTION SERVICE
@@ -119,7 +119,7 @@ export interface PredictionConfig {
   maxPredictions: number;
 }
 
-class TournamentPredictionService extends EventEmitter {
+class TournamentPredictionService extends BrowserEventEmitter {
   private static instance: TournamentPredictionService;
   private socket: Socket | null = null;
   private _isConnected = false;

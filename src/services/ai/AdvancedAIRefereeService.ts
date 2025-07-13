@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
 import { env } from '../../config/environment.backend';
@@ -61,7 +61,7 @@ export interface AIRefereeMetrics {
   lastUpdated: Date;
 }
 
-class AdvancedAIRefereeService extends EventEmitter {
+class AdvancedAIRefereeService extends BrowserEventEmitter {
   private static instance: AdvancedAIRefereeService;
   private socket: Socket | null = null;
   private _isConnected = false;

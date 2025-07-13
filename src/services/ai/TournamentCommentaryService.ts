@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { env } from '../../config/environment.backend';
 
 export interface CommentaryEvent {
@@ -105,7 +105,7 @@ export interface CommentaryConfig {
   excitementThreshold: number;
 }
 
-class TournamentCommentaryService extends EventEmitter {
+class TournamentCommentaryService extends BrowserEventEmitter {
   private static instance: TournamentCommentaryService;
   private socket: Socket | null = null;
   private _isConnected = false;

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { Socket } from 'socket.io-client';
 import io from 'socket.io-client';
 
@@ -123,7 +123,7 @@ export interface SocialConfig {
   };
 }
 
-class SocialCommunityService extends EventEmitter {
+class SocialCommunityService extends BrowserEventEmitter {
   private static instance: SocialCommunityService;
   private socket: Socket | null = null;
   private _isConnected = false;

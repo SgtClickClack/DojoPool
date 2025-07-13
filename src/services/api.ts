@@ -4,7 +4,7 @@ import { env } from '../config/environment.backend';
 
 // Create an axios instance with default config
 export const api = axios.create({
-  baseURL: env.API_URL,
+  baseURL: env.API_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },

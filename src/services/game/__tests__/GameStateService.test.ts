@@ -1,5 +1,6 @@
 import { GameStateService, GameState } from '../GameStateService';
 import { EventEmitter } from 'events';
+import { io } from 'socket.io-client';
 
 // Mock Socket.IO
 jest.mock('socket.io-client', () => ({
@@ -16,7 +17,6 @@ describe('GameStateService', () => {
 
   beforeEach(() => {
     // Reset the socket mock
-    const { io } = require('socket.io-client');
     mockSocket = {
       on: jest.fn(),
       emit: jest.fn(),

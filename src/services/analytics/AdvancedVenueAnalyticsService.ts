@@ -5,7 +5,7 @@
  * and automated recommendations for venue operations and revenue maximization.
  */
 
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { io, Socket } from 'socket.io-client';
 
 // Advanced Analytics Interfaces
@@ -332,7 +332,7 @@ export interface BenchmarkingData {
   };
 }
 
-class AdvancedVenueAnalyticsService extends EventEmitter {
+class AdvancedVenueAnalyticsService extends BrowserEventEmitter {
   private static instance: AdvancedVenueAnalyticsService;
   private socket: Socket | null = null;
   private connected = false;

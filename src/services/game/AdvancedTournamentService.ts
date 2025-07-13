@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 
 export interface TournamentChallenge {
   id: string;
@@ -72,7 +72,7 @@ export interface CreateTournamentData {
  * Focused service for managing advanced tournament functionality
  * Handles tournament creation, bracket generation, and participant management
  */
-export class AdvancedTournamentService extends EventEmitter {
+export class AdvancedTournamentService extends BrowserEventEmitter {
   private tournaments: Map<string, TournamentChallenge> = new Map();
   private idCounter: number = 0; // Add counter to prevent ID collisions
 

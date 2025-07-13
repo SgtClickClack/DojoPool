@@ -1,7 +1,8 @@
 import CryptoJS from 'crypto-js';
 
-// Default encryption key (should be from environment in production)
-const DEFAULT_ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
+const getEnv = (): Record<string, any> => (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : (typeof process !== 'undefined' ? process.env : {}));
+const env = getEnv();
+const DEFAULT_ENCRYPTION_KEY = env['ENCRYPTION_KEY'] || 'default-encryption-key-change-in-production';
 
 /**
  * Encrypts data using AES encryption

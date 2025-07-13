@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { Socket } from 'socket.io-client';
 import io from 'socket.io-client';
 
@@ -92,7 +92,7 @@ export interface CustomizationConfig {
   };
 }
 
-export class DojoProfileCustomizationService extends EventEmitter {
+export class DojoProfileCustomizationService extends BrowserEventEmitter {
   private static instance: DojoProfileCustomizationService;
   private customizations: Map<string, CustomizationConfig> = new Map();
   private isConnected: boolean = false;

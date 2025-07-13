@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { realTimeAICommentaryService } from './RealTimeAICommentaryService';
 import AdvancedMatchCommentaryService from './AdvancedMatchCommentaryService';
 import AIPoweredCommentaryHighlightsService from './AIPoweredCommentaryHighlightsService';
@@ -265,7 +265,7 @@ export interface PlayerPattern {
   };
 }
 
-export class AdvancedAIMatchCommentaryHighlightsService extends EventEmitter {
+export class AdvancedAIMatchCommentaryHighlightsService extends BrowserEventEmitter {
   private static instance: AdvancedAIMatchCommentaryHighlightsService;
   private commentaryService: typeof realTimeAICommentaryService;
   private advancedCommentaryService: AdvancedMatchCommentaryService;

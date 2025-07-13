@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
 import { env } from '../../config/environment.backend';
@@ -73,7 +73,7 @@ export interface CommentaryMetrics {
   popularStyles: Record<string, number>;
 }
 
-class AdvancedMatchCommentaryService extends EventEmitter {
+class AdvancedMatchCommentaryService extends BrowserEventEmitter {
   private static instance: AdvancedMatchCommentaryService;
   private socket: Socket | null = null;
   private _isConnected = false;

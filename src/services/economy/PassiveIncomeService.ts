@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { io, Socket } from 'socket.io-client';
 
 export interface PassiveIncomeConfig {
@@ -45,7 +45,7 @@ export interface IncomePayout {
   transactionHash?: string;
 }
 
-export class PassiveIncomeService extends EventEmitter {
+export class PassiveIncomeService extends BrowserEventEmitter {
   private socket: Socket | null = null;
   private config: PassiveIncomeConfig;
   private territoryIncomes: Map<string, TerritoryIncome> = new Map();

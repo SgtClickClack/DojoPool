@@ -227,12 +227,12 @@ class AdvancedMatchAnalysisService {
         console.log('AdvancedMatchAnalysisService disconnected from server');
       });
 
-      this.socket.on('error', (error) => {
+      this.socket.on('error', (error: any) => {
         console.error('AdvancedMatchAnalysisService socket error:', error);
         this.connected = false;
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to initialize WebSocket:', error);
       this.connected = false;
     }
@@ -257,7 +257,7 @@ class AdvancedMatchAnalysisService {
       this.socket?.emit('advanced-analysis:analysis_complete', analysis);
       
       return analysis;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error performing advanced analysis:', error);
       throw error;
     }
@@ -280,7 +280,7 @@ class AdvancedMatchAnalysisService {
       this.socket?.emit('advanced-analysis:coaching_provided', coaching);
       
       return coaching;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error providing real-time coaching:', error);
       throw error;
     }
@@ -307,7 +307,7 @@ class AdvancedMatchAnalysisService {
       this.socket?.emit('advanced-analysis:program_generated', program);
       
       return program;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating personalized training program:', error);
       throw error;
     }
@@ -319,7 +319,7 @@ class AdvancedMatchAnalysisService {
       const mentalMetrics = this.generateMentalGameMetrics(matchData);
       this.socket?.emit('advanced-analysis:mental_analysis', { playerId, mentalMetrics });
       return mentalMetrics;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing mental game:', error);
       throw error;
     }
@@ -331,7 +331,7 @@ class AdvancedMatchAnalysisService {
       const tacticalAnalysis = this.generateTacticalAnalysis(matchData);
       this.socket?.emit('advanced-analysis:tactical_analysis', { playerId, tacticalAnalysis });
       return tacticalAnalysis;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error analyzing tactics:', error);
       throw error;
     }
@@ -343,7 +343,7 @@ class AdvancedMatchAnalysisService {
       const prediction = this.generatePerformancePrediction(playerId, upcomingMatch);
       this.socket?.emit('advanced-analysis:performance_prediction', prediction);
       return prediction;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error predicting performance:', error);
       throw error;
     }
@@ -353,7 +353,7 @@ class AdvancedMatchAnalysisService {
   public async updateAdvancedTrainingProgress(programId: string, progress: number, performanceData: PerformanceTracking): Promise<void> {
     try {
       this.socket?.emit('advanced-analysis:progress_update', { programId, progress, performanceData });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating training progress:', error);
       throw error;
     }

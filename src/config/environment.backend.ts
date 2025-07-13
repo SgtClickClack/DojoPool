@@ -23,7 +23,7 @@ export const env = {
   BACKUP_SCHEDULE: process.env.BACKUP_SCHEDULE || '0 2 * * *',
   MONITORING_ENABLED: process.env.MONITORING_ENABLED === 'true',
   ALERT_WEBHOOK_URL: process.env.ALERT_WEBHOOK_URL || '',
-  WEBSOCKET_URL: process.env.WEBSOCKET_URL || 'ws://localhost:8080',
+  WEBSOCKET_URL: process.env.VITE_WEBSOCKET_URL || 'ws://localhost:8080',
   
   // API Configuration
   API_URL: process.env.VITE_API_URL || 'http://localhost:8080',

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
-import Logger, { logger } from '../../utils/Logger';
+import { logger } from '../../config/monitoring';
 
 /**
  * Standard configuration interface for all services
@@ -33,7 +33,7 @@ export interface BaseServiceMetrics {
  * Includes WebSocket management, error handling, metrics, and logging
  */
 export abstract class BaseService extends EventEmitter {
-  protected logger: Logger;
+  protected logger = logger;
   protected socket: Socket | null = null;
   protected isConnected = false;
   protected reconnectAttempts = 0;
@@ -48,7 +48,6 @@ export abstract class BaseService extends EventEmitter {
     config: Partial<BaseServiceConfig> = {}
   ) {
     super();
-    this.logger = Logger.createLogger(serviceName);
     this.startTime = new Date();
     
     // Default configuration
@@ -178,11 +177,8 @@ export abstract class BaseService extends EventEmitter {
       const data = await response.json();
       this.metrics.successfulRequests++;
       
-      this.logger.apiRequest(
-        options.method || 'GET',
-        url,
-        Math.round(duration),
-        response.status
+      this.logger.info(
+        `API request: ${options.method || 'GET'} ${url} - ${Math.round(duration)}ms - ${response.status}`
       );
 
       return data;
@@ -192,9 +188,7 @@ export abstract class BaseService extends EventEmitter {
       this.metrics.failedRequests++;
       
       this.logger.error(
-        `API request failed: ${endpoint}`,
-        error as Error,
-        { endpoint, duration: Math.round(duration) }
+        `API request failed: ${endpoint} - ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       
       throw error;

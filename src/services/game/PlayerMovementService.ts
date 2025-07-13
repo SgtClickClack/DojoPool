@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 import { GameStateService } from './GameStateService';
 
 export interface PlayerMovement {
@@ -37,7 +37,7 @@ export interface FastTravelCost {
  * Focused service for managing player movement and travel
  * Handles walking, driving, teleportation, and fast travel mechanics
  */
-export class PlayerMovementService extends EventEmitter {
+export class PlayerMovementService extends BrowserEventEmitter {
   private activeMovements: Map<string, PlayerMovement> = new Map();
   private gameStateService: GameStateService;
 

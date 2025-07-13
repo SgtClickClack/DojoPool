@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
-import { env } from '../config/environment';
+import { env } from '../config/environment.backend';
 
 // Fallback configuration for development when environment variables are not set
 const getFirebaseConfig = () => {

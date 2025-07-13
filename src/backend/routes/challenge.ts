@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger } from '../../utils/logger';
+import { logger } from '../../config/monitoring';
 import { challenges, matchResults } from '../../services/challengeStorage';
 
 const router = express.Router();

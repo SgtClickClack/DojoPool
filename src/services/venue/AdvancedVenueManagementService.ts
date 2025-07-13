@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 
 export interface VenuePerformance {
   venueId: string;
@@ -166,7 +166,7 @@ export interface VenueMetrics {
   lastActivity: Date;
 }
 
-class AdvancedVenueManagementService extends EventEmitter {
+class AdvancedVenueManagementService extends BrowserEventEmitter {
   private static instance: AdvancedVenueManagementService;
   private config: VenueConfig;
   private metrics: VenueMetrics;

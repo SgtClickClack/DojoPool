@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
-import { logger } from '../utils/logger';
+import { BrowserEventEmitter } from '../utils/BrowserEventEmitter';
+import { logger } from '../config/monitoring';
 
 export interface EnvironmentConfig {
   name: string;
@@ -82,7 +82,7 @@ export interface SecurityAudit {
   lastAudit: Date;
 }
 
-class ProductionDeploymentService extends EventEmitter {
+class ProductionDeploymentService extends BrowserEventEmitter {
   private static instance: ProductionDeploymentService;
   private environmentConfig: EnvironmentConfig | null = null;
   private deploymentValidation: DeploymentValidation | null = null;

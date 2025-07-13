@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { EventEmitter } from 'events';
+import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
 
 export interface VenueSpecial {
   id: string;
@@ -77,7 +77,7 @@ export interface SpecialsConfig {
   defaultPriority: number;
 }
 
-class VenueSpecialsService extends EventEmitter {
+class VenueSpecialsService extends BrowserEventEmitter {
   private static instance: VenueSpecialsService;
   private socket: Socket | null = null;
   private _isConnected = false;

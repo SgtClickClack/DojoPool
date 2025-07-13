@@ -1,5 +1,5 @@
 import { BaseService } from '../../core/BaseService';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../config/monitoring';
 import { CommentaryEventContext, ShotEventContext } from '../../../types/common';
 
 /**
