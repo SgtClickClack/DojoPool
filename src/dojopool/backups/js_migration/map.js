@@ -1053,7 +1053,7 @@ const EventRewards = {
 };
 
 // Event management
-let activeEvents = new Map();
+const activeEvents = new Map();
 
 function generateEvent(venue) {
   const event = {
@@ -1266,8 +1266,8 @@ class Territory {
   }
 }
 
-let territories = new Map();
-let territoryPolygons = new Map();
+const territories = new Map();
+const territoryPolygons = new Map();
 let heatmap = null;
 
 function initializeTerritorySystem() {

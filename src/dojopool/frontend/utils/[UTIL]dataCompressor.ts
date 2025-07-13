@@ -68,7 +68,7 @@ export class DataCompressor {
     oldestDate: Date;
     compressionRatio: number;
   } {
-    let totalSize = 0;
+    const totalSize = 0;
     let oldestDate = new Date();
     let originalSize = 0;
     let compressedSize = 0;

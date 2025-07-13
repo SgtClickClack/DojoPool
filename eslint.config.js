@@ -1,0 +1,120 @@
+import js from '@eslint/js';
+import typescript from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+
+export default [
+  js.configs.recommended,
+  {
+    files: ['**/*.{ts,tsx,js,jsx}'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2021,
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        browser: 'readonly',
+        node: 'readonly',
+        es2021: 'readonly',
+        console: 'readonly',
+        window: 'readonly',
+        process: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        navigator: 'readonly',
+        fetch: 'readonly',
+        HTMLElement: 'readonly',
+        Node: 'readonly',
+        ServiceWorkerRegistration: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        requestAnimationFrame: 'readonly',
+        Image: 'readonly',
+        URL: 'readonly',
+        performance: 'readonly',
+        PerformanceObserver: 'readonly',
+        PerformanceEntry: 'readonly',
+        PerformanceMark: 'readonly',
+        PerformanceMeasure: 'readonly',
+        caches: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+      react,
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      ...typescript.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'no-console': 'warn',
+      'prefer-const': 'error',
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/tests/**/*.ts', '**/tests/**/*.tsx', '**/__mocks__/**/*.js'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        jest: 'readonly',
+        global: 'readonly',
+        module: 'writable',
+        require: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        navigator: 'readonly',
+        fetch: 'readonly',
+        PerformanceObserver: 'readonly',
+        PerformanceEntry: 'readonly',
+        PerformanceMark: 'readonly',
+        PerformanceMeasure: 'readonly',
+        caches: 'readonly',
+        URL: 'readonly',
+        HTMLElement: 'readonly',
+        Node: 'readonly',
+        ServiceWorkerRegistration: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        requestAnimationFrame: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        Image: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
+    },
+  },
+  {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      'coverage/**',
+      '*.config.js',
+      '*.config.ts',
+    ],
+  },
+]; 

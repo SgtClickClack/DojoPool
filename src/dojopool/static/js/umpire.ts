@@ -31,7 +31,7 @@ interface FrameProcessingResponse {
 }
 
 // State variables
-let socket: Socket | null = null;
+const socket: Socket | null = null;
 let frameProcessor: FrameProcessor | null = null;
 let frameProcessingId: number | null = null;
 let lastFrameTime = 0;

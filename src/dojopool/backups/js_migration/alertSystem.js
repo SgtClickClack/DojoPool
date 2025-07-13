@@ -67,7 +67,7 @@ class AlertSystem {
 
   checkMetric(type, data) {
     const timestamp = Date.now();
-    let alerts = [];
+    const alerts = [];
 
     switch (type) {
       case "loadTime":

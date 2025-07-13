@@ -153,7 +153,7 @@ export const SECURITY_CONFIG = {
  */
 export function advancedSanitizeHTML(html: string, allowedTags: readonly string[] = SECURITY_CONFIG.SAFE_TAGS, allowedAttrs: readonly string[] = SECURITY_CONFIG.SAFE_ATTRIBUTES): string {
   // First do basic sanitization
-  let sanitized = basicSanitizeHTML(html);
+  const sanitized = basicSanitizeHTML(html);
   
   // Create a temporary element to parse HTML
   const temp = document.createElement('div');

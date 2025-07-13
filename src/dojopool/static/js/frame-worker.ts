@@ -99,9 +99,9 @@ async function processFrame(
   try {
     // Process image data in chunks for better performance
     const chunks = Math.ceil(data.length / 4 / PROCESSING_CHUNK_SIZE);
-    let maxBrightness = 0;
-    let maxBrightnessX = 0;
-    let maxBrightnessY = 0;
+    const maxBrightness = 0;
+    const maxBrightnessX = 0;
+    const maxBrightnessY = 0;
 
     // Convert to Uint32Array for faster processing
     const bytes = new Uint8Array(data.buffer);
@@ -128,9 +128,9 @@ function processChunksSequential(
   chunks: number,
   width: number,
 ): void {
-  let maxBrightness = 0;
-  let maxBrightnessX = 0;
-  let maxBrightnessY = 0;
+  const maxBrightness = 0;
+  const maxBrightnessX = 0;
+  const maxBrightnessY = 0;
 
   for (let i = 0; i < chunks; i++) {
     const start = i * PROCESSING_CHUNK_SIZE;

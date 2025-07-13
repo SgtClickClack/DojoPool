@@ -33,8 +33,8 @@ export function calculateTrajectory(
   const velocities: Vector2D[] = [];
   const times: number[] = [];
   
-  let currentPosition = { ...initialPosition };
-  let currentVelocity = { ...initialVelocity };
+  const currentPosition = { ...initialPosition };
+  const currentVelocity = { ...initialVelocity };
   
   for (let i = 0; i < timeSteps; i++) {
     positions.push({ ...currentPosition });
@@ -247,7 +247,7 @@ export class PhysicsEngine {
     tableWidth: number,
     tableHeight: number,
   ): Vector2D {
-    let newVelocity = { ...ball.velocity };
+    const newVelocity = { ...ball.velocity };
 
     if (
       ball.position.x - ball.radius <= 0 ||

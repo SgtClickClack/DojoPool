@@ -187,7 +187,7 @@ export class ConsensusManager extends EventEmitter {
   private async handleAppendEntries(
     request: AppendEntriesRequest,
   ): Promise<void> {
-    let response: AppendEntriesResponse = {
+    const response: AppendEntriesResponse = {
       term: this.currentTerm,
       success: false,
     };

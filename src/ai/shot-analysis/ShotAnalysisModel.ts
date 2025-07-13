@@ -201,7 +201,7 @@ export class ShotAnalysisModel {
     const recalls: number[] = [];
 
     for (let i = 0; i < numClasses; i++) {
-      let truePositives = confusionMatrix[i][i];
+      const truePositives = confusionMatrix[i][i];
       let falsePositives = 0;
       let falseNegatives = 0;
 

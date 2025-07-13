@@ -381,7 +381,7 @@ class AdvancedPlayerAnalyticsService extends EventEmitter {
     reason: string,
     matchId?: string
   ): Promise<SkillProgression> {
-    let progressions = this.skillProgressions.get(playerId) || [];
+    const progressions = this.skillProgressions.get(playerId) || [];
     let progression: SkillProgression | undefined = progressions.find(p => p.skillArea === skillArea);
 
     if (!progression) {

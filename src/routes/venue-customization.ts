@@ -33,7 +33,8 @@ router.post('/preview', async (req: Request, res: Response) => {
       customization
     });
   } catch (error) {
-    logger.error('Error generating venue customization preview', error instanceof Error ? error : undefined, {
+    logger.error('Error generating venue customization preview', {
+      error: error instanceof Error ? error.message : String(error),
       body: req.body
     });
     
@@ -70,7 +71,8 @@ router.put('/:venueId/customization', async (req: Request, res: Response) => {
       message: 'Venue customization applied successfully'
     });
   } catch (error) {
-    logger.error('Error applying venue customization', error instanceof Error ? error : undefined, {
+    logger.error('Error applying venue customization', {
+      error: error instanceof Error ? error.message : String(error),
       venueId: req.params.venueId,
       body: req.body
     });
@@ -121,7 +123,8 @@ router.post('/:venueId/customization/generate', async (req: Request, res: Respon
       customization
     });
   } catch (error) {
-    logger.error('Error generating and applying venue customization', error instanceof Error ? error : undefined, {
+    logger.error('Error generating and applying venue customization', {
+      error: error instanceof Error ? error.message : String(error),
       venueId: req.params.venueId,
       body: req.body
     });
@@ -211,7 +214,8 @@ router.get('/:venueId/customization', async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    logger.error('Error fetching venue customization', error instanceof Error ? error : undefined, {
+    logger.error('Error fetching venue customization', {
+      error: error instanceof Error ? error.message : String(error),
       venueId: req.params.venueId
     });
     

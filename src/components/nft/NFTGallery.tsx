@@ -90,7 +90,7 @@ export const NFTGallery: React.FC<NFTGalleryProps> = ({
 
   // Filter and sort trophies
   const filteredAndSortedTrophies = React.useMemo(() => {
-    let filtered = userTrophies.filter(trophy => {
+    const filtered = userTrophies.filter(trophy => {
       const matchesRarity = filterRarity === 'all' || trophy.rarity === filterRarity;
       const matchesType = filterType === 'all' || trophy.trophyType === filterType;
       const matchesSearch = trophy.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

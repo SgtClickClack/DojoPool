@@ -638,7 +638,12 @@ const MapView: React.FC = () => {
       setError(null);
     } catch (err) {
       console.error('Failed to load data:', err);
-      setError('Failed to load map data');
+      // Check if it's a connection error
+      if (err instanceof Error && err.message.includes('fetch')) {
+        setError('Connection to game server failed. Please check your internet connection and try again.');
+      } else {
+        setError('Failed to load map data. Please try again.');
+      }
     }
   }, [mapCenter]);
 

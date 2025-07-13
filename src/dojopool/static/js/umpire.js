@@ -342,7 +342,7 @@ async function processFrames() {
 // Validate frame content
 function validateFrame(imageData) {
   // Check for completely black or white frames
-  let totalPixels = imageData.data.length / 4;
+  const totalPixels = imageData.data.length / 4;
   let blackPixels = 0;
   let whitePixels = 0;
 

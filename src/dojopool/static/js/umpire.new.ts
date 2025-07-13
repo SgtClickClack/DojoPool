@@ -200,16 +200,16 @@ const fragmentShaderSource = `
 // Global state variables
 let captureCanvas: HTMLCanvasElement | null = null;
 let captureContext: CanvasRenderingContext2D | null = null;
-let lastBitmap: ImageBitmap | null = null;
-let offscreenCanvas: OffscreenCanvas | null = null;
-let lastFrameTime = performance.now();
-let frameProcessingId: number | null = null;
-let statusAnimationId: number | null = null;
-let statusUpdateTimer: number | null = null;
-let isProcessingFrame = false;
-let reconnectAttempts = 0;
-let socket: Socket | null = null;
-let frameWorker: CustomWorker | null = null;
+const lastBitmap: ImageBitmap | null = null;
+const offscreenCanvas: OffscreenCanvas | null = null;
+const lastFrameTime = performance.now();
+const frameProcessingId: number | null = null;
+const statusAnimationId: number | null = null;
+const statusUpdateTimer: number | null = null;
+const isProcessingFrame = false;
+const reconnectAttempts = 0;
+const socket: Socket | null = null;
+const frameWorker: CustomWorker | null = null;
 
 // Initialize WebGL state
 const webglState: WebGLContextState = {
@@ -220,7 +220,7 @@ const webglState: WebGLContextState = {
   recoveryAttempts: 0,
 };
 
-let glResources: WebGLResources = {
+const glResources: WebGLResources = {
   gl: null,
   program: null,
   vertexBuffer: null,
@@ -229,13 +229,13 @@ let glResources: WebGLResources = {
 };
 
 // Kalman filter state
-let kalmanStateX: KalmanState = {
+const kalmanStateX: KalmanState = {
   x: 0,
   v: 0,
   P: [1, 0, 0, 1],
 };
 
-let kalmanStateY: KalmanState = {
+const kalmanStateY: KalmanState = {
   x: 0,
   v: 0,
   P: [1, 0, 0, 1],

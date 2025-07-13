@@ -71,8 +71,8 @@ export class ChaosTestRunner extends EventEmitter {
 
   private async runScenario(scenario: string): Promise<TestResult> {
     const startTime = Date.now();
-    let failureCount = 0;
-    let messageCount = 0;
+    const failureCount = 0;
+    const messageCount = 0;
 
     try {
       switch (scenario) {

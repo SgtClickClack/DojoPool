@@ -85,7 +85,7 @@ function showError(message: any): any {
 // Global variables
 let currentRoomId = null;
 let socket = null;
-let selectedFriends = new Set();
+const selectedFriends = new Set();
 
 // Initialize chat functionality
 document.addEventListener("DOMContentLoaded", () => {

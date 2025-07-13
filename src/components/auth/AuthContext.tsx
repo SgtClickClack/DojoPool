@@ -38,7 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!auth) {
+    // If auth is a mock (Firebase not configured), set loading to false immediately
+    if (!auth || Object.keys(auth).length === 0) {
       setLoading(false);
       return;
     }

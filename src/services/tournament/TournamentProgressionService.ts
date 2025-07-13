@@ -378,7 +378,7 @@ export class TournamentProgressionService {
     playerId: string
   ): Promise<TournamentMatch | null> {
     // Find existing match at this position
-    let nextMatch = tournament.matches.find(m => 
+    const nextMatch = tournament.matches.find(m => 
       m.round === position.round && 
       m.match_number === position.matchNumber &&
       m.bracket_type === position.bracketType

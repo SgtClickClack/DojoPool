@@ -4,10 +4,10 @@ import { body, validationResult } from 'express-validator';
 const router = express.Router();
 
 // Mock data storage (in real app, this would be database)
-let clans: any[] = [];
-let clanMembers: any[] = [];
-let clanWars: any[] = [];
-let clanInvites: any[] = [];
+const clans: any[] = [];
+const clanMembers: any[] = [];
+const clanWars: any[] = [];
+const clanInvites: any[] = [];
 
 // Mock clan data
 const mockClans = [

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
-import { env } from '../../config/environment';
+import { env } from '../../config/environment.backend';
 
 export interface AIRefereeDecision {
   id: string;

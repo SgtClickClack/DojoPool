@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Outlet, useParams } from 'react-router-dom';
 // AuthContext is likely provided in main.tsx now, so useAuth can be imported directly.
 // If AuthProvider is NOT moved to main.tsx, you'd keep the import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -15,6 +15,7 @@ import { security } from '../services/SecurityService';
 import { bundleOptimizer } from '../utils/bundleOptimizer';
 import { deploymentManager } from '../config/deployment';
 import { logger } from '../utils/logger';
+import { OnboardingService } from '../services/OnboardingService';
 
 // Lazy load components
 const Login = React.lazy(() => import('../components/auth/Login'));
@@ -100,6 +101,9 @@ const GameMechanics = React.lazy(() => import("../pages/game-mechanics"));
 // const AvatarEvolutionPage = React.lazy(() => import("../pages/avatar/evolution"));
 // const ClanWarsPage = React.lazy(() => import("../pages/clan/wars"));
 
+// Onboarding Components
+const ChooseDojoScreen = React.lazy(() => import("../../pages/onboarding/choose-dojo"));
+
 // Diception AI Integration
 const DiceptionTest = React.lazy(() => import("../pages/diception-test"));
 
@@ -150,6 +154,33 @@ const UserProfileOtherWrapper = () => {
 };
 
 const SocialFeedWrapper = () => <SocialFeed />;
+
+// Main route component that handles onboarding flow
+const MainRoute: React.FC = () => {
+  const { user, loading } = useAuth();
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!loading) {
+      const isComplete = OnboardingService.isOnboardingComplete();
+      setOnboardingComplete(isComplete);
+    }
+  }, [loading]);
+
+  if (loading || onboardingComplete === null) {
+    return <LoadingFallback message="Loading..." />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!onboardingComplete) {
+    return <ChooseDojoScreen />;
+  }
+
+  return <Map />;
+};
 
 // This App component assumes ThemeProvider, CssBaseline, AuthProvider, and BrowserRouter
 // are wrapping it from main.tsx (or your root index file)
@@ -208,7 +239,7 @@ const App: React.FC = () => {
       <Suspense fallback={<LoadingFallback message="Loading page..." />}>
         <Routes>
           {/* Main entry route */}
-          <Route path="/" element={<Map />} />
+          <Route path="/" element={<MainRoute />} />
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -218,6 +249,7 @@ const App: React.FC = () => {
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/ai-commentary" element={<AICommentary />} />
           <Route path="/game-mechanics" element={<GameMechanics />} />
+          <Route path="/onboarding/choose-dojo" element={<ChooseDojoScreen />} />
 
           {/* Protected routes using an element for layout/protection */}
           <Route element={<ProtectedRoute />}>

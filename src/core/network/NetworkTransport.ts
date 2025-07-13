@@ -249,7 +249,7 @@ export class NetworkTransport extends (EventEmitter as {
   }
 
   private handleSendSuccess(target: string) {
-    let breaker = this.peerBreakers.get(target);
+    const breaker = this.peerBreakers.get(target);
     if (breaker) {
       if (breaker.state === CircuitBreakerState.HALF_OPEN || breaker.state === CircuitBreakerState.OPEN) {
         breaker.state = CircuitBreakerState.CLOSED;
@@ -259,8 +259,8 @@ export class NetworkTransport extends (EventEmitter as {
   }
 
   private getBackoffDelay(target: string): number {
-    let breaker = this.peerBreakers.get(target);
-    let failures = breaker ? breaker.failureCount : 0;
+    const breaker = this.peerBreakers.get(target);
+    const failures = breaker ? breaker.failureCount : 0;
     // Exponential backoff with jitter
     const base = Math.min(1000 * Math.pow(2, failures), 30000);
     return base + this.getJitter();

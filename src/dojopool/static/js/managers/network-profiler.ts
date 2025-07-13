@@ -116,7 +116,7 @@ export class NetworkProfiler extends BaseManager<NetworkProfiler> {
     window.XMLHttpRequest = function () {
       const xhr = new self.originalXHR();
       const requestId = crypto.randomUUID();
-      let requestInfo: NetworkRequestInfo = {
+      const requestInfo: NetworkRequestInfo = {
         url: "",
         method: "",
         startTime: 0,

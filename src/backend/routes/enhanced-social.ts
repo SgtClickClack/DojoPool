@@ -110,7 +110,7 @@ router.post('/groups', async (req, res) => {
 router.get('/groups', async (req, res) => {
   try {
     const { type } = req.query;
-    let groups = enhancedSocialService.getGroupsByType(type as any || 'clan');
+    const groups = enhancedSocialService.getGroupsByType(type as any || 'clan');
     res.json(groups);
   } catch (error) {
     console.error('Error fetching groups:', error);

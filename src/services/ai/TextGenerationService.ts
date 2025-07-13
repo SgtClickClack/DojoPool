@@ -54,7 +54,7 @@ export class TextGenerationService {
       return content;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      logger.error('Error in TextGenerationService', error instanceof Error ? error : undefined, { 
+      logger.error('Error in TextGenerationService', { 
         error: errorMessage,
         prompt: prompt.substring(0, 100)
       });

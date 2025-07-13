@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { env } from "../../config/environment";
 
 interface WebSocketState {
   connected: boolean;
@@ -18,7 +19,10 @@ class WebSocketService {
   }
 
   private initialize(): void {
-    const socket = io("/socket.io", {
+    // Use the backend WebSocket URL from environment
+    const socketUrl = env.WEBSOCKET_URL || "http://localhost:8080";
+    
+    const socket = io(socketUrl, {
       transports: ["websocket", "polling"],
       autoConnect: true,
       reconnectionAttempts: Infinity,
