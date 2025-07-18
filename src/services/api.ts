@@ -1,10 +1,10 @@
 // This service is frontend-only. Do not use in backend.
 import axios from 'axios';
-import { env } from '../config/environment.backend';
+import { env } from '../config/environment';
 
 // Create an axios instance with default config
 export const api = axios.create({
-  baseURL: env.API_URL || 'http://localhost:8080',
+  baseURL: env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },

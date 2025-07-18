@@ -8,7 +8,8 @@
 
 import { EventEmitter } from 'events';
 import { io, Socket } from 'socket.io-client';
-import { env } from '../../config/environment.backend';
+import { logger } from '../../config/monitoring';
+import { env } from '../../config/environment';
 
 // Core Analysis Interfaces
 export interface AIShotAnalysis {

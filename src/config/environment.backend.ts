@@ -49,6 +49,7 @@ export const env = {
   // Environment flags
   DEV: process.env.NODE_ENV === 'development',
   PROD: process.env.NODE_ENV === 'production',
+  ENABLE_FIREBASE: process.env.VITE_ENABLE_FIREBASE === 'true',
   
   FEATURE_FLAGS: {
     AI_COMMENTARY: process.env.AI_COMMENTARY_ENABLED === 'true',

@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
 
 export type VenueType = 'bar' | 'club' | 'hall' | 'arcade' | 'academy';
 export interface Venue {

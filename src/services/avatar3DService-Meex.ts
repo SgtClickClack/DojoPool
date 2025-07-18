@@ -13,7 +13,7 @@ interface Avatar3DResponse {
   modelId?: string;
 }
 
-import { env } from '../config/environment.backend';
+import { env } from '../config/environment';
 
 class Avatar3DService {
   private apiKey: string;

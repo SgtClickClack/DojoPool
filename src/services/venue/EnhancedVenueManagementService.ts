@@ -1,4 +1,4 @@
-import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
 
 export interface Venue {
   id: string;
@@ -504,15 +504,15 @@ class EnhancedVenueManagementService {
 
     // Generate AI commentary for significant events
     if (Math.abs(updatedStatus.currentVisitors - currentStatus.currentVisitors) > 10) {
-      await realTimeAICommentaryService.generateCommentary({
-        type: 'venue_activity',
-        data: {
-          venueId,
-          event: 'visitor_count_change',
-          oldValue: currentStatus.currentVisitors,
-          newValue: updatedStatus.currentVisitors
-        }
-      });
+      // await realTimeAICommentaryService.generateCommentary({
+      //   type: 'venue_activity',
+      //   data: {
+      //     venueId,
+      //     event: 'visitor_count_change',
+      //     oldValue: currentStatus.currentVisitors,
+      //     newValue: updatedStatus.currentVisitors
+      //   }
+      // });
     }
   }
 
@@ -633,16 +633,16 @@ class EnhancedVenueManagementService {
       schedule.nextScheduled = new Date(Date.now() + 86400000); // Next day
 
       // Generate AI commentary
-      await realTimeAICommentaryService.generateCommentary({
-        type: 'tournament_created',
-        data: {
-          venueId,
-          tournamentId: tournament.id,
-          scheduleName: schedule.name,
-          maxParticipants: schedule.schedule.maxParticipants,
-          entryFee: schedule.schedule.entryFee
-        }
-      });
+      // await realTimeAICommentaryService.generateCommentary({
+      //   type: 'tournament_created',
+      //   data: {
+      //     venueId,
+      //     tournamentId: tournament.id,
+      //     scheduleName: schedule.name,
+      //     maxParticipants: schedule.schedule.maxParticipants,
+      //     entryFee: schedule.schedule.entryFee
+      //   }
+      // });
 
       return { success: true, tournamentId: tournament.id };
     } catch (error) {

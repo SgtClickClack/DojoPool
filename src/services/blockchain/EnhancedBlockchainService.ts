@@ -1,5 +1,5 @@
 import { ethers, JsonRpcProvider, parseEther, parseUnits, formatUnits } from 'ethers';
-import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
 
 export interface DojoCoinBalance {
   userId: string;
@@ -216,16 +216,16 @@ class EnhancedBlockchainService {
       });
 
       // Generate AI commentary
-      await realTimeAICommentaryService.generateCommentary({
-        type: 'blockchain_transaction',
-        data: {
-          fromUser: fromUserId,
-          toUser: toUserId,
-          amount,
-          network,
-          transactionHash
-        }
-      });
+      // await realTimeAICommentaryService.generateCommentary({
+      //   type: 'blockchain_transaction',
+      //   data: {
+      //     fromUser: fromUserId,
+      //     toUser: toUserId,
+      //     amount,
+      //     network,
+      //     transactionHash
+      //   }
+      // });
 
       return { success: true, transactionHash };
     } catch (error) {
@@ -344,17 +344,17 @@ class EnhancedBlockchainService {
     this.marketplaceItems.set(itemId, item);
 
     // Generate AI commentary
-    await realTimeAICommentaryService.generateCommentary({
-      type: 'nft_listed',
-      data: {
-        itemId,
-        tokenId,
-        seller,
-        price,
-        currency,
-        metadata
-      }
-    });
+    // await realTimeAICommentaryService.generateCommentary({
+    //   type: 'nft_listed',
+    //   data: {
+    //     itemId,
+    //     tokenId,
+    //     seller,
+    //     price,
+    //     currency,
+    //     metadata
+    //   }
+    // });
 
     return item;
   }
@@ -388,17 +388,17 @@ class EnhancedBlockchainService {
       this.marketplaceItems.delete(itemId);
 
       // Generate AI commentary
-      await realTimeAICommentaryService.generateCommentary({
-        type: 'nft_purchased',
-        data: {
-          itemId,
-          buyer,
-          seller: item.seller,
-          price: item.price,
-          currency: item.currency,
-          transactionHash
-        }
-      });
+      // await realTimeAICommentaryService.generateCommentary({
+      //   type: 'nft_purchased',
+      //   data: {
+      //     itemId,
+      //     buyer,
+      //     seller: item.seller,
+      //     price: item.price,
+      //     currency: item.currency,
+      //     transactionHash
+      //   }
+      // });
 
       return { success: true, transactionHash };
     } catch (error) {
@@ -444,14 +444,14 @@ class EnhancedBlockchainService {
       const contractAddress = `0x${Math.random().toString(16).substr(2, 40)}`;
       
       // Generate AI commentary
-      await realTimeAICommentaryService.generateCommentary({
-        type: 'contract_deployed',
-        data: {
-          network,
-          contractAddress,
-          contractType: 'DojoCoin'
-        }
-      });
+      // await realTimeAICommentaryService.generateCommentary({
+      //   type: 'contract_deployed',
+      //   data: {
+      //     network,
+      //     contractAddress,
+      //     contractType: 'DojoCoin'
+      //   }
+      // });
 
       return { success: true, contractAddress };
     } catch (error) {
@@ -472,16 +472,16 @@ class EnhancedBlockchainService {
       const transactionHash = `0x${Math.random().toString(16).substr(2, 64)}`;
       
       // Generate AI commentary
-      await realTimeAICommentaryService.generateCommentary({
-        type: 'nft_minted',
-        data: {
-          to,
-          tokenId,
-          metadata,
-          network,
-          transactionHash
-        }
-      });
+      // await realTimeAICommentaryService.generateCommentary({
+      //   type: 'nft_minted',
+      //   data: {
+      //     to,
+      //     tokenId,
+      //     metadata,
+      //     network,
+      //     transactionHash
+      //   }
+      // });
 
       return { success: true, transactionHash };
     } catch (error) {
