@@ -42,7 +42,9 @@ export const logPageView = (pagePath: string, pageTitle: string): void => {
   }
 };
 
-interface UserActionParams extends EventParams {}
+interface UserActionParams extends EventParams {
+  // Additional user action specific parameters can be added here
+}
 
 // User action logging
 export const logUserAction = (actionName: string, actionParams: UserActionParams = {}): void => {
@@ -56,7 +58,9 @@ export const logUserAction = (actionName: string, actionParams: UserActionParams
   }
 };
 
-interface ErrorContext extends EventParams {}
+interface ErrorContext extends EventParams {
+  // Additional error context parameters can be added here
+}
 
 // Error logging
 export const logErrorToAnalytics = (error: Error, context: ErrorContext = {}): void => {

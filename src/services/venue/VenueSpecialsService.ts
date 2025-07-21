@@ -451,18 +451,22 @@ class VenueSpecialsService extends BrowserEventEmitter {
     let discount = 0;
 
     switch (special.discountType) {
-      case 'percentage':
+      case 'percentage': {
         discount = (originalAmount * special.discountValue) / 100;
         break;
-      case 'fixed_amount':
+      }
+      case 'fixed_amount': {
         discount = special.discountValue;
         break;
-      case 'buy_one_get_one':
+      }
+      case 'buy_one_get_one': {
         // Implement BOGO logic
         discount = originalAmount / 2;
         break;
-      default:
+      }
+      default: {
         discount = 0;
+      }
     }
 
     // Apply minimum spend check
