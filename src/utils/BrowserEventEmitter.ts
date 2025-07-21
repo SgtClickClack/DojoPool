@@ -2,9 +2,9 @@
 // Use this instead of importing from 'events' in frontend code
 
 export class BrowserEventEmitter {
-  private listeners: { [key: string]: Function[] } = {};
+  private listeners: { [key: string]: ((...args: any[]) => void)[] } = {};
 
-  on(event: string, listener: Function): void {
+  on(event: string, listener: (...args: any[]) => void): void {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
     }
@@ -17,7 +17,7 @@ export class BrowserEventEmitter {
     }
   }
 
-  removeListener(event: string, listener: Function): void {
+  removeListener(event: string, listener: (...args: any[]) => void): void {
     if (this.listeners[event]) {
       this.listeners[event] = this.listeners[event].filter(l => l !== listener);
     }
@@ -31,7 +31,7 @@ export class BrowserEventEmitter {
     }
   }
 
-  once(event: string, listener: Function): void {
+  once(event: string, listener: (...args: any[]) => void): void {
     const onceWrapper = (...args: any[]) => {
       listener(...args);
       this.removeListener(event, onceWrapper);

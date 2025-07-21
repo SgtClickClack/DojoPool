@@ -420,30 +420,37 @@ class VenueSpecialsService extends BrowserEventEmitter {
   private evaluateConditions(conditions: SpecialCondition[], date: Date): boolean {
     return conditions.every(condition => {
       switch (condition.type) {
-        case 'time_based':
+        case 'time_based': {
           const currentTime = date.getHours();
           const targetTime = parseInt(condition.value);
           return this.evaluateOperator(currentTime, targetTime, condition.operator);
-        case 'day_based':
+        }
+        case 'day_based': {
           const currentDay = date.getDay();
           const targetDay = parseInt(condition.value);
           return this.evaluateOperator(currentDay, targetDay, condition.operator);
-        default:
+        }
+        default: {
           return true; // Default to true for unimplemented conditions
+        }
       }
     });
   }
 
   private evaluateOperator(actual: number, expected: number, operator: string): boolean {
     switch (operator) {
-      case 'equals':
+      case 'equals': {
         return actual === expected;
-      case 'greater_than':
+      }
+      case 'greater_than': {
         return actual > expected;
-      case 'less_than':
+      }
+      case 'less_than': {
         return actual < expected;
-      default:
+      }
+      default: {
         return true;
+      }
     }
   }
 

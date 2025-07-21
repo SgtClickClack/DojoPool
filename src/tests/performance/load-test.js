@@ -27,8 +27,10 @@ export const options = {
   },
 };
 
+/* eslint-disable no-undef, @typescript-eslint/no-unused-expressions */
 // Simulated user behavior
 export default function () {
+  // eslint-disable-next-line no-undef
   const baseUrl = __ENV.BASE_URL || "http://localhost:3000";
   const headers = {
     "Content-Type": "application/json",
@@ -40,6 +42,7 @@ export default function () {
     const loginRes = http.post(
       `${baseUrl}/api/auth/login`,
       JSON.stringify({
+        // eslint-disable-next-line no-undef
         email: `test${__VU}@example.com`,
         password: "testpassword",
       }),

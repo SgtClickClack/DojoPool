@@ -1,12 +1,12 @@
 // Import all Firebase component mocks
-const auth = require('./auth');
-const firestore = require('./firestore');
-const storage = require('./storage');
-const analytics = require('./analytics');
-const app = require('./app');
+import auth from './auth';
+import firestore from './firestore';
+import storage from './storage';
+import analytics from './analytics';
+import app from './app';
 
 // Export all Firebase components
-module.exports = {
+export {
   auth,
   firestore,
   storage,

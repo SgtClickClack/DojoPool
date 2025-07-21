@@ -25,7 +25,7 @@ export interface TrophyInfo {
 
 export class WalletService {
     private connection: WalletConnection | null = null;
-    private listeners: Map<string, Function[]> = new Map();
+    private listeners: Map<string, ((...args: any[]) => void)[]> = new Map();
 
     private dojoTrophyAddress: string = '';
     private dojoCoinAddress: string = '';
@@ -252,14 +252,14 @@ export class WalletService {
       }
     }
 
-    on(event: string, callback: Function): void {
+    on(event: string, callback: (...args: any[]) => void): void {
       if (!this.listeners.has(event)) {
         this.listeners.set(event, []);
       }
       this.listeners.get(event)!.push(callback);
     }
 
-    off(event: string, callback: Function): void {
+    off(event: string, callback: (...args: any[]) => void): void {
       const callbacks = this.listeners.get(event);
       if (callbacks) {
         const index = callbacks.indexOf(callback);

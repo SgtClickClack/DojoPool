@@ -1,4 +1,4 @@
-import { getAnalytics, logEvent as firebaseLogEvent, Analytics } from "firebase/analytics";
+import { logEvent as firebaseLogEvent } from "firebase/analytics";
 import { getPerformance, FirebasePerformance } from "firebase/performance";
 import { analytics as firebaseAnalytics, currentApp } from '../firebase/firebase';
 
