@@ -17,7 +17,7 @@ import {
 } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { env } from '../config/environment.backend';
+import { env } from '../config/environment';
 
 let auth: any = {};
 let db: any = null;

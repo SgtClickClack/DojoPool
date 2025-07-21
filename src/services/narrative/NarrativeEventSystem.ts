@@ -1,5 +1,5 @@
 import { AvatarProgressionService } from '../avatar/AvatarProgressionService';
-import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
 import { EnhancedTournamentService } from '../tournament/EnhancedTournamentService';
 
 export interface NarrativeEvent {
@@ -100,13 +100,13 @@ export class NarrativeEventSystem {
   private storyArcs: Map<string, StoryArc> = new Map();
   private worldState: WorldState;
   private avatarService: AvatarProgressionService;
-  private aiCommentaryService: typeof realTimeAICommentaryService;
+  // private aiCommentaryService: typeof realTimeAICommentaryService;
   private tournamentService: EnhancedTournamentService;
   private activePlayerArcs: Map<string, StoryArc[]> = new Map();
 
   constructor() {
     this.avatarService = new AvatarProgressionService();
-    this.aiCommentaryService = realTimeAICommentaryService;
+    // this.aiCommentaryService = realTimeAICommentaryService;
     this.tournamentService = new EnhancedTournamentService();
     this.worldState = this.initializeWorldState();
     this.initializeCharacters();
@@ -500,15 +500,15 @@ export class NarrativeEventSystem {
     
     if (dialogue) {
       // Generate AI commentary for character interaction
-      await this.aiCommentaryService.generateCommentary({
-        event: 'character_interaction',
-        character: character.name,
-        title: character.title,
-        personality: character.personality,
-        dialogue: dialogue.content,
-        emotion: dialogue.emotion,
-        context: dialogue.context
-      });
+      // await this.aiCommentaryService.generateCommentary({
+      //   event: 'character_interaction',
+      //   character: character.name,
+      //   title: character.title,
+      //   personality: character.personality,
+      //   dialogue: dialogue.content,
+      //   emotion: dialogue.emotion,
+      //   context: dialogue.context
+      // });
 
       console.log(`Character interaction: ${character.name} - ${dialogue.content}`);
     }
@@ -564,16 +564,16 @@ export class NarrativeEventSystem {
    * Generate AI commentary for narrative events
    */
   private async generateNarrativeCommentary(event: NarrativeEvent): Promise<void> {
-    await this.aiCommentaryService.generateCommentary({
-      event: 'narrative_event',
-      narrative: {
-        title: event.title,
-        description: event.description,
-        content: event.content,
-        type: event.type,
-        metadata: event.metadata
-      }
-    });
+    // await this.aiCommentaryService.generateCommentary({
+    //   event: 'narrative_event',
+    //   narrative: {
+    //     title: event.title,
+    //     description: event.description,
+    //     content: event.content,
+    //     type: event.type,
+    //     metadata: event.metadata
+    //   }
+    // });
   }
 
   /**

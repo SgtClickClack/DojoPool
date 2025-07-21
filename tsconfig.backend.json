@@ -24,8 +24,16 @@
     "src/backend/**/*",
     "src/config/monitoring.ts",
     "src/config/environment.backend.ts",
-    "src/services/**/*",
-    "src/utils/**/*"
+    "src/services/blockchain/**/*",
+    "src/services/analytics/**/*",
+    "src/services/venue/**/*",
+    "src/services/tournament/**/*",
+    "src/services/social/**/*",
+    "src/services/economy/**/*",
+    "src/services/narrative/**/*",
+    "src/services/challengeStorage.ts",
+    "src/utils/**/*",
+    "src/types/**/*"
   ],
   "exclude": [
     "node_modules", 
@@ -34,6 +42,12 @@
     "src/frontend/**/*",
     "src/components/**/*",
     "src/pages/**/*",
-    "src/config/environment.ts"
+    "src/config/environment.ts",
+    "src/services/ai/**/*",
+    "src/services/referee/**/*",
+    "src/services/avatar3DService-Meex.ts",
+    "src/firebase/**/*",
+    "src/services/network/**/*",
+    "src/services/wallet/**/*"
   ]
 } 

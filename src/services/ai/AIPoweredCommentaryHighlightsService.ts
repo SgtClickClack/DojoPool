@@ -197,10 +197,7 @@ class AIPoweredCommentaryHighlightsService extends EventEmitter {
       this.handleCommentaryEvent(event);
     });
 
-    // Listen to advanced commentary events
-    this.advancedCommentaryService.on('commentaryGenerated', (event: any) => {
-      this.handleCommentaryEvent(event);
-    });
+    // Removed .on usage on advancedCommentaryService (not an EventEmitter)
 
     console.log('AI-Powered Commentary & Highlights Service initialized');
   }

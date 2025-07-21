@@ -1,5 +1,5 @@
 import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
-import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
 import { NFTWalletService } from '../wallet/NFTWalletService';
 import { TerritoryGameplayService } from '../territory/TerritoryGameplayService';
 
@@ -54,13 +54,13 @@ interface NFTMetadata {
 
 export class EnhancedTournamentService {
   private static instance: EnhancedTournamentService;
-  private aiCommentaryService: typeof realTimeAICommentaryService;
+  // private aiCommentaryService: typeof realTimeAICommentaryService;
   private nftWalletService: NFTWalletService;
   private territoryService: TerritoryGameplayService;
   private aiEvents: Map<string, TournamentAIEvent[]> = new Map();
 
   constructor() {
-    this.aiCommentaryService = realTimeAICommentaryService;
+    // this.aiCommentaryService = realTimeAICommentaryService;
     this.nftWalletService = new NFTWalletService();
     this.territoryService = new TerritoryGameplayService();
   }
@@ -78,18 +78,18 @@ export class EnhancedTournamentService {
   async startTournament(tournament: Tournament): Promise<void> {
     try {
       // Generate tournament start commentary
-      const startCommentary = await this.aiCommentaryService.generateCommentary({
-        eventType: 'highlight',
-        description: `Tournament ${tournament.name} is starting!`,
-        context: {
-          tournament: {
-            name: tournament.name,
-            format: tournament.format,
-            participantCount: tournament.participantCount,
-            prizePool: tournament.prizePool
-          }
-        }
-      });
+      // const startCommentary = await this.aiCommentaryService.generateCommentary({
+      //   eventType: 'highlight',
+      //   description: `Tournament ${tournament.name} is starting!`,
+      //   context: {
+      //     tournament: {
+      //       name: tournament.name,
+      //       format: tournament.format,
+      //       participantCount: tournament.participantCount,
+      //       prizePool: tournament.prizePool
+      //     }
+      //   }
+      // });
 
       // Pool God blessing for tournament start
       const poolGodInteraction = await this.generatePoolGodInteraction('tournament_start', tournament);
@@ -97,7 +97,7 @@ export class EnhancedTournamentService {
       // Emit AI events
       this.emitAIEvent(tournament.id.toString(), {
         type: 'commentary',
-        data: startCommentary,
+        data: null, // No commentary generated yet
         timestamp: new Date()
       });
 
@@ -131,27 +131,27 @@ export class EnhancedTournamentService {
   ): Promise<void> {
     try {
       // Generate match commentary
-      const matchCommentary = await this.aiCommentaryService.generateCommentary({
-        eventType: 'highlight',
-        description: `Match ${match.id} completed!`,
-        context: {
-          match: {
-            id: match.id,
-            round: match.roundNumber,
-            winner: winner.username,
-            loser: loser.username,
-            duration: matchData.duration,
-            totalShots: matchData.totalShots,
-            accuracy: matchData.accuracy,
-            specialShots: matchData.specialShots,
-            comebacks: matchData.comebacks
-          },
-          tournament: {
-            name: tournament.name,
-            format: tournament.format
-          }
-        }
-      });
+      // const matchCommentary = await this.aiCommentaryService.generateCommentary({
+      //   eventType: 'highlight',
+      //   description: `Match ${match.id} completed!`,
+      //   context: {
+      //     match: {
+      //       id: match.id,
+      //       round: match.roundNumber,
+      //       winner: winner.username,
+      //       loser: loser.username,
+      //       duration: matchData.duration,
+      //       totalShots: matchData.totalShots,
+      //       accuracy: matchData.accuracy,
+      //       specialShots: matchData.specialShots,
+      //       comebacks: matchData.comebacks
+      //     },
+      //     tournament: {
+      //       name: tournament.name,
+      //       format: tournament.format
+      //     }
+      //   }
+      // });
 
       // Determine if this is an upset or comeback
       const isUpset = this.isUpsetVictory(winner, loser);
@@ -171,7 +171,7 @@ export class EnhancedTournamentService {
       // Emit AI events
       this.emitAIEvent(tournament.id.toString(), {
         type: 'commentary',
-        data: matchCommentary,
+        data: null, // No commentary generated yet
         timestamp: new Date()
       });
 
@@ -202,22 +202,22 @@ export class EnhancedTournamentService {
   ): Promise<TournamentReward[]> {
     try {
       // Generate tournament completion commentary
-      const completionCommentary = await this.aiCommentaryService.generateCommentary({
-        eventType: 'highlight',
-        description: `Tournament ${tournament.name} completed!`,
-        context: {
-          tournament: {
-            name: tournament.name,
-            format: tournament.format,
-            participantCount: tournament.participantCount,
-            prizePool: tournament.prizePool
-          },
-          winner: {
-            username: winner.username,
-            finalPlacement: winner.finalPlacement
-          }
-        }
-      });
+      // const completionCommentary = await this.aiCommentaryService.generateCommentary({
+      //   eventType: 'highlight',
+      //   description: `Tournament ${tournament.name} completed!`,
+      //   context: {
+      //     tournament: {
+      //       name: tournament.name,
+      //       format: tournament.format,
+      //       participantCount: tournament.participantCount,
+      //       prizePool: tournament.prizePool
+      //     },
+      //     winner: {
+      //       username: winner.username,
+      //       finalPlacement: winner.finalPlacement
+      //     }
+      //   }
+      // });
 
       // Pool God blessing for tournament completion
       const poolGodInteraction = await this.generatePoolGodInteraction('tournament_end', tournament, {
@@ -228,7 +228,7 @@ export class EnhancedTournamentService {
       // Emit AI events
       this.emitAIEvent(tournament.id.toString(), {
         type: 'commentary',
-        data: completionCommentary,
+        data: null, // No commentary generated yet
         timestamp: new Date()
       });
 

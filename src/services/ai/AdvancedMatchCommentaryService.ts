@@ -1,7 +1,7 @@
+import { io, Socket } from 'socket.io-client';
+import { logger } from '../../config/monitoring';
+import { env } from '../../config/environment';
 import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
-import { Socket } from 'socket.io-client';
-import { io } from 'socket.io-client';
-import { env } from '../../config/environment.backend';
 
 export interface CommentaryStyle {
   id: string;

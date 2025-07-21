@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
-import { env } from '../../config/environment.backend';
+import { env } from '../../config/environment';
 
 export interface CommentaryEvent {
   id: string;
