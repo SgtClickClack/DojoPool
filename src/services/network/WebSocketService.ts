@@ -35,6 +35,13 @@ class WebSocketService {
       console.log("WebSocketService.ts:62 Socket.IO connected:", socket.id);
       this.state.connected = true;
       this.handleReconnection();
+      
+      // Register user with backend for challenge notifications
+      const playerId = this.getCurrentPlayerId();
+      if (playerId) {
+        socket.emit("register_user", { userId: playerId });
+        console.log('WebSocketService.ts: Registered user with backend:', playerId);
+      }
     });
 
     socket.on("disconnect", (reason: string) => {
@@ -56,7 +63,26 @@ class WebSocketService {
       this.notifySubscribers("notifications", data);
     });
 
+    // Handle challenge-specific events
+    socket.on("new_challenge", (data: any) => {
+      this.notifySubscribers("new_challenge", data);
+    });
+
+    socket.on("challenge_response", (data: any) => {
+      this.notifySubscribers("challenge_response", data);
+    });
+
     this.state.socket = socket;
+  }
+
+  private getCurrentPlayerId(): string | null {
+    // Try to get player ID from localStorage or session storage
+    const playerId = localStorage.getItem('playerId') || 
+                    sessionStorage.getItem('playerId') ||
+                    localStorage.getItem('userId') ||
+                    sessionStorage.getItem('userId');
+    
+    return playerId || null;
   }
 
   private handleReconnection(): void {
@@ -65,6 +91,12 @@ class WebSocketService {
       this.state.subscriptions.forEach((_, channel) => {
         this.state.socket?.emit("subscribe", { channel });
       });
+      
+      // Re-register user
+      const playerId = this.getCurrentPlayerId();
+      if (playerId) {
+        this.state.socket.emit("register_user", { userId: playerId });
+      }
     }
   }
 

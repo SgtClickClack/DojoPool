@@ -153,7 +153,7 @@ app.get('/', (req: Request, res: Response) => {
 app.get('/api/health', healthCheck);
 
 // Register routes
-app.use('/api', challengeRoutes);
+app.use('/api/challenge', challengeRoutes(io));
 app.use('/api', socialRoutes);
 app.use('/api', territoryRoutes);
 app.use('/api', userNftsRoutes);
