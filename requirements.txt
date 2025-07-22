@@ -1,50 +1,10 @@
-# Core Dependencies
-flask==3.0.2
-sendgrid==6.11.0
-python-dotenv==1.0.1
-flask-sqlalchemy==3.1.1
-flask-migrate==4.0.5
-flask-login==0.6.3
-flask-wtf==1.2.1
-flask-mail==0.9.1
-flask-caching==2.3.1
-flask-marshmallow==1.3.0
-marshmallow==3.26.1
+flask
+flask-login
+flask-sqlalchemy
+psycopg2-binary
 flask-socketio
 eventlet
-celery
-# psycopg2-binary
-marshmallow-sqlalchemy
-redis
-flask-jwt-extended
-PyJWT
-# numpy
-# scikit-learn
-# scipy
-joblib
-threadpoolctl
-prometheus-client
-# solana==0.25.0  # Disabled due to websockets conflict with web3. Use a split environment for Solana/Ethereum dev.
-web3>=6.0.0
-cryptography
-ledgerblue
-fastapi
-# trezorlib  # Temporarily removed due to conflict
-opencv-python # For cv2
-qrcode        # For QR code generation
-# pandas
-
-# Security
-werkzeug==3.0.1
-itsdangerous==2.1.2
-click==8.1.7
-jinja2==3.1.3
-markupsafe==2.1.5
-
-# Development Dependencies
-pytest==8.0.0
-black==24.1.1
-flake8==7.0.0
-mypy==1.8.0
-parsimonious>=0.9.0
-pywin32
+werkzeug
+requests
+oauthlib
+python-dotenv
