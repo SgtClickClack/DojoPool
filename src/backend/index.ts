@@ -58,7 +58,12 @@ const port = process.env.PORT || 8080;
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   allowEIO3: true,
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
 // --- Essential Middleware ---
@@ -91,7 +96,7 @@ app.use(helmet({
 
 // Environment-specific CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
+  origin: process.env.NODE_ENV === 'production'
     ? [process.env.FRONTEND_URL || 'https://dojopool.com']
     : ['http://localhost:3000', 'http://localhost:3101', 'http://127.0.0.1:3101'],
   credentials: true,
@@ -124,13 +129,13 @@ app.use('/api', apiLimiter);
 app.use((req: Request, res: Response, next: NextFunction) => {
   // Remove server information
   res.removeHeader('X-Powered-By');
-  
+
   // Add security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  
+
   next();
 });
 
@@ -192,7 +197,7 @@ app.use('/api/*', (req: Request, res: Response) => {
 // Initialize Socket.IO
 io.on('connection', (socket) => {
   logger.info(`Socket.IO client connected: ${socket.id}`);
-  
+
   socket.on('disconnect', () => {
     logger.info(`Socket.IO client disconnected: ${socket.id}`);
   });

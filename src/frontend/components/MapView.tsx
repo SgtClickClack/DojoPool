@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, OverlayView } from '@react-google-maps/api';
 import livingWorldHubService, { DojoData, PlayerData, TerritoryUpdate } from '../../services/LivingWorldHubService';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CircularProgress, Alert, Snackbar, Chip, Box, Typography, Paper, Button, IconButton, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { 
-  LocationOn, 
-  People, 
-  Star, 
-  EmojiEvents, 
-  Warning, 
-  CheckCircle, 
+import {
+  LocationOn,
+  People,
+  Star,
+  EmojiEvents,
+  Warning,
+  CheckCircle,
   Cancel,
   DirectionsWalk,
   Timer,
@@ -43,19 +43,19 @@ const center = {
 
 // Midnight Commander dark map style
 const mapStyles = [
-  {"featureType":"all","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"}]},
-  {"featureType":"all","elementType":"labels.text.stroke","stylers":[{"color":"#000000"},{"lightness":13}]},
-  {"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},
-  {"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#144b53"},{"lightness":14},{"weight":1.4}]},
-  {"featureType":"landscape","elementType":"all","stylers":[{"color":"#08304b"}]},
-  {"featureType":"poi","elementType":"geometry","stylers":[{"color":"#0c4152"},{"lightness":5}]},
-  {"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},
-  {"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#0b434f"},{"lightness":25}]},
-  {"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},
-  {"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#0b3d51"},{"lightness":16}]},
-  {"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"}]},
-  {"featureType":"transit","elementType":"all","stylers":[{"color":"#146474"}]},
-  {"featureType":"water","elementType":"all","stylers":[{"color":"#021019"}]}
+  { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "color": "#ffffff" }] },
+  { "featureType": "all", "elementType": "labels.text.stroke", "stylers": [{ "color": "#000000" }, { "lightness": 13 }] },
+  { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+  { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{ "color": "#144b53" }, { "lightness": 14 }, { "weight": 1.4 }] },
+  { "featureType": "landscape", "elementType": "all", "stylers": [{ "color": "#08304b" }] },
+  { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#0c4152" }, { "lightness": 5 }] },
+  { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+  { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#0b434f" }, { "lightness": 25 }] },
+  { "featureType": "road.arterial", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+  { "featureType": "road.arterial", "elementType": "geometry.stroke", "stylers": [{ "color": "#0b3d51" }, { "lightness": 16 }] },
+  { "featureType": "road.local", "elementType": "geometry", "stylers": [{ "color": "#000000" }] },
+  { "featureType": "transit", "elementType": "all", "stylers": [{ "color": "#146474" }] },
+  { "featureType": "water", "elementType": "all", "stylers": [{ "color": "#021019" }] }
 ];
 
 // Environment variables are accessed directly from the centralized config
@@ -72,7 +72,7 @@ const isMapsKeyMissingOrInvalid = !googleMapsApiKey ||
 const getDojoMarkerIcon = (dojo: DojoData) => {
   let glow, fill, icon, borderColor;
   const territoryLevel = dojo.territoryLevel;
-  
+
   if (dojo.isLocked) {
     glow = '#888'; fill = '#444'; icon = '🔒'; borderColor = '#666';
   } else if (dojo.allegiance === 'player') {
@@ -82,14 +82,14 @@ const getDojoMarkerIcon = (dojo: DojoData) => {
   } else {
     glow = '#aaa'; fill = '#aaa'; icon = '🎱'; borderColor = '#888';
   }
-  
+
   // Add territory level rings
-  const rings = territoryLevel > 0 ? Array.from({length: territoryLevel}, (_, i) => 
+  const rings = territoryLevel > 0 ? Array.from({ length: territoryLevel }, (_, i) =>
     `<circle cx='24' cy='24' r='${20 + (i * 3)}' fill='none' stroke='${borderColor}' stroke-width='2' opacity='${0.8 - (i * 0.2)}'/>`
   ).join('') : '';
-  
+
   const svg = `<svg width='48' height='48' xmlns='http://www.w3.org/2000/svg'>${rings}<circle cx='24' cy='24' r='16' fill='${fill}' stroke='#000' stroke-width='3'/><filter id='glow'><feGaussianBlur stdDeviation='4' result='coloredBlur'/><feMerge><feMergeNode in='coloredBlur'/><feMergeNode in='SourceGraphic'/></feMerge></filter><circle cx='24' cy='24' r='16' fill='${fill}' filter='url(%23glow)' opacity='0.7'/><text x='24' y='30' text-anchor='middle' font-size='22' font-family='Arial'>${icon}</text></svg>`;
-  
+
   return {
     url: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
     scaledSize: new google.maps.Size(48, 48),
@@ -99,7 +99,7 @@ const getDojoMarkerIcon = (dojo: DojoData) => {
 
 const getPlayerMarkerIcon = () => {
   const svg = `<svg width='56' height='56' xmlns='http://www.w3.org/2000/svg'><circle cx='28' cy='28' r='20' fill='#00fff7' stroke='#fff' stroke-width='4'/><circle cx='28' cy='28' r='20' fill='#00fff7' filter='url(%23glow)' opacity='0.7'/><text x='28' y='36' text-anchor='middle' font-size='28' font-family='Arial'>👤</text></svg>`;
-  
+
   return {
     url: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
     scaledSize: new google.maps.Size(56, 56),
@@ -170,15 +170,15 @@ const TerritoryStatus = ({ dojo }: { dojo: DojoData }) => {
         {dojo.isLocked ? 'Locked Territory' : `${dojo.allegiance.charAt(0).toUpperCase() + dojo.allegiance.slice(1)} Territory`}
       </Typography>
       {dojo.territoryLevel > 0 && (
-        <Chip 
-          label={`Level ${dojo.territoryLevel}`} 
-          size="small" 
-          sx={{ 
-            backgroundColor: getStatusColor(), 
-            color: '#000', 
+        <Chip
+          label={`Level ${dojo.territoryLevel}`}
+          size="small"
+          sx={{
+            backgroundColor: getStatusColor(),
+            color: '#000',
             fontWeight: 700,
             fontSize: '0.7rem'
-          }} 
+          }}
         />
       )}
     </Box>
@@ -214,15 +214,15 @@ const ClanWarStatus = ({ dojo }: { dojo: DojoData }) => {
         Clan War: {dojo.clanWarStatus.charAt(0).toUpperCase() + dojo.clanWarStatus.slice(1)}
       </Typography>
       {dojo.clanWarScore !== '0-0' && (
-        <Chip 
-          label={dojo.clanWarScore} 
-          size="small" 
-          sx={{ 
-            backgroundColor: getWarColor(), 
-            color: '#fff', 
+        <Chip
+          label={dojo.clanWarScore}
+          size="small"
+          sx={{
+            backgroundColor: getWarColor(),
+            color: '#fff',
             fontWeight: 700,
             fontSize: '0.7rem'
-          }} 
+          }}
         />
       )}
     </Box>
@@ -271,8 +271,8 @@ const ChallengeInterface = ({ dojo }: { dojo: DojoData }) => {
           variant="outlined"
           size="small"
           onClick={() => handleChallenge('pilgrimage')}
-          sx={{ 
-            borderColor: '#00ff9d', 
+          sx={{
+            borderColor: '#00ff9d',
             color: '#00ff9d',
             '&:hover': { borderColor: '#00a8ff', backgroundColor: 'rgba(0,168,255,0.1)' }
           }}
@@ -283,8 +283,8 @@ const ChallengeInterface = ({ dojo }: { dojo: DojoData }) => {
           variant="outlined"
           size="small"
           onClick={() => handleChallenge('duel')}
-          sx={{ 
-            borderColor: '#ff3b3b', 
+          sx={{
+            borderColor: '#ff3b3b',
             color: '#ff3b3b',
             '&:hover': { borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)' }
           }}
@@ -295,8 +295,8 @@ const ChallengeInterface = ({ dojo }: { dojo: DojoData }) => {
           variant="outlined"
           size="small"
           onClick={() => handleChallenge('gauntlet')}
-          sx={{ 
-            borderColor: '#ffaa00', 
+          sx={{
+            borderColor: '#ffaa00',
             color: '#ffaa00',
             '&:hover': { borderColor: '#ffcc00', backgroundColor: 'rgba(255,204,0,0.1)' }
           }}
@@ -307,7 +307,7 @@ const ChallengeInterface = ({ dojo }: { dojo: DojoData }) => {
           variant="contained"
           size="small"
           onClick={handleTravel}
-          sx={{ 
+          sx={{
             backgroundColor: '#00a8ff',
             '&:hover': { backgroundColor: '#0088cc' }
           }}
@@ -321,14 +321,14 @@ const ChallengeInterface = ({ dojo }: { dojo: DojoData }) => {
 
 // Enhanced Info Window Content
 const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void }) => (
-  <Paper sx={{ 
-    p: 2, 
-    minWidth: 320, 
+  <Paper sx={{
+    p: 2,
+    minWidth: 320,
     maxWidth: 400,
-    background: 'rgba(10,20,30,0.95)', 
-    border: '2px solid #00ff9d', 
-    borderRadius: 2, 
-    boxShadow: '0 0 20px #00ff9d80' 
+    background: 'rgba(10,20,30,0.95)',
+    border: '2px solid #00ff9d',
+    borderRadius: 2,
+    boxShadow: '0 0 20px #00ff9d80'
   }}>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
       <Typography variant="h6" sx={{ color: '#00ff9d', fontFamily: 'Orbitron, monospace', fontWeight: 700 }}>
@@ -338,12 +338,12 @@ const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void
         <Cancel />
       </IconButton>
     </Box>
-    
+
     <TerritoryStatus dojo={dojo} />
     <ClanWarStatus dojo={dojo} />
-    
+
     <Divider sx={{ my: 1, borderColor: '#00a8ff' }} />
-    
+
     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <People sx={{ fontSize: 16, color: '#00a8ff' }} />
@@ -358,7 +358,7 @@ const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void
         </Typography>
       </Box>
     </Box>
-    
+
     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
       <Typography variant="body2" sx={{ color: '#00a8ff' }}>
         Distance: {dojo.distance}
@@ -367,7 +367,7 @@ const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void
         Revenue: {dojo.revenue}
       </Typography>
     </Box>
-    
+
     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
       <Typography variant="body2" sx={{ color: '#ffaa00' }}>
         Active Matches: {dojo.activeMatches}
@@ -376,7 +376,7 @@ const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void
         Last Challenge: {dojo.lastChallenge}
       </Typography>
     </Box>
-    
+
     {dojo.clan !== "Unclaimed Territory" && (
       <Box sx={{ mb: 1 }}>
         <Typography variant="body2" sx={{ color: '#00a8ff', fontWeight: 600 }}>
@@ -387,7 +387,7 @@ const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void
         </Typography>
       </Box>
     )}
-    
+
     {dojo.challenges.length > 0 && (
       <Box sx={{ mb: 1 }}>
         <Typography variant="body2" sx={{ color: '#ffaa00', fontWeight: 600, mb: 0.5 }}>
@@ -409,7 +409,7 @@ const DojoInfoWindow = ({ dojo, onClose }: { dojo: DojoData, onClose: () => void
         ))}
       </Box>
     )}
-    
+
     <ChallengeInterface dojo={dojo} />
   </Paper>
 );
@@ -471,24 +471,24 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 );
 
 // Performance-optimized marker component
-const DojoMarker = React.memo(({ 
-  dojo, 
-  isSelected, 
-  onMarkerClick 
-}: { 
-  dojo: DojoData; 
-  isSelected: boolean; 
-  onMarkerClick: (dojo: DojoData) => void; 
+const DojoMarker = React.memo(({
+  dojo,
+  isSelected,
+  onMarkerClick
+}: {
+  dojo: DojoData;
+  isSelected: boolean;
+  onMarkerClick: (dojo: DojoData) => void;
 }) => {
   const markerRef = useRef<any>(null);
 
   const getMarkerIcon = useCallback(() => {
     const baseIcon = {
-      url: dojo.allegiance === 'player' 
+      url: dojo.allegiance === 'player'
         ? '/images/markers/player-dojo.png'
         : dojo.allegiance === 'rival'
-        ? '/images/markers/rival-dojo.png'
-        : '/images/markers/neutral-dojo.png',
+          ? '/images/markers/rival-dojo.png'
+          : '/images/markers/neutral-dojo.png',
       scaledSize: new google.maps.Size(40, 40),
       anchor: new google.maps.Point(20, 20)
     };
@@ -517,6 +517,223 @@ const DojoMarker = React.memo(({
 
 DojoMarker.displayName = 'DojoMarker';
 
+// Cyberpunk Overlay Component - Renders custom SVG elements on the map
+const CyberpunkOverlay = ({ dojos, onDojoClick }: {
+  dojos: DojoData[],
+  onDojoClick: (dojo: DojoData) => void
+}) => {
+  // Define district positions in real-world coordinates (Brisbane)
+  const districts = [
+    {
+      name: 'Crimson District',
+      position: { lat: -27.4698, lng: 153.0251 },
+      color: '#00ff88',
+      size: 200,
+      clan: 'Crimson Monkey'
+    },
+    {
+      name: 'Azure District',
+      position: { lat: -27.4580, lng: 153.0335 },
+      color: '#ff6b6b',
+      size: 180,
+      clan: 'Azure Dragon'
+    },
+    {
+      name: 'Golden District',
+      position: { lat: -27.4800, lng: 153.0150 },
+      color: '#ffd700',
+      size: 190,
+      clan: 'Golden Phoenix'
+    },
+    {
+      name: 'Silver District',
+      position: { lat: -27.4600, lng: 153.0100 },
+      color: '#00a8ff',
+      size: 170,
+      clan: 'Silver Wolf'
+    }
+  ];
+
+  // Define connection lines between districts
+  const connections = [
+    { from: districts[0], to: districts[1] },
+    { from: districts[0], to: districts[2] },
+    { from: districts[1], to: districts[3] },
+    { from: districts[2], to: districts[3] }
+  ];
+
+  return (
+    <>
+      {/* Territory Boundaries */}
+      {districts.map((district, index) => (
+        <OverlayView
+          key={`district-${district.name}`}
+          position={district.position}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        >
+          <div
+            style={{
+              width: `${district.size}px`,
+              height: `${district.size}px`,
+              borderRadius: '50%',
+              border: `2px solid ${district.color}`,
+              backgroundColor: `${district.color}20`,
+              position: 'absolute',
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none',
+              animation: `territory-glow 4s ease-in-out infinite ${index * 0.5}s`,
+              boxShadow: `0 0 30px ${district.color}40`
+            }}
+            title={district.name}
+          />
+        </OverlayView>
+      ))}
+
+      {/* Connection Lines */}
+      {connections.map((connection, index) => (
+        <OverlayView
+          key={`connection-${index}`}
+          position={{
+            lat: (connection.from.position.lat + connection.to.position.lat) / 2,
+            lng: (connection.from.position.lng + connection.to.position.lng) / 2
+          }}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        >
+          <svg
+            width="100%"
+            height="100%"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              pointerEvents: 'none'
+            }}
+          >
+            <defs>
+              <linearGradient id={`connectionGradient-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#00ff88" stopOpacity="0.6" />
+                <stop offset="50%" stopColor="#00ff88" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#00ff88" stopOpacity="0.6" />
+              </linearGradient>
+            </defs>
+            <line
+              x1="0%"
+              y1="50%"
+              x2="100%"
+              y2="50%"
+              stroke="url(#connectionGradient-0)"
+              strokeWidth="3"
+              opacity="0.4"
+            />
+          </svg>
+        </OverlayView>
+      ))}
+
+      {/* 8-Ball Dojo Icons */}
+      {dojos.map((dojo) => (
+        <OverlayView
+          key={`dojo-overlay-${dojo.id}`}
+          position={dojo.coordinates}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        >
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              background: dojo.allegiance === 'player'
+                ? 'radial-gradient(circle, #00ff88 0%, #00cc66 70%, #008844 100%)'
+                : dojo.allegiance === 'rival'
+                  ? 'radial-gradient(circle, #ff6b6b 0%, #ff4444 70%, #cc0000 100%)'
+                  : 'radial-gradient(circle, #ffd700 0%, #ffcc00 70%, #cc9900 100%)',
+              border: '2px solid #00ff88',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              boxShadow: `0 0 20px ${dojo.allegiance === 'player' ? 'rgba(0, 255, 136, 0.6)' : 'rgba(255, 107, 107, 0.6)'}`,
+              transition: 'all 0.3s ease',
+              animation: 'pulse 2s infinite',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 10
+            }}
+            onClick={() => onDojoClick(dojo)}
+            title={`${dojo.name} - Controlled by ${dojo.clanLeader}`}
+          >
+            🎱
+          </div>
+        </OverlayView>
+      ))}
+
+      {/* Floating Particles */}
+      {[...Array(15)].map((_, i) => (
+        <OverlayView
+          key={`particle-${i}`}
+          position={{
+            lat: center.lat + (Math.random() - 0.5) * 0.02,
+            lng: center.lng + (Math.random() - 0.5) * 0.02
+          }}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        >
+          <div
+            style={{
+              width: '2px',
+              height: '2px',
+              backgroundColor: '#00ff88',
+              borderRadius: '50%',
+              opacity: 0.6,
+              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+              pointerEvents: 'none',
+              position: 'absolute',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 2
+            }}
+          />
+        </OverlayView>
+      ))}
+    </>
+  );
+};
+
+// Add CSS animations for the overlay elements
+const overlayStyles = `
+  @keyframes territory-glow {
+    0%, 100% {
+      border-color: rgba(0, 255, 136, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+    }
+    50% {
+      border-color: rgba(0, 255, 136, 0.6);
+      box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translate(-50%, -50%) translateY(0px) scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translate(-50%, -50%) translateY(-20px) scale(1.2);
+      opacity: 1;
+    }
+  }
+`;
+
+// Inject styles into the document
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = overlayStyles;
+  document.head.appendChild(styleElement);
+}
+
 // Main MapView component with performance optimizations
 const MapView: React.FC = () => {
   const [dojos, setDojos] = useState<DojoData[]>([]);
@@ -528,7 +745,7 @@ const MapView: React.FC = () => {
   const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
   const [showPerformanceMetrics, setShowPerformanceMetrics] = useState(false);
   const [showChallengeManager, setShowChallengeManager] = useState(false);
-  
+
   const mapRef = useRef<any>(null);
   const infoWindowRef = useRef<any>(null);
   const loadStartTime = useRef<number>(Date.now());
@@ -560,11 +777,11 @@ const MapView: React.FC = () => {
       try {
         await livingWorldHubService.initializeSocket();
         await loadData();
-        
+
         // Update performance metrics
         const loadTime = Date.now() - loadStartTime.current;
         console.log(`Map loaded in ${loadTime}ms`);
-        
+
         setPerformanceMetrics({
           loadTime,
           ...livingWorldHubService.getPerformanceMetrics()
@@ -602,9 +819,9 @@ const MapView: React.FC = () => {
   // Subscribe to real-time updates
   useEffect(() => {
     const unsubscribeTerritory = livingWorldHubService.subscribeToTerritoryUpdates((update: TerritoryUpdate) => {
-      setDojos(prevDojos => 
-        prevDojos.map(dojo => 
-          dojo.id === update.dojoId 
+      setDojos(prevDojos =>
+        prevDojos.map(dojo =>
+          dojo.id === update.dojoId
             ? { ...dojo, ...update }
             : dojo
         )
@@ -665,7 +882,7 @@ const MapView: React.FC = () => {
   // Handle marker click with performance optimization
   const handleMarkerClick = useCallback((dojo: DojoData) => {
     setSelectedDojo(dojo);
-    
+
     // Update performance metrics
     setPerformanceMetrics((prev: any) => ({
       ...prev,
@@ -678,7 +895,7 @@ const MapView: React.FC = () => {
     try {
       const result = await livingWorldHubService.createChallenge(type, dojoId, defenderId);
       console.log('Challenge created:', result);
-      
+
       // Refresh dojo data
       await loadDojoData();
     } catch (err) {
@@ -693,17 +910,17 @@ const MapView: React.FC = () => {
 
     try {
       setPlayer((prev: PlayerData | null) => prev ? { ...prev, isMoving: true, destination } : null);
-      
+
       // Simulate movement
       setTimeout(async () => {
         await livingWorldHubService.updatePlayerLocation(
           destination.coordinates.lat,
           destination.coordinates.lng
         );
-        
-        setPlayer((prev: PlayerData | null) => prev ? { 
-          ...prev, 
-          isMoving: false, 
+
+        setPlayer((prev: PlayerData | null) => prev ? {
+          ...prev,
+          isMoving: false,
           destination: null,
           currentLocation: destination.coordinates
         } : null);
@@ -742,13 +959,13 @@ const MapView: React.FC = () => {
     if (!showPerformanceMetrics || !performanceMetrics) return null;
 
     return (
-      <Box sx={{ 
-        position: 'absolute', 
-        bottom: 10, 
-        left: 10, 
-        backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-        color: 'white', 
-        padding: 2, 
+      <Box sx={{
+        position: 'absolute',
+        bottom: 10,
+        left: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        color: 'white',
+        padding: 2,
         borderRadius: 1,
         fontSize: '0.8em',
         zIndex: 1000
@@ -780,8 +997,8 @@ const MapView: React.FC = () => {
       }}>
         <h2 style={{ color: '#00fff7', marginBottom: 16 }}>Google Maps API Key Required</h2>
         <p style={{ maxWidth: 400, textAlign: 'center', marginBottom: 16 }}>
-          A valid Google Maps API key is required for the map to function.<br/>
-          <b>Set <code>VITE_GOOGLE_MAPS_API_KEY</code> in your <code>.env</code> file.</b><br/>
+          A valid Google Maps API key is required for the map to function.<br />
+          <b>Set <code>VITE_GOOGLE_MAPS_API_KEY</code> in your <code>.env</code> file.</b><br />
           <span style={{ color: '#ff6b6b' }}>
             The current key is missing or invalid.
           </span>
@@ -790,7 +1007,7 @@ const MapView: React.FC = () => {
           VITE_GOOGLE_MAPS_API_KEY=your_real_key_here
         </code>
         <p style={{ marginTop: 24, color: '#aaa', fontSize: 14 }}>
-          See the README for setup instructions.<br/>
+          See the README for setup instructions.<br />
           <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" style={{ color: '#00a8ff' }}>Get a Google Maps API key</a>
         </p>
       </div>
@@ -860,19 +1077,18 @@ const MapView: React.FC = () => {
             />
           )}
 
-          {/* Dojo markers */}
-          {dojos.map((dojo) => (
-            <MarkerF
-              key={dojo.id}
-              position={dojo.coordinates}
-              icon={getDojoMarkerIcon(dojo)}
-              onClick={() => handleMarkerClick(dojo)}
-              title={dojo.name}
-            />
-          ))}
+          {/* Cyberpunk Overlay - Custom SVG elements on the map */}
+          <CyberpunkOverlay dojos={dojos} onDojoClick={handleMarkerClick} />
 
           {/* Info window */}
-          {/* {renderInfoWindow()} */}
+          {selectedDojo && (
+            <InfoWindow
+              position={selectedDojo.coordinates}
+              onCloseClick={onInfoWindowClose}
+            >
+              <DojoInfoWindow dojo={selectedDojo} onClose={onInfoWindowClose} />
+            </InfoWindow>
+          )}
         </GoogleMap>
 
         {/* Status bar */}
@@ -882,7 +1098,7 @@ const MapView: React.FC = () => {
             color={isOnline ? 'success' : 'error'}
             size="small"
           />
-          
+
           {error && (
             <Chip
               label="Error"
@@ -892,7 +1108,7 @@ const MapView: React.FC = () => {
               clickable
             />
           )}
-          
+
           <Chip
             label="Performance"
             color="primary"
@@ -914,14 +1130,14 @@ const MapView: React.FC = () => {
         </button>
 
         {/* Dojo Profile Panel */}
-        <DojoProfilePanel 
-          dojo={selectedDojo} 
-          onClose={() => setSelectedDojo(null)} 
+        <DojoProfilePanel
+          dojo={selectedDojo}
+          onClose={() => setSelectedDojo(null)}
           isLocked={selectedDojo?.isLocked || false}
         />
 
         {/* Challenge Manager */}
-        <ChallengeManager 
+        <ChallengeManager
           isOpen={showChallengeManager}
           onClose={() => setShowChallengeManager(false)}
         />

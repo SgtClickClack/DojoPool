@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DojoPool - Real Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff9d, #00a8ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .status-bar {
+            background: rgba(0, 255, 157, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-item {
+            display: inline-block;
+            margin-right: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .status-connected {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .status-disconnected {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: rgba(0, 255, 157, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 255, 157, 0.3);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: #00ff9d;
+        }
+
+        .button-group {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ff9d, #00a8ff);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 157, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: #00ff9d;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎱 DojoPool Platform</h1>
+            <p>Pokémon Meets Pool - The Ultimate Gaming Experience</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item" id="backend-status">
+                <span class="loading"></span> Backend: Checking...
+            </div>
+            <div class="status-item" id="frontend-status">
+                ✅ Frontend: Running
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🗺️ World Map</h3>
+                <p>Explore territories, find dojos, and discover new challenges in the DojoPool world. Navigate through
+                    the interactive map to find venues and territories.</p>
+                <button class="btn" onclick="window.open('http://localhost:3000/world-map', '_blank')">Explore
+                    World</button>
+            </div>
+
+            <div class="feature-card">
+                <h3>⚔️ Clan Wars</h3>
+                <p>Battle for territory control, form alliances, and dominate the DojoPool landscape. Join clan wars and
+                    fight for supremacy.</p>
+                <button class="btn" onclick="window.open('http://localhost:3000/clan-wars', '_blank')">Join
+                    Battle</button>
+            </div>
+
+            <div class="feature-card">
+                <h3>🏆 Tournaments</h3>
+                <p>Compete in tournaments, win prizes, and climb the leaderboards. Participate in various tournament
+                    formats and earn rewards.</p>
+                <button class="btn" onclick="window.open('http://localhost:3000/tournaments', '_blank')">View
+                    Tournaments</button>
+            </div>
+
+            <div class="feature-card">
+                <h3>🤖 AI Commentary</h3>
+                <p>Experience AI-powered match commentary and real-time analysis. Get intelligent insights and
+                    commentary during matches.</p>
+                <button class="btn" onclick="window.open('http://localhost:3000/ai-commentary', '_blank')">Try AI
+                    Commentary</button>
+            </div>
+
+            <div class="feature-card">
+                <h3>🎮 Game Mechanics</h3>
+                <p>Advanced challenge system, territory control, and player progression. Master the complex game
+                    mechanics and strategies.</p>
+                <button class="btn" onclick="window.open('http://localhost:3000/game-mechanics', '_blank')">Explore
+                    Mechanics</button>
+            </div>
+
+            <div class="feature-card">
+                <h3>👤 Avatar Progression</h3>
+                <p>Level up your avatar, unlock achievements, and evolve your character. Track your progress and unlock
+                    new abilities.</p>
+                <button class="btn" onclick="window.open('http://localhost:3000/avatar-progression', '_blank')">View
+                    Avatar</button>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn" onclick="testBackendConnection()">Test Backend Connection</button>
+            <button class="btn" onclick="testGameData()">Test Game Data</button>
+            <button class="btn" onclick="openMainApp()">Open Main Application</button>
+        </div>
+
+        <div id="test-results"
+            style="margin-top: 20px; padding: 15px; background: rgba(0,255,157,0.1); border-radius: 10px; display: none;">
+            <!-- Test results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        let gameData = null;
+
+        // Initialize the application
+        async function initializeApp() {
+            await testBackendConnection();
+            await loadGameData();
+        }
+
+        // Test backend connection
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('http://localhost:8080/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('backend-status').innerHTML = '✅ Backend: Connected';
+                    document.getElementById('backend-status').className = 'status-item status-connected';
+                    console.log('Backend health:', data);
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('backend-status').innerHTML = '❌ Backend: Disconnected';
+                document.getElementById('backend-status').className = 'status-item status-disconnected';
+                console.error('Backend error:', error);
+                return false;
+            }
+        }
+
+        // Load game data
+        async function loadGameData() {
+            try {
+                const response = await fetch('http://localhost:8080/api/game-status');
+                if (response.ok) {
+                    gameData = await response.json();
+                    console.log('Game data loaded:', gameData);
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Game data error:', error);
+                return false;
+            }
+        }
+
+        // Test functions
+        async function testBackendConnection() {
+            const result = await testBackendConnection();
+            showTestResult('Backend Connection Test', result ? '✅ PASSED' : '❌ FAILED');
+        }
+
+        async function testGameData() {
+            const result = await loadGameData();
+            showTestResult('Game Data Test', result ? '✅ PASSED' : '❌ FAILED');
+        }
+
+        function openMainApp() {
+            window.open('http://localhost:3000', '_blank');
+        }
+
+        function showTestResult(testName, result) {
+            const testResults = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.innerHTML = `<strong>${testName}:</strong> ${result}`;
+            testResults.appendChild(resultDiv);
+            testResults.style.display = 'block';
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                resultDiv.remove();
+                if (testResults.children.length === 0) {
+                    testResults.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        // Initialize the application when the page loads
+        window.addEventListener('load', initializeApp);
+
+        // Refresh game data every 30 seconds
+        setInterval(loadGameData, 30000);
+    </script>
+</body>
+
+</html>

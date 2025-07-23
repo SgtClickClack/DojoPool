@@ -1,0 +1,1068 @@
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T21:10:03.066Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T21:16:33.025Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T21:45:47.909Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T21:48:02.726Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:48:16.993Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:48:25.080Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:51:11.549Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:53:45.096Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:53:46.338Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:55:02.852Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:01:01.669Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:03:40.274Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T22:07:37.246Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:09:02.643Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:11:58.351Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T22:14:42.588Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:15:09.669Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T22:20:56.911Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-04-21T22:26:46.135Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-18T16:46:22.453Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-18T17:00:38.707Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-18T17:00:38.710Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-18T17:00:38.711Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-21T23:26:55.703Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-21T23:26:55.707Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-21T23:26:55.707Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-22T20:14:44.172Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-22T20:14:44.177Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-22T20:14:44.177Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T02:49:25.938Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T02:49:25.941Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T02:49:25.942Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T06:36:15.846Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T06:36:15.849Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T06:36:15.850Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T06:46:04.733Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T06:46:04.737Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T06:46:04.738Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T15:41:06.336Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T15:41:06.340Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T15:41:06.340Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T15:43:19.899Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T15:43:19.903Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T15:43:19.903Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T15:45:05.490Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T15:45:05.493Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T15:45:05.494Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T15:46:51.823Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T15:46:51.826Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T15:46:51.827Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T15:49:44.992Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T15:49:44.995Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T15:49:44.996Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T16:12:49.555Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T16:12:49.558Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T16:12:49.559Z"}
+{"level":"info","message":"Server running at http://localhost:3001","timestamp":"2025-05-23T16:32:49.969Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-23T16:32:49.973Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-23T16:32:49.974Z"}
+{"level":"info","message":"Server running at http://localhost:3101","timestamp":"2025-05-26T03:49:06.871Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T03:49:06.874Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T03:49:06.874Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:50:43.283Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:53:27.609Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:53:27.622Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.223Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.280Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.990Z"}
+{"level":"info","message":"Server running at http://localhost:3101","timestamp":"2025-05-26T04:00:50.826Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T04:00:50.829Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T04:00:50.830Z"}
+{"level":"info","message":"Server running at http://localhost:3101","timestamp":"2025-05-26T04:04:12.314Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T04:04:12.318Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T04:04:12.318Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T04:08:48.911Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T04:08:48.914Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T04:08:48.915Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T05:15:13.584Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T05:15:13.587Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T05:15:13.588Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T05:25:14.202Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T05:25:14.206Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T05:25:14.206Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T05:28:06.055Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T05:28:06.059Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T05:28:06.060Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T05:38:43.824Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T05:38:43.827Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T05:38:43.828Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T05:47:40.239Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T05:47:40.243Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T05:47:40.244Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T05:58:14.936Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T05:58:14.939Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T05:58:14.939Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T06:00:07.282Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T06:00:07.286Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T06:00:07.287Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T06:16:26.284Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T06:16:26.287Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T06:16:26.288Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T06:17:43.144Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T06:17:43.149Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T06:17:43.150Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-26T23:15:45.632Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-26T23:15:45.637Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-26T23:15:45.638Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-27T00:50:17.874Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-27T00:50:17.878Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-27T00:50:17.879Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-27T01:16:20.381Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-27T01:16:20.386Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-27T01:16:20.386Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-27T01:30:25.738Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-27T01:30:25.743Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-27T01:30:25.743Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-05-27T01:34:50.443Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-05-27T01:34:50.447Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-05-27T01:34:50.447Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-06T22:16:14.593Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-06T22:16:14.604Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-06T22:16:14.605Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-06T22:16:42.827Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-06T22:16:42.831Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-06T22:16:42.832Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-07T22:40:35.284Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-07T22:40:35.297Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-07T22:40:35.298Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-07T22:54:12.177Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-07T22:54:12.182Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-07T22:54:12.182Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-07T23:06:29.281Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-07T23:06:29.286Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-07T23:06:29.286Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-08T02:21:36.358Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-08T02:21:36.364Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-08T02:21:36.364Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-08T02:59:03.621Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-08T02:59:03.635Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-08T02:59:03.637Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-08T10:11:28.099Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-08T10:11:28.104Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-08T10:11:28.105Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-08T10:59:35.568Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-08T10:59:35.573Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-08T10:59:35.573Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-08T11:24:15.628Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-08T11:24:15.633Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-08T11:24:15.633Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-11T18:55:06.328Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-11T18:55:06.332Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-11T18:55:06.332Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-11T19:03:30.007Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-11T19:03:30.012Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-11T19:03:30.013Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-11T19:09:27.342Z"}
+{"level":"info","message":"Current environment: development","timestamp":"2025-06-11T19:09:27.345Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-11T19:09:27.346Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T03:39:57.437Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T03:39:57.442Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T03:39:57.443Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T03:47:01.078Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T03:47:01.081Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T03:47:01.082Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T04:03:23.037Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T04:03:23.040Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T04:03:23.041Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T04:19:50.102Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T04:19:50.106Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T04:19:50.106Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T04:27:36.245Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T04:27:36.251Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T04:27:36.252Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T04:35:31.336Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T04:35:31.340Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T04:35:31.340Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T04:38:30.413Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T04:38:30.417Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T04:38:30.417Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T05:00:33.597Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T05:00:33.601Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T05:00:33.601Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T05:03:26.944Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T05:03:26.951Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T05:03:26.951Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T05:34:53.656Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T05:34:53.661Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T05:34:53.662Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T05:51:49.122Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T05:51:49.128Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T05:51:49.129Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T05:58:08.164Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T05:58:08.169Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T05:58:08.170Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T06:07:46.656Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T06:07:46.659Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T06:07:46.660Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T06:11:22.115Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T06:11:22.137Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T06:11:22.138Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T06:12:20.429Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T06:12:20.432Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T06:12:20.432Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T06:18:23.101Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T06:18:23.105Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T06:18:23.106Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T06:27:37.997Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T06:27:38.001Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T06:27:38.001Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T06:54:30.356Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T06:54:30.359Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T06:54:30.359Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:01:16.120Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:01:16.124Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:01:16.125Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:09:16.985Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:09:16.989Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:09:16.990Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:21:54.961Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:21:54.964Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:21:54.965Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:34:52.715Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:34:52.720Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:34:52.720Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:38:52.312Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:38:52.318Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:38:52.319Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:42:04.387Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:42:04.391Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:42:04.392Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:53:21.966Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:53:21.969Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:53:21.970Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T07:57:04.803Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T07:57:04.808Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T07:57:04.808Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:13:42.104Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:13:42.109Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:13:42.109Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:17:37.932Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:17:37.936Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:17:37.937Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:18:01.659Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:18:01.665Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:18:01.666Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:20:35.608Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:20:35.612Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:20:35.613Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:24:54.398Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:24:54.402Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:24:54.402Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:35:55.332Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:35:55.337Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:35:55.338Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T08:44:46.421Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T08:44:46.425Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T08:44:46.425Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:00:18.075Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:00:18.081Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:00:18.081Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:08:52.194Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:08:52.197Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:08:52.197Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:15:32.130Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:15:32.138Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:15:32.139Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:25:45.739Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:25:45.742Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:25:45.743Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:30:41.846Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:30:41.851Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:30:41.852Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:32:49.708Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:32:49.712Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:32:49.713Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:37:15.382Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:37:15.388Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:37:15.388Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:42:21.877Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:42:21.880Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:42:21.880Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:45:19.853Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:45:19.855Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:45:19.856Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T09:48:05.535Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T09:48:05.539Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T09:48:05.540Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:14:54.706Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:14:54.709Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:14:54.710Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:16:51.795Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:16:51.798Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:16:51.799Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:23:33.288Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:23:33.292Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:23:33.293Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:26:08.619Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:26:08.623Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:26:08.624Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:27:28.881Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:27:28.884Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:27:28.884Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:43:43.536Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:43:43.543Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:43:43.544Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:50:57.477Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:50:57.481Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:50:57.481Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:56:46.178Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:56:46.181Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:56:46.182Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T10:59:16.063Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T10:59:16.066Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T10:59:16.066Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T11:04:15.183Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:04:15.188Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:04:15.188Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T11:06:17.301Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:06:17.304Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:06:17.304Z"}
+{"level":"info","message":"Server running at http://localhost:3102","timestamp":"2025-06-21T11:09:16.875Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:09:16.879Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:09:16.879Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:13:47.184Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:13:47.187Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:13:47.187Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:14:06.944Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:14:06.948Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:14:06.949Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:23:02.010Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:23:02.014Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:23:02.014Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:24:09.586Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:24:09.590Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:24:09.591Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:35:00.465Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:35:00.469Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:35:00.470Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:42:52.538Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:42:52.543Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:42:52.544Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:45:52.556Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:45:52.559Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:45:52.559Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:49:42.622Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:49:42.626Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:49:42.627Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:56:34.451Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:56:34.454Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:56:34.454Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T11:58:54.838Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T11:58:54.842Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T11:58:54.843Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T12:01:57.130Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T12:01:57.133Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T12:01:57.134Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T12:08:32.093Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T12:08:32.096Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T12:08:32.097Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T12:48:24.027Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T12:48:24.031Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T12:48:24.031Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T17:43:16.220Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T17:43:16.225Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T17:43:16.226Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-21T19:47:58.962Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-21T19:47:58.967Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-21T19:47:58.968Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T05:41:20.454Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T05:41:20.457Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T05:41:20.457Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T05:59:28.584Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T05:59:28.589Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T05:59:28.590Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T06:08:07.249Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T06:08:07.254Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T06:08:07.254Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T07:26:41.800Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T07:26:41.803Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T07:26:41.804Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T07:57:01.973Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T07:57:01.976Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T07:57:01.977Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T08:11:24.945Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T08:11:24.949Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T08:11:24.950Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T08:21:10.411Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T08:21:10.421Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T08:21:10.423Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T10:26:05.454Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T10:26:05.457Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T10:26:05.458Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T11:48:33.460Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T11:48:33.463Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T11:48:33.463Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T12:09:23.061Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T12:09:23.064Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T12:09:23.065Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T12:21:03.024Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T12:21:03.028Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T12:21:03.029Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T20:36:56.978Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T20:36:56.982Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T20:36:56.982Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T22:55:07.261Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T22:55:07.265Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T22:55:07.265Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-22T23:57:35.442Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-22T23:57:35.445Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-22T23:57:35.446Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:00:06.128Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:00:06.134Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:00:06.135Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:01:09.903Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:01:09.906Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:01:09.907Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:10:17.368Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:10:17.372Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:10:17.373Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:13:57.486Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:13:57.490Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:13:57.491Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:26:54.567Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:26:54.571Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:26:54.571Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:39:36.456Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:39:36.460Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:39:36.461Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T07:53:21.632Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T07:53:21.636Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T07:53:21.636Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T08:08:41.176Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T08:08:41.179Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T08:08:41.180Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T08:27:58.565Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T08:27:58.569Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T08:27:58.570Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T08:53:06.774Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T08:53:06.780Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T08:53:06.781Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T09:38:22.858Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T09:38:22.862Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T09:38:22.863Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-23T10:15:07.679Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-23T10:15:07.682Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-23T10:15:07.683Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:05:37.055Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:05:37.060Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:05:37.062Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:23:50.881Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:23:50.885Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:23:50.886Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:24:07.005Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:24:07.012Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:24:07.013Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:24:13.695Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:24:13.699Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:24:13.701Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:24:28.725Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:24:28.727Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:24:28.728Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:37:02.324Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:37:02.328Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:37:02.329Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T00:56:30.013Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T00:56:30.017Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T00:56:30.017Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T01:02:21.138Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T01:02:21.142Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T01:02:21.142Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T01:08:53.010Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T01:08:53.013Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T01:08:53.013Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T02:51:59.090Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T02:51:59.093Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T02:51:59.094Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T03:04:10.684Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T03:04:10.689Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T03:04:10.690Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T03:13:44.164Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T03:13:44.172Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T03:13:44.173Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T03:52:32.365Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T03:52:32.368Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T03:52:32.369Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T04:02:52.956Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T04:02:52.960Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T04:02:52.961Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T04:08:27.135Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T04:08:27.140Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T04:08:27.141Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T04:17:24.151Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T04:17:24.157Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T04:17:24.157Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T05:23:07.893Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T05:23:07.897Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T05:23:07.898Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T05:39:47.543Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T05:39:47.546Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T05:39:47.547Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T06:09:16.945Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T06:09:16.949Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T06:09:16.950Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:03:30.521Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:03:30.524Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:03:30.524Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:12:22.249Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:12:22.252Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:12:22.252Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:13:42.896Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:13:42.899Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:13:42.899Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:15:18.630Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:15:18.633Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:15:18.634Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:18:02.532Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:18:02.535Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:18:02.536Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:22:41.457Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:22:41.460Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:22:41.461Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:35:33.926Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:35:33.929Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:35:33.930Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:35:43.853Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:35:43.856Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:35:43.856Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:35:51.667Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:35:51.670Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:35:51.670Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T07:36:07.375Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T07:36:07.378Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T07:36:07.378Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:07:32.003Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:07:32.006Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:07:32.006Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:10:02.656Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:10:02.659Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:10:02.659Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:10:19.458Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:10:19.462Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:10:19.463Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:10:31.527Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:10:31.530Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:10:31.530Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:10:46.521Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:10:46.524Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:10:46.524Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:10:53.330Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:10:53.333Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:10:53.334Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:11:00.509Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:11:00.512Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:11:00.512Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:11:08.168Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:11:08.171Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:11:08.171Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:12:16.104Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:12:16.108Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:12:16.109Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:13:33.090Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:13:33.094Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:13:33.095Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:13:46.263Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:13:46.266Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:13:46.267Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:20:56.943Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:20:56.946Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:20:56.947Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:21:24.859Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:21:24.863Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:21:24.864Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:24:00.096Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:24:00.100Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:24:00.100Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:28:53.337Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:28:53.339Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:28:53.340Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:28:57.441Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:28:57.445Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:28:57.446Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:29:09.634Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:29:09.637Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:29:09.638Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:29:34.423Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:29:34.426Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:29:34.426Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T08:55:05.406Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T08:55:05.410Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T08:55:05.410Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T09:01:19.247Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T09:01:19.251Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T09:01:19.251Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T09:01:40.022Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T09:01:40.025Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T09:01:40.026Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T09:04:17.577Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T09:04:17.583Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T09:04:17.585Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T09:54:59.787Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T09:54:59.790Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T09:54:59.791Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T09:59:34.926Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T09:59:34.932Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T09:59:34.933Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T10:03:55.499Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T10:03:55.502Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T10:03:55.502Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T10:10:51.006Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T10:10:51.009Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T10:10:51.009Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.858Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.880Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.884Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.890Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.921Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.925Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.939Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:47.957Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:47.960Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.153Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.175Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.179Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.184Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.216Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.219Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.224Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:48.248Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:48.251Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.670Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.617Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.651Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.658Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.666Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.687Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.694Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.702Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.734Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.737Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.710Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.757Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.767Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.789Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.795Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.803Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.824Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.831Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.870Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.896Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.902Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.908Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.927Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.935Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.939Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.969Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.985Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.088Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.110Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.119Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.128Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.158Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.163Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.170Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:50.185Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:50.188Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.610Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.631Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.635Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.640Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.674Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.682Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.687Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:03.710Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:03.714Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.604Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.511Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.534Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.550Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.588Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.593Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.598Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:04.615Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:04.617Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.629Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.634Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.640Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.704Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.711Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.717Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:04.738Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:04.742Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.022Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.048Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.055Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.075Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.110Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.116Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.131Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:05.159Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:05.167Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.433Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.458Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.468Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.487Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.512Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.517Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.525Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:05.538Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:05.542Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.329Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.350Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.356Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.360Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.376Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.380Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.390Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:06.418Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:06.425Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.434Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.455Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.460Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.466Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.484Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.491Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.497Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:16.513Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:16.519Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.738Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.779Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.793Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.811Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.852Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.856Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.862Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:16.877Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:16.879Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.870Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.904Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.896Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.901Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.907Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.933Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.937Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.945Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:18.962Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:18.966Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.926Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.931Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.937Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.007Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.014Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.026Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.041Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.045Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.155Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.180Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.185Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.192Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.253Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.259Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.267Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.288Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.291Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.469Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.493Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.498Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.502Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.556Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.561Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.569Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.596Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.600Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.189Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.212Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.216Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.225Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.250Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.254Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.260Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.275Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.278Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.527Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.651Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.550Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.555Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.560Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.594Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.597Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.615Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.639Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.650Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.674Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.682Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.695Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.720Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.725Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.732Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.747Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.749Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.915Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.938Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.952Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.965Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.017Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.031Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.084Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.106Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.114Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.438Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.444Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.475Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.499Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.524Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.530Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.535Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.550Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.553Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.460Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.473Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.531Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.540Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.546Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.563Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.566Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.101Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.136Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.145Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.153Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.181Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.188Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.196Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:41.217Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:41.220Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.920Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.952Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.976Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.983Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.001Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.007Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.012Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.020Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.023Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.156Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.103Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.128Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.133Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.138Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.161Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.165Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.170Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.189Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.192Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.231Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.181Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.186Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.193Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.208Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.212Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.216Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.224Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.227Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.252Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.259Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.266Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.290Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.294Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.301Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.320Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.322Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.776Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.799Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.804Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.810Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.831Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.835Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.846Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:56.863Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:56.868Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.018Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.051Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.057Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.062Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.101Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.109Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.121Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:57.135Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:57.138Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.141Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.176Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.184Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.189Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.213Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.218Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.223Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:35:07.239Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:35:07.246Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.075Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.084Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.533Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.545Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.674Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.684Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:52.843Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:52.852Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:53.178Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:53.191Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:53.395Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:53.412Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:37:05.137Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:37:05.147Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:37:26.463Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:37:26.474Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:39:57.051Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:39:57.079Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:40:39.864Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:40:39.876Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:40:49.810Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:40:49.818Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:20:45.426Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:20:45.439Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:21:04.020Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:21:04.028Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:21:26.592Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:21:26.729Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:22:16.887Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:22:16.899Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T15:44:53.211Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T15:44:53.213Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T15:44:53.213Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T16:12:04.431Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T16:12:04.434Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T16:12:04.435Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T16:12:13.822Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T16:12:13.826Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T16:12:13.826Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T16:14:46.296Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T16:14:46.299Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T16:14:46.299Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:18:15.494Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:18:15.501Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:25:08.715Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:25:08.724Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:31:53.523Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:31:53.530Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:40:24.333Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:40:24.342Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:43:54.063Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:43:54.073Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T19:02:10.098Z"}
+{"level":"info","message":"Current environment: test","timestamp":"2025-06-25T19:02:10.102Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T19:02:10.102Z"}
+{"level":"info","message":"Challenge created: challenge_1750880573921_7w9jfw3p1 for territory territory-1","timestamp":"2025-06-25T19:42:53.922Z"}
+{"level":"info","message":"Challenge created: challenge_1750880578818_qo10ojk38 for territory territory-1","timestamp":"2025-06-25T19:42:58.818Z"}
+{"level":"info","message":"Challenge created: challenge_1750880955216_xxs8xotnb for territory territory-1","timestamp":"2025-06-25T19:49:15.217Z"}
+{"level":"info","message":"Challenge created: challenge_1750881694019_xeg62mbof for territory territory-1","timestamp":"2025-06-25T20:01:34.019Z"}
+{"level":"info","message":"Challenge created: challenge_1750881843616_twzsntd3n for territory territory-1","timestamp":"2025-06-25T20:04:03.616Z"}
+{"level":"info","message":"Challenge created: challenge_1750882066518_y09oyowm5 for territory territory-1","timestamp":"2025-06-25T20:07:46.519Z"}
+{"level":"info","message":"Challenge created: challenge_1750882164166_gdwtkjv6c for territory territory-1","timestamp":"2025-06-25T20:09:24.166Z"}
+{"level":"info","message":"Challenge created: challenge_1750882221276_a38lworns for territory territory-1","timestamp":"2025-06-25T20:10:21.277Z"}
+{"level":"info","message":"Challenge created: challenge_1750882612222_cgetqv89i for territory territory-1","timestamp":"2025-06-25T20:16:52.222Z"}
+{"level":"info","message":"Challenge created: challenge_1750883308878_bxfpoj5z9 for territory territory-1","timestamp":"2025-06-25T20:28:28.879Z"}
+{"level":"info","message":"Challenge created: challenge_1750883819410_v2b8ryvn8 for territory territory-1","timestamp":"2025-06-25T20:36:59.410Z"}
+{"level":"info","message":"Challenge created: challenge_1750883952070_bbr1wz5jr for territory territory-1","timestamp":"2025-06-25T20:39:12.070Z"}
+{"level":"info","message":"Challenge created: challenge_1750884027755_udtt3tsx3 for territory territory-1","timestamp":"2025-06-25T20:40:27.755Z"}
+{"level":"info","message":"Challenge created: challenge_1750884236183_4spzssalh for territory territory-1","timestamp":"2025-06-25T20:43:56.183Z"}
+{"level":"info","message":"Challenge created: challenge_1750884693191_4hmu8skas for territory territory-1","timestamp":"2025-06-25T20:51:33.191Z"}
+{"level":"info","message":"Challenge created: challenge_1750884764935_bbn4g45wc for territory territory-1","timestamp":"2025-06-25T20:52:44.935Z"}
+{"level":"info","message":"Challenge created: challenge_1750884789529_q04i7oyv7 for territory territory-1","timestamp":"2025-06-25T20:53:09.529Z"}
+{"level":"info","message":"Challenge created: challenge_1750884831804_okfmt6txw for territory territory-1","timestamp":"2025-06-25T20:53:51.804Z"}
+{"level":"info","message":"Challenge created: challenge_1750884888373_v85rj0ys4 for territory territory-1","timestamp":"2025-06-25T20:54:48.373Z"}
+{"level":"info","message":"Challenge created: challenge_1750884943692_bapsd56k0 for territory territory-1","timestamp":"2025-06-25T20:55:43.692Z"}
+{"level":"info","message":"Challenge created: challenge_1750884947504_96co5p4su for territory territory-1","timestamp":"2025-06-25T20:55:47.504Z"}
+{"level":"info","message":"Challenge created: challenge_1750884951479_25aeyu0lj for territory territory-1","timestamp":"2025-06-25T20:55:51.479Z"}
+{"level":"info","message":"Challenge created: challenge_1750884985573_pum9dfmjp for territory territory-1","timestamp":"2025-06-25T20:56:25.573Z"}
+{"level":"info","message":"Challenge created: challenge_1750885050157_g8gc4gt3t for territory territory-1","timestamp":"2025-06-25T20:57:30.157Z"}
+{"level":"info","message":"Challenge created: challenge_1750885102916_lqdh52jky for territory territory-1","timestamp":"2025-06-25T20:58:22.916Z"}
+{"level":"info","message":"Challenge created: challenge_1750885145631_82www1fxl for territory territory-1","timestamp":"2025-06-25T20:59:05.631Z"}
+{"level":"info","message":"Challenge created: challenge_1750885184201_lcmmc7li7 for territory territory-1","timestamp":"2025-06-25T20:59:44.201Z"}
+{"level":"info","message":"Challenge created: challenge_1750885223116_9drm6g585 for territory territory-1","timestamp":"2025-06-25T21:00:23.116Z"}
+{"level":"info","message":"Challenge created: challenge_1750885226972_o3r51dpb3 for territory territory-1","timestamp":"2025-06-25T21:00:26.972Z"}
+{"level":"info","message":"Challenge created: challenge_1750885230887_am8bvj4lw for territory territory-1","timestamp":"2025-06-25T21:00:30.887Z"}
+{"level":"info","message":"Challenge created: challenge_1750885249471_rgya1jqih for territory territory-1","timestamp":"2025-06-25T21:00:49.471Z"}
+{"level":"info","message":"Challenge created: challenge_1750885284370_o5d2so751 for territory territory-1","timestamp":"2025-06-25T21:01:24.371Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-25T21:04:01.078Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-25T21:04:32.142Z"}
+{"level":"info","message":"Challenge created: challenge_1750885493219_pvpdmg051 for territory territory-1","timestamp":"2025-06-25T21:04:53.219Z"}
+{"level":"info","message":"Challenge created: challenge_1750885520865_5a2sqppdr for territory territory-1","timestamp":"2025-06-25T21:05:20.865Z"}
+{"level":"info","message":"Challenge created: challenge_1750885563274_qz2nd88hq for territory territory-1","timestamp":"2025-06-25T21:06:03.274Z"}
+{"level":"info","message":"Challenge created: challenge_1750885576872_rftvvioyp for territory territory-1","timestamp":"2025-06-25T21:06:16.872Z"}
+{"level":"info","message":"Challenge created: challenge_1750885594296_bsf2cbg4o for territory territory-1","timestamp":"2025-06-25T21:06:34.296Z"}
+{"level":"info","message":"Challenge created: challenge_1750885594307_hge97yswm for territory territory-1","timestamp":"2025-06-25T21:06:34.307Z"}
+{"level":"info","message":"Challenge accepted: challenge_1750885594307_hge97yswm","timestamp":"2025-06-25T21:06:34.313Z"}
+{"level":"info","message":"Challenge created: challenge_1750885594322_tc6213mko for territory territory-2","timestamp":"2025-06-25T21:06:34.322Z"}
+{"level":"info","message":"Challenge declined: challenge_1750885594322_tc6213mko","timestamp":"2025-06-25T21:06:34.329Z"}
+{"level":"info","message":"Challenge created: challenge_1750887209190_1sy3nsqrh for territory territory-1","timestamp":"2025-06-25T21:33:29.190Z"}
+{"level":"info","message":"Challenge created: challenge_1750887209202_fsyd1fj7b for territory territory-1","timestamp":"2025-06-25T21:33:29.202Z"}
+{"level":"info","message":"Challenge accepted: challenge_1750887209202_fsyd1fj7b","timestamp":"2025-06-25T21:33:29.210Z"}
+{"level":"info","message":"Challenge created: challenge_1750887209218_7al5akelx for territory territory-2","timestamp":"2025-06-25T21:33:29.218Z"}
+{"level":"info","message":"Challenge declined: challenge_1750887209218_7al5akelx","timestamp":"2025-06-25T21:33:29.226Z"}
+{"level":"info","message":"Challenge created: challenge_1750887248741_2g56drbrm for territory territory-1","timestamp":"2025-06-25T21:34:08.742Z"}
+{"level":"info","message":"Challenge created: challenge_1750887248764_qvj91uhuu for territory territory-1","timestamp":"2025-06-25T21:34:08.764Z"}
+{"level":"info","message":"Challenge accepted: challenge_1750887248764_qvj91uhuu","timestamp":"2025-06-25T21:34:08.774Z"}
+{"level":"info","message":"Challenge created: challenge_1750887248789_yjmkyhtd4 for territory territory-2","timestamp":"2025-06-25T21:34:08.789Z"}
+{"level":"info","message":"Challenge declined: challenge_1750887248789_yjmkyhtd4","timestamp":"2025-06-25T21:34:08.798Z"}
+{"level":"info","message":"Challenge created: challenge_1750887361452_xexj6hnlg for territory territory-1","timestamp":"2025-06-25T21:36:01.453Z"}
+{"level":"info","message":"Challenge created: challenge_1750887361462_xygmfyb7k for territory territory-1","timestamp":"2025-06-25T21:36:01.462Z"}
+{"level":"info","message":"Challenge accepted: challenge_1750887361462_xygmfyb7k","timestamp":"2025-06-25T21:36:01.468Z"}
+{"level":"info","message":"Challenge created: challenge_1750887361474_tu3ytb9yn for territory territory-2","timestamp":"2025-06-25T21:36:01.474Z"}
+{"level":"info","message":"Challenge declined: challenge_1750887361474_tu3ytb9yn","timestamp":"2025-06-25T21:36:01.479Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-25T21:39:22.782Z"}
+{"level":"info","message":"Server running at http://localhost:8080","timestamp":"2025-06-25T21:39:23.052Z"}
+{"level":"info","message":"Current environment: production","timestamp":"2025-06-25T21:39:23.053Z"}
+{"level":"info","message":"Socket.IO server started.","timestamp":"2025-06-25T21:39:23.053Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-25T21:39:47.136Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-25T21:39:56.743Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-25T22:20:14.132Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:15:47.860Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:28:20.129Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:28:33.768Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:41:35.485Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:41:43.137Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:43:53.862Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T00:47:17.690Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T01:06:00.036Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T01:45:47.693Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T02:05:24.795Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T02:11:56.761Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T02:26:32.275Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T03:50:40.476Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T03:51:40.188Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T03:55:39.859Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:01:24.349Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:14:43.931Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:21:51.352Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:26:15.434Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:29:27.252Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:29:50.766Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:30:10.508Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:30:19.145Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:30:24.846Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:32:12.648Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-26T06:43:35.110Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-29T18:51:19.252Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-29T22:19:57.418Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-29T22:22:08.746Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-29T22:29:11.033Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T00:42:15.353Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T00:42:40.989Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T04:38:00.253Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T04:47:55.334Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T04:51:12.337Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T14:00:10.556Z"}
+{"level":"info","message":"::1 - - [30/Jun/2025:14:00:31 +0000] \"GET /api/v1/users/me HTTP/1.1\" 404 34 \"http://localhost:3000/dashboard\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0\"","timestamp":"2025-06-30T14:00:31.573Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T14:06:55.482Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T15:27:53.035Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T15:36:07.101Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T16:01:58.196Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T16:11:30.872Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T16:18:05.679Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T16:23:21.544Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T17:36:44.580Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T17:54:04.113Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T18:29:42.856Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T19:55:17.570Z"}
+{"level":"info","message":"Initialized 3 test challenges","timestamp":"2025-06-30T19:56:01.476Z"}

@@ -1,107 +1,243 @@
-// Production-ready logging utility to replace console.log statements
-interface LogLevel {
-  ERROR: 'error';
-  WARN: 'warn'; 
-  INFO: 'info';
-  DEBUG: 'debug';
+/**
+ * Centralized logging utility for DojoPool application
+ * Replaces console.log statements with structured logging
+ */
+
+export enum LogLevel {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3,
 }
 
-const LOG_LEVELS: LogLevel = {
-  ERROR: 'error',
-  WARN: 'warn',
-  INFO: 'info', 
-  DEBUG: 'debug'
-};
-
-function getEnv(): Record<string, any> {
-  // Use import.meta.env for Vite/browser, fallback to process.env for Node
-  // TypeScript does not allow 'import.meta' in type guards in class bodies
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env) return import.meta.env;
-  } catch {}
-  if (typeof process !== 'undefined' && process.env) return process.env;
-  return {};
+export interface LogEntry {
+  timestamp: string;
+  level: string;
+  message: string;
+  context?: string;
+  metadata?: Record<string, any>;
+  error?: Error;
 }
 
 class Logger {
+  private static instance: Logger;
+  private logLevel: LogLevel;
+  private context: string;
   private isDevelopment: boolean;
-  private logLevel: string;
 
-  constructor() {
-    const env = getEnv();
-    this.isDevelopment = env['MODE'] === 'development' || env['NODE_ENV'] === 'development';
-    this.logLevel = env['LOG_LEVEL'] || (this.isDevelopment ? 'debug' : 'info');
+  private constructor(context = 'DojoPool', logLevel = LogLevel.INFO) {
+    this.context = context;
+    this.logLevel = logLevel;
+    this.isDevelopment = process.env.NODE_ENV === 'development';
   }
 
-  private shouldLog(level: string): boolean {
-    const levels = ['error', 'warn', 'info', 'debug'];
-    const currentLevelIndex = levels.indexOf(this.logLevel);
-    const messageLevelIndex = levels.indexOf(level);
-    return messageLevelIndex <= currentLevelIndex;
+  public static getInstance(context?: string): Logger {
+    if (!Logger.instance) {
+      Logger.instance = new Logger(context);
+    }
+    return Logger.instance;
   }
 
-  private formatMessage(level: string, message: string, context?: any): string {
-    const timestamp = new Date().toISOString();
-    const contextStr = context ? ` | ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
+  /**
+   * Create a new logger instance with specific context
+   */
+  public static createLogger(context: string): Logger {
+    return new Logger(context);
   }
 
-  error(message: string, context?: any): void {
-    if (this.shouldLog('error')) {
-      if (this.isDevelopment) {
-        console.error(this.formatMessage('error', message, context));
-      } else {
-        // In production, send to logging service
-        this.sendToLoggingService('error', message, context);
-      }
+  /**
+   * Set the minimum log level
+   */
+  public setLogLevel(level: LogLevel): void {
+    this.logLevel = level;
+  }
+
+  /**
+   * Log debug information (development only)
+   */
+  public debug(message: string, metadata?: Record<string, any>): void {
+    if (this.shouldLog(LogLevel.DEBUG)) {
+      this.log(LogLevel.DEBUG, message, metadata);
     }
   }
 
-  warn(message: string, context?: any): void {
-    if (this.shouldLog('warn')) {
-      if (this.isDevelopment) {
-        console.warn(this.formatMessage('warn', message, context));
-      } else {
-        this.sendToLoggingService('warn', message, context);
-      }
+  /**
+   * Log general information
+   */
+  public info(message: string, metadata?: Record<string, any>): void {
+    if (this.shouldLog(LogLevel.INFO)) {
+      this.log(LogLevel.INFO, message, metadata);
     }
   }
 
-  info(message: string, context?: any): void {
-    if (this.shouldLog('info')) {
-      if (this.isDevelopment) {
-        console.info(this.formatMessage('info', message, context));
-      } else {
-        this.sendToLoggingService('info', message, context);
-      }
+  /**
+   * Log warnings
+   */
+  public warn(message: string, metadata?: Record<string, any>): void {
+    if (this.shouldLog(LogLevel.WARN)) {
+      this.log(LogLevel.WARN, message, metadata);
     }
   }
 
-  debug(message: string, context?: any): void {
-    if (this.shouldLog('debug') && this.isDevelopment) {
-      console.debug(this.formatMessage('debug', message, context));
+  /**
+   * Log errors
+   */
+  public error(message: string, error?: Error, metadata?: Record<string, any>): void {
+    if (this.shouldLog(LogLevel.ERROR)) {
+      this.log(LogLevel.ERROR, message, metadata, error);
     }
   }
 
-  private sendToLoggingService(level: string, message: string, context?: any): void {
-    const env = getEnv();
-    const logData = {
+  /**
+   * Log performance metrics
+   */
+  public performance(operation: string, duration: number, metadata?: Record<string, any>): void {
+    this.info(`Performance: ${operation}`, {
+      duration: `${duration}ms`,
+      ...metadata,
+    });
+  }
+
+  /**
+   * Log API requests
+   */
+  public apiRequest(method: string, url: string, duration?: number, status?: number): void {
+    this.info(`API: ${method} ${url}`, {
+      method,
+      url,
+      duration: duration ? `${duration}ms` : undefined,
+      status,
+    });
+  }
+
+  /**
+   * Log user actions
+   */
+  public userAction(action: string, userId?: string, metadata?: Record<string, any>): void {
+    this.info(`User Action: ${action}`, {
+      userId,
+      action,
+      ...metadata,
+    });
+  }
+
+  /**
+   * Log security events
+   */
+  public security(event: string, severity: 'low' | 'medium' | 'high' | 'critical', metadata?: Record<string, any>): void {
+    this.warn(`Security: ${event}`, {
+      severity,
+      event,
+      ...metadata,
+    });
+  }
+
+  private shouldLog(level: LogLevel): boolean {
+    return level >= this.logLevel;
+  }
+
+  private log(level: LogLevel, message: string, metadata?: Record<string, any>, error?: Error): void {
+    const entry: LogEntry = {
       timestamp: new Date().toISOString(),
-      level,
+      level: LogLevel[level],
       message,
-      context,
-      environment: env['MODE'] || env['NODE_ENV'],
-      service: 'dojopool'
+      context: this.context,
+      metadata,
+      error,
     };
+
+    // In development, use console for immediate feedback
+    if (this.isDevelopment) {
+      this.logToConsole(level, entry);
+    }
+
+    // In production, send to logging service
+    this.logToService(entry);
+  }
+
+  private logToConsole(level: LogLevel, entry: LogEntry): void {
+    const formattedMessage = `[${entry.timestamp}] ${entry.level} [${entry.context}]: ${entry.message}`;
     
-    // This would be replaced with actual logging service in production
-    console.log(JSON.stringify(logData));
+    switch (level) {
+      case LogLevel.DEBUG:
+        console.debug(formattedMessage, entry.metadata);
+        break;
+      case LogLevel.INFO:
+        console.info(formattedMessage, entry.metadata);
+        break;
+      case LogLevel.WARN:
+        console.warn(formattedMessage, entry.metadata);
+        break;
+      case LogLevel.ERROR:
+        console.error(formattedMessage, entry.error || entry.metadata);
+        break;
+    }
+  }
+
+  private logToService(entry: LogEntry): void {
+    // TODO: Implement integration with logging service (e.g., Logtail, DataDog, etc.)
+    // For now, store in local storage or send to backend endpoint
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const logs = JSON.parse(localStorage.getItem('dojopool_logs') || '[]');
+        logs.push(entry);
+        // Keep only last 1000 entries
+        if (logs.length > 1000) {
+          logs.splice(0, logs.length - 1000);
+        }
+        localStorage.setItem('dojopool_logs', JSON.stringify(logs));
+      } catch (error) {
+        // Fallback to console if localStorage fails
+        console.error('Failed to store log entry:', error);
+      }
+    }
+  }
+
+  /**
+   * Get all stored logs (for debugging)
+   */
+  public getLogs(): LogEntry[] {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        return JSON.parse(localStorage.getItem('dojopool_logs') || '[]');
+      } catch (error) {
+        this.error('Failed to retrieve logs', error as Error);
+        return [];
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Clear all stored logs
+   */
+  public clearLogs(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('dojopool_logs');
+    }
+  }
+
+  /**
+   * Create a timer for performance measurement
+   */
+  public startTimer(label: string): () => void {
+    const startTime = performance.now();
+    return () => {
+      const duration = performance.now() - startTime;
+      this.performance(label, Math.round(duration));
+      return duration;
+    };
   }
 }
 
-// Export singleton instance
-export const logger = new Logger();
+// Create default logger instance
+export const logger = Logger.getInstance();
 
-// Convenience exports
-export { LOG_LEVELS };
+// Export logger creators for specific contexts
+export const createAPILogger = () => Logger.createLogger('API');
+export const createUILogger = () => Logger.createLogger('UI');
+export const createGameLogger = () => Logger.createLogger('Game');
+export const createAILogger = () => Logger.createLogger('AI');
+export const createSecurityLogger = () => Logger.createLogger('Security');
+
+export default Logger;

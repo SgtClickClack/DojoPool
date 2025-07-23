@@ -1,23 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#111827" />
-    <title>DojoPool</title>
-    <style>
-      html {
-        text-size-adjust: 100%;
-        -webkit-text-size-adjust: 100%;
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DojoPool World Hub</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Orbitron', monospace;
+      background: #000;
+      color: #00ff88;
+      overflow: hidden;
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      color: #00ff88;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(0, 255, 136, 0.3);
+      border-top: 4px solid #00ff88;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
       }
-      * {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+
+      100% {
+        transform: rotate(360deg);
       }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/frontend/main.tsx"></script>
-  </body>
-</html> 
+    }
+
+    .player-hud {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ff88;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 0 24px #00ff88;
+      z-index: 2000;
+      min-width: 280px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .player-avatar {
+      font-size: 2.5rem;
+      margin-right: 8px;
+    }
+
+    .player-info h3 {
+      color: #00ff88;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .player-info p {
+      color: #fff;
+      font-family: 'Orbitron', monospace;
+      margin-bottom: 2px;
+    }
+
+    .player-info .clan {
+      color: #00a8ff;
+    }
+
+    .status-indicator {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00ff88;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 12px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff6b6b;
+    }
+
+    .status-dot.connected {
+      background: #00ff88;
+    }
+
+    .map-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+
+  <!-- React and ReactDOM from CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Load the React application -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Map configuration
+    const containerStyle = {
+      width: '100%',
+      height: '100%'
+    };
+
+    const center = {
+      lat: -27.4698, // Brisbane CBD
+      lng: 153.0251
+    };
+
+    // Midnight Commander dark theme
+    const mapStyles = [
+      { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "color": "#ffffff" }] },
+      { "featureType": "all", "elementType": "labels.text.stroke", "stylers": [{ "color": "#000000" }, { "lightness": 13 }] },
+      { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+      { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{ "color": "#144b53" }, { "lightness": 14 }, { "weight": 1.4 }] },
+      { "featureType": "landscape", "elementType": "all", "stylers": [{ "color": "#08304b" }] },
+      { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#0c4152" }, { "lightness": 5 }] },
+      { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+      { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#0b434f" }, { "lightness": 25 }] },
+      { "featureType": "road.arterial", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+      { "featureType": "road.arterial", "elementType": "geometry.stroke", "stylers": [{ "color": "#0b3d51" }, { "lightness": 16 }] },
+      { "featureType": "road.local", "elementType": "geometry", "stylers": [{ "color": "#000000" }] },
+      { "featureType": "transit", "elementType": "all", "stylers": [{ "color": "#146474" }] },
+      { "featureType": "water", "elementType": "all", "stylers": [{ "color": "#021019" }] }
+    ];
+
+    // Player HUD Component
+    const PlayerHUD = ({ player, connectionStatus }) => {
+      if (!player) return null;
+
+      return (
+        <div className="player-hud">
+          <div className="player-avatar">👤</div>
+          <div className="player-info">
+            <h3>{player.name}</h3>
+            <p>Level {player.level} • {player.clan}</p>
+            <p className="clan">💰 {player.xp} XP</p>
+          </div>
+        </div>
+      );
+    };
+
+    // Status Indicator Component
+    const StatusIndicator = ({ connectionStatus }) => (
+      <div className="status-indicator">
+        <div className={`status-dot ${connectionStatus}`}></div>
+        <span>Real-time: {connectionStatus}</span>
+      </div>
+    );
+
+    // Main Map Component
+    const MapView = () => {
+      const [map, setMap] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [connectionStatus, setConnectionStatus] = useState('disconnected');
+      const [playerData, setPlayerData] = useState(null);
+
+      // Initialize real-time connection
+      useEffect(() => {
+        initializeConnection();
+        setTimeout(() => setLoading(false), 2000);
+      }, []);
+
+      const initializeConnection = () => {
+        const eventSource = new EventSource('http://localhost:8080/api/events');
+
+        eventSource.onopen = () => {
+          setConnectionStatus('connected');
+          console.log('Connected to DojoPool real-time server');
+        };
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            handleServerMessage(data);
+          } catch (error) {
+            console.error('Error parsing server message:', error);
+          }
+        };
+
+        eventSource.onerror = () => {
+          setConnectionStatus('disconnected');
+          console.log('Connection lost, retrying...');
+          setTimeout(initializeConnection, 3000);
+        };
+      };
+
+      const handleServerMessage = (data) => {
+        switch (data.type) {
+          case 'connection':
+            setPlayerData({
+              id: data.playerId,
+              name: `Player_${data.playerId.slice(-4)}`,
+              clan: 'Crimson Monkey',
+              level: 15,
+              xp: 2840
+            });
+            break;
+        }
+      };
+
+      const onMapLoad = (mapInstance) => {
+        setMap(mapInstance);
+        console.log('Google Map loaded successfully');
+      };
+
+      if (loading) {
+        return (
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 700, textShadow: '0 0 10px #00ff88' }}>
+              Loading DojoPool World Hub...
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={15}
+            options={{
+              styles: mapStyles,
+              disableDefaultUI: true,
+              zoomControl: true,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: false
+            }}
+            onLoad={onMapLoad}
+          >
+            {/* Map overlays will be added here in the next step */}
+          </GoogleMap>
+
+          {/* Status Indicator */}
+          <StatusIndicator connectionStatus={connectionStatus} />
+
+          {/* Player HUD */}
+          <PlayerHUD player={playerData} connectionStatus={connectionStatus} />
+        </div>
+      );
+    };
+
+    // Render the app
+    ReactDOM.render(<MapView />, document.getElementById('root'));
+  </script>
+</body>
+
+</html>
