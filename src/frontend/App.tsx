@@ -23,7 +23,7 @@ const Register = React.lazy(() => import('./components/Auth/Register'));
 const AvatarCreation = React.lazy(() => import('./components/Avatar/AvatarCreation'));
 const GameView = React.lazy(() => import('./components/Game/GameView'));
 const Ledger = React.lazy(() => import('./components/wallet/Ledger'));
-const Map = React.lazy(() => import('./components/MapView'));
+const Map = React.lazy(() => import('./components/MapView.tsx'));
 // const SpectatorView = React.lazy(() => import('./components/Game/SpectatorView'));
 // Consistent path convention (assuming components is a sibling of contexts, App.tsx is in src)
 const TournamentDetail = React.lazy(() => import('../components/tournaments/TournamentDetail'));
@@ -225,8 +225,8 @@ const App: React.FC = () => {
 
         logger.info('All SPRINT 9 services initialized successfully');
       } catch (error) {
-        logger.error('Failed to initialize services', { 
-          error: error instanceof Error ? error.message : String(error) 
+        logger.error('Failed to initialize services', {
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     };
@@ -305,15 +305,15 @@ const App: React.FC = () => {
 
 // Helper component for the catch-all route to provide a better UX
 const NotFoundRedirect: React.FC = () => {
-    const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
-    if (loading) {
-      return <LoadingFallback message="Loading..." />;
-    }
-    // Redirect all unknown routes to the Living World prototype
-    return <Navigate to="/" replace />;
-    // For a true 404 page experience, you'd render a NotFoundPage component:
-    // return <NotFoundPage />;
+  if (loading) {
+    return <LoadingFallback message="Loading..." />;
+  }
+  // Redirect all unknown routes to the Living World prototype
+  return <Navigate to="/" replace />;
+  // For a true 404 page experience, you'd render a NotFoundPage component:
+  // return <NotFoundPage />;
 };
 
 export default App;
