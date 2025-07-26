@@ -8,7 +8,7 @@ COPY src/dojopool/frontend .
 RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then npm run build ; fi
 
 # Python build stage
-FROM python:3.13.3-slim AS backend-build
+FROM python:3.14.0rc1-slim AS backend-build
 WORKDIR /app
 
 # Install system dependencies for psycopg2
@@ -22,7 +22,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Final stage
-FROM python:3.13.3-slim
+FROM python:3.14.0rc1-slim
 WORKDIR /app
 
 # Install system dependencies
