@@ -7,6 +7,10 @@ from flask_socketio import SocketIO
 from flask_cors import CORS
 from extensions import db, login_manager
 import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging with enhanced formatting
 logging.basicConfig(level=logging.INFO)
@@ -111,12 +115,12 @@ def create_app():
         from blueprints.auth import auth
         from blueprints.multiplayer import multiplayer
         from blueprints.umpire import umpire
-        from routes import routes
+        from routes import routes_bp
         
         app.register_blueprint(auth, url_prefix='/auth')
         app.register_blueprint(multiplayer, url_prefix='/multiplayer')
         app.register_blueprint(umpire, url_prefix='/umpire')
-        app.register_blueprint(routes)
+        app.register_blueprint(routes_bp)
         
         # Create database tables
         db.create_all()
