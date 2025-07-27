@@ -9,7 +9,7 @@ const Main: React.FC = () => {
 
   useEffect(() => {
     // Test backend connection
-    fetch('http://localhost:8080/api/health')
+    fetch('/api/health')
       .then(response => response.json())
       .then(data => {
         setBackendStatus('Connected');
@@ -21,7 +21,7 @@ const Main: React.FC = () => {
       });
 
     // Get game data
-    fetch('http://localhost:8080/api/game-status')
+    fetch('/api/game-status')
       .then(response => response.json())
       .then(data => {
         setGameData(data);
