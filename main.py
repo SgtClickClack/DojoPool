@@ -34,6 +34,20 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
+    # Performance optimizations
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 20,
+        'pool_timeout': 20,
+        'pool_recycle': 3600,
+        'pool_pre_ping': True,
+        'max_overflow': 30
+    }
+    
+    # Security configurations
+    app.config['SQLALCHEMY_RECORD_QUERIES'] = False  # Disable query recording in production
+    app.config['JSON_SORT_KEYS'] = False  # Improve JSON performance
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
+    
     # Security configurations
     app.config.update(
         SESSION_COOKIE_SECURE=True,
@@ -50,12 +64,24 @@ def create_app():
     
     # Initialize extensions
     db.init_app(app)
+    
+    # Configure CORS origins based on environment
+    allowed_origins = []
+    if app.config.get('ENV') == 'development':
+        allowed_origins = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000"]
+    else:
+        # Production origins - should be set via environment variable
+        origins = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+        allowed_origins = [origin.strip() for origin in origins if origin.strip()]
+    
     socketio.init_app(app, 
                      async_mode='eventlet',
-                     cors_allowed_origins="*",
-                     logger=True,
-                     engineio_logger=True,
-                     ping_timeout=60)
+                     cors_allowed_origins=allowed_origins,
+                     logger=False,  # Disable in production for performance
+                     engineio_logger=False,
+                     ping_timeout=60,
+                     ping_interval=25,
+                     max_http_buffer_size=1000000)  # 1MB limit
     
     # Initialize Login Manager
     login_manager = LoginManager()
