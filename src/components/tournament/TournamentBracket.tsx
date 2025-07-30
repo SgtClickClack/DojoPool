@@ -365,7 +365,7 @@ export const TournamentBracket: React.FC<TournamentBracketProps> = ({
                       </Typography>
                     )}
                     
-                    {isAdmin && (match.status === 'pending' || match.status === 'in_progress') && (
+                    {(match.status === 'pending' || match.status === 'in_progress') && (
                       <Box sx={{ mt: 1 }}>
                         <button 
                           onClick={() => onReportResult && onReportResult(match)}

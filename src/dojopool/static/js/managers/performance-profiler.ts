@@ -59,15 +59,15 @@ export class PerformanceProfiler extends BaseManager<PerformanceProfiler> {
     },
   };
 
-  private readonly metrics: PerformanceMetrics[] = [];
+  private metrics: PerformanceMetrics[] = [];
   private readonly options: ProfilerOptions;
   private lastFrameTime: number = 0;
   private frameCount: number = 0;
   private samplingInterval: NodeJS.Timeout | null = null;
-  private readonly snapshots: PerformanceSnapshot[];
+  private snapshots: PerformanceSnapshot[];
   private readonly maxSnapshots: number;
   private lastSnapshotTime: number;
-  private readonly snapshotInterval: number;
+  private snapshotInterval: number;
   private readonly performanceMarks: Map<string, number>;
   private readonly measurementStats: Map<
     string,
@@ -194,12 +194,17 @@ export class PerformanceProfiler extends BaseManager<PerformanceProfiler> {
       this.lastFrameTime = performance.now();
     }
 
-    const currentMetrics = this.metrics[this.metrics.length - 1];
-    if (currentMetrics) {
-      Object.assign(currentMetrics, {
+    const currentMetricsIndex = this.metrics.length - 1;
+    if (currentMetricsIndex >= 0) {
+      const currentMetrics = this.metrics[currentMetricsIndex];
+      // Create a new metrics object with the updated properties
+      const updatedMetrics = {
+        ...currentMetrics,
         shotDetectionTime,
         shotConfidence,
-      });
+      };
+      // Replace the old metrics object with the new one
+      this.metrics[currentMetricsIndex] = updatedMetrics;
     }
   }
 
@@ -252,10 +257,11 @@ export class PerformanceProfiler extends BaseManager<PerformanceProfiler> {
       clearInterval(this.samplingInterval);
       this.samplingInterval = null;
     }
-    this.metrics.length = 0;
+    // Reset arrays by assigning new empty arrays
+    this.metrics = [];
     this.frameCount = 0;
     this.lastFrameTime = 0;
-    this.snapshots.length = 0;
+    this.snapshots = [];
     this.performanceMarks.clear();
     this.measurementStats.clear();
     this.autoSnapshotEnabled = false;
@@ -426,8 +432,8 @@ export class PerformanceProfiler extends BaseManager<PerformanceProfiler> {
     };
 
     // Detect anomalies
-    window.forEach((snapshot, i) => {
-      this.detectAnomalies(snapshot, trend, i).forEach((anomaly) =>
+    window.forEach((snapshot) => {
+      this.detectAnomalies(snapshot, trend).forEach((anomaly) =>
         trend.anomalies.push(anomaly),
       );
     });
@@ -438,7 +444,6 @@ export class PerformanceProfiler extends BaseManager<PerformanceProfiler> {
   private detectAnomalies(
     snapshot: PerformanceSnapshot,
     trend: PerformanceTrend,
-    index: number,
   ): Array<{
     timestamp: number;
     metric: string;

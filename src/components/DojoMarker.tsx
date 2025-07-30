@@ -6,22 +6,34 @@ interface DojoMarkerProps {
   dojo: DojoData;
   onClick: (dojo: DojoData) => void;
   isLocked?: boolean;
+  playerClanId?: string;
 }
 
-const DojoMarker: React.FC<DojoMarkerProps> = ({ dojo, onClick, isLocked = false }) => {
-  const allegianceColor = {
-    player: '#22d3ee', // cyan
-    rival: '#ef4444',   // red
-    neutral: '#6b7280', // gray
-    ally: '#22c55e'     // green
+const DojoMarker: React.FC<DojoMarkerProps> = ({ dojo, onClick, isLocked = false, playerClanId }) => {
+  // Determine marker color based on clan ownership
+  const getMarkerColor = (): string => {
+    if (isLocked) return '#4b5563'; // Gray for locked territories
+    
+    // If no controlling clan, territory is unclaimed (neutral)
+    if (!dojo.controllingClanId || !dojo.controllingClan) {
+      return '#ffffff'; // White for unclaimed territory
+    }
+    
+    // If player's clan controls this territory (friendly)
+    if (playerClanId && dojo.controllingClanId === playerClanId) {
+      return '#00fff7'; // Glowing cyan for friendly clan
+    }
+    
+    // If another clan controls this territory (rival)
+    return '#ff4444'; // Glowing red for rival clan
   };
 
   const icon = {
     path: 'M0,0 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0', // A simple circle
-    fillColor: isLocked ? '#4b5563' : allegianceColor[dojo.allegiance],
+    fillColor: getMarkerColor(),
     fillOpacity: 0.9,
     strokeColor: '#ffffff',
-    strokeWeight: 1,
+    strokeWeight: 2,
     scale: 1.5,
   };
 

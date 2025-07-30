@@ -68,7 +68,7 @@ export class DeviceProfileManager extends BaseManager<DeviceProfileManager> {
     useAntialiasing: true,
   } as const;
 
-  private readonly capabilities: DeviceCapabilities;
+  private capabilities: DeviceCapabilities;
   private currentProfile: PerformanceProfile;
   private batteryManager: any | null = null;
 
@@ -101,10 +101,18 @@ export class DeviceProfileManager extends BaseManager<DeviceProfileManager> {
     }
   }
 
+  private updateCapabilities(updates: Partial<DeviceCapabilities>): void {
+    // Create a new capabilities object with the updates
+    this.capabilities = {
+      ...this.capabilities,
+      ...updates
+    };
+  }
+
   private setupDeviceMonitoring(): void {
     // Monitor device pixel ratio changes
     window.matchMedia("(resolution: 1dppx)").addListener(() => {
-      this.capabilities.devicePixelRatio = window.devicePixelRatio;
+      this.updateCapabilities({ devicePixelRatio: window.devicePixelRatio });
       this.updateProfile();
     });
 
@@ -125,7 +133,7 @@ export class DeviceProfileManager extends BaseManager<DeviceProfileManager> {
       const isLowPower =
         this.batteryManager.level <= 0.2 && !this.batteryManager.charging;
       if (isLowPower !== this.capabilities.isLowPowerMode) {
-        this.capabilities.isLowPowerMode = isLowPower;
+        this.updateCapabilities({ isLowPowerMode: isLowPower });
         this.updateProfile();
       }
     }

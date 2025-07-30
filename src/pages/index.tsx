@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { Box, Typography, Grid, Card, CardContent, Button, Alert } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import Link from 'next/link';
 
 const Main: React.FC = () => {
   const [backendStatus, setBackendStatus] = useState<string>('Checking...');
@@ -140,21 +140,21 @@ const Main: React.FC = () => {
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Explore territories, find dojos, and discover new challenges in the DojoPool world.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/world-map"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  Explore World
-                </Button>
+                <Link href="/world-map" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    Explore World
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -178,21 +178,21 @@ const Main: React.FC = () => {
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Battle for territory control, form alliances, and dominate the DojoPool landscape.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/clan-wars"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  Join Battle
-                </Button>
+                <Link href="/clan-wars" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    Join Battle
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -216,21 +216,21 @@ const Main: React.FC = () => {
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Compete in tournaments, win prizes, and climb the leaderboards.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/tournaments"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  View Tournaments
-                </Button>
+                <Link href="/tournaments" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    View Tournaments
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -254,21 +254,21 @@ const Main: React.FC = () => {
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Experience AI-powered match commentary and real-time analysis.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/ai-commentary"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  Try AI Commentary
-                </Button>
+                <Link href="/ai-commentary" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    Try AI Commentary
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -289,21 +289,21 @@ const Main: React.FC = () => {
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Advanced challenge system, territory control, and player progression.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/game-mechanics"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  Explore Mechanics
-                </Button>
+                <Link href="/game-mechanics" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    Explore Mechanics
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -321,21 +321,21 @@ const Main: React.FC = () => {
                 <Typography variant="body2" sx={{ mb: 2 }}>
                   Level up your avatar, unlock achievements, and evolve your character.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/avatar-progression"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  View Avatar
-                </Button>
+                <Link href="/avatar-progression" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    View Avatar
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>
@@ -348,26 +348,26 @@ const Main: React.FC = () => {
             }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom sx={{ color: '#00ff9d' }}>
-                  📊 Dashboard
+                  📊 Analytics Dashboard
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 2 }}>
-                  Comprehensive analytics, performance tracking, and game insights.
+                  Player statistics, performance tracking, tournament history, and match analytics.
                 </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/dashboard"
-                  variant="outlined"
-                  sx={{
-                    color: '#00ff9d',
-                    borderColor: '#00ff9d',
-                    '&:hover': {
-                      borderColor: '#00a8ff',
-                      color: '#00a8ff'
-                    }
-                  }}
-                >
-                  View Dashboard
-                </Button>
+                <Link href="/analytics" passHref>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: '#00ff9d',
+                      borderColor: '#00ff9d',
+                      '&:hover': {
+                        borderColor: '#00a8ff',
+                        color: '#00a8ff'
+                      }
+                    }}
+                  >
+                    View Analytics
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </Grid>

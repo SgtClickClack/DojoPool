@@ -2,144 +2,259 @@
 
 ## 1. Overall Architecture
 
-The DojoPool project has a complex architecture that combines multiple frameworks and technologies:
-
-### Backend Architecture
-- **Primary Backend**: Flask (Python) application with a modular structure using blueprints
-- **Database**: PostgreSQL with SQLAlchemy ORM
-- **Real-time Communication**: Socket.IO server integrated with Flask
-- **Authentication**: Flask-Login for user authentication and session management
+DojoPool is a full-stack application with a hybrid architecture that combines multiple frontend and backend technologies. The project structure reveals a sophisticated design with clear separation of concerns.
 
 ### Frontend Architecture
-- **Dual Framework Setup**:
-  - **Next.js**: Used as the primary frontend framework with pages-based routing
-  - **Vite**: Secondary build tool with its own configuration
-- **Component Structure**: React components organized in a feature-based structure
-- **State Management**: Custom hooks and services for state management
-- **Styling**: Mix of Material UI, Bootstrap, and custom styles
+
+The frontend is built as a modern web application with the following characteristics:
+
+- **Next.js Framework**: The primary frontend framework, as indicated by the package.json scripts and pages directory structure.
+- **React Components**: Organized in a component-based architecture with reusable UI elements.
+- **Material UI**: Used for styling and UI components, providing a consistent design system.
+- **TypeScript**: Used throughout the frontend for type safety and better developer experience.
+- **Hybrid Routing**: Uses both Next.js page-based routing and React Router, suggesting an architectural inconsistency.
+
+### Backend Architecture
+
+The backend is primarily built with Python using the following components:
+
+- **Flask Framework**: The main backend framework, handling HTTP requests, authentication, and template rendering.
+- **Flask-SocketIO**: Provides real-time bidirectional communication for multiplayer features.
+- **SQLAlchemy ORM**: Used for database operations with connection pooling.
+- **Flask-Login**: Manages user authentication and session handling.
+- **Blueprint Structure**: Organizes routes into logical modules (auth, multiplayer, umpire).
 
 ### Project Organization
-- **Root-level Next.js Structure**: Pages directory at the root level following Next.js conventions
-- **Complex src Directory**: Contains both frontend and backend components, organized by feature
-- **Multiple Entry Points**: Different entry points for Next.js and Vite builds
+
+The project follows a well-structured organization:
+
+- **src/**: Contains the majority of the application code
+  - **components/**: Reusable UI components
+  - **pages/**: Next.js page components
+  - **api/**: API client code for frontend-backend communication
+  - **hooks/**: Custom React hooks
+  - **contexts/**: React context providers
+  - **styles/**: CSS and styling files
+  - **utils/**: Utility functions
+  - **models/**: Data models
+  - **services/**: Business logic services
+  - **backend/**: Backend-specific code
+  - **frontend/**: Frontend-specific code
+  - Specialized feature directories (ai, narrative, ranking, tournament, etc.)
+
+- **blueprints/**: Flask blueprint modules for backend route organization
+- **templates/**: Server-side rendered HTML templates
+- **static/**: Static assets (CSS, JS, images)
+- **public/**: Public assets for the frontend
 
 ## 2. Key Technologies, Frameworks, and Languages
 
-### Backend Technologies
-- **Flask**: Python web framework for the backend
-- **SQLAlchemy**: ORM for database interactions
-- **Socket.IO**: For real-time communication
-- **OpenCV**: For computer vision in the AI umpire system
-- **PostgreSQL**: Database system
+### Languages
+
+- **TypeScript/JavaScript**: Used for frontend development
+- **Python**: Used for backend development
+- **HTML/CSS**: Used for templates and styling
+- **SQL**: Used for database queries (via SQLAlchemy)
 
 ### Frontend Technologies
+
+- **Next.js**: Main frontend framework (version 15.1.6)
 - **React**: UI library (version 19.0.0)
-- **Next.js**: React framework for server-side rendering and routing
-- **TypeScript**: For type-safe JavaScript development
-- **Material UI**: Component library for UI elements
-- **Bootstrap**: CSS framework for styling
-- **Socket.IO Client**: For real-time communication with the backend
-- **Axios**: For HTTP requests
-- **Chart.js/Recharts**: For data visualization
+- **Material UI**: Component library (@mui/material, @mui/icons-material)
+- **React Router**: Client-side routing
+- **Chart.js/Recharts**: Data visualization
+- **Firebase Client SDK**: Authentication and cloud services
+- **TypeScript**: Static typing (version 5.3.3)
+- **Vite**: Build tool (used alongside Next.js)
 
-### Build Tools
-- **Next.js Build System**: For production builds of the Next.js application
-- **Vite**: For development and potentially alternative builds
-- **WebAssembly**: Custom WASM components (built with build-wasm.js)
+### Backend Technologies
 
-### Languages
-- **TypeScript/JavaScript**: For frontend development
-- **Python**: For backend development
-- **SQL**: For database queries
-- **WebAssembly**: For performance-critical components
+- **Flask**: Web framework
+- **Flask-SocketIO**: WebSocket implementation
+- **Flask-Login**: Authentication management
+- **SQLAlchemy**: ORM for database operations
+- **Werkzeug**: Security utilities
+- **Firebase Admin SDK**: Server-side Firebase integration
+
+### Development Tools
+
+- **ESLint**: JavaScript/TypeScript linting
+- **Prettier**: Code formatting
+- **Jest**: Testing framework
+- **WebAssembly**: For performance-critical operations
+- **Docker**: Containerization
 
 ## 3. Main Application Entry Points and Startup Scripts
 
-### Backend Entry Points
-- **app.py**: Main Flask application entry point
-- **run.py**: Alternative entry point for running the Flask application
-
 ### Frontend Entry Points
-- **Next.js Entry Points**:
-  - **pages/_app.tsx**: Main Next.js application wrapper
-  - **pages/index.js**: Homepage
-  - **pages/[various].tsx**: Various page components
 
-### Startup Scripts (from package.json)
-- **dev**: "next dev" - Starts the Next.js development server
-- **build**: "node build-wasm.js && next build" - Builds WebAssembly components and Next.js application
-- **start**: "next start" - Starts the Next.js production server
-- **lint**: "next lint" - Runs ESLint for code linting
-- **test**: "npm install --package-lock-only --no-package-lock --prefix test && jest" - Runs tests
-- **build:wasm**: "node build-wasm.js" - Builds WebAssembly components
-- **format**: "prettier --write ." - Formats code with Prettier
+The main frontend entry points are defined in the package.json scripts:
+
+```json
+"scripts": {
+  "dev": "next dev",
+  "build": "node build-wasm.js && next build",
+  "start": "next start",
+  "lint": "next lint",
+  "test": "npm install --package-lock-only --no-package-lock --prefix test && jest",
+  "build:wasm": "node build-wasm.js",
+  "format": "prettier --write ."
+}
+```
+
+- **Development**: `npm run dev` starts the Next.js development server
+- **Production Build**: `npm run build` builds the WebAssembly modules and Next.js application
+- **Production Start**: `npm run start` starts the Next.js production server
+- **Testing**: `npm run test` runs Jest tests
+- **Linting**: `npm run lint` runs ESLint
+- **Formatting**: `npm run format` runs Prettier
+
+### Backend Entry Points
+
+The main backend entry point is app.py, which creates and runs the Flask application:
+
+```python
+# Application instance
+app, socketio = create_app()
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+```
+
+The Flask application is structured with a factory pattern (`create_app()`) that:
+1. Configures the application
+2. Initializes extensions (db, login_manager)
+3. Registers blueprints (auth, multiplayer, umpire, routes)
+4. Creates database tables
 
 ## 4. Primary Data Flow Between Frontend and Backend
 
-### REST API Communication
-- **Next.js API Routes**: Act as proxies that forward requests to the Flask backend
-  - Located in the pages/api directory
-  - Use axios to make HTTP requests to the Flask backend
-  - Pass along authentication headers and request bodies
-  - Return Flask backend responses to the frontend
+The application uses multiple communication patterns between the frontend and backend:
 
-### Real-time Communication with Socket.IO
-- **Socket.IO Client**: Used extensively throughout the frontend for real-time features
-  - Implemented in various service files (GameStateService, AIRefereeService, etc.)
-  - Custom hooks for WebSocket communication (useWebSocket, useGameState, etc.)
-  - Dedicated WebSocket service files for managing connections
+### RESTful API Communication
+
+The frontend makes HTTP requests to backend API endpoints:
+
+```javascript
+// Example from index.tsx
+fetch('http://localhost:8080/api/health')
+  .then(response => response.json())
+  .then(data => {
+    setBackendStatus('Connected');
+    console.log('Backend health:', data);
+  });
+```
+
+API endpoints are organized in Flask blueprints:
+
+```python
+# Example from multiplayer.py
+@multiplayer.route("/api/join-chat", methods=["POST"])
+@login_required
+def join_chat():
+    # Implementation
+```
+
+### Real-time WebSocket Communication
+
+Socket.IO is used for real-time bidirectional communication:
+
+```python
+# Server-side Socket.IO events (multiplayer.py)
+emit("user_joined", {
+    "user": current_user.username,
+    "timestamp": datetime.utcnow().isoformat()
+}, room=room)
+```
+
+The frontend would connect to these WebSocket events using the Socket.IO client library.
+
+### Server-Side Rendering
+
+The application also uses traditional server-side rendering for some pages:
+
+```python
+# Example from routes.py
+@routes_bp.route('/')
+def index():
+    """Render the index page"""
+    return render_template('index.html')
+```
 
 ### Authentication Flow
-- **Flask-Login**: Manages user sessions on the backend
-- **Next.js Auth Pages**: Handle login, signup, and password reset
-- **Session Cookies**: Used for maintaining authentication state
-- **Authorization Headers**: Passed from Next.js API routes to Flask backend
+
+The application uses a session-based authentication system:
+
+1. User submits login credentials via form submission
+2. Server validates credentials and creates a session
+3. Session cookie is sent to the client
+4. Subsequent requests include the session cookie
+5. Server validates the session on each request
 
 ## 5. Potential Issues and Architectural Inconsistencies
 
 ### Mixed Frontend Frameworks
-- **Next.js and Vite Coexistence**: The project uses both Next.js and Vite, which are separate React frameworks with different build systems and conventions
-  - package.json scripts are primarily Next.js-focused
-  - vite.config.js exists with its own configuration
-  - This can lead to confusion about which build system to use and potential conflicts
 
-### Inconsistent TypeScript Configuration
-- **tsconfig.json**: Primarily configured for a Vite/React application
-  - Includes Vite-specific files but also excludes them
-  - Doesn't explicitly include the Next.js pages directory
-  - References a separate Node.js TypeScript configuration
+The project uses both Next.js and Vite configurations:
 
-### Complex Directory Structure
-- **Dual Frontend Structure**: 
-  - Next.js pages at the root level
-  - React components in the src directory
-  - This makes it unclear which is the primary frontend structure
+- **Next.js**: Used for page routing and server-side rendering
+- **Vite**: Used for development and building
 
-### Potential Port Conflicts
-- **Next.js Development Server**: Typically runs on port 3000
-- **Vite Development Server**: Configured to run on port 3000
-- **Flask Backend**: Runs on port 5000
-- **API Proxy**: Configured to forward to port 8080 in Vite config
+This creates potential conflicts in the build process and development workflow.
 
-### Mixed Backend Communication
-- **Flask Backend on Port 5000**: Main backend service
-- **Proxy to Port 8080**: Suggests another backend service might be involved
+### Inconsistent Routing Approaches
 
-### Potential Deployment Challenges
-- **Multiple Build Systems**: May complicate deployment processes
-- **Inconsistent Output Directories**: Next.js outputs to .next, Vite to dist
-- **Mixed Framework Features**: May lead to unexpected behavior in production
+The project uses multiple routing systems:
 
-## Recommendations
+- **Next.js Pages Router**: For page-based routing
+- **React Router**: For client-side routing
+- **Flask Routes**: For server-side routing
 
-1. **Standardize on a Single Frontend Framework**: Choose either Next.js or Vite as the primary frontend framework to reduce complexity and potential conflicts.
+This creates confusion about the primary navigation flow and can lead to maintenance challenges.
 
-2. **Consolidate Configuration Files**: Ensure TypeScript and build configurations are consistent and aligned with the chosen framework.
+### Port Configuration Mismatch
 
-3. **Reorganize Directory Structure**: Adopt a more consistent structure that follows the conventions of the chosen framework.
+The frontend makes API calls to port 8080:
 
-4. **Document Architecture Decisions**: Create clear documentation about the architecture, data flow, and build processes to help developers understand the system.
+```javascript
+fetch('http://localhost:8080/api/health')
+```
 
-5. **Resolve Port Conflicts**: Ensure development servers use different ports to avoid conflicts.
+But the Flask server runs on port 5000 by default:
 
-6. **Streamline Deployment Process**: Create a unified build and deployment process that accounts for all components of the application.
+```python
+port = int(os.environ.get('PORT', 5000))
+```
+
+This suggests either a configuration issue or the presence of an API gateway/proxy.
+
+### Mixed Rendering Strategies
+
+The project uses both server-side rendering (Flask templates) and client-side rendering (React components), which can lead to inconsistent user experiences and development patterns.
+
+### Potential Dependency Conflicts
+
+The project has a large number of dependencies across different technologies, which increases the risk of version conflicts and security vulnerabilities.
+
+## Recommendations for Improvement
+
+1. **Standardize on a Single Frontend Framework**: Choose either Next.js or Vite as the primary frontend build tool to reduce complexity and potential conflicts.
+
+2. **Adopt a Consistent Routing Strategy**: Standardize on either Next.js routing or React Router, but not both.
+
+3. **Implement API Versioning**: Add explicit API versioning to ensure backward compatibility as the application evolves.
+
+4. **Align Port Configurations**: Ensure that frontend API calls target the correct backend port, or document the proxy configuration.
+
+5. **Modernize Authentication**: Consider moving to a token-based authentication system (JWT) for better separation between frontend and backend.
+
+6. **Enhance Documentation**: Create comprehensive documentation for the architecture, API endpoints, and development workflows.
+
+7. **Implement Comprehensive Testing**: Expand test coverage for both frontend and backend components.
+
+8. **Optimize Build Process**: Streamline the build process to reduce complexity and improve CI/CD integration.
+
+9. **Refactor Server-Side Rendering**: Decide on a consistent approach to rendering (either fully client-side or server-side) to simplify the architecture.
+
+10. **Dependency Audit**: Conduct a thorough audit of dependencies to identify and resolve potential conflicts and security issues.

@@ -10,7 +10,8 @@ import {
   MenuItem,
   ListItemIcon,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   Psychology,
   School,
@@ -34,12 +35,10 @@ import {
   Storefront,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [aiMenuAnchor, setAiMenuAnchor] = useState<null | HTMLElement>(null);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleAiMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAiMenuAnchor(event.currentTarget);
@@ -63,97 +62,98 @@ const Navbar = () => {
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           {/* Logo */}
-          <Box
-            component={RouterLink}
-            to="/"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              textDecoration: "none",
-              mr: 3
-            }}
-          >
-            <img
-              src="/images/logo.webp"
-              alt="DojoPool Logo"
-              style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8, boxShadow: '0 0 15px rgba(0,255,157,0.5)' }}
-            />
-            <Typography
-              variant="h6"
+          <Link href="/" passHref>
+            <Box
               sx={{
-                fontWeight: 700,
-                color: "#00ff9d",
-                fontFamily: 'Orbitron, monospace',
-                textShadow: "0 0 10px rgba(0,255,157,0.5)",
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 15px rgba(0,168,255,0.5)",
-                  transition: "all 0.3s ease",
-                },
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+                mr: 3,
+                cursor: "pointer"
               }}
             >
-              DojoPool
-            </Typography>
-          </Box>
+              <img
+                src="/images/logo.webp"
+                alt="DojoPool Logo"
+                style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8, boxShadow: '0 0 15px rgba(0,255,157,0.5)' }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: "#00ff9d",
+                  fontFamily: 'Orbitron, monospace',
+                  textShadow: "0 0 10px rgba(0,255,157,0.5)",
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 15px rgba(0,168,255,0.5)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                DojoPool
+              </Typography>
+            </Box>
+          </Link>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <Button
-              component={RouterLink}
-              to="/dashboard"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Dashboard
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              World Map
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/clan-wars"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Clan Wars
-            </Button>
+            <Link href="/dashboard" passHref>
+              <Button
+                sx={{ 
+                  color: "#00ff9d", 
+                  display: "block",
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  mx: 2,
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                Dashboard
+              </Button>
+            </Link>
+            <Link href="/" passHref>
+              <Button
+                sx={{ 
+                  color: "#00ff9d", 
+                  display: "block",
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  mx: 2,
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                World Map
+              </Button>
+            </Link>
+            <Link href="/clan-wars" passHref>
+              <Button
+                sx={{ 
+                  color: "#00ff9d", 
+                  display: "block",
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  mx: 2,
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                Clan Wars
+              </Button>
+            </Link>
             <Button
               component={RouterLink}
               to="/tournaments"
@@ -610,14 +610,14 @@ const Navbar = () => {
             </Button>
             <Button
               color="inherit"
-              onClick={() => navigate('/streaming')}
+              onClick={() => router.push('/streaming')}
               sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
             >
               Streaming
             </Button>
             <Button
               color="inherit"
-              onClick={() => navigate('/venues')}
+              onClick={() => router.push('/venues')}
               sx={{ color: '#ffffff', '&:hover': { color: '#00ff9d' } }}
             >
               Venues
@@ -688,11 +688,11 @@ const Navbar = () => {
             >
               Advanced Analytics
             </Button>
-            <MenuItem onClick={() => navigate('/venue/dojo-coin-rewards')}>
+            <MenuItem onClick={() => router.push('/venue/dojo-coin-rewards')}>
               <MonetizationOn sx={{ mr: 1 }} />
               Dojo Coin Rewards
             </MenuItem>
-            <MenuItem onClick={() => navigate('/venue/venue-specials')}>
+            <MenuItem onClick={() => router.push('/venue/venue-specials')}>
               <LocalOffer sx={{ mr: 1 }} />
               Venue Specials
             </MenuItem>

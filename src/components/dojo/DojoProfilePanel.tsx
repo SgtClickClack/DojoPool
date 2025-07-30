@@ -49,7 +49,39 @@ const DojoProfilePanel: React.FC<DojoProfilePanelProps> = ({ dojo, onClose, isLo
 
       {/* Dojo Name and Address */}
       <h2 className="text-3xl font-bold text-cyan-400">{dojo.name}</h2>
-      <p className="text-gray-400 mb-4">{dojo.clan} • {dojo.distance} away</p>
+      <p className="text-gray-400 mb-2">{dojo.clan} • {dojo.distance} away</p>
+
+      {/* Territory Ownership Status */}
+      <div className="mb-4 p-3 rounded-lg bg-gray-800 border-l-4 border-cyan-400">
+        {dojo.controllingClan ? (
+          <div className="flex items-center space-x-3">
+            {dojo.controllingClan.avatar && (
+              <img 
+                src={dojo.controllingClan.avatar} 
+                alt={`${dojo.controllingClan.name} emblem`}
+                className="w-8 h-8 rounded-full"
+              />
+            )}
+            <div>
+              <p className="text-white font-bold">
+                Controlled by: {dojo.controllingClan.name}
+              </p>
+              {dojo.controllingClan.tag && (
+                <p className="text-gray-400 text-sm">
+                  [{dojo.controllingClan.tag}]
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
+              <span className="text-gray-400 text-xs">?</span>
+            </div>
+            <p className="text-yellow-400 font-bold">Unclaimed Territory</p>
+          </div>
+        )}
+      </div>
 
       {/* Conditional content: Locked vs. Unlocked */}
       {isLocked ? (

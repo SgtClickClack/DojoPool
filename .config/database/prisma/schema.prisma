@@ -35,6 +35,10 @@ model User {
   unlockedZones String   @default("[]") // Array of zone IDs as JSON string
   relationships String   @default("{}") // { friends: [userId], rivals: [userId] } as JSON string
 
+  // Clan Wars additions
+  ledClans     Clan[] @relation("ClanLeader")
+  clanMembership ClanMember? @relation("UserClanMembership")
+
   @@map("users")
 }
 
@@ -93,6 +97,11 @@ model Territory {
   status         String   @default("unconfirmed") // verified, unconfirmed, pending_verification
   leaderboard    String   @default("[]") // Array of player objects as JSON string
   allegianceMeter Int     @default(0)
+
+  // Clan Wars additions
+  controllingClanId   String?  @map("controlling_clan_id") // ID of the clan that owns this Dojo
+  controllingClan     Clan?    @relation("ControlledDojos", fields: [controllingClanId], references: [id])
+  contestedWars       ClanWar[] @relation("ContestedTerritory")
 
   @@map("territories")
 }
@@ -178,4 +187,82 @@ model Nomination {
   updatedAt    DateTime @updatedAt
 
   @@map("nominations")
+}
+
+model Clan {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  tag           String   @unique
+  description   String?
+  avatar        String?
+  banner        String?
+  leaderId      String
+  leader        User     @relation("ClanLeader", fields: [leaderId], references: [id])
+  memberCount   Int      @default(1)
+  maxMembers    Int      @default(50)
+  level         Int      @default(1)
+  experience    Int      @default(0)
+  territoryCount Int     @default(0)
+  totalWins     Int      @default(0)
+  totalLosses   Int      @default(0)
+  isPublic      Boolean  @default(true)
+  requirements  String   @default("{}") // JSON string for requirements
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  members       ClanMember[]
+  controlledDojos Territory[] @relation("ControlledDojos")
+  warsAsClan1   ClanWar[] @relation("ClanWar1")
+  warsAsClan2   ClanWar[] @relation("ClanWar2")
+  wonWars       ClanWar[] @relation("ClanWarWinner")
+
+  @@map("clans")
+}
+
+model ClanMember {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation("UserClanMembership", fields: [userId], references: [id], onDelete: Cascade)
+  clanId        String
+  clan          Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  role          String   @default("member") // leader, officer, member, recruit
+  contribution  Int      @default(0)
+  territoryCount Int     @default(0)
+  matchWins     Int      @default(0)
+  joinedAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("clan_members")
+}
+
+model ClanWar {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("preparing") // preparing, active, completed
+  
+  clan1Id     String
+  clan1       Clan     @relation("ClanWar1", fields: [clan1Id], references: [id])
+  clan1Score  Int      @default(0)
+  
+  clan2Id     String
+  clan2       Clan     @relation("ClanWar2", fields: [clan2Id], references: [id])
+  clan2Score  Int      @default(0)
+  
+  winnerId    String?
+  winner      Clan?    @relation("ClanWarWinner", fields: [winnerId], references: [id])
+  
+  territoryId String?  // The contested territory
+  territory   Territory? @relation("ContestedTerritory", fields: [territoryId], references: [id])
+  
+  rewards     String   @default("{}") // JSON string for rewards
+  matches     String   @default("[]") // JSON string for match data
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("clan_wars")
 }

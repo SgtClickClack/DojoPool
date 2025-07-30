@@ -36,18 +36,23 @@ const TournamentList: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      let url = '/api/tournaments/';
+      // Use the API client endpoint from src/frontend/api/tournaments.ts
+      let url = '/v1/tournaments';
       const params = [];
       if (typeFilter) params.push(`type=${encodeURIComponent(typeFilter)}`);
       if (statusFilter) params.push(`status=${encodeURIComponent(statusFilter)}`);
       if (search) params.push(`search=${encodeURIComponent(search)}`);
       if (params.length) url += '?' + params.join('&');
+      
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data: Tournament[] = await response.json();
-      setTournaments(data);
+      
+      const data = await response.json();
+      // Handle both response formats: direct array or { tournaments: [...] }
+      const tournamentData = Array.isArray(data) ? data : data.tournaments || [];
+      setTournaments(tournamentData);
     } catch (err) {
       console.error('Failed to fetch tournaments:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -430,15 +435,41 @@ const TournamentList: React.FC = () => {
                       alignItems: 'center',
                       mt: 'auto'
                     }}>
-                      <Typography sx={{ 
-                        color: '#00ff9d', 
-                        fontSize: '0.8rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px'
-                      }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          color: '#00ff9d',
+                          borderColor: '#00ff9d',
+                          '&:hover': {
+                            borderColor: '#00a8ff',
+                            color: '#00a8ff',
+                            backgroundColor: 'rgba(0, 168, 255, 0.1)'
+                          }
+                        }}
+                      >
                         View Details
-                      </Typography>
-                      <EmojiEvents sx={{ color: '#00ff9d', fontSize: '1.2rem' }} />
+                      </Button>
+                      <Link href={`/tournaments/${tournament.id}`} passHref>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          sx={{
+                            backgroundColor: 'rgba(0, 255, 157, 0.2)',
+                            color: '#00ff9d',
+                            borderColor: '#00ff9d',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 255, 157, 0.3)',
+                              borderColor: '#00ff9d'
+                            }
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          View Bracket
+                        </Button>
+                      </Link>
                     </Box>
                   </Link>
                 </Card>

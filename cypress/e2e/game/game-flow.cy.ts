@@ -90,8 +90,11 @@ describe("Game Flow", () => {
           });
         },
       };
-      // @ts-ignore
-      win.navigator.geolocation = mockGeolocation;
+      // Use Object.defineProperty instead of direct assignment to readonly property
+      Object.defineProperty(win.navigator, 'geolocation', {
+        value: mockGeolocation,
+        configurable: true
+      });
     });
 
     // Verify position update
@@ -101,8 +104,11 @@ describe("Game Flow", () => {
   it("should handle network issues gracefully", () => {
     // Simulate offline state
     cy.window().then((win) => {
-      // @ts-ignore
-      win.navigator.onLine = false;
+      // Use Object.defineProperty instead of direct assignment to readonly property
+      Object.defineProperty(win.navigator, 'onLine', {
+        value: false,
+        configurable: true
+      });
       win.dispatchEvent(new Event("offline"));
     });
 
@@ -113,8 +119,11 @@ describe("Game Flow", () => {
 
     // Restore online state
     cy.window().then((win) => {
-      // @ts-ignore
-      win.navigator.onLine = true;
+      // Use Object.defineProperty instead of direct assignment to readonly property
+      Object.defineProperty(win.navigator, 'onLine', {
+        value: true,
+        configurable: true
+      });
       win.dispatchEvent(new Event("online"));
     });
 

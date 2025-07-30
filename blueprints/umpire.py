@@ -240,6 +240,84 @@ def handle_stop_monitoring():
     except Exception as e:
         logger.error(f"Error stopping monitoring: {str(e)}")
 
+@socketio.on('video_frame')
+def handle_video_frame(data):
+    """Handle video frame event from client
+    
+    Receives a base64 encoded image, processes it to detect circles (pool balls),
+    and emits the results back to the client.
+    """
+    try:
+        # Extract user_id and base64 image from data
+        user_id = current_user.id if current_user.is_authenticated else data.get('user_id')
+        base64_image = data.get('image')
+        
+        if not user_id or not base64_image:
+            logger.error("Missing user_id or image data")
+            return
+            
+        # Decode base64 image to OpenCV format
+        # Remove the data URL prefix if present
+        if ',' in base64_image:
+            base64_image = base64_image.split(',')[1]
+            
+        import base64
+        image_bytes = base64.b64decode(base64_image)
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if frame is None:
+            logger.error("Failed to decode image")
+            return
+            
+        # Process the frame using the existing GameMonitor
+        result = game_monitor.process_frame(frame, user_id)
+        
+        # Use cv2.HoughCircles to detect circles in the frame
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Apply Gaussian blur to reduce noise
+        gray = cv2.GaussianBlur(gray, (5, 5), 0)
+        # Detect circles
+        circles = cv2.HoughCircles(
+            gray, 
+            cv2.HOUGH_GRADIENT, 
+            dp=1, 
+            minDist=20, 
+            param1=50, 
+            param2=30, 
+            minRadius=10, 
+            maxRadius=30
+        )
+        
+        circle_data = []
+        if circles is not None:
+            # Convert to integer coordinates
+            circles = np.uint16(np.around(circles))
+            for circle in circles[0, :]:
+                # Get coordinates and radius
+                x, y, r = circle
+                circle_data.append({
+                    'x': int(x),
+                    'y': int(y),
+                    'radius': int(r)
+                })
+        
+        # Emit results back to client
+        socketio.emit('cv_result', {
+            'user_id': user_id,
+            'ball_count': len(circle_data),
+            'circles': circle_data,
+            'timestamp': datetime.now().isoformat(),
+            'game_monitor_result': result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error processing video frame: {str(e)}")
+        socketio.emit('cv_result', {
+            'status': 'error',
+            'message': str(e)
+        })
+
 @umpire.errorhandler(404)
 def page_not_found(error):
     return render_template('error.html', error_code=404, message="Page not found"), 404

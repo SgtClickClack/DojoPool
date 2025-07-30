@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAuth } from './useAuth';
 import { useGameState } from '../components/gameflow/GameStateManager';
 
@@ -31,7 +31,7 @@ export interface GameFlowActions {
 }
 
 export const useGameFlow = (initialConfig?: GameFlowConfig) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const gameState = useGameState();
   
@@ -194,11 +194,11 @@ export const useGameFlow = (initialConfig?: GameFlowConfig) => {
     
     // Navigate to results or dashboard
     if (config.tournamentId) {
-      navigate(`/tournaments/${config.tournamentId}/results`);
+      router.push(`/tournaments/${config.tournamentId}/results`);
     } else {
-      navigate('/dashboard');
+      router.push('/dashboard');
     }
-  }, [navigate, config.tournamentId]);
+  }, [router, config.tournamentId]);
 
   // Reset the entire flow
   const resetFlow = useCallback(() => {

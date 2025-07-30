@@ -18,3 +18,7 @@ export const joinTournament = async (id: string): Promise<void> => {
 export const processPayment = async (tournamentId: string, amount: number): Promise<void> => {
   await axiosInstance.post(`/v1/tournaments/${tournamentId}/payment`, { amount });
 };
+
+export const submitMatchResult = async (matchId: string, winnerId: number): Promise<void> => {
+  await axiosInstance.post(`/v1/matches/${matchId}/result`, { winnerId });
+};

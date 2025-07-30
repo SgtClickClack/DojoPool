@@ -56,14 +56,20 @@ export const checkMapMarkers = (
 export const simulateNetwork = (condition: "online" | "offline" | "slow") => {
   if (condition === "offline") {
     cy.window().then((win) => {
-      // @ts-ignore
-      win.navigator.onLine = false;
+      // Use Object.defineProperty instead of direct assignment to readonly property
+      Object.defineProperty(win.navigator, 'onLine', {
+        value: false,
+        configurable: true
+      });
       win.dispatchEvent(new Event("offline"));
     });
   } else if (condition === "online") {
     cy.window().then((win) => {
-      // @ts-ignore
-      win.navigator.onLine = true;
+      // Use Object.defineProperty instead of direct assignment to readonly property
+      Object.defineProperty(win.navigator, 'onLine', {
+        value: true,
+        configurable: true
+      });
       win.dispatchEvent(new Event("online"));
     });
   } else if (condition === "slow") {

@@ -19,6 +19,14 @@ export interface DojoData {
   revenue: string;
   activeMatches: number;
   challenges: ChallengeData[];
+  // Clan Wars territory ownership fields
+  controllingClanId?: string;
+  controllingClan?: {
+    id: string;
+    name: string;
+    tag: string;
+    avatar?: string;
+  };
 }
 
 export interface ChallengeData {
@@ -258,7 +266,15 @@ class LivingWorldHubService {
         distance: `${dojo.distance}m`,
         revenue: this.getRevenueForDojo(dojo),
         activeMatches: Math.floor(Math.random() * 5), // TODO: Get from backend
-        challenges: this.getChallengesForDojo(dojo)
+        challenges: this.getChallengesForDojo(dojo),
+        // Clan Wars territory ownership fields
+        controllingClanId: dojo.controllingClanId || null,
+        controllingClan: dojo.controllingClan ? {
+          id: dojo.controllingClan.id,
+          name: dojo.controllingClan.name,
+          tag: dojo.controllingClan.tag,
+          avatar: dojo.controllingClan.avatar
+        } : null
       }));
 
       // Cache the result for 2 minutes

@@ -25,7 +25,7 @@ export class FrameProcessor {
   private readonly shaderManager: ShaderManager;
   private readonly transitionManager: TransitionManager;
   private readonly gl: WebGLRenderingContext;
-  private readonly resources: WebGLResources;
+  private resources: WebGLResources;
 
   private currentTextureIndex = 0;
   private isInitialized = false;
@@ -162,9 +162,20 @@ export class FrameProcessor {
     message: string,
     recoverable: boolean,
   ): ProcessingError {
-    const error = new Error(message) as ProcessingError;
-    error.type = type;
-    error.recoverable = recoverable;
+    // Create the error with properties already set using Object.create
+    const error = Object.create(Error.prototype) as ProcessingError;
+    
+    // Initialize the error
+    Error.call(error, message);
+    error.message = message;
+    error.name = 'ProcessingError';
+    
+    // Define readonly properties
+    Object.defineProperties(error, {
+      type: { value: type, writable: false, configurable: true },
+      recoverable: { value: recoverable, writable: false, configurable: true }
+    });
+    
     return error;
   }
 
