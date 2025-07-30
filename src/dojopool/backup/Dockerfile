@@ -1,4 +1,4 @@
-FROM python:3.13.4-slim
+FROM python:3.13.2-slim
 
 # Install PostgreSQL client tools and cron
 RUN apt-get update && \
