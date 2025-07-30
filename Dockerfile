@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS frontend-build
+FROM node:20-alpine AS frontend-build
 ARG SKIP_FRONTEND_BUILD=false
 WORKDIR /app/frontend
 COPY src/dojopool/frontend/package*.json ./
@@ -46,7 +46,7 @@ COPY --from=frontend-build /app/frontend/build /app/static
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy Python packages and application code
-COPY --from=backend-build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=backend-build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --chown=www-data:www-data src/dojopool /app/dojopool
 COPY --chown=www-data:www-data config /app/config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
