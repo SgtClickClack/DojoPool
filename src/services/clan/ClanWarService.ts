@@ -101,6 +101,26 @@ class ClanWarService {
       return `${minutes}m remaining`;
     }
   }
+
+  /**
+   * Claims territory for the winning clan after a war ends
+   * @param warId The ID of the clan war
+   * @returns Promise<boolean> indicating success or failure
+   */
+  async claimTerritory(warId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`/api/clan-wars/${warId}/claim`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('Error claiming territory:', error);
+      return false;
+    }
+  }
 }
 
 export const clanWarService = new ClanWarService();

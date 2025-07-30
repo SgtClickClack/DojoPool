@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Container, Typography, Paper, Card, CardContent, Button, Chip, Grid, Avatar, Divider, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { Group, EmojiEvents, TrendingUp, AccessTime, Star, Shield, Flag, ArrowBack } from '@mui/icons-material';
+import { Box, Container, Typography, Paper, Card, CardContent, Button, Chip, Grid, Avatar, Divider, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert, Snackbar } from '@mui/material';
+import { Group, EmojiEvents, TrendingUp, AccessTime, Star, Shield, Flag, ArrowBack, EmojiFlags } from '@mui/icons-material';
 import Link from 'next/link';
 import Layout from '../../components/layout/Layout';
 import PageBackground from '../../components/common/PageBackground';
 import { clanWarService } from '../../services/clan/ClanWarService';
-import { ClanWar } from '../../services/clan/ClanSystemService';
+import { ClanWar, clanSystemService } from '../../services/clan/ClanSystemService';
+import { useAuth } from '../../components/auth/AuthContext';
 
 const ClanWarDetailPage: React.FC = () => {
   const router = useRouter();
   const { warId } = router.query;
+  const { user } = useAuth();
   
   const [war, setWar] = useState<ClanWar | null>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userClan, setUserClan] = useState<any>(null);
+  const [claimLoading, setClaimLoading] = useState(false);
+  const [claimMessage, setClaimMessage] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<string | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     const loadWarDetails = async () => {
@@ -45,6 +52,62 @@ const ClanWarDetailPage: React.FC = () => {
     
     loadWarDetails();
   }, [warId]);
+
+  useEffect(() => {
+    const loadUserClan = async () => {
+      if (user) {
+        try {
+          const clan = await clanSystemService.getUserClan();
+          setUserClan(clan);
+        } catch (err) {
+          console.error('Error loading user clan:', err);
+        }
+      }
+    };
+    
+    loadUserClan();
+  }, [user]);
+
+  const claimTerritory = async () => {
+    if (!warId || typeof warId !== 'string') return;
+    
+    setClaimLoading(true);
+    setClaimError(null);
+    setClaimMessage(null);
+    
+    try {
+      const response = await fetch(`/api/clan-wars/${warId}/claim`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        setClaimMessage('Territory Claimed!');
+        setSnackbarOpen(true);
+        // Refresh war data to reflect changes
+        const updatedWar = await clanWarService.getWarById(warId);
+        if (updatedWar) {
+          setWar(updatedWar);
+        }
+        // Optionally refresh the page or redirect to show updated map
+        setTimeout(() => {
+          router.push('/world-hub');
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        setClaimError(errorData.message || 'Failed to claim territory');
+        setSnackbarOpen(true);
+      }
+    } catch (err) {
+      console.error('Error claiming territory:', err);
+      setClaimError('An error occurred while claiming territory');
+      setSnackbarOpen(true);
+    } finally {
+      setClaimLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -260,6 +323,61 @@ const ClanWarDetailPage: React.FC = () => {
             </CardContent>
           </Card>
           
+          {/* Claim Territory Button */}
+          {(() => {
+            // Check if war has ended
+            const warEnded = timeRemaining === 'Ended';
+            
+            // Check if territory has not been claimed (status is not 'completed')
+            const territoryNotClaimed = war.status !== 'completed';
+            
+            // Determine winning clan
+            const winningClanId = war.clan1Score > war.clan2Score ? war.clan1Id : 
+                                 war.clan2Score > war.clan1Score ? war.clan2Id : null;
+            
+            // Check if current user is leader of winning clan
+            const isWinningClanLeader = userClan && 
+                                       winningClanId === userClan.id && 
+                                       user && 
+                                       userClan.leaderId === user.uid;
+            
+            // Show button only if all conditions are met
+            const shouldShowButton = warEnded && territoryNotClaimed && isWinningClanLeader;
+            
+            if (!shouldShowButton) return null;
+            
+            return (
+              <Box sx={{ mb: 4, textAlign: 'center' }}>
+                <Button
+                  onClick={claimTerritory}
+                  disabled={claimLoading}
+                  startIcon={claimLoading ? <CircularProgress size={20} /> : <EmojiFlags />}
+                  sx={{
+                    background: 'linear-gradient(45deg, #00ff9d, #00a8ff)',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                    py: 1.5,
+                    px: 4,
+                    borderRadius: 3,
+                    textTransform: 'none',
+                    boxShadow: '0 0 20px rgba(0, 255, 157, 0.5)',
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #00a8ff, #00ff9d)',
+                      boxShadow: '0 0 30px rgba(0, 255, 157, 0.7)',
+                    },
+                    '&:disabled': {
+                      background: 'rgba(0, 255, 157, 0.3)',
+                      color: 'rgba(0, 0, 0, 0.5)',
+                    }
+                  }}
+                >
+                  {claimLoading ? 'Claiming Territory...' : 'Claim Territory'}
+                </Button>
+              </Box>
+            );
+          })()}
+          
           {/* Participants Leaderboard */}
           <Typography
             variant="h4"
@@ -394,6 +512,30 @@ const ClanWarDetailPage: React.FC = () => {
           )}
         </Container>
       </PageBackground>
+      
+      {/* Success/Error Messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={claimMessage ? 'success' : 'error'}
+          sx={{
+            width: '100%',
+            backgroundColor: claimMessage ? '#00ff9d' : '#ff6b6b',
+            color: '#000',
+            fontWeight: 'bold',
+            '& .MuiAlert-icon': {
+              color: '#000'
+            }
+          }}
+        >
+          {claimMessage || claimError}
+        </Alert>
+      </Snackbar>
     </Layout>
   );
 };

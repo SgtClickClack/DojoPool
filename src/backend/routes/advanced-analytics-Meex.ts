@@ -1,6 +1,6 @@
 import express from 'express';
-import { advancedAnalyticsService } from '../../services/analytics/AdvancedAnalyticsService';
-import type { VenueOptimization, RevenueForecast } from '../../services/analytics/AdvancedAnalyticsService';
+import { advancedAnalyticsService } from '../../services/analytics/AdvancedAnalyticsService.ts';
+import type { VenueOptimization, RevenueForecast } from '../../services/analytics/AdvancedAnalyticsService.ts';
 
 const router = express.Router();
 

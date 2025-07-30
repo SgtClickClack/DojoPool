@@ -10,6 +10,14 @@ export interface DojoCandidate {
   placeId?: string;
   latitude: number;
   longitude: number;
+  // Clan ownership fields
+  controllingClanId?: string;
+  controllingClan?: {
+    id: string;
+    name: string;
+    tag: string;
+    avatar?: string;
+  };
 }
 
 export interface DojoNomination {

@@ -1,5 +1,5 @@
 import express from 'express';
-import AdvancedPlayerAnalyticsService from '../../services/analytics/AdvancedPlayerAnalyticsService';
+import AdvancedPlayerAnalyticsService from '../../services/analytics/AdvancedPlayerAnalyticsService.ts';
 
 const router = express.Router();
 const analyticsService = AdvancedPlayerAnalyticsService.getInstance();

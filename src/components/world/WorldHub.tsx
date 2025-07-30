@@ -156,7 +156,19 @@ const WorldHub: React.FC<WorldHubProps> = ({ className = '' }) => {
   };
 
   const getDojoMarkerIcon = (dojo: DojoCandidate): string => {
-    // Determine marker type based on dojo status and relationship
+    // Priority 1: Clan ownership determines marker color
+    if (dojo.controllingClanId) {
+      if (playerData && dojo.controllingClanId === playerData.clan) {
+        return '/images/markers/friendly-dojo-marker.svg'; // Cyan marker for player's clan
+      } else {
+        return '/images/markers/rival-dojo-marker.svg'; // Red marker for other clans
+      }
+    } else {
+      // Neutral territory (no controlling clan)
+      return '/images/markers/neutral-dojo-marker.svg'; // Grey marker
+    }
+    
+    // Fallback to original logic if clan data is not available
     if (playerData && dojo.name === playerData.homeDojo) {
       return '/images/markers/home-dojo-marker.svg'; // Blue marker
     }
@@ -292,6 +304,28 @@ const WorldHub: React.FC<WorldHubProps> = ({ className = '' }) => {
               <div>
                 <p className="text-gray-600">{selectedDojo.address}</p>
                 <p className="text-sm text-gray-500">{selectedDojo.distance}m away</p>
+              </div>
+              
+              {/* Clan Ownership Status */}
+              <div className="border-t pt-3">
+                {selectedDojo.controllingClan ? (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-700">Controlled by:</span>
+                    <span className="text-sm font-semibold text-red-600">{selectedDojo.controllingClan.name}</span>
+                    {selectedDojo.controllingClan.tag && (
+                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                        {selectedDojo.controllingClan.tag}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-500">Unclaimed Territory</span>
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                      Available
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div className="flex space-x-2">

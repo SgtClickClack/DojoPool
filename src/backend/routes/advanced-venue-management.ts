@@ -1,5 +1,5 @@
 import express from 'express';
-import AdvancedVenueManagementService from '../../services/venue/AdvancedVenueManagementService';
+import AdvancedVenueManagementService from '../../services/venue/AdvancedVenueManagementService.ts';
 
 const router = express.Router();
 const venueService = AdvancedVenueManagementService.getInstance();

@@ -1,5 +1,5 @@
 import express from 'express';
-import EnhancedSocialCommunityService from '../../services/social/EnhancedSocialCommunityService';
+import EnhancedSocialCommunityService from '../../services/social/EnhancedSocialCommunityService.ts';
 
 const router = express.Router();
 const enhancedSocialService = EnhancedSocialCommunityService.getInstance();

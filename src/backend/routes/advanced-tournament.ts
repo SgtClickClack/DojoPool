@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import AdvancedTournamentManagementService from '../../services/tournament/AdvancedTournamentManagementService';
-import { TournamentStatus, TournamentFormat } from '../../types/tournament';
+import AdvancedTournamentManagementService from '../../services/tournament/AdvancedTournamentManagementService.ts';
+import { TournamentStatus, TournamentFormat } from '../../types/tournament.ts';
 
 const router = express.Router();
 const tournamentService = AdvancedTournamentManagementService.getInstance();

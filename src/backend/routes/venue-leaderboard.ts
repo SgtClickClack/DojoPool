@@ -1,5 +1,5 @@
 import express from 'express';
-import { venueLeaderboardService } from '../../services/venue/VenueLeaderboardService';
+import { venueLeaderboardService } from '../../services/venue/VenueLeaderboardService.ts';
 
 const router = express.Router();
 

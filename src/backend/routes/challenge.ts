@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger } from '../../config/monitoring';
-import { challenges, matchResults } from '../../services/challengeStorage';
-import { VenueLeaderboardService } from '../../services/venue/VenueLeaderboardService';
+import { logger } from '../../config/monitoring.ts';
+import { challenges, matchResults } from '../../services/challengeStorage.ts';
+import { VenueLeaderboardService } from '../../services/venue/VenueLeaderboardService.ts';
 import { Server } from 'socket.io';
 
 const userSocketMap = new Map<string, string>(); // userId -> socketId

@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { InvestorAuthService } from '../../services/auth/InvestorAuthService';
+import { InvestorAuthService } from '../../services/auth/InvestorAuthService.ts';
 
 const router = Router();
 

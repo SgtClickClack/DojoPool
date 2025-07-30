@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { passiveIncomeService } from '../../services/economy/PassiveIncomeService';
+import { passiveIncomeService } from '../../services/economy/PassiveIncomeService.ts';
 
 const router = express.Router();
 

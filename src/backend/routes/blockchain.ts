@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
-import { enhancedBlockchainService } from '../../services/blockchain/EnhancedBlockchainService';
+import { enhancedBlockchainService } from '../../services/blockchain/EnhancedBlockchainService.ts';
 
 const router = express.Router();
 
