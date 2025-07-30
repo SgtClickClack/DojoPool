@@ -29,3 +29,4 @@ marshmallow==3.20.1
 
 # Dependency checking
 pip-audit==2.6.1 
+setuptools>=78.1.1 # not directly required, pinned by Snyk to avoid a vulnerability
