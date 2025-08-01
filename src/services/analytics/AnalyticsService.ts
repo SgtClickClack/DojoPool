@@ -1,5 +1,5 @@
 import { getAnalytics, logEvent as firebaseLogEvent, setUserId as firebaseSetUserId } from "firebase/analytics";
-import { analytics, currentApp } from '../../firebase/firebase';
+import { analytics, currentApp } from '';
 
 class AnalyticsService {
   private analytics;

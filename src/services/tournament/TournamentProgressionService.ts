@@ -1,5 +1,5 @@
-import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
-import progressionService, { StoryEvent } from '../progression/ProgressionService';
+import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '';
+import progressionService, { StoryEvent } from '';
 
 export interface ProgressionResult {
   success: boolean;

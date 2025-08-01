@@ -5,7 +5,7 @@
  * and automated recommendations for venue operations and revenue maximization.
  */
 
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '';
 import { io, Socket } from 'socket.io-client';
 
 // Advanced Analytics Interfaces

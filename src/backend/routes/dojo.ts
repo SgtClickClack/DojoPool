@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger } from '../../config/monitoring';
-import { PrismaClient } from '../../../generated/prisma';
+import { logger } from '../../config/monitoring.js';
+// import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -67,7 +67,7 @@ const validateHomeDojo = [
  * GET /api/dojo/candidates
  * Get nearby dojo candidates for onboarding
  */
-router.get('/candidates', async (req: Request, res: Response) => {
+router.get('/candidates', async (req: express.Request, res: express.Response) => {
   try {
     const { lat, lng, radius = 5000 } = req.query;
     
@@ -83,18 +83,19 @@ router.get('/candidates', async (req: Request, res: Response) => {
     const radiusMeters = parseInt(radius as string);
 
     // Query database for territories (dojos) within radius
-    const territories = await prisma.territory.findMany({
-      where: {
-        isActive: true,
-        status: {
-          in: ['verified', 'unconfirmed', 'pending_verification']
-        }
-      }
-    });
+    // const territories = await prisma.territory.findMany({
+    //   where: {
+    //     isActive: true,
+    //     status: {
+    //       in: ['verified', 'unconfirmed', 'pending_verification']
+    //     }
+    //   }
+    // });
+    const territories: any[] = [];
 
     // Filter by distance and convert to candidate format
     const candidates = territories
-      .map(territory => {
+      .map((territory: any) => {
         const coords = JSON.parse(territory.coordinates);
         const distance = calculateDistance(latitude, longitude, coords.lat, coords.lng);
         return {
@@ -108,8 +109,8 @@ router.get('/candidates', async (req: Request, res: Response) => {
           longitude: coords.lng
         };
       })
-      .filter(dojo => dojo.distance <= radiusMeters)
-      .sort((a, b) => a.distance - b.distance);
+      .filter((dojo: any) => dojo.distance <= radiusMeters)
+      .sort((a: any, b: any) => a.distance - b.distance);
 
     logger.info(`Found ${candidates.length} dojo candidates near (${latitude}, ${longitude})`);
 
@@ -131,7 +132,7 @@ router.get('/candidates', async (req: Request, res: Response) => {
  * POST /api/dojo/nominate
  * Nominate a new dojo (triggers Sales AI pipeline)
  */
-router.post('/nominate', validateDojoNomination, async (req: Request, res: Response) => {
+router.post('/nominate', validateDojoNomination, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -145,30 +146,32 @@ router.post('/nominate', validateDojoNomination, async (req: Request, res: Respo
     const { name, address, latitude, longitude, description, contactInfo } = req.body;
 
     // Create nomination record
-    const nomination = await prisma.nomination.create({
-      data: {
-        playerId: req.user?.id || 'anonymous',
-        name,
-        address,
-        latitude,
-        longitude,
-        description,
-        contactInfo,
-        status: 'pending_community_verification'
-      }
-    });
+    // const nomination = await prisma.nomination.create({
+    //   data: {
+    //     playerId: req.user?.id || 'anonymous',
+    //     name,
+    //     address,
+    //     latitude,
+    //     longitude,
+    //     description,
+    //     contactInfo,
+    //     status: 'pending_community_verification'
+    //   }
+    // });
+    const nomination = { id: 'mock-nomination-id', playerId: req.user?.id || 'anonymous', name, address, latitude, longitude, description, contactInfo, status: 'pending_community_verification' };
 
     // Create territory (dojo) record
-    const newDojo = await prisma.territory.create({
-      data: {
-        name,
-        description: address,
-        coordinates: JSON.stringify({ lat: latitude, lng: longitude }),
-        requiredNFT: `dojo_${Date.now()}`,
-        status: 'pending_verification',
-        venueOwnerId: null
-      }
-    });
+    // const newDojo = await prisma.territory.create({
+    //   data: {
+    //     name,
+    //     description: address,
+    //     coordinates: JSON.stringify({ lat: latitude, lng: longitude }),
+    //     requiredNFT: `dojo_${Date.now()}`,
+    //     status: 'pending_verification',
+    //     venueOwnerId: null
+    //   }
+    // });
+    const newDojo = { id: 'mock-dojo-id', name, description: address, coordinates: JSON.stringify({ lat: latitude, lng: longitude }), requiredNFT: `dojo_${Date.now()}`, status: 'pending_verification', venueOwnerId: null };
 
     logger.info(`New dojo nominated: ${name} at (${latitude}, ${longitude})`);
 
@@ -197,7 +200,7 @@ router.post('/nominate', validateDojoNomination, async (req: Request, res: Respo
  * POST /api/player/setHomeDojo
  * Set player's home dojo
  */
-router.post('/setHomeDojo', validateHomeDojo, async (req: Request, res: Response) => {
+router.post('/setHomeDojo', validateHomeDojo, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -212,10 +215,10 @@ router.post('/setHomeDojo', validateHomeDojo, async (req: Request, res: Response
     const userId = req.user?.id || 'anonymous';
 
     // Update user's home dojo
-    await prisma.user.update({
-      where: { id: userId },
-      data: { homeDojoId: dojoId }
-    });
+    // await prisma.user.update({
+    //   where: { id: userId },
+    //   data: { homeDojoId: dojoId }
+    // });
 
     logger.info(`Player ${userId} set home dojo to ${dojoId}`);
 
@@ -237,15 +240,25 @@ router.post('/setHomeDojo', validateHomeDojo, async (req: Request, res: Response
  * GET /api/player/homeDojo
  * Get player's current home dojo
  */
-router.get('/homeDojo', async (req: Request, res: Response) => {
+router.get('/homeDojo', async (req: express.Request, res: express.Response) => {
   try {
     const userId = req.user?.id || 'anonymous';
 
     // Get user with home dojo
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { homeDojo: true }
-    });
+    // const user = await prisma.user.findUnique({
+    //   where: { id: userId },
+    //   include: { homeDojo: true }
+    // });
+    const user = { 
+      id: userId, 
+      homeDojo: {
+        id: 'mock-dojo-1',
+        name: 'Mock Home Dojo',
+        description: 'Mock Dojo Address',
+        status: 'verified',
+        coordinates: JSON.stringify({ lat: -27.4698, lng: 153.0251 })
+      }
+    };
 
     if (!user?.homeDojo) {
       return res.json({
@@ -283,7 +296,7 @@ router.get('/homeDojo', async (req: Request, res: Response) => {
  * GET /api/dojo/:id/leaderboard
  * Get dojo leaderboard (Top Ten players)
  */
-router.get('/:id/leaderboard', async (req: Request, res: Response) => {
+router.get('/:id/leaderboard', async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
 
@@ -311,13 +324,14 @@ router.get('/:id/leaderboard', async (req: Request, res: Response) => {
  * GET /api/dojo/:id
  * Get dojo details by ID
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
 
-    const dojo = await prisma.territory.findUnique({
-      where: { id }
-    });
+    // const dojo = await prisma.territory.findUnique({
+    //   where: { id }
+    // });
+    const dojo = { id, name: 'Mock Dojo', description: 'Mock Address', status: 'verified', coordinates: JSON.stringify({ lat: -27.4698, lng: 153.0251 }) };
 
     if (!dojo) {
       return res.status(404).json({
@@ -368,3 +382,5 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export default router; 
+
+

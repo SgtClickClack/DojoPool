@@ -1,7 +1,9 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+
+const { Request, Response } = express;
 import { body, validationResult } from 'express-validator';
-import AdvancedTournamentManagementService from '../../services/tournament/AdvancedTournamentManagementService.ts';
-import { TournamentStatus, TournamentFormat } from '../../types/tournament.ts';
+import AdvancedTournamentManagementService from '../../config/monitoring.js';
+import { TournamentStatus, TournamentFormat } from '../../config/monitoring.js';
 
 const router = express.Router();
 const tournamentService = AdvancedTournamentManagementService.getInstance();
@@ -25,7 +27,7 @@ const validateMatchUpdate = [
 ];
 
 // GET /api/advanced-tournaments - Get all tournaments with filters
-router.get('/advanced-tournaments', async (req: Request, res: Response) => {
+router.get('/advanced-tournaments', async (req: express.Request, res: express.Response) => {
   try {
     const { venueId, status, format } = req.query;
     let tournaments = tournamentService.getAllTournaments();
@@ -56,7 +58,7 @@ router.get('/advanced-tournaments', async (req: Request, res: Response) => {
 });
 
 // GET /api/advanced-tournaments/:id - Get specific tournament
-router.get('/advanced-tournaments/:id', async (req: Request, res: Response) => {
+router.get('/advanced-tournaments/:id', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = tournamentService.getTournament(req.params.id);
     if (!tournament) {
@@ -87,7 +89,7 @@ router.get('/advanced-tournaments/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/advanced-tournaments - Create new tournament
-router.post('/advanced-tournaments', validateTournamentConfig, async (req: Request, res: Response) => {
+router.post('/advanced-tournaments', validateTournamentConfig, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -147,7 +149,7 @@ router.post('/advanced-tournaments', validateTournamentConfig, async (req: Reque
 });
 
 // POST /api/advanced-tournaments/:id/generate-bracket - Generate tournament bracket
-router.post('/advanced-tournaments/:id/generate-bracket', async (req: Request, res: Response) => {
+router.post('/advanced-tournaments/:id/generate-bracket', async (req: express.Request, res: express.Response) => {
   try {
     const bracket = await tournamentService.generateBracket(req.params.id);
     
@@ -168,7 +170,7 @@ router.post('/advanced-tournaments/:id/generate-bracket', async (req: Request, r
 // POST /api/advanced-tournaments/:id/register - Register player for tournament
 router.post('/advanced-tournaments/:id/register', [
   body('playerId').isString().notEmpty().withMessage('Player ID is required')
-], async (req: Request, res: Response) => {
+], async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -225,7 +227,7 @@ router.post('/advanced-tournaments/:id/register', [
 // POST /api/advanced-tournaments/:id/withdraw - Withdraw player from tournament
 router.post('/advanced-tournaments/:id/withdraw', [
   body('playerId').isString().notEmpty().withMessage('Player ID is required')
-], async (req: Request, res: Response) => {
+], async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -264,7 +266,7 @@ router.post('/advanced-tournaments/:id/withdraw', [
 });
 
 // POST /api/advanced-tournaments/:id/start - Start tournament
-router.post('/advanced-tournaments/:id/start', async (req: Request, res: Response) => {
+router.post('/advanced-tournaments/:id/start', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = tournamentService.getTournament(req.params.id);
     if (!tournament) {
@@ -301,7 +303,7 @@ router.post('/advanced-tournaments/:id/start', async (req: Request, res: Respons
 });
 
 // POST /api/advanced-tournaments/:id/complete - Complete tournament
-router.post('/advanced-tournaments/:id/complete', async (req: Request, res: Response) => {
+router.post('/advanced-tournaments/:id/complete', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = tournamentService.getTournament(req.params.id);
     if (!tournament) {
@@ -343,7 +345,7 @@ router.post('/advanced-tournaments/:id/update-match', [
   body('player1Score').isInt({ min: 0 }).withMessage('Player 1 score must be non-negative'),
   body('player2Score').isInt({ min: 0 }).withMessage('Player 2 score must be non-negative'),
   body('winnerId').isString().notEmpty().withMessage('Winner ID is required')
-], async (req: Request, res: Response) => {
+], async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -383,7 +385,7 @@ router.post('/advanced-tournaments/:id/update-match', [
 });
 
 // GET /api/advanced-tournaments/:id/analytics - Get tournament analytics
-router.get('/advanced-tournaments/:id/analytics', async (req: Request, res: Response) => {
+router.get('/advanced-tournaments/:id/analytics', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = tournamentService.getTournament(req.params.id);
     if (!tournament) {
@@ -417,7 +419,7 @@ router.get('/advanced-tournaments/:id/analytics', async (req: Request, res: Resp
 });
 
 // GET /api/advanced-tournaments/:id/insights - Get tournament insights
-router.get('/advanced-tournaments/:id/insights', async (req: Request, res: Response) => {
+router.get('/advanced-tournaments/:id/insights', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = tournamentService.getTournament(req.params.id);
     if (!tournament) {
@@ -451,7 +453,7 @@ router.get('/advanced-tournaments/:id/insights', async (req: Request, res: Respo
 });
 
 // GET /api/advanced-tournaments/:id/leaderboard - Get tournament leaderboard
-router.get('/advanced-tournaments/:id/leaderboard', async (req: Request, res: Response) => {
+router.get('/advanced-tournaments/:id/leaderboard', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = tournamentService.getTournament(req.params.id);
     if (!tournament) {
@@ -496,7 +498,7 @@ router.get('/advanced-tournaments/:id/leaderboard', async (req: Request, res: Re
 });
 
 // Health check
-router.get('/health', (req: Request, res: Response) => {
+router.get('/health', (req: express.Request, res: express.Response) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
@@ -505,3 +507,5 @@ router.get('/health', (req: Request, res: Response) => {
 });
 
 export default router; 
+
+

@@ -1,6 +1,6 @@
-import { AvatarProgressionService } from '../avatar/AvatarProgressionService';
-// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
-import { EnhancedTournamentService } from '../tournament/EnhancedTournamentService';
+import { AvatarProgressionService } from '';
+// import { realTimeAICommentaryService } from '.js';
+import { EnhancedTournamentService } from '';
 
 export interface NarrativeEvent {
   id: string;

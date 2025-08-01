@@ -1,4 +1,4 @@
-import { DojoService, DojoCandidate } from './DojoService';
+import { DojoService, DojoCandidate } from '.js';
 
 export interface OnboardingState {
   step: 'location' | 'choose-dojo' | 'complete';

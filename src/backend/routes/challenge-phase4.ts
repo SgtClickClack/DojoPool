@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger } from '../../config/monitoring';
+import { logger } from '../../config/monitoring.js';
 
 const router = express.Router();
 
@@ -40,7 +40,7 @@ const validateChallenge = [
  * POST /api/challenge/create
  * Create a new challenge
  */
-router.post('/create', validateChallenge, async (req: Request, res: Response) => {
+router.post('/create', validateChallenge, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -114,7 +114,7 @@ router.post('/create', validateChallenge, async (req: Request, res: Response) =>
  * GET /api/challenge/active
  * Get active challenges for current user
  */
-router.get('/active', async (req: Request, res: Response) => {
+router.get('/active', async (req: express.Request, res: express.Response) => {
   try {
     const userId = req.user?.id || 'anonymous';
 
@@ -140,7 +140,7 @@ router.get('/active', async (req: Request, res: Response) => {
  * POST /api/challenge/:id/accept
  * Accept a challenge
  */
-router.post('/:id/accept', async (req: Request, res: Response) => {
+router.post('/:id/accept', async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id || 'anonymous';
@@ -193,7 +193,7 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
  * POST /api/challenge/:id/decline
  * Decline a challenge
  */
-router.post('/:id/decline', async (req: Request, res: Response) => {
+router.post('/:id/decline', async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id || 'anonymous';
@@ -242,7 +242,7 @@ router.post('/:id/decline', async (req: Request, res: Response) => {
 router.post('/:id/complete', [
   body('winnerId').isString().trim().isLength({ min: 1 }),
   body('matchData').optional().isObject()
-], async (req: Request, res: Response) => {
+], async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -308,7 +308,7 @@ router.post('/:id/complete', [
  * GET /api/challenge/:id
  * Get challenge details
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
 
@@ -336,3 +336,5 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 export default router; 
+
+

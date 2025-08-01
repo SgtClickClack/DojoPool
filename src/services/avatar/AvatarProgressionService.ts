@@ -1,5 +1,5 @@
-import progressionService from '../progression/ProgressionService';
-import venueStoryService from '../venue/VenueStoryService';
+import progressionService from '';
+import venueStoryService from '';
 
 export interface StoryArc {
   id: string;

@@ -1,6 +1,6 @@
 // This service is frontend-only. Do not use in backend.
 import axios from 'axios';
-import { env } from '../config/environment';
+import { env } from '.js';
 
 // Create an axios instance with default config
 export const api = axios.create({

@@ -386,3 +386,5 @@ class AvatarProcessingService {
 }
 
 export default new AvatarProcessingService();
+
+

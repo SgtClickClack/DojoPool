@@ -11,3 +11,5 @@ export const validateRequest = (validations: ValidationChain[]) => {
     res.status(400).json({ errors: errors.array() });
   };
 }; 
+
+

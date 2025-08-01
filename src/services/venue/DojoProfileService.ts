@@ -1,4 +1,4 @@
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '';
 import { Socket, io } from 'socket.io-client';
 
 export interface VenueTheme {

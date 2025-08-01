@@ -216,7 +216,7 @@ router.post('/clans/:clanId/war/declare', async (req, res) => {
 });
 
 // Clan Management Routes
-router.get('/v1/clans/my-clan', (req: Request, res: Response) => {
+router.get('/v1/clans/my-clan', (req: express.Request, res: express.Response) => {
   // Mock user's clan (assuming user is in Dragon Slayers)
   const userClan = mockClans[0];
   res.json(userClan);
@@ -230,7 +230,7 @@ router.post('/v1/clans',
     body('isPublic').isBoolean(),
     body('requirements').isObject()
   ],
-  (req: Request, res: Response) => {
+  (req: express.Request, res: express.Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -282,7 +282,7 @@ router.put('/v1/clans/:clanId',
     body('description').optional().isString().isLength({ max: 500 }),
     body('isPublic').optional().isBoolean()
   ],
-  (req: Request, res: Response) => {
+  (req: express.Request, res: express.Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -303,7 +303,7 @@ router.put('/v1/clans/:clanId',
   }
 );
 
-router.post('/v1/clans/:clanId/leave', (req: Request, res: Response) => {
+router.post('/v1/clans/:clanId/leave', (req: express.Request, res: express.Response) => {
   const { clanId } = req.params;
   
   // Mock leaving clan
@@ -311,7 +311,7 @@ router.post('/v1/clans/:clanId/leave', (req: Request, res: Response) => {
 });
 
 // Clan Members Routes
-router.get('/v1/clans/:clanId/members', (req: Request, res: Response) => {
+router.get('/v1/clans/:clanId/members', (req: express.Request, res: express.Response) => {
   const { clanId } = req.params;
   
   // Mock clan members
@@ -322,7 +322,7 @@ router.put('/v1/clans/:clanId/members/:memberId/promote',
   [
     body('role').isIn(['officer', 'member', 'recruit'])
   ],
-  (req: Request, res: Response) => {
+  (req: express.Request, res: express.Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -341,7 +341,7 @@ router.put('/v1/clans/:clanId/members/:memberId/promote',
   }
 );
 
-router.delete('/v1/clans/:clanId/members/:memberId/kick', (req: Request, res: Response) => {
+router.delete('/v1/clans/:clanId/members/:memberId/kick', (req: express.Request, res: express.Response) => {
   const { clanId, memberId } = req.params;
   
   // Mock kicking member
@@ -354,7 +354,7 @@ router.delete('/v1/clans/:clanId/members/:memberId/kick', (req: Request, res: Re
 });
 
 // Clan Wars Routes
-router.get('/v1/clans/wars/active', (req: Request, res: Response) => {
+router.get('/v1/clans/wars/active', (req: express.Request, res: express.Response) => {
   // Mock active clan wars
   res.json(mockClanWars);
 });
@@ -368,7 +368,7 @@ router.post('/v1/clans/wars/declare',
     body('endDate').isISO8601(),
     body('rewards').isObject()
   ],
-  (req: Request, res: Response) => {
+  (req: express.Request, res: express.Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -404,7 +404,7 @@ router.post('/v1/clans/wars/declare',
   }
 );
 
-router.post('/v1/clans/wars/:warId/accept', (req: Request, res: Response) => {
+router.post('/v1/clans/wars/:warId/accept', (req: express.Request, res: express.Response) => {
   const { warId } = req.params;
   
   const war = mockClanWars.find(w => w.id === warId);
@@ -423,7 +423,7 @@ router.post('/v1/clans/wars/:warId/matches',
     body('score').isString().notEmpty(),
     body('territory').isString().notEmpty()
   ],
-  (req: Request, res: Response) => {
+  (req: express.Request, res: express.Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -454,7 +454,7 @@ router.post('/v1/clans/wars/:warId/matches',
 );
 
 // Clan Invites Routes
-router.get('/v1/clans/invites', (req: Request, res: Response) => {
+router.get('/v1/clans/invites', (req: express.Request, res: express.Response) => {
   // Mock clan invites
   res.json(mockClanInvites);
 });
@@ -464,7 +464,7 @@ router.post('/v1/clans/:clanId/invite',
     body('targetUserId').isString().notEmpty(),
     body('message').optional().isString()
   ],
-  (req: Request, res: Response) => {
+  (req: express.Request, res: express.Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -496,7 +496,7 @@ router.post('/v1/clans/:clanId/invite',
   }
 );
 
-router.post('/v1/clans/invites/:inviteId/accept', (req: Request, res: Response) => {
+router.post('/v1/clans/invites/:inviteId/accept', (req: express.Request, res: express.Response) => {
   const { inviteId } = req.params;
   
   // Mock accepting clan invite
@@ -508,7 +508,7 @@ router.post('/v1/clans/invites/:inviteId/accept', (req: Request, res: Response) 
   res.json({ success: true });
 });
 
-router.post('/v1/clans/invites/:inviteId/decline', (req: Request, res: Response) => {
+router.post('/v1/clans/invites/:inviteId/decline', (req: express.Request, res: express.Response) => {
   const { inviteId } = req.params;
   
   // Mock declining clan invite
@@ -521,7 +521,7 @@ router.post('/v1/clans/invites/:inviteId/decline', (req: Request, res: Response)
 });
 
 // Clan Discovery Routes
-router.get('/v1/clans/search', (req: Request, res: Response) => {
+router.get('/v1/clans/search', (req: express.Request, res: express.Response) => {
   const { q } = req.query;
   
   if (!q || typeof q !== 'string') {
@@ -537,7 +537,7 @@ router.get('/v1/clans/search', (req: Request, res: Response) => {
   res.json(results);
 });
 
-router.get('/v1/clans/top', (req: Request, res: Response) => {
+router.get('/v1/clans/top', (req: express.Request, res: express.Response) => {
   const { limit = 10 } = req.query;
   
   const topClans = mockClans
@@ -556,3 +556,5 @@ router.get('/clans/:clanId/members', (req, res) => {
 });
 
 export default router; 
+
+

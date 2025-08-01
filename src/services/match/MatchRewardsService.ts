@@ -1,4 +1,4 @@
-import { MatchData, MatchAnalytics } from './MatchDataService';
+import { MatchData, MatchAnalytics } from '.js';
 
 export interface MatchRewards {
   experience: number;

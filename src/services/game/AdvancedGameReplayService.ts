@@ -1,4 +1,4 @@
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '';
 import { io, Socket } from 'socket.io-client';
 
 export interface ReplayEvent {

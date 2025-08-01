@@ -1,7 +1,7 @@
-import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
-// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
-import { NFTWalletService } from '../wallet/NFTWalletService';
-import { TerritoryGameplayService } from '../territory/TerritoryGameplayService';
+import { Tournament, TournamentParticipant, TournamentMatch, TournamentFormat, TournamentStatus, MatchStatus } from '';
+// import { realTimeAICommentaryService } from '.js';
+import { NFTWalletService } from '';
+import { TerritoryGameplayService } from '';
 
 export interface TournamentReward {
   type: 'dojo_coins' | 'nft_trophy' | 'territory_claim' | 'avatar_upgrade' | 'clan_points';

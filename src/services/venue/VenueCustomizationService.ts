@@ -1,4 +1,4 @@
-import { TextGenerationService } from '../ai/TextGenerationService';
+import { TextGenerationService } from '';
 
 export interface VenueCustomizationOptions {
   venueName: string;

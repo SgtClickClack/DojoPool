@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
-import { Tournament, TournamentMatch, TournamentParticipant } from '../../types/tournament';
-import { RealTimeMatchService, RealTimeMatchData, ShotData, RefereeDecision } from './RealTimeMatchService';
-import { TournamentAnalyticsService } from './TournamentAnalyticsService';
+import { Tournament, TournamentMatch, TournamentParticipant } from '';
+import { RealTimeMatchService, RealTimeMatchData, ShotData, RefereeDecision } from '';
+import { TournamentAnalyticsService } from '';
 
 export interface StreamConfig {
   quality: 'low' | 'medium' | 'high' | 'ultra';

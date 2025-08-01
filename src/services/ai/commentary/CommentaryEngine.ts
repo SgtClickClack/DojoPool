@@ -1,6 +1,6 @@
-import { BaseService } from '../../core/BaseService';
-import { logger } from '../../../config/monitoring';
-import { CommentaryEventContext, ShotEventContext } from '../../../types/common';
+import { BaseService } from '.js';
+import { logger } from '.js';
+import { CommentaryEventContext, ShotEventContext } from '.js';
 
 /**
  * CommentaryEngine - Focused service for generating AI commentary

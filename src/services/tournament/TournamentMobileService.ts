@@ -1,4 +1,4 @@
-import { Tournament, TournamentMatch, TournamentParticipant, User } from '../../types/tournament';
+import { Tournament, TournamentMatch, TournamentParticipant, User } from '';
 
 export interface MobileNotification {
   id: string;

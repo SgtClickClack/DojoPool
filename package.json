@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "concurrently \"next dev\" \"npm run dev:backend\"",
     "start": "npx ts-node --esm src/backend/index.ts",
-    "dev:backend": "nodemon --watch src/backend --ext ts --exec \"npx ts-node --project tsconfig.backend.json --require=ts-node/register src/backend/index.ts\"",
+    "dev:backend": "nodemon --watch src/backend --ext ts --exec \"node --loader ts-node/esm --no-warnings src/backend/index.ts\"",
     "build": "next build",
     "preview": "next start",
     "test": "vitest",
@@ -85,6 +85,7 @@
     "html-escaper": "3.0.3",
     "ioredis": "5.6.1",
     "jest-axe": "10.0.0",
+    "jsdom": "26.1.0",
     "jsonwebtoken": "9.0.2",
     "k6": "0.0.0",
     "morgan": "1.10.1",

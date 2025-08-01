@@ -1,6 +1,6 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { body, validationResult } from 'express-validator';
-import { passiveIncomeService } from '../../services/economy/PassiveIncomeService.ts';
+import { passiveIncomeService } from '../../services/economy/PassiveIncomeService.js';
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ const validateActivityUpdate = [
  * Register a territory for passive income
  * POST /api/passive-income/territories
  */
-router.post('/territories', validateTerritoryRegistration, async (req: Request, res: Response) => {
+router.post('/territories', validateTerritoryRegistration, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -57,7 +57,7 @@ router.post('/territories', validateTerritoryRegistration, async (req: Request, 
  * Get income information for a territory
  * GET /api/passive-income/territories/:territoryId
  */
-router.get('/territories/:territoryId', async (req: Request, res: Response) => {
+router.get('/territories/:territoryId', async (req: express.Request, res: express.Response) => {
   try {
     const { territoryId } = req.params;
     
@@ -87,7 +87,7 @@ router.get('/territories/:territoryId', async (req: Request, res: Response) => {
  * Get all territory incomes
  * GET /api/passive-income/territories
  */
-router.get('/territories', async (req: Request, res: Response) => {
+router.get('/territories', async (req: express.Request, res: express.Response) => {
   try {
     const territoryIncomes = passiveIncomeService.getAllTerritoryIncomes();
     
@@ -108,7 +108,7 @@ router.get('/territories', async (req: Request, res: Response) => {
  * Update venue activity for a territory
  * PUT /api/passive-income/territories/:territoryId/activity
  */
-router.put('/territories/:territoryId/activity', validateActivityUpdate, async (req: Request, res: Response) => {
+router.put('/territories/:territoryId/activity', validateActivityUpdate, async (req: express.Request, res: express.Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -141,7 +141,7 @@ router.put('/territories/:territoryId/activity', validateActivityUpdate, async (
  * Get payout history for a territory
  * GET /api/passive-income/territories/:territoryId/payouts
  */
-router.get('/territories/:territoryId/payouts', async (req: Request, res: Response) => {
+router.get('/territories/:territoryId/payouts', async (req: express.Request, res: express.Response) => {
   try {
     const { territoryId } = req.params;
     
@@ -164,7 +164,7 @@ router.get('/territories/:territoryId/payouts', async (req: Request, res: Respon
  * Get total earnings for a user
  * GET /api/passive-income/users/:userId/earnings
  */
-router.get('/users/:userId/earnings', async (req: Request, res: Response) => {
+router.get('/users/:userId/earnings', async (req: express.Request, res: express.Response) => {
   try {
     const { userId } = req.params;
     
@@ -190,7 +190,7 @@ router.get('/users/:userId/earnings', async (req: Request, res: Response) => {
  * Get passive income configuration
  * GET /api/passive-income/config
  */
-router.get('/config', async (req: Request, res: Response) => {
+router.get('/config', async (req: express.Request, res: express.Response) => {
   try {
     const config = passiveIncomeService.getConfig();
     
@@ -211,7 +211,7 @@ router.get('/config', async (req: Request, res: Response) => {
  * Update passive income configuration (admin only)
  * PUT /api/passive-income/config
  */
-router.put('/config', async (req: Request, res: Response) => {
+router.put('/config', async (req: express.Request, res: express.Response) => {
   try {
     const { baseRate, territoryBonus, venueActivityBonus, clanBonus, maxIncomePerHour, payoutInterval } = req.body;
     
@@ -243,7 +243,7 @@ router.put('/config', async (req: Request, res: Response) => {
  * Start passive income system
  * POST /api/passive-income/start
  */
-router.post('/start', async (req: Request, res: Response) => {
+router.post('/start', async (req: express.Request, res: express.Response) => {
   try {
     passiveIncomeService.startPayoutSystem();
     
@@ -264,7 +264,7 @@ router.post('/start', async (req: Request, res: Response) => {
  * Stop passive income system
  * POST /api/passive-income/stop
  */
-router.post('/stop', async (req: Request, res: Response) => {
+router.post('/stop', async (req: express.Request, res: express.Response) => {
   try {
     passiveIncomeService.stopPayoutSystem();
     
@@ -285,7 +285,7 @@ router.post('/stop', async (req: Request, res: Response) => {
  * Get passive income statistics
  * GET /api/passive-income/stats
  */
-router.get('/stats', async (req: Request, res: Response) => {
+router.get('/stats', async (req: express.Request, res: express.Response) => {
   try {
     const territoryIncomes = passiveIncomeService.getAllTerritoryIncomes();
     
@@ -314,3 +314,5 @@ router.get('/stats', async (req: Request, res: Response) => {
 });
 
 export default router; 
+
+

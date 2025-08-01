@@ -3,8 +3,8 @@
  * Replaces hardcoded password with proper server-side authentication
  */
 
-import { Router, Request, Response } from 'express';
-import { InvestorAuthService } from '../../services/auth/InvestorAuthService.ts';
+import express, { Router } from 'express';
+import { InvestorAuthService } from '../../services/auth/InvestorAuthService.js';
 
 const router = Router();
 
@@ -12,7 +12,7 @@ const router = Router();
  * POST /api/investor/auth/login
  * Authenticate investor user
  */
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', async (req: express.Request, res: express.Response) => {
   try {
     const { email, password } = req.body;
 
@@ -62,7 +62,7 @@ router.post('/login', async (req: Request, res: Response) => {
  * POST /api/investor/auth/logout
  * Logout investor user
  */
-router.post('/logout', (req: Request, res: Response) => {
+router.post('/logout', (req: express.Request, res: express.Response) => {
   res.clearCookie('investor_token');
   res.json({ success: true });
 });
@@ -71,7 +71,7 @@ router.post('/logout', (req: Request, res: Response) => {
  * GET /api/investor/auth/verify
  * Verify current authentication status
  */
-router.get('/verify', (req: Request, res: Response) => {
+router.get('/verify', (req: express.Request, res: express.Response) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '') || req.cookies?.investor_token;
 
@@ -122,7 +122,7 @@ router.get('/verify', (req: Request, res: Response) => {
  * POST /api/investor/auth/refresh
  * Refresh authentication token
  */
-router.post('/refresh', (req: Request, res: Response) => {
+router.post('/refresh', (req: express.Request, res: express.Response) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '') || req.cookies?.investor_token;
 
@@ -170,3 +170,5 @@ router.post('/refresh', (req: Request, res: Response) => {
 });
 
 export default router; 
+
+

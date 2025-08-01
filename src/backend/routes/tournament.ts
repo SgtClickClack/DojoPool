@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 
 const router = express.Router();
 
@@ -62,7 +62,7 @@ const mockTournaments: Tournament[] = [
 ];
 
 // GET /api/tournaments - all tournaments
-router.get('/tournaments', async (req: Request, res: Response) => {
+router.get('/tournaments', async (req: express.Request, res: express.Response) => {
   try {
     const { venueId, status } = req.query;
     
@@ -83,7 +83,7 @@ router.get('/tournaments', async (req: Request, res: Response) => {
 });
 
 // GET /api/tournaments/:id - single tournament
-router.get('/tournaments/:id', async (req: Request, res: Response) => {
+router.get('/tournaments/:id', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = mockTournaments.find(t => t.id === req.params.id);
     if (!tournament) return res.status(404).json({ success: false, error: 'Tournament not found' });
@@ -94,7 +94,7 @@ router.get('/tournaments/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/tournaments - create a new tournament
-router.post('/tournaments', async (req: Request, res: Response) => {
+router.post('/tournaments', async (req: express.Request, res: express.Response) => {
   try {
     const { name, format, venueId, startDate, endDate, maxParticipants, entryFee, prizePool } = req.body;
     if (!name || !format || !venueId || !startDate || !endDate || !maxParticipants || !entryFee || !prizePool) {
@@ -127,7 +127,7 @@ router.post('/tournaments', async (req: Request, res: Response) => {
 });
 
 // POST /api/tournaments/:id/register - register for tournament
-router.post('/tournaments/:id/register', async (req: Request, res: Response) => {
+router.post('/tournaments/:id/register', async (req: express.Request, res: express.Response) => {
   try {
     const { participantId } = req.body;
     if (!participantId) {
@@ -157,7 +157,7 @@ router.post('/tournaments/:id/register', async (req: Request, res: Response) => 
 });
 
 // POST /api/tournaments/:id/withdraw - withdraw from tournament
-router.post('/tournaments/:id/withdraw', async (req: Request, res: Response) => {
+router.post('/tournaments/:id/withdraw', async (req: express.Request, res: express.Response) => {
   try {
     const { participantId } = req.body;
     if (!participantId) {
@@ -184,7 +184,7 @@ router.post('/tournaments/:id/withdraw', async (req: Request, res: Response) => 
 });
 
 // GET /api/tournaments/:id/participants - get tournament participants
-router.get('/tournaments/:id/participants', async (req: Request, res: Response) => {
+router.get('/tournaments/:id/participants', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = mockTournaments.find(t => t.id === req.params.id);
     if (!tournament) return res.status(404).json({ success: false, error: 'Tournament not found' });
@@ -198,7 +198,7 @@ router.get('/tournaments/:id/participants', async (req: Request, res: Response) 
 });
 
 // GET /api/tournaments/:id/bracket - get tournament bracket
-router.get('/tournaments/:id/bracket', async (req: Request, res: Response) => {
+router.get('/tournaments/:id/bracket', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = mockTournaments.find(t => t.id === req.params.id);
     if (!tournament) return res.status(404).json({ success: false, error: 'Tournament not found' });
@@ -218,7 +218,7 @@ router.get('/tournaments/:id/bracket', async (req: Request, res: Response) => {
 });
 
 // POST /api/tournaments/:id/generate-bracket - generate tournament bracket
-router.post('/tournaments/:id/generate-bracket', async (req: Request, res: Response) => {
+router.post('/tournaments/:id/generate-bracket', async (req: express.Request, res: express.Response) => {
   try {
     const tournament = mockTournaments.find(t => t.id === req.params.id);
     if (!tournament) return res.status(404).json({ success: false, error: 'Tournament not found' });
@@ -249,7 +249,7 @@ router.post('/tournaments/:id/generate-bracket', async (req: Request, res: Respo
 });
 
 // POST /api/tournaments/:id/matches/:matchId/result - submit match result
-router.post('/tournaments/:id/matches/:matchId/result', async (req: Request, res: Response) => {
+router.post('/tournaments/:id/matches/:matchId/result', async (req: express.Request, res: express.Response) => {
   try {
     const { winnerId, loserId, player1Score, player2Score } = req.body;
     if (!winnerId || !loserId) {
@@ -270,3 +270,5 @@ router.post('/tournaments/:id/matches/:matchId/result', async (req: Request, res
 });
 
 export default router; 
+
+

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
-import { realTimeAICommentaryService } from './RealTimeAICommentaryService';
-import AdvancedMatchCommentaryService from './AdvancedMatchCommentaryService';
+import { realTimeAICommentaryService } from '.js';
+import AdvancedMatchCommentaryService from '.js';
 
 export interface HighlightGenerationRequest {
   matchId: string;

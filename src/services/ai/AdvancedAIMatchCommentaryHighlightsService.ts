@@ -1,7 +1,7 @@
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
-import { realTimeAICommentaryService } from './RealTimeAICommentaryService';
-import AdvancedMatchCommentaryService from './AdvancedMatchCommentaryService';
-import AIPoweredCommentaryHighlightsService from './AIPoweredCommentaryHighlightsService';
+import { BrowserEventEmitter } from '';
+import { realTimeAICommentaryService } from '.js';
+import AdvancedMatchCommentaryService from '.js';
+import AIPoweredCommentaryHighlightsService from '.js';
 
 export interface AdvancedCommentaryEvent {
   id: string;

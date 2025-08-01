@@ -1,7 +1,7 @@
-import { BallState, GameTable, Pocket } from '../../core/game/GameState';
-import { ShotAnalysisData } from '../../core/game/GameState'; // Assuming this type exists or will be defined
-import { Vector2D } from '../../types/geometry';
-import { skyT1AnalyzeShot } from './skyT1Client'; // Hypothetical import for Sky-T1
+import { BallState, GameTable, Pocket } from '.js';
+import { ShotAnalysisData } from '.js'; // Assuming this type exists or will be defined
+import { Vector2D } from '.js';
+import { skyT1AnalyzeShot } from '.js'; // Hypothetical import for Sky-T1
 
 /**
  * Helper function to determine ball type.

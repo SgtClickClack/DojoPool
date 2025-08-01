@@ -20,7 +20,7 @@ import {
   TournamentBracket,
   User,
   Venue
-} from '../../types/tournament';
+} from '';
 
 export class UnifiedTournamentService {
   private tournaments: Map<number, TournamentBracket> = new Map();

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { logger } from '../config/monitoring';
+import { logger } from '.js';
 
 export interface PlayerSkillProfile {
   playerId: string;

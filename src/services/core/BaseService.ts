@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
-import { logger } from '../../config/monitoring';
+import { logger } from '.js';
 
 /**
  * Standard configuration interface for all services

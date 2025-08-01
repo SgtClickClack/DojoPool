@@ -1,7 +1,7 @@
 // Advanced AI Referee & Rule Enforcement Service
 // This service provides comprehensive AI-powered referee functionality for the DojoPool platform
 
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '';
 
 export interface RuleViolation {
   id: string;

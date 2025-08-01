@@ -1,4 +1,4 @@
-// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '.js';
 
 export interface Venue {
   id: string;

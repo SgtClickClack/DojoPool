@@ -1,4 +1,4 @@
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '';
 
 export interface TournamentChallenge {
   id: string;

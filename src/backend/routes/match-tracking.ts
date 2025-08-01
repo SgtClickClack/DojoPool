@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger } from '../../config/monitoring';
-import { challenges } from '../../services/challengeStorage';
+import { logger } from '../../config/monitoring.js';
+import { challenges } from '../../services/challengeStorage.js';
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ const emitFoulDetected = (matchId: string, foulData: any) => {
 /**
  * Start match tracking for an accepted challenge
  */
-router.post('/match/start', async (req: Request, res: Response) => {
+router.post('/match/start', async (req: express.Request, res: express.Response) => {
   try {
     const { challengeId } = req.body;
     
@@ -104,7 +104,7 @@ router.post('/match/start', async (req: Request, res: Response) => {
 /**
  * Activate match (start the actual game)
  */
-router.post('/match/:matchId/activate', async (req: Request, res: Response) => {
+router.post('/match/:matchId/activate', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     
@@ -142,7 +142,7 @@ router.post('/match/:matchId/activate', async (req: Request, res: Response) => {
 /**
  * Record a shot during the match
  */
-router.post('/match/:matchId/shot', async (req: Request, res: Response) => {
+router.post('/match/:matchId/shot', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     const shotData = req.body;
@@ -213,7 +213,7 @@ router.post('/match/:matchId/shot', async (req: Request, res: Response) => {
 /**
  * Record a foul during the match
  */
-router.post('/match/:matchId/foul', async (req: Request, res: Response) => {
+router.post('/match/:matchId/foul', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     const foulData = req.body;
@@ -274,7 +274,7 @@ router.post('/match/:matchId/foul', async (req: Request, res: Response) => {
 /**
  * Complete match and record results
  */
-router.post('/match/:matchId/complete', async (req: Request, res: Response) => {
+router.post('/match/:matchId/complete', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     const { winnerId } = req.body;
@@ -350,7 +350,7 @@ router.post('/match/:matchId/complete', async (req: Request, res: Response) => {
 /**
  * Get match data
  */
-router.get('/match/:matchId', async (req: Request, res: Response) => {
+router.get('/match/:matchId', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     
@@ -380,7 +380,7 @@ router.get('/match/:matchId', async (req: Request, res: Response) => {
 /**
  * Get all active matches
  */
-router.get('/match/active', async (req: Request, res: Response) => {
+router.get('/match/active', async (req: express.Request, res: express.Response) => {
   try {
     const activeMatchesList = Array.from(activeMatches.values());
 
@@ -403,7 +403,7 @@ router.get('/match/active', async (req: Request, res: Response) => {
 /**
  * Get match analytics
  */
-router.get('/match/:matchId/analytics', async (req: Request, res: Response) => {
+router.get('/match/:matchId/analytics', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     
@@ -433,7 +433,7 @@ router.get('/match/:matchId/analytics', async (req: Request, res: Response) => {
 /**
  * Get match highlights
  */
-router.get('/match/:matchId/highlights', async (req: Request, res: Response) => {
+router.get('/match/:matchId/highlights', async (req: express.Request, res: express.Response) => {
   try {
     const { matchId } = req.params;
     
@@ -718,3 +718,5 @@ function calculateExcitementLevel(match: any): number {
 }
 
 export default router; 
+
+

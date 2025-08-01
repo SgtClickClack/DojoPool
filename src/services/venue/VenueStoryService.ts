@@ -1,4 +1,4 @@
-import progressionService from '../progression/ProgressionService';
+import progressionService from '';
 
 export interface VenueStory {
   id: string;

@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '';
 
 export interface Equipment {
   id: string;

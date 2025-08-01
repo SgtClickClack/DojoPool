@@ -132,38 +132,46 @@ export interface TournamentConfig {
   consolationRounds?: boolean;
 }
 
-export enum TournamentFormat {
-  SINGLE_ELIMINATION = 'single_elimination',
-  DOUBLE_ELIMINATION = 'double_elimination',
-  ROUND_ROBIN = 'round_robin',
-  SWISS = 'swiss',
-  CONSOLATION = 'consolation'
-}
+export const TournamentFormat = {
+  SINGLE_ELIMINATION: 'single_elimination',
+  DOUBLE_ELIMINATION: 'double_elimination',
+  ROUND_ROBIN: 'round_robin',
+  SWISS: 'swiss',
+  CONSOLATION: 'consolation'
+} as const;
 
-export enum TournamentStatus {
-  DRAFT = 'draft',
-  REGISTRATION = 'registration',
-  CHECK_IN = 'check_in',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
-}
+export type TournamentFormat = typeof TournamentFormat[keyof typeof TournamentFormat];
 
-export enum SeedingMethod {
-  RANDOM = 'random',
-  RATING = 'rating',
-  RANKING = 'ranking',
-  MANUAL = 'manual',
-  TOURNAMENT_HISTORY = 'tournament_history'
-}
+export const TournamentStatus = {
+  DRAFT: 'draft',
+  REGISTRATION: 'registration',
+  CHECK_IN: 'check_in',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+} as const;
 
-export enum MatchStatus {
-  PENDING = 'pending',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  BYE = 'bye',
-  FORFEIT = 'forfeit'
-}
+export type TournamentStatus = typeof TournamentStatus[keyof typeof TournamentStatus];
+
+export const SeedingMethod = {
+  RANDOM: 'random',
+  RATING: 'rating',
+  RANKING: 'ranking',
+  MANUAL: 'manual',
+  TOURNAMENT_HISTORY: 'tournament_history'
+} as const;
+
+export type SeedingMethod = typeof SeedingMethod[keyof typeof SeedingMethod];
+
+export const MatchStatus = {
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  BYE: 'bye',
+  FORFEIT: 'forfeit'
+} as const;
+
+export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
 
 // Import types that are referenced
 export interface User {

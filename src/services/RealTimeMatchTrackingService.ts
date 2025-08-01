@@ -1,6 +1,6 @@
-import { BrowserEventEmitter } from '../utils/BrowserEventEmitter';
+import { BrowserEventEmitter } from '.js';
 import { io, Socket } from 'socket.io-client';
-import { ChallengeService, Challenge } from './ChallengeService';
+import { ChallengeService, Challenge } from '.js';
 
 export interface MatchData {
   id: string;

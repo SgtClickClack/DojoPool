@@ -1,4 +1,4 @@
-import { clanSystemService, ClanWar } from './ClanSystemService';
+import { clanSystemService, ClanWar } from '.js';
 
 class ClanWarService {
   /**

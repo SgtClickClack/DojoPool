@@ -1,5 +1,5 @@
 import express from 'express';
-import AdvancedPlayerAnalyticsService from '../../services/analytics/AdvancedPlayerAnalyticsService.ts';
+import AdvancedPlayerAnalyticsService from '../../config/monitoring.js';
 
 const router = express.Router();
 const analyticsService = AdvancedPlayerAnalyticsService.getInstance();
@@ -274,3 +274,5 @@ router.get('/compare/:playerId', (req, res) => {
 });
 
 export default router; 
+
+

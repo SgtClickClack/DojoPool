@@ -1,5 +1,5 @@
-import axiosInstance from '../../frontend/api/axiosInstance'; // Corrected path
-import { Wallet, Transaction, WalletStats } from '../../types/wallet';
+import axiosInstance from '.js'; // Corrected path
+import { Wallet, Transaction, WalletStats } from '.js';
 import { ethers } from 'ethers';
 
 export interface WalletConnection {

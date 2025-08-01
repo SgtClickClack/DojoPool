@@ -1,5 +1,5 @@
-import { BrowserEventEmitter } from '../utils/BrowserEventEmitter';
-import { logger } from '../config/monitoring';
+import { BrowserEventEmitter } from '.js';
+import { logger } from '.js';
 
 export interface EnvironmentConfig {
   name: string;

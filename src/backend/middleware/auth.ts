@@ -1,31 +1,100 @@
-import { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: any;
+    user?: {
+      id: string;
+      email: string;
+      role: string;
+      clanId?: string;
+    };
   }
 }
 
+interface JWTPayload {
+  id: string;
+  email: string;
+  role: string;
+  clanId?: string;
+  iat?: number;
+  exp?: number;
+}
+
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  // Basic auth middleware - for now just pass through
-  // TODO: Implement proper authentication
-  next();
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Access denied. No token provided.' });
+    }
+
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
+    
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+      clanId: decoded.clanId
+    };
+    
+    next();
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid token.' });
+  }
 };
 
 export const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
-  // Phase 1: Basic authentication placeholder
-  // In production, this would validate JWT tokens, API keys, etc.
-  
-  // For now, just check if user exists in request
-  if (!req.body.userId && !req.query.userId) {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '') || 
+                  req.body.token || 
+                  req.query.token;
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
+    
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+      clanId: decoded.clanId
+    };
+    
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
+
+export const requireClanLeader = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   
-  // Add user info to request for downstream handlers
-  req.user = {
-    id: req.body.userId || req.query.userId,
-    // TODO: Add proper user data from token validation
-  };
+  if (req.user.role !== 'leader' && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Clan leader privileges required' });
+  }
   
   next();
-}; 
+};
+
+export const generateToken = (user: { id: string; email: string; role: string; clanId?: string }): string => {
+  const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      clanId: user.clanId
+    },
+    jwtSecret,
+    { expiresIn: '24h' }
+  );
+};
+
+

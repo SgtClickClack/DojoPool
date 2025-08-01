@@ -1,1 +1,1 @@
-export * from './network/WebSocketService';
+export * from '.js';

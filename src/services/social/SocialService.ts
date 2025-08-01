@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { EventEmitter } from 'events';
-import { Profile } from '../../types/profile';
+import { Profile } from '';
 
 // Define the base URL for social related API calls
 const SOCIAL_API_BASE_URL = process.env.REACT_APP_SOCIAL_API_BASE_URL || '/api/social';

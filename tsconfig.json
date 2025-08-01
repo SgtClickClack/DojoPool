@@ -53,7 +53,8 @@
   ],
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
       "target": "ES2020"

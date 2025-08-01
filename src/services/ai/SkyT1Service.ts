@@ -1,7 +1,7 @@
 import { OpenAI } from 'openai';
-import { config } from '../../config';
-import { logger } from '../../config/monitoring';
-import { GameEvent, GameState, RuleViolation } from '../../types/game';
+import { config } from '';
+import { logger } from '';
+import { GameEvent, GameState, RuleViolation } from '.js';
 
 export class SkyT1Service {
   private openai: OpenAI;

@@ -1,8 +1,8 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { body, validationResult } from 'express-validator';
-import { logger } from '../../config/monitoring.ts';
-import { challenges, matchResults } from '../../services/challengeStorage.ts';
-import { VenueLeaderboardService } from '../../services/venue/VenueLeaderboardService.ts';
+import { logger } from '../../config/monitoring.js';
+import { challenges, matchResults } from '../../services/challengeStorage.js';
+import { VenueLeaderboardService } from '../../services/venue/VenueLeaderboardService.js';
 import { Server } from 'socket.io';
 
 const userSocketMap = new Map<string, string>(); // userId -> socketId
@@ -159,7 +159,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Create a new challenge
-  router.post('/challenges/create', validateChallenge, async (req: Request, res: Response) => {
+  router.post('/challenges/create', validateChallenge, async (req: express.Request, res: express.Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -231,7 +231,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Get all challenges
-  router.get('/challenges', (req: Request, res: Response) => {
+  router.get('/challenges', (req: express.Request, res: express.Response) => {
     try {
       const challengesList = Array.from(challenges.values());
       res.json({
@@ -250,7 +250,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Get a specific challenge
-  router.get('/challenges/:challengeId', (req: Request, res: Response) => {
+  router.get('/challenges/:challengeId', (req: express.Request, res: express.Response) => {
     try {
       const { challengeId } = req.params;
       
@@ -279,7 +279,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Accept a challenge
-  router.put('/challenges/:challengeId/accept', async (req: Request, res: Response) => {
+  router.put('/challenges/:challengeId/accept', async (req: express.Request, res: express.Response) => {
     try {
       const { challengeId } = req.params;
       
@@ -338,7 +338,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Decline a challenge
-  router.put('/challenges/:challengeId/decline', async (req: Request, res: Response) => {
+  router.put('/challenges/:challengeId/decline', async (req: express.Request, res: express.Response) => {
     try {
       const { challengeId } = req.params;
       
@@ -397,7 +397,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Record match result
-  router.post('/challenges/:challengeId/record-result', validateMatchResult, async (req: Request, res: Response) => {
+  router.post('/challenges/:challengeId/record-result', validateMatchResult, async (req: express.Request, res: express.Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -497,7 +497,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Get match results
-  router.get('/match-results', (req: Request, res: Response) => {
+  router.get('/match-results', (req: express.Request, res: express.Response) => {
     try {
       const resultsList = Array.from(matchResults.values());
       res.json({
@@ -516,7 +516,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Get a specific match result
-  router.get('/match-results/:matchId', (req: Request, res: Response) => {
+  router.get('/match-results/:matchId', (req: express.Request, res: express.Response) => {
     try {
       const { matchId } = req.params;
       
@@ -545,7 +545,7 @@ const challengeRoutes = (io: Server) => {
   });
 
   // Clear test data
-  router.delete('/challenges/test-clear', (req: Request, res: Response) => {
+  router.delete('/challenges/test-clear', (req: express.Request, res: express.Response) => {
     try {
       challenges.clear();
       matchResults.clear();
@@ -572,3 +572,5 @@ const challengeRoutes = (io: Server) => {
 };
 
 export default challengeRoutes; 
+
+

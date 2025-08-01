@@ -1,4 +1,4 @@
-import { MatchData, MatchEvent, MatchHighlight } from './MatchDataService';
+import { MatchData, MatchEvent, MatchHighlight } from '.js';
 
 export class MatchHighlightsService {
   async generateHighlights(match: MatchData): Promise<MatchHighlight[]> {

@@ -1,6 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { VenueCustomizationService, VenueCustomizationOptions, GeneratedVenueAttributes } from '../../services/venue/VenueCustomizationService';
-import { logger } from '../../config/monitoring';
+import express, { Router } from 'express';
+import { VenueCustomizationService, VenueCustomizationOptions, GeneratedVenueAttributes } from '../../config/monitoring.js';
+import { logger } from '../../config/monitoring.js';
 
 const router = Router();
 const venueCustomizationService = new VenueCustomizationService();
@@ -9,7 +9,7 @@ const venueCustomizationService = new VenueCustomizationService();
  * Generate venue customization preview
  * POST /api/venue-customization/preview
  */
-router.post('/preview', async (req: Request, res: Response) => {
+router.post('/preview', async (req: express.Request, res: express.Response) => {
   try {
     const options: VenueCustomizationOptions = req.body;
     
@@ -48,7 +48,7 @@ router.post('/preview', async (req: Request, res: Response) => {
  * Apply venue customization
  * PUT /api/venues/:venueId/customization
  */
-router.put('/:venueId/customization', async (req: Request, res: Response) => {
+router.put('/:venueId/customization', async (req: express.Request, res: express.Response) => {
   try {
     const { venueId } = req.params;
     const customization: GeneratedVenueAttributes = req.body;
@@ -87,7 +87,7 @@ router.put('/:venueId/customization', async (req: Request, res: Response) => {
  * Generate and apply venue customization in one step
  * POST /api/venues/:venueId/customization/generate
  */
-router.post('/:venueId/customization/generate', async (req: Request, res: Response) => {
+router.post('/:venueId/customization/generate', async (req: express.Request, res: express.Response) => {
   try {
     const { venueId } = req.params;
     const options: VenueCustomizationOptions = req.body;
@@ -139,7 +139,7 @@ router.post('/:venueId/customization/generate', async (req: Request, res: Respon
  * Get venue customization
  * GET /api/venues/:venueId/customization
  */
-router.get('/:venueId/customization', async (req: Request, res: Response) => {
+router.get('/:venueId/customization', async (req: express.Request, res: express.Response) => {
   try {
     const { venueId } = req.params;
     
@@ -226,3 +226,5 @@ router.get('/:venueId/customization', async (req: Request, res: Response) => {
 });
 
 export default router; 
+
+

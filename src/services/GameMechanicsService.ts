@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
-import { ChallengeService } from './ChallengeService';
-import progressionService from './progression/ProgressionService';
-import gameStateService, { GameStateService, GameState } from './game/GameStateService';
-import advancedTournamentService, { AdvancedTournamentService, CreateTournamentData } from './game/AdvancedTournamentService';
-import PlayerMovementService from './game/PlayerMovementService';
+import { ChallengeService } from '.js';
+import progressionService from '.js';
+import gameStateService, { GameStateService, GameState } from '.js';
+import advancedTournamentService, { AdvancedTournamentService, CreateTournamentData } from '.js';
+import PlayerMovementService from '.js';
 
 export interface TerritoryControl {
   dojoId: string;

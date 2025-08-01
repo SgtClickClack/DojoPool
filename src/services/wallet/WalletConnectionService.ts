@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { env } from '../../config/environment';
+import { env } from '.js';
 
 // Add this for type safety
 declare global {

@@ -1,50 +1,62 @@
+process.on('uncaughtException', (err, origin) => {
+  console.error('----- UNCAUGHT EXCEPTION -----');
+  console.error('Caught exception:', err, 'Exception origin:', origin);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('----- UNHANDLED REJECTION -----');
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import { logger, httpLogger, errorLogger, performanceLogger, metricsMiddleware, healthCheck, gracefulShutdown } from '../config/monitoring';
+import { logger, httpLogger, errorLogger, performanceLogger, metricsMiddleware, healthCheck, gracefulShutdown } from '../config/monitoring.js';
 import rateLimit from 'express-rate-limit';
-import { body, validationResult, ValidationChain } from 'express-validator'; // Import ValidationChain
+import { body, validationResult } from 'express-validator';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import cors from 'cors'; // If you need CORS
 import { createProxyMiddleware } from 'http-proxy-middleware';
-// import { NarrativeEventSystem } from '../services/narrative/NarrativeEventSystem.ts';
-// import blockchainRoutes from './routes/blockchain.ts';
-// import venueRoutes from './routes/venue.ts';
-// import economyRoutes from './routes/economy.ts';
-import socialRoutes from './routes/social.js';
-// import clanRoutes from './routes/clan.js';
-import territoryRoutes from './routes/territory.js';
-import userNftsRoutes from './routes/userNfts.js';
+// import { NarrativeEventSystem } from '.ts';
+// import blockchainRoutes from '.ts';
+// import venueRoutes from '.ts';
+// import economyRoutes from '.ts';
+// import socialRoutes from './routes/social.js';
+// import clanRoutes from '.ts';
+// import territoryRoutes from './routes/territory.js';
+// import userNftsRoutes from './routes/userNfts.js';
 import challengeRoutes from './routes/challenge.js';
-import tournamentRoutes from './routes/tournament.js';
-import passiveIncomeRoutes from './routes/passive-income.js';
-import enhancedSocialRoutes from './routes/enhanced-social.js';
-import advancedTournamentRoutes from './routes/advanced-tournament.js';
-import advancedPlayerAnalyticsRoutes from './routes/advanced-player-analytics.js';
-import advancedVenueManagementRoutes from './routes/advanced-venue-management.js';
-import advancedSocialCommunityRoutes from './routes/advanced-social-community.js';
-import investorAuthRoutes from './routes/investor-auth.js';
-import venueCustomizationRoutes from './routes/venue-customization.js';
+// import tournamentRoutes from './routes/tournament.js';
+// import passiveIncomeRoutes from './routes/passive-income.js';
+// import enhancedSocialRoutes from '.js';
+// import advancedTournamentRoutes from '.js';
+// import advancedPlayerAnalyticsRoutes from '.js';
+// import advancedVenueManagementRoutes from '.js';
+// import advancedSocialCommunityRoutes from '.js';
+// import investorAuthRoutes from './routes/investor-auth.js';
+// import venueCustomizationRoutes from './routes/venue-customization.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 // import morgan from 'morgan';
 import { config } from 'dotenv';
-// import { errorHandler } from './middleware/errorHandler.ts';
-// import { authMiddleware } from './middleware/auth.ts';
-// import { validateRequest } from './middleware/validation.ts';
+// import { errorHandler } from '.ts';
+// import { authMiddleware } from '.ts';
+// import { validateRequest } from '.ts';
 import { param, query } from 'express-validator';
-import venueLeaderboardRoutes from './routes/venue-leaderboard.js';
-import { venueLeaderboardService } from '../services/venue/VenueLeaderboardService.js';
-import advancedAnalyticsRoutes from './routes/advanced-analytics.js';
-import { advancedAnalyticsService } from '../services/analytics/AdvancedAnalyticsService.js';
-import highlightsRoutes from './routes/highlights.js';
-import dojoRoutes from './routes/dojo.js';
-import challengePhase4Routes from './routes/challenge-phase4.js';
-import playerRoutes from './routes/player.js';
-import matchTrackingRoutes from './routes/match-tracking.js';
-// import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration.ts';
+// import venueLeaderboardRoutes from '.js';
+// import { venueLeaderboardService } from '.js';
+// import advancedAnalyticsRoutes from '.js';
+// import { advancedAnalyticsService } from '.js';
+// import highlightsRoutes from './routes/highlights.js';
+// import dojoRoutes from './routes/dojo.js';
+// import challengePhase4Routes from './routes/challenge-phase4.js';
+// import playerRoutes from './routes/player.js';
+// import matchTrackingRoutes from './routes/match-tracking.js';
+// import { advancedBlockchainIntegrationRouter } from '.ts';
 
 // Load environment variables
 config();
@@ -145,7 +157,7 @@ app.use(httpLogger);
 app.use(performanceLogger);
 
 // --- API Routes ---
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (req: express.Request, res: express.Response) => {
   res.send('DojoPool Platform Backend API');
 });
 
@@ -154,27 +166,27 @@ app.get('/api/health', healthCheck);
 
 // Register routes
 app.use('/api/challenge', challengeRoutes(io));
-app.use('/api', socialRoutes);
-app.use('/api', territoryRoutes);
-app.use('/api', userNftsRoutes);
-app.use('/api', tournamentRoutes);
-app.use('/api/passive-income', passiveIncomeRoutes);
-app.use('/api/venue-leaderboard', venueLeaderboardRoutes);
-app.use('/api/advanced-analytics', advancedAnalyticsRoutes);
-app.use('/api/analytics', advancedAnalyticsRoutes);
-app.use('/api/highlights', highlightsRoutes);
-app.use('/api/enhanced-social', enhancedSocialRoutes);
-app.use('/api/advanced-tournaments', advancedTournamentRoutes);
-app.use('/api/advanced-player-analytics', advancedPlayerAnalyticsRoutes);
-app.use('/api/advanced-venue-management', advancedVenueManagementRoutes);
+// app.use('/api', socialRoutes);
+// app.use('/api', territoryRoutes);
+// app.use('/api', userNftsRoutes);
+// app.use('/api', tournamentRoutes);
+// app.use('/api/passive-income', passiveIncomeRoutes);
+// app.use('/api/venue-leaderboard', venueLeaderboardRoutes);
+// app.use('/api/advanced-analytics', advancedAnalyticsRoutes);
+// app.use('/api/analytics', advancedAnalyticsRoutes);
+// app.use('/api/highlights', highlightsRoutes);
+// app.use('/api/enhanced-social', enhancedSocialRoutes);
+// app.use('/api/advanced-tournaments', advancedTournamentRoutes);
+// app.use('/api/advanced-player-analytics', advancedPlayerAnalyticsRoutes);
+// app.use('/api/advanced-venue-management', advancedVenueManagementRoutes);
 // app.use('/api/advanced-blockchain-integration', advancedBlockchainIntegrationRouter);
-app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
-app.use('/api/dojo', dojoRoutes);
-app.use('/api/player', playerRoutes);
-app.use('/api/challenge', challengePhase4Routes);
-app.use('/api/match-tracking', matchTrackingRoutes);
-app.use('/api/investor/auth', investorAuthRoutes);
-app.use('/api/venue-customization', venueCustomizationRoutes);
+// app.use('/api/advanced-social-community', advancedSocialCommunityRoutes);
+// app.use('/api/dojo', dojoRoutes);
+// app.use('/api/player', playerRoutes);
+// app.use('/api/challenge', challengePhase4Routes);
+// app.use('/api/match-tracking', matchTrackingRoutes);
+// app.use('/api/investor/auth', investorAuthRoutes);
+// app.use('/api/venue-customization', venueCustomizationRoutes);
 
 // --- Global Error Handling Middleware ---
 app.use(errorLogger);
@@ -190,7 +202,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // --- Not Found Handler for API ---
-app.use('/api/*', (req: Request, res: Response) => {
+app.use('/api/*', (req: express.Request, res: express.Response) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
@@ -204,19 +216,20 @@ io.on('connection', (socket) => {
 });
 
 // Initialize venue leaderboard service
-venueLeaderboardService.startLeaderboardUpdates();
-logger.info('Venue Leaderboard Service connected to server');
+// venueLeaderboardService.startLeaderboardUpdates();
+// logger.info('Venue Leaderboard Service connected to server');
 
 // Initialize advanced analytics service
-advancedAnalyticsService.startAnalyticsUpdates();
-logger.info('Advanced Analytics Service connected to server');
+// advancedAnalyticsService.startAnalyticsUpdates();
+// logger.info('Advanced Analytics Service connected to server');
 
 // Graceful shutdown handlers
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start server
-if (require.main === module) {
+// Only start server if this file is being run directly
+if (process.argv[1] && process.argv[1].endsWith('index.ts')) {
   server.listen(port, () => {
     logger.info(`🚀 DojoPool Backend Server running on port ${port}`);
     logger.info(`📊 Health check available at http://localhost:${port}/api/health`);
@@ -225,3 +238,5 @@ if (require.main === module) {
 }
 
 export default app;
+
+

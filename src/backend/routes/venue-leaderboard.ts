@@ -1,5 +1,5 @@
 import express from 'express';
-import { venueLeaderboardService } from '../../services/venue/VenueLeaderboardService.ts';
+import { venueLeaderboardService } from '../../config/monitoring.js';
 
 const router = express.Router();
 
@@ -366,3 +366,5 @@ router.post('/tournament-complete', async (req, res) => {
 });
 
 export default router; 
+
+

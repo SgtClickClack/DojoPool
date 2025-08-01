@@ -1,4 +1,4 @@
-import { GameStateService, GameState } from '../GameStateService';
+import { GameStateService, GameState } from '.js';
 import { EventEmitter } from 'events';
 import { io } from 'socket.io-client';
 

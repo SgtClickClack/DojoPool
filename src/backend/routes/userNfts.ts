@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import express, { Router } from 'express';
 import { param, validationResult } from 'express-validator';
 
 const router = Router();
@@ -65,7 +65,7 @@ const mockUserNFTs: Record<string, UserNFT[]> = {
 };
 
 // Validation middleware
-const validateRequest = (req: Request, res: Response, next: Function) => {
+const validateRequest = (req: express.Request, res: express.Response, next: Function) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -81,7 +81,7 @@ const validateRequest = (req: Request, res: Response, next: Function) => {
 router.get('/user-nfts/:userId',
   param('userId').isString().notEmpty().withMessage('User ID is required'),
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.params;
       const { territory, rarity } = req.query;
@@ -123,7 +123,7 @@ router.get('/user-nfts/:userId/:nftId',
     param('nftId').isString().notEmpty().withMessage('NFT ID is required'),
   ],
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { userId, nftId } = req.params;
       const userNFTs = mockUserNFTs[userId] || [];
@@ -159,7 +159,7 @@ router.post('/user-nfts/:userId',
     param('userId').isString().notEmpty().withMessage('User ID is required'),
   ],
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.params;
       const { tokenId, territoryId, name, description } = req.body;
@@ -221,3 +221,5 @@ router.post('/user-nfts/:userId',
 );
 
 export default router; 
+
+

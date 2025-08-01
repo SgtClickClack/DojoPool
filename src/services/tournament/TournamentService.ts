@@ -3,14 +3,14 @@ import {
   Tournament,
   TournamentStatus,
   TournamentFormat,
-} from "../../types/tournament";
+} from "../../types/tournament.js";
 import axios from 'axios';
 
 const prisma = new PrismaClient();
 
 // TODO: Set up and import a shared configured axios instance 
 // (e.g., with base URL, interceptors for auth)
-// import { axiosInstance } from './axiosInstance'; 
+// import { axiosInstance } from '.js'; 
 const axiosInstance = axios; // Use base axios for now
 
 /**

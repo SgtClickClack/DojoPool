@@ -1,5 +1,5 @@
 import { ethers, JsonRpcProvider, parseEther, parseUnits, formatUnits } from 'ethers';
-// import { realTimeAICommentaryService } from '../ai/RealTimeAICommentaryService';
+// import { realTimeAICommentaryService } from '.js';
 
 export interface DojoCoinBalance {
   userId: string;

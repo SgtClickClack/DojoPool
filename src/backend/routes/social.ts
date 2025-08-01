@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
@@ -38,3 +38,5 @@ router.get('/social/activity/feed/:userId', (req, res) => {
 });
 
 export default router; 
+
+

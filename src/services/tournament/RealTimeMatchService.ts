@@ -1,5 +1,5 @@
-import { Tournament, TournamentMatch as Match, TournamentParticipant as Participant, MatchStatus } from '../../types/tournament';
-import { AIRefereeService } from '../ai/AIRefereeService';
+import { Tournament, TournamentMatch as Match, TournamentParticipant as Participant, MatchStatus } from '';
+import { AIRefereeService } from '';
 
 export interface MatchUpdate {
   matchId: string;

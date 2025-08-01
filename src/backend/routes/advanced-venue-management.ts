@@ -1,5 +1,5 @@
 import express from 'express';
-import AdvancedVenueManagementService from '../../services/venue/AdvancedVenueManagementService.ts';
+import AdvancedVenueManagementService from '../../config/monitoring.js';
 
 const router = express.Router();
 const venueService = AdvancedVenueManagementService.getInstance();
@@ -278,3 +278,5 @@ router.get('/optimization/:venueId', (req, res) => {
 });
 
 export default router; 
+
+

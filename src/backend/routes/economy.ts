@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import express, { Router } from 'express';
 import { body, param, validationResult } from 'express-validator';
 
 const router = Router();
@@ -39,7 +39,7 @@ const transactions = new Map<string, any[]>([
 ]);
 
 // Validation middleware
-const validateRequest = (req: Request, res: Response, next: Function) => {
+const validateRequest = (req: express.Request, res: express.Response, next: Function) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -55,7 +55,7 @@ const validateRequest = (req: Request, res: Response, next: Function) => {
 router.get('/economy/balance/:userId', 
   param('userId').isString().notEmpty().withMessage('User ID is required'),
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.params;
       const balance = userBalances.get(userId) || 0;
@@ -82,7 +82,7 @@ router.get('/economy/balance/:userId',
 router.get('/economy/transactions/:userId',
   param('userId').isString().notEmpty().withMessage('User ID is required'),
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { userId } = req.params;
       const userTransactions = transactions.get(userId) || [];
@@ -108,7 +108,7 @@ router.post('/economy/transfer',
     body('description').optional().isString(),
   ],
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { fromUserId, toUserId, amount, description } = req.body;
 
@@ -205,7 +205,7 @@ router.post('/economy/transfer',
 );
 
 // GET /economy/leaderboard - Get leaderboard
-router.get('/economy/leaderboard', async (req: Request, res: Response) => {
+router.get('/economy/leaderboard', async (req: express.Request, res: express.Response) => {
   try {
     const { limit = 10 } = req.query;
     const limitNum = Math.min(parseInt(limit as string) || 10, 100);
@@ -236,3 +236,5 @@ router.get('/economy/leaderboard', async (req: Request, res: Response) => {
 });
 
 export default router; 
+
+

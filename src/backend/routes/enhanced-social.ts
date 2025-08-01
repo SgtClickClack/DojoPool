@@ -1,5 +1,5 @@
 import express from 'express';
-import EnhancedSocialCommunityService from '../../services/social/EnhancedSocialCommunityService.ts';
+import EnhancedSocialCommunityService from '../../config/monitoring.js';
 
 const router = express.Router();
 const enhancedSocialService = EnhancedSocialCommunityService.getInstance();
@@ -185,3 +185,5 @@ router.get('/health', (req, res) => {
 });
 
 export default router; 
+
+

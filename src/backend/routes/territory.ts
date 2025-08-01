@@ -1,7 +1,8 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
 import { body, param, validationResult } from 'express-validator';
+import { authMiddleware, requireClanLeader } from '../middleware/auth.js';
 
-const router = Router();
+const router = express.Router();
 
 // Territory interface
 interface Territory {
@@ -64,7 +65,7 @@ const mockTerritories: Territory[] = [
 ];
 
 // Validation middleware
-const validateRequest = (req: Request, res: Response, next: Function) => {
+const validateRequest = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -77,7 +78,7 @@ const validateRequest = (req: Request, res: Response, next: Function) => {
 };
 
 // GET /territories - Get all territories
-router.get('/territories', async (req: Request, res: Response) => {
+router.get('/territories', async (req: express.Request, res: express.Response) => {
   try {
     // Add query parameters for filtering
     const { owner, clan, unlocked } = req.query;
@@ -113,7 +114,7 @@ router.get('/territories', async (req: Request, res: Response) => {
 router.get('/territories/:id', 
   param('id').isString().notEmpty().withMessage('Territory ID is required'),
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { id } = req.params;
       const territory = mockTerritories.find(t => t.id === id);
@@ -146,7 +147,7 @@ router.post('/territories',
     body('requiredNFT').isString().notEmpty().withMessage('Required NFT is required'),
   ],
   validateRequest,
-  async (req: Request, res: Response) => {
+  async (req: express.Request, res: express.Response) => {
     try {
       const { name, coordinates, requiredNFT, description } = req.body;
       
@@ -190,4 +191,87 @@ router.post('/territories',
   }
 );
 
-export default router; 
+// POST /territories/:id/claim - Claim territory after winning clan war
+router.post('/territories/:id/claim',
+  authMiddleware,
+  requireClanLeader,
+  [
+    param('id').isString().notEmpty().withMessage('Territory ID is required'),
+    body('clanWarId').isString().notEmpty().withMessage('Clan War ID is required'),
+  ],
+  validateRequest,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { id } = req.params;
+      const { clanWarId } = req.body;
+      const user = req.user!; // Guaranteed by authMiddleware
+      
+      // Find the territory
+      const territory = mockTerritories.find(t => t.id === id);
+      if (!territory) {
+        return res.status(404).json({
+          success: false,
+          error: 'Territory not found',
+          message: `Territory with ID '${id}' does not exist`,
+        });
+      }
+
+      // Check if territory is already claimed
+      if (territory.owner && territory.clan) {
+        return res.status(409).json({
+          success: false,
+          error: 'Territory already claimed',
+          message: `Territory '${territory.name}' is already controlled by ${territory.clan}`,
+        });
+      }
+
+      // TODO: Verify clan war exists and user's clan won
+      // For now, simulate successful verification
+      const mockClanWar = {
+        id: clanWarId,
+        status: 'completed',
+        winnerId: user.clanId,
+        territoryId: id
+      };
+
+      if (!mockClanWar || mockClanWar.status !== 'completed') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid clan war',
+          message: 'Clan war must be completed to claim territory',
+        });
+      }
+
+      if (mockClanWar.winnerId !== user.clanId) {
+        return res.status(403).json({
+          success: false,
+          error: 'Unauthorized claim',
+          message: 'Only the winning clan can claim this territory',
+        });
+      }
+
+      // Claim the territory
+      territory.owner = user.id;
+      territory.clan = user.clanId || 'Unknown Clan';
+      territory.influence = 100; // Full influence for new claim
+
+      res.json({
+        success: true,
+        data: territory,
+        message: `Territory '${territory.name}' successfully claimed by ${territory.clan}!`,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error claiming territory:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Failed to claim territory',
+      });
+    }
+  }
+);
+
+export default router;
+
+

@@ -1,8 +1,8 @@
-import { MatchDataService, MatchData, MatchEvent } from './MatchDataService';
-import { MatchAnalyticsService } from './MatchAnalyticsService';
-import { MatchHighlightsService } from './MatchHighlightsService';
-import { MatchRewardsService, MatchResult, MatchRewards } from './MatchRewardsService';
-import { ChallengeService } from '../ChallengeService';
+import { MatchDataService, MatchData, MatchEvent } from '.js';
+import { MatchAnalyticsService } from '.js';
+import { MatchHighlightsService } from '.js';
+import { MatchRewardsService, MatchResult, MatchRewards } from '.js';
+import { ChallengeService } from '.js';
 
 export class RealTimeMatchTrackingService {
   private matchDataService: MatchDataService;

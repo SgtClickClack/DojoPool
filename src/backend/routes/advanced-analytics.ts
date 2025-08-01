@@ -1,6 +1,6 @@
 import express from 'express';
-import { advancedAnalyticsService } from '../../services/analytics/AdvancedAnalyticsService.ts';
-import type { VenueOptimization, RevenueForecast } from '../../services/analytics/AdvancedAnalyticsService.ts';
+import { advancedAnalyticsService } from '../../services/analytics/AdvancedAnalyticsService.js';
+import type { VenueOptimization, RevenueForecast } from '../../services/analytics/AdvancedAnalyticsService.js';
 
 const router = express.Router();
 
@@ -422,3 +422,5 @@ router.post('/track', async (req, res) => {
 });
 
 export default router; 
+
+

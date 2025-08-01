@@ -1,4 +1,4 @@
-import { Tournament, TournamentMatch, TournamentParticipant as Player, TournamentFormat, TournamentStatus, MatchStatus } from '../../types/tournament';
+import { Tournament, TournamentMatch, TournamentParticipant as Player, TournamentFormat, TournamentStatus, MatchStatus } from '';
 import { EventEmitter } from 'events';
 
 interface PlayerAnalytics {

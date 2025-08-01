@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import avatarProgressionService from '../avatar/AvatarProgressionService';
+import avatarProgressionService from '';
 
 export interface PlayerStats {
   level: number;

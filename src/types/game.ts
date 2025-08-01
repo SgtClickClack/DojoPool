@@ -1,4 +1,4 @@
-import { VectorTimestamp } from "../core/consistency/VectorClock";
+import { VectorTimestamp } from "../core/consistency/VectorClock.js";
 
 export interface GameState {
   tables: Table[];

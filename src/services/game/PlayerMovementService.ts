@@ -1,5 +1,5 @@
-import { BrowserEventEmitter } from '../../utils/BrowserEventEmitter';
-import { GameStateService } from './GameStateService';
+import { BrowserEventEmitter } from '';
+import { GameStateService } from '.js';
 
 export interface PlayerMovement {
   playerId: string;

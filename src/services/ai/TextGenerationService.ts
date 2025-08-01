@@ -1,6 +1,6 @@
 import { OpenAI } from 'openai';
-import { config } from '../../config';
-import { logger } from '../../config/monitoring';
+import { config } from '';
+import { logger } from '';
 
 export class TextGenerationService {
   private openai: OpenAI;

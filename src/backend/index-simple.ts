@@ -43,12 +43,12 @@ app.use(cors(corsOptions));
 app.use(morgan('combined'));
 
 // --- API Routes ---
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (req: express.Request, res: express.Response) => {
   res.send('DojoPool Platform Backend API');
 });
 
 // Health check
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/api/health', (req: express.Request, res: express.Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -57,7 +57,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // Test route
-app.get('/api/test', (req: Request, res: Response) => {
+app.get('/api/test', (req: express.Request, res: express.Response) => {
   res.json({ message: 'Backend is working!' });
 });
 
@@ -74,7 +74,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // --- Not Found Handler for API ---
-app.use('/api/*', (req: Request, res: Response) => {
+app.use('/api/*', (req: express.Request, res: express.Response) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
@@ -97,3 +97,5 @@ if (require.main === module) {
 }
 
 export default app;
+
+

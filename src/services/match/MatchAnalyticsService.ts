@@ -1,4 +1,4 @@
-import { MatchData, MatchEvent, MatchAnalytics, PlayerPerformance, GameFlowData } from './MatchDataService';
+import { MatchData, MatchEvent, MatchAnalytics, PlayerPerformance, GameFlowData } from '.js';
 
 export class MatchAnalyticsService {
   async analyzeShot(shotData: any): Promise<any> {

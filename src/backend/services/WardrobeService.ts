@@ -241,3 +241,5 @@ class WardrobeService {
 }
 
 export default new WardrobeService();
+
+
