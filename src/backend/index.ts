@@ -1,47 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-// Temporarily commenting out the monitoring import to fix the server crash
-// import { logger, httpLogger, errorLogger, performanceLogger, metricsMiddleware, healthCheck, gracefulShutdown } from '../config/monitoring';
-// Temporary implementations of the monitoring functions
-const logger = {
-  info: (message: string, meta?: any) => console.log(`[INFO] ${message}`, meta || ''),
-  error: (message: string, meta?: any) => console.error(`[ERROR] ${message}`, meta || ''),
-  warn: (message: string, meta?: any) => console.warn(`[WARN] ${message}`, meta || ''),
-  debug: (message: string, meta?: any) => console.debug(`[DEBUG] ${message}`, meta || ''),
-};
-const httpLogger = (req: Request, res: Response, next: NextFunction) => {
-  logger.info(`${req.method} ${req.url}`);
-  next();
-};
-const errorLogger = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`${err.message} - ${req.method} ${req.url}`);
-  next(err);
-};
-const performanceLogger = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    logger.info(`${req.method} ${req.url} - ${duration}ms`);
-  });
-  next();
-};
-const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  // Basic metrics collection
-  next();
-};
-const healthCheck = (req: Request, res: Response) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    pid: process.pid,
-    memory: process.memoryUsage(),
-  });
-};
-const gracefulShutdown = (signal: string) => {
-  logger.info(`Received ${signal}. Starting graceful shutdown...`);
-  process.exit(0);
-};
+import { logger, httpLogger, errorLogger, performanceLogger, metricsMiddleware, healthCheck, gracefulShutdown } from '../config/monitoring';
 import rateLimit from 'express-rate-limit';
 import { body, validationResult, ValidationChain } from 'express-validator'; // Import ValidationChain
 import helmet from 'helmet';
@@ -50,42 +9,42 @@ import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import cors from 'cors'; // If you need CORS
 import { createProxyMiddleware } from 'http-proxy-middleware';
-// import { NarrativeEventSystem } from '../services/narrative/NarrativeEventSystem';
-// import blockchainRoutes from './routes/blockchain';
-// import venueRoutes from './routes/venue';
-// import economyRoutes from './routes/economy';
-import socialRoutes from './routes/social.ts';
-// import clanRoutes from './routes/clan';
-import territoryRoutes from './routes/territory.ts';
-import userNftsRoutes from './routes/userNfts.ts';
-import challengeRoutes from './routes/challenge.ts';
-import tournamentRoutes from './routes/tournament.ts';
-import passiveIncomeRoutes from './routes/passive-income.ts';
-import enhancedSocialRoutes from './routes/enhanced-social.ts';
-import advancedTournamentRoutes from './routes/advanced-tournament.ts';
-import advancedPlayerAnalyticsRoutes from './routes/advanced-player-analytics.ts';
-import advancedVenueManagementRoutes from './routes/advanced-venue-management.ts';
-import advancedSocialCommunityRoutes from './routes/advanced-social-community.ts';
-import investorAuthRoutes from './routes/investor-auth.ts';
-import venueCustomizationRoutes from './routes/venue-customization.ts';
+// import { NarrativeEventSystem } from '../services/narrative/NarrativeEventSystem.ts';
+// import blockchainRoutes from './routes/blockchain.ts';
+// import venueRoutes from './routes/venue.ts';
+// import economyRoutes from './routes/economy.ts';
+import socialRoutes from './routes/social.js';
+// import clanRoutes from './routes/clan.js';
+import territoryRoutes from './routes/territory.js';
+import userNftsRoutes from './routes/userNfts.js';
+import challengeRoutes from './routes/challenge.js';
+import tournamentRoutes from './routes/tournament.js';
+import passiveIncomeRoutes from './routes/passive-income.js';
+import enhancedSocialRoutes from './routes/enhanced-social.js';
+import advancedTournamentRoutes from './routes/advanced-tournament.js';
+import advancedPlayerAnalyticsRoutes from './routes/advanced-player-analytics.js';
+import advancedVenueManagementRoutes from './routes/advanced-venue-management.js';
+import advancedSocialCommunityRoutes from './routes/advanced-social-community.js';
+import investorAuthRoutes from './routes/investor-auth.js';
+import venueCustomizationRoutes from './routes/venue-customization.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 // import morgan from 'morgan';
 import { config } from 'dotenv';
-// import { errorHandler } from './middleware/errorHandler';
-// import { authMiddleware } from './middleware/auth';
-// import { validateRequest } from './middleware/validation';
+// import { errorHandler } from './middleware/errorHandler.ts';
+// import { authMiddleware } from './middleware/auth.ts';
+// import { validateRequest } from './middleware/validation.ts';
 import { param, query } from 'express-validator';
-import venueLeaderboardRoutes from './routes/venue-leaderboard.ts';
-import { venueLeaderboardService } from '../services/venue/VenueLeaderboardService.ts';
-import advancedAnalyticsRoutes from './routes/advanced-analytics.ts';
-import { advancedAnalyticsService } from '../services/analytics/AdvancedAnalyticsService.ts';
-import highlightsRoutes from './routes/highlights.ts';
-import dojoRoutes from './routes/dojo.ts';
-import challengePhase4Routes from './routes/challenge-phase4.ts';
-import playerRoutes from './routes/player.ts';
-import matchTrackingRoutes from './routes/match-tracking.ts';
-// import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration';
+import venueLeaderboardRoutes from './routes/venue-leaderboard.js';
+import { venueLeaderboardService } from '../services/venue/VenueLeaderboardService.js';
+import advancedAnalyticsRoutes from './routes/advanced-analytics.js';
+import { advancedAnalyticsService } from '../services/analytics/AdvancedAnalyticsService.js';
+import highlightsRoutes from './routes/highlights.js';
+import dojoRoutes from './routes/dojo.js';
+import challengePhase4Routes from './routes/challenge-phase4.js';
+import playerRoutes from './routes/player.js';
+import matchTrackingRoutes from './routes/match-tracking.js';
+// import { advancedBlockchainIntegrationRouter } from './routes/advanced-blockchain-integration.ts';
 
 // Load environment variables
 config();
