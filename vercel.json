@@ -1,11 +1,9 @@
 {
-  "framework": "vite",
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
-  "outputDirectory": "dist",
   "env": {
-    "NODEJS_VERSION": "20.x"
-  },
+    "NODEJS_VERSION": "20.x
+
   "headers": [
     {
       "source": "/(.*)",
@@ -62,6 +60,7 @@
       ]
     }
   ],
+>>
   "redirects": [
     {
       "source": "/api/:path*",
@@ -76,20 +75,7 @@
       "destination": "/api/region-blocked"
     }
   ],
-  "rewrites": [
-    {
-      "source": "/healthcheck",
-      "destination": "/api/health"
-    },
-    {
-      "source": "/investor-portal/(.*)",
-      "destination": "/investor-portal/index.html"
-    },
-    {
-      "source": "/invest/(.*)",
-      "destination": "/investor-portal/index.html"
-    }
-  ],
+
   "regions": ["syd1"],
   "functions": {
     "api/**/*.js": {
