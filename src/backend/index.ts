@@ -166,8 +166,19 @@ app.get('/api/health', healthCheck);
 
 // Register routes
 app.use('/api/challenge', challengeRoutes(io));
-// app.use('/api', socialRoutes);
-// app.use('/api', territoryRoutes);
+// Mount additional routers expected by integration tests
+import blockchainRouter from './routes/blockchain.js';
+import clanRouter from './routes/clan.js';
+import venueRouter from './routes/venue.js';
+import tournamentRouter from './routes/tournament.js';
+import territoryRouter from './routes/territory.js';
+import socialRouter from './routes/social.js';
+app.use('/api', blockchainRouter);
+app.use('/api', clanRouter);
+app.use('/api', venueRouter);
+app.use('/api', tournamentRouter);
+app.use('/api', territoryRouter);
+app.use('/api', socialRouter);
 // app.use('/api', userNftsRoutes);
 // app.use('/api', tournamentRoutes);
 // app.use('/api/passive-income', passiveIncomeRoutes);
@@ -238,5 +249,6 @@ if (process.argv[1] && process.argv[1].endsWith('index.ts')) {
 }
 
 export default app;
+export { app };
 
 
