@@ -14,6 +14,9 @@ const nextConfig = {
     workerThreads: true,
   },
   // Add rewrites to proxy API requests to the backend and route SPA paths for investor portal
+
+  // Add rewrites to proxy API requests to the backend and migrate Vercel rewrites
+
   async rewrites() {
     return [
       {
@@ -21,7 +24,10 @@ const nextConfig = {
         destination: `${API_BASE_URL}/api/:path*`,
       },
       {
-        source: '/investor-portal/:path*',
+        source: '/healthcheck',
+        destination: '/api/health',
+      },
+   
         destination: '/investor-portal/index.html',
       },
       {
@@ -82,19 +88,27 @@ const nextConfig = {
 
     return config;
   },
-  // Configure headers for security and caching
+  // Configure headers migrated from Vercel and for API
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
-          { key: "X-DNS-Prefetch-Control", value: "on" },
-          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Frame-Options", value: "DENY" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
-          { key: "Referrer-Policy", value: "same-origin" },
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https:; font-src 'self' data:; connect-src 'self' https://vitals.vercel-insights.com; frame-ancestors 'none';" },
+        ],
+      },
+      {
+        source: "/investor-portal/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Cache-Control", value: "private, no-cache, no-store, must-revalidate" },
         ],
       },
       {
@@ -109,7 +123,7 @@ const nextConfig = {
   },
   // Configure image optimization
   images: {
-    domains: ["localhost"],
+    domains: ["localhost", "dojopool.com.au"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ["image/webp", "image/avif"],

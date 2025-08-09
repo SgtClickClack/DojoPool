@@ -74,10 +74,20 @@ jobs:
           
       - name: Install Node.js dependencies
         run: npm ci
-        
-      - name: Run JavaScript/TypeScript tests
+
+      - name: Install Python test dependencies
         run: |
-          npm run test:ci
+          python -m pip install --upgrade pip
+          pip install -r test-requirements.txt
+          
+      - name: Run JavaScript/TypeScript tests (unit + integration)
+        run: |
+          npm run test:ci:js
+
+      - name: Run Python tests
+        run: |
+          pytest -c config/pytest.ini
+
       - name: Summarize test failures (AI)
         if: failure() && secrets.OPENAI_API_KEY != ''
         run: npm run ai:test:summary
@@ -85,11 +95,15 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         
       - name: Upload coverage reports (push only)
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/coverage-final.json
-          flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: |
+            ./coverage/js/unit/lcov.info
+            ./coverage/js/integration/lcov.info
+            ./coverage/python/coverage.xml
+          flags: js,python
           name: codecov-umbrella
 
   security:
