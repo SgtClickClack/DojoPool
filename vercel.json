@@ -2,9 +2,65 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
   "env": {
-    "NODEJS_VERSION": "20.x"
-  },
+    "NODEJS_VERSION": "20.x
 
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://cdn.vercel-insights.com https://cdn.tailwindcss.com 'sha256-ohxjEDLvmOxfN3TE9Y/wPAmXh0IHYNnyPvHDeoJD+sg=' 'sha256-9Fcqa0KkLzPv0s9BwnjyaXZbsnwcG+mYB2dO6uvpZJY=' 'unsafe-hashes'; style-src 'self' https://fonts.googleapis.com 'sha256-ZJG+IXplbojEaqKo6dNRZx2YdcVNLfgW6mbgQb+Kldk=' 'sha256-2v5Hrnc6NwdQhE+DOaPTxhHxz5XDbkZfEmq5lxU04yQ='; img-src 'self' blob: data: https:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://vitals.vercel-insights.com; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
+      "source": "/investor-portal/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://cdn.tailwindcss.com 'sha256-ohxjEDLvmOxfN3TE9Y/wPAmXh0IHYNnyPvHDeoJD+sg=' 'sha256-9Fcqa0KkLzPv0s9BwnjyaXZbsnwcG+mYB2dO6uvpZJY=' 'unsafe-hashes' 'sha256-LiZvEbKTx9W9pFs31EVD8sAkfeUQbalLCteXSt0/oS0=' 'sha256-UOxCedPtutS/Ma9rH2VxBnHLZFRTD8vjgHpFe1SozXY=' 'sha256-HWf6sHnLKMAjOxdZLpydINc3yNCe4Jk9luqy79SJXyY=' 'sha256-SI8a0dAUH0cczDgbSS6CMCLpehwz2gZPFpGhQJy+/Ks=' 'sha256-xN6exDT9A6vBQChJtzVIFB3R/hMTjqxEPrRrdwJAFzE=' 'sha256-rWFCtgZM4bTGzyBplSZ+ULGBdJxgJduoy42JOO4uRgY=' 'sha256-FXKhQtQfRctHfOcXrFPHszf6lY1CH92p6Uw1xFXyIM0='; style-src 'self' https://fonts.googleapis.com 'sha256-ZJG+IXplbojEaqKo6dNRZx2YdcVNLfgW6mbgQb+Kldk='; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+>>
   "redirects": [
     {
       "source": "/api/:path*",
