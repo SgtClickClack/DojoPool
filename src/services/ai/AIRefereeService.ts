@@ -1,7 +1,6 @@
-import { BallState, GameTable, Pocket } from '.js';
-import { ShotAnalysisData } from '.js'; // Assuming this type exists or will be defined
-import { Vector2D } from '.js';
-import { skyT1AnalyzeShot } from '.js'; // Hypothetical import for Sky-T1
+import type { GameTable, ShotAnalysisData } from '../../core/game/GameState';
+// Note: Vector2D and Pocket are not used here; keep imports minimal and correct
+import { skyT1AnalyzeShot } from './skyT1Client';
 
 /**
  * Helper function to determine ball type.
@@ -104,26 +103,5 @@ export class AIRefereeService {
             nextPlayerId: opponentPlayerId, // Default to opponent's turn on error
         };
     }
-
-
-    /* --- PREVIOUS LOCAL FOUL DETECTION LOGIC REMOVED ---
-
-    const { tableStateBeforeShot, tableStateAfterShot, shotAnalysis, currentPlayerId, gameRules } = input;
-
-    // ... [Previous foul detection logic based on input data] ...
-    // This entire block (lines ~80 to ~240) is replaced by the Sky-T1 call above.
-
-    // --- Determine Turn Continuation and Ball-in-Hand --- //
-
-    // ... [Previous turn continuation logic] ...
-
-    return {
-      foul,
-      reason,
-      isBallInHand,
-      nextPlayerId,
-    };
-
-    --- END OF REMOVED LOCAL LOGIC --- */
   }
 } 

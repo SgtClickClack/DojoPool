@@ -1,10 +1,10 @@
 // This service is frontend-only. Do not use in backend.
 import axios from 'axios';
-import { env } from '.js';
+import CONFIG from '../config/constants';
 
 // Create an axios instance with default config
 export const api = axios.create({
-  baseURL: env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  baseURL: CONFIG.API.BASE_URL || 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,7 +15,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      (config.headers as any).Authorization = `Bearer ${token}`;
     }
     return config;
   },

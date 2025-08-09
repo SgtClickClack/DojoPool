@@ -1,5 +1,5 @@
 import axios from 'axios'; // Assuming axios is available
-import { RefereeInput, RefereeResult, FoulType } from '.js';
+import { RefereeInput, RefereeResult } from './AIRefereeService';
 
 // --- Sky-T1 API Client ---
 

@@ -1,6 +1,35 @@
-import axiosInstance from '.js'; // Corrected path
-import { Wallet, Transaction, WalletStats } from '.js';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 import { ethers } from 'ethers';
+
+// Local axios instance with optional base URL and interceptors
+const axiosInstance: AxiosInstance = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || '/'
+});
+
+// Define Wallet domain types used by this service
+export interface Wallet {
+  id: number;
+  userId: number;
+  balance: number;
+  currency: 'DOJO';
+  address?: string;
+}
+
+export interface Transaction {
+  id: number;
+  walletId: number;
+  amount: number;
+  type: 'credit' | 'debit';
+  description?: string;
+  createdAt: string;
+}
+
+export interface WalletStats {
+  totalCredits?: number;
+  totalDebits?: number;
+  numTransactions?: number;
+}
 
 export interface WalletConnection {
   address: string;
@@ -68,13 +97,13 @@ export class WalletService {
 
         this.connection = {
           address,
-          chainId: network.chainId,
+          chainId: Number(network.chainId),
           provider,
           signer,
           isConnected: true
         };
 
-        this.setContractAddresses(network.chainId);
+        this.setContractAddresses(Number(network.chainId));
         this.emit('connected', this.connection);
         return this.connection;
 
@@ -105,7 +134,7 @@ export class WalletService {
       try {
         const contract = new ethers.Contract(
           this.dojoCoinAddress,
-          this.dojCoinABI,
+          this.dojoCoinABI,
           this.connection.provider
         );
 
@@ -124,8 +153,8 @@ export class WalletService {
 
       try {
         const contract = new ethers.Contract(
-          this.dojTrophyAddress,
-          this.dojTrophyABI,
+          this.dojoTrophyAddress,
+          this.dojoTrophyABI,
           this.connection.provider
         );
 
@@ -143,11 +172,11 @@ export class WalletService {
               name: trophy.name,
               description: trophy.description,
               imageURI: `https://ipfs.io/ipfs/trophy-${tokenId}.png`,
-              rarity: this.getRarityString(trophy.rarity),
-              trophyType: this.getTrophyTypeString(trophy.trophyType),
-              mintedAt: new Date(trophy.mintedAt.toNumber() * 1000).toISOString(),
-              isTransferable: trophy.isTransferable,
-              territoryId: trophy.territoryId.toString(),
+              rarity: this.getRarityString(Number(trophy.rarity)),
+              trophyType: this.getTrophyTypeString(Number(trophy.trophyType)),
+              mintedAt: new Date(Number(trophy.mintedAt) * 1000).toISOString(),
+              isTransferable: Boolean(trophy.isTransferable),
+              territoryId: trophy.territoryId?.toString?.(),
               achievementId: trophy.achievementId
             });
           } catch (error) {
@@ -173,8 +202,8 @@ export class WalletService {
 
       try {
         const contract = new ethers.Contract(
-          this.dojTrophyAddress,
-          this.dojTrophyABI,
+          this.dojoTrophyAddress,
+          this.dojoTrophyABI,
           this.connection.signer
         );
 
@@ -204,20 +233,20 @@ export class WalletService {
     private setContractAddresses(chainId: number): void {
       switch (chainId) {
         case 1: // Ethereum mainnet
-          this.dojTrophyAddress = '0x...'; // Mainnet address
-          this.dojCoinAddress = '0x...'; // Mainnet address
+          this.dojoTrophyAddress = '0x0000000000000000000000000000000000000000'; // TODO: replace
+          this.dojoCoinAddress = '0x0000000000000000000000000000000000000000'; // TODO: replace
           break;
         case 137: // Polygon
-          this.dojTrophyAddress = '0x...'; // Polygon address
-          this.dojCoinAddress = '0x...'; // Polygon address
+          this.dojoTrophyAddress = '0x0000000000000000000000000000000000000000'; // TODO: replace
+          this.dojoCoinAddress = '0x0000000000000000000000000000000000000000'; // TODO: replace
           break;
         case 80001: // Mumbai testnet
-          this.dojTrophyAddress = '0x...'; // Testnet address
-          this.dojCoinAddress = '0x...'; // Testnet address
+          this.dojoTrophyAddress = '0x0000000000000000000000000000000000000000'; // TODO: replace
+          this.dojoCoinAddress = '0x0000000000000000000000000000000000000000'; // TODO: replace
           break;
         default:
-          this.dojTrophyAddress = '0x...';
-          this.dojCoinAddress = '0x...';
+          this.dojoTrophyAddress = '0x0000000000000000000000000000000000000000';
+          this.dojoCoinAddress = '0x0000000000000000000000000000000000000000';
       }
     }
 
@@ -232,8 +261,9 @@ export class WalletService {
     }
 
     private setupEventListeners(): void {
-      if (typeof window !== 'undefined' && window.ethereum) {
-        window.ethereum.on('accountsChanged', (accounts: string[]) => {
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
+        const ethereum = (window as any).ethereum;
+        ethereum.on('accountsChanged', (accounts: string[]) => {
           if (accounts.length === 0) {
             this.disconnect();
           } else if (this.connection) {
@@ -242,7 +272,7 @@ export class WalletService {
           }
         });
 
-        window.ethereum.on('chainChanged', (chainId: string) => {
+        ethereum.on('chainChanged', (chainId: string) => {
           if (this.connection) {
             this.connection.chainId = parseInt(chainId, 16);
             this.setContractAddresses(this.connection.chainId);
@@ -317,8 +347,7 @@ export class WalletService {
          } catch (error) {
              console.error("Error fetching wallet stats:", error);
              // Return default/empty stats on error?
-             return {}; // Return empty object as placeholder
-             // throw error; 
+             return {};
          }
     }
 
