@@ -12,6 +12,7 @@ export default defineConfig({
       '**/dist/**',
       '**/build/**',
       '**/coverage/**',
+      'src/tests/integration/**',
       // Exclude problematic third-party tests
       '**/tsconfig-paths/**',
       '**/@react-google-maps/**',
