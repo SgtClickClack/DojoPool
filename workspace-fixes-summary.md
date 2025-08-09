@@ -99,3 +99,22 @@ The most critical blocking issues have been resolved:
 - Test infrastructure is in place
 
 The remaining issues are primarily related to test file imports and can be addressed incrementally without blocking core development work.
+
+## AI Tooling Added
+
+- **AI-Assisted Debugging**
+  - `npm run ai:explain-error -- --log path/to/error.log` or pipe logs to explain failures in plain language.
+  - `npm run ai:fix -- --file path/to/file.ts --error "paste error" [--apply]` proposes/apply targeted fixes.
+  - `npm run ai:bug-repro -- --log path/to/error.log` suggests minimal reproduction steps.
+
+- **AI-Powered Refactoring**
+  - `npm run ai:refactor -- --file path/to/file.ts --mode simplify|optimize|readability [--apply]` refactors code.
+  - `npm run ai:convert -- --file path/to/file.ts --to py|ts|js|java` converts code between languages.
+
+- **Workflow Integrations**
+  - Tests in CI now produce a JSON report and, on failure, run `ai:test:summary` to summarize failures if `OPENAI_API_KEY` is configured.
+  - Label a PR with `ai-describe` to auto-generate a PR description. Label with `ai-review` to post an AI code review comment. Both require `OPENAI_API_KEY` secret.
+  - Generate commit messages from staged changes: `npm run ai:commit`.
+
+Environment:
+- Set `OPENAI_API_KEY` in your shell or CI secrets. Optional: `AI_MODEL` (default `gpt-4o-mini`).

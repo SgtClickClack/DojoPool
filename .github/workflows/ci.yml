@@ -77,7 +77,12 @@ jobs:
         
       - name: Run JavaScript/TypeScript tests
         run: |
-          npm run test -- --coverage
+          npm run test:ci
+      - name: Summarize test failures (AI)
+        if: failure() && secrets.OPENAI_API_KEY != ''
+        run: npm run ai:test:summary
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         
       - name: Upload coverage reports (push only)
         if: ${{ github.event_name == 'push' }}
