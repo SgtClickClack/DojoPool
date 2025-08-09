@@ -175,6 +175,7 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
             title="Error Rate"
             value={formatPercentage(
               (metrics.errors / metrics.messagesSent) * 100,
+              1,
             )}
             threshold={5}
             critical={10}

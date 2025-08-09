@@ -57,6 +57,8 @@ import { param, query } from 'express-validator';
 // import playerRoutes from './routes/player.js';
 // import matchTrackingRoutes from './routes/match-tracking.js';
 // import { advancedBlockchainIntegrationRouter } from '.ts';
+import aiCommentaryRouter from './routes/ai-commentary.js';
+import challengeAlias from './routes/challenge.js';
 
 // Load environment variables
 config();
@@ -179,6 +181,8 @@ app.use('/api', venueRouter);
 app.use('/api', tournamentRouter);
 app.use('/api', territoryRouter);
 app.use('/api', socialRouter);
+app.use('/api', aiCommentaryRouter);
+app.use('/api', challengeAlias(io));
 // app.use('/api', userNftsRoutes);
 // app.use('/api', tournamentRoutes);
 // app.use('/api/passive-income', passiveIncomeRoutes);
