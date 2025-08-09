@@ -13,12 +13,20 @@ const nextConfig = {
     scrollRestoration: true,
     workerThreads: true,
   },
-  // Add rewrites to proxy API requests to the backend
+  // Add rewrites to proxy API requests to the backend and route SPA paths for investor portal
   async rewrites() {
     return [
       {
         source: '/api/:path*',
         destination: `${API_BASE_URL}/api/:path*`,
+      },
+      {
+        source: '/investor-portal/:path*',
+        destination: '/investor-portal/index.html',
+      },
+      {
+        source: '/invest/:path*',
+        destination: '/investor-portal/index.html',
       },
     ];
   },
