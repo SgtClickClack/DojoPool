@@ -60,6 +60,23 @@
       ]
     }
   ],
+<
+  "redirects": [],
+  "rewrites": [
+    {
+      "source": "/healthcheck",
+      "destination": "/api/health"
+    },
+    {
+      "source": "/investor-portal/(.*)",
+      "destination": "/investor-portal/index.html"
+    },
+    {
+      "source": "/invest/(.*)",
+      "destination": "/investor-portal/index.html"
+    }
+  ],
+=======
 >>
   "redirects": [
     {
@@ -76,13 +93,8 @@
     }
   ],
 
+
   "regions": ["syd1"],
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "github": {
     "silent": true,
     "autoJobCancelation": true
