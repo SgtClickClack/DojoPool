@@ -1,5 +1,6 @@
-import { Tournament, TournamentMatch as Match, TournamentParticipant as Participant, MatchStatus } from '';
-import { AIRefereeService } from '';
+import { Tournament, TournamentMatch as Match, TournamentParticipant as Participant, MatchStatus } from '../../types/tournament';
+// Using the AI referee service in other modules; keep reference ready if needed
+// import { AIRefereeService } from '../ai/AIRefereeService';
 
 export interface MatchUpdate {
   matchId: string;
@@ -61,11 +62,11 @@ export interface CommentaryEntry {
 export class RealTimeMatchService {
   private matches: Map<string, RealTimeMatchData> = new Map();
   private subscribers: Map<string, Set<(data: RealTimeMatchData) => void>> = new Map();
-  private aiRefereeService: AIRefereeService;
+  // private aiRefereeService: AIRefereeService;
   private updateInterval?: NodeJS.Timeout;
 
   constructor() {
-    this.aiRefereeService = new AIRefereeService();
+    // this.aiRefereeService = new AIRefereeService();
     this.startRealTimeUpdates();
   }
 
@@ -138,7 +139,7 @@ export class RealTimeMatchService {
       }
     }
 
-    // Analyze shot with AI referee
+    // Analyze shot with AI referee (mocked below)
     await this.analyzeShotWithReferee(matchId, shot);
 
     // Add commentary
@@ -260,10 +261,30 @@ export class RealTimeMatchService {
    * Get the next player in the match
    */
   private getNextPlayer(match: Match, currentPlayerId: string): Participant | undefined {
-    // Find the participant by ID
-    // This would need to be implemented based on how participants are stored
-    // For now, return undefined as this is a placeholder
-    return undefined;
+    // Basic two-player alternation using player1Id/player2Id on the match
+    const player1Id = match.player1Id?.toString();
+    const player2Id = match.player2Id?.toString();
+
+    const nextId = currentPlayerId === player1Id ? player2Id : player1Id;
+    if (!nextId) return undefined;
+
+    // Construct a lightweight Participant when full participant list is not provided here
+    const username = match.player1Name && nextId === player1Id
+      ? match.player1Name
+      : match.player2Name && nextId === player2Id
+      ? match.player2Name
+      : `Player ${nextId}`;
+
+    const participant: Participant = {
+      id: Number(nextId),
+      tournamentId: match.tournamentId,
+      userId: Number(nextId),
+      username,
+      status: 'registered',
+      registrationDate: new Date(),
+    };
+
+    return participant;
   }
 
   /**

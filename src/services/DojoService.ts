@@ -1,4 +1,4 @@
-import { api } from '.js';
+import { api } from './api';
 
 export interface DojoCandidate {
   id: string;
