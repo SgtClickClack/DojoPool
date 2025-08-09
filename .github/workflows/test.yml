@@ -34,7 +34,12 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: npm run lint
       - name: Run unit and integration tests
-        run: npm run test -- --coverage
+        run: npm run test:ci
+      - name: Summarize test failures (AI)
+        if: failure() && secrets.OPENAI_API_KEY != ''
+        run: npm run ai:test:summary
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Upload coverage reports
         if: ${{ secrets.CODECOV_TOKEN != '' && github.event_name == 'push' }}
         uses: codecov/codecov-action@v4

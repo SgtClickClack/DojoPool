@@ -28,7 +28,17 @@
     "lint:fix": "eslint src/ --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "ai:explain-error": "node scripts/ai/explain-error.js",
+    "ai:fix": "node scripts/ai/fix-with-ai.js",
+    "ai:refactor": "node scripts/ai/refactor.js",
+    "ai:convert": "node scripts/ai/convert.js",
+    "ai:bug-repro": "node scripts/ai/bug-repro.js",
+    "ai:commit": "node scripts/ai/generate-commit-msg.js",
+    "ai:pr": "node scripts/ai/generate-pr-description.js",
+    "ai:test:summary": "node scripts/ai/summarize-tests.js",
+    "ai:review": "node scripts/ai/review-changes.js",
+    "ai:detect": "node scripts/ai/detect-errors.js"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.787.0",
