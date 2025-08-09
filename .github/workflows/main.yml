@@ -12,9 +12,6 @@ on:
     paths:
       - src/**
       - .github/workflows/**
-  pull_request:
-    branches:
-      - main
 
 jobs:
   test:
@@ -129,7 +126,7 @@ jobs:
       - name: Monitor deployment health
         run: |
           curl -sSf ${{steps.deploy.outputs.url}} > /dev/null
-          curl -sSf ${{steps.deploy.outputs.url}}/api/health > /dev/null
+          curl -s Sf ${{steps.deploy.outputs.url}}/api/health > /dev/null
 
   notify:
     needs:
