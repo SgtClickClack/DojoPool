@@ -9,9 +9,6 @@ on:
       - "**.txt"
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 jobs:
   performance:
     runs-on: ubuntu-latest
