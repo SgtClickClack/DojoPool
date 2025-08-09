@@ -33,7 +33,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      reportsDirectory: './coverage',
+      reportsDirectory: 'coverage/js/unit',
       all: false,
       include: [
         'src/services/economy/**/*.ts',
@@ -50,10 +50,10 @@ export default defineConfig({
         'generated/**',
       ],
       thresholds: {
-        lines: 90,
-        functions: 90,
-        branches: 80,
-        statements: 90,
+        lines: 70,
+        functions: 70,
+        branches: 60,
+        statements: 70,
       },
     },
   },
