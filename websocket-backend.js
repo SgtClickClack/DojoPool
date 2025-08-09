@@ -1,7 +1,7 @@
 const http = require('http');
 const url = require('url');
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 // Game state management
 const activeGames = new Map();
@@ -162,6 +162,21 @@ const server = http.createServer((req, res) => {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Invalid JSON' }));
             }
+        });
+    } else if (path === '/api/logs' && req.method === 'POST') {
+        // Accept client logs via sendBeacon/fetch keepalive
+        let body = '';
+        req.on('data', (chunk) => {
+            // Avoid large payloads
+            if (body.length < 1_000_000) {
+                body += chunk.toString();
+            }
+        });
+        req.on('end', () => {
+            // Optionally parse/inspect; ignore errors to avoid backpressure
+            try { JSON.parse(body); } catch {}
+            res.writeHead(204);
+            res.end();
         });
     } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -374,5 +389,3 @@ console.log(`🎱 DojoPool Real-Time Backend starting...`);
 console.log(`📡 Real-time multiplayer features enabled`);
 console.log(`🤖 AI commentary system active`);
 console.log(`🏆 Tournament system ready`);
-console.log(`⚔️ Clan wars system operational`);
-console.log(`⚔️ Clan wars system operational`);

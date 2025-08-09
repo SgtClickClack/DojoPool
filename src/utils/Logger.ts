@@ -175,21 +175,47 @@ class Logger {
   }
 
   private logToService(entry: LogEntry): void {
-    // TODO: Implement integration with logging service (e.g., Logtail, DataDog, etc.)
-    // For now, store in local storage or send to backend endpoint
-    if (typeof window !== 'undefined' && window.localStorage) {
+    const payload = JSON.stringify(entry);
+
+    if (typeof window !== 'undefined') {
+      try {
+        if (navigator && typeof navigator.sendBeacon === 'function') {
+          const beaconUrl = (window as any).__LOG_ENDPOINT__ || '/api/logs';
+          const blob = new Blob([payload], { type: 'application/json' });
+          const sent = navigator.sendBeacon(beaconUrl, blob);
+          if (sent) return;
+        }
+
+        const fetchUrl = (window as any).__LOG_ENDPOINT__ || '/api/logs';
+        void fetch(fetchUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {
+          // ignore and fallback to localStorage
+        });
+      } catch {
+        // ignore and fallback
+      }
+
       try {
         const logs = JSON.parse(localStorage.getItem('dojopool_logs') || '[]');
         logs.push(entry);
-        // Keep only last 1000 entries
-        if (logs.length > 1000) {
-          logs.splice(0, logs.length - 1000);
-        }
+        if (logs.length > 1000) logs.splice(0, logs.length - 1000);
         localStorage.setItem('dojopool_logs', JSON.stringify(logs));
-      } catch (error) {
-        // Fallback to console if localStorage fails
-        console.error('Failed to store log entry:', error);
+        return;
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to buffer log entry:', err);
       }
+    }
+
+    try {
+      // eslint-disable-next-line no-console
+      console.log(`[log] ${payload}`);
+    } catch {
+      // no-op
     }
   }
 
