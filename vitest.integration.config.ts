@@ -17,6 +17,21 @@ export default defineConfig({
     ],
     setupFiles: ['./src/tests/setup-integration.ts'],
     mockReset: 'afterEach',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: 'coverage/js/integration',
+      all: false,
+      exclude: [
+        'src/tests/**',
+        '**/*.d.ts',
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/coverage/**',
+        'generated/**',
+      ],
+    },
   },
   resolve: {
     alias: {
