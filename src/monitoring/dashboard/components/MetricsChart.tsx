@@ -8,21 +8,27 @@ import {
   Tooltip,
   ReferenceLine,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { useTheme } from "@mui/material/styles";
 
 interface MetricDataPoint {
   timestamp: number;
-  value: number;
-  warning?: number;
-  critical?: number;
+  value?: number;
+  [key: string]: number | undefined;
+}
+
+interface SeriesSpec {
+  key: string;
+  name: string;
 }
 
 interface MetricsChartProps {
   data: MetricDataPoint[];
   yAxisLabel: string;
-  height: number;
+  height?: number;
   reverseThreshold?: boolean;
+  series?: SeriesSpec[];
 }
 
 const formatTimestamp = (timestamp: number) => {
@@ -33,8 +39,9 @@ const formatTimestamp = (timestamp: number) => {
 export const MetricsChart: React.FC<MetricsChartProps> = ({
   data,
   yAxisLabel,
-  height,
+  height = 240,
   reverseThreshold = false,
+  series = [{ key: 'value', name: 'Value' }],
 }) => {
   const theme = useTheme();
 
@@ -43,55 +50,24 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart
-        data={sortedData}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
+      <LineChart data={sortedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          dataKey="timestamp"
-          tickFormatter={formatTimestamp}
-          interval="preserveStartEnd"
-        />
-        <YAxis
-          label={{ value: yAxisLabel, angle: -90, position: "insideLeft" }}
-        />
-        <Tooltip
-          labelFormatter={formatTimestamp}
-          formatter={(value: number) => [value.toFixed(2), yAxisLabel]}
-        />
-        {latestDataPoint?.warning && (
-          <ReferenceLine
-            y={latestDataPoint.warning}
-            stroke={theme.palette.warning.main}
-            strokeDasharray="3 3"
-            label={{
-              value: "Warning",
-              position: "right",
-              fill: theme.palette.warning.main,
-            }}
+        <XAxis dataKey="timestamp" tickFormatter={formatTimestamp} interval="preserveStartEnd" />
+        <YAxis label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }} />
+        <Tooltip labelFormatter={formatTimestamp} formatter={(value: number) => [value.toFixed(2), yAxisLabel]} />
+        <Legend />
+        {series.map((s, idx) => (
+          <Line
+            key={s.key}
+            type="monotone"
+            dataKey={s.key}
+            name={s.name}
+            stroke={idx === 0 ? theme.palette.primary.main : theme.palette.secondary.main}
+            dot={false}
+            strokeWidth={2}
+            isAnimationActive={false}
           />
-        )}
-        {latestDataPoint?.critical && (
-          <ReferenceLine
-            y={latestDataPoint.critical}
-            stroke={theme.palette.error.main}
-            strokeDasharray="3 3"
-            label={{
-              value: "Critical",
-              position: "right",
-              fill: theme.palette.error.main,
-            }}
-          />
-        )}
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke={theme.palette.primary.main}
-          dot={false}
-          strokeWidth={2}
-          isAnimationActive={false}
-        />
+        ))}
       </LineChart>
     </ResponsiveContainer>
   );

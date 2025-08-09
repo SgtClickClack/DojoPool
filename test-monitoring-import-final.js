@@ -1,12 +1,11 @@
-// Test script to verify monitoring import fix
-const { spawn } = require('child_process');
+// Test script to verify monitoring import fix (ESM)
+import { spawn } from 'node:child_process';
 
 console.log('Testing monitoring import with .js extension...');
 
-const test = spawn('npx', ['ts-node', '--project', 'tsconfig.backend.json', '-e', 'import("../config/monitoring.js").then(() => console.log("✅ Monitoring import successful")).catch(err => console.error("❌ Import failed:", err.message))'], {
+const test = spawn('node', ['--loader', 'ts-node/esm', 'scripts/monitoring-import-check.ts'], {
   stdio: 'pipe',
-  shell: true,
-  cwd: './src/backend'
+  shell: true
 });
 
 let output = '';

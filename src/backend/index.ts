@@ -57,6 +57,9 @@ import { param, query } from 'express-validator';
 // import playerRoutes from './routes/player.js';
 // import matchTrackingRoutes from './routes/match-tracking.js';
 // import { advancedBlockchainIntegrationRouter } from '.ts';
+import aiCommentaryRouter from './routes/ai-commentary.js';
+import challengeAlias from './routes/challenge.js';
+import economyRouter from './routes/economy.js';
 
 // Load environment variables
 config();
@@ -166,8 +169,23 @@ app.get('/api/health', healthCheck);
 
 // Register routes
 app.use('/api/challenge', challengeRoutes(io));
-// app.use('/api', socialRoutes);
-// app.use('/api', territoryRoutes);
+// Mount additional routers expected by integration tests
+import blockchainRouter from './routes/blockchain.js';
+import clanRouter from './routes/clan.js';
+import venueRouter from './routes/venue.js';
+import tournamentRouter from './routes/tournament.js';
+import territoryRouter from './routes/territory.js';
+import socialRouter from './routes/social.js';
+import economyRouter from './routes/economy.js';
+app.use('/api', blockchainRouter);
+app.use('/api', clanRouter);
+app.use('/api', venueRouter);
+app.use('/api', tournamentRouter);
+app.use('/api', territoryRouter);
+app.use('/api', socialRouter);
+app.use('/api', economyRouter);
+app.use('/api', aiCommentaryRouter);
+app.use('/api', challengeAlias(io));
 // app.use('/api', userNftsRoutes);
 // app.use('/api', tournamentRoutes);
 // app.use('/api/passive-income', passiveIncomeRoutes);
@@ -238,5 +256,6 @@ if (process.argv[1] && process.argv[1].endsWith('index.ts')) {
 }
 
 export default app;
+export { app };
 
 

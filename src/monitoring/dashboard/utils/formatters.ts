@@ -23,7 +23,7 @@ export function formatDuration(ms: number): string {
 /**
  * Formats a percentage value with fixed decimal places
  */
-export function formatPercentage(value: number, decimals: number = 1): string {
+export function formatPercentage(value: number, decimals: number = 2): string {
   return `${value.toFixed(decimals)}%`;
 }
 

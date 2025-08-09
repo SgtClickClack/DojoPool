@@ -41,22 +41,19 @@ const MetricCard: React.FC<MetricCardProps> = ({
   isInverted = false,
 }) => {
   const getColor = (value: number, threshold?: number, critical?: number) => {
-    if (!threshold || !critical) return "primary";
+    if (threshold == null || critical == null) return undefined;
     if (isInverted) {
-      if (value <= critical) return "error";
-      if (value <= threshold) return "warning";
-      return "success";
+      if (value <= critical) return 'error';
+      if (value <= threshold) return 'warning';
+      return 'success';
     } else {
-      if (value >= critical) return "error";
-      if (value >= threshold) return "warning";
-      return "success";
+      if (value >= critical) return 'error';
+      if (value >= threshold) return 'warning';
+      return 'success';
     }
   };
 
-  const color =
-    typeof progress === "number"
-      ? getColor(progress, threshold, critical)
-      : "primary";
+  const severity = typeof progress === 'number' ? getColor(progress, threshold, critical) : undefined;
 
   return (
     <Card>
@@ -64,11 +61,15 @@ const MetricCard: React.FC<MetricCardProps> = ({
         <Typography variant="subtitle2" color="textSecondary">
           {title}
         </Typography>
-        <Typography variant="h6" component="div">
-          {typeof value === "number" ? value.toFixed(2) : value}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={severity ? { color: (theme) => theme.palette[severity].main } : undefined}
+        >
+          {typeof value === 'number' ? (value as number).toFixed(2) : value}
           {unit && (
             <Typography variant="caption" component="span">
-              {" "}
+              {' '}
               {unit}
             </Typography>
           )}
@@ -77,11 +78,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
           <Box sx={{ mt: 1 }}>
             <LinearProgress
               variant="determinate"
-              value={Math.min(
-                100,
-                (progress / (critical || threshold || 100)) * 100,
-              )}
-              color={color}
+              value={Math.min(100, (progress / (critical || threshold || 100)) * 100)}
+              color={severity || 'primary'}
             />
           </Box>
         )}
@@ -131,7 +129,7 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
         <Grid item xs={12} md={6}>
           <MetricCard
             title="P95 Latency"
-            value={metrics.p95Latency}
+            value={`${metrics.p95Latency.toFixed(2)}`}
             unit="ms"
             threshold={300}
             critical={750}
@@ -177,6 +175,7 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
             title="Error Rate"
             value={formatPercentage(
               (metrics.errors / metrics.messagesSent) * 100,
+              1,
             )}
             threshold={5}
             critical={10}
@@ -196,10 +195,14 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
                 timeRange={timeRange}
                 yAxisLabel="Latency (ms)"
                 series={[
-                  { key: "value", name: "Average" },
-                  { key: "p95", name: "95th Percentile" },
+                  { key: 'value', name: 'Average' },
+                  { key: 'p95', name: '95th Percentile' },
                 ]}
               />
+              <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                <Typography variant="caption">Average</Typography>
+                <Typography variant="caption">95th Percentile</Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -214,7 +217,7 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
                 data={bandwidthData}
                 timeRange={timeRange}
                 yAxisLabel="Bandwidth (KB/s)"
-                series={[{ key: "value", name: "Usage" }]}
+                series={[{ key: 'value', name: 'Usage' }]}
               />
             </CardContent>
           </Card>
@@ -230,7 +233,7 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
                 data={errorRateData}
                 timeRange={timeRange}
                 yAxisLabel="Error Rate (%)"
-                series={[{ key: "value", name: "Rate" }]}
+                series={[{ key: 'value', name: 'Rate' }]}
               />
             </CardContent>
           </Card>
