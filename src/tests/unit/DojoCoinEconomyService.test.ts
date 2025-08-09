@@ -263,4 +263,32 @@ describe('DojoCoinEconomyService', () => {
       });
     });
   });
+
+  describe('branch coverage', () => {
+    it('should return zeroed stats and mostUsedCategory "none" when no transactions', () => {
+      const stats = service.getTransactionStats('fresh-user');
+      expect(stats.totalTransactions).toBe(0);
+      expect(stats.totalEarned).toBe(0);
+      expect(stats.totalSpent).toBe(0);
+      expect(stats.averageTransaction).toBe(0);
+      expect(stats.mostUsedCategory).toBe('none');
+    });
+
+    it('should upgrade to diamond and set rankProgress to 100', async () => {
+      await service.earnCoins('user-diamond', 35000, 'achievement', 'Big achieve');
+      const earningsLeaderboard = service.getEarningsLeaderboard(5);
+      const profile = earningsLeaderboard.find(p => p.userId === 'user-diamond');
+      expect(profile).toBeDefined();
+      expect(profile!.rank).toBe('diamond');
+      expect(profile!.rankProgress).toBe(100);
+    });
+
+    it('should respect getUserTransactions limit parameter', async () => {
+      await service.earnCoins('user-limit', 100, 'match_win', 't1');
+      await service.spendCoins('user-limit', 10, 'avatar_upgrade', 't2');
+      await service.earnCoins('user-limit', 50, 'match_win', 't3');
+      const tx = service.getUserTransactions('user-limit', 1);
+      expect(tx).toHaveLength(1);
+    });
+  });
 }); 
