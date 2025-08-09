@@ -13,7 +13,10 @@ const nextConfig = {
     scrollRestoration: true,
     workerThreads: true,
   },
+  // Add rewrites to proxy API requests to the backend and route SPA paths for investor portal
+
   // Add rewrites to proxy API requests to the backend and migrate Vercel rewrites
+
   async rewrites() {
     return [
       {
@@ -24,8 +27,7 @@ const nextConfig = {
         source: '/healthcheck',
         destination: '/api/health',
       },
-      {
-        source: '/investor-portal/:path*',
+   
         destination: '/investor-portal/index.html',
       },
       {

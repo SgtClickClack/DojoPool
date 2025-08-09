@@ -1,5 +1,4 @@
-{
-  "buildCommand": "npm run build",
+
   "installCommand": "npm install --legacy-peer-deps",
   "env": {
     "NODEJS_VERSION": "20.x
