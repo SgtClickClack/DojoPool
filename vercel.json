@@ -58,20 +58,7 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/api/:path*",
-      "has": [
-        {
-          "type": "header",
-          "key": "x-vercel-ip-country",
-          "value": "(?!AU|NZ).*"
-        }
-      ],
-      "permanent": false,
-      "destination": "/api/region-blocked"
-    }
-  ],
+  "redirects": [],
   "rewrites": [
     {
       "source": "/healthcheck",
@@ -87,12 +74,6 @@
     }
   ],
   "regions": ["syd1"],
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "github": {
     "silent": true,
     "autoJobCancelation": true
