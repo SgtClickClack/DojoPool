@@ -129,7 +129,7 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
         <Grid item xs={12} md={6}>
           <MetricCard
             title="P95 Latency"
-            value={metrics.p95Latency}
+            value={`${metrics.p95Latency.toFixed(2)}`}
             unit="ms"
             threshold={300}
             critical={750}
@@ -199,6 +199,10 @@ export const NetworkMetricsPanel: React.FC<NetworkMetricsPanelProps> = ({
                   { key: 'p95', name: '95th Percentile' },
                 ]}
               />
+              <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                <Typography variant="caption">Average</Typography>
+                <Typography variant="caption">95th Percentile</Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

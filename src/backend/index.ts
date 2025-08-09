@@ -59,6 +59,7 @@ import { param, query } from 'express-validator';
 // import { advancedBlockchainIntegrationRouter } from '.ts';
 import aiCommentaryRouter from './routes/ai-commentary.js';
 import challengeAlias from './routes/challenge.js';
+import economyRouter from './routes/economy.js';
 
 // Load environment variables
 config();
@@ -175,12 +176,14 @@ import venueRouter from './routes/venue.js';
 import tournamentRouter from './routes/tournament.js';
 import territoryRouter from './routes/territory.js';
 import socialRouter from './routes/social.js';
+import economyRouter from './routes/economy.js';
 app.use('/api', blockchainRouter);
 app.use('/api', clanRouter);
 app.use('/api', venueRouter);
 app.use('/api', tournamentRouter);
 app.use('/api', territoryRouter);
 app.use('/api', socialRouter);
+app.use('/api', economyRouter);
 app.use('/api', aiCommentaryRouter);
 app.use('/api', challengeAlias(io));
 // app.use('/api', userNftsRoutes);

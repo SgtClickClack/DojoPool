@@ -230,6 +230,26 @@ const challengeRoutes = (io: Server) => {
     }
   });
 
+  // Alias: POST /challenges (simple create)
+  router.post('/challenges', validateChallenge, async (req: express.Request, res: express.Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+    const { territoryId, challengerId, defenderId, challengeType } = req.body;
+    const challenge = {
+      id: `challenge_${Date.now()}`,
+      territoryId,
+      challengerId,
+      defenderId,
+      challengeType,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    challenges.set(challenge.id, challenge as any);
+    res.status(201).json(challenge);
+  });
+
   // Get all challenges
   router.get('/challenges', (req: express.Request, res: express.Response) => {
     try {
