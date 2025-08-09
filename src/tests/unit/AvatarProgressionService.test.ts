@@ -324,4 +324,46 @@ describe('AvatarProgressionService', () => {
       }).not.toThrow();
     });
   });
+
+  describe('branch coverage', () => {
+    it('should reach mastery level 3 when win rate >= 0.6 and gamesPlayed >= 20', () => {
+      for (let i = 0; i < 12; i++) {
+        service.updateVenueMastery('user-1', 'club', 'venue-2', 'Test Club', true);
+      }
+      for (let i = 0; i < 8; i++) {
+        service.updateVenueMastery('user-1', 'club', 'venue-2', 'Test Club', false);
+      }
+      const progression = service.getUserAvatarProgression('user-1');
+      const vm = progression.venueMastery.find(v => v.venueId === 'venue-2')!;
+      expect(vm.masteryLevel).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should reach mastery level 4 when win rate >= 0.7 and gamesPlayed >= 30', () => {
+      for (let i = 0; i < 21; i++) {
+        service.updateVenueMastery('user-1', 'hall', 'venue-3', 'Test Hall', true);
+      }
+      for (let i = 0; i < 9; i++) {
+        service.updateVenueMastery('user-1', 'hall', 'venue-3', 'Test Hall', false);
+      }
+      const progression = service.getUserAvatarProgression('user-1');
+      const vm = progression.venueMastery.find(v => v.venueId === 'venue-3')!;
+      expect(vm.masteryLevel).toBeGreaterThanOrEqual(4);
+    });
+
+    it('should reach mastery level 5 when win rate >= 0.8 and gamesPlayed >= 50', () => {
+      for (let i = 0; i < 40; i++) {
+        service.updateVenueMastery('user-1', 'arcade', 'venue-4', 'Test Arcade', true);
+      }
+      for (let i = 0; i < 10; i++) {
+        service.updateVenueMastery('user-1', 'arcade', 'venue-4', 'Test Arcade', false);
+      }
+      const progression = service.getUserAvatarProgression('user-1');
+      const vm = progression.venueMastery.find(v => v.venueId === 'venue-4')!;
+      expect(vm.masteryLevel).toBeGreaterThanOrEqual(5);
+    });
+
+    it('should handle unknown story event types without throwing', () => {
+      expect(() => service.onStoryEvent('user-1', 'unknown_event' as any, {})).not.toThrow();
+    });
+  });
 }); 
