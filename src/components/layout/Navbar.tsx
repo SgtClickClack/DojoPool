@@ -35,6 +35,7 @@ import {
   Storefront,
 } from "@mui/icons-material";
 import { useState } from "react";
+import Image from "next/image";
 
 const Navbar = () => {
   const [aiMenuAnchor, setAiMenuAnchor] = useState<null | HTMLElement>(null);
@@ -72,10 +73,13 @@ const Navbar = () => {
                 cursor: "pointer"
               }}
             >
-              <img
+              <Image
                 src="/images/logo.webp"
                 alt="DojoPool Logo"
-                style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8, boxShadow: '0 0 15px rgba(0,255,157,0.5)' }}
+                width={40}
+                height={40}
+                style={{ marginRight: 12, borderRadius: 8, boxShadow: '0 0 15px rgba(0,255,157,0.5)' }}
+                priority
               />
               <Typography
                 variant="h6"
@@ -99,6 +103,7 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             <Link href="/dashboard" passHref>
               <Button
+                aria-label="Go to Dashboard"
                 sx={{ 
                   color: "#00ff9d", 
                   display: "block",
@@ -118,6 +123,7 @@ const Navbar = () => {
             </Link>
             <Link href="/" passHref>
               <Button
+                aria-label="Explore World Map"
                 sx={{ 
                   color: "#00ff9d", 
                   display: "block",
@@ -137,6 +143,7 @@ const Navbar = () => {
             </Link>
             <Link href="/clan-wars" passHref>
               <Button
+                aria-label="Open Clan Wars"
                 sx={{ 
                   color: "#00ff9d", 
                   display: "block",
@@ -154,9 +161,9 @@ const Navbar = () => {
                 Clan Wars
               </Button>
             </Link>
-            <Button
-              component={RouterLink}
-              to="/tournaments"
+            <Link href="/tournaments" passHref>
+              <Button
+              aria-label="View Tournaments"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -173,9 +180,10 @@ const Navbar = () => {
             >
               Tournaments
             </Button>
-            <Button
-              component={RouterLink}
-              to="/ai-commentary"
+            </Link>
+            <Link href="/ai-commentary" passHref>
+              <Button
+              aria-label="AI Commentary"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -192,63 +200,67 @@ const Navbar = () => {
             >
               AI Commentary
             </Button>
-            <Button
-              component={RouterLink}
-              to="/avatar-progression"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Avatar
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/game-mechanics"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Game Mechanics
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/ledger"
-              sx={{ 
-                color: "#00ff9d", 
-                display: "block",
-                fontFamily: 'Orbitron, monospace',
-                fontWeight: 600,
-                mx: 2,
-                "&:hover": {
-                  color: "#00a8ff",
-                  textShadow: "0 0 10px rgba(0,168,255,0.5)",
-                  transform: "translateY(-2px)",
-                  transition: "all 0.3s ease",
-                },
-              }}
-            >
-              Ledger
-            </Button>
+            </Link>
+            <Link href="/avatar-progression" passHref>
+              <Button
+                aria-label="Avatar Progression"
+                sx={{ 
+                  color: "#00ff9d", 
+                  display: "block",
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  mx: 2,
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                Avatar
+              </Button>
+            </Link>
+            <Link href="/game-mechanics" passHref>
+              <Button
+                aria-label="Game Mechanics"
+                sx={{ 
+                  color: "#00ff9d", 
+                  display: "block",
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  mx: 2,
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                Game Mechanics
+              </Button>
+            </Link>
+            <Link href="/ledger" passHref>
+              <Button
+                aria-label="Open Ledger"
+                sx={{ 
+                  color: "#00ff9d", 
+                  display: "block",
+                  fontFamily: 'Orbitron, monospace',
+                  fontWeight: 600,
+                  mx: 2,
+                  "&:hover": {
+                    color: "#00a8ff",
+                    textShadow: "0 0 10px rgba(0,168,255,0.5)",
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
+                }}
+              >
+                Ledger
+              </Button>
+            </Link>
             
             {/* AI Features Dropdown */}
             <Button
@@ -286,8 +298,8 @@ const Navbar = () => {
               }}
             >
               <MenuItem
-                component={RouterLink}
-                to="/ai/match-analysis"
+                component={Link}
+                href="/ai/match-analysis"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -305,8 +317,8 @@ const Navbar = () => {
                 AI Match Analysis
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/voice-assistant"
+                component={Link}
+                href="/voice-assistant"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -324,8 +336,8 @@ const Navbar = () => {
                 Voice Assistant
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/ai/coaching"
+                component={Link}
+                href="/ai/coaching"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -343,8 +355,8 @@ const Navbar = () => {
                 AI Coaching
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/ai/advanced-match-analysis"
+                component={Link}
+                href="/ai/advanced-match-analysis"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -362,8 +374,8 @@ const Navbar = () => {
                 Advanced Analysis
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/performance/tournament-performance"
+                component={Link}
+                href="/performance/tournament-performance"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -381,8 +393,8 @@ const Navbar = () => {
                 Performance
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/tournaments/bracket-visualization"
+                component={Link}
+                href="/tournaments/bracket-visualization"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -400,8 +412,8 @@ const Navbar = () => {
                 3D Bracket
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/tournaments/commentary"
+                component={Link}
+                href="/tournaments/commentary"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -419,8 +431,8 @@ const Navbar = () => {
                 AI Commentary
               </MenuItem>
               <MenuItem
-                component={RouterLink}
-                to="/tournaments/prediction"
+                component={Link}
+                href="/tournaments/prediction"
                 onClick={handleAiMenuClose}
                 sx={{
                   color: '#00ff9d',
@@ -440,8 +452,8 @@ const Navbar = () => {
             </Menu>
 
             <Button
-              component={RouterLink}
-              to="/Social"
+              component={Link}
+              href="/Social"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -461,8 +473,8 @@ const Navbar = () => {
             </Button>
             
             <Button
-              component={RouterLink}
-              to="/referee/advanced-ai-referee"
+              component={Link}
+              href="/referee/advanced-ai-referee"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -482,8 +494,8 @@ const Navbar = () => {
             </Button>
             
             <Button
-              component={RouterLink}
-              to="/game-replay"
+              component={Link}
+              href="/game-replay"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -503,8 +515,8 @@ const Navbar = () => {
             </Button>
             
             <Button
-              component={RouterLink}
-              to="/analytics/tournament-analytics"
+              component={Link}
+              href="/analytics/tournament-analytics"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -526,7 +538,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/mobile"
+              href="/mobile"
               sx={{
                 '&:hover': {
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -541,7 +553,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/blockchain"
+              href="/blockchain"
               sx={{
                 '&:hover': {
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -554,8 +566,8 @@ const Navbar = () => {
               Blockchain
             </Button>
             <Button
-              component={RouterLink}
-              to="/nft-marketplace"
+              component={Link}
+              href="/nft-marketplace"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -574,8 +586,8 @@ const Navbar = () => {
               NFT Marketplace
             </Button>
             <Button
-              component={RouterLink}
-              to="/advanced-venue-analytics"
+              component={Link}
+              href="/advanced-venue-analytics"
               sx={{ 
                 color: "#00ff9d", 
                 display: "block",
@@ -596,7 +608,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/security"
+              href="/security"
               sx={{
                 '&:hover': {
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -628,7 +640,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/venue/venue-management"
+              href="/venue/venue-management"
               startIcon={<Business />}
               sx={{ mr: 1 }}
             >
@@ -637,7 +649,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/venue/dojo-profile"
+              href="/venue/dojo-profile"
               startIcon={<Palette />}
               sx={{ mr: 1 }}
             >
@@ -646,7 +658,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/venue/dojo-profile-customization"
+              href="/venue/dojo-profile-customization"
               startIcon={<AutoAwesome />}
               sx={{ mr: 1 }}
             >
@@ -655,7 +667,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/venue/analytics"
+              href="/venue/analytics"
               startIcon={<Assessment />}
               sx={{ mr: 1 }}
             >
@@ -664,7 +676,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/venue/equipment-management"
+              href="/venue/equipment-management"
               startIcon={<Build />}
               sx={{ mr: 1 }}
             >
@@ -673,7 +685,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/referee/ai-referee"
+              href="/referee/ai-referee"
               startIcon={<Gavel />}
               sx={{ mr: 1 }}
             >
@@ -682,7 +694,7 @@ const Navbar = () => {
             <Button
               color="inherit"
               component={Link}
-              to="/advanced-analytics"
+              href="/advanced-analytics"
               startIcon={<Analytics />}
               sx={{ mr: 1 }}
             >
