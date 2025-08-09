@@ -6,8 +6,10 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "concurrently \"next dev\" \"npm run dev:backend\"",
+    "build:backend": "tsc -p tsconfig.backend.json",
+    "start:backend": "node dist/backend/index.js",
     "start": "npx ts-node --esm src/backend/index.ts",
-    "dev:backend": "nodemon --watch src/backend --ext ts --exec \"node --loader ts-node/esm --no-warnings src/backend/index.ts\"",
+    "dev:backend": "concurrently -k \"tsc -p tsconfig.backend.json -w\" \"nodemon --watch dist/backend --ext js --delay 0.5 --exec \\\"node dist/backend/index.js\\\"\"",
     "build": "next build",
     "preview": "next start",
     "test": "vitest run --config vitest.unit.config.ts",

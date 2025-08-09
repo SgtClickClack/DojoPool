@@ -59,7 +59,14 @@ import { param, query } from 'express-validator';
 // import { advancedBlockchainIntegrationRouter } from '.ts';
 import aiCommentaryRouter from './routes/ai-commentary.js';
 import challengeAlias from './routes/challenge.js';
+import blockchainRouter from './routes/blockchain.js';
+import clanRouter from './routes/clan.js';
+import venueRouter from './routes/venue.js';
+import tournamentRouter from './routes/tournament.js';
+import territoryRouter from './routes/territory.js';
+import socialRouter from './routes/social.js';
 import economyRouter from './routes/economy.js';
+import { fileURLToPath } from 'url';
 
 // Load environment variables
 config();
@@ -170,13 +177,6 @@ app.get('/api/health', healthCheck);
 // Register routes
 app.use('/api/challenge', challengeRoutes(io));
 // Mount additional routers expected by integration tests
-import blockchainRouter from './routes/blockchain.js';
-import clanRouter from './routes/clan.js';
-import venueRouter from './routes/venue.js';
-import tournamentRouter from './routes/tournament.js';
-import territoryRouter from './routes/territory.js';
-import socialRouter from './routes/social.js';
-import economyRouter from './routes/economy.js';
 app.use('/api', blockchainRouter);
 app.use('/api', clanRouter);
 app.use('/api', venueRouter);
@@ -246,8 +246,17 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start server
-// Only start server if this file is being run directly
-if (process.argv[1] && process.argv[1].endsWith('index.ts')) {
+// Only start server if this module is the entrypoint
+const isDirectRun = (() => {
+  try {
+    const currentFilePath = fileURLToPath(import.meta.url);
+    return process.argv[1] && currentFilePath === process.argv[1];
+  } catch {
+    return true;
+  }
+})();
+
+if (isDirectRun) {
   server.listen(port, () => {
     logger.info(`🚀 DojoPool Backend Server running on port ${port}`);
     logger.info(`📊 Health check available at http://localhost:${port}/api/health`);
