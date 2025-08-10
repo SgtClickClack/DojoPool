@@ -177,10 +177,8 @@ class Logger {
   private logToService(entry: LogEntry): void {
     const payload = JSON.stringify(entry);
 
-    // Prefer non-blocking delivery in browsers
     if (typeof window !== 'undefined') {
       try {
-        // 1) Try sendBeacon if available (best-effort, non-blocking)
         if (navigator && typeof navigator.sendBeacon === 'function') {
           const beaconUrl = (window as any).__LOG_ENDPOINT__ || '/api/logs';
           const blob = new Blob([payload], { type: 'application/json' });
@@ -188,7 +186,6 @@ class Logger {
           if (sent) return;
         }
 
-        // 2) Fallback to fetch with keepalive
         const fetchUrl = (window as any).__LOG_ENDPOINT__ || '/api/logs';
         void fetch(fetchUrl, {
           method: 'POST',
@@ -196,13 +193,12 @@ class Logger {
           body: payload,
           keepalive: true,
         }).catch(() => {
-          // Silently ignore and fallback to localStorage below
+          // ignore and fallback to localStorage
         });
       } catch {
-        // Ignore and fallback to localStorage below
+        // ignore and fallback
       }
 
-      // 3) Local fallback buffer in localStorage
       try {
         const logs = JSON.parse(localStorage.getItem('dojopool_logs') || '[]');
         logs.push(entry);
@@ -210,13 +206,11 @@ class Logger {
         localStorage.setItem('dojopool_logs', JSON.stringify(logs));
         return;
       } catch (err) {
-        // Last resort: console
         // eslint-disable-next-line no-console
         console.error('Failed to buffer log entry:', err);
       }
     }
 
-    // Node or non-window environments: write to stdout as a minimal sink
     try {
       // eslint-disable-next-line no-console
       console.log(`[log] ${payload}`);
