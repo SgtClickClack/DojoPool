@@ -53,3 +53,4 @@ build/
 # Project specific
 Dojo_Pool/ctags
 dojopool.bundle
+/infrastructure/cdk.out
