@@ -1,0 +1,51 @@
+{
+  "version": "45.0.0",
+  "files": {
+    "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6": {
+      "displayName": "DojoPoolInfrastructureStack/Custom::S3AutoDeleteObjectsCustomResourceProvider Code",
+      "source": {
+        "path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "558721173871-ap-southeast-2-1ad0c3b1": {
+          "bucketName": "cdk-hnb659fds-assets-558721173871-ap-southeast-2",
+          "objectKey": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+          "region": "ap-southeast-2",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::558721173871:role/cdk-hnb659fds-file-publishing-role-558721173871-ap-southeast-2"
+        }
+      }
+    },
+    "60f4d5d65e2e7ca123e96726d3033d36c63215c1805c8ae4b513882d482897a5": {
+      "displayName": "VenueManagementFunction/Code",
+      "source": {
+        "path": "asset.60f4d5d65e2e7ca123e96726d3033d36c63215c1805c8ae4b513882d482897a5",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "558721173871-ap-southeast-2-3d49263d": {
+          "bucketName": "cdk-hnb659fds-assets-558721173871-ap-southeast-2",
+          "objectKey": "60f4d5d65e2e7ca123e96726d3033d36c63215c1805c8ae4b513882d482897a5.zip",
+          "region": "ap-southeast-2",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::558721173871:role/cdk-hnb659fds-file-publishing-role-558721173871-ap-southeast-2"
+        }
+      }
+    },
+    "83114413ae2bff9667f9410c9beff4ad76fd10666aa0c1e9363caf0a34bdc797": {
+      "displayName": "DojoPoolInfrastructureStack Template",
+      "source": {
+        "path": "DojoPoolInfrastructureStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "558721173871-ap-southeast-2-20bc9a02": {
+          "bucketName": "cdk-hnb659fds-assets-558721173871-ap-southeast-2",
+          "objectKey": "83114413ae2bff9667f9410c9beff4ad76fd10666aa0c1e9363caf0a34bdc797.json",
+          "region": "ap-southeast-2",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::558721173871:role/cdk-hnb659fds-file-publishing-role-558721173871-ap-southeast-2"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
