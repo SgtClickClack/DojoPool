@@ -1,0 +1,217 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .next/trace
+        modified:   package-lock.json
+        modified:   package.json
+        modified:   src/backend/config/environment.ts
+        modified:   src/backend/index-simple.ts
+        modified:   src/backend/index.ts
+        modified:   src/backend/middleware/auth.ts
+        modified:   src/backend/middleware/errorHandler.ts
+        modified:   src/backend/middleware/validation.ts
+        modified:   src/backend/routes/advanced-analytics-Meex.ts
+        modified:   src/backend/routes/advanced-analytics.ts
+        modified:   src/backend/routes/advanced-blockchain-integration.ts
+        modified:   src/backend/routes/advanced-player-analytics.ts
+        modified:   src/backend/routes/advanced-social-community.ts
+        modified:   src/backend/routes/advanced-tournament.ts
+        modified:   src/backend/routes/advanced-venue-management.ts
+        modified:   src/backend/routes/ai-commentary.ts
+        modified:   src/backend/routes/blockchain.ts
+        modified:   src/backend/routes/challenge-phase4.ts
+        modified:   src/backend/routes/challenge.ts
+        modified:   src/backend/routes/clan.ts
+        modified:   src/backend/routes/dojo.ts
+        modified:   src/backend/routes/economy.ts
+        modified:   src/backend/routes/enhanced-social.ts
+        modified:   src/backend/routes/highlights.ts
+        modified:   src/backend/routes/investor-auth.ts
+        modified:   src/backend/routes/match-tracking.ts
+        modified:   src/backend/routes/passive-income.ts
+        modified:   src/backend/routes/player.ts
+        modified:   src/backend/routes/social.ts
+        modified:   src/backend/routes/territory.ts
+        modified:   src/backend/routes/tournament.ts
+        modified:   src/backend/routes/userNfts.ts
+        modified:   src/backend/routes/venue-customization.ts
+        modified:   src/backend/routes/venue-leaderboard.ts
+        modified:   src/backend/routes/venue.ts
+        modified:   src/backend/services/AvatarProcessingService.ts
+        modified:   src/backend/services/WardrobeService.ts
+        modified:   src/backend/simple-index.ts
+        modified:   src/firebase/firebase.ts
+        modified:   src/services/AnalyticsService.ts
+        modified:   src/services/ChallengeService.ts
+        modified:   src/services/DojoService.ts
+        modified:   src/services/ErrorHandlingService.ts
+        modified:   src/services/GameBalanceService.ts
+        modified:   src/services/GameMechanicsService.ts
+        modified:   src/services/LivingWorldHubService.ts
+        modified:   src/services/OnboardingService.ts
+        modified:   src/services/PerformanceOptimizationService.ts
+        modified:   src/services/ProductionDeploymentService.ts
+        modified:   src/services/RealTimeMatchTrackingService.ts
+        modified:   src/services/SecurityService.ts
+        modified:   src/services/TournamentService.ts
+        modified:   src/services/WebSocketService.ts
+        modified:   src/services/ai/AIPoweredCommentaryHighlightsService.ts
+        modified:   src/services/ai/AIPoweredMatchAnalysisService-Meex.ts
+        modified:   src/services/ai/AIPoweredMatchAnalysisService.ts
+        modified:   src/services/ai/AIRefereeService.ts
+        modified:   src/services/ai/AdvancedAIMatchCommentaryHighlightsService.ts
+        modified:   src/services/ai/AdvancedAIRefereeRuleEnforcementService.ts
+        modified:   src/services/ai/AdvancedAIRefereeService-Meex.ts
+        modified:   src/services/ai/AdvancedAIRefereeService.ts
+        modified:   src/services/ai/AdvancedMatchAnalysisService.ts
+        modified:   src/services/ai/AdvancedMatchCommentaryService-Meex.ts
+        modified:   src/services/ai/AdvancedMatchCommentaryService.ts
+        modified:   src/services/ai/MatchAnalysisService-Meex.ts
+        modified:   src/services/ai/RealTimeAICommentaryService-Meex.ts
+        modified:   src/services/ai/RealTimeAICommentaryService.ts
+        modified:   src/services/ai/SkyT1Service.ts
+        modified:   src/services/ai/TextGenerationService.ts
+        modified:   src/services/ai/TournamentCommentaryService-Meex.ts
+        modified:   src/services/ai/TournamentCommentaryService.ts
+        modified:   src/services/ai/TournamentPredictionService-Meex.ts
+        modified:   src/services/ai/TournamentPredictionService.ts
+        modified:   src/services/ai/VoiceAssistantService-Meex.ts
+        modified:   src/services/ai/VoiceAssistantService.ts
+        modified:   src/services/ai/commentary/CommentaryEngine.ts
+        modified:   src/services/ai/skyT1Client.ts
+        modified:   src/services/analytics/AdvancedAnalyticsService-Meex.ts
+        modified:   src/services/analytics/AdvancedAnalyticsService.ts
+        modified:   src/services/analytics/AdvancedPlayerAnalyticsService.ts
+        modified:   src/services/analytics/AdvancedVenueAnalyticsService-Meex.ts
+        modified:   src/services/analytics/AdvancedVenueAnalyticsService.ts
+        modified:   src/services/analytics/AnalyticsService.ts
+        modified:   src/services/analytics/TournamentAnalyticsService-Meex.ts
+        modified:   src/services/analytics/TournamentAnalyticsService.ts
+        modified:   src/services/analytics/VenueAnalyticsService-Meex.ts
+        modified:   src/services/analytics/VenueAnalyticsService.ts
+        modified:   src/services/api.ts
+        modified:   src/services/auth/InvestorAuthService.ts
+        modified:   src/services/auth/session.ts
+        modified:   src/services/avatar/AvatarCreationService.ts
+        modified:   src/services/avatar/AvatarProgressionService.ts
+        modified:   src/services/avatar3DService-Meex.ts
+        modified:   src/services/blockchain/AdvancedBlockchainIntegrationService.ts
+        modified:   src/services/blockchain/EnhancedBlockchainService.ts
+        modified:   src/services/blockchain/NFTMarketplaceService-Meex.ts
+        modified:   src/services/blockchain/NFTMarketplaceService.ts
+        modified:   src/services/blockchain/TournamentBlockchainService-Meex.ts
+        modified:   src/services/blockchain/TournamentBlockchainService.ts
+        modified:   src/services/cdn/cost_optimizer.ts
+        modified:   src/services/challengeStorage.ts
+        modified:   src/services/clan/ClanSystemService-Meex.ts
+        modified:   src/services/clan/ClanSystemService.ts
+        modified:   src/services/clan/ClanWarService.ts
+        modified:   src/services/compliance/TournamentComplianceService.ts
+        modified:   src/services/core/AlertHistoryService.ts
+        modified:   src/services/core/BaseService.ts
+        modified:   src/services/core/ErrorLoggingService.ts
+        modified:   src/services/core/FeedbackService.ts
+        modified:   src/services/core/SecurityService.ts
+        modified:   src/services/economy/DojoCoinEconomyService.ts
+        modified:   src/services/economy/PassiveIncomeService-Meex.ts
+        modified:   src/services/economy/PassiveIncomeService.ts
+        modified:   src/services/franchise/FranchiseService.ts
+        modified:   src/services/game/AdvancedGameReplayService-Meex.ts
+        modified:   src/services/game/AdvancedGameReplayService.ts
+        modified:   src/services/game/AdvancedTournamentService.ts
+        modified:   src/services/game/GameStateService.ts
+        modified:   src/services/game/PlayerMovementService.ts
+        modified:   src/services/game/__tests__/GameStateService.test.ts
+        modified:   src/services/match/MatchAnalyticsService.ts
+        modified:   src/services/match/MatchDataService.ts
+        modified:   src/services/match/MatchHighlightsService.ts
+        modified:   src/services/match/MatchRewardsService.ts
+        modified:   src/services/match/RealTimeMatchTrackingService.ts
+        modified:   src/services/match/index.ts
+        modified:   src/services/mobile/TournamentMobileService-Meex.ts
+        modified:   src/services/mobile/TournamentMobileService.ts
+        modified:   src/services/monitoring/DependencyPerformanceMonitor.ts
+        modified:   src/services/monitoring/MemoryProfilerService.ts
+        modified:   src/services/monitoring/PerformanceMonitor.ts
+        modified:   src/services/narrative/NarrativeEventSystem.ts
+        modified:   src/services/network/WebSocketService.ts
+        modified:   src/services/performance/TournamentPerformanceService-Meex.ts
+        modified:   src/services/performance/TournamentPerformanceService.ts
+        modified:   src/services/progression/ProgressionService.ts
+        modified:   src/services/referee/AIRefereeService-Meex.ts
+        modified:   src/services/referee/AIRefereeService.ts
+        modified:   src/services/security/TournamentSecurityService.ts
+        modified:   src/services/social/AdvancedSocialCommunityService.ts
+        modified:   src/services/social/SocialCommunityService.ts
+        modified:   src/services/social/SocialFeaturesService-Meex.ts
+        modified:   src/services/social/SocialFeaturesService.ts
+        modified:   src/services/social/SocialService.ts
+        modified:   src/services/social/TournamentSocialService.ts
+        modified:   src/services/storage/CacheService.ts
+        modified:   src/services/storage/OfflineStorageService.ts
+        modified:   src/services/streaming/TournamentStreamingService.ts
+        modified:   src/services/territory/TerritoryGameplayService.ts
+        modified:   src/services/territory/TerritoryService.ts
+        modified:   src/services/tournament/AdvancedTournamentManagementService.ts
+        modified:   src/services/tournament/BracketVisualizationService-Meex.ts
+        modified:   src/services/tournament/BracketVisualizationService.ts
+        modified:   src/services/tournament/EnhancedTournamentService.ts
+        modified:   src/services/tournament/RealTimeMatchService.ts
+        modified:   src/services/tournament/TournamentAnalyticsService.ts
+        modified:   src/services/tournament/TournamentBracket3DService.ts
+        modified:   src/services/tournament/TournamentMobileService.ts
+        modified:   src/services/tournament/TournamentProgressionService.ts
+        modified:   src/services/tournament/TournamentService.ts
+        modified:   src/services/tournament/TournamentSocialService.ts
+        modified:   src/services/tournament/TournamentStreamingService.ts
+        modified:   src/services/tournament/UnifiedTournamentService.ts
+        modified:   src/services/tournament/tournament.ts
+        modified:   src/services/venue/AdvancedVenueManagementService.ts
+        modified:   src/services/venue/DojoCoinRewardService.ts
+        modified:   src/services/venue/DojoProfileCustomizationService.ts
+        modified:   src/services/venue/DojoProfileService.ts
+        modified:   src/services/venue/EnhancedVenueManagementService.ts
+        modified:   src/services/venue/EquipmentManagementService.ts
+        modified:   src/services/venue/VenueCustomizationService.ts
+        modified:   src/services/venue/VenueHardwareService.ts
+        modified:   src/services/venue/VenueLeaderboardService-Meex.ts
+        modified:   src/services/venue/VenueLeaderboardService.ts
+        modified:   src/services/venue/VenueManagementService.ts
+        modified:   src/services/venue/VenueService.ts
+        modified:   src/services/venue/VenueSpecialsService.ts
+        modified:   src/services/venue/VenueStoryService.ts
+        modified:   src/services/venue/venue.ts
+        modified:   src/services/wallet/NFTWalletService.ts
+        modified:   src/services/wallet/WalletConnectionService-Meex.ts
+        modified:   src/services/wallet/WalletConnectionService.ts
+        modified:   src/services/wallet/WalletService.ts
+        modified:   src/types/game.ts
+        modified:   src/types/tournament.ts
+        modified:   tsconfig.backend.json
+        modified:   tsconfig.json
+        modified:   tsconfig.tsbuildinfo
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .junie/
+        .output2.txt
+        AUTHENTICATION_SECURITY_IMPLEMENTATION.md
+        BACKEND_MONITORING_IMPORT_RESOLUTION.md
+        DEV_SERVER_FIXES_SUMMARY.md
+        MONITORING_IMPORT_FINAL_RESOLUTION.md
+        MONITORING_IMPORT_FIX_FINAL.md
+        MONITORING_IMPORT_ISSUE_RESOLVED.md
+        MONITORING_IMPORT_RESOLUTION_FINAL.md
+        TERRITORY_CLAIM_TEST_RESULTS.md
+        TOURNAMENT_IMPORT_FIXES_SUMMARY.md
+        test-backend-crash.js
+        test-backend.js
+        test-monitoring-import-final-fix.js
+        test-monitoring-import-final-verification.js
+        test-monitoring-import-final.js
+        test-monitoring-import-fix.js
+        test-monitoring-import-simple.js
+        test-monitoring-import-verification.js
+        test_territory_claim_endtoend.html
+no changes added to commit (use "git add" and/or "git commit -a")

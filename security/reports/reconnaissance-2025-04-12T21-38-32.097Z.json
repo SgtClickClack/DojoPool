@@ -1,0 +1,50 @@
+{
+  "domainInfo": {
+    "ipAddresses": [
+      "127.0.0.1"
+    ],
+    "mxRecords": [],
+    "txtRecords": [],
+    "subdomains": [
+      "www.localhost",
+      "api.localhost",
+      "staging.localhost",
+      "dev.localhost",
+      "test.localhost",
+      "admin.localhost",
+      "beta.localhost",
+      "mail.localhost",
+      "blog.localhost",
+      "docs.localhost"
+    ]
+  },
+  "technologyStack": {
+    "frontend": [],
+    "backend": [
+      "Express"
+    ],
+    "database": [],
+    "infrastructure": []
+  },
+  "endpoints": {
+    "api": [
+      "/api/auth",
+      "/api/users",
+      "/api/games",
+      "/api/tournaments",
+      "/api/analytics",
+      "/api/settings"
+    ],
+    "websocket": [],
+    "static": []
+  },
+  "securityHeaders": {
+    "Content-Security-Policy": "Not set",
+    "X-Content-Type-Options": "Not set",
+    "X-Frame-Options": "Not set",
+    "X-XSS-Protection": "Not set",
+    "Strict-Transport-Security": "Not set",
+    "Referrer-Policy": "Not set",
+    "Permissions-Policy": "Not set"
+  }
+}

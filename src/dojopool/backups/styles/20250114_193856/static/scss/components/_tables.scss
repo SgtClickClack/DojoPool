@@ -1,0 +1,301 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base table styles
+.table {
+  width: 100%;
+  margin-bottom: spacing(4);
+  color: color(neutral, 900);
+  vertical-align: top;
+  border-color: color(neutral, 200);
+
+  // Caption
+  caption {
+    padding: spacing(2) 0;
+    caption-side: bottom;
+    text-align: left;
+    color: color(neutral, 600);
+    @include font-size(sm);
+  }
+
+  // Cell padding
+  th,
+  td {
+    padding: spacing(4) spacing(6);
+    background-color: white;
+    border-bottom: 1px solid color(neutral, 200);
+  }
+
+  // Headers
+  thead {
+    th {
+      @include font-weight(semibold);
+      text-align: left;
+      background-color: color(neutral, 50);
+      border-bottom-width: 2px;
+      white-space: nowrap;
+
+      // Sorting
+      &.sortable {
+        cursor: pointer;
+        padding-right: spacing(8);
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          right: spacing(3);
+          top: 50%;
+          transform: translateY(-50%);
+          width: spacing(4);
+          height: spacing(4);
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: contain;
+          opacity: 0.5;
+        }
+
+        &:hover::after {
+          opacity: 1;
+        }
+
+        &.asc::after {
+          transform: translateY(-50%) rotate(180deg);
+        }
+      }
+    }
+  }
+
+  // Row hover
+  tbody {
+    tr {
+      @include transition(background-color);
+
+      &:hover {
+        background-color: color(neutral, 50);
+      }
+    }
+  }
+}
+
+// Table variants
+.table-bordered {
+  th,
+  td {
+    border: 1px solid color(neutral, 200);
+  }
+}
+
+.table-borderless {
+  th,
+  td,
+  thead th,
+  tbody + tbody {
+    border: 0;
+  }
+}
+
+.table-striped {
+  tbody tr:nth-of-type(odd) {
+    background-color: color(neutral, 50);
+
+    &:hover {
+      background-color: color(neutral, 100);
+    }
+  }
+}
+
+.table-hover {
+  tbody tr {
+    &:hover {
+      background-color: color(neutral, 100);
+    }
+  }
+}
+
+// Table sizes
+.table-sm {
+  th,
+  td {
+    padding: spacing(2) spacing(3);
+    @include font-size(sm);
+  }
+}
+
+.table-lg {
+  th,
+  td {
+    padding: spacing(6) spacing(8);
+    @include font-size(lg);
+  }
+}
+
+// Responsive tables
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  @include custom-scrollbar;
+
+  @each $breakpoint in map-keys($breakpoints) {
+    $next: breakpoint-next($breakpoint);
+
+    &-#{$breakpoint} {
+      @include breakpoint-down($next) {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        .table {
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}
+
+// Table with fixed header
+.table-fixed-header {
+  position: relative;
+  height: 100%;
+  overflow: auto;
+  @include custom-scrollbar;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    th {
+      position: sticky;
+      top: 0;
+      background-color: color(neutral, 50);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-bottom: 2px solid color(neutral, 200);
+      }
+    }
+  }
+}
+
+// Table with selection
+.table-selectable {
+  tbody tr {
+    cursor: pointer;
+
+    &.selected {
+      background-color: color(primary, 50);
+
+      &:hover {
+        background-color: color(primary, 100);
+      }
+
+      td {
+        color: color(primary, 900);
+      }
+    }
+  }
+}
+
+// Table with actions
+.table-actions {
+  th:last-child,
+  td:last-child {
+    text-align: right;
+    white-space: nowrap;
+    width: 1%;
+  }
+
+  .btn + .btn {
+    margin-left: spacing(2);
+  }
+}
+
+// Table loading state
+.table-loading {
+  position: relative;
+  min-height: 200px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(white, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      content: '';
+      width: spacing(8);
+      height: spacing(8);
+      border: 2px solid color(primary, 200);
+      border-top-color: color(primary, 500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Table empty state
+.table-empty {
+  text-align: center;
+  padding: spacing(12);
+  background-color: color(neutral, 50);
+  border: 1px solid color(neutral, 200);
+  @include rounded(lg);
+
+  .empty-icon {
+    width: spacing(16);
+    height: spacing(16);
+    margin-bottom: spacing(4);
+    color: color(neutral, 400);
+  }
+
+  .empty-title {
+    margin-bottom: spacing(2);
+    color: color(neutral, 900);
+    @include font-size(xl);
+    @include font-weight(semibold);
+  }
+
+  .empty-description {
+    color: color(neutral, 600);
+    margin-bottom: spacing(6);
+  }
+}
+
+// Table pagination
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: spacing(4) 0;
+  border-top: 1px solid color(neutral, 200);
+
+  .pagination-info {
+    color: color(neutral, 600);
+    @include font-size(sm);
+  }
+
+  .pagination-pages {
+    display: flex;
+    align-items: center;
+    gap: spacing(2);
+  }
+}

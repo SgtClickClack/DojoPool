@@ -1,0 +1,71 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\alertSystem.js",
+  "typescript_file": "src\\dojopool\\static\\js\\alertSystem.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\alertSystem.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "AlertSystem",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "saved",
+        "type": "any"
+      },
+      {
+        "name": "parsed",
+        "type": "any"
+      },
+      {
+        "name": "permission",
+        "type": "any"
+      },
+      {
+        "name": "timestamp",
+        "type": "any"
+      },
+      {
+        "name": "alerts",
+        "type": "any"
+      },
+      {
+        "name": "duration",
+        "type": "any"
+      },
+      {
+        "name": "speed",
+        "type": "any"
+      },
+      {
+        "name": "usagePercent",
+        "type": "any"
+      },
+      {
+        "name": "alert",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "alertSystem",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": [
+      "instance",
+      "alertSystem"
+    ]
+  },
+  "generated_types": {
+    "AlertSystem": "\nclass AlertSystem {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "alertSystem": "\ninterface alertSystem {\n    // Properties\n}"
+  }
+}

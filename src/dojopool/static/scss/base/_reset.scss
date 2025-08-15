@@ -1,0 +1,225 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Modern CSS Reset
+
+// Box sizing
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// Remove default margin
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+// Set core body defaults
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  line-height: map-get($line-height, normal);
+  font-family: $font-family-base;
+  background-color: color(neutral, 50);
+  color: color(neutral, 900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Make images easier to work with
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+// Remove list styles
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+}
+
+// Inherit fonts for inputs and buttons
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+// Remove all animations and transitions for people that prefer not to see them
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Links
+a {
+  color: color(primary, 500);
+  text-decoration: none;
+  @include transition(color);
+
+  &:hover {
+    color: color(primary, 700);
+  }
+}
+
+// Headings
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $font-family-heading;
+  @include font-weight(bold);
+  line-height: map-get($line-height, tight);
+  color: color(neutral, 900);
+}
+
+h1 {
+  @include font-size(4xl);
+}
+
+h2 {
+  @include font-size(3xl);
+}
+
+h3 {
+  @include font-size(2xl);
+}
+
+h4 {
+  @include font-size(xl);
+}
+
+h5 {
+  @include font-size(lg);
+}
+
+h6 {
+  @include font-size(base);
+}
+
+// Paragraphs
+p {
+  margin-bottom: spacing(4);
+}
+
+// Small text
+small {
+  @include font-size(sm);
+}
+
+// Code
+code,
+pre {
+  font-family: $font-family-mono;
+  @include font-size(sm);
+}
+
+pre {
+  padding: spacing(4);
+  margin: spacing(4) 0;
+  background-color: color(neutral, 100);
+  border-radius: map-get($border-radius, base);
+  overflow-x: auto;
+  @include custom-scrollbar;
+}
+
+// Tables
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: spacing(4) 0;
+}
+
+th,
+td {
+  padding: spacing(2) spacing(3);
+  text-align: left;
+  border-bottom: 1px solid color(neutral, 200);
+}
+
+th {
+  @include font-weight(semibold);
+  background-color: color(neutral, 100);
+}
+
+// Forms
+label {
+  display: block;
+  @include font-weight(medium);
+  margin-bottom: spacing(1);
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: spacing(2) spacing(3);
+  border: 1px solid color(neutral, 300);
+  @include rounded;
+  @include transition(border-color, box-shadow);
+  background-color: white;
+
+  &:focus {
+    outline: none;
+    border-color: color(primary, 500);
+    @include focus-ring;
+  }
+
+  &:disabled {
+    background-color: color(neutral, 100);
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: color(neutral, 400);
+  }
+}
+
+// Selection
+::selection {
+  background-color: color(primary, 100);
+  color: color(primary, 900);
+}
+
+// Focus outline
+:focus-visible {
+  outline: none;
+  @include focus-ring;
+}
+
+// Scrollbar
+body {
+  @include custom-scrollbar;
+}

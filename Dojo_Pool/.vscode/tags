@@ -1,0 +1,1006 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	c:/Users/JR/Documents/DojoPool/Dojo_Pool/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/80ee839/
+A	../ctags/Tmain/readtags-qualifier.d/base.py	/^    class A:$/;"	kind:class	line:11
+A	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^A=1$/;"	kind:variable	line:43
+A	../ctags/Units/parser-python.r/bug3168705.py.d/input.py	/^class A:$/;"	kind:class	line:1
+A	../ctags/Units/parser-python.r/multiline-class-def.d/input.py	/^class A(Foo,$/;"	kind:class	line:1
+A	../ctags/Units/parser-python.r/python-disable-member-kind.d/input.py	/^class A:$/;"	kind:class	line:1
+A	../ctags/Units/parser-python.r/python-end-field.d/input.py	/^class A(object):$/;"	kind:class	line:1
+A	../ctags/Units/writer-json.r/fq-json.d/input.py	/^class A:$/;"	kind:class	line:1
+A	../ctags/Units/writer-xref.r/fq-xref.d/input.py	/^class A:$/;"	kind:class	line:1
+ALL	../ctags/Units/parser-python.r/simple.py.d/input.py	/^ALL = 0xff $/;"	kind:variable	line:12
+ALLOWED_EXTENSIONS	../TheRolePlayAssistant/photo_verification.py	/^ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}$/;"	kind:variable	line:13
+Achievement	../TheRolePlayAssistant/models.py	/^class Achievement(db.Model):$/;"	kind:class	line:83
+AdventureManager	../TheRolePlayAssistant/game/adventure_manager.py	/^class AdventureManager:$/;"	kind:class	line:7
+AsyncIteratorWrapper	../ctags/Units/parser-python.r/async.d/input.py	/^class AsyncIteratorWrapper:$/;"	kind:class	line:32
+AuthHandler	../TheRolePlayAssistant/src/auth/auth_handler.py	/^class AuthHandler:$/;"	kind:class	line:7
+B	../ctags/Tmain/readtags-qualifier.d/base.py	/^    class B:$/;"	kind:class	line:18
+B	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^B=1$/;"	kind:variable	line:46
+B	../ctags/Units/parser-python.r/multiline-class-def.d/input.py	/^class B():$/;"	kind:class	line:5
+Bar	../ctags/Tmain/readtags-qualifier.d/base.py	/^class Bar (Foo):$/;"	kind:class	line:13
+Bar	../ctags/Units/parser-python.r/blanks.d/input.py	/^class Bar:$/;"	kind:class	line:9
+Bar	../ctags/Units/parser-python.r/python-fullqualified-tags.d/input.py	/^    class Bar():$/;"	kind:class	line:4
+Bar	../ctags/Units/parser-python.r/python-keyword-tabulation.d/input.py	/^class	Bar:$/;"	kind:class	line:5
+Bar	../ctags/Units/parser-python.r/triple-quotes-in-class.d/input.py	/^class Bar():$/;"	kind:class	line:7
+Bar	../ctags/Units/parser-python.r/triple-quotes-in-list.d/input.py	/^class Bar():$/;"	kind:class	line:9
+Base	../TheRolePlayAssistant/models/user_profile_model.py	/^Base = declarative_base()$/;"	kind:variable	line:4
+Base	../TheRolePlayAssistant/src/models/user_profile_model.py	/^Base = declarative_base()$/;"	kind:variable	line:4
+BasicStarship	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^class BasicStarship:$/;"	kind:class	line:27
+Baz	../ctags/Tmain/readtags-qualifier.d/base.py	/^class Baz (Foo): $/;"	kind:class	line:21
+C	../ctags/Tmain/readtags-qualifier.d/base.py	/^    class C:$/;"	kind:class	line:26
+C	../ctags/Units/parser-python.r/python-access.d/input.py	/^class C:$/;"	kind:class	line:28
+CATEGORIES	../ctags/misc/units.py	/^CATEGORIES = []$/;"	kind:variable	line:54
+CDefClass	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^cdef class CDefClass :$/;"	kind:class	line:21
+CHALLENGE_HANDLING	../TheRolePlayAssistant/utils.py	/^CHALLENGE_HANDLING = [$/;"	kind:variable	line:89
+COLORIZED_OUTPUT	../ctags/misc/units.py	/^COLORIZED_OUTPUT = True$/;"	kind:variable	line:53
+COMMUNICATION_STYLES	../TheRolePlayAssistant/utils.py	/^COMMUNICATION_STYLES = [$/;"	kind:variable	line:83
+COSTUMES	../TheRolePlayAssistant/utils.py	/^COSTUMES = [$/;"	kind:variable	line:114
+CTAGS	../ctags/misc/units.py	/^CTAGS = '.\/ctags'$/;"	kind:variable	line:48
+Character	../TheRolePlayAssistant/models.py	/^class Character(db.Model):$/;"	kind:class	line:23
+CharacterTemplate	../TheRolePlayAssistant/models.py	/^class CharacterTemplate(db.Model):$/;"	kind:class	line:48
+ClassesToo	../ctags/Units/parser-python.r/python-access.d/input.py	/^    class ClassesToo:$/;"	kind:class	line:16
+Cls	../ctags/Units/parser-python.r/newlines-cr.b/input.py	/^/;"	kind:class	line:1
+Cls	../ctags/Units/parser-python.r/newlines-crlf.d/input.py	/^class Cls:$/;"	kind:class	line:10
+Cls	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^class Cls(object):$/;"	kind:class	line:40
+Cls	../ctags/Units/parser-python.r/python-dotted-variable.d/input.py	/^class Cls:$/;"	kind:class	line:2
+Cls	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^class Cls:$/;"	kind:class	line:4
+Cls	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^class Cls:$/;"	kind:class	line:50
+Cls01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^class Cls01:$/;"	kind:class	line:19
+CtagsOptlibLexer	../ctags/docs/_ext/ctags_optlib_highlighter.py	/^class CtagsOptlibLexer(RegexLexer):$/;"	kind:class	line:44
+Cursor	../ctags/Units/parser-python.r/async.d/input.py	/^class Cursor:$/;"	kind:class	line:14
+D	../ctags/Units/parser-python.r/python-dot-in-import.d/input.py	/^from A.B import C as D$/;"	kind:unknown	line:1	nameref:unknown:C
+DATA	../ctags/Units/parser-python.r/simple.py.d/input.py	/^DATA = 0x08 # Used by dbtreedata$/;"	kind:variable	line:16
+DIFF_U_NUM	../ctags/misc/units.py	/^DIFF_U_NUM = 0$/;"	kind:variable	line:61
+DeviceSchema	../ctags/Units/parser-python.r/python-geany-bug-612.d/input.py	/^class DeviceSchema(colander.MappingSchema):$/;"	kind:class	line:5
+EYE_COLORS	../TheRolePlayAssistant/utils.py	/^EYE_COLORS = ["blue", "brown", "green", "hazel", "amber"]$/;"	kind:variable	line:58
+F	../ctags/Units/parser-iPythonCell.r/customizing.d/input.py	/^def F():$/;"	kind:function	line:3
+F	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^def F():$/;"	kind:function	line:48
+Foo	../ctags/Tmain/json-output-format.d/input.py	/^class Foo:$/;"	kind:class	line:1
+Foo	../ctags/Tmain/readtags-qualifier.d/base.py	/^class Foo:$/;"	kind:class	line:4
+Foo	../ctags/Tmain/xformat-common-fields.d/input.py	/^class Foo:$/;"	kind:class	line:1
+Foo	../ctags/Units/parser-python.r/blanks.d/input.py	/^class Foo:$/;"	kind:class	line:2
+Foo	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^class Foo(object):$/;"	kind:class	line:20
+Foo	../ctags/Units/parser-python.r/python-fullqualified-tags.d/input.py	/^class Foo():$/;"	kind:class	line:1
+Foo	../ctags/Units/parser-python.r/triple-quotes-in-class.d/input.py	/^class Foo():$/;"	kind:class	line:1
+Foo	../ctags/Units/parser-python.r/triple-quotes-in-list.d/input.py	/^class Foo():$/;"	kind:class	line:1
+GameController	../TheRolePlayAssistant/src/controllers/game_controller.py	/^class GameController:$/;"	kind:class	line:5
+GameWebSocket	../TheRolePlayAssistant/src/websocket/server.py	/^class GameWebSocket:$/;"	kind:class	line:6
+HAIR_COLORS	../TheRolePlayAssistant/utils.py	/^HAIR_COLORS = ["brown", "black", "blonde", "red", "auburn", "dark brown", $/;"	kind:variable	line:55
+HEADER_TEMPLATE	../ctags/Units/parser-python.r/bug699171.py.d/input.py	/^HEADER_TEMPLATE = {$/;"	kind:variable	line:4
+HEIGHTS	../TheRolePlayAssistant/utils.py	/^HEIGHTS = [$/;"	kind:variable	line:48
+HOBBIES	../TheRolePlayAssistant/utils.py	/^HOBBIES = [$/;"	kind:variable	line:100
+INDENT	../ctags/Units/parser-python.r/simple.py.d/input.py	/^INDENT = 0x04$/;"	kind:variable	line:15
+ImageVerifier	../TheRolePlayAssistant/api/vision_api.py	/^class ImageVerifier:$/;"	kind:class	line:8
+KEY	../ctags/Units/parser-python.r/simple.py.d/input.py	/^KEY = 0x01$/;"	kind:variable	line:13
+LAMBDAa1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARa1, LAMBDAa1 = 1, lambda x: x*x$/;"	kind:function	line:2
+LAMBDAa2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^LAMBDAa2, VARa2 = lambda x: x*x, 2$/;"	kind:function	line:3
+LAMBDAa3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARa3, LAMBDAa3, VARa4 = 3, lambda x: x*x, 4$/;"	kind:function	line:4
+LAMBDAb1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARb1, LAMBDAb1 = (1,1), lambda x: (x, x)$/;"	kind:function	line:6
+LAMBDAb2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^LAMBDAb2, VARb2 = lambda x: (x, x), (2,2)$/;"	kind:function	line:7
+LAMBDAb3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARb3, LAMBDAb3, VARb4 = (3,3), lambda x: (x, x), (4,4)$/;"	kind:function	line:8
+LAMBDAc1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARc1, LAMBDAc1 = (1, 1), lambda x,y: x+y$/;"	kind:function	line:10
+LAMBDAc2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^LAMBDAc2, VARc2 = lambda x,y: x+y, (2,2)$/;"	kind:function	line:11
+LAMBDAc3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARc3, LAMBDAc3, VARc4 = (3,3), lambda x,y: x+y, (4,4)$/;"	kind:function	line:12
+LANGUAGES	../ctags/misc/units.py	/^LANGUAGES = []$/;"	kind:variable	line:56
+L_BROKEN_ARGS_CTAGS	../ctags/misc/units.py	/^L_BROKEN_ARGS_CTAGS = []$/;"	kind:variable	line:88
+L_FAILED_BY_DIFF	../ctags/misc/units.py	/^L_FAILED_BY_DIFF = []$/;"	kind:variable	line:82
+L_FAILED_BY_STATUS	../ctags/misc/units.py	/^L_FAILED_BY_STATUS = []$/;"	kind:variable	line:81
+L_FAILED_BY_TIMEED_OUT	../ctags/misc/units.py	/^L_FAILED_BY_TIMEED_OUT = []$/;"	kind:variable	line:87
+L_FIXED	../ctags/misc/units.py	/^L_FIXED = []$/;"	kind:variable	line:80
+L_KNOWN_BUGS	../ctags/misc/units.py	/^L_KNOWN_BUGS = []$/;"	kind:variable	line:86
+L_PASSED	../ctags/misc/units.py	/^L_PASSED = []$/;"	kind:variable	line:79
+L_SKIPPED_BY_FEATURES	../ctags/misc/units.py	/^L_SKIPPED_BY_FEATURES = []$/;"	kind:variable	line:83
+L_SKIPPED_BY_ILOOP	../ctags/misc/units.py	/^L_SKIPPED_BY_ILOOP = []$/;"	kind:variable	line:85
+L_SKIPPED_BY_LANGUAGES	../ctags/misc/units.py	/^L_SKIPPED_BY_LANGUAGES = []$/;"	kind:variable	line:84
+L_VALGRIND	../ctags/misc/units.py	/^L_VALGRIND = []$/;"	kind:variable	line:89
+NAMES	../TheRolePlayAssistant/utils.py	/^NAMES = ["Alex", "Sam", "Jordan", "Taylor", "Casey", "Morgan", "Riley", "Quinn", "Robin", "Jamie/;"	kind:variable	line:45
+NUM_WORKER_THREADS	../ctags/misc/units.py	/^NUM_WORKER_THREADS = 4$/;"	kind:variable	line:60
+OCCUPATIONS	../TheRolePlayAssistant/utils.py	/^OCCUPATIONS = [$/;"	kind:variable	line:77
+OPTSCRIPT	../ctags/misc/units.py	/^OPTSCRIPT = '.\/optscript'$/;"	kind:variable	line:50
+PRETENSE_OPTS	../ctags/misc/units.py	/^PRETENSE_OPTS = ''$/;"	kind:variable	line:57
+QUIRKS	../TheRolePlayAssistant/utils.py	/^QUIRKS = [$/;"	kind:variable	line:107
+Quit	../ctags/Units/parser-python.r/bug699171.py.d/input.py	/^def Quit(msg, exitcode=0): print msg ; sys.exit(exitcode)$/;"	kind:function	line:8
+READTAGS	../ctags/misc/units.py	/^READTAGS = '.\/readtags'$/;"	kind:variable	line:49
+RUN_SHRINK	../ctags/misc/units.py	/^RUN_SHRINK = False$/;"	kind:variable	line:58
+SA0	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	/^SA0 = SimpleNamespace($/;"	kind:variable	line:3
+SA1	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	/^SA1 = SimpleNamespace(SA1a = lambda x:  x + 1, SA1b = 1, **sD)$/;"	kind:variable	line:12
+SCENARIOS	../TheRolePlayAssistant/utils.py	/^SCENARIOS = [$/;"	kind:variable	line:132
+SHELL	../ctags/misc/units.py	/^SHELL = '\/bin\/sh'$/;"	kind:variable	line:47
+SHOW_DIFF_OUTPUT	../ctags/misc/units.py	/^SHOW_DIFF_OUTPUT = False$/;"	kind:variable	line:59
+SIGNATURE_ITEMS	../TheRolePlayAssistant/utils.py	/^SIGNATURE_ITEMS = [$/;"	kind:variable	line:71
+STYLE_PREFERENCES	../TheRolePlayAssistant/utils.py	/^STYLE_PREFERENCES = [$/;"	kind:variable	line:65
+ScavengerHuntTask	../TheRolePlayAssistant/models.py	/^class ScavengerHuntTask(db.Model):$/;"	kind:class	line:105
+Scenario	../TheRolePlayAssistant/models.py	/^class Scenario(db.Model):$/;"	kind:class	line:73
+ScenarioCompletion	../TheRolePlayAssistant/models.py	/^class ScenarioCompletion(db.Model):$/;"	kind:class	line:94
+Starship	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^class Starship:$/;"	kind:class	line:32
+StdClass	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^class StdClass :$/;"	kind:class	line:34
+StoryGenerator	../TheRolePlayAssistant/api/story_generator.py	/^class StoryGenerator:$/;"	kind:class	line:4
+T	../ctags/Units/parser-python.r/typehint.d/input.py	/^T = TypeVar('T')$/;"	kind:variable	line:3
+TMAIN_FAILED	../ctags/misc/units.py	/^TMAIN_FAILED = []$/;"	kind:variable	line:91
+TMAIN_STATUS	../ctags/misc/units.py	/^TMAIN_STATUS = True$/;"	kind:variable	line:90
+TREEID	../ctags/Units/parser-python.r/simple.py.d/input.py	/^TREEID = 0x02$/;"	kind:variable	line:14
+TaskSubmission	../TheRolePlayAssistant/models.py	/^class TaskSubmission(db.Model):$/;"	kind:class	line:120
+TestDecorators	../ctags/Units/parser-python.r/async.d/input.py	/^class TestDecorators:$/;"	kind:class	line:57
+Testclass	../ctags/Units/parser-python.r/python-anonymous-nestlevel_ctags-bug-356.d/input.py	/^class Testclass():$/;"	kind:class	line:1
+TraitHistory	../TheRolePlayAssistant/utils.py	/^class TraitHistory:$/;"	kind:class	line:6
+UNITS	../ctags/misc/units.py	/^UNITS = []$/;"	kind:variable	line:55
+UPLOAD_FOLDER	../TheRolePlayAssistant/photo_verification.py	/^UPLOAD_FOLDER = 'static\/uploads'$/;"	kind:variable	line:14
+User	../TheRolePlayAssistant/models.py	/^class User(UserMixin, db.Model):$/;"	kind:class	line:6
+UserProfile	../TheRolePlayAssistant/database/user_profile.py	/^class UserProfile:$/;"	kind:class	line:16
+UserProfile	../TheRolePlayAssistant/src/models/user_profile.py	/^class UserProfile:$/;"	kind:class	line:1
+UserProfileModel	../TheRolePlayAssistant/models/user_profile_model.py	/^class UserProfileModel(Base):$/;"	kind:class	line:6
+UserProfileModel	../TheRolePlayAssistant/src/models/user_profile_model.py	/^class UserProfileModel(Base):$/;"	kind:class	line:6
+VAR01	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR01 = ""$/;"	kind:variable	line:2
+VAR02	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR02 = "hello"$/;"	kind:variable	line:3
+VAR03	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR03 = ''$/;"	kind:variable	line:4
+VAR04	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR04 = 'hi'$/;"	kind:variable	line:5
+VAR05	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR05 = "\\""$/;"	kind:variable	line:6
+VAR06	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR06 = '\\''$/;"	kind:variable	line:7
+VAR07	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR07 = "'''"$/;"	kind:variable	line:8
+VAR08	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR08 = '"""'$/;"	kind:variable	line:9
+VAR1	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^VAR1=0$/;"	kind:variable	line:30
+VAR1	../ctags/Units/parser-python.r/python-dotted-variable.d/input.py	/^VAR1 = Cls()$/;"	kind:variable	line:5
+VAR1	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	/^VAR1, VAR2, VAR3 = 1, 2, 3$/;"	kind:variable	line:1
+VAR1	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^VAR1 = 1; VAR2 = 2;$/;"	kind:variable	line:2
+VAR1	../ctags/Units/parser-python.r/triple-quotes.d/input.py	/^VAR1 = '''$/;"	kind:variable	line:2
+VAR2	../ctags/Units/parser-python.r/python-dotted-variable.d/input.py	/^VAR2, VAR1.extra_member1 = 2, 1.1$/;"	kind:variable	line:7
+VAR2	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	/^VAR1, VAR2, VAR3 = 1, 2, 3$/;"	kind:variable	line:1
+VAR2	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^VAR1 = 1; VAR2 = 2;$/;"	kind:variable	line:2
+VAR2	../ctags/Units/parser-python.r/triple-quotes.d/input.py	/^VAR2 = """ "" ""\\" "\\"" \\"\\"\\"\\\\"""$/;"	kind:variable	line:10
+VAR21	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR21 = r""$/;"	kind:variable	line:11
+VAR22	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR22 = u"hello"$/;"	kind:variable	line:12
+VAR23	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR23 = R''$/;"	kind:variable	line:13
+VAR24	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR24 = U'hi'$/;"	kind:variable	line:14
+VAR25	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR25 = b"\\""$/;"	kind:variable	line:15
+VAR26	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR26 = B'\\''$/;"	kind:variable	line:16
+VAR27	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR27 = br"'''"$/;"	kind:variable	line:17
+VAR28	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR28 = Br'"""'$/;"	kind:variable	line:18
+VAR29	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR29 = bR"hello"$/;"	kind:variable	line:19
+VAR3	../ctags/Units/parser-python.r/python-dotted-variable.d/input.py	/^VAR3, VAR1.extra_member3, VAR4 = 3, 1.3, 4$/;"	kind:variable	line:9
+VAR3	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	/^VAR1, VAR2, VAR3 = 1, 2, 3$/;"	kind:variable	line:1
+VAR30	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR30 = BR"hello"$/;"	kind:variable	line:20
+VAR31	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR31 = rb"hello"$/;"	kind:variable	line:22
+VAR32	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR32 = rB"hello"$/;"	kind:variable	line:23
+VAR33	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR33 = Rb"hello"$/;"	kind:variable	line:24
+VAR34	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR34 = RB"hello"$/;"	kind:variable	line:25
+VAR35	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR35 = ur"hello"$/;"	kind:variable	line:27
+VAR36	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR36 = UR"hello"$/;"	kind:variable	line:28
+VAR37	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR37 = uR"hello"$/;"	kind:variable	line:29
+VAR38	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR38 = Ur"hello"$/;"	kind:variable	line:30
+VAR4	../ctags/Units/parser-python.r/python-dotted-variable.d/input.py	/^VAR3, VAR1.extra_member3, VAR4 = 3, 1.3, 4$/;"	kind:variable	line:9
+VAR4	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	/^VAR4 = 4$/;"	kind:variable	line:2
+VAR5	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	/^VAR5, VAR6 = 5, 6$/;"	kind:variable	line:3
+VAR6	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	/^VAR5, VAR6 = 5, 6$/;"	kind:variable	line:3
+VAR80	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR80 = "oops$/;"	kind:variable	line:33
+VAR81	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR81 = 'oopsie$/;"	kind:variable	line:34
+VAR82	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR82 = "\\"$/;"	kind:variable	line:35
+VAR83	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR83 = '\\'$/;"	kind:variable	line:36
+VAR84	../ctags/Units/parser-python.r/strings.d/input.py	/^VAR84 = 42$/;"	kind:variable	line:37
+VARa1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARa1, LAMBDAa1 = 1, lambda x: x*x$/;"	kind:variable	line:2
+VARa2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^LAMBDAa2, VARa2 = lambda x: x*x, 2$/;"	kind:variable	line:3
+VARa3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARa3, LAMBDAa3, VARa4 = 3, lambda x: x*x, 4$/;"	kind:variable	line:4
+VARa4	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARa3, LAMBDAa3, VARa4 = 3, lambda x: x*x, 4$/;"	kind:variable	line:4
+VARb1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARb1, LAMBDAb1 = (1,1), lambda x: (x, x)$/;"	kind:variable	line:6
+VARb2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^LAMBDAb2, VARb2 = lambda x: (x, x), (2,2)$/;"	kind:variable	line:7
+VARb3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARb3, LAMBDAb3, VARb4 = (3,3), lambda x: (x, x), (4,4)$/;"	kind:variable	line:8
+VARb4	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARb3, LAMBDAb3, VARb4 = (3,3), lambda x: (x, x), (4,4)$/;"	kind:variable	line:8
+VARc1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARc1, LAMBDAc1 = (1, 1), lambda x,y: x+y$/;"	kind:variable	line:10
+VARc2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^LAMBDAc2, VARc2 = lambda x,y: x+y, (2,2)$/;"	kind:variable	line:11
+VARc3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARc3, LAMBDAc3, VARc4 = (3,3), lambda x,y: x+y, (4,4)$/;"	kind:variable	line:12
+VARc4	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARc3, LAMBDAc3, VARc4 = (3,3), lambda x,y: x+y, (4,4)$/;"	kind:variable	line:12
+VARd1	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARd1, VARd2 = (lambda x: (x, x+1))(1)$/;"	kind:variable	line:14
+VARd2	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARd1, VARd2 = (lambda x: (x, x+1))(1)$/;"	kind:variable	line:14
+VARd3	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARd3, VARd4 = (3, 4)$/;"	kind:variable	line:15
+VARd4	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	/^VARd3, VARd4 = (3, 4)$/;"	kind:variable	line:15
+VERSION	../ctags/Units/parser-python.r/simple.py.d/input.py	/^VERSION = '1.2.0'$/;"	kind:variable	line:9
+WITH_TIMEOUT	../ctags/misc/units.py	/^WITH_TIMEOUT = 0$/;"	kind:variable	line:51
+WITH_VALGRIND	../ctags/misc/units.py	/^WITH_VALGRIND = False$/;"	kind:variable	line:52
+X	../ctags/Units/parser-python.r/dotted-variable-leftovers.d/input.py	/^class X(list):$/;"	kind:class	line:1
+ZZZ	../ctags/Units/parser-python.r/triple-quotes.d/input.py	/^ZZZ = True$/;"	kind:variable	line:12
+_CONST1	../ctags/Units/parser-python.r/python-access.d/input.py	/^_CONST1 = 42$/;"	kind:variable	line:2
+_DEFAULT_CATEGORY	../ctags/misc/units.py	/^_DEFAULT_CATEGORY = 'ROOT'$/;"	kind:variable	line:68
+_DIFF_OUTPUT_NAME	../ctags/misc/units.py	/^_DIFF_OUTPUT_NAME = 'DIFF.tmp'$/;"	kind:variable	line:73
+_FEATURE_LIST	../ctags/misc/units.py	/^_FEATURE_LIST = []$/;"	kind:variable	line:66
+_ForReal	../ctags/Units/parser-python.r/python-access.d/input.py	/^    class _ForReal:$/;"	kind:class	line:18
+_NotAutoImported	../ctags/Units/parser-python.r/python-access.d/input.py	/^class _NotAutoImported:$/;"	kind:class	line:5
+_PREPERE_ENV	../ctags/misc/units.py	/^_PREPERE_ENV = ''$/;"	kind:variable	line:67
+_STDERR_OUTPUT_NAME	../ctags/misc/units.py	/^_STDERR_OUTPUT_NAME = 'STDERR.tmp'$/;"	kind:variable	line:72
+_TIMEOUT_EXIT	../ctags/misc/units.py	/^_TIMEOUT_EXIT = 124$/;"	kind:variable	line:69
+_VALGRIND_EXIT	../ctags/misc/units.py	/^_VALGRIND_EXIT = 58$/;"	kind:variable	line:71
+_VALGRIND_OUTPUT_NAME	../ctags/misc/units.py	/^_VALGRIND_OUTPUT_NAME = 'VALGRIND.tmp'$/;"	kind:variable	line:74
+_VG_TIMEOUT_FACTOR	../ctags/misc/units.py	/^_VG_TIMEOUT_FACTOR = 10$/;"	kind:variable	line:70
+__CONST2	../ctags/Units/parser-python.r/python-access.d/input.py	/^__CONST2 = 43$/;"	kind:variable	line:3
+__Cpriv	../ctags/Units/parser-python.r/python-access.d/input.py	/^    class __Cpriv:$/;"	kind:class	line:44
+__JustTheSame	../ctags/Units/parser-python.r/python-access.d/input.py	/^class __JustTheSame:$/;"	kind:class	line:8
+__aiter__	../ctags/Units/parser-python.r/async.d/input.py	/^    def __aiter__(self):$/;"	kind:member	line:22
+__aiter__	../ctags/Units/parser-python.r/async.d/input.py	/^    def __aiter__(self):$/;"	kind:member	line:36
+__anext__	../ctags/Units/parser-python.r/async.d/input.py	/^    async def __anext__(self):$/;"	kind:member	line:25
+__anext__	../ctags/Units/parser-python.r/async.d/input.py	/^    async def __anext__(self):$/;"	kind:member	line:39
+__bar	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def __bar(self):$/;"	kind:member	line:38
+__init__	../TheRolePlayAssistant/api/story_generator.py	/^    def __init__(self):$/;"	kind:member	line:5
+__init__	../TheRolePlayAssistant/api/vision_api.py	/^    def __init__(self):$/;"	kind:member	line:9
+__init__	../TheRolePlayAssistant/database/user_profile.py	/^    def __init__(self, user_id: str, db_url: str = "sqlite:\/\/\/app.db"):$/;"	kind:member	line:20
+__init__	../TheRolePlayAssistant/game/adventure_manager.py	/^    def __init__(self):$/;"	kind:member	line:8
+__init__	../TheRolePlayAssistant/src/auth/auth_handler.py	/^    def __init__(self):$/;"	kind:member	line:8
+__init__	../TheRolePlayAssistant/src/controllers/game_controller.py	/^    def __init__(self):$/;"	kind:member	line:6
+__init__	../TheRolePlayAssistant/src/models/user_profile.py	/^    def __init__(self):$/;"	kind:member	line:2
+__init__	../TheRolePlayAssistant/src/websocket/server.py	/^    def __init__(self):$/;"	kind:member	line:7
+__init__	../TheRolePlayAssistant/utils.py	/^    def __init__(self, max_history=3):$/;"	kind:member	line:7
+__init__	../ctags/Units/parser-python.r/async.d/input.py	/^    def __init__(self):$/;"	kind:member	line:15
+__init__	../ctags/Units/parser-python.r/async.d/input.py	/^    def __init__(self, obj):$/;"	kind:member	line:33
+__init__	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^    def __init__(self) :$/;"	kind:member	line:22
+__init__	../ctags/Units/parser-python.r/newlines-cr.b/input.py	/^/;"	kind:member	line:1
+__init__	../ctags/Units/parser-python.r/newlines-crlf.d/input.py	/^    def __init__():$/;"	kind:member	line:11
+__init__	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def __init__(self):$/;"	kind:member	line:29
+__init__	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^    def __init__(self):$/;"	kind:member	line:41
+__init__	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    def __init__(self, filename, pathsep='', treegap=64):$/;"	kind:member	line:23
+__init__	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    def __init__(self, damage: int, captain: str = None):$/;"	kind:member	line:37
+__init__.py	../TheRolePlayAssistant/api/__init__.py	1;"	kind:file	line:1
+__init__.py	../TheRolePlayAssistant/src/__init__.py	1;"	kind:file	line:1
+__init__.py	../TheRolePlayAssistant/src/api/__init__.py	1;"	kind:file	line:1
+__init__.py	../TheRolePlayAssistant/src/controllers/__init__.py	1;"	kind:file	line:1
+__init__.py	../TheRolePlayAssistant/src/models/__init__.py	1;"	kind:file	line:1
+__private_function__	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    def __private_function__(self, key, data):$/;"	kind:member	line:27
+__repr__	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def __repr__(self):$/;"	kind:member	line:32
+__still_the_same	../ctags/Units/parser-python.r/python-access.d/input.py	/^def __still_the_same():$/;"	kind:function	line:22
+__tablename__	../TheRolePlayAssistant/models/user_profile_model.py	/^    __tablename__ = 'user_profiles'$/;"	kind:variable	line:7
+__tablename__	../TheRolePlayAssistant/src/models/user_profile_model.py	/^    __tablename__ = 'user_profiles'$/;"	kind:variable	line:7
+_and_again	../ctags/Units/parser-python.r/python-access.d/input.py	/^def _and_again():$/;"	kind:function	line:11
+_calculate_rewards	../TheRolePlayAssistant/api/story_generator.py	/^    def _calculate_rewards(self, progress_percentage: float, difficulty: int) -> Dict:$/;"	kind:member	line:112
+_check_achievements	../TheRolePlayAssistant/api/story_generator.py	/^    def _check_achievements(self, progress_percentage: float, difficulty: int) -> List[str]:$/;"	kind:member	line:140
+_complete_adventure	../TheRolePlayAssistant/game/adventure_manager.py	/^    def _complete_adventure(self, profile: UserProfile):$/;"	kind:member	line:76
+_create_clue	../TheRolePlayAssistant/api/story_generator.py	/^    def _create_clue(self, item: str) -> str:$/;"	kind:member	line:74
+_determine_badges	../TheRolePlayAssistant/api/story_generator.py	/^    def _determine_badges(self, progress_percentage: float, difficulty: int) -> List[str]:$/;"	kind:member	line:125
+_determine_difficulty	../TheRolePlayAssistant/api/story_generator.py	/^    def _determine_difficulty(self, preferences: Dict) -> str:$/;"	kind:member	line:50
+_even_with_underscore	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def _even_with_underscore():$/;"	kind:function	line:14
+_filter_stories	../TheRolePlayAssistant/api/story_generator.py	/^    def _filter_stories(self, difficulty: str) -> List[Dict]:$/;"	kind:member	line:62
+_foo	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def _foo(self):$/;"	kind:member	line:35
+_generate_completion_response	../TheRolePlayAssistant/src/controllers/game_controller.py	/^    def _generate_completion_response(self, session: Dict) -> Dict:$/;"	kind:member	line:77
+_get_difficulty_name	../TheRolePlayAssistant/api/story_generator.py	/^    def _get_difficulty_name(self, difficulty: int) -> str:$/;"	kind:member	line:153
+_get_profile	../TheRolePlayAssistant/game/adventure_manager.py	/^    def _get_profile(self, couple_id: str) -> UserProfile:$/;"	kind:member	line:70
+_get_progress_status	../TheRolePlayAssistant/api/story_generator.py	/^    def _get_progress_status(self, progress_percentage: float) -> str:$/;"	kind:member	line:101
+_hf_generator	../TheRolePlayAssistant/ai_generator.py	/^_hf_generator = None$/;"	kind:variable	line:14
+_openai_client	../TheRolePlayAssistant/ai_generator.py	/^_openai_client = None$/;"	kind:variable	line:13
+_pack	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    def _pack(self, key):$/;"	kind:member	line:32
+_prefetch	../ctags/Units/parser-python.r/async.d/input.py	/^    async def _prefetch(self):$/;"	kind:member	line:18
+_test	../ctags/Units/parser-python.r/simple.py.d/input.py	/^def _test(test, code, outcome, exception):$/;"	kind:function	line:36
+a	../ctags/Tmain/pattern-length-limit.d/input-iso-8859-1.py	/^a='€‚ƒ€‚ƒ'$/;"	kind:variable	line:3
+a	../ctags/Tmain/pattern-length-limit.d/input-utf8.py	/^a='Ã©Ã Ã§Ã¨'$/;"	kind:variable	line:1
+a	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^a=1$/;"	kind:variable	line:22
+a	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^a=1$/;"	kind:variable	line:22
+a	../ctags/Units/parser-python.r/dotted-variable-leftovers.d/input.py	/^a, x.a = x$/;"	kind:variable	line:8
+a	../ctags/Units/parser-python.r/multiline-class-def.d/input.py	/^    a = 1$/;"	kind:variable	line:3
+a	../ctags/Units/parser-python.r/python-multivar-no-declaration.d/input.py	/^a, b, c = 1, 2, 3$/;"	kind:variable	line:2
+a	../ctags/Units/parser-python.r/triple-quotes-after-def.d/input.py	/^def a(i, s): '''a'''$/;"	kind:function	line:1
+a	../ctags/Units/parser-python.r/triple-quotes-in-class.d/input.py	/^    a="""$/;"	kind:variable	line:2
+a	../ctags/Units/parser-python.r/triple-quotes-in-list.d/input.py	/^    a=(("""$/;"	kind:variable	line:2
+a3	../ctags/Units/parser-python.r/python-import.d/input.py	/^import a1, a2 as a3, a4, a5$/;"	kind:namespace	line:9	nameref:module:a2
+accepted_file	../ctags/misc/units.py	/^def accepted_file(fname):$/;"	kind:function	line:741
+accessories	../TheRolePlayAssistant/models.py	/^    accessories = db.Column(db.Text)$/;"	kind:variable	line:42
+accessories_options	../TheRolePlayAssistant/models.py	/^    accessories_options = db.Column(db.Text)$/;"	kind:variable	line:67
+achievements	../TheRolePlayAssistant/models.py	/^    achievements = db.Column(db.Text)$/;"	kind:variable	line:35
+achievements_templates	../TheRolePlayAssistant/models.py	/^    achievements_templates = db.Column(db.Text)$/;"	kind:variable	line:60
+action_clean	../ctags/misc/units.py	/^def action_clean(parser, action, *args):$/;"	kind:function	line:983
+action_clean_tmain	../ctags/misc/units.py	/^def action_clean_tmain(parser, action, *args):$/;"	kind:function	line:1263
+action_help	../ctags/misc/units.py	/^def action_help(parser, action, *args):$/;"	kind:function	line:110
+action_run	../ctags/misc/units.py	/^def action_run(parser, action, *args):$/;"	kind:function	line:883
+action_tmain	../ctags/misc/units.py	/^def action_tmain(parser, action, *args):$/;"	kind:function	line:1197
+add_character	../TheRolePlayAssistant/utils.py	/^    def add_character(self, character):$/;"	kind:member	line:11
+add_scavenger_hunt_tables	../TheRolePlayAssistant/migrations.py	/^def add_scavenger_hunt_tables():$/;"	kind:function	line:7
+addr	../ctags/Units/parser-python.r/underscore-numeric-literals.d/input.py	/^addr = 0xCAFE_F00D$/;"	kind:variable	line:5
+adventure_manager	../TheRolePlayAssistant/api/routes.py	/^adventure_manager = AdventureManager()$/;"	kind:variable	line:8
+adventure_manager.py	../TheRolePlayAssistant/game/adventure_manager.py	1;"	kind:file	line:1
+ae	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def ae ():$/;"	kind:member	line:9
+age	../TheRolePlayAssistant/models.py	/^    age = db.Column(db.Integer, nullable=False)$/;"	kind:variable	line:26
+ai_generator.py	../TheRolePlayAssistant/ai_generator.py	1;"	kind:file	line:1
+aliases	../ctags/docs/_ext/ctags_optlib_highlighter.py	/^    aliases = ['ctags']$/;"	kind:variable	line:46
+allowed_file	../TheRolePlayAssistant/main.py	/^def allowed_file(filename):$/;"	kind:function	line:21
+allowed_file	../TheRolePlayAssistant/photo_verification.py	/^def allowed_file(filename):$/;"	kind:function	line:20
+alternative_costumes	../TheRolePlayAssistant/models.py	/^    alternative_costumes = db.Column(db.Text)$/;"	kind:variable	line:43
+alternative_costumes_options	../TheRolePlayAssistant/models.py	/^    alternative_costumes_options = db.Column(db.Text)$/;"	kind:variable	line:68
+amount	../ctags/Units/parser-python.r/underscore-numeric-literals.d/input.py	/^amount = 10_000_000.0$/;"	kind:variable	line:2
+anonFuncb03ae8ed0101	../ctags/Units/parser-python.r/typehint.d/input.py	/^id: Callable[[int], int] = lambda var1: var1$/;"	kind:function	line:19
+anonFuncb03ae8ed0201	../ctags/Units/parser-python.r/typehint.d/input.py	/^        lambda var3: var3$/;"	kind:function	line:24
+anon_normalize	../ctags/misc/units.py	/^def anon_normalize(internal, rawout, ctags, input_actual, *args):$/;"	kind:function	line:393
+anon_normalize_sub	../ctags/misc/units.py	/^def anon_normalize_sub(internal, ctags, input_actual, *args):$/;"	kind:function	line:363
+anothervar	../ctags/Units/parser-python.r/triple-quotes-in-default-arg.d/input.py	/^anothervar=1$/;"	kind:variable	line:5
+api	../TheRolePlayAssistant/api/routes.py	/^api = Blueprint('api', __name__)$/;"	kind:variable	line:7
+app	../TheRolePlayAssistant/app.py	/^app = Flask(__name__)$/;"	kind:variable	line:4
+app	../TheRolePlayAssistant/main.py	/^app = Flask(__name__)$/;"	kind:variable	line:7
+app	../TheRolePlayAssistant/src/app.py	/^app = Flask(__name__)$/;"	kind:variable	line:5
+app.py	../TheRolePlayAssistant/app.py	1;"	kind:file	line:1
+app.py	../TheRolePlayAssistant/src/app.py	1;"	kind:file	line:1
+aq	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def aq ():$/;"	kind:member	line:5
+atOpv1	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	/^def atOpv1():$/;"	kind:function	line:18
+atOpv2	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	/^def atOpv2():$/;"	kind:function	line:22
+atOpv3	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	/^def atOpv3():$/;"	kind:function	line:28
+auth_bp	../TheRolePlayAssistant/src/routes/auth_routes.py	/^auth_bp = Blueprint('auth', __name__)$/;"	kind:variable	line:4
+auth_handler	../TheRolePlayAssistant/src/routes/auth_routes.py	/^auth_handler = AuthHandler()$/;"	kind:variable	line:5
+auth_handler.py	../TheRolePlayAssistant/src/auth/auth_handler.py	1;"	kind:file	line:1
+auth_middleware.py	../TheRolePlayAssistant/src/middleware/auth_middleware.py	1;"	kind:file	line:1
+auth_routes.py	../TheRolePlayAssistant/src/routes/auth_routes.py	1;"	kind:file	line:1
+authenticate_user	../TheRolePlayAssistant/src/auth/auth_handler.py	/^    def authenticate_user(self, email: str, password: str) -> Optional[Dict]:$/;"	kind:member	line:19
+aw	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def aw ():$/;"	kind:member	line:7
+b	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^b=1$/;"	kind:variable	line:25
+b	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^b=1$/;"	kind:variable	line:25
+b	../ctags/Units/parser-python.r/multiline-class-def.d/input.py	/^    b = 2$/;"	kind:variable	line:6
+b	../ctags/Units/parser-python.r/python-multivar-no-declaration.d/input.py	/^a, b, c = 1, 2, 3$/;"	kind:variable	line:2
+b	../ctags/Units/parser-python.r/triple-quotes-after-def.d/input.py	/^def b(i, s): """b"""$/;"	kind:function	line:2
+b3	../ctags/Units/parser-python.r/python-import.d/input.py	/^from p import b1, b2 as b3, b4, b5$/;"	kind:unknown	line:10	nameref:unknown:b2
+bar	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^    def bar(self,$/;"	kind:member	line:21
+bar	../ctags/Units/parser-python.r/nested-parenthesis.d/input.py	/^def bar():$/;"	kind:function	line:5
+bar	../ctags/Units/parser-python.r/newlines-cr.b/input.py	/^/;"	kind:function	line:1
+bar	../ctags/Units/parser-python.r/newlines-crlf.d/input.py	/^bar():$/;"	kind:function	line:6
+bar	../ctags/Units/parser-python.r/toplevel-funcall-with-keyword-args.d/input.py	/^def bar():$/;"	kind:function	line:5
+base.py	../ctags/Tmain/readtags-qualifier.d/base.py	1;"	kind:file	line:1
+basename_filter	../ctags/misc/units.py	/^def basename_filter(internal, output_type):$/;"	kind:function	line:289
+baz	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^    baz = dict($/;"	kind:variable	line:24
+baz	../ctags/Units/parser-python.r/nested-parenthesis.d/input.py	/^def baz(arg1, arg2=({()})):$/;"	kind:function	line:8
+baz	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def baz(self):$/;"	kind:member	line:41
+body	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^header, kind, body = message$/;"	kind:variable	line:24
+bq	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def bq ():$/;"	kind:member	line:14
+bq	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def bq ():$/;"	kind:member	line:22
+broadcast_leaderboard_update	../TheRolePlayAssistant/src/websocket/server.py	/^    async def broadcast_leaderboard_update(self, data: dict):$/;"	kind:member	line:22
+build_strings	../ctags/misc/units.py	/^    def build_strings(guessed_lang):$/;"	kind:function	line:539
+but_thankfully_im_pulic	../ctags/Units/parser-python.r/python-access.d/input.py	/^def but_thankfully_im_pulic():$/;"	kind:function	line:25
+bw	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def bw ():$/;"	kind:member	line:16
+bw	../ctags/Tmain/readtags-qualifier.d/base.py	/^    def bw ():$/;"	kind:member	line:24
+c	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^c=1$/;"	kind:variable	line:28
+c	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^c=1$/;"	kind:variable	line:28
+c	../ctags/Units/parser-python.r/python-multivar-no-declaration.d/input.py	/^a, b, c = 1, 2, 3$/;"	kind:variable	line:2
+c	../ctags/Units/parser-python.r/triple-quotes-after-def.d/input.py	/^def c(i, s): '''c$/;"	kind:function	line:3
+c	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^c = Cls()$/;"	kind:variable	line:53
+c_method	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^    cdef int c_method(self,int i) :$/;"	kind:member	line:26
+captain	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    captain: str = 'Picard'               # instance variable with default$/;"	kind:variable	line:28
+captain	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    captain: str = 'Picard'$/;"	kind:variable	line:33
+challenge	../TheRolePlayAssistant/models.py	/^    challenge = db.Column(db.String(200))$/;"	kind:variable	line:78
+challenge_handling	../TheRolePlayAssistant/models.py	/^    challenge_handling = db.Column(db.String(200))$/;"	kind:variable	line:38
+challenge_handling_options	../TheRolePlayAssistant/models.py	/^    challenge_handling_options = db.Column(db.Text)$/;"	kind:variable	line:63
+character	../TheRolePlayAssistant/models.py	/^    character = db.relationship('Character', backref='completed_scenarios')$/;"	kind:variable	line:103
+character_id	../TheRolePlayAssistant/models.py	/^    character_id = db.Column(db.Integer, db.ForeignKey('character.id'))$/;"	kind:variable	line:100
+characters	../TheRolePlayAssistant/models.py	/^    characters = db.relationship('Character', backref='template', lazy=True)$/;"	kind:variable	line:71
+characters	../TheRolePlayAssistant/models.py	/^    characters = db.relationship('Character', backref='user', lazy=True)$/;"	kind:variable	line:14
+check_availability	../ctags/misc/units.py	/^def check_availability(cmd):$/;"	kind:function	line:151
+check_features	../ctags/misc/units.py	/^def check_features(feature, ffile):$/;"	kind:function	line:175
+check_languages	../ctags/misc/units.py	/^def check_languages(cmdline, lfile):$/;"	kind:function	line:200
+check_password	../TheRolePlayAssistant/models.py	/^    def check_password(self, password):$/;"	kind:member	line:20
+check_units	../ctags/misc/units.py	/^def check_units(name, category):$/;"	kind:function	line:155
+childhood_story	../TheRolePlayAssistant/models.py	/^    childhood_story = db.Column(db.Text)$/;"	kind:variable	line:32
+childhood_story_templates	../TheRolePlayAssistant/models.py	/^    childhood_story_templates = db.Column(db.Text)$/;"	kind:variable	line:57
+class01	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^class class01(object):$/;"	kind:class	line:20
+class01	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^class class01:$/;"	kind:class	line:7
+clean_bundles	../ctags/misc/units.py	/^def clean_bundles(bundles):$/;"	kind:function	line:132
+clean_tcase	../ctags/misc/units.py	/^def clean_tcase(d, bundles):$/;"	kind:function	line:143
+cleanup_old_photos	../TheRolePlayAssistant/photo_verification.py	/^def cleanup_old_photos(days_old=7):$/;"	kind:function	line:216
+code	../ctags/misc/man-test.py	/^    code  = 2$/;"	kind:variable	line:162
+code_done	../ctags/misc/man-test.py	/^    code_done = 3$/;"	kind:variable	line:163
+commit	../ctags/Units/parser-python.r/async.d/input.py	/^async def commit(session, data):$/;"	kind:function	line:6
+communication_style	../TheRolePlayAssistant/models.py	/^    communication_style = db.Column(db.String(200))$/;"	kind:variable	line:37
+communication_style_options	../TheRolePlayAssistant/models.py	/^    communication_style_options = db.Column(db.Text)$/;"	kind:variable	line:62
+completed_at	../TheRolePlayAssistant/models.py	/^    completed_at = db.Column(db.DateTime, default=datetime.utcnow)$/;"	kind:variable	line:98
+conf.py	../ctags/docs/conf.py	1;"	kind:file	line:1
+confidence_score	../TheRolePlayAssistant/models.py	/^    confidence_score = db.Column(db.Float)$/;"	kind:variable	line:125
+copyright	../ctags/docs/conf.py	/^copyright = '2015-2022, Universal Ctags Team'$/;"	kind:variable	line:54
+costume	../TheRolePlayAssistant/models.py	/^    costume = db.Column(db.Text)$/;"	kind:variable	line:41
+costume_options	../TheRolePlayAssistant/models.py	/^    costume_options = db.Column(db.Text)$/;"	kind:variable	line:66
+couple_auth.py	../TheRolePlayAssistant/auth/couple_auth.py	1;"	kind:file	line:1
+create_adventure	../TheRolePlayAssistant/api/routes.py	/^def create_adventure():$/;"	kind:function	line:12
+create_adventure	../TheRolePlayAssistant/game/adventure_manager.py	/^    def create_adventure(self, couple_id: str, preferences: Dict) -> Dict:$/;"	kind:member	line:13
+create_adventure	../TheRolePlayAssistant/main.py	/^def create_adventure():$/;"	kind:function	line:27
+create_example_tasks	../TheRolePlayAssistant/example_tasks.py	/^def create_example_tasks():$/;"	kind:function	line:5
+create_session	../TheRolePlayAssistant/src/auth/auth_handler.py	/^    def create_session(self, user: Dict) -> Dict:$/;"	kind:member	line:26
+create_thread_queue	../ctags/misc/units.py	/^def create_thread_queue(func):$/;"	kind:function	line:695
+created_at	../TheRolePlayAssistant/models.py	/^    created_at = db.Column(db.DateTime, default=datetime.utcnow)$/;"	kind:variable	line:117
+created_at	../TheRolePlayAssistant/models.py	/^    created_at = db.Column(db.DateTime, default=datetime.utcnow)$/;"	kind:variable	line:13
+ctags	../ctags/misc/man-test.py	/^ctags = os.path.abspath(sys.argv[2])$/;"	kind:variable	line:301
+ctags_optlib_highlighter.py	../ctags/docs/_ext/ctags_optlib_highlighter.py	1;"	kind:file	line:1
+d	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^d = {}$/;"	kind:variable	line:57
+d1	../ctags/Units/parser-python.r/blanks.d/input.py	/^	def d1(): pass$/;"	kind:member	line:3
+d2	../ctags/Units/parser-python.r/blanks.d/input.py	/^        def d2(): pass$/;"	kind:member	line:4
+d3	../ctags/Units/parser-python.r/blanks.d/input.py	/^ 	def d3(): pass$/;"	kind:member	line:5
+d4	../ctags/Units/parser-python.r/blanks.d/input.py	/^        def d4(): pass$/;"	kind:member	line:7
+d5	../ctags/Units/parser-python.r/blanks.d/input.py	/^        def d5(): pass$/;"	kind:member	line:10
+d6	../ctags/Units/parser-python.r/blanks.d/input.py	/^    def d6(): pass$/;"	kind:member	line:11
+d7	../ctags/Units/parser-python.r/blanks.d/input.py	/^    def d7():$/;"	kind:member	line:13
+d8	../ctags/Units/parser-python.r/blanks.d/input.py	/^        def d8(): pass$/;"	kind:member	line:15
+decorate	../ctags/misc/units.py	/^def decorate(decorator, msg, colorized):$/;"	kind:function	line:217
+decorated	../TheRolePlayAssistant/src/middleware/auth_middleware.py	/^    def decorated(*args, **kwargs):$/;"	kind:function	line:8
+decorated_function	../TheRolePlayAssistant/auth/couple_auth.py	/^    def decorated_function(*args, **kwargs):$/;"	kind:function	line:6
+deeply_nested	../ctags/Units/parser-python.r/simple.py.d/input.py	/^            class deeply_nested():$/;"	kind:class	line:39
+description	../TheRolePlayAssistant/models.py	/^    description = db.Column(db.Text)$/;"	kind:variable	line:51
+description	../TheRolePlayAssistant/models.py	/^    description = db.Column(db.Text, nullable=False)$/;"	kind:variable	line:108
+description	../TheRolePlayAssistant/models.py	/^    description = db.Column(db.Text, nullable=False)$/;"	kind:variable	line:76
+description	../TheRolePlayAssistant/models.py	/^    description = db.Column(db.Text, nullable=False)$/;"	kind:variable	line:86
+detach	../ctags/Units/parser-python.r/bug1809024.py.d/input.py	/^def detach (self):$/;"	kind:function	line:1
+detect_pose	../TheRolePlayAssistant/photo_verification.py	/^def detect_pose(image_path):$/;"	kind:function	line:51
+doIt	../ctags/Tmain/json-output-format.d/input.py	/^    def doIt():$/;"	kind:member	line:2
+doIt	../ctags/Tmain/xformat-common-fields.d/input.py	/^    def doIt():$/;"	kind:member	line:2
+dotFunc	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	/^def dotFunc():$/;"	kind:function	line:7
+dotMethod	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	/^def dotMethod():$/;"	kind:function	line:13
+dummy	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^    def dummy():$/;"	kind:member	line:33
+email	../TheRolePlayAssistant/models.py	/^    email = db.Column(db.String(120), unique=True, nullable=False)$/;"	kind:variable	line:9
+enable_esc_sequence	../ctags/misc/units.py	/^def enable_esc_sequence():$/;"	kind:function	line:1292
+end_time	../TheRolePlayAssistant/models.py	/^    end_time = db.Column(db.DateTime)$/;"	kind:variable	line:116
+enhance_character_description	../TheRolePlayAssistant/ai_generator.py	/^def enhance_character_description(character: Dict[str, Any]) -> Dict[str, Any]:$/;"	kind:function	line:167
+enhance_image	../TheRolePlayAssistant/photo_verification.py	/^def enhance_image(image_path):$/;"	kind:function	line:23
+enhance_with_huggingface	../TheRolePlayAssistant/ai_generator.py	/^def enhance_with_huggingface(prompt: str) -> str:$/;"	kind:function	line:102
+enhance_with_openai	../TheRolePlayAssistant/ai_generator.py	/^def enhance_with_openai(prompt: str, spiciness_level: int) -> str:$/;"	kind:function	line:80
+enterprise_d	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^enterprise_d = Starship(3000)$/;"	kind:variable	line:45
+error_exit	../ctags/misc/units.py	/^def error_exit(status, msg):$/;"	kind:function	line:114
+even_more	../ctags/Units/parser-python.r/simple.py.d/input.py	/^                def even_more():$/;"	kind:member	line:40
+example_tasks.py	../TheRolePlayAssistant/example_tasks.py	1;"	kind:file	line:1
+exclude_patterns	../ctags/docs/conf.py	/^exclude_patterns = ['_build']$/;"	kind:variable	line:77
+extensions	../ctags/docs/conf.py	/^extensions = [$/;"	kind:variable	line:36
+extra	../ctags/Units/parser-python.r/f-strings.d/input.py	/^extra = f'{extra},waiters:{len(self._waiters)}'$/;"	kind:variable	line:3
+extract_features	../ctags/misc/man-test.py	/^def extract_features (f):$/;"	kind:function	line:237
+extract_test_cases	../ctags/misc/man-test.py	/^def extract_test_cases(f):$/;"	kind:function	line:168
+eye_color	../TheRolePlayAssistant/models.py	/^    eye_color = db.Column(db.String(50))$/;"	kind:variable	line:29
+eye_color_options	../TheRolePlayAssistant/models.py	/^    eye_color_options = db.Column(db.Text)$/;"	kind:variable	line:54
+f	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^def f():$/;"	kind:function	line:30
+f	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^f = 12000$/;"	kind:variable	line:9
+f	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^def f():$/;"	kind:function	line:30
+f	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^f = 12000$/;"	kind:variable	line:9
+f	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^def f ($/;"	kind:function	line:1
+f	../ctags/Units/parser-python.r/pep604-bar-operator-for-union.d/input.py	/^def f(list: List[int|str], param: int | None) -> float|str:$/;"	kind:function	line:5
+f	../ctags/Units/parser-python.r/python-disable-member-kind.d/input.py	/^def f():$/;"	kind:function	line:4
+f	../ctags/Units/parser-python.r/python-end-field.d/input.py	/^    def f(self):$/;"	kind:member	line:3
+f	../ctags/Units/parser-python.r/python-fullqualified-tags.d/input.py	/^        def f(self):$/;"	kind:member	line:5
+f	../ctags/Units/parser-python.r/reserved-words.d/input.py	/^def f(text, pat):$/;"	kind:function	line:6
+f	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	/^def f():$/;"	kind:function	line:17
+f	../ctags/Units/parser-python.r/triple-quotes-in-default-arg.d/input.py	/^def f(var=("""$/;"	kind:function	line:1
+f	../ctags/Units/writer-json.r/fq-json.d/input.py	/^    def f():$/;"	kind:member	line:2
+f	../ctags/Units/writer-xref.r/fq-xref.d/input.py	/^    def f():$/;"	kind:member	line:2
+f1	../ctags/Units/parser-python.r/py-skipped-string.d/input.py	/^def f1():$/;"	kind:function	line:3
+f2	../ctags/Units/parser-python.r/py-skipped-string.d/input.py	/^def f2():$/;"	kind:function	line:10
+f3	../ctags/Units/parser-python.r/py-skipped-string.d/input.py	/^def f3():$/;"	kind:function	line:17
+failed_git_marker	../ctags/misc/units.py	/^def failed_git_marker(fn):$/;"	kind:function	line:1041
+family_relations	../TheRolePlayAssistant/models.py	/^    family_relations = db.Column(db.Text)$/;"	kind:variable	line:33
+family_relations_templates	../TheRolePlayAssistant/models.py	/^    family_relations_templates = db.Column(db.Text)$/;"	kind:variable	line:58
+filenames	../ctags/docs/_ext/ctags_optlib_highlighter.py	/^    filenames = ['*.ctags']$/;"	kind:variable	line:47
+find_heading	../ctags/Units/parser-python.r/tabindent.py.d/input.py	/^def find_heading(self, position=0, direction=Direction.FORWARD, \\$/;"	kind:function	line:1
+flags	../ctags/Units/parser-python.r/underscore-numeric-literals.d/input.py	/^flags = 0b_0011_1111_0100_1110$/;"	kind:variable	line:8
+flags2	../ctags/Units/parser-python.r/underscore-numeric-literals.d/input.py	/^flags2 = int('0b_1111_0000', 2)$/;"	kind:variable	line:11
+foo	../ctags/Units/parser-python.r/nested-parenthesis.d/input.py	/^def foo():$/;"	kind:function	line:2
+foo	../ctags/Units/parser-python.r/newlines-cr.b/input.py	/^/;"	kind:function	line:1
+foo	../ctags/Units/parser-python.r/newlines-crlf.d/input.py	/^def foo():$/;"	kind:function	line:2
+foo	../ctags/Units/parser-python.r/python-keyword-tabulation.d/input.py	/^def	foo():$/;"	kind:function	line:2
+foo	../ctags/Units/parser-python.r/simple.py.d/input.py	/^foo($/;"	kind:function	line:57
+format_section	../TheRolePlayAssistant/ai_generator.py	/^def format_section(text: str) -> str:$/;"	kind:function	line:56
+fs	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^fs = 44100$/;"	kind:variable	line:10
+fs	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^fs = 44100$/;"	kind:variable	line:10
+func	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^    def func(): pass;$/;"	kind:member	line:7
+func01	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def func01():$/;"	kind:function	line:9
+func01	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^def func01():$/;"	kind:function	line:3
+func01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^def func01():$/;"	kind:function	line:3
+func01	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func01():$/;"	kind:function	line:3
+func01	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func01():$/;"	kind:function	line:3
+func01	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^def func01() -> "returns something":$/;"	kind:function	line:2
+func02	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def func02(): pass$/;"	kind:function	line:13
+func02	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^def func02():$/;"	kind:function	line:6
+func02	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func02(a):$/;"	kind:function	line:5
+func02	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func02(a):$/;"	kind:function	line:5
+func02	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^def func02() -> 2 * 2 * 3 * 4:$/;"	kind:function	line:5
+func03	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def func03(): pass$/;"	kind:function	line:14
+func03	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^def func03(x):$/;"	kind:function	line:10
+func03	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func03(a, b = 2):$/;"	kind:function	line:7
+func03	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func03(a, b = 2):$/;"	kind:function	line:7
+func03	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^def func03(a:"hello", b : 1 * 2 + 3 \/ 4 = 5):$/;"	kind:function	line:8
+func04	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def func04(): pass$/;"	kind:function	line:16
+func04	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^def func04(x):$/;"	kind:function	line:14
+func04	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func04(a = 1, b = 2):$/;"	kind:function	line:9
+func04	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func04(a = 1, b = 2):$/;"	kind:function	line:9
+func04	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^def func04(a:(1, 2, 3, 4)=(1, 2, 3, 4), b:[5,6]=[7,8], c=0) -> {'foo' : 'bar' }:$/;"	kind:function	line:11
+func05	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def func05():$/;"	kind:function	line:45
+func05	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func05(*args):$/;"	kind:function	line:11
+func05	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func05(*args):$/;"	kind:function	line:11
+func06	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def func06():$/;"	kind:function	line:49
+func06	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func06(**kwargs):$/;"	kind:function	line:13
+func06	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func06(**kwargs):$/;"	kind:function	line:13
+func07	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func07(*args, **kwargs):$/;"	kind:function	line:15
+func07	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func07(*args, **kwargs):$/;"	kind:function	line:15
+func08	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func08(a, b = 2, *args):$/;"	kind:function	line:17
+func08	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func08(a, b = 2, *args):$/;"	kind:function	line:17
+func09	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func09(a = [1, 2], b = 2, **kwargs):$/;"	kind:function	line:19
+func09	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func09(a = [1, 2], b = 2, **kwargs):$/;"	kind:function	line:19
+func1	../ctags/Units/parser-python.r/bug3168705.py.d/input.py	/^    def func1():$/;"	kind:member	line:2
+func1	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func1():$/;"	kind:function	line:2
+func1	../ctags/Units/parser-python.r/typehint.d/input.py	/^def func1(a: str, b: Callable[[int, int], T]) -> T:$/;"	kind:function	line:5
+func10	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func10(arg1=[VAR1,VAR1],$/;"	kind:function	line:35
+func10	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func10(a = (1, 2), b = 2, *args, **kwargs):$/;"	kind:function	line:21
+func10	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func10(a = (1, 2), b = 2, *args, **kwargs):$/;"	kind:function	line:21
+func11	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func11(a = {1:1, 2:1}, b = 2, *args, **kwargs):$/;"	kind:function	line:23
+func11	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func11(a = {1:1, 2:1}, b = 2, *args, **kwargs):$/;"	kind:function	line:23
+func12	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func12((a1, a2)):$/;"	kind:function	line:27
+func12	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func12(a:"first", b:"second"):$/;"	kind:function	line:27
+func13	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func13((a1, a2), b):$/;"	kind:function	line:29
+func13	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func13(a:"first", b):$/;"	kind:function	line:29
+func14	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func14((a1, a2) = (1, 2), b = 2):$/;"	kind:function	line:31
+func14	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func14(a:"first" = 1, b = 2):$/;"	kind:function	line:31
+func15	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^def func15((a1, a2), *args):$/;"	kind:function	line:33
+func15	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func15(a:"first" = (1, 2), *args:'more args'):$/;"	kind:function	line:33
+func16	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func16(a:1+1 = (1, 2), *args:2*2):$/;"	kind:function	line:36
+func17	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func17(a:{"1":1, "2":2} = {"1":1, "2":2}, *args:lambda:0):$/;"	kind:function	line:38
+func18	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^def func18(a:lambda:[1,2][:1] = (2+2)*2, *args:lambda:0):$/;"	kind:function	line:40
+func2	../ctags/Units/parser-python.r/bug3168705.py.d/input.py	/^    def func2():$/;"	kind:member	line:7
+func2	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func2(arg1):$/;"	kind:function	line:5
+func2	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^    def func2(x): x += 1; y = x + 1; return y;$/;"	kind:member	line:10
+func2	../ctags/Units/parser-python.r/typehint.d/input.py	/^def func2 (a: str) -> "a string":$/;"	kind:function	line:8
+func3	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func3(arg1, arg2):$/;"	kind:function	line:8
+func3	../ctags/Units/parser-python.r/typehint.d/input.py	/^def func3 () -> 3 + i:$/;"	kind:function	line:14
+func4	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func4( arg1 ,$/;"	kind:function	line:11
+func5	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func5( arg1 = 1,$/;"	kind:function	line:16
+func6	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func6(arg1, arg2, *args):$/;"	kind:function	line:21
+func7	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func7(*args, **kwargs):$/;"	kind:function	line:24
+func8	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func8(arg1=1*2, arg2=func6(1, 2, 3, 4)):$/;"	kind:function	line:27
+func9	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^def func9(arg1=VAR1*VAR1):$/;"	kind:function	line:32
+g	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^def g():$/;"	kind:function	line:34
+g	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^def g():$/;"	kind:function	line:34
+g	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^def g ($/;"	kind:function	line:5
+g	../ctags/Units/parser-python.r/python-end-field.d/input.py	/^        def g(x):$/;"	kind:function	line:4
+g	../ctags/Units/parser-python.r/python-fullqualified-tags.d/input.py	/^    def g(self):$/;"	kind:member	line:2
+game_controller.py	../TheRolePlayAssistant/src/controllers/game_controller.py	1;"	kind:file	line:1
+gender	../TheRolePlayAssistant/models.py	/^    gender = db.Column(db.String(10), nullable=True)  # Options: 'male', 'female', 'other'$/;"	kind:variable	line:11
+generate_character	../TheRolePlayAssistant/utils.py	/^def generate_character():$/;"	kind:function	line:159
+generate_character_from_template	../TheRolePlayAssistant/utils.py	/^def generate_character_from_template(template):$/;"	kind:function	line:198
+generate_clues	../TheRolePlayAssistant/api/story_generator.py	/^    def generate_clues(self, story: Dict) -> List[str]:$/;"	kind:member	line:66
+generate_fallback_content	../TheRolePlayAssistant/ai_generator.py	/^def generate_fallback_content(character: Dict[str, Any]) -> Dict[str, Any]:$/;"	kind:function	line:117
+generate_story	../TheRolePlayAssistant/api/story_generator.py	/^    def generate_story(self, preferences: Dict) -> Dict:$/;"	kind:member	line:35
+generate_story_progression	../TheRolePlayAssistant/api/story_generator.py	/^    def generate_story_progression(self, story: Dict, items_found: List[str]) -> Dict:$/;"	kind:member	line:84
+get_eye_color	../TheRolePlayAssistant/utils.py	/^def get_eye_color():$/;"	kind:function	line:60
+get_hf_generator	../TheRolePlayAssistant/ai_generator.py	/^def get_hf_generator():$/;"	kind:function	line:32
+get_leaderboard	../TheRolePlayAssistant/src/routes/leaderboard_routes.py	/^def get_leaderboard(timeframe):$/;"	kind:function	line:8
+get_openai_client	../TheRolePlayAssistant/ai_generator.py	/^def get_openai_client():$/;"	kind:function	line:16
+get_profile	../TheRolePlayAssistant/api/routes.py	/^def get_profile():$/;"	kind:function	line:45
+get_progress	../TheRolePlayAssistant/database/user_profile.py	/^    def get_progress(self, story_id: str) -> Optional[Dict]:$/;"	kind:member	line:71
+get_random_option	../TheRolePlayAssistant/utils.py	/^    def get_random_option(options_str, default_list):$/;"	kind:function	line:199
+get_random_scenario	../TheRolePlayAssistant/utils.py	/^def get_random_scenario():$/;"	kind:function	line:156
+get_spiciness_prompt	../TheRolePlayAssistant/ai_generator.py	/^def get_spiciness_prompt(level: int) -> str:$/;"	kind:function	line:60
+get_unused_option	../TheRolePlayAssistant/utils.py	/^    def get_unused_option(self, options, key):$/;"	kind:member	line:31
+global01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^global01 = 1$/;"	kind:variable	line:1
+globallambda01	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^globallambda01 = lambda x:x$/;"	kind:function	line:1
+goal	../TheRolePlayAssistant/models.py	/^    goal = db.Column(db.String(200))$/;"	kind:variable	line:79
+guess_lang	../ctags/misc/units.py	/^def guess_lang(cmdline, finput):$/;"	kind:function	line:410
+guess_lang_from_log	../ctags/misc/units.py	/^def guess_lang_from_log(log):$/;"	kind:function	line:416
+gvar	../ctags/Units/parser-python.r/nested-parenthesis.d/input.py	/^gvar = test(())$/;"	kind:variable	line:11
+h	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^def h():$/;"	kind:function	line:38
+h	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^def h():$/;"	kind:function	line:38
+h	../ctags/Units/parser-python.r/python-end-field.d/input.py	/^    def h(self):$/;"	kind:member	line:12
+hair_color	../TheRolePlayAssistant/models.py	/^    hair_color = db.Column(db.String(50))$/;"	kind:variable	line:28
+hair_color_options	../TheRolePlayAssistant/models.py	/^    hair_color_options = db.Column(db.Text)$/;"	kind:variable	line:53
+has_feature	../ctags/misc/man-test.py	/^def has_feature (ctags, feat):$/;"	kind:function	line:246
+header	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^header, kind, body = message$/;"	kind:variable	line:24
+height	../TheRolePlayAssistant/models.py	/^    height = db.Column(db.String(50))$/;"	kind:variable	line:27
+height_options	../TheRolePlayAssistant/models.py	/^    height_options = db.Column(db.Text)$/;"	kind:variable	line:52
+hello	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^    def hello():$/;"	kind:member	line:22
+hi	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^    def hi(cls):$/;"	kind:member	line:26
+hit	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    def hit(self):$/;"	kind:member	line:42
+hobbies	../TheRolePlayAssistant/models.py	/^    hobbies = db.Column(db.String(200))$/;"	kind:variable	line:39
+hobbies_options	../TheRolePlayAssistant/models.py	/^    hobbies_options = db.Column(db.Text)$/;"	kind:variable	line:64
+html_last_updated_fmt	../ctags/docs/conf.py	/^html_last_updated_fmt = '%d %b %Y'$/;"	kind:variable	line:160
+html_show_sourcelink	../ctags/docs/conf.py	/^html_show_sourcelink = False$/;"	kind:variable	line:183
+html_theme	../ctags/docs/conf.py	/^		html_theme = 'sphinx_rtd_theme'$/;"	kind:variable	line:130
+html_theme	../ctags/docs/conf.py	/^html_theme = 'default'$/;"	kind:variable	line:112
+html_theme_path	../ctags/docs/conf.py	/^		html_theme_path = [ '_themes', ]$/;"	kind:variable	line:129
+htmlhelp_basename	../ctags/docs/conf.py	/^htmlhelp_basename = 'UniversalCtagsdoc'$/;"	kind:variable	line:200
+i	../ctags/Units/parser-python.r/python-end-field.d/input.py	/^    def i(self):$/;"	kind:member	line:16
+i	../ctags/Units/parser-python.r/typehint.d/input.py	/^i:int = 10$/;"	kind:variable	line:11
+icon	../TheRolePlayAssistant/models.py	/^    icon = db.Column(db.String(100))$/;"	kind:variable	line:87
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:106
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:121
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:24
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:49
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:7
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:74
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:84
+id	../TheRolePlayAssistant/models.py	/^    id = db.Column(db.Integer, primary_key=True)$/;"	kind:variable	line:95
+id	../ctags/Units/parser-python.r/typehint.d/input.py	/^id: Callable[[int], int] = lambda var1: var1$/;"	kind:variable	line:19	nameref:function:anonFuncb03ae8ed0101
+id2	../ctags/Units/parser-python.r/typehint.d/input.py	/^id2 = lambda var2: var2$/;"	kind:function	line:20
+id3	../ctags/Units/parser-python.r/typehint.d/input.py	/^id3: \\$/;"	kind:variable	line:22	nameref:function:anonFuncb03ae8ed0201
+identifier	../ctags/Units/parser-python.r/python-geany-bug-612.d/input.py	/^    identifier = colander.SchemaNode($/;"	kind:variable	line:13
+identity	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^def identity(x) :$/;"	kind:function	line:30
+ignored_function	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    def ignored_function():$/;"	kind:function	line:37
+im_a_function	../ctags/Units/parser-python.r/bug1988026.py.d/input.py	/^	def im_a_function():$/;"	kind:function	line:8
+include_file	../ctags/Units/parser-python.r/bug1906062.py.d/input.py	/^include_file = '''$/;"	kind:variable	line:1
+index	../TheRolePlayAssistant/src/app.py	/^def index():$/;"	kind:function	line:12
+init_features	../ctags/misc/units.py	/^def init_features():$/;"	kind:function	line:168
+input	../ctags/misc/man-test.py	/^    input = 4$/;"	kind:variable	line:164
+input-0.py	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	1;"	kind:file	line:1
+input-iso-8859-1.py	../ctags/Tmain/pattern-length-limit.d/input-iso-8859-1.py	1;"	kind:file	line:1
+input-utf8.py	../ctags/Tmain/pattern-length-limit.d/input-utf8.py	1;"	kind:file	line:1
+input.py	../ctags/Tmain/json-output-format.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Tmain/xformat-common-fields.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/option-extradef.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-iPythonCell.r/customizing.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/async.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/blanks.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug1809024.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug1856363.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug1906062.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug1988026.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug1988027.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug1988130.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug2075402.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug3168705.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/bug699171.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/dotted-variable-leftovers.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/f-strings.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/multiline-class-def.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/multiline-def.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/nested-parenthesis.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/newlines-cr.b/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/newlines-crlf.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/pep604-bar-operator-for-union.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/py-skipped-string.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-access.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-anonymous-nestlevel_ctags-bug-356.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-arguments.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-comments.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-decorators.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-disable-member-kind.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-dot-in-import.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-dotted-variable.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-end-field.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-fullqualified-tags.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-geany-bug-612.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-import.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-keyword-tabulation.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-local-variables.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-multivar-no-declaration.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-multivar-statement-with-lambdas.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-multivar-statement.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python-semicolon.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python2-arglists.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python3-arglists.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/reserved-words.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/simple.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/strings.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/tabindent.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/test.py.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/toplevel-funcall-with-keyword-args.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/triple-quotes-after-def.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/triple-quotes-in-class.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/triple-quotes-in-default-arg.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/triple-quotes-in-list.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/triple-quotes.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/typehint.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/underscore-numeric-literals.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/parser-python.r/variable-annotations.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/writer-json.r/fq-json.d/input.py	1;"	kind:file	line:1
+input.py	../ctags/Units/writer-xref.r/fq-xref.d/input.py	1;"	kind:file	line:1
+input.pyx	../ctags/Units/parser-python.r/cython-external.d/input.pyx	1;"	kind:file	line:1
+input.pyx	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	1;"	kind:file	line:1
+input.pyx	../ctags/Units/parser-python.r/cython_sample2.d/input.pyx	1;"	kind:file	line:1
+install	../ctags/docs/_ext/lexers.py	/^def install(app, h, name):$/;"	kind:function	line:5
+int2string	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^cdef object int2string(int i) :$/;"	kind:function	line:17
+int_identity	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^cdef int int_identity(int i) : return i  $/;"	kind:function	line:11
+int_identity2	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^cdef (int) int_identity2(int i) : return i$/;"	kind:function	line:12
+int_identity3	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^cdef inline int int_identity3(int i) : return i$/;"	kind:function	line:13
+int_identity4	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^cdef inline (int) int_identity4(int i) : return i$/;"	kind:function	line:14
+internal_error	../TheRolePlayAssistant/src/app.py	/^def internal_error(error):$/;"	kind:function	line:24
+is_anon_normalize_needed	../ctags/misc/units.py	/^def is_anon_normalize_needed(rawout):$/;"	kind:function	line:383
+is_crashed	../ctags/misc/units.py	/^def is_crashed(fn):$/;"	kind:function	line:1049
+is_cygwin	../ctags/misc/units.py	/^def is_cygwin():$/;"	kind:function	line:99
+is_option	../ctags/misc/man-test.py	/^def is_option(c):$/;"	kind:function	line:60
+is_similar	../TheRolePlayAssistant/utils.py	/^    def is_similar(self, new_traits, threshold=0.3):$/;"	kind:member	line:14
+is_verified	../TheRolePlayAssistant/models.py	/^    is_verified = db.Column(db.Boolean, default=False)$/;"	kind:variable	line:126
+isabs	../ctags/misc/units.py	/^def isabs(path):$/;"	kind:function	line:103
+join_cmdline	../ctags/misc/units.py	/^def join_cmdline(cmdline):$/;"	kind:function	line:327
+join_workers	../ctags/misc/units.py	/^def join_workers(q, threads):$/;"	kind:function	line:716
+kind	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^header, kind, body = message$/;"	kind:variable	line:24
+lamb01	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb01 = lambda: 0$/;"	kind:function	line:36
+lamb01	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb01 = lambda: 0$/;"	kind:function	line:43
+lamb02	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb02 = lambda a: 0$/;"	kind:function	line:37
+lamb02	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb02 = lambda a: 0$/;"	kind:function	line:44
+lamb03	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb03 = lambda a, b: 0$/;"	kind:function	line:38
+lamb03	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb03 = lambda a, b: 0$/;"	kind:function	line:45
+lamb04	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb04 = lambda a, b = 2: 0$/;"	kind:function	line:39
+lamb04	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb04 = lambda a, b = 2: 0$/;"	kind:function	line:46
+lamb05	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb05 = lambda *args: 0$/;"	kind:function	line:40
+lamb05	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb05 = lambda *args: 0$/;"	kind:function	line:47
+lamb06	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb06 = lambda *args, **kwargs: 0$/;"	kind:function	line:41
+lamb06	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb06 = lambda *args, **kwargs: 0$/;"	kind:function	line:48
+lamb07	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb07 = lambda a, *args, **kwargs: 0$/;"	kind:function	line:42
+lamb07	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb07 = lambda a, *args, **kwargs: 0$/;"	kind:function	line:49
+lamb08	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb08 = lambda a = 1, *args, **kwargs: 0$/;"	kind:function	line:43
+lamb08	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb08 = lambda a = 1, *args, **kwargs: 0$/;"	kind:function	line:50
+lamb09	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb09 = lambda a = [1, 2], *args, **kwargs: 0$/;"	kind:function	line:44
+lamb09	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb09 = lambda a = [1, 2], *args, **kwargs: 0$/;"	kind:function	line:51
+lamb10	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb10 = lambda a = (1, 2), *args, **kwargs: 0$/;"	kind:function	line:45
+lamb10	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb10 = lambda a = (1, 2), *args, **kwargs: 0$/;"	kind:function	line:52
+lamb11	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb11 = lambda a = {1:1, 2:1}, *args, **kwargs: 0$/;"	kind:function	line:46
+lamb11	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb11 = lambda a = {1:1, 2:1}, *args, **kwargs: 0$/;"	kind:function	line:53
+lamb12	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb12 = lambda a = lambda:0, *args, **kwargs: a$/;"	kind:function	line:47
+lamb12	../ctags/Units/parser-python.r/python3-arglists.d/input.py	/^lamb12 = lambda a = lambda:0, *args, **kwargs: a$/;"	kind:function	line:54
+lamb13	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb13 = lambda (a1, a2): 0$/;"	kind:function	line:50
+lamb14	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb14 = lambda (a1, a2), b: 0$/;"	kind:function	line:51
+lamb15	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb15 = lambda (a1, a2) = (1, 2), b = 2: 0$/;"	kind:function	line:52
+lamb16	../ctags/Units/parser-python.r/python2-arglists.d/input.py	/^lamb16 = lambda (a1, a2), *args: 0$/;"	kind:function	line:53
+latex_documents	../ctags/docs/conf.py	/^latex_documents = [$/;"	kind:variable	line:222
+latex_elements	../ctags/docs/conf.py	/^latex_elements = {$/;"	kind:variable	line:205
+leaderboard_bp	../TheRolePlayAssistant/src/routes/leaderboard_routes.py	/^leaderboard_bp = Blueprint('leaderboard', __name__)$/;"	kind:variable	line:5
+leaderboard_routes.py	../TheRolePlayAssistant/src/routes/leaderboard_routes.py	1;"	kind:file	line:1
+lexers.py	../ctags/docs/_ext/lexers.py	1;"	kind:file	line:1
+life_goals	../TheRolePlayAssistant/models.py	/^    life_goals = db.Column(db.Text)$/;"	kind:variable	line:34
+life_goals_templates	../TheRolePlayAssistant/models.py	/^    life_goals_templates = db.Column(db.Text)$/;"	kind:variable	line:59
+line	../ctags/misc/units.py	/^def line(*args, file=sys.stdout):$/;"	kind:function	line:118
+localfunc01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^    def localfunc01():$/;"	kind:function	line:15
+locallambda01	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^    locallambda01 = lambda x:x$/;"	kind:function	line:4
+locallambda01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^    locallambda01 = lambda x:x$/;"	kind:function	line:11
+locallambda02	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^        locallambda02 = lambda x:x$/;"	kind:function	line:10
+location_data	../TheRolePlayAssistant/models.py	/^    location_data = db.Column(db.JSON)$/;"	kind:variable	line:129
+logger	../TheRolePlayAssistant/ai_generator.py	/^logger = logging.getLogger(__name__)$/;"	kind:variable	line:10
+logger	../TheRolePlayAssistant/database/user_profile.py	/^logger = logging.getLogger(__name__)$/;"	kind:variable	line:14
+logger	../TheRolePlayAssistant/main.py	/^logger = logging.getLogger(__name__)$/;"	kind:variable	line:18
+logger	../TheRolePlayAssistant/migrations.py	/^logger = logging.getLogger(__name__)$/;"	kind:variable	line:5
+logger	../TheRolePlayAssistant/photo_verification.py	/^logger = logging.getLogger(__name__)$/;"	kind:variable	line:11
+login	../TheRolePlayAssistant/src/app.py	/^def login():$/;"	kind:function	line:16
+login	../TheRolePlayAssistant/src/routes/auth_routes.py	/^def login():$/;"	kind:function	line:8
+login_manager	../TheRolePlayAssistant/src/app.py	/^login_manager = LoginManager()$/;"	kind:variable	line:7
+m	../ctags/Units/parser-python.r/python-disable-member-kind.d/input.py	/^    def m():$/;"	kind:member	line:2
+m	../ctags/Units/parser-python.r/python-import.d/input.py	/^from k import l as m$/;"	kind:unknown	line:6	nameref:unknown:l
+main	../ctags/Units/parser-python.r/bug1856363.py.d/input.py	/^def main():$/;"	kind:function	line:3
+main	../ctags/Units/parser-python.r/bug1988026.py.d/input.py	/^    def main():$/;"	kind:member	line:4
+main	../ctags/Units/parser-python.r/bug1988130.py.d/input.py	/^def main():$/;"	kind:function	line:4
+main	../ctags/Units/parser-python.r/python-anonymous-nestlevel_ctags-bug-356.d/input.py	/^    def main(self):$/;"	kind:member	line:2
+main	../ctags/Units/parser-python.r/test.py.d/input.py	/^def main():$/;"	kind:function	line:3
+main	../ctags/misc/units.py	/^def main():$/;"	kind:function	line:1309
+main.py	../TheRolePlayAssistant/main.py	1;"	kind:file	line:1
+make_pretense_map	../ctags/misc/units.py	/^def make_pretense_map(arg):$/;"	kind:function	line:866
+man-test.py	../ctags/misc/man-test.py	1;"	kind:file	line:1
+man_pages	../ctags/docs/conf.py	/^man_pages = [$/;"	kind:variable	line:252
+man_test	../ctags/misc/man-test.py	/^def man_test (tmpdir, ctags, man_file):$/;"	kind:function	line:258
+man_tests	../ctags/misc/man-test.py	/^def man_tests (tmpdir, ctags, man_files):$/;"	kind:function	line:289
+manufacturer	../ctags/Units/parser-python.r/python-geany-bug-612.d/input.py	/^    manufacturer = colander.SchemaNode($/;"	kind:variable	line:24
+master_doc	../ctags/docs/conf.py	/^master_doc = 'index'$/;"	kind:variable	line:50
+memb1	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^    memb1 = 1; memb2 = 2$/;"	kind:variable	line:5
+memb2	../ctags/Units/parser-python.r/python-semicolon.d/input.py	/^    memb1 = 1; memb2 = 2$/;"	kind:variable	line:5
+member01	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^    def member01(self):$/;"	kind:member	line:9
+member01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^    member01 = 1$/;"	kind:variable	line:20
+member02	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^    member02 = 2$/;"	kind:variable	line:23
+memberlambda01	../ctags/Units/parser-python.r/python-local-lambdas.d/input.py	/^    memberlambda01 = lambda x:x$/;"	kind:member	line:8
+method01	../ctags/Units/parser-python.r/python-local-variables.d/input.py	/^    def method01(self):$/;"	kind:member	line:21
+method1	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^    def method1(self, arg1):$/;"	kind:member	line:44
+method2	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^    def method2(self, arg1 = 0, arg2=None):$/;"	kind:member	line:47
+method3	../ctags/Units/parser-python.r/python-arguments.d/input.py	/^    def method3(arg1, arg2=0):$/;"	kind:member	line:51
+methoddef_name	../ctags/Units/parser-python.r/f-strings.d/input.py	/^methoddef_name = f"{c_basename.upper()}_METHODDEF"$/;"	kind:variable	line:7
+migrations.py	../TheRolePlayAssistant/migrations.py	1;"	kind:file	line:1
+models.py	../TheRolePlayAssistant/models.py	1;"	kind:file	line:1
+module_level_attribute	../ctags/Units/parser-python.r/python-anonymous-nestlevel_ctags-bug-356.d/input.py	/^    module_level_attribute = True$/;"	kind:variable	line:6
+more_nesting	../ctags/Units/parser-python.r/simple.py.d/input.py	/^        def more_nesting():$/;"	kind:function	line:38
+mp	../TheRolePlayAssistant/photo_verification.py	/^import mediapipe as mp$/;"	kind:namespace	line:8	nameref:module:mediapipe
+mp_pose	../TheRolePlayAssistant/photo_verification.py	/^mp_pose = mp.solutions.pose$/;"	kind:variable	line:17
+my_fun	../ctags/Units/parser-python.r/cython_sample2.d/input.pyx	/^cpdef np.ndarray[dtype=double, ndim=1] my_fun(np.ndarray[dtype=double, ndim=1] x):$/;"	kind:function	line:7
+my_var	../ctags/Units/parser-python.r/bug1988026.py.d/input.py	/^    my_var = 0$/;"	kind:variable	line:3
+name	../TheRolePlayAssistant/models.py	/^    name = db.Column(db.String(100), nullable=False)$/;"	kind:variable	line:25
+name	../TheRolePlayAssistant/models.py	/^    name = db.Column(db.String(100), nullable=False)$/;"	kind:variable	line:50
+name	../TheRolePlayAssistant/models.py	/^    name = db.Column(db.String(100), nullable=False)$/;"	kind:variable	line:85
+name	../ctags/docs/_ext/ctags_optlib_highlighter.py	/^    name = 'ctags'$/;"	kind:variable	line:45
+next_segment	../ctags/misc/man-test.py	/^def next_segment(line):$/;"	kind:function	line:37
+noop	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def noop(f):$/;"	kind:function	line:2
+noopwrapper	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^def noopwrapper(*args):$/;"	kind:function	line:5
+not_found_error	../TheRolePlayAssistant/src/app.py	/^def not_found_error(error):$/;"	kind:function	line:20
+np	../TheRolePlayAssistant/photo_verification.py	/^import numpy as np$/;"	kind:namespace	line:7	nameref:module:numpy
+np	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^import numpy as np$/;"	kind:namespace	line:3	nameref:module:numpy
+np	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^import numpy as np$/;"	kind:namespace	line:3	nameref:module:numpy
+np	../ctags/Units/parser-python.r/cython_sample2.d/input.pyx	/^cimport numpy as np$/;"	kind:namespace	line:5	nameref:module:numpy
+np	../ctags/Units/parser-python.r/cython_sample2.d/input.pyx	/^import numpy as np$/;"	kind:namespace	line:4	nameref:module:numpy
+np	../ctags/Units/parser-python.r/matrix-multiplication-operator.d/input.py	/^import numpy as np$/;"	kind:namespace	line:3	nameref:module:numpy
+o	../ctags/Units/parser-python.r/python-import.d/input.py	/^import n as o$/;"	kind:namespace	line:7	nameref:module:n
+object_confidence	../TheRolePlayAssistant/models.py	/^    object_confidence = db.Column(db.Float, default=0.7)$/;"	kind:variable	line:112
+occupation	../TheRolePlayAssistant/models.py	/^    occupation = db.Column(db.String(100), nullable=False)$/;"	kind:variable	line:36
+occupation_options	../TheRolePlayAssistant/models.py	/^    occupation_options = db.Column(db.Text)$/;"	kind:variable	line:61
+on_rtd	../ctags/docs/conf.py	/^on_rtd = os.environ.get('READTHEDOCS', None) == 'True'$/;"	kind:variable	line:18
+one	../ctags/Units/parser-python.r/simple.py.d/input.py	/^class one:$/;"	kind:class	line:18
+only	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    def only(arg):$/;"	kind:member	line:48
+order_spam1	../ctags/Units/parser-python.r/cython-external.d/input.pyx	/^cdef extern void order_spam1(int tons)$/;"	kind:function	line:2
+output	../ctags/misc/man-test.py	/^    output = 5$/;"	kind:variable	line:165
+output_after_options	../ctags/misc/man-test.py	/^    output_after_options = 6$/;"	kind:variable	line:166
+parse_ai_response	../TheRolePlayAssistant/ai_generator.py	/^def parse_ai_response(content: str) -> Dict[str, str]:$/;"	kind:function	line:149
+password_hash	../TheRolePlayAssistant/models.py	/^    password_hash = db.Column(db.String(256), nullable=False)$/;"	kind:variable	line:10
+photo_path	../TheRolePlayAssistant/models.py	/^    photo_path = db.Column(db.String(255), nullable=False)$/;"	kind:variable	line:124
+photo_verification.py	../TheRolePlayAssistant/photo_verification.py	1;"	kind:file	line:1
+plt	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^from matplotlib import pyplot as plt$/;"	kind:unknown	line:4	nameref:unknown:pyplot
+plt	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^from matplotlib import pyplot as plt$/;"	kind:unknown	line:4	nameref:unknown:pyplot
+points	../TheRolePlayAssistant/models.py	/^    points = db.Column(db.Integer, default=100)$/;"	kind:variable	line:80
+points	../TheRolePlayAssistant/models.py	/^    points = db.Column(db.Integer, default=50)$/;"	kind:variable	line:113
+points_earned	../TheRolePlayAssistant/models.py	/^    points_earned = db.Column(db.Integer, default=0)$/;"	kind:variable	line:99
+points_required	../TheRolePlayAssistant/models.py	/^    points_required = db.Column(db.Integer, default=0)$/;"	kind:variable	line:88
+pose	../TheRolePlayAssistant/photo_verification.py	/^pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.5)$/;"	kind:variable	line:18
+pose_data	../TheRolePlayAssistant/models.py	/^    pose_data = db.Column(db.JSON)/;"	kind:variable	line:130
+prepare_bundles	../ctags/misc/units.py	/^def prepare_bundles(frm, to, obundles):$/;"	kind:function	line:341
+prepare_environment	../ctags/misc/units.py	/^def prepare_environment():$/;"	kind:function	line:1281
+primes	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^primes: List[int] = []$/;"	kind:variable	line:3
+print_backtraces	../ctags/misc/units.py	/^def print_backtraces(ctags_exe, cores, fn):$/;"	kind:function	line:1055
+print_usage	../ctags/misc/man-test.py	/^def print_usage(n, f):$/;"	kind:function	line:33
+progress	../TheRolePlayAssistant/models/user_profile_model.py	/^    progress = Column(JSON) /;"	kind:variable	line:10
+progress	../TheRolePlayAssistant/src/models/user_profile_model.py	/^    progress = Column(JSON) /;"	kind:variable	line:10
+project	../ctags/docs/conf.py	/^project = 'Universal Ctags'$/;"	kind:variable	line:53
+public_function	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    def public_function(self, key):$/;"	kind:member	line:29
+pygments_style	../ctags/docs/conf.py	/^pygments_style = 'sphinx'$/;"	kind:variable	line:95
+python_var	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^python_var = 1$/;"	kind:variable	line:4
+qualified	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^qualified: typing.Any = 'anything'$/;"	kind:variable	line:62
+quirks	../TheRolePlayAssistant/models.py	/^    quirks = db.Column(db.String(200))$/;"	kind:variable	line:40
+quirks_options	../TheRolePlayAssistant/models.py	/^    quirks_options = db.Column(db.Text)$/;"	kind:variable	line:65
+read_data	../ctags/Units/parser-python.r/async.d/input.py	/^async def read_data(db):$/;"	kind:function	line:3
+register	../TheRolePlayAssistant/src/websocket/server.py	/^    async def register(self, websocket: websockets.WebSocketServerProtocol, user_id: str):$/;"	kind:member	line:11
+release	../ctags/docs/conf.py	/^release = '0.3.0'$/;"	kind:variable	line:63
+remove_prefix	../ctags/misc/units.py	/^def remove_prefix(string, prefix):$/;"	kind:function	line:93
+remove_readonly	../ctags/misc/units.py	/^def remove_readonly(func, path, _):$/;"	kind:function	line:125
+report_failure	../ctags/misc/man-test.py	/^def report_failure(r):$/;"	kind:function	line:136
+report_result	../ctags/misc/man-test.py	/^def report_result(r):$/;"	kind:function	line:133
+report_skip	../ctags/misc/man-test.py	/^def report_skip(man_file, feat):$/;"	kind:function	line:255
+require_auth	../TheRolePlayAssistant/auth/couple_auth.py	/^def require_auth(f):$/;"	kind:function	line:4
+require_auth	../TheRolePlayAssistant/src/middleware/auth_middleware.py	/^def require_auth(f):$/;"	kind:function	line:6
+required_location	../TheRolePlayAssistant/models.py	/^    required_location = db.Column(db.String(200))$/;"	kind:variable	line:111
+required_objects	../TheRolePlayAssistant/models.py	/^    required_objects = db.Column(db.JSON, nullable=False)$/;"	kind:variable	line:109
+required_pose	../TheRolePlayAssistant/models.py	/^    required_pose = db.Column(db.String(100))$/;"	kind:variable	line:110
+resourceType	../ctags/Units/parser-python.r/python-geany-bug-612.d/input.py	/^    resourceType = colander.SchemaNode($/;"	kind:variable	line:6
+return_me	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^    def return_me(self) :$/;"	kind:member	line:35
+routes.py	../TheRolePlayAssistant/api/routes.py	1;"	kind:file	line:1
+run_dir	../ctags/misc/units.py	/^def run_dir(category, base_dir, build_base_dir):$/;"	kind:function	line:745
+run_filter	../ctags/misc/units.py	/^def run_filter(finput, foutput, base_filter, anon_filters):$/;"	kind:function	line:399
+run_record_cmdline	../ctags/misc/units.py	/^def run_record_cmdline(cmdline, ffilter, ocmdline, output_type):$/;"	kind:function	line:333
+run_result	../ctags/misc/units.py	/^def run_result(result_type, msg, output, *args, file=sys.stdout):$/;"	kind:function	line:232
+run_result_error	../ctags/misc/units.py	/^def run_result_error(msg, f, colorized, *args):$/;"	kind:function	line:259
+run_result_internal_error	../ctags/misc/units.py	/^def run_result_internal_error(msg, f, colorized, *args):$/;"	kind:function	line:253
+run_result_known_error	../ctags/misc/units.py	/^def run_result_known_error(msg, f, colorized, *args):$/;"	kind:function	line:271
+run_result_ok	../ctags/misc/units.py	/^def run_result_ok(msg, f, colorized, *args):$/;"	kind:function	line:265
+run_result_skip	../ctags/misc/units.py	/^def run_result_skip(msg, f, colorized, *args):$/;"	kind:function	line:247
+run_show_diff_output	../ctags/misc/units.py	/^def run_show_diff_output(units_dir, t):$/;"	kind:function	line:777
+run_show_stderr_output	../ctags/misc/units.py	/^def run_show_stderr_output(units_dir, t):$/;"	kind:function	line:786
+run_show_valgrind_output	../ctags/misc/units.py	/^def run_show_valgrind_output(units_dir, t):$/;"	kind:function	line:796
+run_shrink	../ctags/misc/units.py	/^def run_shrink(cmdline_template, finput, foutput, lang):$/;"	kind:function	line:275
+run_summary	../ctags/misc/units.py	/^def run_summary(build_dir):$/;"	kind:function	line:805
+run_tcase	../ctags/misc/units.py	/^def run_tcase(finput, t, name, tclass, category, build_t, extra_inputs):$/;"	kind:function	line:424
+run_test_case	../ctags/misc/man-test.py	/^def run_test_case(tmpdir, ctags, t):$/;"	kind:function	line:67
+sD	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	/^sD= {$/;"	kind:variable	line:8
+sane_world	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    sane_world = True$/;"	kind:variable	line:13
+save_photo	../TheRolePlayAssistant/photo_verification.py	/^def save_photo(photo_file):$/;"	kind:function	line:121
+save_progress	../TheRolePlayAssistant/database/user_profile.py	/^    def save_progress(self, story_id: str, checkpoint: Dict) -> bool:$/;"	kind:member	line:33
+scenario	../TheRolePlayAssistant/models.py	/^    scenario = db.relationship('Scenario', backref='completions')$/;"	kind:variable	line:102
+scenario_id	../TheRolePlayAssistant/models.py	/^    scenario_id = db.Column(db.Integer, db.ForeignKey('scenario.id'), nullable=False)$/;"	kind:variable	line:107
+scenario_id	../TheRolePlayAssistant/models.py	/^    scenario_id = db.Column(db.Integer, db.ForeignKey('scenario.id'), nullable=False)$/;"	kind:variable	line:96
+scenarios_required	../TheRolePlayAssistant/models.py	/^    scenarios_required = db.Column(db.Integer, default=0)$/;"	kind:variable	line:89
+send_personal_update	../TheRolePlayAssistant/src/websocket/server.py	/^    async def send_personal_update(self, user_id: str, data: dict):$/;"	kind:member	line:36
+server.py	../TheRolePlayAssistant/src/websocket/server.py	1;"	kind:file	line:1
+session_id	../TheRolePlayAssistant/models.py	/^    session_id = db.Column(db.String(100))$/;"	kind:variable	line:44
+session_id	../TheRolePlayAssistant/models.py	/^    session_id = db.Column(db.String(100))$/;"	kind:variable	line:69
+session_id	../TheRolePlayAssistant/models.py	/^    session_id = db.Column(db.String(100))$/;"	kind:variable	line:90
+session_id	../TheRolePlayAssistant/models.py	/^    session_id = db.Column(db.String(100), nullable=False)$/;"	kind:variable	line:97
+set_password	../TheRolePlayAssistant/models.py	/^    def set_password(self, password):$/;"	kind:member	line:17
+setting	../TheRolePlayAssistant/models.py	/^    setting = db.Column(db.String(200))$/;"	kind:variable	line:77
+setup	../ctags/docs/_ext/lexers.py	/^def setup(app):$/;"	kind:function	line:15
+signature_items	../TheRolePlayAssistant/models.py	/^    signature_items = db.Column(db.String(200))$/;"	kind:variable	line:31
+signature_items_options	../TheRolePlayAssistant/models.py	/^    signature_items_options = db.Column(db.Text)$/;"	kind:variable	line:56
+simplestuff	../ctags/Units/parser-python.r/async.d/input.py	/^    def simplestuff():$/;"	kind:member	line:59
+smartquotes_action	../ctags/docs/conf.py	/^smartquotes_action = 'qe'  # Exclude dashes transform for cmdline options.$/;"	kind:variable	line:105
+so_is_this	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    class so_is_this:$/;"	kind:class	line:34
+some_list	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^some_list: List[int] = []  # variable with initial value$/;"	kind:variable	line:9
+something	../ctags/Units/parser-python.r/async.d/input.py	/^    async def something(other):$/;"	kind:member	line:63
+sound	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^sound = np.sin(2*np.pi*f * t)$/;"	kind:variable	line:12
+sound	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^sound = np.sin(2*np.pi*f * t)$/;"	kind:variable	line:12
+source_suffix	../ctags/docs/conf.py	/^source_suffix = '.rst'$/;"	kind:variable	line:44
+spiciness_level	../TheRolePlayAssistant/models.py	/^    spiciness_level = db.Column(db.Integer, default=1)  # 1: Family-friendly, 2: Mild, 3: Spicy$/;"	kind:variable	line:12
+standard_method	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^    def standard_method(self,i) :$/;"	kind:member	line:24
+start	../ctags/misc/man-test.py	/^    start = 0$/;"	kind:variable	line:160
+start_game	../TheRolePlayAssistant/src/controllers/game_controller.py	/^    def start_game(self, user_id: str, preferences: Dict[str, Any]) -> Dict[str, Any]:$/;"	kind:member	line:10
+start_time	../TheRolePlayAssistant/models.py	/^    start_time = db.Column(db.DateTime)$/;"	kind:variable	line:115
+state	../ctags/misc/man-test.py	/^class state:$/;"	kind:class	line:159
+stats	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    stats: ClassVar[Dict[str, int]] = {}  # class variable$/;"	kind:variable	line:30
+stats	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^    stats: ClassVar[Dict[str, int]] = {}$/;"	kind:variable	line:35
+stdObj	../ctags/Units/parser-python.r/cython_sample.pyx.d/input.pyx	/^stdObj  = StdClass()$/;"	kind:variable	line:39
+story_generator.py	../TheRolePlayAssistant/api/story_generator.py	1;"	kind:file	line:1
+style_preference	../TheRolePlayAssistant/models.py	/^    style_preference = db.Column(db.String(100))$/;"	kind:variable	line:30
+style_preference_options	../TheRolePlayAssistant/models.py	/^    style_preference_options = db.Column(db.Text)$/;"	kind:variable	line:55
+sub01	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^    def sub01(): pass$/;"	kind:function	line:3
+sub02	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^    def sub02(): pass$/;"	kind:function	line:6
+sub03	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^    def sub03(): pass$/;"	kind:function	line:9
+sub04	../ctags/Units/parser-python.r/python3-function-annotations.d/input.py	/^    def sub04(): pass$/;"	kind:function	line:12
+sub_is_private	../ctags/Units/parser-python.r/python-access.d/input.py	/^    def sub_is_private():$/;"	kind:function	line:12
+submissions	../TheRolePlayAssistant/models.py	/^    submissions = db.relationship('TaskSubmission', backref='task', lazy=True)$/;"	kind:variable	line:118
+submitted_at	../TheRolePlayAssistant/models.py	/^    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)$/;"	kind:variable	line:127
+t	../ctags/Units/parser-iPythonCell.r/default-formats.d/input.py	/^t = np.arange(0, 1, 1\/fs)$/;"	kind:variable	line:11
+t	../ctags/Units/parser-iPythonCell.r/double-sharps.d/input.py	/^t = np.arange(0, 1, 1\/fs)$/;"	kind:variable	line:11
+t	../ctags/Units/parser-python.r/typehint.d/input.py	/^t: Tuple[str, ...] = ()$/;"	kind:variable	line:12
+t	../ctags/Units/parser-python.r/variable-annotations.d/input.py	/^t: Tuple[int, ...] = (1, 2, 3)$/;"	kind:variable	line:18
+tSA0	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	/^tSA0 = types.SimpleNamespace($/;"	kind:variable	line:3
+tSA1	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	/^tSA1 = types.SimpleNamespace(tSA1a = lambda x:  x + 1, tSA1b = 1, **tsD)$/;"	kind:variable	line:12
+tagme	../ctags/Units/parser-python.r/nested-parenthesis.d/input.py	/^def tagme():$/;"	kind:function	line:14
+tags	../ctags/misc/man-test.py	/^    tags  = 1$/;"	kind:variable	line:161
+task_id	../TheRolePlayAssistant/models.py	/^    task_id = db.Column(db.Integer, db.ForeignKey('scavenger_hunt_task.id'), nullable=False)$/;"	kind:variable	line:122
+tasks	../TheRolePlayAssistant/models.py	/^    tasks = db.relationship('ScavengerHuntTask', backref='scenario', lazy=True)$/;"	kind:variable	line:81
+template_id	../TheRolePlayAssistant/models.py	/^    template_id = db.Column(db.Integer, db.ForeignKey('character_template.id'), nullable=True)$/;"	kind:variable	line:45
+templates	../TheRolePlayAssistant/models.py	/^    templates = db.relationship('CharacterTemplate', backref='user', lazy=True)$/;"	kind:variable	line:15
+templates_path	../ctags/docs/conf.py	/^templates_path = ['_templates']$/;"	kind:variable	line:41
+testClass	../ctags/Units/parser-python.r/bug1988026.py.d/input.py	/^class testClass:$/;"	kind:class	line:2
+testFunc	../ctags/Units/parser-python.r/bug1988130.py.d/input.py	/^def testFunc():$/;"	kind:function	line:1
+texinfo_documents	../ctags/docs/conf.py	/^texinfo_documents = [$/;"	kind:variable	line:266
+tf	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	/^def tf():$/;"	kind:function	line:17
+this	../ctags/Units/parser-python.r/simple.py.d/input.py	/^                        @bleh def this also? good!$/;"	kind:member	line:42
+this	../ctags/Units/parser-python.r/simple.py.d/input.py	/^                    @blah class this is seen???$/;"	kind:class	line:41
+this_is_ignored	../ctags/Units/parser-python.r/simple.py.d/input.py	/^        class this_is_ignored:$/;"	kind:class	line:30
+three	../ctags/Units/parser-python.r/simple.py.d/input.py	/^three\\$/;"	kind:class	line:52
+ticker	../ctags/Units/parser-python.r/async.d/input.py	/^async def ticker(delay, to):$/;"	kind:function	line:50
+time_limit	../TheRolePlayAssistant/models.py	/^    time_limit = db.Column(db.Integer)$/;"	kind:variable	line:114
+title	../TheRolePlayAssistant/models.py	/^    title = db.Column(db.String(200), nullable=False)$/;"	kind:variable	line:75
+tmain_compare	../ctags/misc/units.py	/^def tmain_compare(subdir, build_subdir, aspect, file):$/;"	kind:function	line:1016
+tmain_compare_result	../ctags/misc/units.py	/^def tmain_compare_result(build_topdir):$/;"	kind:function	line:1002
+tmain_run	../ctags/misc/units.py	/^def tmain_run(topdir, build_topdir, units):$/;"	kind:function	line:1163
+tmain_sub	../ctags/misc/units.py	/^def tmain_sub(test_name, basedir, subdir, build_subdir):$/;"	kind:function	line:1061
+tmpdir	../ctags/misc/man-test.py	/^tmpdir = sys.argv[1]$/;"	kind:variable	line:300
+today_fmt	../ctags/docs/conf.py	/^today_fmt = '%d %B %Y'$/;"	kind:variable	line:73
+tokens	../ctags/docs/_ext/ctags_optlib_highlighter.py	/^    tokens = {$/;"	kind:variable	line:49
+tracer	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^    def tracer(f):$/;"	kind:member	line:37
+trait_history	../TheRolePlayAssistant/utils.py	/^trait_history = TraitHistory()$/;"	kind:variable	line:43
+tsD	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	/^tsD= {$/;"	kind:variable	line:8
+two	../ctags/Units/parser-python.r/simple.py.d/input.py	/^class two (one):$/;"	kind:class	line:46
+tx	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	/^tx = types.SimpleNamespace$/;"	kind:variable	line:14
+ty	../ctags/Units/parser-python.r/simpleNamespace.d/input-0.py	/^ty = types.SimpleNamespace.mro()$/;"	kind:variable	line:15
+type	../ctags/Units/parser-python.r/python-geany-bug-612.d/input.py	/^    type = colander.SchemaNode($/;"	kind:variable	line:19
+units.py	../ctags/misc/units.py	1;"	kind:file	line:1
+unlocked_at	../TheRolePlayAssistant/models.py	/^    unlocked_at = db.Column(db.DateTime, default=None)$/;"	kind:variable	line:91
+unregister	../TheRolePlayAssistant/src/websocket/server.py	/^    async def unregister(self, websocket: websockets.WebSocketServerProtocol):$/;"	kind:member	line:15
+user_id	../TheRolePlayAssistant/models.py	/^    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)$/;"	kind:variable	line:123
+user_id	../TheRolePlayAssistant/models.py	/^    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)$/;"	kind:variable	line:101
+user_id	../TheRolePlayAssistant/models.py	/^    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)$/;"	kind:variable	line:46
+user_id	../TheRolePlayAssistant/models.py	/^    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)$/;"	kind:variable	line:70
+user_id	../TheRolePlayAssistant/models.py	/^    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)$/;"	kind:variable	line:92
+user_id	../TheRolePlayAssistant/models/user_profile_model.py	/^    user_id = Column(String, primary_key=True)$/;"	kind:variable	line:9
+user_id	../TheRolePlayAssistant/src/models/user_profile_model.py	/^    user_id = Column(String, primary_key=True)$/;"	kind:variable	line:9
+user_profile.py	../TheRolePlayAssistant/database/user_profile.py	1;"	kind:file	line:1
+user_profile.py	../TheRolePlayAssistant/src/models/user_profile.py	1;"	kind:file	line:1
+user_profile_model.py	../TheRolePlayAssistant/models/user_profile_model.py	1;"	kind:file	line:1
+user_profile_model.py	../TheRolePlayAssistant/src/models/user_profile_model.py	1;"	kind:file	line:1
+username	../TheRolePlayAssistant/models.py	/^    username = db.Column(db.String(80), unique=True, nullable=False)$/;"	kind:variable	line:8
+utils.py	../TheRolePlayAssistant/utils.py	1;"	kind:file	line:1
+v	../ctags/Units/parser-python.r/pep604-bar-operator-for-union.d/input.py	/^v: float | str = 'a'$/;"	kind:variable	line:2
+var	../ctags/Units/parser-python.r/test.py.d/input.py	/^var = 'hi'$/;"	kind:variable	line:9
+var2	../ctags/Units/parser-python.r/test.py.d/input.py	/^var2 = 'hi' # blah = blah$/;"	kind:variable	line:10
+variable	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^variable = dict($/;"	kind:variable	line:28
+verified_at	../TheRolePlayAssistant/models.py	/^    verified_at = db.Column(db.DateTime)$/;"	kind:variable	line:128
+verify_image	../TheRolePlayAssistant/api/vision_api.py	/^    def verify_image(self, image, requirements):$/;"	kind:member	line:12
+verify_image	../TheRolePlayAssistant/main.py	/^def verify_image():$/;"	kind:function	line:48
+verify_item	../TheRolePlayAssistant/api/story_generator.py	/^    def verify_item(self, image, expected_item):$/;"	kind:member	line:162
+verify_item	../TheRolePlayAssistant/src/controllers/game_controller.py	/^    def verify_item(self, user_id: str, image_data: bytes) -> Dict:$/;"	kind:member	line:45
+verify_photo_content	../TheRolePlayAssistant/photo_verification.py	/^def verify_photo_content(photo_path, required_objects, min_confidence=0.7, required_pose=None, r/;"	kind:function	line:132
+verify_pose	../TheRolePlayAssistant/photo_verification.py	/^def verify_pose(pose_data, required_pose):$/;"	kind:function	line:81
+verify_task	../TheRolePlayAssistant/api/routes.py	/^def verify_task():$/;"	kind:function	line:26
+verify_task_completion	../TheRolePlayAssistant/game/adventure_manager.py	/^    def verify_task_completion(self, couple_id: str, task_id: str, $/;"	kind:member	line:29
+verify_test_case	../ctags/misc/man-test.py	/^def verify_test_case(t):$/;"	kind:function	line:46
+version	../ctags/docs/conf.py	/^version = '0.3.0'$/;"	kind:variable	line:61
+vision_api.py	../TheRolePlayAssistant/api/vision_api.py	1;"	kind:file	line:1
+wash_cmdline	../ctags/misc/man-test.py	/^def wash_cmdline(cmdline):$/;"	kind:function	line:43
+worker	../ctags/misc/units.py	/^def worker(func, q):$/;"	kind:function	line:704
+wrapper	../ctags/Units/parser-python.r/python-decorators.d/input.py	/^        def wrapper():$/;"	kind:function	line:38
+x	../ctags/Units/parser-iPythonCell.r/customizing.d/input.py	/^x=1$/;"	kind:variable	line:1
+x	../ctags/Units/parser-python.r/bug2075402.py.d/input.py	/^x = 2$/;"	kind:variable	line:2
+x	../ctags/Units/parser-python.r/dotted-variable-leftovers.d/input.py	/^x = X()$/;"	kind:variable	line:4
+x	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^x = {$/;"	kind:variable	line:10
+x	../ctags/Units/parser-python.r/multiline-def.d/input.py	/^x=\\$/;"	kind:variable	line:1
+x	../ctags/Units/parser-python.r/reserved-words.d/input.py	/^    x = 1$/;"	kind:variable	line:2
+x	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    x = lambda x: x$/;"	kind:member	line:20
+x	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	/^x = SimpleNamespace$/;"	kind:variable	line:14
+y	../ctags/Units/parser-python.r/bug2075402.py.d/input.py	/^y = 1 # """$/;"	kind:variable	line:1
+y	../ctags/Units/parser-python.r/multiline-def.d/input.py	/^y()\\$/;"	kind:function	line:4
+y	../ctags/Units/parser-python.r/python-end-field.d/input.py	/^    y = 1$/;"	kind:variable	line:10
+y	../ctags/Units/parser-python.r/simple.py.d/input.py	/^    y = 0$/;"	kind:variable	line:21
+y	../ctags/Units/parser-python.r/simpleNamespace.d/input.py	/^y = SimpleNamespace.mro()$/;"	kind:variable	line:15
+z	../ctags/Units/parser-python.r/multiline-arglist.d/input.py	/^z = [$/;"	kind:variable	line:14
+z1	../ctags/Units/parser-python.r/python-import.d/input.py	/^from x import (y as z1, z2,$/;"	kind:unknown	line:12	nameref:unknown:y
+zzz	../ctags/Units/parser-python.r/f-strings.d/input.py	/^zzz = 1$/;"	kind:variable	line:12

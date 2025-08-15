@@ -1,0 +1,89 @@
+{
+  "timestamp": "2025-01-29T03:27:20.577276",
+  "total_issues": 123,
+  "issues_by_severity": {
+    "high": 123,
+    "medium": 0,
+    "low": 0
+  },
+  "issues_by_type": {
+    "config": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "permission": {
+      "high": 123,
+      "medium": 0,
+      "low": 0
+    },
+    "dependency": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "secret": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "system": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "top_issues": [
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "Directory C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs has incorrect permissions: 0o777 (expected 0o750)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "Directory C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs is missing sticky bit"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "File C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\.env.production has incorrect permissions: 0o666 (expected 0o640)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "File C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\.env.test has incorrect permissions: 0o666 (expected 0o640)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "Directory C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\accessibility has incorrect permissions: 0o777 (expected 0o755)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "File C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\accessibility\\README.md has incorrect permissions: 0o666 (expected 0o640)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "File C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\accessibility.md has incorrect permissions: 0o666 (expected 0o640)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "File C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\AI_SERVICES.md has incorrect permissions: 0o666 (expected 0o640)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "Directory C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\api has incorrect permissions: 0o777 (expected 0o750)"
+    },
+    {
+      "severity": "high",
+      "type": "permission",
+      "description": "Directory C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\api is missing sticky bit"
+    }
+  ],
+  "execution_time": 0
+}

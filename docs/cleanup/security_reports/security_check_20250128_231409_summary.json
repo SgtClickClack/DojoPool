@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-01-28T23:14:09.384813",
+  "total_issues": 6618,
+  "issues_by_severity": {
+    "high": 2433,
+    "medium": 4185,
+    "low": 0
+  },
+  "issues_by_type": {
+    "config": {
+      "high": 0,
+      "medium": 4185,
+      "low": 0
+    },
+    "permission": {
+      "high": 2433,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "top_issues": [],
+  "execution_time": 24.854817
+}

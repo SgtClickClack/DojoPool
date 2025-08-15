@@ -1,0 +1,15 @@
+Welcome to DojoPool!
+
+Hi {{ user.username }},
+
+Thank you for registering with DojoPool! To complete your registration and verify your email address, please click the link below:
+
+{{ verification_url }}
+
+This verification link will expire in 24 hours.
+
+If you did not create an account with DojoPool, please ignore this email.
+
+---
+© 2024 DojoPool. All rights reserved.
+This is an automated message, please do not reply. 

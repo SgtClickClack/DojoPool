@@ -1,0 +1,529 @@
+/**
+ * Advanced Blockchain Integration & NFT Management API Routes
+ * 
+ * Comprehensive API endpoints for blockchain integration, NFT management,
+ * smart contract interactions, cross-chain operations, and digital asset management.
+ */
+
+import express from 'express';
+import { AdvancedBlockchainIntegrationService } from '../../config/monitoring.js';
+
+const router = express.Router();
+const blockchainService = AdvancedBlockchainIntegrationService.getInstance();
+
+/**
+ * NFT Collection Management
+ */
+
+// Create new NFT collection
+router.post('/collections', async (req, res) => {
+  try {
+    const collection = await blockchainService.createCollection(req.body);
+    res.status(201).json({
+      success: true,
+      data: collection,
+      message: 'Collection created successfully'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create collection'
+    });
+  }
+});
+
+// Get all collections
+router.get('/collections', async (req, res) => {
+  try {
+    const collections = await blockchainService.getAllCollections();
+    res.json({
+      success: true,
+      data: collections,
+      count: collections.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch collections'
+    });
+  }
+});
+
+// Get specific collection
+router.get('/collections/:id', async (req, res) => {
+  try {
+    const collection = await blockchainService.getCollection(req.params.id);
+    if (!collection) {
+      return res.status(404).json({
+        success: false,
+        error: 'Collection not found'
+      });
+    }
+    res.json({
+      success: true,
+      data: collection
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch collection'
+    });
+  }
+});
+
+// Update collection
+router.put('/collections/:id', async (req, res) => {
+  try {
+    const collection = await blockchainService.updateCollection(req.params.id, req.body);
+    if (!collection) {
+      return res.status(404).json({
+        success: false,
+        error: 'Collection not found'
+      });
+    }
+    res.json({
+      success: true,
+      data: collection,
+      message: 'Collection updated successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update collection'
+    });
+  }
+});
+
+/**
+ * NFT Token Management
+ */
+
+// Mint new NFT
+router.post('/nfts/mint', async (req, res) => {
+  try {
+    const { collectionId, owner, metadata, gasPrice } = req.body;
+    const token = await blockchainService.mintNFT(collectionId, owner, metadata, gasPrice);
+    res.status(201).json({
+      success: true,
+      data: token,
+      message: 'NFT minted successfully'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to mint NFT'
+    });
+  }
+});
+
+// Transfer NFT
+router.post('/nfts/:id/transfer', async (req, res) => {
+  try {
+    const { from, to, gasPrice } = req.body;
+    const success = await blockchainService.transferNFT(req.params.id, from, to, gasPrice);
+    if (!success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Transfer failed'
+      });
+    }
+    res.json({
+      success: true,
+      message: 'NFT transferred successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to transfer NFT'
+    });
+  }
+});
+
+// Evolve NFT
+router.post('/nfts/:id/evolve', async (req, res) => {
+  try {
+    const { trigger, gasPrice } = req.body;
+    const success = await blockchainService.evolveNFT(req.params.id, trigger, gasPrice);
+    if (!success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Evolution failed'
+      });
+    }
+    res.json({
+      success: true,
+      message: 'NFT evolved successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to evolve NFT'
+    });
+  }
+});
+
+// Get NFT by ID
+router.get('/nfts/:id', async (req, res) => {
+  try {
+    const token = await blockchainService.getNFT(req.params.id);
+    if (!token) {
+      return res.status(404).json({
+        success: false,
+        error: 'NFT not found'
+      });
+    }
+    res.json({
+      success: true,
+      data: token
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch NFT'
+    });
+  }
+});
+
+// Get NFTs by owner
+router.get('/nfts/owner/:address', async (req, res) => {
+  try {
+    const tokens = await blockchainService.getNFTsByOwner(req.params.address);
+    res.json({
+      success: true,
+      data: tokens,
+      count: tokens.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch NFTs'
+    });
+  }
+});
+
+// Get NFTs by collection
+router.get('/collections/:id/nfts', async (req, res) => {
+  try {
+    const tokens = await blockchainService.getNFTsByCollection(req.params.id);
+    res.json({
+      success: true,
+      data: tokens,
+      count: tokens.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch collection NFTs'
+    });
+  }
+});
+
+/**
+ * Smart Contract Management
+ */
+
+// Deploy smart contract
+router.post('/contracts/deploy', async (req, res) => {
+  try {
+    const { name, abi, bytecode, chainId, owner, constructorArgs } = req.body;
+    const contract = await blockchainService.deployContract(
+      name, abi, bytecode, chainId, owner, constructorArgs
+    );
+    res.status(201).json({
+      success: true,
+      data: contract,
+      message: 'Contract deployed successfully'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to deploy contract'
+    });
+  }
+});
+
+// Get all contracts
+router.get('/contracts', async (req, res) => {
+  try {
+    const contracts = await blockchainService.getAllContracts();
+    res.json({
+      success: true,
+      data: contracts,
+      count: contracts.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch contracts'
+    });
+  }
+});
+
+// Get specific contract
+router.get('/contracts/:id', async (req, res) => {
+  try {
+    const contract = await blockchainService.getContract(req.params.id);
+    if (!contract) {
+      return res.status(404).json({
+        success: false,
+        error: 'Contract not found'
+      });
+    }
+    res.json({
+      success: true,
+      data: contract
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch contract'
+    });
+  }
+});
+
+/**
+ * Cross-Chain Operations
+ */
+
+// Create bridge
+router.post('/bridges', async (req, res) => {
+  try {
+    const bridge = await blockchainService.createBridge(req.body);
+    res.status(201).json({
+      success: true,
+      data: bridge,
+      message: 'Bridge created successfully'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create bridge'
+    });
+  }
+});
+
+// Bridge tokens
+router.post('/bridges/:id/bridge', async (req, res) => {
+  try {
+    const { amount, fromAddress, toAddress } = req.body;
+    const transaction = await blockchainService.bridgeTokens(
+      req.params.id, amount, fromAddress, toAddress
+    );
+    res.json({
+      success: true,
+      data: transaction,
+      message: 'Bridge transaction initiated'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to bridge tokens'
+    });
+  }
+});
+
+// Get all bridges
+router.get('/bridges', async (req, res) => {
+  try {
+    const bridges = await blockchainService.getBridges();
+    res.json({
+      success: true,
+      data: bridges,
+      count: bridges.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch bridges'
+    });
+  }
+});
+
+/**
+ * Wallet Integration
+ */
+
+// Connect wallet
+router.post('/wallets/connect', async (req, res) => {
+  try {
+    const { userId, address, chainId, walletType } = req.body;
+    const wallet = await blockchainService.connectWallet(userId, address, chainId, walletType);
+    res.status(201).json({
+      success: true,
+      data: wallet,
+      message: 'Wallet connected successfully'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to connect wallet'
+    });
+  }
+});
+
+// Get wallet by ID
+router.get('/wallets/:id', async (req, res) => {
+  try {
+    const wallet = await blockchainService.getWallet(req.params.id);
+    if (!wallet) {
+      return res.status(404).json({
+        success: false,
+        error: 'Wallet not found'
+      });
+    }
+    res.json({
+      success: true,
+      data: wallet
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch wallet'
+    });
+  }
+});
+
+// Get wallets by user
+router.get('/users/:userId/wallets', async (req, res) => {
+  try {
+    const wallets = await blockchainService.getWalletsByUser(req.params.userId);
+    res.json({
+      success: true,
+      data: wallets,
+      count: wallets.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch user wallets'
+    });
+  }
+});
+
+/**
+ * Marketplace Integration
+ */
+
+// List NFT for sale
+router.post('/marketplace/list', async (req, res) => {
+  try {
+    const { tokenId, price, currency, marketplaceId } = req.body;
+    const success = await blockchainService.listNFT(tokenId, price, currency, marketplaceId);
+    if (!success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Failed to list NFT'
+      });
+    }
+    res.json({
+      success: true,
+      message: 'NFT listed successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to list NFT'
+    });
+  }
+});
+
+// Buy NFT
+router.post('/marketplace/buy', async (req, res) => {
+  try {
+    const { tokenId, buyer, price, marketplaceId } = req.body;
+    const success = await blockchainService.buyNFT(tokenId, buyer, price, marketplaceId);
+    if (!success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Failed to buy NFT'
+      });
+    }
+    res.json({
+      success: true,
+      message: 'NFT purchased successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to buy NFT'
+    });
+  }
+});
+
+/**
+ * Analytics and Reporting
+ */
+
+// Get blockchain analytics
+router.get('/analytics', async (req, res) => {
+  try {
+    const analytics = await blockchainService.getAnalytics();
+    res.json({
+      success: true,
+      data: analytics
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch analytics'
+    });
+  }
+});
+
+// Get transaction history
+router.get('/transactions', async (req, res) => {
+  try {
+    const { address, chainId, limit } = req.query;
+    const transactions = await blockchainService.getTransactionHistory(
+      address as string,
+      chainId ? parseInt(chainId as string) : undefined,
+      limit ? parseInt(limit as string) : 50
+    );
+    res.json({
+      success: true,
+      data: transactions,
+      count: transactions.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch transactions'
+    });
+  }
+});
+
+// Get top collections
+router.get('/collections/top', async (req, res) => {
+  try {
+    const { limit } = req.query;
+    const collections = await blockchainService.getTopCollections(
+      limit ? parseInt(limit as string) : 10
+    );
+    res.json({
+      success: true,
+      data: collections,
+      count: collections.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch top collections'
+    });
+  }
+});
+
+/**
+ * Health Check
+ */
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Advanced Blockchain Integration API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+export { router as advancedBlockchainIntegrationRouter };
+
+
+

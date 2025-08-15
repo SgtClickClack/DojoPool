@@ -1,0 +1,6 @@
+setup.py
+dojo_pool.egg-info/PKG-INFO
+dojo_pool.egg-info/SOURCES.txt
+dojo_pool.egg-info/dependency_links.txt
+dojo_pool.egg-info/requires.txt
+dojo_pool.egg-info/top_level.txt

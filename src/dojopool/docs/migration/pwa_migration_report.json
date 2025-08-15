@@ -1,0 +1,156 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\pwa.js",
+  "typescript_file": "src\\dojopool\\static\\js\\pwa.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\pwa.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "NotificationHandler",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "PWAManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "badge",
+        "type": "any"
+      },
+      {
+        "name": "list",
+        "type": "any"
+      },
+      {
+        "name": "status",
+        "type": "any"
+      },
+      {
+        "name": "permission",
+        "type": "any"
+      },
+      {
+        "name": "index",
+        "type": "any"
+      },
+      {
+        "name": "registration",
+        "type": "any"
+      },
+      {
+        "name": "permission",
+        "type": "any"
+      },
+      {
+        "name": "registration",
+        "type": "any"
+      },
+      {
+        "name": "subscription",
+        "type": "any"
+      },
+      {
+        "name": "installButton",
+        "type": "any"
+      },
+      {
+        "name": "installButton",
+        "type": "any"
+      },
+      {
+        "name": "updateOnlineStatus",
+        "type": "any"
+      },
+      {
+        "name": "condition",
+        "type": "any"
+      },
+      {
+        "name": "statusBar",
+        "type": "any"
+      },
+      {
+        "name": "formData",
+        "type": "any"
+      },
+      {
+        "name": "payload",
+        "type": "any"
+      },
+      {
+        "name": "request",
+        "type": "any"
+      },
+      {
+        "name": "db",
+        "type": "any"
+      },
+      {
+        "name": "tx",
+        "type": "any"
+      },
+      {
+        "name": "store",
+        "type": "any"
+      },
+      {
+        "name": "db",
+        "type": "any"
+      },
+      {
+        "name": "messageContainer",
+        "type": "any"
+      },
+      {
+        "name": "messageElement",
+        "type": "any"
+      },
+      {
+        "name": "padding",
+        "type": "any"
+      },
+      {
+        "name": "base64",
+        "type": "any"
+      },
+      {
+        "name": "rawData",
+        "type": "any"
+      },
+      {
+        "name": "outputArray",
+        "type": "any"
+      },
+      {
+        "name": "i",
+        "type": "any"
+      },
+      {
+        "name": "permission",
+        "type": "any"
+      },
+      {
+        "name": "userId",
+        "type": "any"
+      },
+      {
+        "name": "token",
+        "type": "any"
+      },
+      {
+        "name": "pwa",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "NotificationHandler": "\nclass NotificationHandler {\n    // Properties and methods\n}",
+    "PWAManager": "\nclass PWAManager {\n    // Properties and methods\n}"
+  }
+}

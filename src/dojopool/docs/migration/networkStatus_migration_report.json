@@ -1,0 +1,51 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\networkStatus.js",
+  "typescript_file": "src\\dojopool\\static\\js\\networkStatus.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\networkStatus.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "NetworkStatus",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "connection",
+        "type": "any"
+      },
+      {
+        "name": "oldQuality",
+        "type": "any"
+      },
+      {
+        "name": "oldStatus",
+        "type": "any"
+      },
+      {
+        "name": "connection",
+        "type": "any"
+      },
+      {
+        "name": "memory",
+        "type": "any"
+      },
+      {
+        "name": "networkStatus",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": [
+      "instance",
+      "networkStatus"
+    ]
+  },
+  "generated_types": {
+    "NetworkStatus": "\nclass NetworkStatus {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "networkStatus": "\ninterface networkStatus {\n    // Properties\n}"
+  }
+}

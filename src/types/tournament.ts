@@ -1,181 +1,195 @@
-export enum TournamentStatus {
-  REGISTRATION = 'REGISTRATION',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-}
-
-export enum TournamentFormat {
-  SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
-  DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
-  ROUND_ROBIN = 'ROUND_ROBIN',
-  SWISS = 'SWISS',
-}
-
-export interface TournamentPlayer {
-  id: string;
-  name: string;
-  rank: number;
-  seed?: number;
-  status: 'ACTIVE' | 'ELIMINATED' | 'WITHDRAWN';
-  wins?: number;
-  losses?: number;
-  matchesPlayed?: number;
-}
-
-export interface TournamentMatch {
-  id: string;
-  roundNumber: number;
-  matchNumber: number;
-  player1Id?: string;
-  player2Id?: string;
-  winnerId?: string;
-  loserId?: string;
-  score?: {
-    player1: number;
-    player2: number;
-  };
-  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  startTime?: Date;
-  endTime?: Date;
-  tableNumber?: number;
-}
-
-export interface TournamentRound {
-  roundNumber: number;
-  matches: TournamentMatch[];
-  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-  startTime?: Date;
-  endTime?: Date;
-}
+/**
+ * Tournament Type Definitions
+ * 
+ * Comprehensive type definitions for the unified tournament system
+ */
 
 export interface Tournament {
-  id: string;
+  id: number;
   name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  status: TournamentStatus;
+  description?: string;
+  venueId: number;
+  organizerId: number;
+  startDate: Date;
+  endDate: Date;
+  registrationDeadline: Date;
   maxParticipants: number;
-  currentParticipants: number;
-  venue: {
-    id: string;
-    name: string;
-  };
   entryFee: number;
-  prizePools: {
-    rank: number;
-    amount: number;
-  }[];
-  rules: string[];
+  prizePool: number;
+  status: TournamentStatus;
   format: TournamentFormat;
-  players: TournamentPlayer[];
-  rounds?: TournamentRound[];
-  loserRounds?: TournamentRound[];
-  groupMatches?: TournamentMatch[];
-  swissRounds?: TournamentRound[];
-  createdAt: string;
-  updatedAt: string;
+  rules?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  participantCount: number;
+  venue?: Venue;
+  organizer?: User;
 }
 
 export interface TournamentParticipant {
-  id: string;
-  userId: string;
-  tournamentId: string;
-  name: string;
-  rank: number;
-  status: 'registered' | 'checked_in' | 'eliminated' | 'winner';
-  joinedAt: string;
-  stats: {
-    matchesPlayed: number;
-    matchesWon: number;
-    matchesLost: number;
-  };
+  id: number;
+  tournamentId: number;
+  userId: number;
+  username: string;
+  seed?: number;
+  status: 'registered' | 'checked_in' | 'eliminated' | 'withdrawn';
+  registrationDate: Date;
+  checkInTime?: Date;
+  eliminationRound?: number;
+  finalPlacement?: number;
+  user?: User;
 }
 
 export interface TournamentMatch {
   id: string;
-  tournamentId: string;
-  round: number;
-  player1: {
-    id: string;
-    name: string;
-    score: number;
-  };
-  player2: {
-    id: string;
-    name: string;
-    score: number;
-  };
-  status: 'scheduled' | 'in_progress' | 'completed';
-  winner?: string;
-  startTime?: string;
-  endTime?: string;
-  table?: {
-    id: string;
-    name: string;
-  };
-}
-
-export interface TournamentFilters {
-  status?: 'upcoming' | 'in_progress' | 'completed';
-  venueId?: string;
-  startDate?: string;
-  endDate?: string;
-  format?: 'single_elimination' | 'double_elimination' | 'round_robin';
-  minPrizePool?: number;
-  maxPrizePool?: number;
-}
-
-export interface CreateTournamentData {
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  maxParticipants: number;
-  venueId: string;
-  entryFee: number;
-  prizePools: {
-    rank: number;
-    amount: number;
-  }[];
-  rules: string[];
-  format: 'single_elimination' | 'double_elimination' | 'round_robin';
-}
-
-export interface UpdateTournamentData extends Partial<CreateTournamentData> {
-  id: string;
-}
-
-export interface TournamentRegistrationData {
-  tournamentId: string;
-  userId: string;
-}
-
-export interface TournamentMatchUpdateData {
-  matchId: string;
+  tournamentId: number;
+  roundNumber: number;
+  matchNumber: number;
+  player1Id?: number;
+  player2Id?: number;
+  player1Name?: string;
+  player2Name?: string;
   player1Score?: number;
   player2Score?: number;
-  status?: 'scheduled' | 'in_progress' | 'completed';
-  winner?: string;
-  tableId?: string;
+  winnerId?: number;
+  status: MatchStatus;
+  bracketType: 'winners' | 'losers' | 'consolation';
+  isBye?: boolean;
+  isForfeit?: boolean;
+  startTime?: Date;
+  endTime?: Date;
+  nextMatchId?: string;
+  previousMatchIds?: string[];
+}
+
+export interface TournamentRound {
+  id: number;
+  tournamentId: number;
+  roundNumber: number;
+  name: string;
+  matches: TournamentMatch[];
+  isActive: boolean;
+  isCompleted: boolean;
+  startTime?: Date;
+  endTime?: Date;
 }
 
 export interface TournamentBracket {
-  rounds: {
-    round: number;
-    matches: TournamentMatch[];
-  }[];
-}
-
-export interface TournamentStats {
-  totalParticipants: number;
+  id: string;
+  tournamentId: number;
+  type: TournamentFormat;
+  status: TournamentStatus;
+  rounds: TournamentRound[];
+  nodes: BracketNode[];
+  participants: TournamentParticipant[];
+  currentRound: number;
+  totalRounds: number;
   totalMatches: number;
   completedMatches: number;
-  averageMatchDuration: number;
-  topPlayers: {
-    id: string;
-    name: string;
-    wins: number;
-  }[];
+  startDate: Date;
+  endDate?: Date;
+  seedingMethod: SeedingMethod;
+  consolationRounds: boolean;
+}
+
+export interface BracketNode {
+  id: string;
+  matchId?: number;
+  player1Id?: number;
+  player2Id?: number;
+  player1Name?: string;
+  player2Name?: string;
+  player1Score?: number;
+  player2Score?: number;
+  winnerId?: number;
+  status: MatchStatus;
+  round: number;
+  matchNumber: number;
+  bracketType: 'winners' | 'losers' | 'consolation';
+  nextMatchId?: string;
+  previousMatchIds?: string[];
+  isBye?: boolean;
+  isForfeit?: boolean;
+}
+
+export interface TournamentConfig {
+  id?: number;
+  name: string;
+  description?: string;
+  venueId: number;
+  organizerId: number;
+  startDate: Date;
+  endDate: Date;
+  registrationDeadline: Date;
+  maxParticipants: number;
+  entryFee: number;
+  prizePool: number;
+  format: TournamentFormat;
+  rules?: string;
+  seedingMethod?: SeedingMethod;
+  autoStart?: boolean;
+  checkInRequired?: boolean;
+  consolationRounds?: boolean;
+}
+
+export const TournamentFormat = {
+  SINGLE_ELIMINATION: 'single_elimination',
+  DOUBLE_ELIMINATION: 'double_elimination',
+  ROUND_ROBIN: 'round_robin',
+  SWISS: 'swiss',
+  CONSOLATION: 'consolation'
+} as const;
+
+export type TournamentFormat = typeof TournamentFormat[keyof typeof TournamentFormat];
+
+export const TournamentStatus = {
+  DRAFT: 'draft',
+  REGISTRATION: 'registration',
+  CHECK_IN: 'check_in',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+} as const;
+
+export type TournamentStatus = typeof TournamentStatus[keyof typeof TournamentStatus];
+
+export const SeedingMethod = {
+  RANDOM: 'random',
+  RATING: 'rating',
+  RANKING: 'ranking',
+  MANUAL: 'manual',
+  TOURNAMENT_HISTORY: 'tournament_history'
+} as const;
+
+export type SeedingMethod = typeof SeedingMethod[keyof typeof SeedingMethod];
+
+export const MatchStatus = {
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  BYE: 'bye',
+  FORFEIT: 'forfeit'
+} as const;
+
+export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
+
+// Import types that are referenced
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+  rating?: number;
+  ranking?: number;
+}
+
+export interface Venue {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
 }

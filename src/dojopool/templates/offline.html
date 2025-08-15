@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DojoPool - Offline</title>
+<link href="/static/manifest.json" rel="manifest"/>
+<meta content="#2196f3" name="theme-color"/>
+<style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            color: #333;
+            text-align: center;
+        }
+        
+        .container {
+            padding: 2rem;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin: 0 0 1rem;
+            color: #2196f3;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin: 0 0 1.5rem;
+            color: #666;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: #2196f3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .button:hover {
+            background-color: #1976d2;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        
+        .feature {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .feature h3 {
+            margin: 0 0 0.5rem;
+            font-size: 1.1rem;
+            color: #2196f3;
+        }
+        
+        .feature p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+<picture>
+<source srcset="/static/icons/icon-192x192.avif" type="image/avif"/><source srcset="/static/icons/icon-192x192.webp" type="image/webp"/>
+<picture>
+<source srcset="/static/icons/icon-192x192.avif" type="image/avif"/><source srcset="/static/icons/icon-192x192.webp" type="image/webp"/>
+<img alt="DojoPool Logo" class="logo" loading="lazy" src="/static/icons/icon-192x192.png"/>
+</picture>
+</picture>
+<h1>You're Offline</h1>
+<p>Don't worry! You can still access some features while offline.</p>
+<a class="button" href="/">Try Again</a>
+<div class="features">
+<div class="feature">
+<h3>View Recent Games</h3>
+<p>Access your recent game history and statistics that have been cached.</p>
+</div>
+<div class="feature">
+<h3>Offline Actions</h3>
+<p>Any actions you take will be synchronized when you're back online.</p>
+</div>
+<div class="feature">
+<h3>Local Data</h3>
+<p>Your profile and settings are available even without a connection.</p>
+</div>
+</div>
+</div>
+<script>
+        // Check connection status
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+        
+        // Add to home screen prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install prompt if offline
+            if (!navigator.onLine && deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted PWA installation');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

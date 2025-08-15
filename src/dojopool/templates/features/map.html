@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Map{% endblock %}
+
+{% block styles %}
+<style>
+    .map-container {
+        position: relative;
+        height: calc(100vh - var(--navbar-height));
+        background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75)), url('/static/images/hero-vs.webp');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 2rem;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 168, 255, 0.3);
+        border: 1px solid var(--secondary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="map-container">
+    <div id="map"></div>
+</div>
+<!-- Error message container -->
+<div class="alert alert-danger" id="error-container"
+    style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Debug information
+    console.log('Template loaded');
+    console.log('Map container:', document.getElementById('map'));
+
+    // Show error messages
+    function showError(message) {
+        console.error('Error:', message);
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+            errorContainer.style.display = 'block';
+            errorContainer.textContent = message;
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Initialize map
+    function initMap() {
+        console.log('initMap called');
+        try {
+            const mapDiv = document.getElementById('map');
+            if (!mapDiv) {
+                throw new Error('Map container not found');
+            }
+
+            // Default center (London)
+            const defaultCenter = { lat: 51.5074, lng: -0.1278 };
+
+            // Create map
+            const map = new google.maps.Map(mapDiv, {
+                center: defaultCenter,
+                zoom: 13,
+                styles: [
+                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] }
+                ],
+                mapTypeControl: false,
+                streetViewControl: false
+            });
+
+            console.log('Map created successfully');
+
+            // Try HTML5 geolocation
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        console.log('User location:', pos);
+                        map.setCenter(pos);
+                        new google.maps.Marker({
+                            position: pos,
+                            map: map,
+                            title: "Your Location"
+                        });
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        showError("Error: The Geolocation service failed.");
+                    }
+                );
+            } else {
+                showError("Error: Your browser doesn't support geolocation.");
+            }
+        } catch (error) {
+            console.error('Map initialization error:', error);
+            showError('Failed to initialize map: ' + error.message);
+        }
+    }
+
+    // Handle Google Maps API errors
+    function gm_authFailure() {
+        console.error('Google Maps authentication failed');
+        showError('Google Maps authentication failed. Please check your API key.');
+    }
+
+    // Load Google Maps API with error handling
+    function loadGoogleMaps() {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places,marker&callback=initMap&v=weekly&loading=async`;
+        script.async = true;
+        script.defer = true;
+        script.onerror = () => showError('Failed to load Google Maps API');
+        document.head.appendChild(script);
+    }
+
+    // Start loading the map
+    loadGoogleMaps();
+</script>
+{% endblock %}

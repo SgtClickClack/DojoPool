@@ -1,0 +1,58 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\components\\notification.js",
+  "typescript_file": "src\\dojopool\\static\\js\\components\\notification.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\notification.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "NotificationManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "container",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "id",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "messageElement",
+        "type": "any"
+      },
+      {
+        "name": "closeButton",
+        "type": "any"
+      },
+      {
+        "name": "style",
+        "type": "any"
+      },
+      {
+        "name": "notificationManager",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "NotificationManager": "\nclass NotificationManager {\n    // Properties and methods\n}"
+  }
+}

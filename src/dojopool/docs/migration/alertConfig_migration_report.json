@@ -1,0 +1,89 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\alertConfig.js",
+  "typescript_file": "src\\dojopool\\static\\js\\alertConfig.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\alertConfig.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "AlertConfig",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "tabs",
+        "type": "any"
+      },
+      {
+        "name": "content",
+        "type": "any"
+      },
+      {
+        "name": "thresholds",
+        "type": "any"
+      },
+      {
+        "name": "history",
+        "type": "any"
+      },
+      {
+        "name": "thresholds",
+        "type": "any"
+      },
+      {
+        "name": "html",
+        "type": "any"
+      },
+      {
+        "name": "history",
+        "type": "any"
+      },
+      {
+        "name": "filter",
+        "type": "any"
+      },
+      {
+        "name": "listContainer",
+        "type": "any"
+      },
+      {
+        "name": "filteredHistory",
+        "type": "any"
+      },
+      {
+        "name": "thresholds",
+        "type": "any"
+      },
+      {
+        "name": "toggle",
+        "type": "any"
+      },
+      {
+        "name": "warningInput",
+        "type": "any"
+      },
+      {
+        "name": "errorInput",
+        "type": "any"
+      },
+      {
+        "name": "alertConfig",
+        "type": "any"
+      }
+    ],
+    "imports": [
+      "./alertSystem.js"
+    ],
+    "exports": [
+      "instance",
+      "alertConfig"
+    ]
+  },
+  "generated_types": {
+    "AlertConfig": "\nclass AlertConfig {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "alertConfig": "\ninterface alertConfig {\n    // Properties\n}"
+  }
+}

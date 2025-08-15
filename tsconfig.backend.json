@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "lib": ["ES2020"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/backend/**/*",
+    "src/config/monitoring.ts",
+    "src/config/environment.backend.ts",
+    "src/services/blockchain/**/*",
+    "src/services/challengeStorage.ts",
+    "src/types/**/*"
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "build", 
+    "src/frontend/**/*",
+    "src/components/**/*",
+    "src/pages/**/*",
+    "src/config/environment.ts",
+    "src/services/api.ts",
+    "src/services/ai/**/*",
+    "src/services/referee/**/*",
+    "src/services/avatar3DService-Meex.ts",
+    "src/firebase/**/*",
+    "src/services/network/**/*",
+    "src/services/wallet/**/*",
+    "src/utils/analyticsUtils.ts",
+    "src/utils/apiUtils.ts",
+    "src/utils/canvas.ts",
+    "src/utils/encryption.ts",
+    "src/utils/serviceWorker.ts",
+    "src/utils/logger.ts",
+    "src/utils/monitoring.ts",
+    "src/utils/performance.ts",
+    "src/utils/securityUtils.ts",
+    "src/backend/routes/advanced-*.ts",
+    "src/backend/routes/enhanced-*.ts",
+    "src/backend/routes/venue-*.ts"
+  ]
+} 

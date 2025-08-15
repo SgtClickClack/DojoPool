@@ -1,0 +1,158 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\notifications.js",
+  "typescript_file": "src\\dojopool\\static\\js\\notifications.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\notifications.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "NotificationManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "typeFilter",
+        "type": "any"
+      },
+      {
+        "name": "statusFilter",
+        "type": "any"
+      },
+      {
+        "name": "timeFilter",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "params",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "typeFilter",
+        "type": "any"
+      },
+      {
+        "name": "statusFilter",
+        "type": "any"
+      },
+      {
+        "name": "timeFilter",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "notificationDate",
+        "type": "any"
+      },
+      {
+        "name": "now",
+        "type": "any"
+      },
+      {
+        "name": "weekAgo",
+        "type": "any"
+      },
+      {
+        "name": "monthAgo",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "notification",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "badge",
+        "type": "any"
+      },
+      {
+        "name": "container",
+        "type": "any"
+      },
+      {
+        "name": "emptyState",
+        "type": "any"
+      },
+      {
+        "name": "loadMoreContainer",
+        "type": "any"
+      },
+      {
+        "name": "toast",
+        "type": "any"
+      },
+      {
+        "name": "container",
+        "type": "any"
+      },
+      {
+        "name": "bsToast",
+        "type": "any"
+      },
+      {
+        "name": "loading",
+        "type": "any"
+      },
+      {
+        "name": "loading",
+        "type": "any"
+      },
+      {
+        "name": "button",
+        "type": "any"
+      },
+      {
+        "name": "button",
+        "type": "any"
+      },
+      {
+        "name": "toast",
+        "type": "any"
+      },
+      {
+        "name": "container",
+        "type": "any"
+      },
+      {
+        "name": "bsToast",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "NotificationManager": "\nclass NotificationManager {\n    // Properties and methods\n}"
+  }
+}

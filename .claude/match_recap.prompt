@@ -1,0 +1,19 @@
+Create an engaging match recap for {user_name}'s recent pool game:
+
+Level: {user_level}
+Match Type: {match_type}
+Duration: {match_duration} minutes
+Score: {match_score}
+
+Recent Performance:
+{performance_trend}
+
+Key Moments:
+{key_moments}
+
+Highlight the player's strategy, notable shots, and any significant improvements.
+Focus on their strengths while providing constructive insights for areas of improvement.
+Keep the tone encouraging and professional.
+
+Additional Context:
+{additional_context} 

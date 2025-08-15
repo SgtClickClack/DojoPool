@@ -1,0 +1,77 @@
+"""
+Run the Flask application.
+"""
+
+import os
+import logging
+import sys
+
+# Ensure src is in PYTHONPATH for module resolution
+src_path = os.path.join(os.path.dirname(__file__), 'src')
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+try:
+    import flask
+except ImportError:
+    print("[ERROR] Flask is not installed. Please run 'pip install flask'.")
+    sys.exit(1)
+
+from dojopool.core.extensions import socketio
+from dojopool.app import create_app
+
+# Professional entrypoint for running the Flask+SocketIO app in dev or prod
+
+if __name__ == "__main__":
+    # Create the application instance
+    app = create_app()
+    port = int(os.environ.get("PORT", 5000))
+    ssl_mode = os.environ.get("FLASK_SSL", "off").lower() == "on"
+    protocol = "https" if ssl_mode else "http"
+    ws_protocol = "wss" if ssl_mode else "ws"
+
+    # Improved startup logging
+    logging.info("\n========== Flask/SocketIO Startup ==========")
+    logging.info(f"App: [PY]run.py")
+    logging.info(f"Port: {port}")
+    logging.info(f"SSL Mode: {'ON' if ssl_mode else 'OFF'}")
+    logging.info(f"URL: {protocol}://127.0.0.1:{port}")
+    logging.info(f"WebSocket URL: {ws_protocol}://127.0.0.1:{port}")
+    logging.info("============================================\n")
+
+    # Check if port is available before starting
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("127.0.0.1", port))
+        sock.close()
+    except OSError as e:
+        logging.error(f"Port {port} is already in use or unavailable: {e}")
+        sys.exit(1)
+
+    # Debug: Print all registered routes
+    with app.app_context():
+        print("[ROUTES]")
+        for rule in app.url_map.iter_rules():
+            print(rule)
+
+    # Run the app with correct async/SSL handling
+    import eventlet
+    async_mode = getattr(socketio, 'async_mode', 'eventlet')
+    if async_mode in ('eventlet', 'gevent'):
+        socketio.run(
+            app,
+            host="127.0.0.1",
+            port=port,
+            debug=True,
+            use_reloader=False,
+        )
+    else:
+        socketio.run(
+            app,
+            host="127.0.0.1",
+            port=port,
+            debug=True,
+            ssl_context='adhoc' if ssl_mode else None,
+            use_reloader=False,
+        )

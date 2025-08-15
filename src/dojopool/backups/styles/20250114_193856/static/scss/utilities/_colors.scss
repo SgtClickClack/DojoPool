@@ -1,0 +1,303 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Text colors
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .text-#{$color-name}-#{$shade} {
+      color: $value !important;
+    }
+  }
+}
+
+// Background colors
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .bg-#{$color-name}-#{$shade} {
+      background-color: $value !important;
+    }
+  }
+}
+
+// Border colors
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .border-#{$color-name}-#{$shade} {
+      border-color: $value !important;
+    }
+  }
+}
+
+// Fill colors (for SVG)
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .fill-#{$color-name}-#{$shade} {
+      fill: $value !important;
+    }
+  }
+}
+
+// Stroke colors (for SVG)
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .stroke-#{$color-name}-#{$shade} {
+      stroke: $value !important;
+    }
+  }
+}
+
+// Background opacity
+.bg-opacity-0 {
+  --bg-opacity: 0 !important;
+}
+.bg-opacity-5 {
+  --bg-opacity: 0.05 !important;
+}
+.bg-opacity-10 {
+  --bg-opacity: 0.1 !important;
+}
+.bg-opacity-20 {
+  --bg-opacity: 0.2 !important;
+}
+.bg-opacity-25 {
+  --bg-opacity: 0.25 !important;
+}
+.bg-opacity-30 {
+  --bg-opacity: 0.3 !important;
+}
+.bg-opacity-40 {
+  --bg-opacity: 0.4 !important;
+}
+.bg-opacity-50 {
+  --bg-opacity: 0.5 !important;
+}
+.bg-opacity-60 {
+  --bg-opacity: 0.6 !important;
+}
+.bg-opacity-70 {
+  --bg-opacity: 0.7 !important;
+}
+.bg-opacity-75 {
+  --bg-opacity: 0.75 !important;
+}
+.bg-opacity-80 {
+  --bg-opacity: 0.8 !important;
+}
+.bg-opacity-90 {
+  --bg-opacity: 0.9 !important;
+}
+.bg-opacity-95 {
+  --bg-opacity: 0.95 !important;
+}
+.bg-opacity-100 {
+  --bg-opacity: 1 !important;
+}
+
+// Border opacity
+.border-opacity-0 {
+  --border-opacity: 0 !important;
+}
+.border-opacity-5 {
+  --border-opacity: 0.05 !important;
+}
+.border-opacity-10 {
+  --border-opacity: 0.1 !important;
+}
+.border-opacity-20 {
+  --border-opacity: 0.2 !important;
+}
+.border-opacity-25 {
+  --border-opacity: 0.25 !important;
+}
+.border-opacity-30 {
+  --border-opacity: 0.3 !important;
+}
+.border-opacity-40 {
+  --border-opacity: 0.4 !important;
+}
+.border-opacity-50 {
+  --border-opacity: 0.5 !important;
+}
+.border-opacity-60 {
+  --border-opacity: 0.6 !important;
+}
+.border-opacity-70 {
+  --border-opacity: 0.7 !important;
+}
+.border-opacity-75 {
+  --border-opacity: 0.75 !important;
+}
+.border-opacity-80 {
+  --border-opacity: 0.8 !important;
+}
+.border-opacity-90 {
+  --border-opacity: 0.9 !important;
+}
+.border-opacity-95 {
+  --border-opacity: 0.95 !important;
+}
+.border-opacity-100 {
+  --border-opacity: 1 !important;
+}
+
+// Mix blend modes
+.mix-blend-normal {
+  mix-blend-mode: normal !important;
+}
+.mix-blend-multiply {
+  mix-blend-mode: multiply !important;
+}
+.mix-blend-screen {
+  mix-blend-mode: screen !important;
+}
+.mix-blend-overlay {
+  mix-blend-mode: overlay !important;
+}
+.mix-blend-darken {
+  mix-blend-mode: darken !important;
+}
+.mix-blend-lighten {
+  mix-blend-mode: lighten !important;
+}
+.mix-blend-color-dodge {
+  mix-blend-mode: color-dodge !important;
+}
+.mix-blend-color-burn {
+  mix-blend-mode: color-burn !important;
+}
+.mix-blend-hard-light {
+  mix-blend-mode: hard-light !important;
+}
+.mix-blend-soft-light {
+  mix-blend-mode: soft-light !important;
+}
+.mix-blend-difference {
+  mix-blend-mode: difference !important;
+}
+.mix-blend-exclusion {
+  mix-blend-mode: exclusion !important;
+}
+.mix-blend-hue {
+  mix-blend-mode: hue !important;
+}
+.mix-blend-saturation {
+  mix-blend-mode: saturation !important;
+}
+.mix-blend-color {
+  mix-blend-mode: color !important;
+}
+.mix-blend-luminosity {
+  mix-blend-mode: luminosity !important;
+}
+
+// Background blend modes
+.bg-blend-normal {
+  background-blend-mode: normal !important;
+}
+.bg-blend-multiply {
+  background-blend-mode: multiply !important;
+}
+.bg-blend-screen {
+  background-blend-mode: screen !important;
+}
+.bg-blend-overlay {
+  background-blend-mode: overlay !important;
+}
+.bg-blend-darken {
+  background-blend-mode: darken !important;
+}
+.bg-blend-lighten {
+  background-blend-mode: lighten !important;
+}
+.bg-blend-color-dodge {
+  background-blend-mode: color-dodge !important;
+}
+.bg-blend-color-burn {
+  background-blend-mode: color-burn !important;
+}
+.bg-blend-hard-light {
+  background-blend-mode: hard-light !important;
+}
+.bg-blend-soft-light {
+  background-blend-mode: soft-light !important;
+}
+.bg-blend-difference {
+  background-blend-mode: difference !important;
+}
+.bg-blend-exclusion {
+  background-blend-mode: exclusion !important;
+}
+.bg-blend-hue {
+  background-blend-mode: hue !important;
+}
+.bg-blend-saturation {
+  background-blend-mode: saturation !important;
+}
+.bg-blend-color {
+  background-blend-mode: color !important;
+}
+.bg-blend-luminosity {
+  background-blend-mode: luminosity !important;
+}
+
+// Gradient backgrounds
+.bg-gradient-to-t {
+  background-image: linear-gradient(to top, var(--gradient-stops)) !important;
+}
+.bg-gradient-to-tr {
+  background-image: linear-gradient(
+    to top right,
+    var(--gradient-stops)
+  ) !important;
+}
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--gradient-stops)) !important;
+}
+.bg-gradient-to-br {
+  background-image: linear-gradient(
+    to bottom right,
+    var(--gradient-stops)
+  ) !important;
+}
+.bg-gradient-to-b {
+  background-image: linear-gradient(
+    to bottom,
+    var(--gradient-stops)
+  ) !important;
+}
+.bg-gradient-to-bl {
+  background-image: linear-gradient(
+    to bottom left,
+    var(--gradient-stops)
+  ) !important;
+}
+.bg-gradient-to-l {
+  background-image: linear-gradient(to left, var(--gradient-stops)) !important;
+}
+.bg-gradient-to-tl {
+  background-image: linear-gradient(
+    to top left,
+    var(--gradient-stops)
+  ) !important;
+}
+
+// Gradient color stops
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .from-#{$color-name}-#{$shade} {
+      --gradient-from-color: #{$value} !important;
+      --gradient-color-stops: var(--gradient-from-color),
+        var(--gradient-to-color, rgba(#{$value}, 0)) !important;
+    }
+
+    .via-#{$color-name}-#{$shade} {
+      --gradient-via-color: #{$value} !important;
+      --gradient-color-stops: var(--gradient-from-color),
+        var(--gradient-via-color), var(--gradient-to-color, rgba(#{$value}, 0)) !important;
+    }
+
+    .to-#{$color-name}-#{$shade} {
+      --gradient-to-color: #{$value} !important;
+    }
+  }
+}

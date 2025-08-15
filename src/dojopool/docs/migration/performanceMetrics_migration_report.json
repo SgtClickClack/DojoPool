@@ -1,0 +1,71 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\performanceMetrics.js",
+  "typescript_file": "src\\dojopool\\static\\js\\performanceMetrics.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\performanceMetrics.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "PerformanceMetrics",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "loadObserver",
+        "type": "any"
+      },
+      {
+        "name": "duration",
+        "type": "any"
+      },
+      {
+        "name": "name",
+        "type": "any"
+      },
+      {
+        "name": "type",
+        "type": "any"
+      },
+      {
+        "name": "size",
+        "type": "any"
+      },
+      {
+        "name": "bandwidthMbps",
+        "type": "any"
+      },
+      {
+        "name": "downlink",
+        "type": "any"
+      },
+      {
+        "name": "trackMemory",
+        "type": "any"
+      },
+      {
+        "name": "memory",
+        "type": "any"
+      },
+      {
+        "name": "stats",
+        "type": "any"
+      },
+      {
+        "name": "performanceMetrics",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": [
+      "instance",
+      "performanceMetrics"
+    ]
+  },
+  "generated_types": {
+    "PerformanceMetrics": "\nclass PerformanceMetrics {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "performanceMetrics": "\ninterface performanceMetrics {\n    // Properties\n}"
+  }
+}

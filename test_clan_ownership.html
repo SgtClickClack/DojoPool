@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Clan Ownership - DojoPool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .dojo-item {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .marker-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        .friendly { background: cyan; }
+        .rival { background: red; }
+        .neutral { background: grey; }
+        .ownership-status {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .controlled { color: #ff6b6b; }
+        .unclaimed { color: #888; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🥋 Clan Ownership Test - DojoPool World Hub</h1>
+        <p>Testing the visual representation of clan ownership for Dojos</p>
+        
+        <h2>Test Data</h2>
+        <div id="test-dojos"></div>
+        
+        <h2>Player Information</h2>
+        <div id="player-info"></div>
+    </div>
+
+    <script>
+        // Test data simulating different clan ownership scenarios
+        const testPlayer = {
+            name: "TestPlayer",
+            clan: "Crimson Monkey",
+            clanId: "clan-1"
+        };
+
+        const testDojos = [
+            {
+                id: "dojo-1",
+                name: "Jade Tiger Dojo",
+                address: "123 Main St",
+                distance: 500,
+                status: "verified",
+                controllingClanId: "clan-1", // Player's clan
+                controllingClan: {
+                    id: "clan-1",
+                    name: "Crimson Monkey",
+                    tag: "CM"
+                }
+            },
+            {
+                id: "dojo-2", 
+                name: "Iron Fist Dojo",
+                address: "456 Oak Ave",
+                distance: 750,
+                status: "verified",
+                controllingClanId: "clan-2", // Rival clan
+                controllingClan: {
+                    id: "clan-2",
+                    name: "Azure Dragon",
+                    tag: "AD"
+                }
+            },
+            {
+                id: "dojo-3",
+                name: "Golden Phoenix Dojo", 
+                address: "789 Pine Rd",
+                distance: 1200,
+                status: "verified",
+                controllingClanId: null, // Neutral/unclaimed
+                controllingClan: null
+            },
+            {
+                id: "dojo-4",
+                name: "Silver Wolf Dojo",
+                address: "321 Elm St", 
+                distance: 900,
+                status: "unconfirmed",
+                controllingClanId: "clan-3", // Another rival clan
+                controllingClan: {
+                    id: "clan-3",
+                    name: "Shadow Serpent",
+                    tag: "SS"
+                }
+            }
+        ];
+
+        function getMarkerClass(dojo, playerClanId) {
+            if (!dojo.controllingClanId) {
+                return 'neutral'; // Grey for unclaimed
+            }
+            if (dojo.controllingClanId === playerClanId) {
+                return 'friendly'; // Cyan for player's clan
+            }
+            return 'rival'; // Red for other clans
+        }
+
+        function getOwnershipStatus(dojo) {
+            if (!dojo.controllingClan) {
+                return {
+                    text: "Unclaimed Territory",
+                    class: "unclaimed"
+                };
+            }
+            return {
+                text: `Controlled by: ${dojo.controllingClan.name}`,
+                class: "controlled"
+            };
+        }
+
+        function renderTestDojos() {
+            const container = document.getElementById('test-dojos');
+            
+            testDojos.forEach(dojo => {
+                const markerClass = getMarkerClass(dojo, testPlayer.clanId);
+                const ownership = getOwnershipStatus(dojo);
+                
+                const dojoElement = document.createElement('div');
+                dojoElement.className = 'dojo-item';
+                dojoElement.innerHTML = `
+                    <div>
+                        <span class="marker-preview ${markerClass}"></span>
+                        <strong>${dojo.name}</strong>
+                    </div>
+                    <div>Address: ${dojo.address}</div>
+                    <div>Distance: ${dojo.distance}m</div>
+                    <div>Status: ${dojo.status}</div>
+                    <div class="ownership-status ${ownership.class}">
+                        ${ownership.text}
+                    </div>
+                `;
+                
+                container.appendChild(dojoElement);
+            });
+        }
+
+        function renderPlayerInfo() {
+            const container = document.getElementById('player-info');
+            container.innerHTML = `
+                <div class="dojo-item">
+                    <strong>Player:</strong> ${testPlayer.name}<br>
+                    <strong>Clan:</strong> ${testPlayer.clan}<br>
+                    <strong>Clan ID:</strong> ${testPlayer.clanId}
+                </div>
+            `;
+        }
+
+        // Initialize the test
+        renderPlayerInfo();
+        renderTestDojos();
+
+        console.log('Test data loaded:', { testPlayer, testDojos });
+    </script>
+</body>
+</html>

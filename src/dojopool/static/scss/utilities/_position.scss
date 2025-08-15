@@ -1,0 +1,443 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Position
+.static {
+  position: static !important;
+}
+.fixed {
+  position: fixed !important;
+}
+.absolute {
+  position: absolute !important;
+}
+.relative {
+  position: relative !important;
+}
+.sticky {
+  position: sticky !important;
+}
+
+// Top / Right / Bottom / Left
+@each $key, $value in $spacing {
+  .top-#{$key} {
+    top: $value !important;
+  }
+  .right-#{$key} {
+    right: $value !important;
+  }
+  .bottom-#{$key} {
+    bottom: $value !important;
+  }
+  .left-#{$key} {
+    left: $value !important;
+  }
+
+  .-top-#{$key} {
+    top: -$value !important;
+  }
+  .-right-#{$key} {
+    right: -$value !important;
+  }
+  .-bottom-#{$key} {
+    bottom: -$value !important;
+  }
+  .-left-#{$key} {
+    left: -$value !important;
+  }
+
+  .inset-#{$key} {
+    top: $value !important;
+    right: $value !important;
+    bottom: $value !important;
+    left: $value !important;
+  }
+
+  .inset-x-#{$key} {
+    left: $value !important;
+    right: $value !important;
+  }
+
+  .inset-y-#{$key} {
+    top: $value !important;
+    bottom: $value !important;
+  }
+
+  .-inset-#{$key} {
+    top: -$value !important;
+    right: -$value !important;
+    bottom: -$value !important;
+    left: -$value !important;
+  }
+
+  .-inset-x-#{$key} {
+    left: -$value !important;
+    right: -$value !important;
+  }
+
+  .-inset-y-#{$key} {
+    top: -$value !important;
+    bottom: -$value !important;
+  }
+}
+
+// Special values
+.inset-auto {
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+}
+
+.inset-x-auto {
+  left: auto !important;
+  right: auto !important;
+}
+
+.inset-y-auto {
+  top: auto !important;
+  bottom: auto !important;
+}
+
+.top-auto {
+  top: auto !important;
+}
+.right-auto {
+  right: auto !important;
+}
+.bottom-auto {
+  bottom: auto !important;
+}
+.left-auto {
+  left: auto !important;
+}
+
+// Percentage values
+$percentages: (
+  '0': 0%,
+  '25': 25%,
+  '50': 50%,
+  '75': 75%,
+  '100': 100%,
+  'full': 100%,
+);
+
+@each $key, $value in $percentages {
+  .top-#{$key} {
+    top: $value !important;
+  }
+  .right-#{$key} {
+    right: $value !important;
+  }
+  .bottom-#{$key} {
+    bottom: $value !important;
+  }
+  .left-#{$key} {
+    left: $value !important;
+  }
+
+  .-top-#{$key} {
+    top: -$value !important;
+  }
+  .-right-#{$key} {
+    right: -$value !important;
+  }
+  .-bottom-#{$key} {
+    bottom: -$value !important;
+  }
+  .-left-#{$key} {
+    left: -$value !important;
+  }
+
+  .inset-#{$key} {
+    top: $value !important;
+    right: $value !important;
+    bottom: $value !important;
+    left: $value !important;
+  }
+
+  .inset-x-#{$key} {
+    left: $value !important;
+    right: $value !important;
+  }
+
+  .inset-y-#{$key} {
+    top: $value !important;
+    bottom: $value !important;
+  }
+
+  .-inset-#{$key} {
+    top: -$value !important;
+    right: -$value !important;
+    bottom: -$value !important;
+    left: -$value !important;
+  }
+
+  .-inset-x-#{$key} {
+    left: -$value !important;
+    right: -$value !important;
+  }
+
+  .-inset-y-#{$key} {
+    top: -$value !important;
+    bottom: -$value !important;
+  }
+}
+
+// Responsive positioning
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    .static-#{$breakpoint} {
+      position: static !important;
+    }
+    .fixed-#{$breakpoint} {
+      position: fixed !important;
+    }
+    .absolute-#{$breakpoint} {
+      position: absolute !important;
+    }
+    .relative-#{$breakpoint} {
+      position: relative !important;
+    }
+    .sticky-#{$breakpoint} {
+      position: sticky !important;
+    }
+
+    @each $key, $value in $spacing {
+      .top-#{$breakpoint}-#{$key} {
+        top: $value !important;
+      }
+      .right-#{$breakpoint}-#{$key} {
+        right: $value !important;
+      }
+      .bottom-#{$breakpoint}-#{$key} {
+        bottom: $value !important;
+      }
+      .left-#{$breakpoint}-#{$key} {
+        left: $value !important;
+      }
+
+      .-top-#{$breakpoint}-#{$key} {
+        top: -$value !important;
+      }
+      .-right-#{$breakpoint}-#{$key} {
+        right: -$value !important;
+      }
+      .-bottom-#{$breakpoint}-#{$key} {
+        bottom: -$value !important;
+      }
+      .-left-#{$breakpoint}-#{$key} {
+        left: -$value !important;
+      }
+
+      .inset-#{$breakpoint}-#{$key} {
+        top: $value !important;
+        right: $value !important;
+        bottom: $value !important;
+        left: $value !important;
+      }
+
+      .inset-x-#{$breakpoint}-#{$key} {
+        left: $value !important;
+        right: $value !important;
+      }
+
+      .inset-y-#{$breakpoint}-#{$key} {
+        top: $value !important;
+        bottom: $value !important;
+      }
+    }
+
+    @each $key, $value in $percentages {
+      .top-#{$breakpoint}-#{$key} {
+        top: $value !important;
+      }
+      .right-#{$breakpoint}-#{$key} {
+        right: $value !important;
+      }
+      .bottom-#{$breakpoint}-#{$key} {
+        bottom: $value !important;
+      }
+      .left-#{$breakpoint}-#{$key} {
+        left: $value !important;
+      }
+
+      .inset-#{$breakpoint}-#{$key} {
+        top: $value !important;
+        right: $value !important;
+        bottom: $value !important;
+        left: $value !important;
+      }
+
+      .inset-x-#{$breakpoint}-#{$key} {
+        left: $value !important;
+        right: $value !important;
+      }
+
+      .inset-y-#{$breakpoint}-#{$key} {
+        top: $value !important;
+        bottom: $value !important;
+      }
+    }
+  }
+}
+
+// Transform origin
+.origin-center {
+  transform-origin: center !important;
+}
+.origin-top {
+  transform-origin: top !important;
+}
+.origin-top-right {
+  transform-origin: top right !important;
+}
+.origin-right {
+  transform-origin: right !important;
+}
+.origin-bottom-right {
+  transform-origin: bottom right !important;
+}
+.origin-bottom {
+  transform-origin: bottom !important;
+}
+.origin-bottom-left {
+  transform-origin: bottom left !important;
+}
+.origin-left {
+  transform-origin: left !important;
+}
+.origin-top-left {
+  transform-origin: top left !important;
+}
+
+// Transform
+.translate-x-0 {
+  transform: translateX(0) !important;
+}
+.translate-y-0 {
+  transform: translateY(0) !important;
+}
+.translate-x-full {
+  transform: translateX(100%) !important;
+}
+.translate-x-half {
+  transform: translateX(50%) !important;
+}
+.translate-y-full {
+  transform: translateY(100%) !important;
+}
+.translate-y-half {
+  transform: translateY(50%) !important;
+}
+.-translate-x-full {
+  transform: translateX(-100%) !important;
+}
+.-translate-x-half {
+  transform: translateX(-50%) !important;
+}
+.-translate-y-full {
+  transform: translateY(-100%) !important;
+}
+.-translate-y-half {
+  transform: translateY(-50%) !important;
+}
+
+// Scale
+.scale-0 {
+  transform: scale(0) !important;
+}
+.scale-50 {
+  transform: scale(0.5) !important;
+}
+.scale-75 {
+  transform: scale(0.75) !important;
+}
+.scale-90 {
+  transform: scale(0.9) !important;
+}
+.scale-95 {
+  transform: scale(0.95) !important;
+}
+.scale-100 {
+  transform: scale(1) !important;
+}
+.scale-105 {
+  transform: scale(1.05) !important;
+}
+.scale-110 {
+  transform: scale(1.1) !important;
+}
+.scale-125 {
+  transform: scale(1.25) !important;
+}
+.scale-150 {
+  transform: scale(1.5) !important;
+}
+
+// Rotate
+.rotate-0 {
+  transform: rotate(0deg) !important;
+}
+.rotate-45 {
+  transform: rotate(45deg) !important;
+}
+.rotate-90 {
+  transform: rotate(90deg) !important;
+}
+.rotate-180 {
+  transform: rotate(180deg) !important;
+}
+.-rotate-45 {
+  transform: rotate(-45deg) !important;
+}
+.-rotate-90 {
+  transform: rotate(-90deg) !important;
+}
+.-rotate-180 {
+  transform: rotate(-180deg) !important;
+}
+
+// Skew
+.skew-x-0 {
+  transform: skewX(0deg) !important;
+}
+.skew-y-0 {
+  transform: skewY(0deg) !important;
+}
+.skew-x-3 {
+  transform: skewX(3deg) !important;
+}
+.skew-y-3 {
+  transform: skewY(3deg) !important;
+}
+.skew-x-6 {
+  transform: skewX(6deg) !important;
+}
+.skew-y-6 {
+  transform: skewY(6deg) !important;
+}
+.skew-x-12 {
+  transform: skewX(12deg) !important;
+}
+.skew-y-12 {
+  transform: skewY(12deg) !important;
+}
+.-skew-x-3 {
+  transform: skewX(-3deg) !important;
+}
+.-skew-y-3 {
+  transform: skewY(-3deg) !important;
+}
+.-skew-x-6 {
+  transform: skewX(-6deg) !important;
+}
+.-skew-y-6 {
+  transform: skewY(-6deg) !important;
+}
+.-skew-x-12 {
+  transform: skewX(-12deg) !important;
+}
+.-skew-y-12 {
+  transform: skewY(-12deg) !important;
+}

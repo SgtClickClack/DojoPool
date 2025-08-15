@@ -1,0 +1,234 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Font families
+.font-base {
+  font-family: $font-family-base !important;
+}
+.font-heading {
+  font-family: $font-family-heading !important;
+}
+.font-mono {
+  font-family: $font-family-mono !important;
+}
+
+// Font sizes
+@each $key, $value in $font-sizes {
+  .text-#{$key} {
+    @include font-size($key);
+  }
+}
+
+// Font weights
+@each $key, $value in $font-weight {
+  .font-#{$key} {
+    font-weight: $value !important;
+  }
+}
+
+// Line heights
+@each $key, $value in $line-height {
+  .leading-#{$key} {
+    line-height: $value !important;
+  }
+}
+
+// Text alignment
+.text-left {
+  text-align: left !important;
+}
+.text-center {
+  text-align: center !important;
+}
+.text-right {
+  text-align: right !important;
+}
+.text-justify {
+  text-align: justify !important;
+}
+
+// Text decoration
+.text-underline {
+  text-decoration: underline !important;
+}
+.text-line-through {
+  text-decoration: line-through !important;
+}
+.text-no-decoration {
+  text-decoration: none !important;
+}
+
+// Text transform
+.text-uppercase {
+  text-transform: uppercase !important;
+}
+.text-lowercase {
+  text-transform: lowercase !important;
+}
+.text-capitalize {
+  text-transform: capitalize !important;
+}
+.text-normal-case {
+  text-transform: none !important;
+}
+
+// Font style
+.italic {
+  font-style: italic !important;
+}
+.not-italic {
+  font-style: normal !important;
+}
+
+// Text wrapping and overflow
+.text-wrap {
+  white-space: normal !important;
+}
+.text-nowrap {
+  white-space: nowrap !important;
+}
+.text-break {
+  word-break: break-word !important;
+}
+.text-truncate {
+  @include truncate(1);
+}
+
+// Text colors
+@each $color-name, $color-variants in $colors {
+  @each $shade, $value in $color-variants {
+    .text-#{$color-name}-#{$shade} {
+      color: $value !important;
+    }
+  }
+}
+
+// Responsive typography utilities
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    // Font sizes
+    @each $key, $value in $font-sizes {
+      .text-#{$breakpoint}-#{$key} {
+        @include font-size($key);
+      }
+    }
+
+    // Text alignment
+    .text-#{$breakpoint}-left {
+      text-align: left !important;
+    }
+    .text-#{$breakpoint}-center {
+      text-align: center !important;
+    }
+    .text-#{$breakpoint}-right {
+      text-align: right !important;
+    }
+    .text-#{$breakpoint}-justify {
+      text-align: justify !important;
+    }
+  }
+}
+
+// Multi-line truncation
+@for $i from 2 through 5 {
+  .text-truncate-#{$i} {
+    @include truncate($i);
+  }
+}
+
+// Letter spacing
+.tracking-tighter {
+  letter-spacing: -0.05em !important;
+}
+.tracking-tight {
+  letter-spacing: -0.025em !important;
+}
+.tracking-normal {
+  letter-spacing: 0 !important;
+}
+.tracking-wide {
+  letter-spacing: 0.025em !important;
+}
+.tracking-wider {
+  letter-spacing: 0.05em !important;
+}
+.tracking-widest {
+  letter-spacing: 0.1em !important;
+}
+
+// Word spacing
+.word-spacing-tighter {
+  word-spacing: -0.05em !important;
+}
+.word-spacing-tight {
+  word-spacing: -0.025em !important;
+}
+.word-spacing-normal {
+  word-spacing: 0 !important;
+}
+.word-spacing-wide {
+  word-spacing: 0.025em !important;
+}
+.word-spacing-wider {
+  word-spacing: 0.05em !important;
+}
+.word-spacing-widest {
+  word-spacing: 0.1em !important;
+}
+
+// Text opacity
+.text-opacity-0 {
+  opacity: 0 !important;
+}
+.text-opacity-25 {
+  opacity: 0.25 !important;
+}
+.text-opacity-50 {
+  opacity: 0.5 !important;
+}
+.text-opacity-75 {
+  opacity: 0.75 !important;
+}
+.text-opacity-100 {
+  opacity: 1 !important;
+}
+
+// Writing mode
+.writing-horizontal {
+  writing-mode: horizontal-tb !important;
+}
+.writing-vertical {
+  writing-mode: vertical-rl !important;
+}
+
+// Text direction
+.text-direction-ltr {
+  direction: ltr !important;
+}
+.text-direction-rtl {
+  direction: rtl !important;
+}
+
+// Font smoothing
+.font-smoothing-antialiased {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+.font-smoothing-subpixel {
+  -webkit-font-smoothing: auto !important;
+  -moz-osx-font-smoothing: auto !important;
+}
+
+// Text selection
+.select-none {
+  user-select: none !important;
+}
+.select-text {
+  user-select: text !important;
+}
+.select-all {
+  user-select: all !important;
+}
+.select-auto {
+  user-select: auto !important;
+}

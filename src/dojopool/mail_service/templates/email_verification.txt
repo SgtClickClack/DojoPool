@@ -1,0 +1,11 @@
+Verify Your Email
+
+Please verify your email address by clicking the link below:
+{{ url_for('auth.verify_email', token=verification_token, _external=True) }}
+
+If you did not create an account with DojoPool, please ignore this email.
+
+This link will expire in 24 hours.
+
+Best regards,
+The DojoPool Team 

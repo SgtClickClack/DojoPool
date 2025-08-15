@@ -1,0 +1,113 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\metricsDashboard.js",
+  "typescript_file": "src\\dojopool\\static\\js\\metricsDashboard.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\metricsDashboard.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "MetricsDashboard",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "sections",
+        "type": "any"
+      },
+      {
+        "name": "div",
+        "type": "any"
+      },
+      {
+        "name": "alertSection",
+        "type": "any"
+      },
+      {
+        "name": "ctx",
+        "type": "any"
+      },
+      {
+        "name": "stats",
+        "type": "any"
+      },
+      {
+        "name": "chart",
+        "type": "any"
+      },
+      {
+        "name": "timestamp",
+        "type": "any"
+      },
+      {
+        "name": "stats",
+        "type": "any"
+      },
+      {
+        "name": "chart",
+        "type": "any"
+      },
+      {
+        "name": "timestamp",
+        "type": "any"
+      },
+      {
+        "name": "stats",
+        "type": "any"
+      },
+      {
+        "name": "chart",
+        "type": "any"
+      },
+      {
+        "name": "timestamp",
+        "type": "any"
+      },
+      {
+        "name": "usageMB",
+        "type": "any"
+      },
+      {
+        "name": "maxDataPoints",
+        "type": "any"
+      },
+      {
+        "name": "container",
+        "type": "any"
+      },
+      {
+        "name": "alerts",
+        "type": "any"
+      },
+      {
+        "name": "stats",
+        "type": "any"
+      },
+      {
+        "name": "memoryUsagePercent",
+        "type": "any"
+      },
+      {
+        "name": "container",
+        "type": "any"
+      },
+      {
+        "name": "metricsDashboard",
+        "type": "any"
+      }
+    ],
+    "imports": [
+      "./performanceMetrics.js"
+    ],
+    "exports": [
+      "instance",
+      "metricsDashboard"
+    ]
+  },
+  "generated_types": {
+    "MetricsDashboard": "\nclass MetricsDashboard {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "metricsDashboard": "\ninterface metricsDashboard {\n    // Properties\n}"
+  }
+}

@@ -1,0 +1,33 @@
+name: Common CI Steps
+on:
+  workflow_call:
+    inputs:
+      test_path:
+        required: true
+        type: string
+jobs:
+  run-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{runner.os}}-node-${{hashFiles('**/package-lock.json')}}
+          restore-keys: "${{runner.os}}-node-
+
+            "
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: &id001
+          node-version: "16"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with: *id001
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test -- ${{inputs.test_path}}
+      - name: Lint code
+        run: npm run lint
