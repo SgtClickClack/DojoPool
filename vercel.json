@@ -1,114 +1,23 @@
-
-  "installCommand": "npm install --legacy-peer-deps",
-  "env": {
-    "NODEJS_VERSION": "20.x
-
-  "headers": [
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "builds": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
-        },
-        {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://cdn.vercel-insights.com https://cdn.tailwindcss.com 'sha256-ohxjEDLvmOxfN3TE9Y/wPAmXh0IHYNnyPvHDeoJD+sg=' 'sha256-9Fcqa0KkLzPv0s9BwnjyaXZbsnwcG+mYB2dO6uvpZJY=' 'unsafe-hashes'; style-src 'self' https://fonts.googleapis.com 'sha256-ZJG+IXplbojEaqKo6dNRZx2YdcVNLfgW6mbgQb+Kldk=' 'sha256-2v5Hrnc6NwdQhE+DOaPTxhHxz5XDbkZfEmq5lxU04yQ='; img-src 'self' blob: data: https:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://vitals.vercel-insights.com; upgrade-insecure-requests"
-        }
-      ]
+      "src": "services/api/src/main.ts",
+      "use": "@vercel/node"
     },
     {
-      "source": "/investor-portal/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://cdn.tailwindcss.com 'sha256-ohxjEDLvmOxfN3TE9Y/wPAmXh0IHYNnyPvHDeoJD+sg=' 'sha256-9Fcqa0KkLzPv0s9BwnjyaXZbsnwcG+mYB2dO6uvpZJY=' 'unsafe-hashes' 'sha256-LiZvEbKTx9W9pFs31EVD8sAkfeUQbalLCteXSt0/oS0=' 'sha256-UOxCedPtutS/Ma9rH2VxBnHLZFRTD8vjgHpFe1SozXY=' 'sha256-HWf6sHnLKMAjOxdZLpydINc3yNCe4Jk9luqy79SJXyY=' 'sha256-SI8a0dAUH0cczDgbSS6CMCLpehwz2gZPFpGhQJy+/Ks=' 'sha256-xN6exDT9A6vBQChJtzVIFB3R/hMTjqxEPrRrdwJAFzE=' 'sha256-rWFCtgZM4bTGzyBplSZ+ULGBdJxgJduoy42JOO4uRgY=' 'sha256-FXKhQtQfRctHfOcXrFPHszf6lY1CH92p6Uw1xFXyIM0='; style-src 'self' https://fonts.googleapis.com 'sha256-ZJG+IXplbojEaqKo6dNRZx2YdcVNLfgW6mbgQb+Kldk='; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; upgrade-insecure-requests"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "private, no-cache, no-store, must-revalidate"
-        }
-      ]
+      "src": "apps/web/next.config.js",
+      "use": "@vercel/next"
     }
   ],
-<
-  "redirects": [],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/healthcheck",
-      "destination": "/api/health"
+      "src": "/api/v1/(.*)",
+      "dest": "services/api/src/main.ts"
     },
     {
-      "source": "/investor-portal/(.*)",
-      "destination": "/investor-portal/index.html"
-    },
-    {
-      "source": "/invest/(.*)",
-      "destination": "/investor-portal/index.html"
+      "src": "/(.*)",
+      "dest": "apps/web"
     }
-  ],
-=======
->>
-  "redirects": [
-    {
-      "source": "/api/:path*",
-      "has": [
-        {
-          "type": "header",
-          "key": "x-vercel-ip-country",
-          "value": "(?!AU|NZ).*"
-        }
-      ],
-      "permanent": false,
-      "destination": "/api/region-blocked"
-    }
-  ],
-
-
-  "regions": ["syd1"],
-  "github": {
-    "silent": true,
-    "autoJobCancelation": true
-  },
-  "public": false,
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "images": {
-    "sizes": [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    "domains": ["dojopool.com.au"],
-    "minimumCacheTTL": 60
-  },
-  "build": {
-    "env": {
-      "NPM_FLAGS": "--legacy-peer-deps"
-    }
-  }
-} 
+  ]
+}

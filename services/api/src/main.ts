@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // Set global API prefix to match frontend expectations: /api/*
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/v1');
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
   await app.listen(port);
   // eslint-disable-next-line no-console
