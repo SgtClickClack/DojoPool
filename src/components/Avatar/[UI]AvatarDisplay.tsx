@@ -1,7 +1,7 @@
-import React from 'react';
-import { Avatar as MuiAvatar, Badge, IconButton, Tooltip } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
+import { Badge, IconButton, Avatar as MuiAvatar, Tooltip } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import React from 'react';
 
 export interface AvatarDisplayProps {
   avatarUrl?: string | null;
@@ -131,3 +131,5 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
 };
 
 export default AvatarDisplay;
+
+export const AnimatedAvatar = AvatarDisplay;

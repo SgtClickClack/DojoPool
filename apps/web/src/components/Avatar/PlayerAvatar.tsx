@@ -57,7 +57,6 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
           width: getSizeValue(),
           height: getSizeValue(),
           fontSize: getFontSize(),
-          ...avatarProps.sx,
         }}
         {...avatarProps}
       >

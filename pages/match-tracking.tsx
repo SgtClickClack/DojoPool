@@ -34,8 +34,8 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import RealTimeMatchTracker from '../src/frontend/components/match/RealTimeMatchTracker';
-import { ChallengeService } from '../src/frontend/services/ChallengeService';
+import RealTimeMatchTracker from '../src/components/Game/RealTimeMatchTracker';
+import { ChallengeService } from '../src/services/ChallengeService';
 
 interface TabPanelProps {
   children?: React.ReactNode;

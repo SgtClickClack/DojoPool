@@ -1,23 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "builds": [
-    {
-      "src": "services/api/src/main.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "apps/web/next.config.js",
-      "use": "@vercel/next"
+  "buildCommand": "cd apps/web && npm install && npm run build",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "functions": {
+    "apps/web/next.config.js": {
+      "maxDuration": 30
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/v1/(.*)",
-      "dest": "services/api/src/main.ts"
+      "dest": "/api/v1/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "apps/web"
+      "dest": "/$1"
     }
   ]
 }

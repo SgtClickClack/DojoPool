@@ -1,6 +1,6 @@
 import { Box, Container, Paper, Typography } from '@mui/material';
 import React from 'react';
-import AvatarCreationFlow from '../src/frontend/components/avatar/AvatarCreationFlow';
+import AvatarCreationFlow from '../src/components/Avatar/AvatarCreationFlow';
 
 const AvatarCreationTestPage: React.FC = () => {
   const handleAvatarComplete = (avatarId: string) => {

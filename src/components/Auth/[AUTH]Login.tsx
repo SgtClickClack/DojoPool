@@ -3,7 +3,7 @@ import { Box, Button, Link, Paper, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
-export const Login: React.FC = () => {
+const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, error } = useAuth();
@@ -67,3 +67,5 @@ export const Login: React.FC = () => {
     </Box>
   );
 };
+
+export default Login;

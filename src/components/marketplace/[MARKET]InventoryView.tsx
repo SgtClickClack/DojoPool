@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { marketplaceService } from '../../services/marketplaceService';
 import { type InventoryItem } from '../../types/[MARKET]marketplace';
-import './InventoryView.css';
 
 export const InventoryView: React.FC = () => {
   const [items, setItems] = useState<InventoryItem[]>([]);

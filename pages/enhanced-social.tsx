@@ -1,6 +1,6 @@
 import { Box, CssBaseline } from '@mui/material';
 import React from 'react';
-import { EnhancedSocialDashboard } from '../src/frontend/components/social/EnhancedSocialDashboard';
+import EnhancedSocialDashboard from '../src/components/Social/EnhancedSocialDashboard';
 
 const EnhancedSocialPage: React.FC = () => {
   return (

@@ -31,7 +31,7 @@ const SAMPLE_EXPERIMENTS: ExperimentInfo[] = [
   },
 ];
 
-export const ExperimentPage: React.FC = () => {
+const ExperimentPage: React.FC = () => {
   const [selectedExperiment, setSelectedExperiment] = useState<string | null>(
     null
   );
@@ -85,7 +85,9 @@ export const ExperimentPage: React.FC = () => {
             {SAMPLE_EXPERIMENTS.map((experiment) => (
               <div
                 key={experiment.id}
-                className={`experiment-card ${selectedExperiment === experiment.id ? 'selected' : ''}`}
+                className={`experiment-card ${
+                  selectedExperiment === experiment.id ? 'selected' : ''
+                }`}
                 onClick={() => setSelectedExperiment(experiment.id)}
               >
                 <h3>{experiment.name}</h3>
@@ -224,3 +226,5 @@ export const ExperimentPage: React.FC = () => {
     </div>
   );
 };
+
+export default ExperimentPage;

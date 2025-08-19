@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import tournamentService from '../../services/TournamentService';
 import { Tournament } from '../../types/tournament';
 import TournamentBracket from './TournamentBracket';
-import './TournamentDetails.css';
 
 interface TournamentDetailsProps {
   tournamentId: string;

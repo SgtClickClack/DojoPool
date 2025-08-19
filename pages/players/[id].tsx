@@ -1,7 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
 import {
   Avatar,
   Box,
@@ -15,12 +11,32 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import AchievementsList from '../../apps/web/src/components/profile/AchievementsList';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import AchievementsList from '../../src/components/Profile/AchievementsList';
 
-interface TournamentInfo { id: string; name: string; round?: number; stage?: string }
-interface MatchScore { player1: number; player2: number }
-interface PlayerInfo { id: string; name?: string; avatarUrl?: string }
-interface Achievement { id: string; dateUnlocked: string; achievement: { name: string; description?: string; icon?: string } }
+interface TournamentInfo {
+  id: string;
+  name: string;
+  round?: number;
+  stage?: string;
+}
+interface MatchScore {
+  player1: number;
+  player2: number;
+}
+interface PlayerInfo {
+  id: string;
+  name?: string;
+  avatarUrl?: string;
+}
+interface Achievement {
+  id: string;
+  dateUnlocked: string;
+  achievement: { name: string; description?: string; icon?: string };
+}
 interface PlayerMatchSummary {
   id: string;
   opponent: PlayerInfo;
@@ -51,7 +67,10 @@ export default function PlayerProfilePage() {
     let cancelled = false;
     setLoading(true);
     const base = process.env.NEXT_PUBLIC_API_URL || '';
-    const url = `${base}/api/v1/players/${encodeURIComponent(id)}`.replace('//api', '/api');
+    const url = `${base}/api/v1/players/${encodeURIComponent(id)}`.replace(
+      '//api',
+      '/api'
+    );
     fetch(url)
       .then(async (r) => {
         if (!r.ok) throw new Error(`Failed to load player ${id}`);
@@ -63,19 +82,30 @@ export default function PlayerProfilePage() {
           setError(null);
         }
       })
-      .catch((e) => !cancelled && setError(e?.message || 'Error loading player'))
+      .catch(
+        (e) => !cancelled && setError(e?.message || 'Error loading player')
+      )
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
   }, [id]);
 
-  const winRate = profile ? Math.round((profile.stats.wins / Math.max(1, (profile.stats.wins + profile.stats.losses))) * 100) : 0;
+  const winRate = profile
+    ? Math.round(
+        (profile.stats.wins /
+          Math.max(1, profile.stats.wins + profile.stats.losses)) *
+          100
+      )
+    : 0;
 
   return (
     <>
       <Head>
-        <title>{profile ? `${profile.username} — Profile` : 'Player Profile'} | DojoPool</title>
+        <title>
+          {profile ? `${profile.username} — Profile` : 'Player Profile'} |
+          DojoPool
+        </title>
       </Head>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {loading ? (
@@ -85,15 +115,26 @@ export default function PlayerProfilePage() {
         ) : !profile ? (
           <Typography>Player not found.</Typography>
         ) : (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, gap: 3 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' },
+              gap: 3,
+            }}
+          >
             {/* Left column: Identity and stats */}
             <Box>
               <Paper sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar src={profile.avatarUrl} sx={{ width: 80, height: 80 }} />
+                  <Avatar
+                    src={profile.avatarUrl}
+                    sx={{ width: 80, height: 80 }}
+                  />
                   <Box>
                     <Typography variant="h5">{profile.username}</Typography>
-                    <Typography color="text.secondary">ID: {profile.id}</Typography>
+                    <Typography color="text.secondary">
+                      ID: {profile.id}
+                    </Typography>
                   </Box>
                 </Box>
                 <Divider sx={{ my: 2 }} />
@@ -106,7 +147,9 @@ export default function PlayerProfilePage() {
                   </Grid>
                   <Grid item xs={6}>
                     <Box textAlign="center">
-                      <Typography variant="h4">{profile.stats.losses}</Typography>
+                      <Typography variant="h4">
+                        {profile.stats.losses}
+                      </Typography>
                       <Typography color="text.secondary">Losses</Typography>
                     </Box>
                   </Grid>
@@ -134,32 +177,65 @@ export default function PlayerProfilePage() {
                   Match History
                 </Typography>
                 {profile.matches.length === 0 ? (
-                  <Typography color="text.secondary">No matches recorded.</Typography>
+                  <Typography color="text.secondary">
+                    No matches recorded.
+                  </Typography>
                 ) : (
                   <List>
                     {profile.matches.map((m) => (
                       <ListItem key={m.id} alignItems="flex-start" divider>
                         <ListItemAvatar>
-                          <Avatar src={m.opponent.avatarUrl}>{m.opponent.name?.[0]}</Avatar>
+                          <Avatar src={m.opponent.avatarUrl}>
+                            {m.opponent.name?.[0]}
+                          </Avatar>
                         </ListItemAvatar>
                         <ListItemText
                           primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Chip size="small" color={m.result === 'WIN' ? 'success' : 'default'} label={m.result} />
-                              <Typography>{m.tournament?.name || 'Friendly Match'}</Typography>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                              }}
+                            >
+                              <Chip
+                                size="small"
+                                color={
+                                  m.result === 'WIN' ? 'success' : 'default'
+                                }
+                                label={m.result}
+                              />
+                              <Typography>
+                                {m.tournament?.name || 'Friendly Match'}
+                              </Typography>
                             </Box>
                           }
                           secondary={
                             <>
-                              <Typography component="span" color="text.secondary">
+                              <Typography
+                                component="span"
+                                color="text.secondary"
+                              >
                                 vs{' '}
-                                <Link href={`/players/${encodeURIComponent(m.opponent.id || m.opponent.name || 'unknown')}`}>
+                                <Link
+                                  href={`/players/${encodeURIComponent(
+                                    m.opponent.id ||
+                                      m.opponent.name ||
+                                      'unknown'
+                                  )}`}
+                                >
                                   {m.opponent.name || m.opponent.id}
-                                </Link>
-                                {' '}• Score {m.score.player1} - {m.score.player2}
+                                </Link>{' '}
+                                • Score {m.score.player1} - {m.score.player2}
                               </Typography>
                               {m.playedAt && (
-                                <Typography component="span" color="text.secondary"> — {new Date(m.playedAt).toLocaleString()}</Typography>
+                                <Typography
+                                  component="span"
+                                  color="text.secondary"
+                                >
+                                  {' '}
+                                  — {new Date(m.playedAt).toLocaleString()}
+                                </Typography>
                               )}
                             </>
                           }
@@ -175,12 +251,22 @@ export default function PlayerProfilePage() {
                   Tournaments
                 </Typography>
                 {profile.tournaments.length === 0 ? (
-                  <Typography color="text.secondary">No tournaments yet.</Typography>
+                  <Typography color="text.secondary">
+                    No tournaments yet.
+                  </Typography>
                 ) : (
                   <List>
                     {profile.tournaments.map((t) => (
                       <ListItem key={t.id} divider>
-                        <ListItemText primary={t.name} secondary={[t.stage, t.round ? `Round ${t.round}` : ''].filter(Boolean).join(' • ')} />
+                        <ListItemText
+                          primary={t.name}
+                          secondary={[
+                            t.stage,
+                            t.round ? `Round ${t.round}` : '',
+                          ]
+                            .filter(Boolean)
+                            .join(' • ')}
+                        />
                       </ListItem>
                     ))}
                   </List>

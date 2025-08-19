@@ -1,11 +1,12 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchesGateway } from '../matches/matches.gateway';
+import type { TableStatus } from '@prisma/client';
 
 interface UpdateTableInput {
   venueId: string;
   tableId: string;
-  status: string;
+  status: TableStatus;
   matchId?: string;
 }
 
@@ -23,7 +24,7 @@ export class VenuesService {
     return this.prisma.table.findMany({ where: { venueId }, orderBy: { createdAt: 'asc' } });
   }
 
-  async createTable(venueId: string, data: { name: string; status?: string }) {
+  async createTable(venueId: string, data: { name: string; status?: TableStatus }) {
     if (!data?.name || typeof data.name !== 'string') {
       throw new BadRequestException('name is required');
     }
@@ -38,7 +39,7 @@ export class VenuesService {
       data: {
         venueId,
         name: data.name,
-        status: data.status ?? 'AVAILABLE',
+        status: (data.status ?? 'AVAILABLE') as any,
       },
     });
 
@@ -53,7 +54,7 @@ export class VenuesService {
     return tables;
   }
 
-  async updateTableInfo(venueId: string, tableId: string, data: { name?: string; status?: string }) {
+  async updateTableInfo(venueId: string, tableId: string, data: { name?: string; status?: TableStatus }) {
     const table = await this.prisma.table.findUnique({ where: { id: tableId } });
     if (!table) {
       throw new NotFoundException('Table not found');
@@ -64,7 +65,7 @@ export class VenuesService {
 
     const updateData: any = {};
     if (typeof data.name === 'string') updateData.name = data.name;
-    if (typeof data.status === 'string') updateData.status = data.status;
+    if (data.status) updateData.status = data.status as any;
     if (Object.keys(updateData).length === 0) {
       throw new BadRequestException('No changes provided');
     }
@@ -138,7 +139,7 @@ export class VenuesService {
     const result = await this.prisma.$transaction(async (tx) => {
       const updatedTable = await tx.table.update({
         where: { id: tableId },
-        data: { status },
+        data: { status: status as any },
       });
 
       if (matchId) {

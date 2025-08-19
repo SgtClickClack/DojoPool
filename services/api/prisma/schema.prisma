@@ -33,6 +33,8 @@ model User {
   notifications Notification[]
   auditLogs     AuditLog[]
   venues        Venue[]
+  friendshipsAsRequester Friendship[]  @relation("FriendRequester")
+  friendshipsAsAddressee Friendship[]  @relation("FriendAddressee")
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
 }
@@ -86,6 +88,7 @@ model Venue {
   checkIns    CheckIn[]
   challenges  Challenge[]
   matches     Match[]
+  gameSessions GameSession[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -347,6 +350,68 @@ enum FriendshipStatus {
   ACCEPTED
   DECLINED
   BLOCKED
+}
+
+enum GameSessionStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum GameType {
+  EIGHT_BALL
+  NINE_BALL
+  STRAIGHT_POOL
+  BANK_POOL
+  ONE_POCKET
+}
+
+model GameSession {
+  id              String            @id @default(uuid())
+  gameId          String
+  venueId         String?
+  venue           Venue?            @relation(fields: [venueId], references: [id])
+  status          GameSessionStatus @default(ACTIVE)
+  gameType        GameType
+  rules           Json              @default("{}")
+  startTime       DateTime          @default(now())
+  endTime         DateTime?
+  duration        Int?              // Duration in seconds
+  lastUpdated     DateTime          @updatedAt
+
+  // Player management
+  playerIds       String[]
+  currentPlayerId String?
+
+  // Game state
+  ballStates      Json              @default("{}") // Record of ball positions/status
+  fouls           Json              @default("{}") // Player foul counts
+  score           Json              @default("{}") // Player scores
+  events          Json              @default("[]") // Game events (shots, fouls, etc.)
+
+  // Analytics
+  totalShots      Int               @default(0)
+  totalFouls      Int               @default(0)
+  totalFrames     Int               @default(0)
+
+  // Performance metrics
+  avgShotTime     Float?
+  avgFrameTime    Float?
+  peakViewers     Int               @default(0)
+
+  // Network metrics
+  connectionQuality Float?          // 0-1 scale
+  latencyStats     Json             @default("{}")
+  droppedFrames    Int              @default(0)
+
+  // Winner tracking
+  winnerId        String?
+
+  @@index([gameId])
+  @@index([status])
+  @@index([venueId])
+  @@index([startTime])
 }
 
 model Friendship {

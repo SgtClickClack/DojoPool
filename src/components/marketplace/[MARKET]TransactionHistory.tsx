@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { marketplaceService } from '../../services/marketplaceService';
 import { type Transaction } from '../../types/[MARKET]marketplace';
-import './TransactionHistory.css';
 
 export const TransactionHistory: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

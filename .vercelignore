@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Build outputs
+.next/
+dist/
+build/
+coverage/
+
+# Development files
+.git/
+.idea/
+.vscode/
+*.log
+*.tmp
+
+# Test files
+tests/
+__tests__/
+cypress/
+*.test.*
+*.spec.*
+
+# Documentation
+docs/
+*.md
+README.md
+
+# Configuration files
+.env*
+*.config.js
+*.config.ts
+tsconfig*.json
+
+# Backup files
+*-backup/
+*-copy/
+*.bak
+*.old
+
+# Large assets
+*.glb
+*.gltf
+*.obj
+*.fbx
+*.mp4
+*.mov
+*.avi
+
+# Generated files
+generated/
+migrations/
+*.egg-info/
+
+# Scripts
+scripts/
+blueprints/
+
+# Infrastructure
+infrastructure/
+k8s/
+docker/
+
+# Monitoring
+monitoring/
+logs/
+
+# Blockchain
+blockchain/
+contracts/
+
+# Mobile app
+DojoPoolMobile/
+
+# Other
+DojoPool/
+DojoPoolCombined/
+DojoPoolEnhancer/
+pocket-pick/

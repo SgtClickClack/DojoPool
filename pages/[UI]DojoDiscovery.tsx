@@ -18,8 +18,8 @@ import {
   DialogActions,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import DojoMap from '../components/DojoMap/DojoMap';
-import { AnimatedAvatar } from '../components/Avatar';
+import DojoMap from '../src/components/DojoMap/[MAP]DojoMap';
+import { AnimatedAvatar } from '../src/components/Avatar/[UI]AvatarDisplay';
 
 interface LeaderboardEntry {
   userId: number;

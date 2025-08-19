@@ -1,5 +1,4 @@
 import React from 'react';
-import './MarketplaceGrid.css';
 
 interface MarketplaceItem {
   id: string;

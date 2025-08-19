@@ -17,12 +17,12 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import PageBackground from '../../apps/web/src/components/common/PageBackground';
-import MatchScheduler from '../../apps/web/src/components/tournament/MatchScheduler';
-import TournamentBracket from '../../apps/web/src/components/tournament/TournamentBracket';
-import TournamentList from '../../apps/web/src/components/tournament/TournamentList';
-import TournamentRegistration from '../../apps/web/src/components/tournament/TournamentRegistration';
 import { useAuth } from '../../apps/web/src/hooks/useAuth';
+import PageBackground from '../../src/components/Common/PageBackground';
+import MatchScheduler from '../../src/components/Tournament/MatchScheduler';
+import TournamentBracket from '../../src/components/Tournament/TournamentBracket';
+import TournamentList from '../../src/components/Tournament/TournamentList';
+import TournamentRegistration from '../../src/components/Tournament/TournamentRegistration';
 
 interface TabPanelProps {
   children?: React.ReactNode;

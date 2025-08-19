@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import React from 'react';
-import AdvancedAIRefereeRuleEnforcementDashboard from '../src/frontend/components/ai/AdvancedAIRefereeRuleEnforcementDashboard';
+import AdvancedAIRefereeRuleEnforcementDashboard from '../src/components/AI/AdvancedAIRefereeRuleEnforcementDashboard';
 
 const AdvancedAIRefereeRuleEnforcementPage: React.FC = () => {
   return (

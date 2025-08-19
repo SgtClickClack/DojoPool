@@ -1,12 +1,4 @@
 import axios from 'axios';
-import {
-  Tournament,
-  TournamentParticipant,
-  TournamentMatch,
-  TournamentFilters,
-  CreateTournamentData,
-  TournamentMatchUpdateData,
-} from '../types/tournament';
 
 const BASE_URL = '/api/tournaments';
 
@@ -115,5 +107,42 @@ export const configurePrizeRule = async (
     `${BASE_URL}/${tournamentId}/prize-rule`,
     distribution
   );
+  return response.data;
+};
+
+export const submitMatchResult = async (matchId: string, winnerId: number) => {
+  const response = await axios.post(`${BASE_URL}/matches/${matchId}/result`, {
+    winner_id: winnerId,
+  });
+  return response.data;
+};
+
+export const deleteTournament = async (id: string) => {
+  const response = await axios.delete(`${BASE_URL}/${id}`);
+  return response.data;
+};
+
+export const registerPlayer = async (
+  tournamentId: string,
+  playerId: string
+) => {
+  const response = await axios.post(`${BASE_URL}/${tournamentId}/players`, {
+    player_id: playerId,
+  });
+  return response.data;
+};
+
+export const unregisterPlayer = async (
+  tournamentId: string,
+  playerId: string
+) => {
+  const response = await axios.delete(
+    `${BASE_URL}/${tournamentId}/players/${playerId}`
+  );
+  return response.data;
+};
+
+export const startTournament = async (id: string) => {
+  const response = await axios.post(`${BASE_URL}/${id}/start`);
   return response.data;
 };
