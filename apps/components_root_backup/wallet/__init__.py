@@ -1,1 +1,0 @@
-"""DojoPool wallet module."""
