@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: texture-ai-service
+  namespace: dojopool
+  labels:
+    app: texture-ai-service
+    component: ai-service
+    version: v1.0.0
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: 'nlb'
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: 'http'
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '3001'
+    prometheus.io/path: '/metrics'
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3001
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 3001
+      protocol: TCP
+  selector:
+    app: texture-ai-service
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: texture-ai-service-headless
+  namespace: dojopool
+  labels:
+    app: texture-ai-service
+    component: ai-service
+    version: v1.0.0
+    service-type: headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: http
+      port: 3001
+      targetPort: 3001
+      protocol: TCP
+  selector:
+    app: texture-ai-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: texture-ai-service-ingress
+  namespace: dojopool
+  labels:
+    app: texture-ai-service
+    component: ai-service
+  annotations:
+    kubernetes.io/ingress.class: 'nginx'
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-body-size: '50m'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
+spec:
+  tls:
+    - hosts:
+        - texture-ai.dojopool.com
+      secretName: texture-ai-tls
+  rules:
+    - host: texture-ai.dojopool.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: texture-ai-service
+                port:
+                  number: 80
+          - path: /api/texture
+            pathType: Prefix
+            backend:
+              service:
+                name: texture-ai-service
+                port:
+                  number: 80
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: texture-ai-service
+                port:
+                  number: 80
+          - path: /metrics
+            pathType: Exact
+            backend:
+              service:
+                name: texture-ai-service
+                port:
+                  number: 9090

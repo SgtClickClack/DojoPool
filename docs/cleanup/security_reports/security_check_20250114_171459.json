@@ -1,0 +1,326 @@
+{
+  "timestamp": "2025-01-14T17:14:59.042533",
+  "issues": [
+    {
+      "type": "missing_env_var",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\.env",
+      "variable": "GOOGLE_MAPS_API_KEY",
+      "severity": "HIGH"
+    },
+    {
+      "type": "missing_env_var",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\.env",
+      "variable": "SECRET_KEY",
+      "severity": "HIGH"
+    },
+    {
+      "type": "missing_env_var",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\.env",
+      "variable": "DATABASE_URL",
+      "severity": "HIGH"
+    },
+    {
+      "type": "missing_env_file",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\.env.test",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\cleanup_report.json",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\cleanup_report.json",
+      "pattern": "token.*['\\\"][a-zA-Z0-9_\\-]{32,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\build\\static\\js\\main.23f9391b.js",
+      "pattern": "api[_-]?key.*['\\\"][a-zA-Z0-9_\\-]{32,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\build\\static\\js\\main.23f9391b.js",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\build\\static\\js\\main.23f9391b.js",
+      "pattern": "token.*['\\\"][a-zA-Z0-9_\\-]{32,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\cleanup\\file_inventory.json",
+      "pattern": "api[_-]?key.*['\\\"][a-zA-Z0-9_\\-]{32,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\cleanup\\file_inventory.json",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\docs\\cleanup\\file_inventory.json",
+      "pattern": "token.*['\\\"][a-zA-Z0-9_\\-]{32,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\api\\v1\\resources\\auth.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\api\\v1\\resources\\users.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\auth\\blueprint.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\auth\\routes.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\api_docs.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\validation.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\auth\\routes.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\auth\\views.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\config\\database.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\matchmaking\\database.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\core\\scripts\\seed_db.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\forms\\auth.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\frontend\\build\\static\\js\\main.718aac13.js",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\main\\routes.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\models\\user.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\routes\\auth\\views.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\src\\dojopool\\scripts\\seed_db.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\test_api_handler.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\api\\base.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\api\\test_auth.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\api\\test_game.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\api\\test_leaderboard.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\api\\test_websocket.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\integration\\test_api_endpoints.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\performance\\test_api_performance.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_auth.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_core_models.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_models.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_validation.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_api\\test_tournaments.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_api\\test_users.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_auth\\test_auth.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_auth\\test_auth_routes.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_email\\test_email_service.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_models\\test_tournament.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\tests\\unit\\test_models\\test_user.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\venv_new\\Lib\\site-packages\\pip\\_vendor\\distlib\\index.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\venv_new\\Lib\\site-packages\\pip\\_vendor\\distlib\\util.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\venv_new\\Lib\\site-packages\\pip\\_vendor\\requests\\auth.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "exposed_secret",
+      "file": "C:\\Users\\JR\\Documents\\DojoPool\\DojoPoolCombined\\venv_new\\Lib\\site-packages\\pip\\_vendor\\urllib3\\contrib\\socks.py",
+      "pattern": "password.*['\\\"][a-zA-Z0-9_\\-]{8,}['\\\"]",
+      "severity": "HIGH"
+    },
+    {
+      "type": "missing_nginx_conf",
+      "severity": "MEDIUM"
+    }
+  ],
+  "summary": {
+    "total_issues": 53,
+    "high_severity": 52,
+    "medium_severity": 1,
+    "duration_seconds": 0.791316
+  }
+}

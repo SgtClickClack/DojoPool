@@ -1,0 +1,47 @@
+groups:
+  - name: venue_analytics
+    rules:
+      - alert: HighVenueOccupancy
+        expr: venue_occupancy_percentage > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High venue occupancy detected'
+          description: 'Venue {{ $labels.venue_id }} has been at {{ $value }}% occupancy for more than 5 minutes'
+
+      - alert: HighMaintenanceEvents
+        expr: sum(rate(venue_maintenance_events_total[1h])) > 5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High number of maintenance events'
+          description: 'More than 5 maintenance events per hour detected for venue {{ $labels.venue_id }}'
+
+      - alert: LowTableUtilization
+        expr: histogram_quantile(0.5, sum(rate(venue_table_utilization_bucket[1h])) by (le, venue_id)) < 20
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Low table utilization detected'
+          description: 'Median table utilization below 20% for venue {{ $labels.venue_id }}'
+
+      - alert: RevenueDrop
+        expr: rate(venue_revenue_total[1h]) < rate(venue_revenue_total[1h] offset 1d) * 0.5
+        for: 1h
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Significant revenue drop detected'
+          description: 'Revenue for venue {{ $labels.venue_id }} has dropped by more than 50% compared to yesterday'
+
+      - alert: APIResponseTimeHigh
+        expr: histogram_quantile(0.95, sum(rate(venue_api_response_time_seconds_bucket[5m])) by (le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High API response time'
+          description: '95th percentile of API response time is above 1 second'

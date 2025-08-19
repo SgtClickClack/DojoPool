@@ -1,0 +1,1 @@
+"""DojoPool image module."""

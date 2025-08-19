@@ -1,0 +1,387 @@
+{"code":"ENODATA","hostname":"localhost","level":"error","message":"DNS reconnaissance failed: queryMx ENODATA localhost","stack":"Error: queryMx ENODATA localhost\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:293:17)","syscall":"queryMx","timestamp":"2025-04-12T21:26:37.166Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:185:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:27:01.963Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:27:57.934Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:27:57.952Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:27:57.953Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:27:57.953Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:27:57.953Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:27:57.954Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:28:17.064Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:28:17.083Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:28:17.084Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:28:17.084Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:28:17.084Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:28:17.085Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:28:29.018Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:28:29.044Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:28:29.046Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:28:29.046Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:28:29.046Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:28:29.047Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:29:53.476Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:29:53.492Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:29:53.493Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:29:53.493Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:29:53.493Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:29:53.494Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:30:09.752Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:30:09.774Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:09.774Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:09.774Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:09.774Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:30:09.775Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:30:31.835Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:30:31.850Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:31.851Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:31.851Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:31.851Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:30:31.852Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:30:54.649Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:30:54.677Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:54.678Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:54.678Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:30:54.678Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:30:54.680Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:32:54.116Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:32:54.133Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:32:54.134Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:32:54.134Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:32:54.134Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:32:54.135Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Technology stack identification failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async identifyTechnologyStack (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:67:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:205:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:34:14.216Z"}
+{"cause":{"code":"ECONNREFUSED"},"level":"error","message":"Security headers check failed: fetch failed","stack":"TypeError: fetch failed\n    at node:internal/deps/undici/undici:13502:13\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async checkSecurityHeaders (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:170:22)\n    at async performReconnaissance (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\reconnaissance.ts:207:27)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:182:19)","timestamp":"2025-04-12T21:34:14.232Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:34:14.233Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:34:14.233Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:34:14.233Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:34:14.234Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:35:11.381Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:35:11.381Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:35:11.381Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:183:9)","syscall":"open","timestamp":"2025-04-12T21:35:11.386Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:35:51.943Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:35:51.943Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:35:51.943Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:186:9)","syscall":"open","timestamp":"2025-04-12T21:35:51.948Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:37:01.786Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:37:01.786Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:37:01.786Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:185:9)","syscall":"open","timestamp":"2025-04-12T21:37:01.790Z"}
+{"code":"ENOENT","errno":-4058,"level":"error","message":"Penetration testing failed: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:37:16.643Z.json'","path":"C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:37:16.643Z.json","stack":"Error: ENOENT: no such file or directory, open 'C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\reports\\reconnaissance-2025-04-12T21:37:16.643Z.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async writeFile (node:internal/fs/promises:1212:14)\n    at async runPentest (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\security\\pentest\\runPentest.ts:185:9)","syscall":"open","timestamp":"2025-04-12T21:37:16.646Z"}
+{"cmd":"zap.sh -daemon -port 8090 -config api.key=your-api-key","code":1,"killed":false,"level":"error","message":"ZAP scan failed: Command failed: zap.sh -daemon -port 8090 -config api.key=your-api-key\n'zap.sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","signal":null,"stack":"Error: Command failed: zap.sh -daemon -port 8090 -config api.key=your-api-key\n'zap.sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at ChildProcess.exithandler (node:child_process:414:12)\n    at ChildProcess.emit (node:events:518:28)\n    at ChildProcess.emit (node:domain:489:12)\n    at maybeClose (node:internal/child_process:1101:16)\n    at Process.ChildProcess._handle.onexit (node:internal/child_process:304:5)","stderr":"'zap.sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","stdout":"","timestamp":"2025-04-12T22:04:04.390Z"}
+{"cmd":"nmap -p 1-65535 -sSV -TT4 --script vuln,default http://localhost:3000","code":1,"killed":false,"level":"error","message":"Nmap scan failed: Command failed: nmap -p 1-65535 -sSV -TT4 --script vuln,default http://localhost:3000\n'nmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","signal":null,"stack":"Error: Command failed: nmap -p 1-65535 -sSV -TT4 --script vuln,default http://localhost:3000\n'nmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at ChildProcess.exithandler (node:child_process:414:12)\n    at ChildProcess.emit (node:events:518:28)\n    at ChildProcess.emit (node:domain:489:12)\n    at maybeClose (node:internal/child_process:1101:16)\n    at Process.ChildProcess._handle.onexit (node:internal/child_process:304:5)","stderr":"'nmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","stdout":"","timestamp":"2025-04-12T22:04:04.432Z"}
+{"cmd":"sqlmap -u \"http://localhost:3000/api\" --level=3 --risk=3 --technique=BEUSTQ --dbms=postgresql,mysql --batch","code":1,"killed":false,"level":"error","message":"SQLMap scan failed: Command failed: sqlmap -u \"http://localhost:3000/api\" --level=3 --risk=3 --technique=BEUSTQ --dbms=postgresql,mysql --batch\n'sqlmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","signal":null,"stack":"Error: Command failed: sqlmap -u \"http://localhost:3000/api\" --level=3 --risk=3 --technique=BEUSTQ --dbms=postgresql,mysql --batch\n'sqlmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at ChildProcess.exithandler (node:child_process:414:12)\n    at ChildProcess.emit (node:events:518:28)\n    at ChildProcess.emit (node:domain:489:12)\n    at maybeClose (node:internal/child_process:1101:16)\n    at Process.ChildProcess._handle.onexit (node:internal/child_process:304:5)","stderr":"'sqlmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","stdout":"","timestamp":"2025-04-12T22:04:04.453Z"}
+{"cmd":"zap.sh -daemon -port 8090 -config api.key=your-api-key","code":1,"killed":false,"level":"error","message":"ZAP scan failed: Command failed: zap.sh -daemon -port 8090 -config api.key=your-api-key\n'zap.sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","signal":null,"stack":"Error: Command failed: zap.sh -daemon -port 8090 -config api.key=your-api-key\n'zap.sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at ChildProcess.exithandler (node:child_process:414:12)\n    at ChildProcess.emit (node:events:518:28)\n    at ChildProcess.emit (node:domain:489:12)\n    at maybeClose (node:internal/child_process:1101:16)\n    at Process.ChildProcess._handle.onexit (node:internal/child_process:304:5)","stderr":"'zap.sh' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","stdout":"","timestamp":"2025-04-12T22:09:50.583Z"}
+{"cmd":"nmap -p 1-65535 -sSV -TT4 --script vuln,default http://localhost:3000","code":1,"killed":false,"level":"error","message":"Nmap scan failed: Command failed: nmap -p 1-65535 -sSV -TT4 --script vuln,default http://localhost:3000\n'nmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","signal":null,"stack":"Error: Command failed: nmap -p 1-65535 -sSV -TT4 --script vuln,default http://localhost:3000\n'nmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at ChildProcess.exithandler (node:child_process:414:12)\n    at ChildProcess.emit (node:events:518:28)\n    at ChildProcess.emit (node:domain:489:12)\n    at maybeClose (node:internal/child_process:1101:16)\n    at Socket.<anonymous> (node:internal/child_process:456:11)\n    at Socket.emit (node:events:518:28)\n    at Socket.emit (node:domain:489:12)\n    at Pipe.<anonymous> (node:net:351:12)","stderr":"'nmap' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n","stdout":"","timestamp":"2025-04-12T22:09:50.616Z"}
+<<<<<<< HEAD
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:48:16.993Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:48:25.080Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:51:11.549Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:53:45.096Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:53:46.338Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T21:55:02.852Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:01:01.669Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:03:40.274Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:09:02.643Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:11:58.351Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-21T22:15:09.669Z"}
+=======
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Unhandled error: ENOENT: no such file or directory, stat 'C:\\dev\\DojoPoolONE\\DojoPool\\public\\index.html'","path":"C:\\dev\\DojoPoolONE\\DojoPool\\public\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\dev\\DojoPoolONE\\DojoPool\\public\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-04-19T00:51:24.445Z"}
+>>>>>>> 9503c319 (Comprehensive codebase cleanup: consolidated utilities, pruned static assets, resolved TypeScript lints, and organized test files/documentation.)
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:50:43.283Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:53:27.609Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:53:27.622Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.223Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.280Z"}
+{"code":"ENOENT","errno":-4058,"expose":false,"level":"error","message":"Error sending SPA fallback file: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","path":"C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html","stack":"Error: ENOENT: no such file or directory, stat 'C:\\Users\\julia\\OneDrive\\Documents\\GitHub\\dojopool\\src\\index.html'","status":404,"statusCode":404,"syscall":"stat","timestamp":"2025-05-26T03:55:51.990Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.858Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.880Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.884Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:47.890Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.921Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.925Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:47.939Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:47.957Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:47.960Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.153Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.175Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.179Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:48.184Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.216Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.219Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:48.224Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:48.248Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:48.251Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.670Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.617Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.651Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.658Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.666Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.687Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.694Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.702Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.734Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.737Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.710Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.757Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.767Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.789Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.795Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.803Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.824Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.831Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.870Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.896Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.902Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:49.908Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.927Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.935Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:49.939Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:49.969Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:49.985Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.088Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.110Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.119Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:27:50.128Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.158Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.163Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:27:50.170Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:27:50.185Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:27:50.188Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.610Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.631Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.635Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:03.640Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.674Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.682Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:03.687Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:03.710Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:03.714Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.604Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.511Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.534Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.550Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.588Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.593Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.598Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:04.615Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:04.617Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.629Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.634Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:04.640Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.704Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.711Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:04.717Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:04.738Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:04.742Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.022Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.048Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.055Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.075Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.110Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.116Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.131Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:05.159Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:05.167Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.433Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.458Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.468Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:05.487Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.512Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.517Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:05.525Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:05.538Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:05.542Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.329Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.350Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.356Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:06.360Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.376Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.380Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:06.390Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:06.418Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:06.425Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.434Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.455Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.460Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.466Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.484Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.491Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.497Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:16.513Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:16.519Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.738Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.779Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.793Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:16.811Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.852Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.856Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:16.862Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:16.877Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:16.879Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.870Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.904Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.896Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.901Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.907Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.933Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.937Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:18.945Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:18.962Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:18.966Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.926Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.931Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:18.937Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.007Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.014Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.026Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.041Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.045Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.155Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.180Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.185Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.192Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.253Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.259Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.267Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.288Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.291Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.469Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.493Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.498Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:19.502Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.556Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.561Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:19.569Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:19.596Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:19.600Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.189Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.212Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.216Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.225Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.250Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.254Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.260Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.275Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.278Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.527Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.651Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.550Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.555Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.560Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.594Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.597Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.615Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.639Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.650Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.674Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.682Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:28.695Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.720Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.725Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:28.732Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:28.747Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:28.749Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.915Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.938Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.952Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:29.965Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.017Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.031Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.084Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.106Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.114Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.438Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.444Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.475Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.499Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.524Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.530Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.535Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.550Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.553Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.460Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.473Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:30.488Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.531Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.540Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:30.546Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:30.563Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:30.566Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.101Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.136Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.145Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:28:41.153Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.181Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.188Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:28:41.196Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:28:41.217Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:28:41.220Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.920Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.952Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.976Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:54.983Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.001Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.007Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.012Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.020Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.023Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.156Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.103Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.128Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.133Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.138Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.161Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.165Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.170Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.189Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.192Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.231Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.181Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.186Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.193Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.208Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.212Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.216Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.224Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.227Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.252Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.259Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:55.266Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.290Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.294Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:55.301Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:55.320Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:55.322Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.776Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.799Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.804Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:56.810Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.831Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.835Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:56.846Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:56.863Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:56.868Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.018Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.051Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.057Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:34:57.062Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.101Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.109Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:34:57.121Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:34:57.135Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:34:57.138Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.141Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.176Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.184Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 analysis","timestamp":"2025-06-25T14:35:07.189Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.213Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.218Z"}
+{"error":{},"level":"error","message":"Error in Sky-T1 rule interpretation","timestamp":"2025-06-25T14:35:07.223Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:35:07.239Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:35:07.246Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.075Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.084Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.533Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.545Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:50.674Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:50.684Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:52.843Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:52.852Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:53.178Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:53.191Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:36:53.395Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:36:53.412Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:37:05.137Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:37:05.147Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:37:26.463Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:37:26.474Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:39:57.051Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:39:57.079Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:40:39.864Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:40:39.876Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T14:40:49.810Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T14:40:49.818Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:20:45.426Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:20:45.439Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:21:04.020Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:21:04.028Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:21:26.592Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:21:26.729Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T15:22:16.887Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T15:22:16.899Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:18:15.494Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:18:15.501Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:25:08.715Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:25:08.724Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:31:53.523Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:31:53.530Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:40:24.333Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:40:24.342Z"}
+{"error":{},"level":"error","message":"Error parsing violations","timestamp":"2025-06-25T16:43:54.063Z"}
+{"error":{},"level":"error","message":"Error parsing rule interpretation","timestamp":"2025-06-25T16:43:54.073Z"}

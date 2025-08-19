@@ -1,0 +1,87 @@
+groups:
+  - name: dojopool_alerts
+    rules:
+      # System Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage detected
+          description: CPU usage is above 80% for 5 minutes
+
+      - alert: HighMemoryUsage
+        expr: (1 - ((node_memory_MemAvailable_bytes or node_memory_Buffers_bytes + node_memory_Cached_bytes + node_memory_MemFree_bytes) / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage detected
+          description: Memory usage is above 85% for 5 minutes
+
+      - alert: DiskSpaceRunningOut
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Disk space running low
+          description: Disk usage is above 85%
+
+      # Application Alerts
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: High HTTP error rate
+          description: Error rate is above 5% for 2 minutes
+
+      - alert: SlowResponseTime
+        expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) * 1000 > 500
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Slow response times detected
+          description: Average response time is above 500ms for 2 minutes
+
+      # Database Alerts
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends{datname="dojopool_staging"} > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: High number of database connections
+          description: Database connections are above 80
+
+      - alert: HighDatabaseLatency
+        expr: rate(pg_stat_database_blk_read_time{datname="dojopool_staging"}[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: High database latency
+          description: Database read latency is above 100ms
+
+      # Cache Alerts
+      - alert: HighCacheMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: High cache memory usage
+          description: Redis memory usage is above 80%
+
+      - alert: LowCacheHitRate
+        expr: redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total) * 100 < 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low cache hit rate
+          description: Cache hit rate is below 50% for 5 minutes

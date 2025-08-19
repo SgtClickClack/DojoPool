@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block head %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/themes.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/venue.css') }}"
+/>
+{% endblock %} {% block content %}
+<div class="background-image venue-page"></div>
+<div class="background-overlay"></div>
+
+<div class="venue-container">
+  <!-- Navigation -->
+  <nav class="venue-nav gaming-card">
+    <div class="nav-links">
+      <a
+        href="{{ url_for('venue.venue_list') }}"
+        class="nav-link {% if request.endpoint == 'venue.venue_list' %}active{% endif %}"
+      >
+        <i class="fas fa-list"></i> All Venues
+      </a>
+      {% if venue %}
+      <a
+        href="{{ url_for('venue.venue_detail', venue_id=venue.id) }}"
+        class="nav-link {% if request.endpoint == 'venue.venue_detail' %}active{% endif %}"
+      >
+        <i class="fas fa-info-circle"></i> Details
+      </a>
+      <a
+        href="{{ url_for('venue.venue_stats', venue_id=venue.id) }}"
+        class="nav-link {% if request.endpoint == 'venue.venue_stats' %}active{% endif %}"
+      >
+        <i class="fas fa-chart-bar"></i> Stats
+      </a>
+      <a
+        href="{{ url_for('venue.venue_leaderboard', venue_id=venue.id) }}"
+        class="nav-link {% if request.endpoint == 'venue.venue_leaderboard' %}active{% endif %}"
+      >
+        <i class="fas fa-trophy"></i> Leaderboard
+      </a>
+      <a
+        href="{{ url_for('venue.venue_tournaments', venue_id=venue.id) }}"
+        class="nav-link {% if request.endpoint == 'venue.venue_tournaments' %}active{% endif %}"
+      >
+        <i class="fas fa-gamepad"></i> Tournaments
+      </a>
+      {% endif %} {% if current_user.is_admin %}
+      <a
+        href="{{ url_for('venue.create_venue') }}"
+        class="nav-link {% if request.endpoint == 'venue.create_venue' %}active{% endif %}"
+      >
+        <i class="fas fa-plus"></i> Create Venue
+      </a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="venue-content">{% block venue_content %}{% endblock %}</div>
+
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-overlay" style="display: none">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Toast Messages -->
+  <div id="toast" class="toast" style="display: none"></div>
+</div>
+
+<!-- Venue sidebar (if needed) -->
+{% block venue_sidebar %}{% endblock %} {% endblock %} {% block scripts %} {{
+super() }}
+<script src="{{ url_for('static', filename='js/venue.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,951 @@
+/* DojoInterior Component Styles - Cyberpunk Theme */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-bottom: 2px solid #ff6b6b;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+}
+
+.dojoInfo {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.clanLogo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+}
+
+.logoImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dojoDetails h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+}
+
+.clanName {
+  font-size: 1.2rem;
+  color: #ff6b6b;
+  margin: 0.5rem 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.address {
+  font-size: 1rem;
+  color: #b3b3b3;
+  margin: 0;
+}
+
+.backButton {
+  background: linear-gradient(135deg, #2d2d2d, #404040);
+  color: #ffffff;
+  border: 2px solid #ff6b6b;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.backButton:hover {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Main Content Styles */
+.mainContent {
+  padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.checkInSection {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.checkInButton {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #ffffff;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.checkInButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(78, 205, 196, 0.6);
+}
+
+.checkedInStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+}
+
+.statusIcon {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Panels Grid */
+.panelsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.panel {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border: 2px solid #404040;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #45b7d1);
+}
+
+.panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  border-color: #ff6b6b;
+}
+
+.panelTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #404040;
+  padding-bottom: 0.5rem;
+}
+
+.panelContent {
+  min-height: 200px;
+}
+
+.placeholderText {
+  color: #b3b3b3;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+/* Player Count */
+.playerCount {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.countNumber {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ff6b6b;
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+.countLabel {
+  display: block;
+  font-size: 1rem;
+  color: #b3b3b3;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Leaderboard Preview */
+.leaderboardPreview {
+  margin-top: 1.5rem;
+}
+
+.leaderboardItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #404040;
+}
+
+.leaderboardItem:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.playerName {
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.score {
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+/* Matches Status */
+.matchesStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #2d2d2d, #404040);
+  border-radius: 8px;
+  border: 1px solid #404040;
+}
+
+.statusIndicator {
+  color: #ff6b6b;
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  background: linear-gradient(135deg, #2d2d2d, #404040);
+  color: #ffffff;
+  border: 2px solid #ff6b6b;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.actionButton:hover {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Error State */
+.error {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.error h2 {
+  color: #ff6b6b;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.error p {
+  color: #b3b3b3;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .dojoInfo {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .clanLogo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logoImage {
+    width: 45px;
+    height: 45px;
+  }
+
+  .dojoDetails h1 {
+    font-size: 2rem;
+  }
+
+  .mainContent {
+    padding: 1.5rem;
+  }
+
+  .panelsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .actionButton {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .mainContent {
+    padding: 1rem;
+  }
+
+  .panel {
+    padding: 1.5rem;
+  }
+
+  .dojoDetails h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Error state container */
+.error {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem 2rem;
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.35);
+  border-radius: 12px;
+}
+
+/* Presence & Active Players additions */
+.playersList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.playerItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
+}
+
+.playerAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 8px rgba(255, 107, 107, 0.35);
+}
+
+.playerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.playerName {
+  font-weight: 700;
+}
+
+.checkOutButton {
+  margin-left: 1rem;
+  background: linear-gradient(135deg, #6b6b6b, #444444);
+  color: #ffffff;
+  border: 1px solid #ff6b6b;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkOutButton:hover {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  transform: translateY(-1px);
+}
+
+/* Active Matches specific styles */
+.matchItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
+}
+
+.matchPlayers {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.matchPlayer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.matchVs {
+  color: #b3b3b3;
+  font-weight: 600;
+  margin: 0 0.5rem;
+}
+
+.matchStatus {
+  color: #4ecdc4;
+  font-weight: 700;
+}
+
+.matchTable {
+  color: #b3b3b3;
+  font-size: 0.9rem;
+}
+
+.matchDuration {
+  color: #4ecdc4;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.matchInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.statusDot.inProgress {
+  background-color: #4ecdc4;
+}
+
+.statusDot.paused {
+  background-color: #ffd93d;
+}
+
+.matchPlaceholder {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #b3b3b3;
+  margin-top: 1rem;
+}
+
+.matchPlaceholderDot {
+  color: #888;
+  font-size: 1.2rem;
+}
+
+/* Tournament Modal Styles */
+.noTournamentsMessage {
+  text-align: center;
+  padding: 2rem;
+}
+
+.noTournamentsMessage p {
+  color: #b3b3b3;
+  margin: 0.5rem 0;
+}
+
+.tournamentSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tournamentOption {
+  display: block;
+  width: 100%;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  border: 2px solid #404040;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.tournamentOption:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+}
+
+.tournamentOptionSelected {
+  border-color: #4ecdc4;
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+}
+
+.tournamentHeader {
+  margin-bottom: 1.5rem;
+}
+
+.tournamentTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.tournamentName {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #4ecdc4;
+  margin: 0;
+  flex: 1;
+}
+
+.tournamentStatus {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+/* Status color variants to avoid inline styles */
+.statusRegistration {
+  color: #4ecdc4;
+}
+.statusUpcoming {
+  color: #ffd93d;
+}
+.statusLive {
+  color: #ff6b6b;
+}
+.statusCompleted {
+  color: #45b7d1;
+}
+.statusCancelled {
+  color: #888888;
+}
+
+.tournamentDescription {
+  color: #b3b3b3;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tournamentDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.tournamentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tournamentInfoItem {
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.tournamentInfoItem strong {
+  color: #ffd93d;
+  margin-right: 0.5rem;
+}
+
+.tournamentPrizes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tournamentPrizes strong {
+  color: #ffd93d;
+  font-size: 0.9rem;
+}
+
+.prizeList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.prizeItem {
+  color: #ffffff;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
+
+/* Responsive adjustments for tournament details */
+@media (max-width: 768px) {
+  .tournamentDetails {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tournamentTitleRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .tournamentStatus {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border: 2px solid #ff6b6b;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid #404040;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+}
+
+.modalBody {
+  padding: 2rem;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 2px solid #404040;
+}
+
+.modalButtonPrimary {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalButtonPrimary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.modalButtonPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modalButtonSecondary {
+  background: linear-gradient(135deg, #404040, #606060);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalButtonSecondary:hover {
+  background: linear-gradient(135deg, #505050, #707070);
+}
+
+/* Form Styles */
+.formSection {
+  margin-bottom: 2rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.playerSelection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.playerOption {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  border: 2px solid #404040;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.playerOption:hover {
+  border-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.playerOptionSelected {
+  border-color: #ff6b6b;
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+}
+
+.playerOptionAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.playerOptionName {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.challengeTypeSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.challengeTypeOption {
+  display: block;
+  width: 100%;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  border: 2px solid #404040;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.challengeTypeOption:hover {
+  border-color: #4ecdc4;
+  transform: translateY(-2px);
+}
+
+.challengeTypeOptionSelected {
+  border-color: #4ecdc4;
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+}
+
+.challengeTypeHeader {
+  margin-bottom: 1rem;
+}
+
+.challengeTypeName {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4ecdc4;
+  margin: 0 0 0.5rem 0;
+}
+
+.challengeTypeDescription {
+  color: #b3b3b3;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.challengeTypeRequirements {
+  color: #ffd93d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.noPlayersMessage {
+  text-align: center;
+  padding: 2rem;
+}
+
+.noPlayersMessage p {
+  color: #b3b3b3;
+  margin: 0.5rem 0;
+}
+
+.errorMessage {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.successMessage {
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  color: #4ecdc4;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}

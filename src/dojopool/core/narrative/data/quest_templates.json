@@ -1,0 +1,236 @@
+{
+  "templates": [
+    {
+      "title": "First Steps",
+      "description": "Begin your journey by mastering the basics of pool.",
+      "required_skill_level": "novice",
+      "objectives": [
+        {
+          "description": "Complete practice games",
+          "target_value": 3
+        },
+        {
+          "description": "Make straight shots successfully",
+          "target_value": 10
+        }
+      ],
+      "reward_exp": 100
+    },
+    {
+      "title": "Accuracy Training",
+      "description": "Focus on improving your shot accuracy.",
+      "required_skill_level": "novice",
+      "objectives": [
+        {
+          "description": "Make corner pocket shots",
+          "target_value": 5
+        },
+        {
+          "description": "Make side pocket shots",
+          "target_value": 3
+        }
+      ],
+      "reward_exp": 150
+    },
+    {
+      "title": "Victory Path",
+      "description": "Start building your winning record.",
+      "required_skill_level": "novice",
+      "objectives": [
+        {
+          "description": "Win games",
+          "target_value": 2
+        }
+      ],
+      "reward_exp": 200
+    },
+    {
+      "title": "Spin Control",
+      "description": "Learn to control the cue ball with spin.",
+      "required_skill_level": "apprentice",
+      "objectives": [
+        {
+          "description": "Execute draw shots",
+          "target_value": 5
+        },
+        {
+          "description": "Execute follow shots",
+          "target_value": 5
+        },
+        {
+          "description": "Use English (side spin)",
+          "target_value": 3
+        }
+      ],
+      "reward_exp": 300
+    },
+    {
+      "title": "Position Master",
+      "description": "Practice positioning the cue ball for your next shot.",
+      "required_skill_level": "apprentice",
+      "objectives": [
+        {
+          "description": "Complete position plays",
+          "target_value": 10
+        },
+        {
+          "description": "Run three balls in sequence",
+          "target_value": 3
+        }
+      ],
+      "reward_exp": 350
+    },
+    {
+      "title": "Breaking Through",
+      "description": "Master the art of the break shot.",
+      "required_skill_level": "apprentice",
+      "objectives": [
+        {
+          "description": "Pocket a ball on break",
+          "target_value": 5
+        },
+        {
+          "description": "Spread balls effectively on break",
+          "target_value": 3
+        }
+      ],
+      "reward_exp": 400
+    },
+    {
+      "title": "Trick Shot Artist",
+      "description": "Develop your trick shot repertoire.",
+      "required_skill_level": "journeyman",
+      "objectives": [
+        {
+          "description": "Execute jump shots",
+          "target_value": 3
+        },
+        {
+          "description": "Execute bank shots",
+          "target_value": 5
+        },
+        {
+          "description": "Complete combination shots",
+          "target_value": 5
+        }
+      ],
+      "reward_exp": 500
+    },
+    {
+      "title": "Tournament Ready",
+      "description": "Prepare for tournament play.",
+      "required_skill_level": "journeyman",
+      "objectives": [
+        {
+          "description": "Win consecutive games",
+          "target_value": 3
+        },
+        {
+          "description": "Complete safety plays",
+          "target_value": 5
+        }
+      ],
+      "reward_exp": 600
+    },
+    {
+      "title": "Advanced Strategy",
+      "description": "Master advanced strategic concepts.",
+      "required_skill_level": "journeyman",
+      "objectives": [
+        {
+          "description": "Execute successful safeties",
+          "target_value": 5
+        },
+        {
+          "description": "Break and run racks",
+          "target_value": 1
+        }
+      ],
+      "reward_exp": 700
+    },
+    {
+      "title": "Perfect Run",
+      "description": "Strive for perfection in your game.",
+      "required_skill_level": "master",
+      "objectives": [
+        {
+          "description": "Break and run racks",
+          "target_value": 3
+        },
+        {
+          "description": "Execute advanced position plays",
+          "target_value": 10
+        }
+      ],
+      "reward_exp": 1000
+    },
+    {
+      "title": "Venue Champion",
+      "description": "Dominate your local venue.",
+      "required_skill_level": "master",
+      "objectives": [
+        {
+          "description": "Win games at this venue",
+          "target_value": 10
+        },
+        {
+          "description": "Maintain a winning percentage above 75%",
+          "target_value": 1
+        }
+      ],
+      "reward_exp": 1200
+    },
+    {
+      "title": "Teaching the Art",
+      "description": "Share your knowledge with others.",
+      "required_skill_level": "master",
+      "objectives": [
+        {
+          "description": "Help other players improve",
+          "target_value": 5
+        },
+        {
+          "description": "Demonstrate advanced techniques",
+          "target_value": 10
+        }
+      ],
+      "reward_exp": 1500
+    },
+    {
+      "title": "Legend Status",
+      "description": "Achieve legendary status in the pool world.",
+      "required_skill_level": "grandmaster",
+      "objectives": [
+        {
+          "description": "Win tournament matches",
+          "target_value": 10
+        },
+        {
+          "description": "Perfect games completed",
+          "target_value": 3
+        },
+        {
+          "description": "Develop signature shots",
+          "target_value": 5
+        }
+      ],
+      "reward_exp": 2000
+    },
+    {
+      "title": "Master of Venues",
+      "description": "Prove your mastery across different venues.",
+      "required_skill_level": "grandmaster",
+      "objectives": [
+        {
+          "description": "Win at different venues",
+          "target_value": 5
+        },
+        {
+          "description": "Maintain high ranking at each venue",
+          "target_value": 5
+        }
+      ],
+      "reward_exp": 2500
+    }
+  ]
+}

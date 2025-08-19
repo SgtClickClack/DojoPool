@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-04-12T19:08:32.936Z",
+  "version": "1.0.0",
+  "summary": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "total": 0,
+      "outdated": 0,
+      "vulnerable": 0
+    },
+    "linting": {
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  "details": {
+    "vulnerabilities": [],
+    "dependencies": [],
+    "linting": [
+      {
+        "type": "error",
+        "message": "Static analysis failed: Command failed: npx eslint --config .eslintrc.security.js \"src/**/*.{js,ts,tsx}\" --format json\nnpm warn config optional Use `--omit=optional` to exclude optional dependencies, or\nnpm warn config `--include=optional` to include them.\nnpm warn config\nnpm warn config       Default value does install optional deps unless otherwise omitted.\nnpm warn config production Use `--omit=dev` instead.\n(node:23016) ESLintIgnoreWarning: The \".eslintignore\" file is no longer supported. Switch to using the \"ignores\" property in \"eslint.config.js\": https://eslint.org/docs/latest/use/configure/migration-guide#ignoring-files\n(Use `node --trace-warnings ...` to show where the warning was created)\n\nOops! Something went wrong! :(\n\nESLint: 9.24.0\n\nError: Cannot find module 'eslint-plugin-security'\nRequire stack:\n- C:\\Users\\malli\\Documents\\Julz\\DojoPool\\.eslintrc.security.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1225:15)\n    at Function._load (node:internal/modules/cjs/loader:1055:27)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)\n    at Module.require (node:internal/modules/cjs/loader:1311:12)\n    at require (node:internal/modules/helpers:136:16)\n    at Object.<anonymous> (C:\\Users\\malli\\Documents\\Julz\\DojoPool\\.eslintrc.security.js:1:24)\n    at Module._compile (node:internal/modules/cjs/loader:1554:14)\n    at Object..js (node:internal/modules/cjs/loader:1706:10)\n    at Module.load (node:internal/modules/cjs/loader:1289:32)\n"
+      }
+    ]
+  },
+  "recommendations": []
+}

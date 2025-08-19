@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1",
+        "username": "RyuKlaw",
+        "avatarUrl": "https://via.placeholder.com/40x40/ff6b6b/ffffff?text=RK",
+        "status": "online",
+        "clan": "Crimson Monkey",
+        "level": 42,
+        "type": "player",
+        "title": "Dojo Master of The Jade Tiger"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [153.0251, -27.4698]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2",
+        "username": "PoolMaster",
+        "avatarUrl": "https://via.placeholder.com/40x40/4ecdc4/ffffff?text=PM",
+        "status": "in-match",
+        "clan": "Golden Dragon",
+        "level": 38,
+        "type": "player",
+        "title": "Dojo Master of Golden Cue Lounge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [153.0231, -27.4718]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3",
+        "username": "CueArtist",
+        "avatarUrl": "https://via.placeholder.com/40x40/45b7d1/ffffff?text=CA",
+        "status": "online",
+        "clan": "Silver Serpent",
+        "level": 35,
+        "type": "player",
+        "title": "Dojo Master of Silver Serpent Sanctum"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [153.0271, -27.4678]
+      }
+    }
+  ]
+}

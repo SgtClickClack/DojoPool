@@ -1,0 +1,84 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>Create or Customize Your Avatar</h2>
+  <ol class="mb-4">
+    <li>
+      <strong>Body Scan:</strong> Place your phone on a stable surface. Stand in
+      front of it for a full body scan.
+    </li>
+    <li><strong>Face Scan:</strong> Step closer for a detailed face scan.</li>
+    <li>
+      <strong>Customize:</strong> Use text prompts to add unique features (e.g.,
+      "green mohawk", "dragon scales", "gorilla arms"). Every avatar gets a pool
+      cue!
+    </li>
+  </ol>
+  <form
+    id="avatar-upload-form"
+    method="POST"
+    enctype="multipart/form-data"
+    action="{{ url_for('features.generate_avatar') }}"
+  >
+    <div class="mb-3">
+      <label for="avatar-image" class="form-label"
+        >Upload a Photo (Body or Face)</label
+      >
+      <input
+        class="form-control"
+        type="file"
+        name="image"
+        id="avatar-image"
+        accept="image/png, image/jpeg"
+        required
+      />
+    </div>
+    <div class="mb-3">
+      <label for="avatar-style" class="form-label">Choose a Style</label>
+      <select class="form-select" name="style" id="avatar-style">
+        <option value="anime">Anime</option>
+        <option value="cyberpunk">Cyberpunk</option>
+        <option value="samurai">Samurai</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="avatar-prompt" class="form-label">Text Customization</label>
+      <input
+        class="form-control"
+        type="text"
+        name="prompt"
+        id="avatar-prompt"
+        placeholder="e.g. green mohawk, dragon scales, gorilla arms"
+      />
+      <div class="form-text">
+        Describe unique features you want for your avatar.
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Generate Avatar</button>
+  </form>
+  <div id="avatar-preview" class="mt-4">
+    {% if avatar_url %}
+    <h4>Your Current Avatar</h4>
+    <img
+      src="{{ url_for('static', filename=avatar_url) }}"
+      class="img-thumbnail"
+      style="max-width: 256px"
+    />
+    <form method="GET" action="{{ url_for('dashboard.dashboard_view') }}">
+      <button type="submit" class="btn btn-success mt-3">
+        Continue to Dashboard
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  <div id="avatar-feedback" class="mt-3">
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %} {% if success %}
+    <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+  </div>
+</div>
+<script>
+  // Optionally, add JS for instant preview or feedback
+</script>
+{% endblock %}

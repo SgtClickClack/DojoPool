@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background-color: white;
+      }
+      * {
+        font-family: -apple-system, system-ui, BlinkMacSystemFont;
+      }
+      button {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        padding: 40px;
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #1976d2, #64b5f6);
+        min-height: 100vh;
+        color: white;
+      "
+    >
+      <h1
+        style="
+          font-size: 48px;
+          margin-bottom: 20px;
+          animation: fadeIn 1s ease-in;
+        "
+      >
+        Welcome to DojoPool
+      </h1>
+      <p
+        style="
+          font-size: 24px;
+          margin-bottom: 40px;
+          animation: fadeIn 1s ease-in 0.2s;
+        "
+      >
+        Transform your pool game with AI-powered analysis
+      </p>
+      <div style="display: flex; gap: 20px; animation: fadeIn 1s ease-in 0.4s">
+        <button
+          style="
+            padding: 15px 30px;
+            font-size: 20px;
+            background: white;
+            color: #1976d2;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          "
+        >
+          Get Started
+        </button>
+        <button
+          style="
+            padding: 15px 30px;
+            font-size: 20px;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+          "
+        >
+          Learn More
+        </button>
+      </div>
+      <div style="margin-top: 40px; animation: fadeIn 1s ease-in 0.6s">
+        <div
+          style="display: flex; gap: 20px; overflow-x: auto; padding: 10px 0"
+        >
+          <div
+            style="
+              min-width: 200px;
+              background: rgba(255, 255, 255, 0.1);
+              padding: 20px;
+              border-radius: 12px;
+            "
+          >
+            <h3 style="margin: 0 0 10px 0">Real-time Analysis</h3>
+            <p style="margin: 0; font-size: 14px">
+              Track your shots with AI precision
+            </p>
+          </div>
+          <div
+            style="
+              min-width: 200px;
+              background: rgba(255, 255, 255, 0.1);
+              padding: 20px;
+              border-radius: 12px;
+            "
+          >
+            <h3 style="margin: 0 0 10px 0">Smart Coaching</h3>
+            <p style="margin: 0; font-size: 14px">Get personalized tips</p>
+          </div>
+          <div
+            style="
+              min-width: 200px;
+              background: rgba(255, 255, 255, 0.1);
+              padding: 20px;
+              border-radius: 12px;
+            "
+          >
+            <h3 style="margin: 0 0 10px 0">Tournaments</h3>
+            <p style="margin: 0; font-size: 14px">
+              Compete with players worldwide
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background-color: white;
+      }
+      * {
+        font-family: -apple-system, system-ui, BlinkMacSystemFont;
+      }
+      button {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        padding: 40px;
+        font-family: 'Roboto', sans-serif;
+        background: #f5f5f5;
+        min-height: 100vh;
+      "
+    >
+      <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px">
+        Settings
+      </h1>
+      <div style="background: white; border-radius: 12px; overflow: hidden">
+        <div style="padding: 20px; border-bottom: 1px solid #eee">
+          <h2 style="color: #1976d2; margin: 0 0 15px 0">Account</h2>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 15px 0;
+            "
+          >
+            <div>
+              <p style="margin: 0; font-weight: bold">Profile Information</p>
+              <p style="margin: 5px 0 0 0; color: #666; font-size: 14px">
+                Update your personal details
+              </p>
+            </div>
+            <button
+              style="
+                padding: 8px 15px;
+                background: #1976d2;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              "
+            >
+              Edit
+            </button>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 15px 0;
+            "
+          >
+            <div>
+              <p style="margin: 0; font-weight: bold">Privacy Settings</p>
+              <p style="margin: 5px 0 0 0; color: #666; font-size: 14px">
+                Control your data sharing
+              </p>
+            </div>
+            <button
+              style="
+                padding: 8px 15px;
+                background: #1976d2;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              "
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+        <div style="padding: 20px; border-bottom: 1px solid #eee">
+          <h2 style="color: #1976d2; margin: 0 0 15px 0">Preferences</h2>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 15px 0;
+            "
+          >
+            <div>
+              <p style="margin: 0; font-weight: bold">Notifications</p>
+              <p style="margin: 5px 0 0 0; color: #666; font-size: 14px">
+                Manage your alerts
+              </p>
+            </div>
+            <button
+              style="
+                padding: 8px 15px;
+                background: #1976d2;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              "
+            >
+              Edit
+            </button>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 15px 0;
+            "
+          >
+            <div>
+              <p style="margin: 0; font-weight: bold">Units</p>
+              <p style="margin: 5px 0 0 0; color: #666; font-size: 14px">
+                Choose your measurement system
+              </p>
+            </div>
+            <button
+              style="
+                padding: 8px 15px;
+                background: #1976d2;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              "
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+        <div style="padding: 20px">
+          <h2 style="color: #1976d2; margin: 0 0 15px 0">About</h2>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 15px 0;
+            "
+          >
+            <div>
+              <p style="margin: 0; font-weight: bold">Version</p>
+              <p style="margin: 5px 0 0 0; color: #666; font-size: 14px">
+                Current app version
+              </p>
+            </div>
+            <span>1.0.0</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding: 15px 0;
+            "
+          >
+            <div>
+              <p style="margin: 0; font-weight: bold">Terms of Service</p>
+              <p style="margin: 5px 0 0 0; color: #666; font-size: 14px">
+                Legal information
+              </p>
+            </div>
+            <button
+              style="
+                padding: 8px 15px;
+                background: #1976d2;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              "
+            >
+              View
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

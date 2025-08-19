@@ -1,0 +1,62 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\components\\review.js",
+  "typescript_file": "src\\dojopool\\static\\js\\components\\review.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\review.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "ReviewComponent",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "content",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "reason",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "content",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "ReviewComponent": "\nclass ReviewComponent {\n    // Properties and methods\n}"
+  }
+}

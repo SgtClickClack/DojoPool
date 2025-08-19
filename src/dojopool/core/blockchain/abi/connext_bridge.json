@@ -1,0 +1,9 @@
+[
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "placeholder",
+    "outputs": [{ "name": "", "type": "bool" }],
+    "type": "function"
+  }
+]

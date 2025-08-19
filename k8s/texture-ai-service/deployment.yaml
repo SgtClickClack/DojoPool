@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: texture-ai-service
+  namespace: dojopool
+  labels:
+    app: texture-ai-service
+    component: ai-service
+    version: v1.0.0
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: texture-ai-service
+  template:
+    metadata:
+      labels:
+        app: texture-ai-service
+        component: ai-service
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '3001'
+        prometheus.io/path: '/metrics'
+    spec:
+      serviceAccountName: texture-ai-service
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+        - name: texture-ai-service
+          image: dojopool/texture-ai-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3001
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: TEXTURE_AI_MODEL_PATH
+              value: '/app/models/stable-diffusion-texture'
+            - name: MAX_TEXTURE_RESOLUTION
+              valueFrom:
+                configMapKeyRef:
+                  name: texture-ai-config
+                  key: max-resolution
+            - name: TEXTURE_BATCH_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: texture-ai-config
+                  key: batch-size
+            - name: TEXTURE_GPU_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: texture-ai-config
+                  key: gpu-enabled
+            - name: TEXTURE_CACHE_ENABLED
+              value: 'true'
+            - name: LOG_LEVEL
+              value: 'info'
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: texture-ai-secrets
+                  key: mongodb-uri
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: texture-ai-secrets
+                  key: redis-url
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '250m'
+            limits:
+              memory: '2Gi'
+              cpu: '1000m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: model-storage
+              mountPath: /app/models
+              readOnly: true
+            - name: cache-storage
+              mountPath: /app/cache
+            - name: logs-storage
+              mountPath: /app/logs
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: texture-ai-models-pvc
+        - name: cache-storage
+          emptyDir:
+            sizeLimit: 10Gi
+        - name: logs-storage
+          emptyDir:
+            sizeLimit: 1Gi
+      nodeSelector:
+        workload-type: ai-compute
+      tolerations:
+        - key: 'ai-workload'
+          operator: 'Equal'
+          value: 'true'
+          effect: 'NoSchedule'
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - texture-ai-service
+                topologyKey: kubernetes.io/hostname

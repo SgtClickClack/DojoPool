@@ -1,0 +1,503 @@
+/* ==========================================================================
+   DojoPool Base Styles - Consolidated and Refactored
+   ========================================================================== */
+
+:root {
+  /* Color Variables */
+  --primary-color: #00ff9d;
+  --secondary-color: #ff00ff;
+  --background-color: #0a0a0a;
+  --text-color: #ffffff;
+  --accent-color: #00ffff;
+  --success-color: #00cc7d;
+  --warning-color: #ffaa00;
+  --error-color: #ff4444;
+
+  /* Typography */
+  --font-primary: 'Orbitron', 'Arial', sans-serif;
+  --font-secondary: 'Roboto Mono', 'Courier New', monospace;
+  --font-fallback: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-neon: 0 0 10px rgba(0, 255, 157, 0.5);
+}
+
+/* ==========================================================================
+   Base Elements
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--font-fallback);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.75rem;
+}
+h4 {
+  font-size: 1.5rem;
+}
+h5 {
+  font-size: 1.25rem;
+}
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* ==========================================================================
+   Background Effects
+   ========================================================================== */
+
+.cyber-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  background-image: url('../images/hero-vs.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.4;
+  z-index: -2;
+}
+
+.neon-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(transparent 95%, rgba(0, 255, 157, 0.2) 95%),
+    linear-gradient(90deg, transparent 95%, rgba(0, 255, 157, 0.2) 95%);
+  background-size: 50px 50px;
+  z-index: -1;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.vs-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-family: var(--font-primary);
+  font-size: 20vw;
+  color: rgba(255, 0, 255, 0.1);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Navigation
+   ========================================================================== */
+
+.navbar {
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid var(--primary-color);
+  padding: var(--spacing-md) 0;
+}
+
+.navbar-brand {
+  color: var(--primary-color) !important;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.navbar-brand img {
+  height: 40px;
+  margin-right: var(--spacing-sm);
+}
+
+.nav-link {
+  color: var(--text-color) !important;
+  font-family: var(--font-primary);
+  font-weight: 500;
+  text-transform: uppercase;
+  margin: 0 var(--spacing-md);
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--primary-color) !important;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-color);
+  transition: width var(--transition-normal);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xxl) 0;
+}
+
+.hero-title {
+  font-family: var(--font-primary);
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-xl);
+  text-shadow: var(--shadow-neon);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-xxl);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn-cyber {
+  font-family: var(--font-primary);
+  text-transform: uppercase;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-weight: 600;
+  position: relative;
+  background: var(--primary-color);
+  color: var(--background-color);
+  border: none;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.btn-cyber:hover {
+  background: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 157, 0.4);
+}
+
+.btn-cyber-outline {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-cyber-outline:hover {
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+.hero-buttons .btn {
+  margin: 0 var(--spacing-md);
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.neon-text {
+  color: var(--text-color);
+  text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color),
+    0 0 20px var(--primary-color), 0 0 40px var(--primary-color);
+  animation: neonPulse 2s infinite alternate;
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+.neon-border {
+  position: relative;
+  box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color),
+    0 0 15px var(--accent-color);
+  animation: borderPulse 2s infinite alternate;
+}
+
+.glow-button {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.glow-button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 157, 0.2) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.glow-button:hover::after {
+  opacity: 1;
+}
+
+.particle-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 157, 0.1) 0%,
+    transparent 70%
+  );
+  animation: particleMove 20s infinite alternate;
+}
+
+/* ==========================================================================
+   Material-UI Card Enhancements
+   ========================================================================== */
+
+.MuiCard-root {
+  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.MuiCard-root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(0, 255, 157, 0.1),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 255, 157, 0.2);
+}
+
+.MuiCard-root:hover::before {
+  transform: translateX(100%);
+}
+
+/* ==========================================================================
+   Custom Scrollbar
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    45deg,
+    var(--primary-color),
+    var(--success-color)
+  );
+  border-radius: 4px;
+  border: 2px solid #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    45deg,
+    var(--success-color),
+    var(--primary-color)
+  );
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes neonPulse {
+  from {
+    text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color),
+      0 0 20px var(--primary-color);
+  }
+  to {
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color),
+      0 0 30px var(--primary-color), 0 0 40px var(--primary-color);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes borderPulse {
+  from {
+    box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color),
+      0 0 15px var(--accent-color);
+  }
+  to {
+    box-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color),
+      0 0 30px var(--accent-color);
+  }
+}
+
+@keyframes particleMove {
+  from {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-buttons .btn {
+    margin: var(--spacing-sm);
+    display: block;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.75rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+
+  .nav-link {
+    margin: 0 var(--spacing-sm);
+  }
+}

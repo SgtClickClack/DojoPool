@@ -1,0 +1,330 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Settings layout
+.settings-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: spacing(8) spacing(6);
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: spacing(8);
+
+  @include media-breakpoint-down(lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Settings sidebar
+.settings-sidebar {
+  @include media-breakpoint-down(lg) {
+    display: none;
+
+    &.active {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      background-color: var(--color-background);
+      padding: spacing(4);
+    }
+  }
+
+  .sidebar-header {
+    display: none;
+    margin-bottom: spacing(4);
+
+    @include media-breakpoint-down(lg) {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      @include font-size(xl);
+      @include font-weight(bold);
+      color: var(--color-text-primary);
+    }
+
+    .close-button {
+      width: spacing(10);
+      height: spacing(10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      @include rounded(lg);
+
+      &:hover {
+        background-color: var(--color-surface-hover);
+      }
+    }
+  }
+
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .nav-item {
+      margin-bottom: spacing(1);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: spacing(3);
+      padding: spacing(3) spacing(4);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      @include rounded(lg);
+      @include transition(color, background-color);
+
+      .icon {
+        width: spacing(5);
+        height: spacing(5);
+      }
+
+      &:hover {
+        color: var(--color-text-primary);
+        background-color: var(--color-surface-hover);
+      }
+
+      &.active {
+        color: var(--color-primary-500);
+        background-color: var(--color-primary-50);
+        @include font-weight(medium);
+      }
+    }
+  }
+}
+
+// Settings content
+.settings-content {
+  min-width: 0;
+
+  .content-header {
+    margin-bottom: spacing(8);
+
+    .header-title {
+      margin-bottom: spacing(2);
+      @include font-size(3xl);
+      @include font-weight(bold);
+      color: var(--color-text-primary);
+    }
+
+    .header-description {
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+// Settings section
+.settings-section {
+  padding: spacing(6);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-primary);
+  @include rounded(xl);
+
+  & + & {
+    margin-top: spacing(6);
+  }
+
+  .section-header {
+    margin-bottom: spacing(6);
+
+    .section-title {
+      margin-bottom: spacing(2);
+      @include font-size(xl);
+      @include font-weight(bold);
+      color: var(--color-text-primary);
+    }
+
+    .section-description {
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+// Settings form
+.settings-form {
+  .form-group {
+    margin-bottom: spacing(6);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: spacing(2);
+      @include font-weight(medium);
+      color: var(--color-text-primary);
+    }
+
+    .form-hint {
+      margin-top: spacing(2);
+      color: var(--color-text-secondary);
+      @include font-size(sm);
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: spacing(4);
+    margin-top: spacing(8);
+    padding-top: spacing(6);
+    border-top: 1px solid var(--color-border-primary);
+  }
+}
+
+// Settings list
+.settings-list {
+  .list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: spacing(4) 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+
+    .item-content {
+      .item-title {
+        margin-bottom: spacing(1);
+        @include font-weight(medium);
+        color: var(--color-text-primary);
+      }
+
+      .item-description {
+        color: var(--color-text-secondary);
+        @include font-size(sm);
+      }
+    }
+
+    .item-action {
+      flex-shrink: 0;
+      margin-left: spacing(4);
+    }
+  }
+}
+
+// Settings card
+.settings-card {
+  padding: spacing(4);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border-primary);
+  @include rounded(lg);
+
+  & + & {
+    margin-top: spacing(4);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: spacing(4);
+    margin-bottom: spacing(4);
+
+    .header-icon {
+      width: spacing(10);
+      height: spacing(10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-500);
+      @include rounded(lg);
+
+      .icon {
+        width: spacing(5);
+        height: spacing(5);
+      }
+    }
+
+    .header-content {
+      .header-title {
+        margin-bottom: spacing(1);
+        @include font-weight(medium);
+        color: var(--color-text-primary);
+      }
+
+      .header-description {
+        color: var(--color-text-secondary);
+        @include font-size(sm);
+      }
+    }
+  }
+
+  .card-content {
+    color: var(--color-text-secondary);
+  }
+}
+
+// Settings grid
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: spacing(4);
+}
+
+// Notification preferences
+.notification-preferences {
+  .preference-item {
+    display: flex;
+    align-items: flex-start;
+    gap: spacing(4);
+    padding: spacing(4) 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+
+    .item-icon {
+      width: spacing(10);
+      height: spacing(10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-surface-hover);
+      @include rounded(lg);
+
+      .icon {
+        width: spacing(5);
+        height: spacing(5);
+        color: var(--color-text-secondary);
+      }
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+
+      .item-title {
+        margin-bottom: spacing(1);
+        @include font-weight(medium);
+        color: var(--color-text-primary);
+      }
+
+      .item-description {
+        color: var(--color-text-secondary);
+        @include font-size(sm);
+      }
+    }
+
+    .item-toggle {
+      flex-shrink: 0;
+      margin-left: spacing(4);
+    }
+  }
+}

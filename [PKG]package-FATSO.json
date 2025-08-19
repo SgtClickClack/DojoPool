@@ -1,0 +1,69 @@
+{
+  "name": "dojopool",
+  "version": "1.0.0",
+  "description": "DojoPool is a platform combining AI-powered training, analytics, and community features to help pool players improve their game, with image optimization and A/B testing capabilities.",
+  "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "node build-wasm.js && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "npm install --package-lock-only --no-package-lock --prefix test && jest",
+    "build:wasm": "node build-wasm.js",
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/dojopool"
+  },
+  "author": "Your Name or Organization <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/dojopool/issues"
+  },
+  "homepage": "https://your-dojopool-website.com",
+  "dependencies": {
+    "@firebase/auth": "^1.8.2",
+    "@mui/icons-material": "^6.4.1",
+    "@mui/x-date-pickers": "^7.24.0",
+    "@types/node": "^20.11.24",
+    "@types/react-dom": "^18.2.19",
+    "bootstrap": "^5.3.0",
+    "chart.js": "^4.0.0",
+    "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
+    "events": "^3.3.0",
+    "firebase": "^11.2.0",
+    "next": "^15.1.6",
+    "notistack": "^3.0.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.12.1",
+    "styled-jsx": "^5.1.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.26.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.1",
+    "@types/bootstrap": "^5.2.10",
+    "@types/chart.js": "^2.9.41",
+    "@types/jquery": "^3.5.32",
+    "@types/pako": "^2.0.3",
+    "@types/react": "^19.0.7",
+    "@types/socket.io-client": "^1.4.36",
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
+    "axios": "^1.7.9",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.1.0",
+    "identity-obj-proxy": "^3.0.0",
+    "pako": "^2.1.0",
+    "prettier": "^3.2.5",
+    "wasm-loader": "^1.3.0"
+  }
+}

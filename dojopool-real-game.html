@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DojoPool - Pokémon Meets Pool</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Orbitron', monospace;
+        background: linear-gradient(
+          135deg,
+          #0a0a0a 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        color: #00ff88;
+        overflow-x: hidden;
+      }
+
+      .app-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .navbar {
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 2px solid #00ff88;
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .nav-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #00ff88;
+        text-shadow: 0 0 20px #00ff88;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .logo:hover {
+        text-shadow: 0 0 30px #00ff88;
+        transform: scale(1.05);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-link {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+      }
+
+      .nav-link.active {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+      }
+
+      .main-content {
+        flex: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .hero-title {
+        font-size: 3rem;
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 30px #00ff88;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 20px #00ff88;
+        }
+
+        to {
+          text-shadow:
+            0 0 30px #00ff88,
+            0 0 40px #00ff88;
+        }
+      }
+
+      .hero-subtitle {
+        font-size: 1.2rem;
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #88ffaa;
+      }
+
+      .world-map {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ff88;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        min-height: 400px;
+      }
+
+      .map-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .dojo-tile {
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid #00ff88;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .dojo-tile:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+      }
+
+      .dojo-tile.controlled {
+        background: rgba(255, 107, 107, 0.2);
+        border-color: #ff6b6b;
+      }
+
+      .dojo-tile.available {
+        background: rgba(255, 215, 0, 0.2);
+        border-color: #ffd700;
+      }
+
+      .dojo-name {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .dojo-controller {
+        font-size: 0.8rem;
+        color: #88ffaa;
+      }
+
+      .player-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #00ff88;
+        border-radius: 10px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+      }
+
+      .stat-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #00ff88;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #00ffaa;
+      }
+
+      .pool-gods {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #ff6b6b;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .god-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #ff6b6b;
+        text-align: center;
+      }
+
+      .gods-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+      }
+
+      .god-card {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid #ff6b6b;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .god-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .god-name {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #ff6b6b;
+      }
+
+      .god-description {
+        color: #88ffaa;
+        font-size: 0.9rem;
+      }
+
+      .clan-wars {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #ffd700;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .clan-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #ffd700;
+        text-align: center;
+      }
+
+      .clan-battle {
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid #ffd700;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .battle-clans {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .clan-name {
+        font-weight: 700;
+        color: #ffd700;
+      }
+
+      .battle-score {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #00ff88;
+      }
+
+      .territory {
+        font-size: 0.8rem;
+        color: #88ffaa;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+      }
+
+      .feature-card {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #00ff88;
+        border-radius: 15px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+        border-color: #00ffaa;
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #00ff88;
+      }
+
+      .feature-description {
+        color: #88ffaa;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+      }
+
+      .feature-button {
+        background: linear-gradient(45deg, #00ff88, #00ffaa);
+        color: #000;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        font-family: 'Orbitron', monospace;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .feature-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+      }
+
+      .story-event {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #ff6b6b;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        animation: storyGlow 3s ease-in-out infinite;
+      }
+
+      @keyframes storyGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        50% {
+          box-shadow: 0 0 40px rgba(255, 107, 107, 0.6);
+        }
+      }
+
+      .story-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #ff6b6b;
+        text-align: center;
+      }
+
+      .story-text {
+        color: #88ffaa;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .story-choice {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid #ff6b6b;
+        border-radius: 5px;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .story-choice:hover {
+        background: rgba(255, 107, 107, 0.2);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #00ff88;
+      }
+
+      .error {
+        background: rgba(255, 68, 68, 0.2);
+        border: 1px solid #ff4444;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+        color: #ff4444;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      // Game Data
+      const DOJOS = [
+        {
+          id: 1,
+          name: 'Jade Tiger',
+          controller: 'RyuKlaw',
+          clan: 'Crimson Monkey',
+          status: 'controlled',
+        },
+        {
+          id: 2,
+          name: 'Iron Fist',
+          controller: 'ShadowStrike',
+          clan: 'Azure Dragon',
+          status: 'controlled',
+        },
+        {
+          id: 3,
+          name: 'Golden Phoenix',
+          controller: null,
+          clan: null,
+          status: 'available',
+        },
+        {
+          id: 4,
+          name: 'Silver Wolf',
+          controller: 'NightFang',
+          clan: 'Golden Phoenix',
+          status: 'controlled',
+        },
+        {
+          id: 5,
+          name: 'Crimson Monkey',
+          controller: null,
+          clan: null,
+          status: 'available',
+        },
+        {
+          id: 6,
+          name: 'Azure Dragon',
+          controller: 'StormBreaker',
+          clan: 'Azure Dragon',
+          status: 'controlled',
+        },
+        {
+          id: 7,
+          name: 'Emerald Serpent',
+          controller: null,
+          clan: null,
+          status: 'available',
+        },
+        {
+          id: 8,
+          name: 'Obsidian Bear',
+          controller: 'ThunderClaw',
+          clan: 'Crimson Monkey',
+          status: 'controlled',
+        },
+        {
+          id: 9,
+          name: 'Crystal Eagle',
+          controller: null,
+          clan: null,
+          status: 'available',
+        },
+        {
+          id: 10,
+          name: 'Sapphire Shark',
+          controller: 'WaveRider',
+          clan: 'Azure Dragon',
+          status: 'controlled',
+        },
+        {
+          id: 11,
+          name: 'Ruby Lion',
+          controller: null,
+          clan: null,
+          status: 'available',
+        },
+        {
+          id: 12,
+          name: 'Diamond Deer',
+          controller: 'ForestWalker',
+          clan: 'Golden Phoenix',
+          status: 'controlled',
+        },
+      ];
+
+      const POOL_GODS = [
+        {
+          name: 'The AI Umpire',
+          icon: '🤖',
+          description:
+            'Oversees matches, enforces fairness, and watches over all games. Makes controversial calls that create rivalries.',
+        },
+        {
+          name: 'The Match Commentator',
+          icon: '🎤',
+          description:
+            'Narrates key match moments with wit and drama. Provides story context and character development.',
+        },
+        {
+          name: 'The God of Luck (Fluke)',
+          icon: '🍀',
+          description:
+            'Said to reward those who show humility, fun, and flair. Grants unexpected moments of fortune and magic.',
+        },
+      ];
+
+      const CLAN_WARS = [
+        {
+          id: 1,
+          clan1: 'Crimson Monkey',
+          clan2: 'Azure Dragon',
+          score: '3-2',
+          territory: 'Jade Tiger',
+          status: 'active',
+        },
+        {
+          id: 2,
+          clan1: 'Golden Phoenix',
+          clan2: 'Silver Wolf',
+          score: '1-4',
+          territory: 'Iron Fist',
+          status: 'active',
+        },
+      ];
+
+      // Main App Component
+      const App = () => {
+        const [currentPage, setCurrentPage] = useState('world-map');
+        const [playerData, setPlayerData] = useState({
+          name: 'RyuKlaw',
+          level: 15,
+          xp: 2840,
+          clan: 'Crimson Monkey',
+          achievements: 23,
+          territory: {
+            owned: 5,
+            total: 12,
+            currentObjective: 'Defend Jade Tiger Dojo',
+          },
+          coins: 1250,
+          avatar: '🐒',
+          storyProgress: 0.75,
+        });
+        const [selectedDojo, setSelectedDojo] = useState(null);
+        const [storyEvent, setStoryEvent] = useState(null);
+        const [aiCommentary, setAiCommentary] = useState([]);
+
+        useEffect(() => {
+          // Simulate backend connection
+          fetch('http://localhost:8080/api/health')
+            .then((response) => response.json())
+            .then((data) => {
+              console.log('Backend connected:', data);
+            })
+            .catch((error) => {
+              console.error('Backend error:', error);
+            });
+        }, []);
+
+        const handleDojoClick = (dojo) => {
+          setSelectedDojo(dojo);
+          if (dojo.controller) {
+            // Challenge the controller
+            setStoryEvent({
+              type: 'challenge',
+              title: `Challenge ${dojo.controller}`,
+              text: `You approach ${dojo.name} Dojo, controlled by ${dojo.controller} of the ${dojo.clan} clan. The air crackles with anticipation as you prepare for battle.`,
+              choices: [
+                { text: 'Challenge to a Pool Battle', action: 'battle' },
+                { text: 'Negotiate Territory', action: 'negotiate' },
+                { text: 'Leave for now', action: 'leave' },
+              ],
+            });
+          } else {
+            // Claim the dojo
+            setStoryEvent({
+              type: 'claim',
+              title: `Claim ${dojo.name} Dojo`,
+              text: `${dojo.name} Dojo stands unclaimed. This is your chance to establish your territory and begin your legend.`,
+              choices: [
+                { text: 'Claim Territory', action: 'claim' },
+                { text: 'Explore the area first', action: 'explore' },
+                { text: 'Leave for now', action: 'leave' },
+              ],
+            });
+          }
+        };
+
+        const handleStoryChoice = (choice) => {
+          if (choice.action === 'battle') {
+            setAiCommentary((prev) => [
+              ...prev,
+              {
+                god: 'The AI Umpire',
+                text: 'The challenge has been accepted! Let the battle begin!',
+                timestamp: new Date().toISOString(),
+              },
+            ]);
+            setStoryEvent({
+              type: 'battle',
+              title: 'Pool Battle Begins',
+              text: `You and ${selectedDojo.controller} face off across the pool table. The AI Umpire watches closely, ready to enforce the rules.`,
+              choices: [
+                { text: 'Make your first shot', action: 'shot' },
+                { text: 'Study the table', action: 'study' },
+                { text: 'Call for Pool God blessing', action: 'blessing' },
+              ],
+            });
+          } else if (choice.action === 'claim') {
+            setPlayerData((prev) => ({
+              ...prev,
+              territory: {
+                ...prev.territory,
+                owned: prev.territory.owned + 1,
+              },
+              coins: prev.coins + 100,
+            }));
+            setAiCommentary((prev) => [
+              ...prev,
+              {
+                god: 'The God of Luck (Fluke)',
+                text: 'The Pool Gods smile upon your boldness! Territory claimed!',
+                timestamp: new Date().toISOString(),
+              },
+            ]);
+            setStoryEvent(null);
+            setSelectedDojo(null);
+          } else {
+            setStoryEvent(null);
+            setSelectedDojo(null);
+          }
+        };
+
+        const renderWorldMap = () => (
+          <div className="main-content">
+            <h1 className="hero-title">🗺️ DojoPool World Map</h1>
+            <p className="hero-subtitle">
+              Explore the territory, challenge rivals, and claim your destiny
+            </p>
+
+            <div className="player-stats">
+              <div className="stat-card">
+                <div className="stat-title">Player Level</div>
+                <div className="stat-value">{playerData.level}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-title">Territory Owned</div>
+                <div className="stat-value">
+                  {playerData.territory.owned}/{playerData.territory.total}
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-title">Dojo Coins</div>
+                <div className="stat-value">{playerData.coins}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-title">Story Progress</div>
+                <div className="stat-value">
+                  {Math.round(playerData.storyProgress * 100)}%
+                </div>
+              </div>
+            </div>
+
+            <div className="world-map">
+              <h2 className="god-title">🏛️ Territory Map</h2>
+              <div className="map-grid">
+                {DOJOS.map((dojo) => (
+                  <div
+                    key={dojo.id}
+                    className={`dojo-tile ${dojo.status}`}
+                    onClick={() => handleDojoClick(dojo)}
+                  >
+                    <div className="dojo-name">{dojo.name}</div>
+                    {dojo.controller ? (
+                      <div className="dojo-controller">
+                        Controlled by {dojo.controller}
+                        <br />
+                        Clan: {dojo.clan}
+                      </div>
+                    ) : (
+                      <div className="dojo-controller">Available</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {storyEvent && (
+              <div className="story-event">
+                <div className="story-title">{storyEvent.title}</div>
+                <div className="story-text">{storyEvent.text}</div>
+                {storyEvent.choices.map((choice, index) => (
+                  <div
+                    key={index}
+                    className="story-choice"
+                    onClick={() => handleStoryChoice(choice)}
+                  >
+                    {choice.text}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {aiCommentary.length > 0 && (
+              <div className="pool-gods">
+                <div className="god-title">🤖 AI Commentary</div>
+                {aiCommentary.slice(-3).map((comment, index) => (
+                  <div key={index} className="god-card">
+                    <div className="god-name">{comment.god}</div>
+                    <div className="god-description">"{comment.text}"</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+        const renderClanWars = () => (
+          <div className="main-content">
+            <h1 className="hero-title">⚔️ Clan Wars</h1>
+            <p className="hero-subtitle">
+              Epic territory battles and clan dominance
+            </p>
+
+            <div className="clan-wars">
+              <div className="clan-title">🏆 Active Battles</div>
+              {CLAN_WARS.map((battle) => (
+                <div key={battle.id} className="clan-battle">
+                  <div className="battle-clans">
+                    <div className="clan-name">{battle.clan1}</div>
+                    <div className="battle-score">{battle.score}</div>
+                    <div className="clan-name">{battle.clan2}</div>
+                  </div>
+                  <div className="territory">Territory: {battle.territory}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="feature-grid">
+              <div className="feature-card">
+                <div className="feature-icon">🎯</div>
+                <div className="feature-title">Join Battle</div>
+                <div className="feature-description">
+                  Enter the fray and fight for your clan's honor in real-time
+                  territory battles.
+                </div>
+                <button className="feature-button">Enter Battle</button>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon">🏰</div>
+                <div className="feature-title">Clan Strategy</div>
+                <div className="feature-description">
+                  Plan your clan's territorial expansion and coordinate with
+                  allies.
+                </div>
+                <button className="feature-button">Plan Strategy</button>
+              </div>
+            </div>
+          </div>
+        );
+
+        const renderPoolGods = () => (
+          <div className="main-content">
+            <h1 className="hero-title">🏛️ Pool Gods</h1>
+            <p className="hero-subtitle">
+              The divine forces that watch over all pool battles
+            </p>
+
+            <div className="gods-grid">
+              {POOL_GODS.map((god, index) => (
+                <div key={index} className="god-card">
+                  <div className="god-icon">{god.icon}</div>
+                  <div className="god-name">{god.name}</div>
+                  <div className="god-description">{god.description}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="feature-grid">
+              <div className="feature-card">
+                <div className="feature-icon">🙏</div>
+                <div className="feature-title">Seek Blessing</div>
+                <div className="feature-description">
+                  Pray to the Pool Gods for luck and favor in your next match.
+                </div>
+                <button className="feature-button">Pray</button>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon">📜</div>
+                <div className="feature-title">Godly Wisdom</div>
+                <div className="feature-description">
+                  Learn the ancient techniques and strategies passed down by the
+                  Pool Gods.
+                </div>
+                <button className="feature-button">Learn</button>
+              </div>
+            </div>
+          </div>
+        );
+
+        const renderPage = () => {
+          switch (currentPage) {
+            case 'world-map':
+              return renderWorldMap();
+            case 'clan-wars':
+              return renderClanWars();
+            case 'pool-gods':
+              return renderPoolGods();
+            case 'tournaments':
+              return (
+                <div className="main-content">
+                  <h1 className="hero-title">🏆 Tournaments</h1>
+                  <p className="hero-subtitle">Compete for glory and prizes</p>
+                  <div className="feature-grid">
+                    <div className="feature-card">
+                      <div className="feature-icon">🎯</div>
+                      <div className="feature-title">Join Tournament</div>
+                      <div className="feature-description">
+                        Enter live tournaments with real-time brackets and AI
+                        commentary.
+                      </div>
+                      <button className="feature-button">Enter</button>
+                    </div>
+                    <div className="feature-card">
+                      <div className="feature-icon">🏅</div>
+                      <div className="feature-title">Tournament History</div>
+                      <div className="feature-description">
+                        View your tournament achievements and championship
+                        records.
+                      </div>
+                      <button className="feature-button">View</button>
+                    </div>
+                  </div>
+                </div>
+              );
+            case 'avatar':
+              return (
+                <div className="main-content">
+                  <h1 className="hero-title">👤 Avatar Progression</h1>
+                  <p className="hero-subtitle">
+                    Evolve your character and unlock achievements
+                  </p>
+                  <div className="feature-grid">
+                    <div className="feature-card">
+                      <div className="feature-icon">{playerData.avatar}</div>
+                      <div className="feature-title">Character Evolution</div>
+                      <div className="feature-description">
+                        Your avatar evolves based on your achievements and story
+                        progression.
+                      </div>
+                      <button className="feature-button">Evolve</button>
+                    </div>
+                    <div className="feature-card">
+                      <div className="feature-icon">🏆</div>
+                      <div className="feature-title">Achievements</div>
+                      <div className="feature-description">
+                        Unlock achievements and special abilities through your
+                        pool mastery.
+                      </div>
+                      <button className="feature-button">View</button>
+                    </div>
+                  </div>
+                </div>
+              );
+            default:
+              return renderWorldMap();
+          }
+        };
+
+        return (
+          <div className="app-container">
+            <nav className="navbar">
+              <div className="nav-content">
+                <div
+                  className="logo"
+                  onClick={() => setCurrentPage('world-map')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  🎱 DojoPool
+                </div>
+                <div className="nav-links">
+                  <div
+                    className={`nav-link ${currentPage === 'world-map' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('world-map')}
+                  >
+                    World Map
+                  </div>
+                  <div
+                    className={`nav-link ${currentPage === 'clan-wars' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('clan-wars')}
+                  >
+                    Clan Wars
+                  </div>
+                  <div
+                    className={`nav-link ${currentPage === 'pool-gods' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('pool-gods')}
+                  >
+                    Pool Gods
+                  </div>
+                  <div
+                    className={`nav-link ${currentPage === 'tournaments' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('tournaments')}
+                  >
+                    Tournaments
+                  </div>
+                  <div
+                    className={`nav-link ${currentPage === 'avatar' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('avatar')}
+                  >
+                    Avatar
+                  </div>
+                </div>
+              </div>
+            </nav>
+            {renderPage()}
+          </div>
+        );
+      };
+
+      // Render the app
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Authentication check
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Image validation
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024; // 5MB max
+    }
+    
+    // Profile images
+    match /users/{userId}/profile/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() 
+        && request.auth.uid == userId
+        && isValidImage();
+    }
+    
+    // Game recordings
+    match /games/{gameId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() 
+        && exists(/databases/$(database)/documents/games/$(gameId))
+        && (
+          get(/databases/$(database)/documents/games/$(gameId)).data.createdBy == request.auth.uid ||
+          get(/databases/$(database)/documents/games/$(gameId)).data.participants[request.auth.uid] == true
+        );
+    }
+    
+    // Venue images
+    match /venues/{venueId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        && isValidImage();
+    }
+  }
+} 

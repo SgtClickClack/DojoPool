@@ -1,0 +1,54 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\sync-manager.js",
+  "typescript_file": "src\\dojopool\\static\\js\\sync-manager.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\sync-manager.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "SyncManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "unsyncedGames",
+        "type": "any"
+      },
+      {
+        "name": "syncQueue",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "success",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "event",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "SyncManager": "\nclass SyncManager {\n    // Properties and methods\n}"
+  }
+}

@@ -1,0 +1,17 @@
+2025-01-28 11:59:23,379 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\.next\server\vendor-chunks\@mui.js: 'charmap' codec can't decode byte 0x90 in position 46841: character maps to <undefined>
+2025-01-28 11:59:23,482 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\.next\static\chunks\polyfills.js: 'charmap' codec can't decode byte 0x81 in position 31097: character maps to <undefined>
+2025-01-28 11:59:23,485 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\.next\static\chunks\pages\404.js: 'charmap' codec can't decode byte 0x90 in position 21235: character maps to <undefined>
+2025-01-28 11:59:23,486 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\.next\static\chunks\pages\login.js: 'charmap' codec can't decode byte 0x90 in position 54699: character maps to <undefined>
+2025-01-28 11:59:23,498 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\.next\static\chunks\pages\_app.js: 'charmap' codec can't decode byte 0x9d in position 206714: character maps to <undefined>
+2025-01-28 11:59:23,807 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\backups\js_migration\map.js: 'charmap' codec can't decode byte 0x8d in position 24341: character maps to <undefined>
+2025-01-28 11:59:23,814 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\backups\js_migration\VenueInfoWindow.js: 'charmap' codec can't decode byte 0x8f in position 4121: character maps to <undefined>
+2025-01-28 11:59:23,845 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\core\config\achievements.py: 'charmap' codec can't decode byte 0x8f in position 5694: character maps to <undefined>
+2025-01-28 11:59:24,002 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\static\js\alerts-ui.js: 'charmap' codec can't decode byte 0x8f in position 1827: character maps to <undefined>
+2025-01-28 11:59:24,006 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\static\js\map.js: 'charmap' codec can't decode byte 0x90 in position 5672: character maps to <undefined>
+2025-01-28 11:59:24,016 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\static\js\components\VenueInfoWindow.js: 'charmap' codec can't decode byte 0x8f in position 4121: character maps to <undefined>
+2025-01-28 11:59:24,024 - ERROR - Error checking file C:\Users\JR\Documents\DojoPool\DojoPoolCombined\src\dojopool\tests\runTests.js: 'charmap' codec can't decode byte 0x9d in position 1140: character maps to <undefined>
+2025-01-28 11:59:24,038 - INFO - Security check completed in 0.91 seconds
+2025-01-28 11:59:24,039 - INFO - Found 15 issues:
+2025-01-28 11:59:24,039 - INFO -   - 14 high severity
+2025-01-28 11:59:24,039 - INFO -   - 1 medium severity
+2025-01-28 11:59:24,040 - INFO - Report saved to C:\Users\JR\Documents\DojoPool\DojoPoolCombined\docs\cleanup\security_reports\security_check_20250128_005923.json

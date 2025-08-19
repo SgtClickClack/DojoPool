@@ -1,0 +1,76 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\service-worker.js",
+  "typescript_file": "src\\dojopool\\static\\js\\service-worker.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\service-worker.js",
+  "analysis": {
+    "functions": [
+      {
+        "name": "getPendingActions",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "removePendingAction",
+        "params": ["actionId"],
+        "return_type": "any"
+      }
+    ],
+    "classes": [],
+    "variables": [
+      {
+        "name": "CACHE_NAME",
+        "type": "any"
+      },
+      {
+        "name": "STATIC_CACHE",
+        "type": "any"
+      },
+      {
+        "name": "DYNAMIC_CACHE",
+        "type": "any"
+      },
+      {
+        "name": "API_CACHE",
+        "type": "any"
+      },
+      {
+        "name": "STATIC_ASSETS",
+        "type": "any"
+      },
+      {
+        "name": "API_ROUTES",
+        "type": "any"
+      },
+      {
+        "name": "url",
+        "type": "any"
+      },
+      {
+        "name": "clonedResponse",
+        "type": "any"
+      },
+      {
+        "name": "clonedResponse",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "options",
+        "type": "any"
+      },
+      {
+        "name": "url",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "getPendingActions": "\nfunction getPendingActions(): any {\n    // Implementation\n}",
+    "removePendingAction": "\nfunction removePendingAction(actionId: any): any {\n    // Implementation\n}"
+  }
+}

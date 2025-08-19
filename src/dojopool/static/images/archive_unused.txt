@@ -1,0 +1,18 @@
+# DojoPool Unused/Archived Images
+
+This file lists images that have been moved out of the main static/images/ tree because they are not referenced in code or templates.
+
+## Archived Images
+- backgrounds/dragon.webp
+- backgrounds/fox.webp
+- backgrounds/infinity.webp
+- backgrounds/mask.webp
+- backgrounds/microchipball.webp
+- backgrounds/octopus.webp
+- backgrounds/portalball.webp
+- backgrounds/spacetable.webp
+- backgrounds/yinyang.webp
+
+If you need to restore any of these, move them back to their original location. If you are certain they are not needed, you may delete them after review.
+
+# (Add more as discovered in future cleanups)

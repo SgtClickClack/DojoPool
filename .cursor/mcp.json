@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "PocketPick": {
+      "name": "PocketPick",
+      "version": "0.1.0",
+      "description": "MCP server for PocketPick personal knowledge base.",
+      "command": "uv",
+      "args": [
+        "run",
+        "mcp-server-pocket-pick",
+        "--database",
+        "./database.db",
+        "-vv"
+      ],
+      "cwd": "C:\\Users\\Lenovo ThinkCentre\\OneDrive\\Documents\\GitHub\\dojopool\\pocket-pick",
+      "environment": {},
+      "startup_timeout_ms": 10000,
+      "initialization_options": {},
+      "tools": [],
+      "experimental": true,
+      "language": "python"
+    }
+  }
+}

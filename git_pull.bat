@@ -1,0 +1,13 @@
+@echo off
+echo Checking Git status...
+git status
+echo.
+echo Checking remote repositories...
+git remote -v
+echo.
+echo Pulling from remote...
+git pull
+echo.
+echo Final status...
+git status
+pause 

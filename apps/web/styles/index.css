@@ -1,0 +1,50 @@
+/* ==========================================================================
+   DojoPool Styles - Main Entry Point
+   ========================================================================== */
+
+/* Import base styles first */
+@import './base.css';
+
+/* Import utility classes */
+@import './utilities.css';
+
+/* Import component-specific styles */
+@import './tournaments.scss';
+@import './venues.scss';
+
+/* ==========================================================================
+   Global Overrides and Final Adjustments
+   ========================================================================== */
+
+/* Ensure proper font loading */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Roboto+Mono:wght@400;500;600&display=swap');
+
+/* ==========================================================================
+   Critical CSS for Above-the-Fold Content
+   ========================================================================== */
+
+/* Optimize critical rendering path */
+.critical {
+  contain: layout style paint;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .cyber-background,
+  .neon-grid,
+  .vs-overlay {
+    display: none !important;
+  }
+}

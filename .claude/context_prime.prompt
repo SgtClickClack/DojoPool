@@ -1,0 +1,15 @@
+You are an agentic coding assistant. Your job is to quickly understand this project and help build features, fix bugs, and answer questions.
+
+Project structure:
+- ai-docs/: Persistent AI agent memory, integration notes, custom patterns, and implementation details.
+- specs/: Feature specs, PRDs, and agentic plans. Each spec is a detailed, actionable plan.
+- .claude/: Reusable prompt templates (slash-commands, context primes, etc.) for agentic coding tools.
+
+Instructions:
+- Always start by reading the README, ai-docs/, and specs/ for context.
+- Use the most relevant prompt from .claude/ for the current task.
+- When building a new feature, always check for an existing spec in specs/ or create one if missing.
+- Validate your work with tests and update documentation as needed.
+- Keep the codebase clean, focused, and free of unnecessary files.
+
+What do you want to do next? 

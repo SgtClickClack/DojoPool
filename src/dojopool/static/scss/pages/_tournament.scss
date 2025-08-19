@@ -1,0 +1,270 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Tournament header
+.tournament-header {
+  position: relative;
+  padding: spacing(8) 0;
+  margin-bottom: spacing(8);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-primary);
+
+  .tournament-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 spacing(6);
+  }
+
+  .tournament-title {
+    margin-bottom: spacing(2);
+    @include font-size(4xl);
+    @include font-weight(bold);
+    color: var(--color-text-primary);
+  }
+
+  .tournament-meta {
+    display: flex;
+    align-items: center;
+    gap: spacing(6);
+    margin-bottom: spacing(6);
+    color: var(--color-text-secondary);
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: spacing(2);
+
+      .icon {
+        width: spacing(5);
+        height: spacing(5);
+        color: var(--color-text-tertiary);
+      }
+    }
+  }
+
+  .tournament-status {
+    display: inline-flex;
+    align-items: center;
+    gap: spacing(2);
+    padding: spacing(2) spacing(4);
+    margin-bottom: spacing(6);
+    background-color: var(--color-surface-hover);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(full);
+
+    .status-indicator {
+      width: spacing(3);
+      height: spacing(3);
+      background-color: var(--color-success-500);
+      @include rounded(full);
+
+      &.upcoming {
+        background-color: var(--color-warning-500);
+      }
+
+      &.ended {
+        background-color: var(--color-text-tertiary);
+      }
+    }
+
+    .status-text {
+      @include font-weight(medium);
+      color: var(--color-text-primary);
+    }
+  }
+
+  .tournament-actions {
+    display: flex;
+    gap: spacing(4);
+  }
+}
+
+// Tournament bracket
+.tournament-bracket {
+  max-width: 1200px;
+  margin: 0 auto spacing(8);
+  padding: 0 spacing(6);
+  overflow-x: auto;
+
+  .bracket-container {
+    min-width: 800px;
+    padding: spacing(8);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(xl);
+  }
+
+  .bracket-rounds {
+    display: flex;
+    gap: spacing(8);
+  }
+
+  .bracket-round {
+    flex: 1;
+
+    .round-title {
+      margin-bottom: spacing(4);
+      text-align: center;
+      @include font-weight(medium);
+      color: var(--color-text-primary);
+    }
+
+    .round-matches {
+      display: flex;
+      flex-direction: column;
+      gap: spacing(4);
+    }
+  }
+
+  .bracket-match {
+    padding: spacing(4);
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(lg);
+
+    .match-teams {
+      display: flex;
+      flex-direction: column;
+      gap: spacing(2);
+    }
+
+    .match-team {
+      display: flex;
+      align-items: center;
+      gap: spacing(4);
+      padding: spacing(2);
+      @include rounded(md);
+      @include transition(background-color);
+
+      &:hover {
+        background-color: var(--color-surface-hover);
+      }
+
+      &.winner {
+        background-color: var(--color-success-100);
+        border: 1px solid var(--color-success-200);
+      }
+
+      .team-info {
+        flex-grow: 1;
+
+        .team-name {
+          @include font-weight(medium);
+          color: var(--color-text-primary);
+        }
+
+        .team-seed {
+          color: var(--color-text-secondary);
+          @include font-size(sm);
+        }
+      }
+
+      .team-score {
+        padding: spacing(1) spacing(3);
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border-primary);
+        @include rounded(md);
+        @include font-weight(medium);
+        color: var(--color-text-primary);
+      }
+    }
+  }
+}
+
+// Tournament participants
+.tournament-participants {
+  max-width: 1200px;
+  margin: 0 auto spacing(8);
+  padding: 0 spacing(6);
+
+  .participants-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: spacing(6);
+
+    .header-title {
+      @include font-size(2xl);
+      @include font-weight(bold);
+      color: var(--color-text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: spacing(4);
+    }
+  }
+
+  .participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: spacing(6);
+  }
+
+  .participant-card {
+    padding: spacing(6);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(xl);
+    @include transition(transform, box-shadow);
+
+    &:hover {
+      transform: translateY(-2px);
+      @include shadow(md);
+    }
+
+    .participant-header {
+      display: flex;
+      align-items: center;
+      gap: spacing(4);
+      margin-bottom: spacing(4);
+
+      .participant-avatar {
+        width: spacing(16);
+        height: spacing(16);
+        @include rounded(full);
+      }
+
+      .participant-info {
+        .participant-name {
+          margin-bottom: spacing(1);
+          @include font-weight(medium);
+          color: var(--color-text-primary);
+        }
+
+        .participant-rank {
+          color: var(--color-text-secondary);
+          @include font-size(sm);
+        }
+      }
+    }
+
+    .participant-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: spacing(4);
+      margin-bottom: spacing(4);
+
+      .stat-item {
+        text-align: center;
+
+        .stat-value {
+          margin-bottom: spacing(1);
+          @include font-size(xl);
+          @include font-weight(bold);
+          color: var(--color-text-primary);
+        }
+
+        .stat-label {
+          color: var(--color-text-secondary);
+          @include font-size(sm);
+        }
+      }
+    }
+
+    .participant-actions {
+      display: flex;
+      gap: spacing(4);
+    }
+  }
+}

@@ -1,0 +1,27 @@
+*   [33m15ad1a6[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #1 from SgtClickClack/master
+[31m|[m[32m\[m  
+[31m|[m * [33m37db158[m[33m ([m[1;31morigin/master[m[33m)[m sortout big time
+[31m|[m[31m/[m  
+*   [33m38244b4[m Resolved merge conflict for Dojo_Pool/TheRolePlayAssistant
+[33m|[m[34m\[m  
+* [34m|[m [33mf15c8a5[m [Update] Commit changes in combined submodule
+[34m|[m [34m|[m * [33m11483fd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m gitmod
+[34m|[m [34m|[m * [33m1c37d2f[m Update combined
+[34m|[m [34m|[m * [33m1cada87[m Update Requirements.txt
+[34m|[m [34m|[m[34m/[m  
+[34m|[m * [33m474b1e1[m [Feature] Add DojoPoolEnhancer as submodule
+[34m|[m * [33m9facc06[m Create DojoPoolEnhancer (2)
+[34m|[m * [33m235b367[m environment update
+[34m|[m * [33m5323c16[m Python config
+[34m|[m * [33m96e9e52[m cleanupscript
+[34m|[m * [33m81fac48[m Organize project files into structured directories
+[34m|[m * [33m1be4fc6[m directory shuffle update
+[34m|[m * [33m34988ae[m directory shuffle update
+[34m|[m[34m/[m  
+* [33m1a2b54a[m Remove node_modules and apply gitignore rules
+* [33maf558b5[m Initial commit after reinitializing Git repository
+* [33m1fa663b[m testing testies
+* [33mb1073f5[m css and stuff
+* [33mc0fd267[m Added real-time Socket.IO updates for anime stream and enhanced live interaction features
+* [33mdcc6162[m[33m ([m[1;31morigin/feature/your-feature-name[m[33m)[m Updated submodule DojoPoolEnhancer
+* [33m05d91b7[m DojoPoolFirstCommit
